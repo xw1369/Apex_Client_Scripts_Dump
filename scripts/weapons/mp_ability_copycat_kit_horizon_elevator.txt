@@ -1,0 +1,14 @@
+#base "mp_ability_copycat_kit.txt"
+
+WeaponData
+{
+	"printname"   									"#SURVIVAL_PICKUP_COPYCAT_KIT_HORIZON"
+	"shortprintname"								"#SURVIVAL_PICKUP_COPYCAT_KIT"
+	"description" 									"#SURVIVAL_PICKUP_COPYCAT_KIT_HINT_TACT"
+	"longdesc" 										"#SURVIVAL_PICKUP_COPYCAT_KIT_HINT_TACT"
+
+	"menu_icon"										"rui/hud/tactical_icons/tactical_nova"
+    "hud_icon"										"rui/hud/tactical_icons/tactical_nova"
+
+	"disguise_ability"                              "mp_ability_space_elevator_tac"
+}

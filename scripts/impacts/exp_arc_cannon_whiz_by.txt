@@ -1,0 +1,14 @@
+// "Gamematerial" "effect_name"
+
+
+ImpactTable
+{
+	Info
+	{
+		"whizby_sound_from_player"	"Bullets.EnergyNearmiss"
+		"whizby_sound_from_AI"		"Bullets.EnergyNearmiss_AIGruntGenerated"
+		"whizby_maxDistancePilot"	"300"
+		"whizby_maxDistanceTitan"	"600"
+	}
+
+}

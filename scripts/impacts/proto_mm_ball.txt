@@ -1,0 +1,161 @@
+// "Gamematerial" "effect_name"
+
+
+ImpactTable
+{
+
+Sound
+	{
+		"C" "Phys_Imp_MaggieBall_Concrete"
+		"D" "Phys_Imp_MaggieBall_Dirt"
+		"E" "Phys_Imp_MaggieBall_Metal"
+
+		"F" "none"  //flesh?
+		"G" "Phys_Imp_MaggieBall_Metal"
+		"H" "Phys_Imp_MaggieBall_Dirt"
+
+		"J" "Phys_Imp_MaggieBall_Grass"
+		"K" "Phys_Imp_MaggieBall_Mud"
+		"L" "none"
+		"M" "Phys_Imp_MaggieBall_Metal"
+		"N" "Phys_Imp_MaggieBall_Water"
+		"O" "Phys_Imp_MaggieBall_Grass"
+		"P" "Phys_Imp_MaggieBall_Metal"
+
+		"R" "Phys_Imp_MaggieBall_Metal"
+		"S" "Phys_Imp_MaggieBall_Water"
+		"T" "Phys_Imp_MaggieBall_Concrete"
+		"U" "Phys_Imp_MaggieBall_Glass"
+
+		"V" "Phys_Imp_MaggieBall_Metal"
+		"W" "Phys_Imp_MaggieBall_Wood"
+
+		"Y" "Phys_Imp_MaggieBall_Glass"
+		"Z" "Phys_Imp_MaggieBall_Dirt"
+
+		"splash" "Phys_Imp_MaggieBall_Water"
+		"slime_splash" "Phys_Imp_MaggieBall_Water"
+		"holohit" "none"
+
+		//"airburst" "none"
+		"shieldhit" "none"
+		"headshot_flesh" "none"
+		"headshot_mechanical" "none"
+	}
+
+	Sound_attacker
+	{
+		"C" "Phys_Imp_MaggieBall_Concrete"
+		"D" "Phys_Imp_MaggieBall_Dirt"
+		"E" "Phys_Imp_MaggieBall_Metal"
+
+		"F" "none"
+		"G" "Phys_Imp_MaggieBall_Metal"
+		"H" "Phys_Imp_MaggieBall_Dirt"
+
+		"J" "Phys_Imp_MaggieBall_Grass"
+		"K" "Phys_Imp_MaggieBall_Mud"
+		"L" "none"
+		"M" "Phys_Imp_MaggieBall_Metal"
+		"N" "Phys_Imp_MaggieBall_Water"
+		"O" "Phys_Imp_MaggieBall_Grass"
+		"P" "Phys_Imp_MaggieBall_Metal"
+
+		"R" "Phys_Imp_MaggieBall_Metal"
+		"S" "Phys_Imp_MaggieBall_Water"
+		"T" "Phys_Imp_MaggieBall_Concrete"
+		"U" "Phys_Imp_MaggieBall_Glass"
+
+		"V" "Phys_Imp_MaggieBall_Metal"
+		"W" "Phys_Imp_MaggieBall_Wood"
+
+		"Y" "Phys_Imp_MaggieBall_Glass"
+		"Z" "Phys_Imp_MaggieBall_Dirt"
+
+		"splash" "Phys_Imp_MaggieBall_Water"
+		"slime_splash" "Phys_Imp_MaggieBall_Water"
+
+		"holohit" "none"
+		"airburst" "none"
+		"shieldhit" "none"
+		"headshot_flesh" "none"
+		"headshot_mechanical" "none"
+	}
+
+	Sound_victim
+	{
+		"C" "Phys_Imp_MaggieBall_Concrete"
+		"D" "Phys_Imp_MaggieBall_Dirt"
+		"E" "Phys_Imp_MaggieBall_Metal"
+
+		"F" "none"
+		"G" "Phys_Imp_MaggieBall_Metal"
+		"H" "Phys_Imp_MaggieBall_Dirt"
+
+		"J" "Phys_Imp_MaggieBall_Grass"
+		"K" "Phys_Imp_MaggieBall_Mud"
+		"L" "none"
+		"M" "Phys_Imp_MaggieBall_Metal"
+		"N" "Phys_Imp_MaggieBall_Water"
+		"O" "Phys_Imp_MaggieBall_Grass"
+		"P" "Phys_Imp_MaggieBall_Metal"
+
+		"R" "Phys_Imp_MaggieBall_Metal"
+		"S" "Phys_Imp_MaggieBall_Water"
+		"T" "Phys_Imp_MaggieBall_Concrete"
+		"U" "Phys_Imp_MaggieBall_Glass"
+
+		"V" "Phys_Imp_MaggieBall_Metal"
+		"W" "Phys_Imp_MaggieBall_Wood"
+
+		"Y" "Phys_Imp_MaggieBall_Glass"
+		"Z" "Phys_Imp_MaggieBall_Dirt"
+		"splash" "Phys_Imp_Default_Water"
+		"slime_splash" "Phys_Imp_MaggieBall_Water"
+
+		"holohit" "none"
+		"airburst" "none"
+		"shieldhit" "none"
+		"headshot_flesh" "none"
+		"headshot_mechanical" "none"
+	}
+
+	Sound_victim_from_AI
+	{
+		"C" "Phys_Imp_MaggieBall_Concrete"
+		"D" "Phys_Imp_MaggieBall_Dirt"
+		"E" "Phys_Imp_MaggieBall_Metal"
+
+		"F" "none"
+		"G" "Phys_Imp_MaggieBall_Metal"
+		"H" "Phys_Imp_MaggieBall_Dirt"
+
+		"J" "Phys_Imp_MaggieBall_Grass"
+		"K" "Phys_Imp_MaggieBall_Mud"
+		"L" "none"
+		"M" "Phys_Imp_MaggieBall_Metal"
+		"N" "Phys_Imp_MaggieBall_Water"
+		"O" "Phys_Imp_MaggieBall_Grass"
+		"P" "Phys_Imp_MaggieBall_Metal"
+
+		"R" "Phys_Imp_MaggieBall_Metal"
+		"S" "Phys_Imp_MaggieBall_Water"
+		"T" "Phys_Imp_MaggieBall_Concrete"
+		"U" "Phys_Imp_MaggieBall_Glass"
+
+		"V" "Phys_Imp_MaggieBall_Metal"
+		"W" "Phys_Imp_MaggieBall_Wood"
+
+		"Y" "Phys_Imp_MaggieBall_Glass"
+		"Z" "Phys_Imp_MaggieBall_Dirt"
+
+		"splash" "Phys_Imp_MaggieBall_Water"
+		"slime_splash" "Phys_Imp_MaggieBall_Water"
+		"holohit" "none"
+		"airburst" "none"
+		"shieldhit" "none"
+		"headshot_flesh" "none"
+		"headshot_mechanical" "none"
+
+    }
+}

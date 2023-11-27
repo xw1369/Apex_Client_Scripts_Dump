@@ -1,0 +1,122 @@
+// "Gamematerial" "effect_name"
+
+
+ImpactTable
+{
+	Info
+	{
+		"whizby_sound_from_player"	"Bullets.40mmNearmiss"
+		"whizby_sound_from_AI"		"Bullets.40mmNearmiss"
+		"whizby_maxDistancePilot"	"200"
+		"whizby_maxDistanceTitan"	"500"
+	}
+
+	Sound
+	{
+		"C" "Char_13_Ultimate_Activate_1"
+		"D" "Char_13_Ultimate_Activate_1"
+		"E" "Char_13_Ultimate_Activate_1"
+
+		"F" "Char_13_Ultimate_Activate_1"
+		"G" "Char_13_Ultimate_Activate_1"
+		"H" "Char_13_Ultimate_Activate_1"
+
+		"J" "Char_13_Ultimate_Activate_1"
+		"K" "Char_13_Ultimate_Activate_1"
+		"L" "Char_13_Ultimate_Activate_1"
+		"M" "Char_13_Ultimate_Activate_1"
+		"N" "Char_13_Ultimate_Activate_1"
+		"O" "Char_13_Ultimate_Activate_1"
+		"P" "Char_13_Ultimate_Activate_1"
+
+		"R" "Char_13_Ultimate_Activate_1"
+		"S" "Char_13_Ultimate_Activate_1"
+		"T" "Char_13_Ultimate_Activate_1"
+		"U" "Char_13_Ultimate_Activate_1"
+
+		"V" "Char_13_Ultimate_Activate_1"
+		"W" "Char_13_Ultimate_Activate_1"
+		"X"	"Char_13_Ultimate_Activate_1"
+		"Y" "Char_13_Ultimate_Activate_1"
+		"Z" "Char_13_Ultimate_Activate_1"  //sand
+		//"splash" "Water.BulletImpact"
+		//"slime_splash" "Water.BulletImpact"
+
+		//"airburst" "Char_13_Ultimate_Activate_1"
+		"shieldhit" "Char_13_Ultimate_Activate_1"
+	}
+
+	Sound_attacker
+	{
+		"C" "Char_13_Ultimate_Activate_1"
+		"D" "Char_13_Ultimate_Activate_1"
+		"E" "Char_13_Ultimate_Activate_1"
+
+		"F" "Char_13_Ultimate_Activate_1"
+		"G" "Char_13_Ultimate_Activate_1"
+		"H" "Char_13_Ultimate_Activate_1"
+
+		"J" "Char_13_Ultimate_Activate_1"
+		"K" "Char_13_Ultimate_Activate_1"
+		"L" "Char_13_Ultimate_Activate_1"
+		"M" "Char_13_Ultimate_Activate_1"
+		"N" "Char_13_Ultimate_Activate_1"
+		"O" "Char_13_Ultimate_Activate_1"
+		"P" "Char_13_Ultimate_Activate_1"
+
+		"R" "Char_13_Ultimate_Activate_1"
+		"S" "Char_13_Ultimate_Activate_1"
+		"T" "Char_13_Ultimate_Activate_1"
+		"U" "Char_13_Ultimate_Activate_1"
+
+		"V" "Char_13_Ultimate_Activate_1"
+		"W" "Char_13_Ultimate_Activate_1"
+		"X"	"Char_13_Ultimate_Activate_1"
+		"Y" "Char_13_Ultimate_Activate_1"
+		"Z" "Char_13_Ultimate_Activate_1"  //sand
+
+		//"splash" "Water.BulletImpact"
+		//"slime_splash" "Water.BulletImpact"
+
+		//"airburst" "Char_13_Ultimate_Activate_1"
+		"shieldhit" "Char_13_Ultimate_Activate_1"
+	}
+
+	Sound_victim
+	{
+		"C" "Char_13_Ultimate_Activate_1"
+		"D" "Char_13_Ultimate_Activate_1"
+		"E" "Titan.40mm_Impact_3P_vs_1P"
+
+		"F" "Char_13_Ultimate_Activate_1"
+		"G" "Char_13_Ultimate_Activate_1"
+		"H" "Char_13_Ultimate_Activate_1"
+
+		"J" "Char_13_Ultimate_Activate_1"
+		"K" "Char_13_Ultimate_Activate_1"
+		"L" "Char_13_Ultimate_Activate_1"
+		"M" "Char_13_Ultimate_Activate_1"
+		"N" "Char_13_Ultimate_Activate_1"
+		"O" "Char_13_Ultimate_Activate_1"
+		"P" "Char_13_Ultimate_Activate_1"
+
+		"R" "Char_13_Ultimate_Activate_1"
+		"S" "Char_13_Ultimate_Activate_1"
+		"T" "Char_13_Ultimate_Activate_1"
+		"U" "Char_13_Ultimate_Activate_1"
+
+		"V" "Char_13_Ultimate_Activate_1"
+		"W" "Char_13_Ultimate_Activate_1"
+		"X"	"Char_13_Ultimate_Activate_1"
+		"Y" "Char_13_Ultimate_Activate_1"
+		"Z" "Char_13_Ultimate_Activate_1"  //sand
+
+		//"splash" "Water.BulletImpact"
+		//"slime_splash" "Water.BulletImpact"
+
+		//"airburst" "Char_13_Ultimate_Activate_1"
+		"shieldhit" "Char_13_Ultimate_Activate_1"
+	}
+
+
+}

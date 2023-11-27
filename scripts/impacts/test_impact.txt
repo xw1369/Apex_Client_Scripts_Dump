@@ -1,0 +1,74 @@
+// "Gamematerial" "effect_name"
+// This imapct table allows testing of the angles the returned from a bullet impact.
+
+ImpactTable
+{
+
+	FX
+	{
+
+		"C" "P_test_angles" //Concrete, rock, porcelain, boulder, gravel, asphalt, brick, concrete_block, plaster
+		"D" "P_test_angles" //Dirt, slippery, carpet, cardboard, floatingstandable, ceiling_tile, papercup, lava_rock
+		"E" "P_test_angles" // metal_titan
+
+		"F" "P_test_angles" //flesh
+		"G" "P_test_angles" //metalgrate, chainlink, chain
+		"H" "P_test_angles" //alienflesh
+
+		"J" "P_test_angles" //grass
+		"K" "P_test_angles" //Mud
+		"L" "P_test_angles" //plastic_barrel, plastic_box, item, rubber, rubbertire, jeeptire, slidingrubbertire, brakingrubbertire, slidingrubbertire_front, slidingrubbertire_rear
+		"M" "P_test_angles" //Default, metal, metal_box, solidmetal, armorflesh, metal_bouncy, slippery_metal, shellcasing_small, shellcasing_large, metal_barrel, floating_metal_barrel, weapon
+		"N" "P_test_angles" //Slime
+		"O" "P_test_angles"  //Foliage
+		"P" "P_test_angles" //metal_spectre
+		"Q" "P_test_angles"  //Snow
+		"R" "P_test_angles" //Ice
+		"S" "P_test_angles" //water
+		"T" "P_test_angles" //tile
+		"U" "P_test_angles" // glass_breakable
+		"V" "P_test_angles" //Metal Vent
+		"W" "P_test_angles"//Wood, Wood_lowdensity, Wood_Box, Wood_Crate, Wood_Plank, Wood_Solid, Wood_Furniture, Wood_Panel watermelon
+
+		"X" "P_test_angles" //xo_shield
+
+		"Y" "P_test_angles" //glass, brokenglass, glassbottle, pottery
+		"Z" "P_test_angles"  //sand (uses color settings in materials)
+
+		"0" "P_test_angles" //"openslot"
+		"1" "P_test_angles" //lava_flow
+		"2" "P_test_angles" //lava_rock_hot
+		"3" "P_test_angles" //spiderflesh
+
+		"4" "P_test_angles" //"openslot"
+		"5" "P_test_angles" //"openslot"
+		"6" "P_test_angles" //"openslot"
+		"7" "P_test_angles" //"openslot"
+		"8" "P_test_angles" //"openslot"
+		"9" "P_test_angles" //"openslot"
+
+		"splash" "P_test_angles" //brush water
+		"slime_splash" "P_test_angles"
+		"airburst" "P_test_angles"  //No Surface
+		"shieldhit" "P_test_angles"
+		"shadowhit" "P_test_angles"
+		"holohit" "P_test_angles"
+		"critical_hit" "P_test_angles"
+
+		"headshot_flesh" "P_test_angles"
+		"headshot_mechanical" "P_test_angles"
+
+		"pass_through"	"P_test_angles"
+	}
+
+	FX_victim
+	{
+		"F" "P_test_angles"
+		"X" "P_test_angles"
+		"shieldhit" "P_test_angles"
+		"holohit" "P_test_angles"
+		"shadowhit" "P_test_angles"
+	}
+
+}
+

@@ -1,0 +1,14 @@
+#base "mp_ability_copycat_kit.txt"
+
+WeaponData
+{
+	"printname"   									"#SURVIVAL_PICKUP_COPYCAT_KIT_WRAITH"
+	"shortprintname"								"#SURVIVAL_PICKUP_COPYCAT_KIT"
+	"description" 									"#SURVIVAL_PICKUP_COPYCAT_KIT_HINT_TACT"
+	"longdesc" 										"#SURVIVAL_PICKUP_COPYCAT_KIT_HINT_TACT"
+
+	"menu_icon"										"rui/hud/tactical_icons/tactical_wraith"
+	"hud_icon"										"rui/hud/tactical_icons/tactical_wraith"
+
+	"disguise_ability"                              "mp_ability_phase_walk"
+}

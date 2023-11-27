@@ -1,0 +1,194 @@
+WeaponData
+{
+	// General
+    "printname"   									"#WPN_SOFTBALL"
+    "shortprintname"								"#WPN_SOFTBALL_SHORT"
+    "description" 									"#WPN_SOFTBALL_DESC"
+    "longdesc"										"#WPN_SOFTBALL_LONGDESC"
+    "weapon_type_flags"								"WPT_PRIMARY"
+
+	"ammo_pool_type"								"special"
+
+	"weaponClass" 									"human"
+	"body_type"										"heavy"
+	"fire_mode"   									"automatic"
+
+	"OnClientAnimEvent"								"GlobalClientEventHandler"
+	"OnWeaponNpcPrimaryAttack"						"OnWeaponNpcPrimaryAttack_weapon_plasma_cannon"
+	"OnProjectileCollision"							"OnProjectileCollision_weapon_plasma_cannon"
+
+	// Models
+	//"viewmodel"   									"mdl/weapons/softball_at/ptpov_softball_at.rmdl"
+	//"playermodel" 									"mdl/weapons/softball_at/w_softball_at.rmdl"
+	"playermodel"                                   "mdl/weapons/m1a1_hemlok/w_hemlok.rmdl"
+	"projectilemodel" 								"mdl/dev/empty_model.rmdl"
+	"holster_type"									"anti_titan"
+
+	// Effects
+	"vortex_absorb_effect"							"wpn_vortex_projectile_SuperSpec_FP"
+    "vortex_absorb_effect_third_person"				"wpn_vortex_projectile_SuperSpec"
+    "vortex_absorb_sound"							"Vortex_Shield_AbsorbRocket"
+    "vortex_absorb_sound_1p_vs_3p"					"Vortex_Shield_AbsorbRocket_1P_VS_3P"
+    "vortex_drain"									"0.0"
+    "projectile_trail_effect_0_1p" 					"P_plasma_proj_MD"
+    "projectile_trail_effect_0_3p" 					"P_plasma_proj_MD"
+    "fx_muzzle_flash_view"							"P_muz_lstar_FP_burn"
+    "fx_muzzle_flash_world"							"P_muz_lstar_burn"
+    "fx_muzzle_flash_attach"						"muzzle_flash"
+    "impact_effect_table" 							"exp_super_spectre"
+    "projectile_adjust_to_gun_barrel"				"1"
+
+	"fire_sound_1_npc"								"Weapon_Softball_Fire_NPC"
+
+	"show_grenade_indicator"						"0"
+
+	"damage_type" 									"burn"
+
+	"npc_self_explosion_safety"						"0"
+
+	"critical_hit"									"0"
+	"critical_hit_damage_scale"						"1.5"
+
+	// Ammo
+	"ammo_clip_size"   								"9999"
+	"ammo_size_segmented_reload"					"1"
+
+	//"projectile_killreplay_enabled"					"1"
+
+    "damage_shield_scale"                           "1"
+    "ammo_min_to_fire"								"1"
+
+    "ammo_default_total"							"60"
+    "ammo_stockpile_max"							"60"
+    "ammo_no_remove_from_clip"                      "0"
+    "ammo_no_remove_from_stockpile"                 "1"
+
+
+
+    // Damage - When Used by NPCs
+    "npc_damage_near_value"   						"0"
+    "npc_damage_far_value"							"0"
+    "npc_damage_near_value_titanarmor"				"0"
+    "npc_damage_far_value_titanarmor" 				"0"
+    "npc_damage_near_distance"                      "0"
+    "npc_damage_far_distance"                       "0"
+    "npc_explosion_damage"                          "8"
+    "explosion_inner_radius"                        "20"
+    "explosionradius"                               "50"
+
+    // explosion physics and shake
+    "explosion_shake_radius"                        "125"
+    "explosion_shake_amplitude"                     "10"
+    "explosion_shake_frequency"                     "45"
+    "explosion_shake_duration"                      "0.35"
+    "impulse_force"   								"17000"
+
+    // NPC
+    "npc_min_engage_range"							"100"
+    "npc_max_engage_range"							"3000"
+    "npc_min_engage_range_heavy_armor"				"500"
+    "npc_max_engage_range_heavy_armor"				"4500"
+    "npc_min_range"   								"0"
+    "npc_max_range"   								"5000"
+    "npc_aim_at_feet"                               "1"
+    "npc_aim_at_feet_vs_heavy_armor"                "1"
+
+    //shot geometry
+    "npc_burst_radius_min_precision"                "30.0"
+    "npc_burst_radius_max_precision"                "15.0"
+    "npc_refresh_burst_location_per_shot"           "1"
+
+    "npc_burst_radius_distribution_bias_min_precision"  "-.25"
+    "npc_burst_radius_distribution_bias_max_precision"  ".65"
+
+    "npc_spread_cone_min_precision"                 "1.25"
+    "npc_spread_cone_max_precision"                 "0.25"
+
+    "npc_lead_projectiles"                          "1"
+    "npc_lead_projectiles_fraction_min_precision"   "0.1"
+    "npc_lead_projectiles_fraction_max_precision"   "0.4"
+
+    //shot cadence
+    "npc_min_burst_min_precision"   				"24"
+    "npc_max_burst_min_precision"                   "29"
+    "npc_min_burst_max_precision"                   "32"
+    "npc_max_burst_max_precision"                   "38"
+
+    "npc_min_rest_time_between_bursts_min_precision" "4.75"
+    "npc_max_rest_time_between_bursts_min_precision" "5.5"
+    "npc_min_rest_time_between_bursts_max_precision" "3.25"
+    "npc_max_rest_time_between_bursts_max_precision" "4.25"
+
+    "enable_highlight_networking_on_creation"		"0"
+
+
+	"proficiency_poor_spreadscale"					"10.0"
+	"proficiency_average_spreadscale" 				"10.0"
+	"proficiency_good_spreadscale"					"3.3"
+	"proficiency_very_good_spreadscale"   			"3.3"
+
+
+	// Behavior
+	"fire_rate"   									"5.5"
+	"reload_time" 									"0.95"
+	"reloadsegment_time_loop"						"0.82"
+	"reloadsegment_time_end"						"0.57"
+	"reloadsegmentempty_time_end"					"0.57"
+	"reloadempty_time"								"0.95"
+	"holster_time"									"0.5"
+	"deploy_time" 									"0.63"
+	"lower_time"  									"0.25"
+	"raise_time"  									"0.3"
+	"vortex_refire_behavior"  						"grenade"
+	"allow_empty_fire"								"0"
+	"reload_enabled"  								"1"
+	"reload_is_segmented"							"1"
+	"allow_empty_click"   							"1"
+	"empty_reload_only"   							"0"
+	"trigger_snipercam"   							"1"
+	"allow_headshots" 								"0"
+	"grenade_bounce_vel_frac_shallow"				"0"
+	"grenade_bounce_vel_frac_sharp"					"0"
+	"grenade_bounce_vel_frac_along_normal"			"0"
+	"grenade_bounce_randomness"						"0"
+	"grenade_bounce_extra_vertical_randomness"		"0"
+	"grenade_roll_vel_frac_per_second"				"0"
+	"projectile_launch_speed"						"1000"
+	"projectile_gravity_scale"						"0.35"
+    "projectile_drag_coefficient" 					"0.005"
+    "projectile_lifetime" 							"6.0"
+    "bolt_gravity_enabled"                          "1"
+    "npc_compensate_gravity"                        "1"
+    "grenade_orient_to_velocity"                    "1"
+
+	"projectile_inherit_owner_velocity_scale"		"0"
+
+	"sprint_fractional_anims"						"0"
+	// Spread
+	"spread_stand_hip"								"0.25"
+	"spread_stand_hip_run"							"0.25"
+	"spread_stand_ads"								"0.35"
+	"spread_stand_hip_sprint"                       "0.25"
+	"spread_crouch_hip"   							"0.25"
+	"spread_crouch_ads"   							"0.35"
+	"spread_air_hip"  								"0.25"
+	"spread_air_ads"  								"0.35"
+
+
+	// Bodygroups:
+	"bodygroup5_name"	"proscreen"
+	"bodygroup5_set"	"0"
+
+	"clip_bodygroup"						"softball_at_cylinder"
+    "clip_bodygroup_index_shown"			"0"
+  	"clip_bodygroup_index_hidden"			"1"
+ 	"clip_bodygroup_show_for_milestone_0"	"1"
+  	"clip_bodygroup_show_for_milestone_1"	"1"
+  	"clip_bodygroup_show_for_milestone_2"	"0"
+  	"clip_bodygroup_show_for_milestone_3"	"1"
+  	"clip_bodygroup_show_for_milestone_4"	"0"
+
+    "grenade_arc_indicator_effect"					"P_grenade_arc_proto"
+    "grenade_arc_impact_indicator_effect"			"grenade_arc_impact_proto"
+    "grenade_arc_indicator_show_from_hip"			"0"
+}

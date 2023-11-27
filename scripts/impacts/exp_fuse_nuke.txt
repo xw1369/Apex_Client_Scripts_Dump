@@ -1,0 +1,124 @@
+// "Gamematerial" "effect_name"
+
+// "B" bloodyflesh
+// "X" plastic box, wade, ladder, woodladdder,
+// "I" player_control_clip
+
+ImpactTable
+{
+	Info
+	{
+		"whizby_sound_from_player"	"none"
+		"whizby_sound_from_AI"		"none"
+	}
+
+
+	Sound
+	{
+		"C" "Fuse_Mortar_Explode"
+		"D" "Fuse_Mortar_Explode"
+		"E" "Fuse_Mortar_Explode"
+
+		"F" "Fuse_Mortar_Explode"
+		"G" "Fuse_Mortar_Explode"
+		"H" "Fuse_Mortar_Explode"
+
+		"J" "Fuse_Mortar_Explode"
+		"K" "Fuse_Mortar_Explode"
+		"L" "Fuse_Mortar_Explode"
+		"M" "Fuse_Mortar_Explode"
+		"N" "Fuse_Mortar_Explode"
+		"O" "Fuse_Mortar_Explode"
+		"P" "Fuse_Mortar_Explode"
+		"Q" "Fuse_Mortar_Explode"
+		"R" "Fuse_Mortar_Explode"
+		"S" "Fuse_Mortar_Explode"
+		"T" "Fuse_Mortar_Explode"
+		"U" "Fuse_Mortar_Explode"
+
+		"V" "Fuse_Mortar_Explode"
+		"W" "Fuse_Mortar_Explode"
+		"X" "Fuse_Mortar_Explode"
+		"Y" "Fuse_Mortar_Explode"
+		"Z" "Fuse_Mortar_Explode"
+
+		"1" "Fuse_Mortar_Explode"
+		"2" "Fuse_Mortar_Explode"
+
+		"airburst" "Fuse_Mortar_Explode"
+		"shieldhit" "Fuse_Mortar_Explode"
+	}
+
+	Sound_attacker
+	{
+		"C" "Fuse_Mortar_Explode"
+		"D" "Fuse_Mortar_Explode"
+		"E" "Fuse_Mortar_Explode"
+
+		"F" "Fuse_Mortar_Explode"
+		"G" "Fuse_Mortar_Explode"
+		"H" "Fuse_Mortar_Explode"
+
+		"J" "Fuse_Mortar_Explode"
+		"K" "Fuse_Mortar_Explode"  // mud?
+		"L" "Fuse_Mortar_Explode"
+		"M" "Fuse_Mortar_Explode"
+		"N" "Fuse_Mortar_Explode"	// slime?
+		"O" "Fuse_Mortar_Explode"
+		"P" "Fuse_Mortar_Explode"
+		"Q" "Fuse_Mortar_Explode"
+		"R" "Fuse_Mortar_Explode"
+		"S" "Fuse_Mortar_Explode"
+		"T" "Fuse_Mortar_Explode"
+		"U" "Fuse_Mortar_Explode"
+
+		"V" "Fuse_Mortar_Explode"
+		"W" "Fuse_Mortar_Explode"
+		"X"	"Fuse_Mortar_Explode"
+		"Y" "Fuse_Mortar_Explode"
+		"Z" "Fuse_Mortar_Explode"
+
+		"1" "Fuse_Mortar_Explode"  //lava_flow
+		"2" "Fuse_Mortar_Explode"
+
+		"airburst" "Fuse_Mortar_Explode"
+		"shieldhit" "Fuse_Mortar_Explode"
+	}
+
+	Sound_victim
+	{
+		"C" "Fuse_Mortar_Explode"
+		"D" "Fuse_Mortar_Explode"
+		"E" "Fuse_Mortar_Explode"
+
+		"F" "Fuse_Mortar_Explode"
+		"G" "Fuse_Mortar_Explode"
+		"H" "Fuse_Mortar_Explode"
+
+		"J" "Fuse_Mortar_Explode"
+		"K" "Fuse_Mortar_Explode"
+		"L" "Fuse_Mortar_Explode"
+		"M" "Fuse_Mortar_Explode"
+		"N" "Fuse_Mortar_Explode"
+		"O" "Fuse_Mortar_Explode"
+		"P" "Fuse_Mortar_Explode"
+		"Q" "Fuse_Mortar_Explode"
+		"R" "Fuse_Mortar_Explode"
+		"S" "Fuse_Mortar_Explode"
+		"T" "Fuse_Mortar_Explode"
+		"U" "Fuse_Mortar_Explode"
+
+		"V" "Fuse_Mortar_Explode"
+		"W" "Fuse_Mortar_Explode"
+		"X" "Fuse_Mortar_Explode"
+		"Y" "Fuse_Mortar_Explode"
+		"Z" "Fuse_Mortar_Explode"
+
+		"1" "Fuse_Mortar_Explode"
+		"2" "Fuse_Mortar_Explode"
+
+		"airburst" "Fuse_Mortar_Explode"
+		"shieldhit" "Fuse_Mortar_Explode"
+	}
+
+}

@@ -1,0 +1,212 @@
+ImpactTable
+{
+	Info
+	{
+		"whizby_sound_from_player"	"none"
+		"whizby_sound_from_AI"		"none"
+		"whizby_maxDistancePilot"	"100"
+		"whizby_maxDistanceTitan"	"300"
+	}
+
+	FX
+	{
+		"C" "impact_concrete" //Concrete, rock, porcelain, boulder, gravel, asphalt, brick, concrete_block, plaster
+		"D" "impact_dirt" //Dirt, slipperyslime, snow, carpet, cardboard, floatingstandable, ceiling_tile, papercup
+		"E" "impact_metal" // metal_titan
+
+		"F" "impact_flesh" //flesh
+		"G" "impact_metal" //metalgrate, chainlink, chain
+		"H" "impact_alienflesh" //alienflesh
+
+		"J" "impact_grass" //grass
+		"K" "impact_mud" //Mud
+		"L" "impact_plastic" //plastic_barrel, plastic_box, item, rubber, rubbertire, jeeptire, slidingrubbertire, brakingrubbertire, slidingrubbertire_front, slidingrubbertire_rear
+		"M" "impact_metal" //Default, metal, metal_box, solidmetal, armorflesh, metal_bouncy, slippery_metal, shellcasing_small, shellcasing_large, metal_barrel, floating_metal_barrel, weapon
+		"N" "P_impact_slime" //Slime
+		"O" "impact_leaves"  //Foliage
+		"P" "P_impact_metal_spectre" //metal_spectre
+
+		"R" "impact_brick" //metalpanel, grenade, canister
+		"S" "P_impact_water" //water
+		"T" "impact_tile" //tile
+		"U" "impact_glass" // glass_breakable
+		"V" "impact_metal" //Metal Vent
+		"W" "impact_wood"//Wood, Wood_lowdensity, Wood_Box, Wood_Crate, Wood_Plank, Wood_Solid, Wood_Furniture, Wood_Panel watermelon
+
+		"X" "P_impact_xo_shield_cp" //xo_shield
+
+		"Y" "impact_glass" //glass, brokenglass, glassbottle, pottery
+		"Z" "impact_sand"  //sand
+
+//		"0" "openslot"
+//		"1" "openslot"
+//		"2" "openslot"
+//		"3" "openslot"
+//		"4" "openslot"
+//		"5" "openslot"
+//		"6" "openslot"
+//		"7" "openslot"
+//		"8" "openslot"
+//		"9" "openslot"
+
+		"splash" "P_impact_water" //brush water
+		"slime_splash" "P_impact_slime"
+		"airburst" "P_impact_exp_smll_air"  //No Surface
+		"shieldhit" "P_armor_impact"
+		"holohit" "P_holohit_impact"
+		"critical_hit" "impact_metal"
+
+		"headshot_flesh" "impact_metal"
+		"headshot_mechanical" "P_armor_impact"
+	}
+
+	FX_victim
+	{
+		"F" "impact_flesh_victim"
+		"shieldhit" "impact_metal"
+		"holohit" "impact_metal"
+	}
+
+	FX_attacker_replace
+	{
+		//"F" "P_impact_flesh_attacker"
+	}
+
+	FX_attacker_layered_MP
+	{
+		"F" "P_impact_flesh_attacker"
+	}
+
+	FX_attacker_layered_SP
+	{
+		"F" "impact_metal"
+	}
+
+	Sound
+	{
+		"C" "Phys_Imp_RevShellSeeker_Concrete"
+		"D" "Phys_Imp_RevShellSeeker_Dirt"
+		"E" "Phys_Imp_RevShellSeeker_Metal"
+
+		"F" "Phys_Imp_RevShellSeeker_Flesh"
+		"G" "Phys_Imp_RevShellSeeker_Metal" // "ChainLink.BulletImpact"
+		"H" "Phys_Imp_RevShellSeeker_Flesh"
+
+		"J" "Phys_Imp_RevShellSeeker_Dirt"
+		"K" "Phys_Imp_RevShellSeeker_Mud"  // mud?
+		"L" "Phys_Imp_RevShellSeeker_Concrete" // "Plastic_Box.BulletImpact"
+		"M" "Phys_Imp_RevShellSeeker_Metal"	//"ArmorFlesh.BulletImpact"
+		"N" "Phys_Imp_RevShellSeeker_Water"	// sand?
+		"O" "Phys_Imp_RevShellSeeker_Dirt"
+		"P" "Phys_Imp_RevShellSeeker_Metal"
+
+		"R" "Phys_Imp_RevShellSeeker_Concrete"
+		"S" "Phys_Imp_RevShellSeeker_Water"
+		"T" "Phys_Imp_RevShellSeeker_Concrete"
+
+		"V" "Phys_Imp_RevShellSeeker_Metal"
+		"W" "Phys_Imp_RevShellSeeker_Wood"
+		"X"	"Phys_Imp_RevShellSeeker_Shield" // Titan bubble shield
+		"Y" "Phys_Imp_RevShellSeeker_Grass"
+		"Z" "Phys_Imp_RevShellSeeker_Dirt"
+
+		"splash" "Water.BulletImpact"
+		"slime_splash" "Water.BulletImpact"
+
+		"airburst" ""
+		"shieldhit" "Phys_Imp_RevShellSeeker_Shield"
+		"holohit" "HoloPilot_light_bulletimpact_holo_3p_vs_3p"
+
+		"headshot_flesh" "Phys_Imp_RevShellSeeker_Flesh"
+		"headshot_mechanical" "Phys_Imp_RevShellSeeker_Metal"
+	}
+
+	Sound_attacker
+	{
+		"C" "Phys_Imp_RevShellSeeker_Concrete"
+		"D" "Phys_Imp_RevShellSeeker_Dirt"
+		"E" "Phys_Imp_RevShellSeeker_Metal"
+
+		"F" "Phys_Imp_RevShellSeeker_Flesh"
+		"G" "Phys_Imp_RevShellSeeker_Metal"
+		"H" "Phys_Imp_RevShellSeeker_Flesh"
+
+		"J" "Phys_Imp_RevShellSeeker_Dirt"
+		"K" "Phys_Imp_RevShellSeeker_Mud"
+		"L" "Phys_Imp_RevShellSeeker_Concrete"
+		"M" "Phys_Imp_RevShellSeeker_Metal"
+		"N" "Phys_Imp_RevShellSeeker_Water"
+		"O" "Phys_Imp_RevShellSeeker_Dirt"
+		"P" "Phys_Imp_RevShellSeeker_Metal"
+
+		"R" "Phys_Imp_RevShellSeeker_Concrete"
+		"S" "Phys_Imp_RevShellSeeker_Water"
+		"T" "Phys_Imp_RevShellSeeker_Concrete"
+
+		"V" "Phys_Imp_RevShellSeeker_Metal"
+		"W" "Phys_Imp_RevShellSeeker_Wood"
+		"X"	"Phys_Imp_RevShellSeeker_Shield"
+		"Y" "Phys_Imp_RevShellSeeker_Grass"
+		"Z" "Phys_Imp_RevShellSeeker_Dirt"
+
+		"splash" "Water.BulletImpact"
+		"slime_splash" "Water.BulletImpact"
+
+		"airburst" ""
+		"shieldhit" "TitanShield.Light.BulletImpact_1P_vs_3P"
+		"holohit" "HoloPilot_light_bulletimpact_holo_1p_vs_3p_V2"
+
+		"headshot_flesh" "Phys_Imp_RevShellSeeker_Flesh"
+		"headshot_mechanical" "Phys_Imp_RevShellSeeker_Metal"
+	}
+
+	Sound_victim
+	{
+		"C" "Phys_Imp_RevShellSeeker_Concrete"
+		"D" "Phys_Imp_RevShellSeeker_Dirt"
+		"E" "Phys_Imp_RevShellSeeker_Metal"
+
+		"F" "Phys_Imp_RevShellSeeker_Flesh"
+		"G" "Phys_Imp_RevShellSeeker_Metal"
+		"H" "Phys_Imp_RevShellSeeker_Flesh"
+
+		"J" "Phys_Imp_RevShellSeeker_Dirt"
+		"K" "Phys_Imp_RevShellSeeker_Mud"
+		"L" "Phys_Imp_RevShellSeeker_Concrete"
+		"M" "Phys_Imp_RevShellSeeker_Metal"
+		"N" "Phys_Imp_RevShellSeeker_Water"
+		"O" "Phys_Imp_RevShellSeeker_Dirt"
+		"P" "Phys_Imp_RevShellSeeker_Metal"
+
+		"R" "Phys_Imp_RevShellSeeker_Concrete"
+		"S" "Phys_Imp_RevShellSeeker_Water"
+		"T" "Phys_Imp_RevShellSeeker_Concrete"
+
+		"V" "Phys_Imp_RevShellSeeker_Metal"
+		"W" "Phys_Imp_RevShellSeeker_Wood"
+		"X"	"Phys_Imp_RevShellSeeker_Shield"
+		"Y" "Phys_Imp_RevShellSeeker_Grass"
+		"Z" "Phys_Imp_RevShellSeeker_Dirt"
+
+		"splash" "Water.BulletImpact"
+		"slime_splash" "Water.BulletImpact"
+
+		"airburst" ""
+		"shieldhit" "Phys_Imp_RevShellSeeker_Shield"
+		"holohit" "holopilot_impacts"
+
+		// Victim headshot sounds taken care of in PlayVictimHeadshotConfirmation():
+		//"headshot_flesh" "Phys_Imp_RevShellSeeker_Flesh"
+		//"headshot_mechanical" "Phys_Imp_RevShellSeeker_Metal"
+	}
+
+	Sound_victim_from_AI
+	{
+		"F" "Phys_Imp_RevShellSeeker_Flesh"
+		"P" "Phys_Imp_RevShellSeeker_Metal"
+
+		// Victim headshot sounds taken care of in PlayVictimHeadshotConfirmation():
+		//"headshot_flesh" "Phys_Imp_RevShellSeeker_Flesh"
+		//"headshot_mechanical" "Phys_Imp_RevShellSeeker_Metal"
+	}
+}

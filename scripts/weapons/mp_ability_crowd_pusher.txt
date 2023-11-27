@@ -1,0 +1,81 @@
+#base "_base_ability_ultimate.txt"
+
+WeaponData
+{
+//
+//  Info
+//
+	printname       "#FIRELINE_ULT_NAME"
+	shortprintname  "#FIRELINE_ULT_NAME"
+	description     "#FIRELINE_ULT_DESC"
+	longdesc        "#FIRELINE_ULT_LONGDESC"
+	menu_icon       "white"
+	hud_icon        "rui/hud/ultimate_icons/ultimate_fireline"
+
+
+//
+//  Mechanics
+//
+	fire_mode                               offhandHybrid
+	offhand_interupts_weapon_anims          1
+	offhand_hybrid_switch_on_attack         1
+	offhand_hybrid_block_switch_if_empty    1
+	offhand_hybrid_switch_on_lower          1
+    "offhand_allow_swap_to_on_zipline"              "0"
+
+	cooldown_type                           ammo_timed
+	regen_ammo_refill_rate                  1
+	reload_enabled                          0 // required to make ammo regen work
+
+
+//
+//  Balance
+//
+	fire_rate                           10.0
+	fire_duration                       2.0
+	deploy_time                         1.0
+	toss_pullout_time                   1.0
+	toss_time                           1.0
+	toss_overhead_time                  1.0
+	lower_time                          1.0
+
+	ammo_clip_size                      60 // seconds to full charge
+	ammo_per_shot                       60
+	ammo_min_to_fire                    60
+
+
+//
+//  Aesthetics
+//
+	zoom_effects                        0
+
+	fire_rumble                         wraith_phase_buildup
+
+	viewmodel                           "mdl/weapons/wattson_trophy_system/ptpov_wattson_trophy_system.rmdl"
+	playermodel                         "mdl/weapons/wattson_trophy_system/w_wattson_trophy_system.rmdl"
+    projectilemodel                     "mdl/weapons/wattson_trophy_system/w_wattson_trophy_system.rmdl"
+
+
+//
+// Script hookups
+//
+
+	OnWeaponRegenEnd                    OnWeaponRegenEndGeneric
+	OnWeaponAttemptOffhandSwitch        OnWeaponAttemptOffhandSwitch_ability_crowd_pusher
+	OnWeaponActivate                    OnWeaponActivate_ability_crowd_pusher
+	OnWeaponDeactivate                  OnWeaponDeactivate_ability_crowd_pusher
+	OnWeaponPrimaryAttack               OnWeaponPrimaryAttack_ability_crowd_pusher
+
+
+//
+// Mods
+//
+
+	Mods
+	{
+		survival_finite_ordnance
+		{
+
+		}
+	}
+}

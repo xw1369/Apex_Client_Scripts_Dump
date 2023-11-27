@@ -1,0 +1,9 @@
+#base "melee_shadowsquad_hands.txt"
+
+WeaponData
+{
+    "melee_damage"									"50"
+    "melee_lunge_target_angle"						"60"
+    "melee_lunge_target_range"						"100"
+}
+

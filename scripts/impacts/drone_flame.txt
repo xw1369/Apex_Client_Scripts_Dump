@@ -1,0 +1,220 @@
+ImpactTable
+{
+	Info
+	{
+		"whizby_sound_from_player"	"none"
+		"whizby_sound_from_AI"		"none"
+		"whizby_maxDistancePilot"	"150"
+		"whizby_maxDistanceTitan"	"400"
+	}
+
+	FX
+	{
+		"C" "none"	//Concrete, rock, porcelain, boulder, gravel, asphalt, brick, concrete_block, plaster
+		"D" "none"			//Dirt, slipperyslime, snow, carpet, cardboard, floatingstandable, ceiling_tile, papercup
+		//"E" "none"		// metal_titan
+
+		//"F" "none"					//flesh
+		"G" "none"		//metalgrate, chainlink, chain
+		//"H" "none"			//alienflesh
+
+		"J" "none"			//grass
+		"K" "none" 	//Mud
+		"L" "none"	//plastic_barrel, plastic_box, item, rubber, rubbertire, jeeptire, slidingrubbertire, brakingrubbertire, slidingrubbertire_front, slidingrubbertire_rear
+		"M" "none"		//Default, metal, metal_box, solidmetal, armorflesh, metal_bouncy, slippery_metal, shellcasing_small, shellcasing_large, metal_barrel, floating_metal_barrel, weapon
+		"N" "none"
+		"O" "none"			//Foliage
+		"P" "none"		//Computer
+
+		"R" "none"	//metalpanel, grenade, canister
+		//"S" "none"						//water, slime
+		"T" "none"	//tile
+		//"U" "none"					//glass_breakble
+
+		"V" "none"		//Metal Vent
+		"W" "none"			//Wood, Wood_lowdensity, Wood_Box, Wood_Crate, Wood_Plank, Wood_Solid, Wood_Furniture, Wood_Panel watermelon
+
+		//"Y" "none"					//glass, brokenglass, glassbottle, pottery
+	    "Z" "none"						//Sand
+
+		"0" "none"
+		"1" "none"
+		"2" "none"
+		"3" "none"
+		"4" "none"
+		"5" "none"
+		"6" "none"
+		"7" "none"
+		"8" "none"
+		//"9" "none"					//puddle
+
+		//"splash" "none" //brush water
+		//"slime_splash" "none"
+		//"shieldhit" "none"
+		//"critical_hit" "impact_metal_titan"
+	}
+
+	FX
+	{
+		"C" "none"	//Concrete, rock, porcelain, boulder, gravel, asphalt, brick, concrete_block, plaster
+		"D" "none"			//Dirt, slipperyslime, snow, carpet, cardboard, floatingstandable, ceiling_tile, papercup
+		"E" "none"		// metal_titan
+
+		"F" "none"					//flesh
+		"G" "none"		//metalgrate, chainlink, chain
+		"H" "none"			//alienflesh
+
+		"J" "none"			//grass
+		"K" "none" 	//Mud
+		"L" "none"	//plastic_barrel, plastic_box, item, rubber, rubbertire, jeeptire, slidingrubbertire, brakingrubbertire, slidingrubbertire_front, slidingrubbertire_rear
+		"M" "none"		//Default, metal, metal_box, solidmetal, armorflesh, metal_bouncy, slippery_metal, shellcasing_small, shellcasing_large, metal_barrel, floating_metal_barrel, weapon
+		"N" "none"
+		"O" "none"			//Foliage
+		"P" "none"		//Computer
+
+		"R" "none"	//metalpanel, grenade, canister
+		"S" "none"						//water, slime
+		"T" "none"	//tile
+		"U" "none"					//glass_breakble
+
+		"V" "none"		//Metal Vent
+		"W" "none"			//Wood, Wood_lowdensity, Wood_Box, Wood_Crate, Wood_Plank, Wood_Solid, Wood_Furniture, Wood_Panel watermelon
+
+		"Y" "none"					//glass, brokenglass, glassbottle, pottery
+	    "Z" "none"						//Sand
+
+		"0" "none"
+		"1" "none"
+		"2" "none"
+		"3" "none"
+		"4" "none"
+		"5" "none"
+		"6" "none"
+		"7" "none"
+		"8" "none"
+		"9" "none"					//puddle
+
+		"splash" "none" //brush water
+		"slime_splash" "none"
+		"shieldhit" "none"
+		"critical_hit" "none"
+	}
+
+	FX_victim
+	{
+		"F" "impact_flesh_victim"
+		"shieldhit" "impact_metal_large"
+
+	}
+
+
+	Sound
+	{
+		"C" "weapon_titan_flamethrower_fire_3p"
+		"D" "weapon_titan_flamethrower_fire_3p"
+		"E" "weapon_titan_flamethrower_fire_3p"
+
+		"F" "weapon_titan_flamethrower_fire_3p"
+		"G" "weapon_titan_flamethrower_fire_3p"
+		"H" "weapon_titan_flamethrower_fire_3p"
+
+		"J" "weapon_titan_flamethrower_fire_3p"
+		"K" "weapon_titan_flamethrower_fire_3p"  // mud?
+		"L" "weapon_titan_flamethrower_fire_3p"
+		"M" "weapon_titan_flamethrower_fire_3p"
+		"N" "weapon_titan_flamethrower_fire_3p"	// sand?
+		"O" "weapon_titan_flamethrower_fire_3p"
+		"P" "weapon_titan_flamethrower_fire_3p"
+
+		"R" "weapon_titan_flamethrower_fire_3p"
+		"S" "weapon_titan_flamethrower_fire_3p"
+		"T" "weapon_titan_flamethrower_fire_3p"
+		"U" "weapon_titan_flamethrower_fire_3p"
+
+		"V" "weapon_titan_flamethrower_fire_3p"
+		"W" "weapon_titan_flamethrower_fire_3p"
+		"X" "weapon_titan_flamethrower_fire_3p"
+		"Y" "weapon_titan_flamethrower_fire_3p"
+		"Z" "weapon_titan_flamethrower_fire_3p"
+
+		//"splash" "weapon_titan_flamethrower_fire_3p"
+		//"slime_splash" "weapon_titan_flamethrower_fire_3p"
+
+		//"airburst" ""
+		"shieldhit" "weapon_titan_flamethrower_fire_3p"
+	}
+
+	Sound_attacker
+	{
+		"C" "weapon_titan_flamethrower_fire_3p"
+		"D" "weapon_titan_flamethrower_fire_3p"
+		"E" "weapon_titan_flamethrower_fire_3p"
+
+		"F" "weapon_titan_flamethrower_fire_3p"
+		"G" "weapon_titan_flamethrower_fire_3p"
+		"H" "weapon_titan_flamethrower_fire_3p"
+
+		"J" "weapon_titan_flamethrower_fire_3p"
+		"K" "weapon_titan_flamethrower_fire_3p"  // mud?
+		"L" "weapon_titan_flamethrower_fire_3p"
+		"M" "weapon_titan_flamethrower_fire_3p"
+		"N" "weapon_titan_flamethrower_fire_3p"	// sand?
+		"O" "weapon_titan_flamethrower_fire_3p"
+		"P" "weapon_titan_flamethrower_fire_3p"
+
+		"R" "weapon_titan_flamethrower_fire_3p"
+		"S" "weapon_titan_flamethrower_fire_3p"
+		"T" "weapon_titan_flamethrower_fire_3p"
+		"U" "weapon_titan_flamethrower_fire_3p"
+
+		"V" "weapon_titan_flamethrower_fire_3p"
+		"W" "weapon_titan_flamethrower_fire_3p"
+		"X" "weapon_titan_flamethrower_fire_3p"
+		"Y" "weapon_titan_flamethrower_fire_3p"
+		"Z" "weapon_titan_flamethrower_fire_3p"
+
+		//"splash" "weapon_titan_flamethrower_fire_3p"
+		//"slime_splash" "weapon_titan_flamethrower_fire_3p"
+
+		//"airburst" ""
+		"shieldhit" "weapon_titan_flamethrower_fire_3p"
+		"critical_hit" "weapon_titan_flamethrower_fire_3p"
+	}
+
+	Sound_victim
+	{
+		"C" "weapon_titan_flamethrower_fire_3p"
+		"D" "weapon_titan_flamethrower_fire_3p"
+		"E" "weapon_titan_flamethrower_fire_3p"
+
+		"F" "weapon_titan_flamethrower_fire_3p"
+		"G" "weapon_titan_flamethrower_fire_3p"
+		"H" "weapon_titan_flamethrower_fire_3p"
+
+		"J" "weapon_titan_flamethrower_fire_3p"
+		"K" "weapon_titan_flamethrower_fire_3p"  // mud?
+		"L" "weapon_titan_flamethrower_fire_3p"
+		"M" "weapon_titan_flamethrower_fire_3p"
+		"N" "weapon_titan_flamethrower_fire_3p"	// sand?
+		"O" "weapon_titan_flamethrower_fire_3p"
+		"P" "weapon_titan_flamethrower_fire_3p"
+
+		"R" "weapon_titan_flamethrower_fire_3p"
+		"S" "weapon_titan_flamethrower_fire_3p"
+		"T" "weapon_titan_flamethrower_fire_3p"
+		"U" "weapon_titan_flamethrower_fire_3p"
+
+		"V" "weapon_titan_flamethrower_fire_3p"
+		"W" "weapon_titan_flamethrower_fire_3p"
+
+		"Y" "weapon_titan_flamethrower_fire_3p"
+		"Z" "weapon_titan_flamethrower_fire_3p"
+
+		//"splash" "weapon_titan_flamethrower_fire_3p"
+		//"slime_splash" "weapon_titan_flamethrower_fire_3p"
+
+		//"airburst" ""
+		"shieldhit" "weapon_titan_flamethrower_fire_3p"
+		"critical_hit" "weapon_titan_flamethrower_fire_3p"
+	}
+}

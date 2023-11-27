@@ -1,0 +1,97 @@
+#base "mp_weapon_smr.txt"
+
+WeaponData
+{
+	weaponClass 									"other"
+	weaponSubClass									"rocket"
+	weaponType										"default"
+	"fire_mode"   									"automatic"
+	"is_semi_auto"									"0"
+	projectile_adjust_to_gun_barrel					0
+
+	OnWeaponPrimaryAttack							"OnWeaponPrimaryAttack_boss_turret_rockets"
+	OnWeaponNpcPrimaryAttack						"OnWeaponNpcPrimaryAttack_boss_turret_rockets"
+	OnWeaponNpcPreAttack							"OnWeaponNpcPreAttack_boss_turret_rockets"
+
+	projectile_drift_windiness						7
+	projectile_drift_intensity						0.96
+	projectile_straight_time_min					0.6
+	projectile_straight_time_max					0.9
+	projectile_straight_radius_min					0
+	projectile_straight_radius_max					1
+	projectile_launch_speed							1
+	leveled_pickup									0
+
+	viewmodel   									""
+	playermodel 									""
+	impact_effect_table 							"exp_rocket_mortar_titan_rocket_launcher"
+	projectile_trail_effect_0 						"Rocket_Smoke_Small_Titan_2" // "P_Rocket_Mortar"
+	projectilemodel 								"mdl/weapons/bullets/projectile_rocket_large.rmdl"
+
+	"fx_muzzle_flash_view"							"P_wpn_muzzleflash_smr_FP"
+	"fx_muzzle_flash_world"							"P_wpn_muzzleflash_smr"
+	"fx_muzzle_flash_attach"						"muzzle_flash3"
+
+	"damage_type" 									"burn"
+
+	proficiency_poor_spreadscale					2.0
+	proficiency_poor_bias   						0.75
+	proficiency_average_spreadscale 				5.0
+	proficiency_average_bias						0.75
+	proficiency_good_spreadscale					2.0
+	proficiency_good_bias   						0.75
+	proficiency_very_good_spreadscale   			2.0
+	proficiency_very_good_bias  					0.75
+	proficiency_perfect_spreadscale 				2.0
+	proficiency_perfect_bias						0.75
+
+	npc_pre_fire_delay								1.0
+	npc_pre_fire_delay_interval						2.0
+	npc_lob_shot_pitch								45.0
+	npc_min_range_secondary							50000.0
+
+	"fire_sound_1_npc"								"Megaturret_RocketPod_Fire"
+
+	npc_damage_near_distance						800
+	npc_damage_far_distance 						1200
+	npc_damage_near_value   						8
+	npc_damage_far_value							8
+	npc_explosion_damage							8
+	npc_explosion_damage_heavy_armor				8
+
+	npc_min_range   								256
+	npc_max_range   								20000
+	npc_min_burst   								16
+	npc_max_burst   								16
+	npc_rest_time_between_bursts_min				1.0
+	npc_rest_time_between_bursts_max				2.0
+
+	fire_rate   									20
+	burst_fire_count								16
+	allow_headshots 								0
+	explosionradius 								200
+	impulse_force   								1
+
+	"npc_min_engage_range"							"256"
+	"npc_max_engage_range"							"20000"
+	"npc_min_engage_range_heavy_armor"				"256"
+	"npc_max_engage_range_heavy_armor"				"20000"
+
+	"ammo_no_remove_from_clip"						"1"
+
+	"npc_suppress_abs_position"						"0"
+
+    "npc_min_burst_min_precision"   				"16"
+    "npc_max_burst_min_precision"                   "16"
+    "npc_min_burst_max_precision"                   "16"
+    "npc_max_burst_max_precision"                   "16"
+
+    "npc_min_rest_time_between_bursts_min_precision" "2.0"
+    "npc_max_rest_time_between_bursts_min_precision" "3.0"
+    "npc_min_rest_time_between_bursts_max_precision" "1.25"
+    "npc_max_rest_time_between_bursts_max_precision" "2"
+
+	Mods
+	{
+	}
+}

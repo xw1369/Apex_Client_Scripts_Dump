@@ -1,0 +1,59 @@
+// "Gamematerial" "effect_name"
+
+
+ImpactTable
+{
+
+	FX
+	{
+		"C" "P_test_angles_LG" //Concrete, rock, porcelain, boulder, gravel, asphalt, brick, concrete_block, plaster
+		"D" "P_test_angles_LG" //Dirt, slipperyslime, snow, carpet, cardboard, floatingstandable, ceiling_tile, papercup
+		"E" "P_test_angles_LG" // metal_titan
+
+		"F" "P_test_angles_LG" //flesh
+		"G" "P_test_angles_LG" //metalgrate, chainlink, chain
+		"H" "P_test_angles_LG" //alienflesh
+
+		"J" "P_test_angles_LG" //grass
+		"K" "P_test_angles_LG" //Mud
+		"L" "P_test_angles_LG" //plastic_barrel, plastic_box, item, rubber, rubbertire, jeeptire, slidingrubbertire, brakingrubbertire, slidingrubbertire_front, slidingrubbertire_rear
+		"M" "P_test_angles_LG" //Default, metal, metal_box, solidmetal, armorflesh, metal_bouncy, slippery_metal, shellcasing_small, shellcasing_large, metal_barrel, floating_metal_barrel, weapon
+		"N" "P_test_angles_LG"
+		"O" "P_test_angles_LG" //Foliage
+		"P" "P_test_angles_LG" //Computer
+
+		"R" "P_test_angles_LG" //metalpanel, grenade, canister
+		"S" "P_test_angles_LG" //water, slime
+		"T" "P_test_angles_LG" //tile
+		"U" "P_test_angles_LG" //glass_breakable
+
+		"V" "P_test_angles_LG" //Metal Vent
+		"W" "P_test_angles_LG" //Wood, Wood_lowdensity, Wood_Box, Wood_Crate, Wood_Plank, Wood_Solid, Wood_Furniture, Wood_Panel watermelon
+
+		"X" "P_test_angles_LG" //xo_shield
+
+		"Y" "P_test_angles_LG" //glass, brokenglass, glassbottle, pottery
+		"Z" "P_test_angles_LG"  //sand
+
+		"0" "P_test_angles_LG"
+		"1" "P_test_angles_LG"
+		"2" "P_test_angles_LG"
+		"3" "P_test_angles_LG"
+		"4" "P_test_angles_LG"
+		"5" "P_test_angles_LG"
+		"6" "P_test_angles_LG"
+		"7" "P_test_angles_LG"
+		"8" "P_test_angles_LG"
+		"9" "P_test_angles_LG" //puddle
+
+		"splash" "P_test_angles_LG" //brush water
+		"slime_splash" "P_test_angles_LG"
+		"airburst" "P_test_angles_LG"  //No Surface
+		"shieldhit" "P_test_angles_LG"
+		"critical_hit" "P_test_angles_LG"
+
+		"headshot_flesh" "P_test_angles_LG"
+		"headshot_mechanical" "P_test_angles_LG"
+	}
+
+}

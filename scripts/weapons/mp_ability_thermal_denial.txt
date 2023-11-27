@@ -1,0 +1,105 @@
+#base "_base_ability_tactical.txt"
+
+WeaponData
+{
+//
+//  Info
+//
+	printname       "#FIRELINE_TAC_NAME"
+	shortprintname  "#FIRELINE_TAC_NAME"
+	description     "#FIRELINE_TAC_DESC"
+	longdesc        "#FIRELINE_TAC_LONGDESC"
+	menu_icon       "white"
+	hud_icon        "rui/hud/tactical_icons/tactical_fireline"
+
+
+//
+//  Mechanics
+//
+	fire_mode                           offhand
+	charge_allow_hold_when_full         1
+
+	cooldown_type                       ammo_timed
+	regen_ammo_refill_rate              1
+	reload_enabled                      0 // required to make ammo regen work
+
+
+//
+//  Balance
+//
+	fire_rate                           10.0
+	fire_duration                       0.7
+	charge_time                         1.8
+
+	ammo_clip_size                      70 // seconds to full charge
+	ammo_per_shot                       35
+	ammo_min_to_fire                    35
+
+
+//
+//  Aesthetics
+//
+	zoom_effects                        0
+
+	fire_rumble                         wraith_phase_buildup
+
+	viewmodel                           "mdl/weapons/empty_handed/ptpov_mirage_holopilot.rmdl"
+    playermodel                         "mdl/weapons/empty_handed/w_empty_handed_mirage.rmdl"
+
+	charge_sound_1p                     "arc_rifle_charge_1p" //"titan_core_laser_chargeup_1p"
+	charge_sound_3p                     "arc_cannon_charge_3p" //"titan_core_laser_chargeup_3p"
+
+	battle_chatter_event                "bc_tactical"
+
+
+//
+// Script hookups
+//
+
+	OnWeaponRegenEnd                    OnWeaponRegenEndGeneric
+	OnWeaponAttemptOffhandSwitch        OnWeaponAttemptOffhandSwitch_ability_thermal_denial
+	OnWeaponActivate                    OnWeaponActivate_ability_thermal_denial
+	OnWeaponDeactivate                  OnWeaponDeactivate_ability_thermal_denial
+	OnWeaponChargeBegin                 OnWeaponChargeBegin_ability_thermal_denial
+	OnWeaponChargeEnd                   OnWeaponChargeEnd_ability_thermal_denial
+	OnWeaponPrimaryAttack               OnWeaponPrimaryAttack_ability_thermal_denial
+
+
+//
+// TEMP
+//
+
+	"burn_segment_radius" 					"50.0"
+	"burn_segment_height" 					"48.0"
+	"burn_segments"							"4" 	// # of segments on either side of the center
+	"burn_segment_spacing_dist"				"80.0" 	// spacing between segments
+
+	"sound_burn_segment_start" 				"thermitegrenade_flamewall_flame_burn_front"
+	"sound_burn_segment_middle" 			"thermitegrenade_flamewall_flame_burn_middle"
+	"sound_burn_segment_end" 				"thermitegrenade_flamewall_flame_burn_end"
+
+	"preburn_duration" 						"2.0"
+	"burn_duration" 						"4.0"
+
+	// players that touch/ stay in the flames get tagged with a damage stack that is delivered over time
+	"burn_damage" 							"25"  	// total damage per stack
+	"burn_time" 							"2.8"  	// time it takes to deliver the damage
+	"burn_stacks_max" 						"4"  	// max active stacks of burn dsdamage per target
+	"burn_stack_debounce" 					"0.7" 	// wait this long before trying to apply another stack
+	"burn_tick_rate" 						"1.2"  	// how often we deliver part of the damage
+
+	"sound_burn_damage_tick_1p" 			"flesh_fire_damage_1p"
+
+
+//
+// Mods
+//
+
+	Mods
+	{
+		survival_finite_ordnance
+		{
+
+		}
+	}
+}

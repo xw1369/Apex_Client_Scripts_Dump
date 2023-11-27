@@ -1,0 +1,74 @@
+// "Gamematerial" "effect_name"
+// This imapct table allows testing of the color returned from a bullet impact. This value is set in surfacpor
+// The Particle with number 3 is displaying the output of color random blending with dynamic lighting on the spritecard.
+
+ImpactTable
+{
+
+	FX
+	{
+
+		"C" "P_test_impact_LIGHTING_DYN" //Concrete, rock, porcelain, boulder, gravel, asphalt, brick, concrete_block, plaster
+		"D" "P_test_impact_LIGHTING_DYN" //Dirt, slippery, carpet, cardboard, floatingstandable, ceiling_tile, papercup, lava_rock
+		"E" "P_test_impact_LIGHTING_DYN" // metal_titan
+
+		"F" "P_test_impact_LIGHTING_DYN" //flesh
+		"G" "P_test_impact_LIGHTING_DYN" //metalgrate, chainlink, chain
+		"H" "P_test_impact_LIGHTING_DYN" //alienflesh
+
+		"J" "P_test_impact_LIGHTING_DYN" //grass
+		"K" "P_test_impact_LIGHTING_DYN" //Mud
+		"L" "P_test_impact_LIGHTING_DYN" //plastic_barrel, plastic_box, item, rubber, rubbertire, jeeptire, slidingrubbertire, brakingrubbertire, slidingrubbertire_front, slidingrubbertire_rear
+		"M" "P_test_impact_LIGHTING_DYN" //Default, metal, metal_box, solidmetal, armorflesh, metal_bouncy, slippery_metal, shellcasing_small, shellcasing_large, metal_barrel, floating_metal_barrel, weapon
+		"N" "P_test_impact_LIGHTING_DYN" //Slime
+		"O" "P_test_impact_LIGHTING_DYN"  //Foliage
+		"P" "P_test_impact_LIGHTING_DYN" //metal_spectre
+		"Q" "P_test_impact_LIGHTING_DYN"  //Snow
+		"R" "P_test_impact_LIGHTING_DYN" //Ice
+		"S" "P_test_impact_LIGHTING_DYN" //water
+		"T" "P_test_impact_LIGHTING_DYN" //tile
+		"U" "P_test_impact_LIGHTING_DYN" // glass_breakable
+		"V" "P_test_impact_LIGHTING_DYN" //Metal Vent
+		"W" "P_test_impact_LIGHTING_DYN"//Wood, Wood_lowdensity, Wood_Box, Wood_Crate, Wood_Plank, Wood_Solid, Wood_Furniture, Wood_Panel watermelon
+
+		"X" "P_test_impact_LIGHTING_DYN" //xo_shield
+
+		"Y" "P_test_impact_LIGHTING_DYN" //glass, brokenglass, glassbottle, pottery
+		"Z" "P_test_impact_LIGHTING_DYN"  //sand (uses color settings in materials)
+
+		"0" "P_test_impact_LIGHTING_DYN" //"openslot"
+		"1" "P_test_impact_LIGHTING_DYN" //lava_flow
+		"2" "P_test_impact_LIGHTING_DYN" //lava_rock_hot
+		"3" "P_test_impact_LIGHTING_DYN" //spiderflesh
+
+		"4" "P_test_impact_LIGHTING_DYN" //"openslot"
+		"5" "P_test_impact_LIGHTING_DYN" //"openslot"
+		"6" "P_test_impact_LIGHTING_DYN" //"openslot"
+		"7" "P_test_impact_LIGHTING_DYN" //"openslot"
+		"8" "P_test_impact_LIGHTING_DYN" //"openslot"
+		"9" "P_test_impact_LIGHTING_DYN" //"openslot"
+
+		"splash" "P_test_impact_LIGHTING_DYN" //brush water
+		"slime_splash" "P_test_impact_LIGHTING_DYN"
+		"airburst" "P_test_impact_LIGHTING_DYN"  //No Surface
+		"shieldhit" "P_test_impact_LIGHTING_DYN"
+		"shadowhit" "P_test_impact_LIGHTING_DYN"
+		"holohit" "P_test_impact_LIGHTING_DYN"
+		"critical_hit" "P_test_impact_LIGHTING_DYN"
+
+		"headshot_flesh" "P_test_impact_LIGHTING_DYN"
+		"headshot_mechanical" "P_test_impact_LIGHTING_DYN"
+
+		"pass_through"	"P_test_impact_LIGHTING_DYN"
+	}
+
+	FX_victim
+	{
+		"F" "P_test_impact_LIGHTING_DYN"
+		"X" "P_test_impact_LIGHTING_DYN"
+		"shieldhit" "P_test_impact_LIGHTING_DYN"
+		"holohit" "P_test_impact_LIGHTING_DYN"
+		"shadowhit" "P_test_impact_LIGHTING_DYN"
+	}
+
+}

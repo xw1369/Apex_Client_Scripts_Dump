@@ -1,0 +1,250 @@
+#base "_base_ability_tactical.txt"
+
+WeaponData
+{
+    // General
+    "printname"                                     "#ABL_CONDUIT_TACTICAL"
+    "shortprintname"                                "#ABL_CONDUIT_TACTICAL"
+    "description"                                   "#ABL_CONDUIT_TACTICAL_DESC"
+    "longdesc"                                      "#ABL_CONDUIT_TACTICAL_LONGDESC"
+
+    "fire_mode"                                     "offhand"
+    "offhand_cancelled_by_melee"                    "1"
+    "offhand_interupts_weapon_anims"                "0"
+    "offhand_active_slot"                           "altHand"
+    "fast_swap_to"                                  "1"
+    "fast_swap_from"                                "1"
+
+    //"offhand_hybrid_switch_on_attack"             "0"
+    //"is_toss_weapon"                              "1"
+    //"offhand_toss_activates_on_attack"            "1"
+    //"allow_empty_fire"                            "0"
+
+    "gesture_attack_anim"                           "0"
+	"play_offhand_start_end_anim"					"1"
+	"play_offhand_primary_fire_anim"                "1"
+
+    "menu_icon"                                     "rui/hud/tactical_icons/tactical_conduit"
+    "hud_icon"                                      "rui/hud/tactical_icons/tactical_conduit"
+
+    "OnWeaponOwnerChanged"                          "OnWeaponOwnerChanged_ability_conduit_arc_flash"
+    "OnWeaponAttemptOffhandSwitch"                  "OnWeaponAttemptOffhandSwitch_ability_conduit_arc_flash"
+    "OnWeaponActivate"                              "OnWeaponActivate_ability_conduit_arc_flash"
+    "OnWeaponDeactivate"                            "OnWeaponDeactivate_ability_conduit_arc_flash"
+    "OnWeaponReadyToFire"                           "OnWeaponReadyToFire_ability_conduit_arc_flash"
+    "OnWeaponPrimaryAttack"                         "OnWeaponPrimaryAttack_ability_conduit_arc_flash"
+    "OnWeaponPrimaryAttackAnimEvent"                "OnWeaponPrimaryAttackAnimEvent_ability_conduit_arc_flash"
+
+    MP_BASE
+    {
+        "enable_highlight_networking_on_creation"        "<KEEP_DEFAULT>"
+    }
+    SP_BASE
+    {
+        "enable_highlight_networking_on_creation"        "1"
+    }
+
+    // Models
+    //"viewmodel"                                   "mdl/weapons/conduit/ptpov_conduit_heal.rmdl"
+    "viewmodel"                                     "mdl/weapons/conduit_drone/conduit_drone_tactical_v.rmdl"
+    "playermodel"                                   "mdl/weapons/empty_handed/w_empty_handed_human.rmdl"
+    "projectilemodel"                               "mdl/dev/empty_model.rmdl"
+
+
+    "projectile_launch_speed"                       "1500"
+    "projectile_launch_pitch_offset"                "2"
+
+    "projectile_trail_effect_0_1p"                  "P_plasma_proj_LG_DLight"
+    "projectile_trail_effect_0_3p"                  "P_plasma_proj_LG_DLight"
+
+    "bounce_effect_table"                           "none"
+    "impact_effect_table"                           "none"
+
+    // Effects
+    "charge_sound_1p"                               ""
+    "charge_sound_3p"                               ""
+
+
+    "fire_sound_1_player_1p"                        ""
+    "fire_sound_1_player_3p"                        ""
+
+    // Muzzle flash
+    "fx_muzzle_flash_view"                          "P_con_tac_MuzzleFX"
+    "fx_muzzle_flash_world"                         "P_con_tac_MuzzleFX"
+    "fx_muzzle_flash_attach"                        "attach_l_drone_arm_b"
+
+    "charge_effect_attachment"                      "attach_l_drone_arm_b"
+    "charge_effect_1p"                              ""
+
+
+    "zoom_effects"                                  "0"
+    "aimassist_disable_hipfire"                     "1"
+    "aimassist_disable_ads"                         "1"
+
+    // Rumble
+    "rumble"                                        "-1"
+
+    // Ammo
+    "ammo_default_total"                            "210"
+    "ammo_clip_size"                                "210"
+    "ammo_stockpile_max"                            "210"
+    "ammo_display"                                  "count"
+    "ammo_min_to_fire"                              "210"
+    "ammo_per_shot"                                 "210"
+    "regen_ammo_refill_rate"                        "10"
+    "regen_ammo_refill_start_delay"                 "7"
+    "ammo_no_remove_from_stockpile"                 "0"
+    "no_ammo_used_on_primary_attack"                "0"
+
+
+    // Damage Settings
+    "damage_near_distance"                          "0"
+    "damage_far_distance"                           "0"
+    "damage_near_value"                             "0"
+    "damage_far_value"                              "0"
+
+    // Charge settings
+    "cooldown_type"                                 "ammo_instant"
+    "charge_time"                                   "5.0"
+    "charge_cooldown_time"                          "0.0"
+    "charge_cooldown_delay"                         "0.0"
+    "charge_maintained_until_fired"                 "1"
+    "charge_allow_hold_when_full"                   "0"
+    "charge_end_forces_fire"                        "1"
+
+    "charge_allow_melee"                            "1"        // re-enable for DLC4, fix anim bugs
+    "charge_remain_full_when_fired"                 "0"
+    "charge_require_input"                          "0"
+
+    // Behavior
+    "fire_rate"                                     "2.0"
+    "fire_duration"                                 "0.8"
+    "holster_time"                                  "0.66"
+    "deploy_time"                                   "0.3"
+    //"lower_time"                                  ".2"
+    //"raise_time"                                  "1"
+    "vortex_refire_behavior"                        "absorb"
+
+    "offhand_blocks_sprint"                         "0"
+    "reload_enabled"                                "0"
+    "allow_empty_click"                             "0"
+    "empty_reload_only"                             "0"
+    "trigger_snipercam"                             "0"
+    "allow_headshots"                               "0"
+    "enable_hud_alert"                              "0"
+
+    // View Kick
+    "viewkick_spring"                               "wingman"
+
+    "viewkick_pitch_base"                           "-2.4"
+    "viewkick_pitch_random"                         "0.8"
+    "viewkick_pitch_softScale"                      "0.65"
+    "viewkick_pitch_hardScale"                      "0.35"
+
+    "viewkick_yaw_base"                             "-0.6"
+    "viewkick_yaw_random"                           "-0.5"
+    "viewkick_yaw_softScale"                        "0.8"
+    "viewkick_yaw_hardScale"                        "0.4"
+
+    "viewkick_roll_base"                              "0.1"
+    "viewkick_roll_randomMin"                         "0.1"
+    "viewkick_roll_randomMax"                         "0.15"
+    "viewkick_roll_softScale"                         "0.4"
+    "viewkick_roll_hardScale"                         "0.2"
+
+    "viewkick_hipfire_weaponFraction"                 "0.4"
+    "viewkick_hipfire_weaponFraction_vmScale"         "0.0"
+    "viewkick_ads_weaponFraction"                     "0.3"
+    "viewkick_ads_weaponFraction_vmScale"             "0.0"
+
+    "viewkick_perm_pitch_base"                         "0.0"
+    "viewkick_perm_pitch_random"                       "0.0"
+    "viewkick_perm_yaw_base"                           "0.0"
+    "viewkick_perm_yaw_random"                         "0.0"
+
+    "viewkick_scale_firstshot_hipfire"                 "1.0"
+    "viewkick_scale_min_hipfire"                      "1.0"
+    "viewkick_scale_max_hipfire"                      "2.0"
+    "viewkick_scale_firstshot_ads"                    "1.0"
+    "viewkick_scale_min_ads"                          "1.0"
+    "viewkick_scale_max_ads"                          "2.0"
+    "viewkick_scale_valuePerShot"                     "1.0"
+    "viewkick_scale_pitch_valueLerpStart"           "0"
+    "viewkick_scale_pitch_valueLerpEnd"             "2"
+    "viewkick_scale_yaw_valueLerpStart"               "0"
+    "viewkick_scale_yaw_valueLerpEnd"                 "2"
+    "viewkick_scale_valueDecayDelay"                  "0.3"
+    "viewkick_scale_valueDecayRate"                   "50"
+
+    //
+    "viewmodel_shake_forward"                        "0.5"
+    "viewmodel_shake_up"                            "0.2"
+    "viewmodel_shake_right"                            "0.0"
+
+	// Bob
+	"bob_cycle_time"  								"0.8"
+	"bob_vert_dist"   								"0.05"
+	"bob_horz_dist"   								"0.05"
+	"bob_max_speed"   								"500"
+	"bob_pitch"   									"0.1"
+	"bob_yaw" 										"-0.1"
+	"bob_roll"										"0.2"
+
+    // Sway
+	"sway_rotate_attach"  							"SWAY_ROTATE"
+    "sway_min_x"                                      "-0.3"
+    "sway_min_y"                                      "-0.5"
+    "sway_min_z"                                      "-0.5"
+    "sway_max_x"                                      "12"
+    "sway_max_y"                                      "12"
+    "sway_max_z"                                      "0.1"
+    "sway_min_pitch"                                  "-3"
+    "sway_min_yaw"                                    "-3.5"
+    "sway_min_roll"                                   "-1"
+    "sway_max_pitch"                                  "4"
+    "sway_max_yaw"                                    "7"
+    "sway_max_roll"                                   "8"
+    "sway_translate_gain"                             "1"
+    "sway_rotate_gain"                                "1"
+    "sway_move_forward_translate_x"                   "1"
+    "sway_move_forward_translate_z"                   "-0.5"
+    "sway_move_back_translate_x"                      "-2"
+    "sway_move_back_translate_z"                      "-4"
+    "sway_move_left_translate_y"                      "-4"
+    "sway_move_left_translate_z"                      "-0.5"
+    "sway_move_left_rotate_roll"                      "-2"
+    "sway_move_right_translate_y"                     "1"
+    "sway_move_right_translate_z"                     "-0.5"
+    "sway_move_right_rotate_roll"                     "2"
+    "sway_move_up_translate_z"                        "-1"
+    "sway_move_down_translate_z"                      "1"
+    "sway_turn_left_rotate_yaw"                       "-2"
+    "sway_turn_right_rotate_yaw"                      "2"
+    "sway_turn_up_rotate_pitch"                       "2"
+    "sway_turn_down_rotate_pitch"                     "-2"
+
+    // WeaponED Unhandled Key/Values and custom script Key/Values
+    "sway_turn_angle_factor"                          "-0.5"
+    "sway_turn_origin_factor"                         "0"
+    "sway_turn_angle_factor_zoomed"                   "0"
+    "sway_turn_origin_factor_zoomed"                  "0.05"
+    "sway_move_angle_factor"                          "0.5"
+    "sway_move_origin_factor"                         "0.5"
+    "sway_move_angle_factor_zoomed"                   "0"
+    "sway_move_origin_factor_zoomed"                  "0.03"
+    "sway_gain"                                       "15.0"
+
+    Mods
+    {
+                            
+                       
+         
+                                                        
+                                                                 
+                                                               
+                                                                                      
+                                                               
+         
+              
+    }
+}

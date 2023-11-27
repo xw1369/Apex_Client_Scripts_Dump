@@ -1,0 +1,41 @@
+#base "mp_weapon_hemlok.txt"
+
+WeaponData
+{
+	"weaponBaseClass"                              "mp_weapon_hemlok"
+
+    "ammo_clip_size"   								"30"
+    "ammo_default_total"							"240"
+    "ammo_stockpile_max"							"210"
+    "uses_ammo_pool"								"0"
+
+    // Damage - When Used by Players
+    "damage_near_value"   							"23"
+    "damage_far_value"								"23"
+    "damage_very_far_value"							"23"
+    "damage_near_value_titanarmor"					"23"
+    "damage_far_value_titanarmor" 					"23"
+    "damage_very_far_value_titanarmor" 				"23"
+    "damage_headshot_scale"							"1.8"
+
+	Mods
+	{
+		crate	    {}
+
+        barrel_stabilizer_l3
+        {
+            "bodygroup27_set"	                "1"
+
+            "fx_muzzle_flash_attach"	        "muzzle_flash_suppressor_small"
+            "viewkick_pitch_base" 				"*0.8"
+            "viewkick_pitch_random"   			"*0.65"
+            "viewkick_yaw_base" 				"*0.8"
+            "viewkick_yaw_random"   			"*0.75"
+        }
+
+        highcal_mag_l4
+        {
+            "ammo_clip_size"   							"30"
+        }
+    }
+}

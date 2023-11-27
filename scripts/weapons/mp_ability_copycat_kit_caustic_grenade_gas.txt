@@ -1,0 +1,14 @@
+#base "mp_ability_copycat_kit.txt"
+
+WeaponData
+{
+	"printname"   									"#SURVIVAL_PICKUP_COPYCAT_KIT_CAUSTIC"
+	"shortprintname"								"#SURVIVAL_PICKUP_COPYCAT_KIT"
+	"description" 									"#SURVIVAL_PICKUP_COPYCAT_KIT_HINT_ULT"
+	"longdesc" 										"#SURVIVAL_PICKUP_COPYCAT_KIT_HINT_ULT"
+
+	"menu_icon"										"rui/hud/ultimate_icons/ultimate_caustic"
+	"hud_icon"										"rui/hud/ultimate_icons/ultimate_caustic"
+
+	"disguise_ability"                              "mp_weapon_grenade_gas"
+}

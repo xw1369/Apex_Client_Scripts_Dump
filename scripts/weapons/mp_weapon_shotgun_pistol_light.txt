@@ -1,0 +1,130 @@
+#base "mp_weapon_shotgun_pistol.txt"
+
+WeaponData
+{
+	"weaponBaseClass"                              "mp_weapon_shotgun_pistol"
+
+    "ammo_pool_type"								"bullet"
+    "printname"  								    "#WPN_MOZAM_LIGHT"
+    "shortprintname"							    "#WPN_MOZAM_LIGHT"
+    "description" 								    "#WPN_MOZAM_LIGHT_DESC"
+
+    "projectiles_per_shot"							"1"
+    "ammo_clip_size"   								"36"
+
+    "blast_pattern"									""
+    "fire_rate"   									"18"
+
+    "bolt_hitsize"									"0.0"
+    "bolt_hitsize_grow1_time"						"0.1"
+    "bolt_hitsize_grow1_size"						"0.0"
+    "bolt_hitsize_grow2_time"						"0.1"
+    "bolt_hitsize_grow2_size"						"0.0"
+    "bolt_hitsize_growfinal_lerptime"				"0.1"
+    "bolt_hitsize_growfinal_size"					"0.0"
+
+     // Crosshair Spread
+    "spread_stand_hip"								"2.0"
+    "spread_stand_hip_run"							"3.0"
+    "spread_stand_hip_sprint"                       "5.0"
+    "spread_crouch_hip"   							"1.6"
+    "spread_air_hip"  								"7.0"
+
+    "spread_stand_ads"								"0.35"
+    "spread_crouch_ads"   							"0.25"
+    "spread_air_ads"  								"5.0"
+
+    // Viewkick
+    "viewkick_pattern"                              "r97_2"
+
+    "viewkick_spring"                               "r97_vkp"
+     "viewkick_spring_hot"                           "r97_vkp_hot"
+
+    "viewkick_pitch_base" 							"-1.0"
+    "viewkick_pitch_random"   						"0.5"
+    "viewkick_pitch_softScale"						"4.0"
+    "viewkick_pitch_hardScale"						"0.4"
+
+    "viewkick_yaw_base"   							"1.0"
+    "viewkick_yaw_random" 							"1.0"
+    "viewkick_yaw_random_innerexclude"				"0.05"
+    "viewkick_yaw_softScale"						"2.0"
+    "viewkick_yaw_hardScale"						"0.4"
+
+    "viewkick_roll_base"  							"0.8"
+    "viewkick_roll_randomMin" 						"-0.2"
+    "viewkick_roll_randomMax" 						"0.2"
+    "viewkick_roll_softScale" 						"0.7"
+    "viewkick_roll_hardScale" 						"0.2"
+
+    "viewkick_hipfire_weaponFraction" 				"0.3"
+    "viewkick_hipfire_weaponFraction_vmScale" 		"1.2"
+    //This crashes with bruiser optics
+    //"viewkick_ads_weaponFraction" 					"0.1"
+    //"viewkick_ads_weaponFraction_vmScale" 			"0.9"
+
+    "viewkick_perm_pitch_base" 						"0"
+    "viewkick_perm_pitch_random"   					"0"
+    "viewkick_perm_yaw_base"   						"0"
+    "viewkick_perm_yaw_random" 						"0"
+
+    "viewkick_scale_firstshot_hipfire"				"1.0"
+    "viewkick_scale_firstshot_ads"					"1.0"
+    "viewkick_scale_min_hipfire"  					"1.0"
+    "viewkick_scale_max_hipfire"  					"1.0"
+    "viewkick_scale_min_ads"  						"1.0"
+    "viewkick_scale_max_ads"  						"1.0"
+    "viewkick_scale_valuePerShot" 					"1.0"
+    "viewkick_scale_pitch_valueLerpStart"   		"0"
+    "viewkick_scale_pitch_valueLerpEnd" 			"50"
+    "viewkick_scale_yaw_valueLerpStart"   			"0"
+    "viewkick_scale_yaw_valueLerpEnd" 				"50"
+    "viewkick_scale_valueDecayDelay"  				"0.11"
+    "viewkick_scale_valueDecayRate"   				"50"
+
+     "damage_near_value"   							"12"
+     "damage_far_value"								"12"
+     "damage_very_far_value"							"12"
+     "damage_near_value_titanarmor"					"12"
+     "damage_far_value_titanarmor" 					"12"
+     "damage_very_far_value_titanarmor" 				"12"
+
+    //Sounds -- Pulled from R97
+    "fire_sound_1_player_1p"						""
+    "fire_sound_1_player_3p"						""
+    "fire_sound_2_player_1p"						"Weapon_R97_SecondShot_1P"
+    "fire_sound_2_player_3p"						""
+    //"fire_sound_2_npc"								"Weapon_r97_secondshot_npc"
+    "sound_dryfire"									"assault_rifle_dryfire"
+    //"sound_pickup"									"wpn_pickup_SMG_1P"
+    "looping_sounds"								"1"
+
+    "sound_zoom_in"									"Weapon_R97_ADS_In"
+    "sound_zoom_out"								"Weapon_R97_ADS_Out"
+
+    "burst_or_looping_fire_sound_start_1p"			"Weapon_R97_Fire_First_1P"
+    "burst_or_looping_fire_sound_middle_1p"			"Weapon_R97_Fire_Loop_1P"
+    "burst_or_looping_fire_sound_end_1p"			"Weapon_R97_Fire_Last_1P"
+
+    "burst_or_looping_fire_sound_start_3p"			""
+    "burst_or_looping_fire_sound_middle_3p"			"Weapon_R97_Fire_Loop_3P"
+    "burst_or_looping_fire_sound_end_3p"			"Weapon_R97_Fire_Last_3P"
+
+    //"burst_or_looping_fire_sound_start_npc"			""
+    //"burst_or_looping_fire_sound_middle_npc"		"weapon_r97_loop_3p_npc_a"
+    //"burst_or_looping_fire_sound_end_npc"			""
+
+    "low_ammo_sound_name_1"							"R97_LowAmmo_Shot1"
+    "low_ammo_sound_name_2"							"R97_LowAmmo_Shot1"
+    "low_ammo_fraction"                             "0.3"
+
+    //FX
+    "fx_muzzle_flash_view"                   "P_mozambique_auto_base_FP_FULL"
+    "fx_muzzle_flash_world"                  "P_mozambique_auto_base_FULL"
+    "impact_effect_table" 				    "bullet_Mozambique_light"
+
+	Mods
+	{
+		hopup_april_fools_light {}
+	}
+}

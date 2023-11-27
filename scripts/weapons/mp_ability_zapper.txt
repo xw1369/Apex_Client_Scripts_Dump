@@ -1,0 +1,96 @@
+#base "_base_ability_tactical.txt"
+
+WeaponData
+{
+//
+//  Info
+//
+    printname       "#MAALI_TAC_NAME"
+    shortprintname  "#MAALI_TAC_NAME"
+    description     "#MAALI_TAC_DESC"
+    longdesc        "#MAALI_TAC_LONGDESC"
+    menu_icon       "white"
+    hud_icon        "rui/hud/tactical_icons/tactical_maali"
+
+
+//
+//  Mechanics
+//
+    fire_mode                           offhand
+    offhand_active_slot                 altHand
+
+    cooldown_type                       ammo_instant
+    regen_ammo_refill_rate              1
+	reload_enabled                      0 // required to make ammo regen work
+
+    damage_near_distance                0
+    damage_near_value                   0
+    damage_far_distance                 0
+    damage_far_value                    0
+    explosion_inner_radius              0
+    explosionradius                     0
+    explosion_damage                    0
+
+
+//
+//  Balance
+//
+    fire_rate                           10.0
+    fire_duration                       1.0
+
+    ammo_clip_size                      30 // seconds to full charge
+    ammo_per_shot                       30
+    ammo_min_to_fire                    30
+
+    projectile_gravity_scale            0
+
+    spread_stand_hip                    0
+
+
+//
+//  Aesthetics
+//
+    zoom_effects                        0
+
+    fire_rumble                         wraith_phase_buildup
+
+    viewmodel                           "mdl/weapons/empty_handed/ptpov_mirage_holopilot.rmdl"
+    playermodel                         "mdl/weapons/empty_handed/w_empty_handed_mirage.rmdl"
+    projectilemodel                     "mdl/dev/empty_model.rmdl"
+    projectile_trail_effect_0_1p        "P_wpn_arcball_trail"
+    projectile_trail_effect_0_3p        "P_wpn_arcball_trail"
+    impact_effect_table                 "arc_wave"
+    fx_muzzle_flash_view                "P_wpn_mflash_arcball_FP"
+    fx_muzzle_flash_world               "P_wpn_mflash_arcball"
+
+    battle_chatter_event                "bc_tactical"
+
+
+//
+// Script hookups
+//
+
+    OnWeaponAttemptOffhandSwitch        OnWeaponAttemptOffhandSwitch_ability_zapper
+    OnWeaponPrimaryAttack               OnWeaponPrimaryAttack_ability_zapper
+    //GetProjectilePosition               GetProjectilePosition_ability_zapper
+    OnProjectileCollision               OnProjectileCollision_ability_zapper
+
+
+//
+// TEMP
+//
+
+
+
+//
+// Mods
+//
+
+    Mods
+    {
+        survival_finite_ordnance
+        {
+
+        }
+    }
+}

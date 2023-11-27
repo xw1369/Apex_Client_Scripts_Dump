@@ -1,0 +1,166 @@
+// "Gamematerial" "effect_name"
+
+
+ImpactTable
+{
+	Info
+	{
+		"whizby_sound_from_player"	"none"
+		"whizby_sound_from_AI"		"none"
+	}
+
+	FX
+	{
+		"C" "P_impact_exp_arcball_default" //Concrete, rock, porcelain, boulder, gravel, asphalt, brick, concrete_block, plaster
+		"D" "P_impact_exp_arcball_default" //Dirt, slipperyslime, snow, carpet, cardboard, floatingstandable, ceiling_tile, papercup
+		"E" "P_impact_exp_arcball_default" // metal_titan
+
+		"F" "P_impact_exp_arcball_default" //flesh
+		"G" "P_impact_exp_arcball_default" //metalgrate, chainlink, chain
+		"H" "P_impact_exp_arcball_default" //alienflesh
+
+		"J" "P_impact_exp_arcball_default" //grass
+		"K" "P_impact_exp_arcball_default" //Mud
+		"L" "P_impact_exp_arcball_default" //plastic_barrel, plastic_box, item, rubber, rubbertire, jeeptire, slidingrubbertire, brakingrubbertire, slidingrubbertire_front, slidingrubbertire_rear
+		"M" "P_impact_exp_arcball_default" //Default, metal, metal_box, solidmetal, armorflesh, metal_bouncy, slippery_metal, shellcasing_small, shellcasing_large, metal_barrel, floating_metal_barrel, weapon
+		"N" "P_impact_exp_arcball_default"
+		"O" "P_impact_exp_arcball_default" //Foliage
+		"P" "P_impact_exp_arcball_default" //Computer
+
+		"R" "P_impact_exp_arcball_default" //metalpanel, grenade, canister
+		"S" "P_impact_exp_arcball_default" //water, slime
+		"T" "P_impact_exp_arcball_default" //tile
+		"U" "P_impact_exp_arcball_default" //glass_breakable
+
+		"V" "P_impact_exp_arcball_default" //Metal Vent
+		"W" "P_impact_exp_arcball_default" //Wood, Wood_lowdensity, Wood_Box, Wood_Crate, Wood_Plank, Wood_Solid, Wood_Furniture, Wood_Panel watermelon
+
+		"Y" "P_impact_exp_arcball_default" //glass, brokenglass, glassbottle, pottery
+		"Z" "P_impact_exp_arcball_default"  //sand
+
+		"0" "P_impact_exp_arcball_default"
+		"1" "P_impact_exp_arcball_default"
+		"2" "P_impact_exp_arcball_default"
+		"3" "P_impact_exp_arcball_default"
+		"4" "P_impact_exp_arcball_default"
+		"5" "P_impact_exp_arcball_default"
+		"6" "P_impact_exp_arcball_default"
+		"7" "P_impact_exp_arcball_default"
+		"8" "P_impact_exp_arcball_default"
+		"9" "P_impact_exp_arcball_default" //puddle
+
+		"airburst" "P_impact_exp_arcball_default"
+		"critical_hit" "P_impact_exp_arcball_default"
+	}
+
+	Sound
+	{
+		"C" "Char_13_Tactical_Impact"
+		"D" "Char_13_Tactical_Impact"
+		"E" "Char_13_Tactical_Impact"
+
+		"F" "Char_13_Tactical_Impact"
+		"G" "Char_13_Tactical_Impact"
+		"H" "Char_13_Tactical_Impact"
+
+		"J" "Char_13_Tactical_Impact"
+		"K" "Char_13_Tactical_Impact"
+		"L" "Char_13_Tactical_Impact"
+		"M" "Char_13_Tactical_Impact"
+		"N" "Char_13_Tactical_Impact"
+		"O" "Char_13_Tactical_Impact"
+		"P" "Char_13_Tactical_Impact"
+
+		"R" "Char_13_Tactical_Impact"
+		"S" "Char_13_Tactical_Impact"
+		"T" "Char_13_Tactical_Impact"
+		"U" "Char_13_Tactical_Impact"
+
+		"V" "Char_13_Tactical_Impact"
+		"W" "Char_13_Tactical_Impact"
+		"X"	"Char_13_Tactical_Impact"
+		"Y" "Char_13_Tactical_Impact"
+		"Z" "Char_13_Tactical_Impact"
+
+		//"splash" "Water.BulletImpact"
+		//"slime_splash" "Water.BulletImpact"
+
+		"airburst" "Char_13_Tactical_Impact"
+		"shieldhit" "Char_13_Tactical_Impact"
+	}
+
+	Sound_attacker
+	{
+		"C" "Char_13_Tactical_Impact"
+		"D" "Char_13_Tactical_Impact"
+		"E" "Char_13_Tactical_Impact"
+
+		"F" "Char_13_Tactical_Impact"
+		"G" "Char_13_Tactical_Impact"
+		"H" "Char_13_Tactical_Impact"
+
+		"J" "Char_13_Tactical_Impact"
+		"K" "Char_13_Tactical_Impact"
+		"L" "Char_13_Tactical_Impact"
+		"M" "Char_13_Tactical_Impact"
+		"N" "Char_13_Tactical_Impact"
+		"O" "Char_13_Tactical_Impact"
+		"P" "Char_13_Tactical_Impact"
+
+		"R" "Char_13_Tactical_Impact"
+		"S" "Char_13_Tactical_Impact"
+		"T" "Char_13_Tactical_Impact"
+		"U" "Char_13_Tactical_Impact"
+
+		"V" "Char_13_Tactical_Impact"
+		"W" "Char_13_Tactical_Impact"
+		"X"	"Char_13_Tactical_Impact"
+		"Y" "Char_13_Tactical_Impact"
+		"Z" "Char_13_Tactical_Impact"
+
+		//"splash" "Water.BulletImpact"
+		//"slime_splash" "Water.BulletImpact"
+
+		//"airburst" "Char_13_Tactical_Impact"
+		"shieldhit" "Char_13_Tactical_Impact"
+	}
+
+	Sound_victim
+	{
+		"C" "Char_13_Tactical_Impact"
+		"D" "Char_13_Tactical_Impact"
+		"E" "Char_13_Tactical_Impact"
+
+		"F" "Char_13_Tactical_Impact"
+		"G" "Char_13_Tactical_Impact"
+		"H" "Char_13_Tactical_Impact"
+
+		"J" "Char_13_Tactical_Impact"
+		"K" "Char_13_Tactical_Impact"
+		"L" "Char_13_Tactical_Impact"
+		"M" "Char_13_Tactical_Impact"
+		"N" "Char_13_Tactical_Impact"
+		"O" "Char_13_Tactical_Impact"
+		"P" "Char_13_Tactical_Impact"
+
+		"R" "Char_13_Tactical_Impact"
+		"S" "Char_13_Tactical_Impact"
+		"T" "Char_13_Tactical_Impact"
+		"U" "Char_13_Tactical_Impact"
+
+		"V" "Char_13_Tactical_Impact"
+		"W" "Char_13_Tactical_Impact"
+		"X"	"Char_13_Tactical_Impact"
+		"Y" "Char_13_Tactical_Impact"
+		"Z" "Char_13_Tactical_Impact"
+
+		//"splash" "Water.BulletImpact"
+		//"slime_splash" "Water.BulletImpact"
+
+		//"airburst" "Char_13_Tactical_Impact"
+		"shieldhit" "Char_13_Tactical_Impact"
+	}
+
+
+}
+

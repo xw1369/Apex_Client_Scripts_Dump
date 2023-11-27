@@ -1,0 +1,77 @@
+// "Gamematerial" "effect_name"
+// This imapct table allows testing of the lighting and color information returned from a bullet impact.
+// 1. The Particle with number 1 is displaying ONLY the color defined in the surfaceproperty.
+// 2. The Particle with number 2 is displaying the output Color Random blending w/ the light probes in the level.
+// 3. The Particle with number 3 is displaying the output of "Color Per Particle" blending with dynamic lighting on the spritecard.
+// 4. The Particle with cycling numbers is displaying the output of color random blending with dynamic lighting on the spritecard.
+
+ImpactTable
+{
+
+	FX
+	{
+
+		"C" "P_test_impact_debug_light" //Concrete, rock, porcelain, boulder, gravel, asphalt, brick, concrete_block, plaster
+		"D" "P_test_impact_debug_light" //Dirt, slippery, carpet, cardboard, floatingstandable, ceiling_tile, papercup, lava_rock
+		"E" "P_test_impact_debug_light" // metal_titan
+
+		"F" "P_test_impact_debug_light" //flesh
+		"G" "P_test_impact_debug_light" //metalgrate, chainlink, chain
+		"H" "P_test_impact_debug_light" //alienflesh
+
+		"J" "P_test_impact_debug_light" //grass
+		"K" "P_test_impact_debug_light" //Mud
+		"L" "P_test_impact_debug_light" //plastic_barrel, plastic_box, item, rubber, rubbertire, jeeptire, slidingrubbertire, brakingrubbertire, slidingrubbertire_front, slidingrubbertire_rear
+		"M" "P_test_impact_debug_light" //Default, metal, metal_box, solidmetal, armorflesh, metal_bouncy, slippery_metal, shellcasing_small, shellcasing_large, metal_barrel, floating_metal_barrel, weapon
+		"N" "P_test_impact_debug_light" //Slime
+		"O" "P_test_impact_debug_light"  //Foliage
+		"P" "P_test_impact_debug_light" //metal_spectre
+		"Q" "P_test_impact_debug_light"  //Snow
+		"R" "P_test_impact_debug_light" //Ice
+		"S" "P_test_impact_debug_light" //water
+		"T" "P_test_impact_debug_light" //tile
+		"U" "P_test_impact_debug_light" // glass_breakable
+		"V" "P_test_impact_debug_light" //Metal Vent
+		"W" "P_test_impact_debug_light"//Wood, Wood_lowdensity, Wood_Box, Wood_Crate, Wood_Plank, Wood_Solid, Wood_Furniture, Wood_Panel watermelon
+
+		"X" "P_test_impact_debug_light" //xo_shield
+
+		"Y" "P_test_impact_debug_light" //glass, brokenglass, glassbottle, pottery
+		"Z" "P_test_impact_debug_light"  //sand (uses color settings in materials)
+
+		"0" "P_test_impact_debug_light" //"openslot"
+		"1" "P_test_impact_debug_light" //lava_flow
+		"2" "P_test_impact_debug_light" //lava_rock_hot
+		"3" "P_test_impact_debug_light" //spiderflesh
+
+		"4" "P_test_impact_debug_light" //"openslot"
+		"5" "P_test_impact_debug_light" //"openslot"
+		"6" "P_test_impact_debug_light" //"openslot"
+		"7" "P_test_impact_debug_light" //"openslot"
+		"8" "P_test_impact_debug_light" //"openslot"
+		"9" "P_test_impact_debug_light" //"openslot"
+
+		"splash" "P_test_impact_debug_light" //brush water
+		"slime_splash" "P_test_impact_debug_light"
+		"airburst" "P_test_impact_debug_light"  //No Surface
+		"shieldhit" "P_test_impact_debug_light"
+		"shadowhit" "P_test_impact_debug_light"
+		"holohit" "P_test_impact_debug_light"
+		"critical_hit" "P_test_impact_debug_light"
+
+		"headshot_flesh" "P_test_impact_debug_light"
+		"headshot_mechanical" "P_test_impact_debug_light"
+
+		"pass_through"	"P_test_impact_debug_light"
+	}
+
+	FX_victim
+	{
+		"F" "P_test_impact_debug_light"
+		"X" "P_test_impact_debug_light"
+		"shieldhit" "P_test_impact_debug_light"
+		"holohit" "P_test_impact_debug_light"
+		"shadowhit" "P_test_impact_debug_light"
+	}
+
+}

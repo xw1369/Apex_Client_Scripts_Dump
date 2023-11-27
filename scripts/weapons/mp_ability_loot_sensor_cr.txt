@@ -1,0 +1,22 @@
+#base "mp_ability_loot_sensor.txt"
+
+WeaponData
+{
+
+	"activitymodifier1p"                    "cr_red_anim"
+    "activitymodifier3p"					"cr_red_anim"
+
+	// Loot Sensor Screen RUI
+	"ui1_enable"		"1"
+	UiData1
+	{
+	    "ui"					"ui/loot_sensor_screen_cr"
+	    "mesh"					"models/weapons/attachments/ultimate_accelerant_rui"
+	    Args
+	    {
+	        angle                   weapon_script_client_float_0
+	        startTime               weapon_script_client_int_0
+	        displayStringState      weapon_script_client_int_1
+	    }
+	}
+}

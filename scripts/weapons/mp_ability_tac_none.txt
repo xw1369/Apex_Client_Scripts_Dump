@@ -1,0 +1,42 @@
+#base "_base_ability_tactical.txt"
+
+WeaponData
+{
+	// General
+    "printname"   									"#WPN_ABILITY_NONE"
+    "shortprintname"								"#WPN_ABILITY_NONE"
+    "description" 									"#WPN_ABILITY_NONE_DESC"
+    "longdesc" 										"#WPN_ABILITY_NONE_DESC"
+
+    "menu_icon"										"rui/hud/tactical_icons/tactical_none"
+    "hud_icon"										"rui/hud/tactical_icons/tactical_none"
+
+	"weapon_type_flags"								"WPT_TACTICAL"
+	"weaponClass" 									"human"
+	"weaponType"									"tactical"
+    "menu_category"									"ordnance"
+	"dev_menu_type"									"offhand"
+	"fire_mode"   									"offhandHybrid"
+	"OnWeaponAttemptOffhandSwitch"					"OnWeaponAttemptOffhandSwitch_Never"
+
+	"reload_enabled"  								"0"
+	"ammo_clip_size"   								"1"
+    "ammo_default_total"							"1"
+    "ammo_display"									"count"
+    "ammo_min_to_fire"								"1"
+    "ammo_per_shot"								    "1"
+    "ammo_stockpile_max"							"1"
+    "regen_ammo_refill_rate"						"100"
+    "regen_ammo_refill_start_delay"				    "0.0"
+
+    // Sounds
+    "sound_dryfire"									"Survival_UI_Ability_NotReady"
+
+    Mods
+    {
+        survival_armor_cooldown_mod
+         {
+             "regen_ammo_refill_rate"    "*1.25"
+         }
+    }
+}

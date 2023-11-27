@@ -1,0 +1,266 @@
+ImpactTable
+{
+	FX
+	{
+
+		"C" "P_leviathan_foot_sand" //Concrete, rock, porcelain, boulder, gravel, asphalt, brick, concrete_block, plaster
+		"D" "P_leviathan_foot_sand" //Dirt, slippery, carpet, cardboard, floatingstandable, ceiling_tile, papercup, lava_rock
+		"E" "P_leviathan_foot_sand" // metal_titan
+		"F" "P_leviathan_foot_sand" //flesh
+		"G" "P_leviathan_foot_sand" //metalgrate, chainlink, chain
+		"H" "P_leviathan_foot_sand" //alienflesh
+
+		"J" "P_leviathan_foot_sand" //grass
+		"K" "P_leviathan_foot_sand" //Mud
+		"L" "P_leviathan_foot_sand" //plastic_barrel, plastic_box, item, rubber, rubbertire, jeeptire, slidingrubbertire, brakingrubbertire, slidingrubbertire_front, slidingrubbertire_rear
+		"M" "P_leviathan_foot_sand" //Default, metal, metal_box, solidmetal, armorflesh, metal_bouncy, slippery_metal, shellcasing_small, shellcasing_large, metal_barrel, floating_metal_barrel, weapon
+		"N" "P_leviathan_foot_sand" //Slime
+		"O" "P_leviathan_foot_sand"  //Foliage
+		"P" "P_leviathan_foot_sand" //metal_spectre
+		"Q" "P_leviathan_foot_sand"  //Snow
+		"R" "P_leviathan_foot_sand" //Ice
+		"S" "P_leviathan_foot_sand" //water
+		"T" "P_leviathan_foot_sand" //tile
+		"U" "P_leviathan_foot_sand" // glass_breakable
+		"V" "P_leviathan_foot_sand" //Metal Vent
+		"W" "P_leviathan_foot_sand"//Wood, Wood_lowdensity, Wood_Box, Wood_Crate, Wood_Plank, Wood_Solid, Wood_Furniture, Wood_Panel watermelon
+		"X" "P_leviathan_foot_sand" //xo_shield
+		"Y" "P_leviathan_foot_sand" //glass, brokenglass, glassbottle, pottery
+		"Z" "P_leviathan_foot_sand"  //sand
+
+//		"0" "openslot"
+		"1" "P_leviathan_foot_sand" //lava_flow
+		"2" "P_leviathan_foot_sand" //lava_rock_hot
+//		"3" "openslot"
+//		"4" "openslot"
+//		"5" "openslot"
+//		"6" "openslot"
+//		"7" "openslot"
+//		"8" "openslot"
+//		"9" "openslot"
+
+		"splash" "P_leviathan_foot_sand" //brush water
+		"slime_splash" "P_leviathan_foot_sand"
+		"airburst" "P_leviathan_foot_sand"  //No Surface
+		"shieldhit" "P_leviathan_foot_sand"
+		"holohit" "P_leviathan_foot_sand"
+		"critical_hit" "P_leviathan_foot_sand"
+
+		"headshot_flesh" "P_leviathan_foot_sand"
+		"headshot_mechanical" "P_leviathan_foot_sand"
+
+		"pass_through"	"P_leviathan_foot_sand"
+	}
+
+	Sound
+	{
+		"C" "none"
+		"D" "none"
+		"E" "none"
+		"F" "none"
+		"G" "none" // "ChainLink.BulletImpact"
+		"H" "none"
+
+		"J" "none"
+		"K" "none"  // mud?
+		"L" "none" // "Plastic_Box.BulletImpact"
+		"M" "none"	//"ArmorFlesh.BulletImpact"
+		"N" "none"	// sand?
+		"O" "none"
+		"P" "none"
+		"Q" "none"
+		"R" "none"
+		"S" "none"
+		"T" "none"
+		"U" "none"
+		"V" "none"
+		"W" "none"
+		"X"	"none" // Titan bubble shield
+		"Y" "none"
+		"Z" "none"
+
+		"0" "none"
+		"1" "none" //lava_flow
+		"2" "none" //lava_rock_hot
+		"3" "none"
+		"4" "none"
+		"5" "none"
+		"6" "none"
+		"7" "none"
+		"8" "none"
+		"9" "none"
+
+
+		"splash" "none" //brush water
+		"slime_splash" "none"
+		"airburst" "none"  //No Surface
+		"shieldhit" "none"
+		"holohit" "none"
+		"critical_hit" "none"
+
+		"headshot_flesh" "none"
+		"headshot_mechanical" "none"
+
+		"pass_through"	"none"
+	}
+
+	Sound_attacker
+	{
+		"C" "none"
+		"D" "none"
+		"E" "none"
+		"F" "none"
+		"G" "none" // "ChainLink.BulletImpact"
+		"H" "none"
+
+		"J" "none"
+		"K" "none"  // mud?
+		"L" "none" // "Plastic_Box.BulletImpact"
+		"M" "none"	//"ArmorFlesh.BulletImpact"
+		"N" "none"	// sand?
+		"O" "none"
+		"P" "none"
+		"Q" "none"
+		"R" "none"
+		"S" "none"
+		"T" "none"
+		"U" "none"
+		"V" "none"
+		"W" "none"
+		"X"	"none" // Titan bubble shield
+		"Y" "none"
+		"Z" "none"
+
+		"0" "none"
+		"1" "none" //lava_flow
+		"2" "none" //lava_rock_hot
+		"3" "none"
+		"4" "none"
+		"5" "none"
+		"6" "none"
+		"7" "none"
+		"8" "none"
+		"9" "none"
+
+
+		"splash" "none" //brush water
+		"slime_splash" "none"
+		"airburst" "none"  //No Surface
+		"shieldhit" "none"
+		"holohit" "none"
+		"critical_hit" "none"
+
+		"headshot_flesh" "none"
+		"headshot_mechanical" "none"
+
+		"pass_through"	"none"
+	}
+
+	Sound_victim
+	{
+			"C" "none"
+		"D" "none"
+		"E" "none"
+		"F" "none"
+		"G" "none" // "ChainLink.BulletImpact"
+		"H" "none"
+
+		"J" "none"
+		"K" "none"  // mud?
+		"L" "none" // "Plastic_Box.BulletImpact"
+		"M" "none"	//"ArmorFlesh.BulletImpact"
+		"N" "none"	// sand?
+		"O" "none"
+		"P" "none"
+		"Q" "none"
+		"R" "none"
+		"S" "none"
+		"T" "none"
+		"U" "none"
+		"V" "none"
+		"W" "none"
+		"X"	"none" // Titan bubble shield
+		"Y" "none"
+		"Z" "none"
+
+		"0" "none"
+		"1" "none" //lava_flow
+		"2" "none" //lava_rock_hot
+		"3" "none"
+		"4" "none"
+		"5" "none"
+		"6" "none"
+		"7" "none"
+		"8" "none"
+		"9" "none"
+
+
+		"splash" "none" //brush water
+		"slime_splash" "none"
+		"airburst" "none"  //No Surface
+		"shieldhit" "none"
+		"holohit" "none"
+		"critical_hit" "none"
+
+		"headshot_flesh" "none"
+		"headshot_mechanical" "none"
+
+		"pass_through"	"none"
+	}
+
+	Sound_victim_from_AI
+	{
+		"C" "none"
+		"D" "none"
+		"E" "none"
+		"F" "none"
+		"G" "none" // "ChainLink.BulletImpact"
+		"H" "none"
+
+		"J" "none"
+		"K" "none"  // mud?
+		"L" "none" // "Plastic_Box.BulletImpact"
+		"M" "none"	//"ArmorFlesh.BulletImpact"
+		"N" "none"	// sand?
+		"O" "none"
+		"P" "none"
+		"Q" "none"
+		"R" "none"
+		"S" "none"
+		"T" "none"
+		"U" "none"
+		"V" "none"
+		"W" "none"
+		"X"	"none" // Titan bubble shield
+		"Y" "none"
+		"Z" "none"
+
+		"0" "none"
+		"1" "none" //lava_flow
+		"2" "none" //lava_rock_hot
+		"3" "none"
+		"4" "none"
+		"5" "none"
+		"6" "none"
+		"7" "none"
+		"8" "none"
+		"9" "none"
+
+
+		"splash" "none" //brush water
+		"slime_splash" "none"
+		"airburst" "none"  //No Surface
+		"shieldhit" "none"
+		"holohit" "none"
+		"critical_hit" "none"
+
+		"headshot_flesh" "none"
+		"headshot_mechanical" "none"
+
+		"pass_through"	"none"
+
+		// Victim headshot sounds taken care of in PlayVictimHeadshotConfirmation():
+		//"headshot_flesh" "Flesh.BulletImpact_3P_vs_1P"
+		//"headshot_mechanical" "Android.Light.BulletImpact_3P_vs_1P"
+	}
+}

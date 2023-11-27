@@ -1,0 +1,100 @@
+#base "_base_ability_ultimate.txt"
+
+WeaponData
+{
+	// General
+	"printname"   									"#WPN_EARTHSHAKER"
+	"shortprintname"   								"#WPN_EARTHSHAKER_SHORT"
+	"description" 									"#WPN_EARTHSHAKER_DESC"
+	"longdesc"										"#WPN_EARTHSHAKER_LONGDESC"
+
+	"menu_icon"										"rui/pilot_loadout/kit/temp_earthshaker_icon"
+	"hud_icon"										"rui/pilot_loadout/kit/temp_earthshaker_icon"
+
+	"offhand_active_slot"                           "mainHand"
+	"offhand_default_inventory_slot"				"1"
+	"offhand_keep_primary_in_hand"					"0"
+	"offhand_holster_primary"						"1"
+    "hide_holstered_sidearm_when_active"			"1"
+    "offhand_interupts_weapon_anims"				"1"
+
+    "OnWeaponPrimaryAttack"                         "OnWeaponPrimaryAttack_ability_earthshaker"
+    "OnWeaponDeactivate"                            "OnWeaponDeactivate_ability_earthshaker"
+    "OnWeaponAttemptOffhandSwitch"                  "OnWeaponAttemptOffhandSwitch_ability_earthshaker"
+
+	// Models
+	"viewmodel"   									"mdl/weapons/empty_handed/ptpov_mirage_holopilot.rmdl"
+	"playermodel" 									"mdl/weapons/empty_handed/w_empty_handed_mirage.rmdl"
+	"projectilemodel" 								"mdl/dev/empty_model.rmdl"
+
+	"bone_merge_world_model"						"1"
+
+	"fire_mode"   									"offhand"
+    "fire_rate"   									"1.0"
+    "zoom_effects"                                  "0"
+	"allow_empty_fire"								"0"
+	"damage_type"                                   "none" // Necessary, otherwise it defaults to "bullet" which makes code fire something. DUMB I HATE THIS DUMB DUMB DUMB
+
+	// Animation
+	"fire_anim_rate"  								"1.0"
+
+	// Ammo - Regen
+	"regen_ammo_refill_rate"						"1"
+	"regen_ammo_refill_start_delay"					"10.0"
+
+    // Reload
+    "reload_enabled"  								"0"
+    "allow_empty_click"   							"0"                                                                 //? not sure, but NOT the error sound that plays when an ability is still on CD
+    "empty_reload_only"   							"0"
+
+	// Behavior - Aim Assist
+    "aimassist_disable_hipfire"                     "1"
+    "aimassist_disable_ads"                         "1"
+
+	// Sounds
+	"fire_sound_1_player_1p"						"arcwave_fire_1p"
+	"fire_sound_1_player_3p"						"arcwave_fire_3p"
+
+    // Ammo
+    "ammo_clip_size"   								"120"                                                               //how much ammo is in a clip of the weapon
+    "ammo_default_total"							"0"                                                                 //? how much ammo comes with the weapon in total, clip + "stockpile". Doesn't seem to do anything without "uses_ammo_pool" 0
+    "ammo_stockpile_max"							"120"                                                               //how much ammo can be held in "stockpile", seems to be the place where Red (crated) weapons have their ammo reserves. Otherwise weapons seem to use "uses_ammo_pool" and "ammo_pool_type" for shared, held ammo normal to Apex. See mp_weapon_mastiff as an example.
+    "ammo_display"									"count"                                                             //? either "count" or "bar"
+    "ammo_min_to_fire"								"120"                                                               //? minimum ammont of ammo in the clip in order to fire?
+    "ammo_per_shot"									"120"                                                               //ammo spent on activation
+    "ammo_no_remove_from_stockpile"					"0"                                                                 //? appears to define whether or not reloading drains ammo from the stockpile to put into the clip. With this set to 1, reserve ammo is infinite, Overwatch-style. Need to ask mayampolsky about this.
+	"cooldown_type"                                 "ammo_instant"                                                      //? either "ammo_instant" or "vortex_drain"
+
+	// Rumble
+	"fire_rumble"									"rumble_pistol_heavy"
+
+	Mods
+	{
+	    survival_armor_cooldown_mod
+        {
+            "regen_ammo_refill_rate"    "*1.25"
+        }
+	}
+
+	"ordnance_crosshair_always_on_start_index"	"0"
+
+	RUI_CrosshairData
+	{
+		DefaultArgs
+		{
+			crosshairMovementX          crosshair_movement_x
+		    crosshairMovementY          crosshair_movement_y
+		}
+
+		Crosshair_2
+		{
+			"ui"						"ui/crosshair_tactical"
+			Args
+			{
+			    regenRate               "eWeaponVar.regen_ammo_refill_rate"
+			    ammoFrac                "progress_weapon_clip_ammo_frac"
+			    dryfireTime             "weapon_latest_dryfire_time"
+			}
+		}
+	}
+}

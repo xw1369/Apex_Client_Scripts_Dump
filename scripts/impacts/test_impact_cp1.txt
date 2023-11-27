@@ -1,0 +1,59 @@
+// "Gamematerial" "effect_name"
+
+
+ImpactTable
+{
+
+	FX
+	{
+		"C" "P_test_angles_CP1" //Concrete, rock, porcelain, boulder, gravel, asphalt, brick, concrete_block, plaster
+		"D" "P_test_angles_CP1" //Dirt, slipperyslime, snow, carpet, cardboard, floatingstandable, ceiling_tile, papercup
+		"E" "P_test_angles_CP1" // metal_titan
+
+		"F" "P_test_angles_CP1" //flesh
+		"G" "P_test_angles_CP1" //metalgrate, chainlink, chain
+		"H" "P_test_angles_CP1" //alienflesh
+
+		"J" "P_test_angles_CP1" //grass
+		"K" "P_test_angles_CP1" //Mud
+		"L" "P_test_angles_CP1" //plastic_barrel, plastic_box, item, rubber, rubbertire, jeeptire, slidingrubbertire, brakingrubbertire, slidingrubbertire_front, slidingrubbertire_rear
+		"M" "P_test_angles_CP1" //Default, metal, metal_box, solidmetal, armorflesh, metal_bouncy, slippery_metal, shellcasing_small, shellcasing_large, metal_barrel, floating_metal_barrel, weapon
+		"N" "P_test_angles_CP1"
+		"O" "P_test_angles_CP1" //Foliage
+		"P" "P_test_angles_CP1" //Computer
+
+		"R" "P_test_angles_CP1" //metalpanel, grenade, canister
+		"S" "P_test_angles_CP1" //water, slime
+		"T" "P_test_angles_CP1" //tile
+		"U" "P_test_angles_CP1" //glass_breakable
+
+		"V" "P_test_angles_CP1" //Metal Vent
+		"W" "P_test_angles_CP1" //Wood, Wood_lowdensity, Wood_Box, Wood_Crate, Wood_Plank, Wood_Solid, Wood_Furniture, Wood_Panel watermelon
+
+		"X" "P_test_angles_CP1" //xo_shield
+
+		"Y" "P_test_angles_CP1" //glass, brokenglass, glassbottle, pottery
+		"Z" "P_test_angles_CP1"  //sand
+
+		"0" "P_test_angles_CP1"
+		"1" "P_test_angles_CP1"
+		"2" "P_test_angles_CP1"
+		"3" "P_test_angles_CP1"
+		"4" "P_test_angles_CP1"
+		"5" "P_test_angles_CP1"
+		"6" "P_test_angles_CP1"
+		"7" "P_test_angles_CP1"
+		"8" "P_test_angles_CP1"
+		"9" "P_test_angles_CP1" //puddle
+
+		"splash" "P_test_angles_CP1" //brush water
+		"slime_splash" "P_test_angles_CP1"
+		"airburst" "P_test_angles_CP1"  //No Surface
+		"shieldhit" "P_test_angles_CP1"
+		"critical_hit" "P_test_angles_CP1"
+
+		"headshot_flesh" "P_test_angles_CP1"
+		"headshot_mechanical" "P_test_angles_CP1"
+	}
+
+}

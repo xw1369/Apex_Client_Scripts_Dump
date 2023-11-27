@@ -1,0 +1,239 @@
+ImpactTable
+{
+	FX
+	{
+		"A" "none" //default silent (clip)
+		"B" "none" //Bloodyflesh?
+
+		"C" "none" // Concrete, rock, porcelain, boulder, gravel, asphalt, brick, concrete_block, plaster
+		"D" "none" // Dirt, slipperyslime, snow, carpet, cardboard, floatingstandable, ceiling_tile, papercup, lavarock
+		"E" "none" // metal_titan
+		"F" "none" //flesh
+		"G" "none" //metalgrate, chainlink, chain
+		"H" "none" //alienflesh
+
+		"I" "none" //player_control_clip
+
+		"J" "none" //grass
+		"K" "none" //Mud
+		"L" "none" //plastic_barrel, plastic_box, item, rubber, rubbertire, jeeptire, slidingrubbertire, brakingrubbertire, slidingrubbertire_front, slidingrubbertire_rear
+		"M" "none" //Default, metal, metal_box, solidmetal, armorflesh, metal_bouncy, slippery_metal, shellcasing_small, shellcasing_large, metal_barrel, floating_metal_barrel, weapon
+		"N" "none" //Slime
+		"O" "none" //Foliage
+		"P" "none" //Computer
+		"Q" "none" //Snow
+		"R" "none" //Ice
+		"S" "none" //water, slime
+		"T" "none" //tile
+		"U" "none" //glass_breakable
+		"V" "none" //Metal Vent
+		"W" "none" //Wood, Wood_lowdensity, Wood_Box, Wood_Crate, Wood_Plank, Wood_Solid, Wood_Furniture, Wood_Panel watermelon
+		"X" "none" //xo_shield
+		"Y" "none" //glass, brokenglass, glassbottle, pottery
+		"Z" "none" //sand
+
+//		"0" "openslot"
+		"1" "none" //lava_flow
+		"2" "none" //lava_rock_hot
+//		"3" "openslot"
+//		"4" "openslot"
+//		"5" "openslot"
+//		"6" "openslot"
+//		"7" "openslot"
+//		"8" "openslot"
+//		"9" "openslot"
+
+
+		//Hardcocded Surfacprops
+		"splash" "none" //brush water
+		"slime_splash" "none"
+		"airburst" "none"  //No Surface
+		"shieldhit" "none" //Invisible armor
+		"holohit" "none" //Holopilot entity
+		"critical_hit" "none" //titan weekspots
+
+		"headshot_flesh" "none" //Human headshot
+		"headshot_mechanical" "none" //Robotic Headshot
+
+	}
+
+	Sound
+    	{
+            "A" "none" //default silent (clip)
+            "B" "none" //Bloodyflesh?
+
+    		"C" "Concrete.Grapple.Impact_3P_vs_3P"
+    		"D" "Dirt.Grapple.Impact_3P_vs_3P"
+    		"E" "SolidMetal.Grapple.Impact_3P_vs_3P"
+
+    		"F" "Flesh.Grapple.Impact_3P_vs_3P"
+    		"G" "Default.Grapple.Impact_3P_vs_3P"
+    		"H" "Flesh.Grapple.Impact_3P_vs_3P"
+
+    		"I" "none" //player_control_clip
+
+    		"J" "Dirt.Grapple.Impact_3P_vs_3P"
+    		"K" "Mud.Grapple.Impact_3P_vs_3P"  // mud?
+    		"L" "Default.Grapple.Impact_3P_vs_3P"
+    		"M" "SolidMetal.Grapple.Impact_3P_vs_3P"
+    		"N" "Default.Grapple.Impact_3P_vs_3P"	// sand?
+    		"O" "Default.Grapple.Impact_3P_vs_3P"
+    		"P" "Android.Grapple.Impact_3P_vs_3P"
+    		"Q" "Sand.Grapple.Impact_3P_vs_3P"
+    		"R" "SolidMetal.Grapple.Impact_3P_vs_3P"
+    		"S" "Default.Grapple.Impact_3P_vs_3P"
+    		"T" "Default.Grapple.Impact_3P_vs_3P"
+    		"U" "Default.Grapple.Impact_3P_vs_3P"
+
+    		"V" "SolidMetal.Grapple.Impact_3P_vs_3P"
+    		"W" "Wood.Grapple.Impact_3P_vs_3P"
+    		"X" "TitanBubbleShield.Grapple.Impact_3P_vs_3P"
+    		"Y" "Glass.Grapple.Impact_3P_vs_3P"
+    		"Z" "Sand.Grapple.Impact_3P_vs_3P"
+
+    		"0" "none"
+            "1" "none" //lava_flow
+            "2" "none" //lava_rock_hot
+            "3" "none" //spiderflesh
+            "4" "none"
+            "5" "none"
+            "6" "none"
+            "7" "none"
+            "8" "none"
+            "9" "none"
+
+            //Hardcocded Surfacprops
+            "splash" "none" //brush water
+            "slime_splash" "none"
+            "airburst" "none"  //No Surface
+            "shieldhit" "Default.Grapple.Impact_3P_vs_3P"
+            "shadowhit" "none"
+            "holohit" "none"
+            "critical_hit" "none"
+
+            "headshot_flesh" "none"
+            "headshot_mechanical" "none"
+
+            "pass_through"	"none"
+    	}
+
+    	Sound_attacker
+    	{
+    	    "A" "none" //default silent (clip)
+            "B" "none" //Bloodyflesh?
+
+    		"C" "Concrete.Grapple.Impact_1P_vs_3P"
+    		"D" "Dirt.Grapple.Impact_1P_vs_3P"
+    		"E" "titan_grapple_impact_1p_vs_3p"
+
+    		"F" "Flesh.Grapple.Impact_1P_vs_3P"
+    		"G" "Default.Grapple.Impact_1P_vs_3P"
+    		"H" "Flesh.Grapple.Impact_1P_vs_3P"
+
+    		"I" "none" //player_control_clip
+
+    		"J" "Dirt.Grapple.Impact_1P_vs_3P"
+    		"K" "Mud.Grapple.Impact_1P_vs_3P"  // mud?
+    		"L" "Default.Grapple.Impact_1P_vs_3P"
+    		"M" "SolidMetal.Grapple.Impact_1P_vs_3P"
+    		"N" "Default.Grapple.Impact_1P_vs_3P"	// sand?
+    		"O" "Default.Grapple.Impact_1P_vs_3P"
+    		"P" "Android.Grapple.Impact_1P_vs_3P"
+    		"Q" "Sand.Grapple.Impact_1P_vs_3P"
+    		"R" "SolidMetal.Grapple.Impact_1P_vs_3P"
+    		"S" "Default.Grapple.Impact_1P_vs_3P"
+    		"T" "Default.Grapple.Impact_1P_vs_3P"
+    		"U" "Default.Grapple.Impact_1P_vs_3P"
+
+    		"V" "SolidMetal.Grapple.Impact_1P_vs_3P"
+    		"W" "Wood.Grapple.Impact_1P_vs_3P"
+    		"X" "TitanBubbleShield.Grapple.Impact_1P_vs_3P"
+    		"Y" "Glass.Grapple.Impact_1P_vs_3P"
+    		"Z" "Sand.Grapple.Impact_1P_vs_3P"
+
+    		"0" "none"
+            "1" "none" //lava_flow
+            "2" "none" //lava_rock_hot
+            "3" "none" //spiderflesh
+            "4" "none"
+            "5" "none"
+            "6" "none"
+            "7" "none"
+            "8" "none"
+            "9" "none"
+
+            //Hardcocded Surfacprops
+            "splash" "none" //brush water
+            "slime_splash" "none"
+            "airburst" "none"  //No Surface
+            "shieldhit" "TitanShield.Heavy.BulletImpact_1P_vs_3P"
+            "shadowhit" "none"
+            "holohit" "none"
+            "critical_hit" "none"
+
+            "headshot_flesh" "none"
+            "headshot_mechanical" "none"
+
+            "pass_through"	"none"
+    	}
+
+    	Sound_victim
+    	{
+    	    "A" "none" //default silent (clip)
+            "B" "none" //Bloodyflesh?
+
+    		"C" "Concrete.Grapple.Impact_3P_vs_3P"
+    		"D" "Default.Grapple.Impact_3P_vs_3P"
+    		"E" "titan_grapple_impact_3p_vs_1p"
+
+    		"F" "Flesh.Grapple.Impact_3P_vs_1P"
+    		"G" "Default.Grapple.Impact_3P_vs_3P"
+    		"H" "Flesh.Grapple.Impact_3P_vs_1P"
+
+    		"I" "none" //player_control_clip
+
+    		"J" "Default.Grapple.Impact_3P_vs_3P"
+    		"K" "Mud.Grapple.Impact_3P_vs_3P"  // mud?
+    		"L" "Default.Grapple.Impact_3P_vs_3P"
+    		"M" "SolidMetal.Grapple.Impact_3P_vs_3P"
+    		"N" "Default.Grapple.Impact_3P_vs_3P"	// sand?
+    		"O" "Default.Grapple.Impact_3P_vs_3P"
+    		"P" "Android.Grapple.Impact_3P_vs_1P"
+    		"Q" "Sand.Grapple.Impact_3P_vs_3P"
+    		"R" "SolidMetal.Grapple.Impact_3P_vs_3P"
+    		"S" "Default.Grapple.Impact_3P_vs_3P"
+    		"T" "Default.Grapple.Impact_3P_vs_3P"
+    		"U" "Default.Grapple.Impact_3P_vs_3P"
+
+    		"V" "SolidMetal.Grapple.Impact_3P_vs_3P"
+    		"W" "Default.Grapple.Impact_3P_vs_3P"
+    		"X" "TitanBubbleShield.Grapple.Impact_3P_vs_3P"
+    		"Y" "Default.Grapple.Impact_3P_vs_3P"
+    		"Z" "Sand.Grapple.Impact_3P_vs_3P"
+
+    		"0" "none"
+            "1" "none" //lava_flow
+            "2" "none" //lava_rock_hot
+            "3" "none" //spiderflesh
+            "4" "none"
+            "5" "none"
+            "6" "none"
+            "7" "none"
+            "8" "none"
+            "9" "none"
+
+    		//Hardcocded Surfacprops
+            "splash" "none" //brush water
+            "slime_splash" "none"
+            "airburst" "none"  //No Surface
+            "shieldhit" "Default.Grapple.Impact_3P_vs_3P"
+            "shadowhit" "none"
+            "holohit" "none"
+            "critical_hit" "none"
+
+            "headshot_flesh" "none"
+            "headshot_mechanical" "none"
+
+            "pass_through"	"none"
+    	}
+    }

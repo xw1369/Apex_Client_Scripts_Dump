@@ -1,0 +1,108 @@
+#base "_base_ability_ultimate.txt"
+
+WeaponData
+{
+//
+//  Info
+//
+	printname       "#MAALI_ULT_NAME"
+	shortprintname  "#MAALI_ULT_NAME"
+	description     "#MAALI_ULT_DESC"
+	longdesc        "#MAALI_ULT_LONGDESC"
+	menu_icon       "white"
+	hud_icon        "rui/hud/ultimate_icons/ultimate_maali"
+
+
+//
+//  Mechanics
+//
+	fire_mode                               offhand
+	is_toss_weapon                          1
+	offhand_interupts_weapon_anims          1
+	offhand_toss_activates_on_attack        1
+	offhand_toss_hold_is_resumable          1
+	max_cook_time                           99999
+	grenade_ignition_time                   99999
+
+	cooldown_type                           ammo_timed
+	regen_ammo_refill_rate                  1
+	reload_enabled                          0 // required to make ammo regen work
+	damage_type                             none // Necessary, otherwise it defaults to "bullet" which makes code fire a bolt!
+
+	trophy_syssstem_ignore                    1
+
+	projectile_launch_speed                 1100
+	projectile_launch_pitch_offset          8.0
+
+	damage_near_distance                0
+	damage_near_value                   0
+	damage_far_distance                 0
+	damage_far_value                    0
+
+//
+//  Balance
+//
+	fire_rate                           2.0
+	fire_duration                       1.0
+	deploy_time                         0.5
+	toss_pullout_time                   0.0
+	toss_time                           0.4
+	toss_overhead_time                  0.4
+	lower_time                          0.0
+
+	ammo_clip_size                      160 // seconds to full charge
+	ammo_per_shot                       160
+	ammo_min_to_fire                    160
+
+//
+//  Aesthetics
+//
+	zoom_effects                        0
+	grenade_arc_indicator_show_from_hip 1
+	grenade_arc_indicator_bounce_count  "1"
+	grenade_arc_indicator_effect        "P_arc_red"
+	grenade_arc_indicator_effect_first  "P_arc_red"
+	grenade_arc_impact_indicator_effect "P_arc_red_end"
+
+	fire_rumble                         wraith_phase_buildup
+
+	viewmodel                           "mdl/Weapons/grenades/ptpov_bangalore_canister_held.rmdl"
+	playermodel                         "mdl/Weapons/grenades/w_bangalore_canister.rmdl"
+	projectilemodel                     "mdl/Weapons/grenades/w_bangalore_canister_flare_projectile.rmdl"
+	bounce_effect_table                 "bounce_small"
+	impact_effect_table                 "none"
+	projectile_trail_effect_0_1p        "P_wpn_arcball_trail_amp"
+	projectile_trail_effect_0_3p        "P_wpn_arcball_trail_amp"
+	projectile_trail_attachment         "FX_TRAIL"
+	projectile_adjust_to_gun_barrel     0
+	projectile_adjust_to_hand           1
+
+	sound_throw_1p                      "Bangalore_Ultimate_Throw_1p"
+	sound_deploy_1p                     "Bangalore_Ultimate_Canister_Pullout_1p"
+	sound_throw_3p                      "weapon_electric_smoke_throw_3p"
+	sound_deploy_3p                     "Bangalore_Ultimate_Canister_Pullout_3p"
+	sound_cook_warning                  "Weapon_Vortex_Gun.ExplosiveWarningBeep"
+	idle_sound_player_1p                "Bangalore_Ultimate_IdleHiss"
+	sound_grenade_projectile            "Bangalore_Ultimate_Whoosh"
+
+
+//
+// Script hookups
+//
+
+	OnWeaponRegenEnd                    OnWeaponRegenEnd_ability_rainstorm
+	OnWeaponActivate                    OnWeaponActivate_ability_rainstorm
+	OnWeaponDeactivate                  OnWeaponDeactivate_ability_rainstorm
+	OnWeaponReadyToFire                 OnWeaponReadyToFire_ability_rainstorm
+	OnWeaponTossPrep                    OnWeaponTossPrep_ability_rainstorm
+	OnWeaponTossReleaseAnimEvent        OnWeaponTossReleaseAnimEvent_ability_rainstorm
+	OnProjectileCollision               OnProjectileCollision_ability_rainstorm
+
+	Mods
+	{
+		survival_finite_ordnance
+		{
+
+		}
+	}
+}

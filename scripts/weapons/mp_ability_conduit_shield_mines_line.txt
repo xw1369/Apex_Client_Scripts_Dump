@@ -1,0 +1,200 @@
+#base "_base_ability_ultimate.txt"
+
+WeaponData
+{
+	// General
+	"printname"   									"#ABL_CONDUIT_ULTIMATE"
+    "shortprintname"                                "#ABL_CONDUIT_ULTIMATE"
+	"description" 									"#ABL_CONDUIT_ULTIMATE_DESC"
+	"longdesc"										"#ABL_CONDUIT_ULTIMATE_LONGDESC"
+
+	"fire_mode"                        				"offhand"
+	"is_semi_auto"									"1"
+	"offhand_cancelled_by_melee"					"1"
+	"offhand_interupts_weapon_anims"   				"1"
+	"offhand_active_slot"                           "mainHand"
+	"fast_swap_to"			                        "1"
+	"fast_swap_from"                                "1"
+	"allow_empty_fire"								"0"
+	"offhand_toss_activates_on_attack"				"1"
+	"uses_indirect_fire"							"1"
+
+	"offhand_hold_enabled"							"0"
+
+
+	"menu_icon"										"rui/hud/ultimate_icons/ultimate_conduit"
+	"hud_icon"										"rui/hud/ultimate_icons/ultimate_conduit"
+
+	"OnProjectileCollision"							"OnProjectileCollision_ability_shield_mines_line"
+
+	"projectile_launch_speed"						"1"
+	"projectile_launch_pitch_offset"				"8"
+
+    "projectile_adjust_to_gun_barrel"				"0"
+    "projectile_adjust_to_hand"						"0"
+
+	// Models
+	"viewmodel"                                     "mdl/weapons/empty_handed/w_empty_handed_human.rmdl"
+	"playermodel"									"mdl/weapons/empty_handed/w_empty_handed_human.rmdl"
+	"projectilemodel" 								"mdl/props/conduit/conduit_shield_jammer.rmdl"
+
+    "grenade_arc_indicator_show_from_hip"			"1"
+    "grenade_arc_indicator_show_during_toss"        "0"
+    "grenade_arc_indicator_show_while_airborne"     "0"
+	"grenade_arc_indicator_bounce_count"			"1"
+    "grenade_arc_indicator_ignore_base_velocity"	"1"
+	"grenade_arc_indicator_effect"					"P_arc_light_blue"
+	"grenade_arc_indicator_effect_first"			"P_arc_light_blue"
+	"grenade_arc_impact_indicator_effect"			"P_arc_blue_end"
+
+	"grenade_bounce_vel_frac_shallow"				"0.8"
+	"grenade_bounce_vel_frac_sharp"					"0.1"
+	"grenade_bounce_vel_frac_along_normal"			"0.25"
+
+	"grenade_hull_mins"								"-8 -8 0"
+	"grenade_hull_maxs"								"8 8 5"
+
+	"stick_pilot"                                   "0"
+	"stick_titan"                                   "0"
+	"stick_npc"                                     "0"
+
+
+
+		// Effects
+	"impact_effect_table" 							"conduit_jammer"
+    "bounce_effect_table" 							"conduit_jammer_bounce"
+
+	"projectile_trail_effect_0_1p" 					"P_con_ult_jmr_deploy_trail"
+	"projectile_trail_effect_0_3p" 					"P_con_ult_jmr_deploy_trail"
+
+	// Effects
+	"charge_sound_1p"								""
+	"charge_sound_3p"								""
+
+
+	// Sound
+    sound_disabledfire                  ""
+    sound_dryfire                       ""
+    sound_weapon_ready                  ""
+
+	// Muzzle flash
+	"fx_muzzle_flash_view"							"P_wpn_muzzleflash_epg_FP"
+	"fx_muzzle_flash_world"							"P_wpn_muzzleflash_epg"
+	"fx_muzzle_flash_attach"						"muzzle_flash"
+
+    "charge_effect_attachment"						"muzzle_flash"
+	"charge_effect_1p"								"P_gun_shield_gibraltar_FP"
+
+    "aimassist_disable_hipfire"						"1"
+	"aimassist_disable_ads"							"1"
+
+	// Rumble
+	"rumble"  										"-1"
+
+	// Ammo
+	//"ammo_default_total"							"0"
+    //"ammo_clip_size"				    			"105"
+    //"ammo_stockpile_max"							"105"
+    //"ammo_display"									"count"
+    //"ammo_min_to_fire"								"105"
+   // "ammo_per_shot"									"15"
+    //"regen_ammo_refill_rate"						"0"
+    //"regen_ammo_refill_start_delay"					"0.0"
+    //"ammo_no_remove_from_stockpile"					"0"
+    //"no_ammo_used_on_primary_attack"	            "0"
+
+    // Damage Settings
+
+	"damage_type" 									"burn"
+	"damage_near_distance"							"0"
+	"damage_far_distance" 							"0"
+	"damage_near_value"   							"0"
+	"damage_far_value"								"0"
+	"impulse_force"   								"3000"
+    "explosion_shake_radius"						"200"
+    "explosion_shake_amplitude"						"20"
+    "explosion_shake_frequency"						"45"
+    "explosion_shake_duration"						"0.1"
+    "explosion_damage"								"0"
+    "explosion_damage_heavy_armor"					"0"
+    "explosion_inner_radius" 					    "200"
+    "explosionradius" 								"200"
+
+	// Charge settings
+    "cooldown_type"                                 "ammo_timed"
+	"charge_time" 									"0.0"
+	"charge_cooldown_time"							"0.0"
+	"charge_cooldown_delay"   						"0.0"
+	"charge_end_forces_fire"  						"0"
+	"charge_allow_melee"							"1"		// re-enable for DLC4, fix anim bugs
+	"charge_remain_full_when_fired"	                "0"
+	"charge_require_input"							"1"
+
+	// Behavior
+	"grenade_ignition_time"                         "0"
+	"fire_rate"   									"12.0"
+	//"fire_duration"                                 "1"
+	//"toss_time"										"1"
+	"holster_time"									".5"
+	"deploy_time" 									"0.0"
+	"lower_time"  									".2"
+	"raise_time"  									".2"
+	"vortex_refire_behavior"  						"absorb"
+	"play_offhand_charging_anim"  					"1"
+	"offhand_blocks_sprint"							"0"
+	"reload_enabled"  								"0"
+	"allow_empty_click"   							"0"
+	"empty_reload_only"   							"0"
+	"trigger_snipercam"   							"0"
+	"allow_headshots" 								"0"
+	"enable_hud_alert"								"0"
+	"ammo_drains_to_empty_on_fire"					"0"
+
+	// Sway
+	"sway_rotate_attach"  							"jx_c_pov"
+	"sway_min_x"  									"-0.3"
+	"sway_min_y"  									"-0.5"
+	"sway_min_z"  									"-0.5"
+	"sway_max_x"  									"0.3"
+	"sway_max_y"  									"0.5"
+	"sway_max_z"  									"0.1"
+	"sway_min_pitch"  								"-3"
+	"sway_min_yaw"									"-3.5"
+	"sway_min_roll"   								"-1"
+	"sway_max_pitch"  								"3"
+	"sway_max_yaw"									"3.5"
+	"sway_max_roll"   								"2"
+	"sway_translate_gain" 							"4"
+	"sway_rotate_gain"								"7"
+	"sway_move_forward_translate_x"   				"0"
+	"sway_move_forward_translate_z"   				"-0.5"
+	"sway_move_back_translate_x"  					"-2"
+	"sway_move_back_translate_z"  					"-1"
+	"sway_move_left_translate_y"  					"-1"
+	"sway_move_left_translate_z"  					"-0.5"
+	"sway_move_left_rotate_roll"  					"-1"
+	"sway_move_right_translate_y" 					"1"
+	"sway_move_right_translate_z" 					"-0.5"
+	"sway_move_right_rotate_roll" 					"2"
+	"sway_move_up_translate_z"						"-1"
+	"sway_move_down_translate_z"  					"1"
+	"sway_turn_left_rotate_yaw"   					"-2"
+	"sway_turn_right_rotate_yaw"  					"2"
+	"sway_turn_up_rotate_pitch"   					"2"
+	"sway_turn_down_rotate_pitch" 					"-2"
+
+	// WeaponED Unhandled Key/Values and custom script Key/Values
+	"sway_turn_angle_factor"  						"-0.5"
+	"sway_turn_origin_factor" 						"0"
+	"sway_turn_angle_factor_zoomed"   				"0"
+	"sway_turn_origin_factor_zoomed"  				"0.05"
+	"sway_move_angle_factor"  						"0.5"
+	"sway_move_origin_factor" 						"0.5"
+	"sway_move_angle_factor_zoomed"   				"0"
+	"sway_move_origin_factor_zoomed"  				"0.03"
+	"sway_gain"   									"15.0"
+
+	Mods
+	{
+	}
+}

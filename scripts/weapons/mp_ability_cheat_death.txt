@@ -1,0 +1,64 @@
+#base "_base_ability_tactical.txt"
+
+WeaponData
+{
+	// General
+	"printname"   									"#ABL_ULT_CHEAT_DEATH"
+	"shortprintname"   								"#ABL_ULT_CHEAT_DEATH_SHORT"
+	"description" 									"#ABL_ULT_CHEAT_DEATH_DESC"
+	"longdesc"										"#ABL_ULT_CHEAT_DEATH_LONGDESC"
+	"weaponType" 									"shoulder"
+	"fire_mode"   									"offhand"
+	"offhand_active_slot"                           "mainHand"
+	"offhand_activates_on_zoom"						"0"
+	"offhand_interupts_weapon_anims"                "1"
+
+	"hud_icon"										"rui/hud/ultimate_icons/ultimate_revenant"
+
+	"OnWeaponActivate"								"OnWeaponActivate_ability_cheat_death"
+	"OnWeaponDeactivate"							"OnWeaponDeactivate_ability_cheat_death"
+	"OnWeaponPrimaryAttack"							"OnWeaponPrimaryAttack_ability_cheat_death"
+	"OnWeaponAttemptOffhandSwitch"					"OnWeaponAttemptOffhandSwitch_ability_cheat_death"
+
+	// Models
+	"viewmodel"										"mdl/weapons/empty_handed/ptpov_revenant_totem.rmdl"
+	"playermodel"									"mdl/weapons/empty_handed/w_empty_handed_human.rmdl"
+
+	// Ammo
+    //"cooldown_type"                               "ammo_instant"
+    "ammo_display"									"count"
+    "ammo_clip_size"   								"180"
+    "ammo_default_total"							"0"
+    "ammo_min_to_fire"								"180"
+    "ammo_per_shot"									"180"
+    "ammo_stockpile_max"							"180"
+    "ammo_drains_to_empty_on_fire"					"0"
+    "ammo_no_remove_from_clip"						"0"
+
+    //Regen Ammo
+    "regen_ammo_refill_rate"						"1.0"
+    "regen_ammo_refill_start_delay"					"0.0"
+
+ 	// Behavior
+    "fire_rate"                                     "0.66"
+    "fire_anim_rate"								"0.66"
+    "holster_time"									"0.4"
+    "deploy_time" 									"0"
+    "lower_time"  									"0.4"
+    "raise_time"  									"0"
+
+    "allow_empty_fire"								"0"
+    "reload_enabled"								"0"
+    "empty_reload_only"   							"0"
+
+    // Rumble
+	"fire_rumble"  									"rumble_shotgun"
+
+    Mods
+    {
+        survival_armor_cooldown_mod
+        {
+            "regen_ammo_refill_rate"    "*1.25"
+        }
+    }
+}

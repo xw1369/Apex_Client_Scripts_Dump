@@ -1,0 +1,1545 @@
+// Comment
+WeaponData
+{
+	// Obsolete/Hack/REMOVE
+	"disableTempViewmodelHack"	""
+	"impact_sound_radius"	""
+	"alwaysShow"	""
+	"trigger_snipercam"	""
+	"is_sniper" ""
+	"ads_dof_disable" ""
+	"headshot_distance" ""
+	"is_burn_mod"	""
+
+	// General
+	//
+	"printname"	""
+	"shortprintname"	""
+	"description"	""
+	"longdesc"	""
+	"readymessage"	""
+	"readyhint"	""
+	"mod_print_name"	""
+	"mod_short_print_name"	""
+	"mod_description"	""
+
+	// General - Settings
+	"weaponType"	""
+	"weaponClass"	""
+	"weaponSubClass" ""
+	"body_type" ""
+	"leveled_pickup" ""
+
+	// UI - HUD
+	"hud_icon"	""
+	"pickup_hold_prompt"	""
+	"pickup_press_prompt"	""
+	"hud_grapple_indicator"	""
+
+	// UI - Menu
+	"menu_category" ""
+	"menu_anim_class" ""
+	"menu_image"	""
+	"menu_icon"	""
+	"menu_alt_icon"	""
+	"stat_damage"	""
+	"stat_accuracy"	""
+	"stat_range"	""
+	"stat_rof"	""
+
+	// Models
+	"viewmodel"	""
+	"playermodel"	""
+	"droppedmodel"	""
+	"bone_merge_world_model"	""
+
+	// Script - Callbacks
+	"OnWeaponDestroy"	""
+	"OnWeaponActivate"	""
+	"OnWeaponDeactivate"	""
+	"OnWeaponOwnerChanged"	""
+	"OnWeaponPrimaryAttack"	""
+	"OnWeaponPrimaryAttackAnimEvent"	""
+	"OnWeaponNpcPrimaryAttack"	""
+	"OnWeaponNpcPreAttack"	""
+	"OnWeaponNpcTossGrenade"	""
+	"OnWeaponReload"	""
+	"OnWeaponBulletHit"	""
+	"OnWeaponChargeBegin"	""
+	"OnWeaponChargeEnd"	""
+	"OnWeaponSustainedDischargeBegin"	""
+	"OnWeaponSustainedDischargeEnd"	""
+	"OnWeaponSustainedDischargePulse"	""
+	"OnWeaponReadyToFire"	""
+	"OnWeaponCustomActivityStart"	""
+	"OnWeaponCustomActivityEnd"	""
+	"OnWeaponRaise"	""
+	"OnWeaponLower"	""
+	"OnWeaponStartZoomIn"	""
+	"OnWeaponStartZoomOut"	""
+	"OnWeaponToss"	""
+	"OnWeaponTossPrep"	""
+	"OnWeaponTossReleaseAnimEvent"	""
+	"OnWeaponTossCancel"	""
+	"OnWeaponAttemptOffhandSwitch"	""
+	"OnWeaponOffhandFirePressedNotReady"	""
+	"OnWeaponPrimaryAttackVMActivityToUse"	""
+	"OnWeaponChargeLevelIncreased"	""
+	"OnWeaponVortexHitBullet"	""
+	"OnWeaponVortexHitProjectile"	""
+	"OnWeaponCooldown"	""
+	"OnClientAnimEvent"	""
+	"OnSmartAmmoEnabled"	""
+	"OnSmartAmmoDisabled"	""
+	"OnSmartAmmoTargetsChanged"	""
+	"OnSmartAmmoTrackersChanged"	""
+	"OnProjectileCollision"	""
+	"OnProjectileIgnite"	""
+	"OnProjectileExplode"	""
+
+	SP_BASE
+	{
+	}
+
+	MP_BASE
+	{
+	}
+
+	// Performance
+	"net_optimize"	""
+	"net_bullet_fix"	""
+
+
+	// Behavior - Firing
+	//
+	"fire_mode"	""
+	"fire_rate"	""
+	"fire_rate_max"	""
+	"fire_rate_max_time_speedup"	""
+	"fire_rate_max_time_cooldown"	""
+	"fire_rate_max_use_ads"	""
+	"fire_duration"	""
+	"fire_rumble"	""
+	"burst_fire_count"	""
+	"burst_fire_delay"	""
+	"allow_empty_fire"	""
+	"critical_hit"	""
+	"titanarmor_critical_hit_required"	""
+	"primary_fire_does_not_block_sprint"	""
+	"bypass_semiauto_hold_protection"	""
+	"allow_headshots"	""
+	"minimap_reveal_distance"	""
+	"breaks_cloak"	""
+	"auto_reload_no_ammo"	""
+	"never_drop"	""
+	"destroy_on_drop"	""
+	"can_attack_when_dead"	""
+	"no_ammo_used_on_primary_attack"	""
+	"zoom_effects"	""
+	"vortex_refire_behavior" ""
+	"cooldown_type"	""
+	"is_toss_weapon" ""
+	"holster_type"	""
+
+	"impulse_force"	""
+	"impulse_force_explosions"	""
+	"silenced"	""
+
+	// Behavior - Movement
+	"ads_move_speed_scale"	""
+	"move_speed_modifier"	""
+	"move_speed_modifier_when_out_of_ammo"	""
+
+	// Behavior - Swap
+	"fast_swap_to"	""
+	"fast_swap_from"	""
+	"instant_swap_to"	""
+	"instant_swap_from"	""
+
+	// Behavior - Zoom/ADS
+	"zoom_time_in"	""
+	"zoom_time_out"	""
+	"zoom_toggle_lerp_time"	""
+	"zoom_fov"	""
+	"zoom_toggle_fov"	""
+	"zoom_fov_viewmodel"	""
+	"zoom_scope_frac_start"	""
+	"zoom_scope_frac_end"	""
+	"zoom_angle_shift_pitch"	""
+	"zoom_angle_shift_yaw"	""
+	"ads_fov_zoomfrac_start"	""
+	"ads_fov_zoomfrac_end"	""
+	"zoomfrac_autoattack"	""
+	"allow_zoom_on_raise"   ""
+
+	// Behavior - Misc
+	"attack_button_presses_melee"	""
+	"attack_button_presses_ads"	""
+
+	// Behavior- Aim Assist
+	"aimassist_disable_hipfire"	""
+	"aimassist_disable_ads"	""
+	"aimassist_disable_hipfire_titansonly"	""
+	"aimassist_disable_ads_titansonly"	""
+	"aimassist_disable_hipfire_humansonly"	""
+	"aimassist_disable_ads_humansonly"	""
+	"aimassist_adspull_weaponclass"	""
+	"aimassist_adspull_zoomStart"	""
+	"aimassist_adspull_zoomEnd"	""
+	"gamepad_use_yaw_speed_for_pitch_ads"	""
+
+
+	// Damage
+	//
+	"damage_type" ""
+	"damage_falloff_type"	""
+	"damage_near_value"	""
+	"damage_far_value"	""
+	"damage_very_far_value"	""
+	"damage_rodeo"	""
+	"damage_additional_bullets"	""
+	"damage_headshot_scale"	""
+	"damage_shield_scale"	""
+	"damage_heavyarmor_nontitan_scale"	""
+	"critical_hit_damage_scale"	""
+
+	// Damage - Explosion
+	"explosion_damage"	""
+	"explosion_damage_heavy_armor"	""
+
+	// Damage - Distance
+	"damage_inverse_distance"	""
+	"damage_near_distance"	""
+	"damage_far_distance"	""
+	"damage_very_far_distance"	""
+	"red_crosshair_range"	""
+
+	// Damage - Titan
+	"damage_near_value_titanarmor"	""
+	"damage_far_value_titanarmor"	""
+	"damage_very_far_value_titanarmor"	""
+	"damage_additional_bullets_titanarmor"	""
+
+	// Damage - Behavior
+	"damage_flags"	""
+	"pass_through_depth"	""
+	"pass_through_damage_preserved_scale"	""
+
+	// Grenade
+	"add_owner_velocity_frac"	""
+	"grenade_bounce_vel_frac_shallow"	""
+	"grenade_bounce_vel_frac_sharp"	""
+	"grenade_bounce_vel_frac_along_normal"	""
+	"grenade_bounce_randomness"	""
+	"grenade_bounce_extra_vertical_randomness"	""
+	"grenade_can_roll"	""
+	"grenade_roll_vel_frac_per_second"	""
+	"grenade_radius_vertical"	""
+	"grenade_radius_horizontal"	""
+	"grenade_fuse_time"	""
+	"grenade_ignition_time"	""
+	"grenade_orient_to_velocity"	""
+	"grenade_arc_indicator_show_from_hip"	""
+	"grenade_arc_indicator_bounce_count"	""
+	"grenade_death_drop_velocity_scale"	""
+	"grenade_death_drop_velocity_extraUp"	""
+	"show_grenade_indicator"	""
+	"show_grenade_indicator_to_owner"	""
+
+	// Explosion
+	"explosionradius"	""
+	"explosion_shake_radius"	""
+	"explosion_shake_amplitude"	""
+	"explosion_shake_frequency"	""
+	"explosion_shake_duration"	""
+	"explosion_inner_radius"	""
+	"explosion_damages_owner"	""
+	"explosion_damage_flags"	""
+
+
+	// Animation
+	//
+	"activitymodifier1p"	""
+	"activitymodifier3p"	""
+	"alt_fire_anim_count"	""
+	"anim_alt_idleAttack"	""
+	"fire_anim_rate"	""
+	"play_offhand_charging_anim"	""
+	"play_offhand_start_end_anim"	""
+	"play_offhand_fire_anim"	""
+	"special_3p_attack_anim"	""
+	"special_3p_attack_anim_after_charge"	""
+	"gesture_attack_anim"	""
+
+	// Viewmodel
+	"viewmodel_offset_hip"	""
+	"viewmodel_offset_ads"	""
+	"viewmodel_shake_forward" ""
+	"viewmodel_shake_up" ""
+	"viewmodel_shake_right" ""
+
+	// Melee - Damage
+	"melee_damage"	""
+	"melee_damage_heavyarmor"	""
+
+	// Melee - Behavior
+	"melee_lunge_time"	""
+	"melee_lunge_target_range"	""
+	"melee_lunge_no_target_range"	""
+	"melee_lunge_target_angle"	""
+	"melee_can_hit_humansized"	""
+	"melee_can_hit_titans"	""
+	"melee_range"	""
+	"melee_angle"	""
+	"melee_rumble_on_hit"	""
+	"melee_rumble_on_hit_partial"	""
+	"melee_freezelook_on_hit"	""
+	"melee_respect_next_attack_time"	""
+
+	// Melee - Animation
+	"melee_attack_animtime"	""
+	"melee_raise_recovery_animtime_normal"	""
+	"melee_raise_recovery_animtime_quick"	""
+	"melee_anim_1p"	""
+	"melee_anim_3p"	""
+
+	// Offhand
+	"offhand_default_inventory_slot"	""
+	"offhand_blocks_sprint"	""
+	"offhand_interupts_weapon_anims"	""
+	"offhand_activates_on_zoom"	""
+	"offhand_hold_enabled"	""
+	"hide_holstered_sidearm_when_active"	""
+	"offhand_transition_has_attach_detach_anim_events"	""
+	"offhand_keep_primary_in_hand"	""
+	"offhand_holster_primary"	""
+	"offhand_switch_force_draw"	""
+	"offhand_active_slot"	""
+
+	// Bolt
+	"bolt_hitsize"	""
+	"bolt_hitsize_grow1_time"	""
+	"bolt_hitsize_grow1_size"	""
+	"bolt_hitsize_grow2_time"	""
+	"bolt_hitsize_grow2_size"	""
+	"bolt_hitsize_growfinal_lerptime"	""
+	"bolt_hitsize_growfinal_size"	""
+	"bolt_bounce_frac"	""
+	"bolt_gravity_enabled"	""
+	"bolt_zero_distance"	""
+	"bolt_spread_max"                              ""
+	"bolt_spread_min"                              ""
+
+	// Projectile
+	"projectile_inherit_owner_velocity_scale"	""
+	"projectile_first_person_offset_fraction"	""
+	"projectile_launch_speed"	""
+	"projectile_launch_pitch_offset"	""
+	"projectile_gravity_scale"	""
+	"projectile_drag_coefficient"	""
+	"projectile_max_deployed"	""
+	"projectiles_per_shot"	""
+	"projectile_adjust_to_gun_barrel"	""
+	"projectile_adjust_to_hand"	""
+	"uses_indirect_fire"	""
+	"scripted_projectile_max_timestep"	""
+
+
+	// Ammo
+	//
+	"ammo_pool_type"	""
+	"ammo_suck_behavior"	""
+	"ammo_clip_size"	""
+	"ammo_stockpile_max"	""
+	"ammo_default_total"	""
+	"ammo_clip_reload_max"	""
+	"ammo_per_shot"	""
+	"ammo_min_to_fire"	""
+	"ammo_clip_random_loss_on_npc_drop"	""
+	"ammo_clip_random_loss_on_npc_drop_chunksize"	""
+	"ammo_min_to_fire_autoreloads"	""
+	"ammo_size_segmented_reload"	""
+	"ammo_no_remove_from_clip"	""
+	"ammo_no_remove_from_stockpile"	""
+	"ammo_display_as_clips"	""
+	"ammo_drains_to_empty_on_fire"	""
+	"ammo_display"	""
+	"uses_ammo_pool"	""
+	"destroy_on_all_ammo_take"	""
+	"low_ammo_fraction"	""
+	"lifetime_shots_default"	""
+	"chance_for_bonus_last_shot_in_clip"	""
+
+	// Ammo - Regen
+	"regen_ammo_refill_rate"	""
+	"regen_ammo_refill_start_delay"	""
+	"regen_ammo_stockpile_max_fraction"	""
+	"regen_ammo_stockpile_drain_rate_when_charging"	""
+	"regen_ammo_while_firing"	""
+	"regen_ammo_sound_range_start_1"	""
+	"regen_ammo_sound_range_start_2"	""
+	"regen_ammo_sound_range_start_3"	""
+	"regen_ammo_sound_range_name_1"	""
+	"regen_ammo_sound_range_name_2"	""
+	"regen_ammo_sound_range_name_3"	""
+	"shared_energy_cost"	""
+	"shared_energy_charge_cost"	""
+
+
+	// Reload
+	//
+	"reload_enabled"	""
+	"cycle_to_next_when_out_of_ammo"	""
+	"reload_time"	""
+	"reload_time_late1"	""
+	"reload_time_late2"	""
+	"reload_time_late3"	""
+	"reload_time_late4"	""
+	"reload_time_late5"	""
+	"reloadempty_time"	""
+	"reloadempty_time_late1"	""
+	"reloadempty_time_late2"	""
+	"reloadempty_time_late3"	""
+	"reloadempty_time_late4"	""
+	"reloadempty_time_late5"	""
+	"reloadsegment_time_loop"	""
+	"reloadsegment_time_end"	""
+	"reloadsegmentempty_time_end"	""
+	"reload_is_segmented"	""
+	"reload_no_auto_if_ads_pressed"	""
+	"reload_alt_anim"	""
+	"allow_empty_click"	""
+	"empty_reload_only"	""
+
+	"rechamber_time"	""
+	"vortex_drain"	""
+	"enable_highlight_networking_on_creation"	""
+
+	// Charge
+	"charge_time"	""
+	"charge_cooldown_time"	""
+	"charge_cooldown_delay"	""
+	"charge_is_triggered_by_ADS"	""
+	"charge_levels"	""
+	"charge_level_base"	""
+	"charge_require_input"	""
+	"charge_allow_midway_charge"	""
+	"charge_allow_melee"	""
+	"charge_end_forces_fire"	""
+	"charge_maintained_until_fired"	""
+	"charge_remain_full_when_fired"	""
+	"charge_sound_1p"	""
+	"charge_sound_3p"	""
+	"charge_full_sound_1p"	""
+	"charge_full_sound_3p"	""
+	"charge_drain_sound_1p"	""
+	"charge_drain_sound_3p"	""
+	"charge_sound_stop_when_full"	""
+	"charge_sound_seek_to_charge_fraction"	""
+	"charge_drain_sound_stop_when_empty"	""
+	"charge_drain_sound_seek_to_charge_fraction"	""
+	"charge_effect_attachment"	""
+	"charge_effect2_attachment"	""
+	"charge_effect_show_during_drain"	""
+	"charge_rumble_min"	""
+	"charge_rumble_max"	""
+
+	// Core
+	"core_duration"	""
+	"core_build_time"	""
+
+	// Sustained
+	"sustained_discharge_duration"	""
+	"sustained_discharge_require_input"	""
+	"sustained_discharge_allow_melee"	""
+	"sustained_discharge_pulse_frequency"	""
+	"sustained_discharge_want_pulse_callbacks"	""
+
+	"sustained_laser_enabled"	""
+	"sustained_laser_radius"	""
+	"sustained_laser_radial_iterations"	""
+	"sustained_laser_radial_step"	""
+	"sustained_laser_range"	""
+	"sustained_laser_attachment"	""
+	"sustained_laser_effect_loops"	""
+	"sustained_laser_impact_effect_loops"	""
+	"sustained_laser_impact_distance"	""
+
+	// Behavior - Animation
+	"holster_time"	""
+	"deploy_time"	""
+	"deployfirst_time"	""
+	"deploycatch_time"	""
+	"lower_time"	""
+	"raise_time"	""
+	"raise_from_sprint_time"	""
+	"sprintcycle_time"	""
+	"sprint_fractional_anims"	""
+	"tossholdsprintcycle_time"	""
+	"max_cook_time"	""
+	"toss_time"	""
+	"toss_overhead_time"	""
+	"toss_pullout_time"	""
+	"cooldown_time"	""
+
+	// Viewpunch
+	"viewpunch_multiplier"	""
+
+
+	// Viewkick Spring
+	//
+	"viewkick_spring"	""
+	"viewkick_spring_hot"	""
+	"viewkick_spring_heatpershot"	""
+	"viewkick_spring_cooldown_holdtime"	""
+	"viewkick_spring_cooldown_fadetime"	""
+	"viewkick_spring_velocityScalePerShot"	""
+
+	// Viewkick - Pitch
+	"viewkick_pitch_base"	""
+	"viewkick_pitch_random"	""
+	"viewkick_pitch_random_innerexclude"	""
+	"viewkick_perm_pitch_base"	""
+	"viewkick_perm_pitch_random"	""
+	"viewkick_perm_pitch_random_innerexclude"	""
+	"viewkick_pitch_softScale"	""
+	"viewkick_pitch_hardScale"	""
+
+	// Viewkick - Yaw
+	"viewkick_yaw_base"	""
+	"viewkick_yaw_random"	""
+	"viewkick_yaw_random_innerexclude"	""
+	"viewkick_perm_yaw_base"	""
+	"viewkick_perm_yaw_random"	""
+	"viewkick_perm_yaw_random_innerexclude"	""
+	"viewkick_yaw_softScale"	""
+	"viewkick_yaw_hardScale"	""
+
+	// Viewkick - Roll
+	"viewkick_roll_base"	""
+	"viewkick_roll_randomMin"	""
+	"viewkick_roll_randomMax"	""
+	"viewkick_roll_softScale"	""
+	"viewkick_roll_hardScale"	""
+
+	// Viewkick - Fractions
+	"viewkick_hipfire_weaponFraction"	""
+	"viewkick_hipfire_weaponFraction_vmScale"	""
+	"viewkick_ads_weaponFraction"	""
+	"viewkick_ads_weaponFraction_vmScale"	""
+
+	// Viewkick - Scale
+	"viewkick_scale_firstshot_hipfire"	""
+	"viewkick_scale_firstshot_ads"	""
+	"viewkick_scale_min_hipfire"	""
+	"viewkick_scale_max_hipfire"	""
+	"viewkick_scale_min_ads"	""
+	"viewkick_scale_max_ads"	""
+	"viewkick_scale_valuePerShot"	""
+	"viewkick_scale_pitch_valueLerpStart"	""
+	"viewkick_scale_pitch_valueLerpEnd"	""
+	"viewkick_scale_yaw_valueLerpStart"	""
+	"viewkick_scale_yaw_valueLerpEnd"	""
+	"viewkick_scale_valueDecayDelay"	""
+	"viewkick_scale_valueDecayRate"	""
+
+	// Viewkick - Movement
+	"viewkick_duck_scale"	""
+	"viewkick_hover_scale"	""
+	"viewkick_move_scale"	""
+	"viewkick_air_scale_ads"	""
+
+	// Viewkick Cooldown
+	"cooldown_viewkick_pitch_base"	""
+	"cooldown_viewkick_pitch_random"	""
+	"cooldown_viewkick_pitch_random_innerexclude"	""
+	"cooldown_viewkick_yaw_base"	""
+	"cooldown_viewkick_yaw_random"	""
+	"cooldown_viewkick_yaw_random_innerexclude"	""
+	"cooldown_viewkick_softScale"	""
+	"cooldown_viewkick_hardScale"	""
+	"cooldown_viewkick_adsScale"	""
+
+	// Viewdrift - Hipfire
+	"viewdrift_hipfire_stand_scale_pitch"	""
+	"viewdrift_hipfire_crouch_scale_pitch"	""
+	"viewdrift_hipfire_air_scale_pitch"	""
+	"viewdrift_hipfire_speed_pitch"	""
+	"viewdrift_hipfire_stand_scale_yaw"	""
+	"viewdrift_hipfire_crouch_scale_yaw"	""
+	"viewdrift_hipfire_air_scale_yaw"	""
+	"viewdrift_hipfire_speed_yaw"	""
+
+	// Viewdrift - ADS
+	"viewdrift_ads_stand_scale_pitch"	""
+	"viewdrift_ads_crouch_scale_pitch"	""
+	"viewdrift_ads_air_scale_pitch"	""
+	"viewdrift_ads_speed_pitch"	""
+	"viewdrift_ads_stand_scale_yaw"	""
+	"viewdrift_ads_crouch_scale_yaw"	""
+	"viewdrift_ads_air_scale_yaw"	""
+	"viewdrift_ads_speed_yaw"	""
+	"viewdrift_ads_delay"	""
+	"viewdrift_ads_delay_debounce_time"	""
+
+	// Rumble
+	"rumble"	""
+
+	// Spread
+	//
+	"spread_stand_hip"	""
+	"spread_stand_hip_run"	""
+	"spread_stand_hip_sprint"	""
+	"spread_stand_ads"	""
+	"spread_crouch_hip"	""
+	"spread_crouch_ads"	""
+	"spread_air_hip"	""
+	"spread_air_ads"	""
+	"spread_wallrunning"	""
+	"spread_wallhanging"	""
+	"spread_moving_decay_rate"	""
+	"spread_moving_increase_rate"	""
+	"npc_attack_cone_angle"	""
+	"spread_kick_on_fire_stand_hip"	""
+	"spread_kick_on_fire_stand_ads"	""
+	"spread_kick_on_fire_crouch_hip"	""
+	"spread_kick_on_fire_crouch_ads"	""
+	"spread_kick_on_fire_air_hip"	""
+	"spread_kick_on_fire_air_ads"	""
+	"spread_max_kick_stand_hip"	""
+	"spread_max_kick_stand_ads"	""
+	"spread_max_kick_crouch_hip"	""
+	"spread_max_kick_crouch_ads"	""
+	"spread_max_kick_air_hip"	""
+	"spread_max_kick_air_ads"	""
+	"spread_decay_rate"	""
+	"spread_decay_delay"	""
+	"spread_time_to_max"	""
+
+	// Bob - Hip
+	"bob_cycle_time"	""
+	"bob_min_speed"	""
+	"bob_max_speed"	""
+	"bob_vert_dist"	""
+	"bob_horz_dist"	""
+	"bob_pitch"	""
+	"bob_yaw"	""
+	"bob_roll"	""
+	"bob_gain"	""
+
+	// Bob - ADS
+	"bob_cycle_time_zoomed"	""
+	"bob_min_speed_zoomed"	""
+	"bob_max_speed_zoomed"	""
+	"bob_vert_dist_zoomed"	""
+	"bob_horz_dist_zoomed"	""
+	"bob_pitch_zoomed"	""
+	"bob_yaw_zoomed"	""
+	"bob_roll_zoomed"	""
+	"bob_gain_zoomed"	""
+
+	// Sway - General
+	"sway_rotate_attach"	""
+	"sway_rotate_attach_blend_time"	""
+	"sway_min_x"	""
+	"sway_min_y"	""
+	"sway_min_z"	""
+	"sway_max_x"	""
+	"sway_max_y"	""
+	"sway_max_z"	""
+	"sway_min_pitch"	""
+	"sway_min_yaw"	""
+	"sway_min_roll"	""
+	"sway_max_pitch"	""
+	"sway_max_yaw"	""
+	"sway_max_roll"	""
+	"sway_translate_gain"	""
+	"sway_rotate_gain"	""
+
+	// Sway - Move
+	"sway_move_forward_translate_x"	""
+	"sway_move_forward_translate_y"	""
+	"sway_move_forward_translate_z"	""
+	"sway_move_forward_rotate_pitch"	""
+	"sway_move_forward_rotate_yaw"	""
+	"sway_move_forward_rotate_roll"	""
+	"sway_move_back_translate_x"	""
+	"sway_move_back_translate_y"	""
+	"sway_move_back_translate_z"	""
+	"sway_move_back_rotate_pitch"	""
+	"sway_move_back_rotate_yaw"	""
+	"sway_move_back_rotate_roll"	""
+	"sway_move_left_translate_x"	""
+	"sway_move_left_translate_y"	""
+	"sway_move_left_translate_z"	""
+	"sway_move_left_rotate_pitch"	""
+	"sway_move_left_rotate_yaw"	""
+	"sway_move_left_rotate_roll"	""
+	"sway_move_right_translate_x"	""
+	"sway_move_right_translate_y"	""
+	"sway_move_right_translate_z"	""
+	"sway_move_right_rotate_pitch"	""
+	"sway_move_right_rotate_yaw"	""
+	"sway_move_right_rotate_roll"	""
+	"sway_move_up_translate_x"	""
+	"sway_move_up_translate_y"	""
+	"sway_move_up_translate_z"	""
+	"sway_move_up_rotate_pitch"	""
+	"sway_move_up_rotate_yaw"	""
+	"sway_move_up_rotate_roll"	""
+	"sway_move_down_translate_x"	""
+	"sway_move_down_translate_y"	""
+	"sway_move_down_translate_z"	""
+	"sway_move_down_rotate_pitch"	""
+	"sway_move_down_rotate_yaw"	""
+	"sway_move_down_rotate_roll"	""
+	"sway_turn_left_translate_x"	""
+	"sway_turn_left_translate_y"	""
+	"sway_turn_left_translate_z"	""
+	"sway_turn_left_rotate_pitch"	""
+	"sway_turn_left_rotate_yaw"	""
+	"sway_turn_left_rotate_roll"	""
+	"sway_turn_right_translate_x"	""
+	"sway_turn_right_translate_y"	""
+	"sway_turn_right_translate_z"	""
+	"sway_turn_right_rotate_pitch"	""
+	"sway_turn_right_rotate_yaw"	""
+	"sway_turn_right_rotate_roll"	""
+	"sway_turn_up_translate_x"	""
+	"sway_turn_up_translate_y"	""
+	"sway_turn_up_translate_z"	""
+	"sway_turn_up_rotate_pitch"	""
+	"sway_turn_up_rotate_yaw"	""
+	"sway_turn_up_rotate_roll"	""
+	"sway_turn_down_translate_x"	""
+	"sway_turn_down_translate_y"	""
+	"sway_turn_down_translate_z"	""
+	"sway_turn_down_rotate_pitch"	""
+	"sway_turn_down_rotate_yaw"	""
+	"sway_turn_down_rotate_roll"	""
+
+	// Sway - ADS
+	"sway_enable_zoomed"	""
+	"sway_rotate_attach_zoomed"	""
+	"sway_rotate_attach_blend_time_zoomed"	""
+	"sway_min_x_zoomed"	""
+	"sway_min_y_zoomed"	""
+	"sway_min_z_zoomed"	""
+	"sway_max_x_zoomed"	""
+	"sway_max_y_zoomed"	""
+	"sway_max_z_zoomed"	""
+	"sway_min_pitch_zoomed"	""
+	"sway_min_yaw_zoomed"	""
+	"sway_min_roll_zoomed"	""
+	"sway_max_pitch_zoomed"	""
+	"sway_max_yaw_zoomed"	""
+	"sway_max_roll_zoomed"	""
+	"sway_translate_gain_zoomed"	""
+	"sway_rotate_gain_zoomed"	""
+	"sway_move_forward_translate_x_zoomed"	""
+	"sway_move_forward_translate_y_zoomed"	""
+	"sway_move_forward_translate_z_zoomed"	""
+	"sway_move_forward_rotate_pitch_zoomed"	""
+	"sway_move_forward_rotate_yaw_zoomed"	""
+	"sway_move_forward_rotate_roll_zoomed"	""
+	"sway_move_back_translate_x_zoomed"	""
+	"sway_move_back_translate_y_zoomed"	""
+	"sway_move_back_translate_z_zoomed"	""
+	"sway_move_back_rotate_pitch_zoomed"	""
+	"sway_move_back_rotate_yaw_zoomed"	""
+	"sway_move_back_rotate_roll_zoomed"	""
+	"sway_move_left_translate_x_zoomed"	""
+	"sway_move_left_translate_y_zoomed"	""
+	"sway_move_left_translate_z_zoomed"	""
+	"sway_move_left_rotate_pitch_zoomed"	""
+	"sway_move_left_rotate_yaw_zoomed"	""
+	"sway_move_left_rotate_roll_zoomed"	""
+	"sway_move_right_translate_x_zoomed"	""
+	"sway_move_right_translate_y_zoomed"	""
+	"sway_move_right_translate_z_zoomed"	""
+	"sway_move_right_rotate_pitch_zoomed"	""
+	"sway_move_right_rotate_yaw_zoomed"	""
+	"sway_move_right_rotate_roll_zoomed"	""
+	"sway_move_up_translate_x_zoomed"	""
+	"sway_move_up_translate_y_zoomed"	""
+	"sway_move_up_translate_z_zoomed"	""
+	"sway_move_up_rotate_pitch_zoomed"	""
+	"sway_move_up_rotate_yaw_zoomed"	""
+	"sway_move_up_rotate_roll_zoomed"	""
+	"sway_move_down_translate_x_zoomed"	""
+	"sway_move_down_translate_y_zoomed"	""
+	"sway_move_down_translate_z_zoomed"	""
+	"sway_move_down_rotate_pitch_zoomed"	""
+	"sway_move_down_rotate_yaw_zoomed"	""
+	"sway_move_down_rotate_roll_zoomed"	""
+	"sway_turn_left_translate_x_zoomed"	""
+	"sway_turn_left_translate_y_zoomed"	""
+	"sway_turn_left_translate_z_zoomed"	""
+	"sway_turn_left_rotate_pitch_zoomed"	""
+	"sway_turn_left_rotate_yaw_zoomed"	""
+	"sway_turn_left_rotate_roll_zoomed"	""
+	"sway_turn_right_translate_x_zoomed"	""
+	"sway_turn_right_translate_y_zoomed"	""
+	"sway_turn_right_translate_z_zoomed"	""
+	"sway_turn_right_rotate_pitch_zoomed"	""
+	"sway_turn_right_rotate_yaw_zoomed"	""
+	"sway_turn_right_rotate_roll_zoomed"	""
+	"sway_turn_up_translate_x_zoomed"	""
+	"sway_turn_up_translate_y_zoomed"	""
+	"sway_turn_up_translate_z_zoomed"	""
+	"sway_turn_up_rotate_pitch_zoomed"	""
+	"sway_turn_up_rotate_yaw_zoomed"	""
+	"sway_turn_up_rotate_roll_zoomed"	""
+	"sway_turn_down_translate_x_zoomed"	""
+	"sway_turn_down_translate_y_zoomed"	""
+	"sway_turn_down_translate_z_zoomed"	""
+	"sway_turn_down_rotate_pitch_zoomed"	""
+	"sway_turn_down_rotate_yaw_zoomed"	""
+	"sway_turn_down_rotate_roll_zoomed"	""
+
+
+	// Sound - Firing
+	//
+	"fire_sound_1"	""
+	"fire_sound_2"	""
+	"fire_sound_3"	""
+	"fire_sound_first_shot"	""
+	"fire_sound_1_npc"	""
+	"fire_sound_2_npc"	""
+	"fire_sound_3_npc"	""
+	"fire_sound_first_shot_npc"	""
+	"fire_sound_1_player_1p"	""
+	"fire_sound_2_player_1p"	""
+	"fire_sound_3_player_1p"	""
+	"fire_sound_first_shot_player_1p"	""
+	"fire_sound_1_player_3p"	""
+	"fire_sound_2_player_3p"	""
+	"fire_sound_3_player_3p"	""
+	"fire_sound_first_shot_player_3p"	""
+
+	// Sound - Firing Loop
+	"looping_sounds"	""
+	"burst_or_looping_fire_sound_start"	""
+	"burst_or_looping_fire_sound_middle"	""
+	"burst_or_looping_fire_sound_end"	""
+	"burst_or_looping_fire_sound_start_npc"	""
+	"burst_or_looping_fire_sound_middle_npc"	""
+	"burst_or_looping_fire_sound_end_npc"	""
+	"burst_or_looping_fire_sound_start_1p"	""
+	"burst_or_looping_fire_sound_middle_1p"	""
+	"burst_or_looping_fire_sound_end_1p"	""
+	"burst_or_looping_fire_sound_start_3p"	""
+	"burst_or_looping_fire_sound_middle_3p"	""
+	"burst_or_looping_fire_sound_end_3p"	""
+
+	// Sound - Melee
+	"melee_sound_attack_1p"	""
+	"melee_sound_attack_3p"	""
+
+	// Sound - Low Ammo
+	"low_ammo_sound_name_1"	""
+	"low_ammo_sound_name_2"	""
+	"low_ammo_sound_name_3"	""
+	"low_ammo_sound_name_4"	""
+	"low_ammo_sound_name_5"	""
+	"low_ammo_sound_name_6"	""
+	"low_ammo_sound_name_7"	""
+	"low_ammo_sound_name_8"	""
+	"low_ammo_sound_name_9"	""
+	"low_ammo_sound_name_10"	""
+	"low_ammo_sound_name_11"	""
+	"low_ammo_sound_name_12"	""
+	"low_ammo_sound_name_13"	""
+	"low_ammo_sound_name_14"	""
+	"low_ammo_sound_name_15"	""
+	"low_ammo_sound_range_start_1"	""
+	"low_ammo_sound_range_start_2"	""
+	"low_ammo_sound_range_start_3"	""
+	"low_ammo_sound_range_name_1"	""
+	"low_ammo_sound_range_name_2"	""
+	"low_ammo_sound_range_name_3"	""
+
+	// Sound - Vortex
+	"vortex_absorb_sound" ""
+	"vortex_absorb_sound_1p_vs_3p" ""
+
+	// Sound - Misc
+	"sound_dryfire"	""
+	"sound_pickup"	""
+	"sound_weapon_ready"	""
+	"sound_cook_warning"	""
+	"idle_sound_player_1p"	""
+	"sound_zoom_in" ""
+	"sound_zoom_out" ""
+	"sound_trigger_pull"	""
+	"sound_trigger_release"	""
+
+
+	// NPC
+	//
+	"npc_min_burst"	""
+	"npc_max_burst"	""
+	"npc_burst_secondary"	""
+	"npc_miss_fast_player"	""
+	"npc_full_auto_vs_heavy_armor"	""
+	"npc_use_strict_muzzle_dir"	""
+	"npc_aim_at_feet"	""
+	"npc_aim_at_feet_vs_heavy_armor"	""
+	"npc_vortex_block"	""
+	"npc_self_explosion_safety"	""
+	"npc_dangerous_to_normal_armor"	""
+	"npc_dangerous_to_heavy_armor"	""
+	"npc_suppress_lsp_allowed"	""
+	"npc_suppress_abs_position"	""
+	"npc_clear_charge_if_not_fired"	""
+	"npc_lead_projectiles"	""
+	"npc_rest_time_between_bursts_min"	""
+	"npc_rest_time_between_bursts_max"	""
+	"npc_charge_time_min"	""
+	"npc_charge_time_max"	""
+	"npc_min_range"	""
+	"npc_max_range"	""
+	"npc_min_range_secondary"	""
+	"npc_max_range_secondary"	""
+
+	// NPC - Damage
+	"npc_damage_near_value"	""
+	"npc_damage_near_value_titanarmor"	""
+	"npc_damage_far_value"	""
+	"npc_damage_far_value_titanarmor"	""
+	"npc_damage_very_far_value"	""
+	"npc_damage_very_far_value_titanarmor"	""
+	"npc_damage_near_distance"	""
+	"npc_damage_far_distance"	""
+	"npc_damage_very_far_distance"	""
+	"npc_explosion_damage"	""
+	"npc_explosion_damage_heavy_armor"	""
+	"npc_min_engage_range"	""
+	"npc_max_engage_range"	""
+	"npc_min_engage_range_heavy_armor"	""
+	"npc_max_engage_range_heavy_armor"	""
+	"npc_fire_at_enemy_defense_time"	""
+	"npc_rest_time_between_bursts_expedite"	""
+	"npc_rest_time_secondary"	""
+	"npc_pre_fire_delay"	""
+	"npc_pre_fire_delay_interval"	""
+	"npc_directed_fire_ang_limit_cos"	""
+	"npc_reload_enabled"	""
+	"npc_accuracy_multiplier_heavy_armor"	""
+	"npc_accuracy_multiplier_pilot"	""
+	"npc_accuracy_multiplier_npc"	""
+	"npc_use_short_duration"	""
+	"npc_use_long_duration"	""
+	"npc_use_min_damage"	""
+	"npc_use_max_damage"	""
+	"npc_use_min_projectile_damage"	""
+	"npc_use_ads_move_speed_scale"	""
+	"npc_lob_shot_pitch"	""
+	"npc_target_armor_type"	""
+	"npc_titan_ability"	""
+	"npc_use_check_type"	""
+	"npc_alt_fire_check_type"	""
+	"npc_alt_fire_check_value"	""
+
+	// NPC - Spread
+	"npc_spread_cone_focus_time"	""
+	"npc_spread_defocused_cone_multiplier"	""
+	"npc_spread_pattern_focus_time"	""
+	"npc_spread_pattern_not_in_fov_time"	""
+	"npc_spread_pattern_not_in_fov_factor"	""
+
+	// NPC - Proficiency
+	"proficiency_poor_spreadscale"	""
+	"proficiency_poor_bias"	""
+	"proficiency_poor_additional_rest"	""
+	"proficiency_average_spreadscale"	""
+	"proficiency_average_bias"	""
+	"proficiency_average_additional_rest"	""
+	"proficiency_good_spreadscale"	""
+	"proficiency_good_bias"	""
+	"proficiency_good_additional_rest"	""
+	"proficiency_very_good_spreadscale"	""
+	"proficiency_very_good_bias"	""
+	"proficiency_very_good_additional_rest"	""
+	"proficiency_perfect_spreadscale"	""
+	"proficiency_perfect_bias"	""
+	"proficiency_perfect_additional_rest"	""
+
+	// Smart Ammo
+	"smart_ammo_search_angle"	""
+	"smart_ammo_search_distance"	""
+	"smart_ammo_new_target_delay"	""
+	"smart_ammo_apply_new_target_delay_to_first_target"	""
+	"smart_ammo_target_max_locks_normal"	""
+	"smart_ammo_target_max_locks_heavy"	""
+	"smart_ammo_target_npc_lock_factor"	""
+	"smart_ammo_alert_npc_fraction"	""
+	"smart_ammo_max_targets"	""
+	"smart_ammo_max_targeted_burst"	""
+	"smart_ammo_alt_lock_style"	""
+	"smart_ammo_allow_ads_lock"	""
+	"smart_ammo_allow_hip_fire_lock"	""
+	"smart_ammo_allow_search_while_firing"	""
+	"smart_ammo_allow_search_while_inactive"	""
+	"smart_ammo_only_search_on_charge"	""
+	"smart_ammo_always_do_burst"	""
+	"smart_ammo_track_cloaked_targets"	""
+	"smart_ammo_targeting_time_min"	""
+	"smart_ammo_targeting_time_max"	""
+	"smart_ammo_targeting_time_min_npc"	""
+	"smart_ammo_targeting_time_max_npc"	""
+	"smart_ammo_targeting_time_modifier_cloaked"	""
+	"smart_ammo_targeting_time_modifier_projectile"	""
+	"smart_ammo_targeting_time_modifier_projectile_owner"	""
+	"smart_ammo_unlock_debounce_time"	""
+	"smart_ammo_draw_acquisition_lines"	""
+	"smart_ammo_target_confirmed_sound"	""
+	"smart_ammo_target_confirming_sound"	""
+	"smart_ammo_target_found_sound"	""
+	"smart_ammo_target_lost_sound"	""
+	"smart_ammo_looping_sound_acquiring"	""
+	"smart_ammo_looping_sound_locked"	""
+	"smart_ammo_search_npcs"	""
+	"smart_ammo_search_players"	""
+	"smart_ammo_stick_to_fully_locked_targets"	""
+	"smart_ammo_hold_and_reset_after_all_locks"	""
+	"smart_ammo_active_shot_time"	""
+	"smart_ammo_active_shot_on_first_lock_only"	""
+	"smart_ammo_active_shot_damage_multiplier"	""
+	"smart_ammo_player_targets_must_be_tracked"	""
+	"smart_ammo_npc_targets_must_be_tracked"	""
+	"smart_ammo_other_targets_must_be_tracked"	""
+	"smart_ammo_tracked_targets_check_visibility"	""
+	"smart_ammo_max_trackers_per_target"	""
+	"smart_ammo_tracker_status_effects"	""
+	"smart_ammo_lock_effect_attachment"	""
+	"smart_ammo_lock_effect2_attachment"	""
+	"smart_ammo_search_friendly_team"	""
+	"smart_ammo_search_enemy_team"	""
+	"smart_ammo_search_neutral_team"	""
+	"smart_ammo_search_phase_shift"	""
+	"smart_ammo_screen_min_x"	""
+	"smart_ammo_screen_max_x"	""
+	"smart_ammo_screen_min_y"	""
+	"smart_ammo_screen_max_y"	""
+	"smart_ammo_search_projectiles"	""
+	"smart_ammo_titans_block_los"	""
+	"smart_ammo_own_projectile_lock_grace"	""
+	"smart_ammo_titan_lock_point"	""
+	"smart_ammo_npc_use"	""
+	"smart_ammo_hud_type"	""
+	"smart_ammo_weapon_type"	""
+	"smart_ammo_lock_type"	""
+
+	// Depth of Field
+	"dof_nearDepthStart"	""
+	"dof_nearDepthEnd"	""
+	"dof_zoom_nearDepthStart"	""
+	"dof_zoom_nearDepthEnd"	""
+	"dof_zoom_focusArea_Horizontal"	""
+	"dof_zoom_focusArea_horizontal" ""
+	"dof_zoom_focusArea_Top"	""
+	"dof_zoom_focusArea_top" ""
+	"dof_zoom_focusArea_Bottom"	""
+	"dof_zoom_focusArea_bottom" ""
+
+	// Projectile - Movement
+	"projectile_drift_windiness"	""
+	"projectile_drift_intensity"	""
+	"projectile_straight_time_min"	""
+	"projectile_straight_time_max"	""
+	"projectile_straight_radius_min"	""
+	"projectile_straight_radius_max"	""
+	"projectile_speed_decay"	""
+	"projectile_visible_to_smart_ammo"	""
+	"projectile_do_predict_impact_effects"	""
+
+	// Projectile - Behavior
+	"projectile_lifetime"	""
+	"projectile_bounce_damage_reduction_scale"	""
+	"projectile_speed_reduction_factor"	""
+	"projectile_collide_with_owner_grace_time"	""
+	"projectile_ricochet_max_count"	""
+	"projectile_damages_owner"	""
+	"projectile_collide_with_owner"	""
+	"projectile_airburst_on_death"	""
+	"projectile_death_sound"	""
+	"projectile_flight_sound"	""
+	"projectile_flamethrower_status_effect_range"	""
+	"projectile_flamethrower_status_effect_duration"	""
+
+	"projectile_killreplay_enabled"	""
+
+	// Projectile - Chase Cam
+	"projectile_chasecamDistanceMax"	""
+	"projectile_chasecamMaxOrbitDepth"	""
+	"projectile_chasecamMaxPitchUp"	""
+	"projectile_chasecamOffsetUp"	""
+	"projectile_chasecamOffsetRight"	""
+	"projectile_chasecamOffsetForward"	""
+
+    // Projectile - Ignition
+	"ignition_distance"	""
+	"pre_ignition_speed"	""
+	"pre_ignition_damage"	""
+	"pre_ignition_damage_titanarmor"	""
+	"pre_ignition_npc_damage"	""
+	"pre_ignition_npc_damage_titanarmor"	""
+	"pre_ignition_flight_sound"	""
+	"pre_ignition_trail_effect"	""
+	"ignition_sound"	""
+	"ignition_effect"	""
+
+	// Script
+	"challeng_req"	""
+	"challenge_tier"	""
+	"statsRecord" ""
+
+	// Script - Loadout
+	"loadout_selectable"	""
+	"loadout_type"	""
+	"loadout_parent_ref"	""
+	"loadout_child_ref"	""
+
+	// Custom - Bool
+	"custom_bool_0"	""
+	"custom_bool_1"	""
+	"custom_bool_2"	""
+	"custom_bool_3"	""
+	"custom_bool_4"	""
+	"custom_bool_5"	""
+	"custom_bool_6"	""
+	"custom_bool_7"	""
+
+	// Custom - Int
+	"custom_int_0"	""
+	"custom_int_1"	""
+	"custom_int_2"	""
+	"custom_int_3"	""
+	"custom_int_4"	""
+	"custom_int_5"	""
+	"custom_int_6"	""
+	"custom_int_7"	""
+
+	// Custom - Float
+	"custom_float_0"	""
+	"custom_float_1"	""
+	"custom_float_2"	""
+	"custom_float_3"	""
+	"custom_float_4"	""
+	"custom_float_5"	""
+	"custom_float_6"	""
+	"custom_float_7"	""
+
+	// Threat Scope
+	"threat_scope_enabled"	""
+	"threat_scope_zoomfrac_start"	""
+	"threat_scope_zoomfrac_end"	""
+	"threat_scope_bounds_tagname1"	""
+	"threat_scope_bounds_tagname2"	""
+	"threat_scope_bounds_width"	""
+	"threat_scope_bounds_height"	""
+	"threat_scope_fadeWithDistance"	""
+
+    // Grapple
+	"grapple_weapon"	""
+	"grapple_power_required"	""
+	"grapple_power_use_rate"	""
+	"grapple_maxLength"	""
+	"grapple_maxLengthVert"	""
+
+	// Character-Specific
+    "fire_in_real_world_while_phased"   ""
+    "trophy_system_ignores"  ""
+    "allow_gibraltar_shield" ""
+
+	// FX - Impacts
+	//
+	"impact_effect_table"	""
+	"bounce_effect_table"	""
+	"sustained_laser_new_surface_impact_effect_table"	""
+	"pre_ignition_impact_effect_table"	""
+
+	// FX
+	"fx_muzzle_flash_attach"	""
+	"fx_muzzle_flash2_attach"	""
+	"fx_shell_eject_attach"	""
+	"fx_shell_eject2_attach"	""
+	"fx_muzzle_flash_attach_scoped"	""
+	"fx_muzzle_flash2_attach_scoped"	""
+	"fx_shell_eject_attach_scoped"	""
+	"fx_shell_eject2_attach_scoped"	""
+
+	// FX
+	"tracer_effect"	""
+	"tracer_effect_first_person"	""
+	"show_pre_modded_tracer"	""
+
+	// FX - Projectile
+	"projectilemodel"	""
+	"projectile_trail_attachment"	""
+	"projectile_trail_effect_0_1p"	""
+	"projectile_trail_effect_0_3p"	""
+	"projectile_trail_effect_1_1p"	""
+	"projectile_trail_effect_1_3p"	""
+	"projectile_trail_effect_2_1p"	""
+	"projectile_trail_effect_2_3p"	""
+	"projectile_trail_effect_3_1p"	""
+	"projectile_trail_effect_3_3p"	""
+	"projectile_trail_effect_4_1p"	""
+	"projectile_trail_effect_4_3p"	""
+
+	// FX
+	"fx_muzzle_flash_view"	""
+	"fx_muzzle_flash_world"	""
+	"fx_muzzle_flash2_view"	""
+	"fx_muzzle_flash2_world"	""
+	"owner_muzzle_index"	""
+
+	// FX - Shells
+	"fx_shell_eject_view"	""
+	"fx_shell_eject_world"	""
+	"fx_shell_eject2_view"	""
+	"fx_shell_eject2_world"	""
+
+	// FX - Grenade
+	"grenade_arc_indicator_effect"	""
+	"grenade_arc_indicator_effect_first"	""
+	"grenade_arc_impact_indicator_effect"	""
+
+	// FX - Sustain
+	"sustained_laser_effect_1p"	""
+	"sustained_laser_effect_3p"	""
+	"sustained_laser_impact_effect"	""
+
+	// FX - Charge
+	"charge_effect_1p"	""
+	"charge_effect_3p"	""
+	"charge_effect_burn_mod_1p"	""
+	"charge_effect_burn_mod_3p"	""
+	"charge_effect2_1p"	""
+	"charge_effect2_3p"	""
+
+	// FX - Smart Ammo
+	"smart_ammo_lock_effect_1p"	""
+	"smart_ammo_lock_effect_3p"	""
+	"smart_ammo_lock_effect2_1p"	""
+	"smart_ammo_lock_effect2_3p"	""
+
+	// FX - Vortex
+	"vortex_absorb_effect"	""
+	"vortex_absorb_effect_third_person"	""
+	"vortex_impact_effect"	""
+
+	// FX - Misc
+	"clear_fx_on_new_view_model"	""
+	"entity_color_from_charge"	""
+	"entity_color_from_lstar_heat_fraction"	""
+	"entity_color_from_ads_factor"	""
+
+
+	// Bodygroups
+	//
+	"body_skin"	""
+	"bodygroup1_name"	""
+	"bodygroup1_set"	""
+	"bodygroup2_name"	""
+	"bodygroup2_set"	""
+	"bodygroup3_name"	""
+	"bodygroup3_set"	""
+	"bodygroup4_name"	""
+	"bodygroup4_set"	""
+	"bodygroup5_name"	""
+	"bodygroup5_set"	""
+	"bodygroup6_name"	""
+	"bodygroup6_set"	""
+	"bodygroup7_name"	""
+	"bodygroup7_set"	""
+	"bodygroup8_name"	""
+	"bodygroup8_set"	""
+	"bodygroup9_name"	""
+	"bodygroup9_set"	""
+	"bodygroup10_name"	""
+	"bodygroup10_set"	""
+	"bodygroup11_name"	""
+	"bodygroup11_set"	""
+	"bodygroup12_name"	""
+	"bodygroup12_set"	""
+	"bodygroup13_name"	""
+	"bodygroup13_set"	""
+	"bodygroup14_name"	""
+	"bodygroup14_set"	""
+	"bodygroup15_name"	""
+	"bodygroup15_set"	""
+	"bodygroup16_name"	""
+	"bodygroup16_set"	""
+	"bodygroup17_name"	""
+	"bodygroup17_set"	""
+	"bodygroup18_name"	""
+	"bodygroup18_set"	""
+	"bodygroup19_name"	""
+	"bodygroup19_set"	""
+	"bodygroup20_name"	""
+	"bodygroup20_set"	""
+	"bodygroup21_name"	""
+	"bodygroup21_set"	""
+	"bodygroup22_name"	""
+	"bodygroup22_set"	""
+	"bodygroup23_name"	""
+	"bodygroup23_set"	""
+	"bodygroup24_name"	""
+	"bodygroup24_set"	""
+	"bodygroup25_name"	""
+	"bodygroup25_set"	""
+	"bodygroup26_name"	""
+	"bodygroup26_set"	""
+	"bodygroup27_name"	""
+	"bodygroup27_set"	""
+	"bodygroup28_name"	""
+	"bodygroup28_set"	""
+	"bodygroup29_name"	""
+	"bodygroup29_set"	""
+	"bodygroup30_name"	""
+	"bodygroup30_set"	""
+	"bodygroup31_name"	""
+	"bodygroup31_set"	""
+	"bodygroup32_name"	""
+	"bodygroup32_set"	""
+	"bodygroup_ads_scope_name"	""
+	"bodygroup_ads_scope_set"	""
+	"bodygroup_ammo_index_count"	""
+
+	// Bodygroup - Clip
+	"clip_bodygroup" ""
+	"clip_bodygroup_index_shown" ""
+	"clip_bodygroup_index_hidden" ""
+	"clip_bodygroup_show_for_milestone_0" ""
+	"clip_bodygroup_show_for_milestone_1" ""
+	"clip_bodygroup_show_for_milestone_2" ""
+	"clip_bodygroup_show_for_milestone_3" ""
+
+	Mods
+	{
+	}
+
+	// RUI
+	"ui1_enable"	""
+	"ui1_draw_cloaked"	""
+	UiData1
+	{
+	}
+
+	"ui2_enable"	""
+	"ui2_draw_cloaked"	""
+	UiData2
+	{
+	}
+
+	"ui3_enable"	""
+	"ui3_draw_cloaked"	""
+	UiData3
+	{
+	}
+
+	"ui4_enable"	""
+	"ui4_draw_cloaked"	""
+	UiData4
+	{
+	}
+
+	"ui5_enable"	""
+	"ui5_draw_cloaked"	""
+	UiData5
+	{
+	}
+
+	"ui6_enable"	""
+	"ui6_draw_cloaked"	""
+	UiData6
+	{
+	}
+
+	"ui7_enable"	""
+	"ui7_draw_cloaked"	""
+	UiData7
+	{
+	}
+
+	"ui8_enable"	""
+	"ui8_draw_cloaked"	""
+	UiData8
+	{
+	}
+
+	"ui8_enable"	""
+	"ui8_draw_cloaked"	""
+	UiData8
+	{
+	}
+
+	"ui9_enable"	""
+	"ui9_draw_cloaked"	""
+	UiData9
+	{
+	}
+
+	"ui10_enable"	""
+	"ui10_draw_cloaked"	""
+	UiData10
+	{
+	}
+
+	"ui11_enable"	""
+	"ui11_draw_cloaked"	""
+	UiData11
+	{
+	}
+
+	"ui12_enable"	""
+	"ui12_draw_cloaked"	""
+	UiData12
+	{
+	}
+
+	"ui13_enable"	""
+	"ui13_draw_cloaked"	""
+	UiData13
+	{
+	}
+
+	"ui14_enable"	""
+	"ui14_draw_cloaked"	""
+	UiData14
+	{
+	}
+
+	"ui15_enable"	""
+	"ui15_draw_cloaked"	""
+	UiData15
+	{
+	}
+
+	"ui16_enable"	""
+	"ui16_draw_cloaked"	""
+	UiData16
+	{
+	}
+
+	"ui17_enable"	""
+	"ui17_draw_cloaked"	""
+	UiData17
+	{
+	}
+
+	"ui18_enable"	""
+	"ui18_draw_cloaked"	""
+	UiData18
+	{
+	}
+
+	"ui18_enable"	""
+	"ui18_draw_cloaked"	""
+	UiData18
+	{
+	}
+
+	"ui19_enable"	""
+	"ui19_draw_cloaked"	""
+	UiData19
+	{
+	}
+
+	"ui20_enable"	""
+	"ui20_draw_cloaked"	""
+	UiData20
+	{
+	}
+
+	"ui21_enable"	""
+	"ui21_draw_cloaked"	""
+	UiData21
+	{
+	}
+
+	"ui22_enable"	""
+	"ui22_draw_cloaked"	""
+	UiData22
+	{
+	}
+
+	"ui23_enable"	""
+	"ui23_draw_cloaked"	""
+	UiData23
+	{
+	}
+
+	"ui24_enable"	""
+	"ui24_draw_cloaked"	""
+	UiData24
+	{
+	}
+
+	"ui25_enable"	""
+	"ui25_draw_cloaked"	""
+	UiData25
+	{
+	}
+
+	"ui26_enable"	""
+	"ui26_draw_cloaked"	""
+	UiData26
+	{
+	}
+
+	"ui27_enable"	""
+	"ui27_draw_cloaked"	""
+	UiData27
+	{
+	}
+
+	"ui28_enable"	""
+	"ui28_draw_cloaked"	""
+	UiData28
+	{
+	}
+
+	"ui28_enable"	""
+	"ui28_draw_cloaked"	""
+	UiData28
+	{
+	}
+
+	"ui29_enable"	""
+	"ui29_draw_cloaked"	""
+	UiData29
+	{
+	}
+
+	"ui30_enable"	""
+	"ui30_draw_cloaked"	""
+	UiData30
+	{
+	}
+
+	"ui31_enable"	""
+	"ui31_draw_cloaked"	""
+	UiData31
+	{
+	}
+
+	"ui32_enable"	""
+	"ui32_draw_cloaked"	""
+	UiData32
+	{
+	}
+
+	// UI - Crosshair
+	"rui_crosshair_index"	""
+	"active_crosshair_count"	""
+	"ordnance_crosshair_always_on_start_index"	""
+	"crosshair_force_sprint_fade_disabled"	""
+
+	RUI_CrosshairData
+	{
+	}
+}

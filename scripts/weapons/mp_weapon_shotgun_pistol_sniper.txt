@@ -1,0 +1,112 @@
+#base "mp_weapon_shotgun_pistol.txt"
+
+WeaponData
+{
+	"weaponBaseClass"                              "mp_weapon_shotgun_pistol"
+
+    "ammo_pool_type"								"sniper"
+    "printname"  								    "#WPN_MOZAM_SNIPER"
+    "shortprintname"							    "#WPN_MOZAM_SNIPER"
+    "description" 								    "#WPN_MOZAM_SNIPER_DESC"
+
+    "fire_rate"   									"0.9"
+
+    "blast_pattern"									""
+    "bolt_zero_distance"                            "1968.5" // 50m
+
+    "projectiles_per_shot"							"1"
+    "is_semi_auto"								    "1"
+
+    "projectile_launch_speed"                       "29500"
+
+    "ammo_clip_size"   								"1"
+    "ammo_min_to_fire"								"1"
+
+    // Spread -- Swiped from Kraber
+    "spread_stand_hip"                         "10"
+    "spread_stand_hip_run"                     "12"
+    "spread_stand_hip_sprint"                  "14"
+    "spread_crouch_hip"                        "8"
+    "spread_air_hip"                           "13"
+
+    "spread_stand_ads"						    "0"
+    "spread_crouch_ads"   					    "0"
+    "spread_air_ads"  						    "8"
+
+    "spread_kick_on_fire_stand_hip"            "1"
+    "spread_kick_on_fire_crouch_hip"           "1"
+    "spread_kick_on_fire_air_hip"              "1"
+
+    "spread_max_kick_stand_hip"                "12.0"
+    "spread_max_kick_crouch_hip"               "10.0"
+    "spread_max_kick_air_hip"                  "12.0"
+
+    "spread_decay_rate"                        "4"
+    "spread_decay_delay"                       "0.1"
+
+    "primary_attack_ignores_spread"					"0"
+
+    "damage_near_value"   							"120"
+    "damage_far_value"								"120"
+    "damage_very_far_value"							"120"
+    "damage_near_value_titanarmor"					"120"
+    "damage_far_value_titanarmor" 					"120"
+    "damage_very_far_value_titanarmor" 				"120"
+
+    "damage_headshot_scale"							"2"
+
+    // Sound - Taken from Kraber
+    "fire_sound_1_npc"                         ""
+    //"fire_sound_2_npc"                         "Weapon_Kraber_Fire_npc"
+    "fire_sound_1_player_1p"                   ""
+    "fire_sound_2_player_1p"                   "Weapon_Kraber_Fire_1P"
+    "fire_sound_1_player_3p"                   ""
+    "fire_sound_2_player_3p"                   "Weapon_Kraber_Fire_3P"
+
+    //Fires only 1 bullet, don't need low ammo
+    "low_ammo_sound_name_1"                    ""
+    "low_ammo_sound_name_2"                    ""
+    //"low_ammo_sound_name_3"                    "Kraber_LowAmmo_Shot3"
+
+    "projectile_trail_effect_0_1p"                  "P_tracer_proj_sniper"
+    "projectile_trail_effect_0_3p"                  "P_tracer_proj_sniper"
+
+    // Viewkick Spring - Taken from Kraber
+    "viewkick_spring"                          "sniper"
+
+    // Viewkick - Pitch
+    "viewkick_pitch_base"                      "-1.61"
+    "viewkick_pitch_random"                    "1.12"
+    "viewkick_perm_pitch_base"                 "0.0"
+    "viewkick_perm_pitch_random"               "0.0"
+    "viewkick_perm_pitch_random_innerexclude"  "0.0"
+    "viewkick_pitch_softScale"                 "1.0"
+    "viewkick_pitch_hardScale"                 "0.9"
+
+    // Viewkick - Yaw
+    "viewkick_yaw_base"                        "-1.05"
+    "viewkick_yaw_random"                      "1.14"
+    "viewkick_perm_yaw_base"                   "0.0"
+    "viewkick_perm_yaw_random"                 "0.0"
+    "viewkick_perm_yaw_random_innerexclude"    "0.0"
+    "viewkick_yaw_softScale"                   "1.0"
+    "viewkick_yaw_hardScale"                   "0.5"
+
+    // Viewkick - Roll
+    "viewkick_roll_base"                       "0"
+    "viewkick_roll_randomMin"                  "0.5"
+    "viewkick_roll_randomMax"                  "0.5"
+    "viewkick_roll_softScale"                  "0.2"
+    "viewkick_roll_hardScale"                  "1.75"
+
+    // Viewkick - Scale
+    "viewkick_scale_firstshot_hipfire"         "0"
+    "viewkick_scale_firstshot_ads"             "0"
+    "viewkick_scale_min_ads"                   "1.0"
+    "viewkick_scale_max_ads"                   "1.5"
+
+	Mods
+	{
+		hopup_april_fools_sniper {}
+	}
+}

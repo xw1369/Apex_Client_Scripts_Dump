@@ -1,0 +1,32 @@
+                    
+#base "melee_pilot_emptyhanded.txt"
+
+WeaponData
+{
+
+	// General
+	"printname"   								"Melee"
+	"shortprintname"							"Melee"
+	"description" 								"Description needed"
+	"longdesc"									"Description needed"
+
+	"menu_icon"									"rui/hud/common/melee_icon"
+	"hud_icon"									"rui/hud/common/melee_icon"
+
+	// Models
+	"viewmodel"   								"mdl/weapons/revenant_heirloom/revenant_heirloom_v21_base_v.rmdl"
+	"playermodel" 							    "mdl/weapons/revenant_heirloom/revenant_heirloom_v21_base_w.rmdl"
+	"holstermodel"								"mdl/Props/revenant_heirloom_prop/revenant_heirloom_prop.rmdl"
+
+	"OnWeaponActivate"							"OnWeaponActivate_melee_revenant_scythe_rt01"
+    "OnWeaponDeactivate"						"OnWeaponDeactivate_melee_revenant_scythe_rt01"
+
+	"is_heirloom"								"1"
+
+    // FX
+	"impact_effect_table" 						"melee_scythe_rt01"
+
+	// Animation
+	"activitymodifier3P"						"scythe"
+}
+      

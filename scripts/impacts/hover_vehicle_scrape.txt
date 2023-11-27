@@ -1,0 +1,90 @@
+ImpactTable
+{
+	FX
+	{
+		"A" "P_melee_metal_lg" //Default Silent DONT COPY TO NON VEHICLE
+
+		"C" "P_veh_vh1_scrape" //Concrete, rock, porcelain, boulder, gravel, asphalt, brick, concrete_block, plaster
+		"D" "P_veh_vh1_scrape" //Dirt, slipperyslime, snow, carpet, cardboard, floatingstandable, ceiling_tile, papercup
+		"E" "P_veh_vh1_scrape" // metal_titan
+
+		"F" "P_veh_vh1_scrape" //flesh
+		"G" "P_veh_vh1_scrape" //metalgrate, chainlink, chain
+		"H" "P_veh_vh1_scrape" //alienflesh
+
+		"J" "P_veh_vh1_scrape" //grass
+		"K" "P_veh_vh1_scrape" //Mud
+		"L" "P_veh_vh1_scrape" //plastic_barrel, plastic_box, item, rubber, rubbertire, jeeptire, slidingrubbertire, brakingrubbertire, slidingrubbertire_front, slidingrubbertire_rear
+		"M" "P_veh_vh1_scrape" //Default, metal, metal_box, solidmetal, armorflesh, metal_bouncy, slippery_metal, shellcasing_small, shellcasing_large, metal_barrel, floating_metal_barrel, weapon
+		"N" "P_veh_vh1_scrape" //Slime
+		"O" "P_veh_vh1_scrape" //Foliage
+		"P" "P_veh_vh1_scrape" //Computer
+
+		"R" "P_veh_vh1_scrape" //metalpanel, grenade, canister
+		"S" "P_veh_vh1_scrape" //water
+		"T" "P_veh_vh1_scrape" //tile
+		"U" "P_veh_vh1_scrape" //glass_breakable
+		"V" "P_veh_vh1_scrape" //Metal Vent
+		"W" "P_veh_vh1_scrape" //Wood, Wood_lowdensity, Wood_Box, Wood_Crate, Wood_Plank, Wood_Solid, Wood_Furniture, Wood_Panel watermelon
+
+		"X" "P_veh_vh1_scrape" //xo_shield
+
+		"Y" "P_veh_vh1_scrape" //glass, brokenglass, glassbottle, pottery
+		"Z" "P_veh_vh1_scrape"  //sand
+
+//		"0" "openslot"
+//		"1" "openslot"
+//		"2" "openslot"
+		"3" "P_veh_impact_shield"//Default_silent, Vehicle Walls //DO NOT COPY SPEACIAL FOR VEHICLE
+//		"4" "openslot"
+//		"5" "openslot"
+//		"6" "openslot"
+//		"7" "openslot"
+//		"8" "openslot"
+//		"9" "openslot"
+
+		"splash" "P_veh_vh1_scrape" //brush water
+		"slime_splash" "P_veh_vh1_scrape"
+		"airburst" ""
+		"shieldhit" "P_veh_vh1_scrape"
+		"critical_hit" "P_veh_vh1_scrape"
+	}
+
+	Sound
+	{
+		"C" "HoverVehicle_Scrape"
+		"D" "HoverVehicle_Scrape"
+		"E" "HoverVehicle_Scrape"
+
+		"F" "HoverVehicle_Scrape"
+		"G" "HoverVehicle_Scrape"
+		"H" "HoverVehicle_Scrape"
+
+		"J" "HoverVehicle_Scrape"
+		"K" "HoverVehicle_Scrape"
+		"L" "HoverVehicle_Scrape"
+		"M" "HoverVehicle_Scrape"
+		"N" "HoverVehicle_Scrape"
+		"O" "HoverVehicle_Scrape"
+		"P" "HoverVehicle_Scrape"
+
+		"R" "HoverVehicle_Scrape"
+		"S" "HoverVehicle_Scrape"
+		"T" "HoverVehicle_Scrape"
+		"U" "HoverVehicle_Scrape"
+
+		"V" "HoverVehicle_Scrape"
+		"W" "HoverVehicle_Scrape"
+
+		"Y" "HoverVehicle_Scrape"
+		"Z" "HoverVehicle_Scrape"
+
+		"3" "HoverVehicle_Scrape" //Default_silent, Vehicle Walls //DO NOT COPY SPEACIAL FOR VEHICLE
+
+		"splash" "HoverVehicle_Scrape"
+		"slime_splash" "HoverVehicle_Scrape"
+
+		"airburst" ""
+		"shieldhit" "HoverVehicle_Scrape"
+	}
+}

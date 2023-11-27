@@ -1,0 +1,206 @@
+ImpactTable
+{
+	FX
+	{
+		"C" "P_impact_xo_shield_cp" //Concrete, rock, porcelain, boulder, gravel, asphalt, brick, concrete_block, plaster
+		"D" "P_impact_xo_shield_cp" //Dirt, slipperyslime, snow, carpet, cardboard, floatingstandable, ceiling_tile, papercup
+		"E" "P_impact_xo_shield_cp" // metal_titan
+
+		"F" "P_impact_xo_shield_cp" //flesh
+		"G" "P_impact_xo_shield_cp" //metalgrate, chainlink, chain
+		"H" "P_impact_xo_shield_cp" //alienflesh
+
+		"J" "P_impact_xo_shield_cp" //grass
+		"K" "P_impact_xo_shield_cp" //Mud
+		"L" "P_impact_xo_shield_cp" //plastic_barrel, plastic_box, item, rubber, rubbertire, jeeptire, slidingrubbertire, brakingrubbertire, slidingrubbertire_front, slidingrubbertire_rear
+		"M" "P_impact_xo_shield_cp" //Default, metal, metal_box, solidmetal, armorflesh, metal_bouncy, slippery_metal, shellcasing_small, shellcasing_large, metal_barrel, floating_metal_barrel, weapon
+//		"N" "openslot"
+		"O" "P_impact_xo_shield_cp"  //Foliage
+		"P" "P_impact_xo_shield_cp" //metal_spectre
+
+		"R" "P_impact_xo_shield_cp" //metalpanel, grenade, canister
+		"S" "P_impact_xo_shield_cp" //water, slime
+		"T" "P_impact_xo_shield_cp" //tile
+		"U" "P_impact_xo_shield_cp" // glass_breakable
+		"V" "P_impact_xo_shield_cp" //Metal Vent
+		"W" "P_impact_xo_shield_cp"//Wood, Wood_lowdensity, Wood_Box, Wood_Crate, Wood_Plank, Wood_Solid, Wood_Furniture, Wood_Panel watermelon
+
+		"X" "P_impact_xo_shield_cp"//P_impact_xo_shield_cp_cp" //xo_shield
+
+		"Y" "P_impact_xo_shield_cp" //glass, brokenglass, glassbottle, pottery
+		"Z" "P_impact_xo_shield_cp"  //sand
+
+//		"0" "openslot"
+//		"1" "openslot"
+//		"2" "openslot"
+//		"3" "openslot"
+//		"4" "openslot"
+//		"5" "openslot"
+//		"6" "openslot"
+//		"7" "openslot"
+//		"8" "openslot"
+//		"9" "openslot"
+
+		"splash" "P_impact_xo_shield_cp" //brush water
+		"slime_splash" "P_impact_xo_shield_cp"
+		"airburst" ""
+		"shieldhit" "P_impact_xo_shield_cp"
+		"critical_hit" "P_impact_xo_shield_cp"
+	}
+
+	Sound
+	{
+		"C" "Player_Melee_Impact_Concrete_3p_vs_3p"
+		"D" "Player_Melee_Impact_Dirt_3p_vs_3p"
+		"E" "Player_Melee_Impact_Metal_3p_vs_3p"
+
+		"F" "player_melee_impact_flesh_3P_vs_3P"
+		"G" "Player_Melee_Impact_Metal_3p_vs_3p"
+		"H" "player_melee_impact_flesh_3P_vs_3P"
+
+		"J" "Player_Melee_Impact_Grass_3p_vs_3p"
+		"K" "Player_Melee_Impact_Mud_3p_vs_3p"
+		"L" "Player_Melee_Impact_Default_3p_vs_3p"
+		"M" "Player_Melee_Impact_Metal_3p_vs_3p"
+		"N" "Player_Melee_Impact_Water_3p_vs_3p"
+		"O" "Player_Melee_Impact_Grass_3p_vs_3p"
+		"P" "Pilot_Melee_Kick_Impact_Android_3P_vs_3P"
+
+		"R" "Player_Melee_Impact_Metal_3p_vs_3p"
+		"S" "Player_Melee_Impact_Water_3p_vs_3p"
+		"T" "Player_Melee_Impact_Concrete_3p_vs_3p"
+		"U" "Player_Melee_Impact_Glass_3p_vs_3p"
+
+		"V" "Player_Melee_Impact_Metal_3p_vs_3p"
+		"W" "Player_Melee_Impact_Default_3p_vs_3p"
+
+		"Y" "Player_Melee_Impact_Glass_3p_vs_3p"
+		"Z" "Player_Melee_Impact_Dirt_3p_vs_3p"
+
+		"splash" "Player_Melee_Impact_Water_3p_vs_3p"
+		"slime_splash" "Player_Melee_Impact_Water_3p_vs_3p"
+		"holohit" "Player_Melee_Impact_Default_3p_vs_3p"
+
+		"airburst" ""
+		"shieldhit" "TitanShield.Light.BulletImpact_3P_vs_3P"
+		"headshot_flesh" "player_melee_impact_flesh_3P_vs_3P"
+		"headshot_mechanical" "Pilot_Melee_Kick_Impact_Android_3P_vs_3P"
+	}
+
+	Sound_attacker
+	{
+		"C" "Player_Melee_Impact_Concrete_1p_vs_3p"
+		"D" "Player_Melee_Impact_Dirt_1p_vs_3p"
+		"E" "Player_Melee_Impact_Metal_1p_vs_3p"
+
+		"F" "player_melee_impact_flesh_1P_vs_3P"
+		"G" "Player_Melee_Impact_Metalgrate_1p_vs_3p"
+		"H" "player_melee_impact_flesh_1P_vs_3P"
+
+		"J" "Player_Melee_Impact_Grass_1p_vs_3p"
+		"K" "Player_Melee_Impact_Mud_1p_vs_3p"
+		"L" "Player_Melee_Impact_Default_1p_vs_3p"
+		"M" "Player_Melee_Impact_Metal_1p_vs_3p"
+		"N" "Player_Melee_Impact_Water_1p_vs_3p"
+		"O" "Player_Melee_Impact_Grass_1p_vs_3p"
+		"P" "Pilot_Melee_Kick_Impact_Android_1P_vs_3P"
+
+		"R" "Player_Melee_Impact_Metal_1p_vs_3p"
+		"S" "Player_Melee_Impact_Water_1p_vs_3p"
+		"T" "Player_Melee_Impact_Concrete_1p_vs_3p"
+		"U" "Player_Melee_Impact_Glass_1p_vs_3p"
+
+		"V" "Player_Melee_Impact_Metal_1p_vs_3p"
+		"W" "Player_Melee_Impact_Default_1p_vs_3p"
+
+		"Y" "Player_Melee_Impact_Glass_1p_vs_3p"
+		"Z" "Player_Melee_Impact_Dirt_1p_vs_3p"
+
+		"splash" "Player_Melee_Impact_Water_1p_vs_3p"
+		"slime_splash" "Player_Melee_Impact_Water_1p_vs_3p"
+
+		"holohit" "player_melee_impact_flesh_1P_vs_3P"
+		"airburst" ""
+		"shieldhit" "TitanShield.Light.BulletImpact_1P_vs_3P"
+		"headshot_flesh" "player_melee_impact_flesh_1P_vs_3P"
+		"headshot_mechanical" "Pilot_Melee_Kick_Impact_Android_1P_vs_3P"
+	}
+
+	Sound_victim
+	{
+		"C" "Player_Melee_Impact_Concrete_3p_vs_3p"
+		"D" "Player_Melee_Impact_Dirt_3p_vs_3p"
+		"E" "Player_Melee_Impact_Metal_3p_vs_3p"
+
+		"F" "player_melee_impact_flesh_3P_vs_1P"
+		"G" "Player_Melee_Impact_Metal_3p_vs_3p"
+		"H" "player_melee_impact_flesh_3P_vs_3P"
+
+		"J" "Player_Melee_Impact_Grass_3p_vs_3p"
+		"K" "Player_Melee_Impact_Mud_3p_vs_3p"
+		"L" "Player_Melee_Impact_Default_3p_vs_3p"
+		"M" "Player_Melee_Impact_Metal_3p_vs_3p"
+		"N" "Player_Melee_Impact_Water_3p_vs_3p"
+		"O" "Player_Melee_Impact_Grass_3p_vs_3p"
+		"P" "spectre_melee_kick_impact_human_3p_vs_1p"
+
+		"R" "Player_Melee_Impact_Metal_3p_vs_3p"
+		"S" "Player_Melee_Impact_Water_3p_vs_3p"
+		"T" "Player_Melee_Impact_Concrete_3p_vs_3p"
+		"U" "Player_Melee_Impact_Glass_3p_vs_3p"
+
+		"V" "Player_Melee_Impact_Metal_3p_vs_3p"
+		"W" "Player_Melee_Impact_Default_3p_vs_3p"
+
+		"Y" "Player_Melee_Impact_Glass_3p_vs_3p"
+		"Z" "Player_Melee_Impact_Dirt_3p_vs_3p"
+
+		"splash" "Player_Melee_Impact_Water_3p_vs_3p"
+		"slime_splash" "Player_Melee_Impact_Water_3p_vs_3p"
+
+		"holohit" "player_melee_impact_flesh_3P_vs_3P"
+		"airburst" ""
+		"shieldhit" "TitanShield.Light.BulletImpact_3P_vs_1P"
+		"headshot_flesh" "player_melee_impact_flesh_3P_vs_1P"
+		"headshot_mechanical" "Pilot_Melee_Kick_Impact_Android_3P_vs_1P"
+	}
+
+	Sound_victim_from_AI
+	{
+		"C" "Player_Melee_Impact_Concrete_3p_vs_3p"
+		"D" "Player_Melee_Impact_Dirt_3p_vs_3p"
+		"E" "Player_Melee_Impact_Metal_3p_vs_3p"
+
+		"F" "player_melee_impact_flesh_3P_vs_1P_AIGruntGenerated"
+		"G" "Player_Melee_Impact_Metalgrate_3p_vs_3p"
+		"H" "player_melee_impact_flesh_3P_vs_1P_AIGruntGenerated"
+
+		"J" "Player_Melee_Impact_Grass_3p_vs_3p"
+		"K" "Player_Melee_Impact_Mud_3p_vs_3p"
+		"L" "Player_Melee_Impact_Default_3p_vs_3p"
+		"M" "Player_Melee_Impact_Metal_3p_vs_3p"
+		"N" "Player_Melee_Impact_Default_3p_vs_3p"
+		"O" "Player_Melee_Impact_Grass_3p_vs_3p"
+		"P" "spectre_melee_kick_impact_human_3p_vs_1p"
+
+		"R" "Player_Melee_Impact_Metal_3p_vs_3p"
+		"S" "Player_Melee_Impact_Water_3p_vs_3p"
+		"T" "Player_Melee_Impact_Concrete_3p_vs_3p"
+		"U" "Player_Melee_Impact_Glass_3p_vs_3p"
+
+		"V" "Player_Melee_Impact_Metal_3p_vs_3p"
+		"W" "Player_Melee_Impact_Default_3p_vs_3p"
+
+		"Y" "Player_Melee_Impact_Glass_3p_vs_3p"
+		"Z" "Player_Melee_Impact_Dirt_3p_vs_3p"
+
+		"splash" "Player_Melee_Impact_Water_3p_vs_3p"
+		"slime_splash" "Player_Melee_Impact_Water_3p_vs_3p"
+		"holohit" "player_melee_impact_flesh_3P_vs_1P_AIGruntGenerated"
+		"airburst" ""
+		"shieldhit" "TitanShield.Light.BulletImpact_3P_vs_1P"
+		"headshot_flesh" "player_melee_impact_flesh_3P_vs_1P_AIGruntGenerated"
+		"headshot_mechanical" "Pilot_Melee_Kick_Impact_Android_3P_vs_1P"
+	}
+}
+

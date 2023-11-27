@@ -1,0 +1,169 @@
+WeaponData
+{
+	// General
+	"printname"										"goliath_throw"
+	"shortprintname"								"goliath_throw"
+	"description" 									"goliath_throw"
+	"longdesc" 										"goliath_throw"
+
+	"weaponClass"									"titan"
+	"weapon_type_flags"								"WPT_GRENADE"
+	"fire_mode"										"offhand"
+	"is_toss_weapon"								"1"
+	"minimap_reveal_distance"						"32000"
+	"projectile_ignores_vortex"						"fall"
+
+	"OnWeaponTossReleaseAnimEvent"					"Grenade_OnWeaponTossReleaseAnimEvent"
+	"OnWeaponTossPrep"								"Grenade_OnWeaponTossPrep"
+	"OnWeaponDeactivate"							"Grenade_OnWeaponDeactivate"
+	"OnWeaponNpcTossGrenade"						"Grenade_OnPlayerNPCTossGrenade_Common"
+	"OnProjectileCollision"							"OnProjectileCollision_weapon_goliath_throw"
+
+	"projectile_killreplay_enabled"					"1"
+
+	MP_BASE
+	{
+		"explosion_damage"								"75"
+		"explosion_damage_heavy_armor"					"90"
+
+		"npc_explosion_damage"							"90"
+
+		"ammo_clip_size"   								"2"
+		"ammo_default_total"							"2"
+		"ammo_display"									"bar"
+		"ammo_min_to_fire"								"1"
+		"ammo_per_shot"									"1"
+		"ammo_stockpile_max"							"2"
+		"regen_ammo_refill_rate"						"6.66"
+		"regen_ammo_refill_start_delay"					"0.0"
+
+		"enable_highlight_networking_on_creation"		"<KEEP_DEFAULT>"
+
+	//Mods
+		"grenade_arc_indicator_bounce_count"			"<KEEP_DEFAULT>"
+		"grenade_arc_indicator_effect"					"<KEEP_DEFAULT>"
+
+		"sound_weapon_ready"							"HUD_ordinance_meter_replenished_1P"
+	}
+
+	SP_BASE
+	{
+		"explosion_damage"								"75"
+		"explosion_damage_heavy_armor"					"90"
+
+		"npc_explosion_damage"							"90"
+
+		"ammo_clip_size"   								"4"
+		"ammo_default_total"							"1"
+		"ammo_display"									"count"
+		"ammo_min_to_fire"								"1"
+		"ammo_per_shot"									"1"
+		"ammo_stockpile_max"							"4"
+		"regen_ammo_refill_rate"						"0"
+		"regen_ammo_refill_start_delay"					"0.0"
+
+		"enable_highlight_networking_on_creation"		"1"
+
+	//Mods
+		"grenade_arc_indicator_bounce_count"			"2"
+		"grenade_arc_indicator_effect"					"P_grenade_arc_proto"
+
+		"sound_weapon_ready"							"HUD_ordinance_meter_replenished_SP"
+	}
+
+	// Models
+	"viewmodel"										"mdl/weapons/grenades/ptpov_frag_grenade.rmdl"
+	"playermodel"									"mdl/backwater/rock_set_backwater_03.rmdl"
+	"projectilemodel"								"mdl/backwater/rock_set_backwater_03.rmdl"
+
+	// Effects
+	"bounce_effect_table"							"bounce_small"
+	"impact_effect_table"							"exp_frag_grenade"
+	"projectile_trail_effect_0_1p"						"wpn_grenade_frag"
+	"projectile_trail_effect_0_3p"						"wpn_grenade_frag"
+	"vortex_absorb_effect"							"wpn_vortex_projectile_frag_FP"
+	"vortex_absorb_effect_third_person"				"wpn_vortex_projectile_frag"
+	"vortex_absorb_sound"							"Vortex_Shield_AbsorbBulletLarge"
+	"vortex_absorb_sound_1p_vs_3p"					"Vortex_Shield_AbsorbBulletLarge_1P_VS_3P"
+	"projectile_adjust_to_gun_barrel"				"0"
+	"projectile_adjust_to_hand"						"1"
+	"grenade_arc_indicator_effect_first"			"P_grenade_arc_proto_first"
+	"grenade_arc_impact_indicator_effect"			"grenade_arc_impact_proto"
+
+	// Sounds
+	"sound_throw_1p"								"Weapon_FragGrenade_Throw"
+	"sound_deploy_1p"								"Weapon_FragGrenade_PinPull"
+	"sound_throw_3p"								"Weapon_FragGrenade_Throw_3P"
+	"sound_deploy_3p"								"Weapon_FragGrenade_PinPull_3P"
+	"sound_dryfire"									"Survival_UI_Ability_NotReady"
+	"sound_cook_warning"							"Weapon_Vortex_Gun.ExplosiveWarningBeep"
+	"battle_chatter_event"							"bc_frag"
+
+	// Damage - When Used by Players
+	"damage_type"									"burn"
+	"damage_near_distance"							"1000"
+	"damage_far_distance"							"3000"
+	"damage_near_value"								"10"
+	"damage_far_value"								"10"
+	"damage_near_value_titanarmor"					"0"
+	"damage_far_value_titanarmor"					"0"
+
+	"damage_flags"									"DF_RAGDOLL | DF_EXPLOSION | DF_DISMEMBERMENT"
+
+	"critical_hit"									"0"
+
+	"explosion_inner_radius"						"5"
+	"explosionradius"								"320"
+	"impulse_force"									"500"
+	"impulse_force_explosions"						"50000"
+	"explosion_shake_radius"						"500"
+	"explosion_shake_amplitude"						"30"
+	"explosion_shake_frequency"						"45"
+	"explosion_shake_duration"						"0.75"
+
+
+	// Behavior
+	"max_cook_time"									"3.25"
+	"grenade_fuse_time"								"5.0"
+    "start_fuse_on_launch"                          "0"
+	"fire_rate"										"2"
+	"deploy_time"									"0.5"
+	"vortex_refire_behavior"  						"grenade"
+	"allow_empty_fire"								"0"
+	"reload_enabled"								"0"
+	"allow_empty_click"								"1"
+	"empty_reload_only"								"0"
+	"trigger_snipercam"								"0"
+	"grenade_bounce_vel_frac_shallow"				"0.5"
+	"grenade_bounce_vel_frac_sharp"					"0.3"
+	"grenade_bounce_vel_frac_along_normal"			"0.5"
+	"grenade_bounce_randomness"						"0.2"
+	"grenade_bounce_extra_vertical_randomness"		"0.2"
+	"grenade_roll_vel_frac_per_second"				"0.1"
+	"aimassist_disable_hipfire"						"1"
+	"aimassist_disable_ads"							"1"
+	"toss_pullout_time"								"0.35"
+	"toss_time"										"0.33"
+	"toss_overhead_time"							"0.33"
+	"projectile_launch_speed"						"1100"
+	"projectile_launch_pitch_offset"				"8"
+	"projectile_first_person_offset_fraction"		"2"
+
+	"projectile_inherit_owner_velocity_scale"		"0.0"
+	"red_crosshair_range" 							"0"
+
+	"ammo_suck_behavior"							"offhand_weapons"
+
+	// View Kick
+	"viewkick_spring"								"pistol"
+
+	// NPC
+	"npc_vortex_block"								"0"
+	"npc_min_range"   								"400"
+	"npc_max_range"   								"6000"
+	"npc_dangerous_to_normal_armor"					"1"
+
+	"projectile_gravity_scale"						"0.7"
+
+	"fire_anim_rate"								"1"
+}

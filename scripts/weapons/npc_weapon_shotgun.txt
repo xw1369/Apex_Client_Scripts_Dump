@@ -1,0 +1,188 @@
+WeaponData
+{
+
+	// ---
+    //                                          GENERAL CHARACTERISTICS
+    // ---
+
+	"printname"   									"#WPN_SHOTGUN"
+	"shortprintname"								"#WPN_SHOTGUN_SHORT"
+	"description" 									"#WPN_SHOTGUN_DESC"
+	"longdesc"										"#WPN_SHOTGUN_LONGDESC"
+
+	"weaponClass" 									"human"
+	"weaponSubClass"								"projectile_shotgun"
+	"weapon_type_flags"								"WPT_PRIMARY"
+	"body_type"										"light"
+
+	"fire_mode"   									"automatic"
+	"is_semi_auto"									"0"
+
+	// Models
+	"playermodel" 									"mdl/weapons/w1128/w_w1128.rmdl"
+
+	// ---
+    //                                          AMMO
+    // ---
+
+	"ammo_pool_type"								"shotgun"
+	"ammo_min_to_fire"								"1"
+    "ammo_per_shot"                                 "1"
+    "ammo_clip_size"   								"8"
+
+	// ---
+    //                                          DAMAGE
+    // ---
+
+	"damage_flags"									"DF_NO_SELF_DAMAGE"
+	"damage_type" 									"none"
+
+	"trophy_system_ignores"                         "always"
+
+	"npc_damage_near_value"   						"3"
+	"npc_damage_far_value"							"3"
+	"npc_damage_near_value_titanarmor"				"3"
+	"npc_damage_far_value_titanarmor" 				"3"
+	"npc_damage_near_distance"						"256"
+    "npc_damage_far_distance" 						"512"
+
+	// ---
+    //                                          PROJECTILE
+    // ---
+
+    "projectilemodel"                               "mdl/dev/empty_model.rmdl"
+
+	"projectiles_per_shot" 							"8"
+	"blast_pattern"									"eva8"
+
+	"blast_pattern_zero_distance"        			"512.0"
+	"blast_pattern_default_scale"        			"1.5"
+	"blast_pattern_npc_scale"            			"1.0"  // scales on top of the default
+
+	"projectile_launch_speed"						"16000"
+
+	"bolt_gravity_enabled"							"1"
+    "projectile_gravity_scale" 						"1.0"
+    "projectile_drag_coefficient"                   "0.001"
+    "projectile_inherit_owner_velocity_scale"		"0.0"
+    "projectile_lifetime" 							"1.0"
+
+	"projectile_adjust_to_gun_barrel"				"1"
+	"projectile_do_predict_impact_effects"			"1"
+
+	"bolt_zero_distance" 							"984.3" // 25m
+
+    "bolt_hitsize"									"0.25"
+    "bolt_hitsize_grow1_time"						"0.025"
+    "bolt_hitsize_grow1_size"						"0.6"
+    "bolt_hitsize_grow2_time"						"0.1"
+    "bolt_hitsize_grow2_size"						"1.0"
+    "bolt_hitsize_growfinal_lerptime"				"0.1"
+    "bolt_hitsize_growfinal_size"					"1.0"
+
+	"chance_for_bonus_last_shot_in_clip"			"0"
+	"critical_hit"									"0"
+
+	"allow_headshots" 								"1"
+	"headshot_distance" 							"1500"
+
+	// ---
+    //                                          EFFECTS ( VFX & SFX )
+    // ---
+
+	"tracer_effect"   								"weapon_tracers_shotgun"
+	"fx_muzzle_flash_view"							"mflash_shotgun_fp_FULL"
+	"fx_muzzle_flash_world"							"mflash_shotgun_FULL"
+	"fx_muzzle_flash_attach"						"muzzle_flash"
+
+	"projectile_trail_effect_0_1p" 					"P_tracer_projectile_smg"
+    "projectile_trail_effect_0_3p" 					"P_tracer_projectile_smg"
+
+	"impact_effect_table" 							"inc_bullet"
+	"vortex_absorb_effect"							"wpn_vortex_projectile_shotgun_FP"
+	"vortex_absorb_effect_third_person"				"wpn_vortex_projectile_shotgun"
+	"vortex_absorb_sound"							"Vortex_Shield_AbsorbBulletSmall"
+	"vortex_absorb_sound_1P_VS_3P"					"Vortex_Shield_AbsorbBulletSmall_1P_VS_3P"
+
+	"looping_sounds"								"0"
+
+	"fire_sound_1_npc"								"Weapon_EVA8_AutoFire_NPC"
+
+	// ---
+    //                                          NPC SETTING - Drives Behaviors
+    // ---
+
+	"fire_rate"   									"2.0"
+	"reload_time" 									"2.75"
+	"reloadempty_time"								"3.0"
+	"deployfirst_time"								"1.35"
+
+	"burst_fire_delay"								"1.5"
+
+	"npc_min_engage_range"							"128"
+	"npc_max_engage_range"							"384"
+	"npc_min_engage_range_heavy_armor"				"384"
+	"npc_max_engage_range_heavy_armor"				"512"
+	"npc_min_range"   								"128"
+	"npc_max_range"   								"512"
+
+	"npc_lead_projectiles"                          "1"
+    "npc_lead_projectiles_fraction_min_precision"   "0.2"
+    "npc_lead_projectiles_fraction_max_precision"   "0.5"
+
+	"proficiency_poor_spreadscale"					"7.0"
+	"proficiency_average_spreadscale" 				"5.0"
+	"proficiency_good_spreadscale"					"4.5"
+	"proficiency_very_good_spreadscale"   			"3.7"
+
+	//shot cadence
+	"npc_min_burst"									"1"
+	"npc_max_burst"									"2"
+	    //precision based
+        //"npc_min_burst_min_precision"   				    "3"
+        //"npc_max_burst_min_precision"                     "3"
+        //"npc_min_burst_max_precision"                     "3"
+        //"npc_max_burst_max_precision"                     "4"
+
+	"npc_rest_time_between_bursts_min"				"0.5"
+    "npc_rest_time_between_bursts_max"				"3.0"
+        //precision based
+        //"npc_min_rest_time_between_bursts_min_precision"  "2.25"
+        //"npc_max_rest_time_between_bursts_min_precision"  "2.75"
+        //"npc_min_rest_time_between_bursts_max_precision"  "1.25"
+        //"npc_max_rest_time_between_bursts_max_precision"  "1.75"
+
+	"npc_burst_radius_min_precision"                "45.0"
+    "npc_burst_radius_max_precision"                "25.0"
+    //"npc_burst_radius_distribution_bias_min_precision"  "-0.5"
+    //"npc_burst_radius_distribution_bias_max_precision"  ".5"
+
+	// for full auto weapons
+        //"npc_spread_cone_min_precision"                 "0" // In Deg
+        //"npc_spread_cone_max_precision"                 "0" // In Deg
+		//"npc_spread_cone_distribution_bias_min_precision"
+		//"npc_spread_cone_distribution_bias_max_precision"
+		//"npc_spread_cone_focus_time"
+
+	// for full auto weapons - randomness modifier to the view kick pattern. Do NPCs use this?
+        //"spread_stand_hip"								"5.0"
+        //"spread_stand_hip_run"							"5.0"
+        //"spread_stand_hip_sprint"                         "5.0"
+        //"spread_crouch_hip"   							"5.0"
+        //"spread_air_hip"  								"5.0"
+        //"spread_stand_ads"								"5.0"
+        //"spread_crouch_ads"   							"5.0"
+        //"spread_air_ads"  								"5.0"
+        //"spread_wallrunning"  							"5.0"
+        //"spread_wallhanging"  							"5.0"
+
+	// ---
+    //                                          SCRIPT
+    // ---
+
+	"OnWeaponActivate"								"OnWeaponActivate_weapon_shotgun"
+	"OnWeaponDeactivate"                            "OnWeaponDeactivate_weapon_shotgun"
+	"OnWeaponPrimaryAttack"							"OnWeaponPrimaryAttack_weapon_shotgun"
+	"OnWeaponNpcPrimaryAttack"						"OnWeaponNpcPrimaryAttack_weapon_shotgun"
+    "OnProjectileCollision"                         "OnProjectileCollision_weapon_shotgun"
+}

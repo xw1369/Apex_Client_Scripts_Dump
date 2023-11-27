@@ -1,0 +1,30 @@
+#base "melee_pilot_emptyhanded.txt"
+
+WeaponData
+{
+
+	// General
+	"printname"   								"Melee"
+	"shortprintname"							"Melee"
+	"description" 								"Description needed"
+	"longdesc"									"Description needed"
+
+	"menu_icon"									"rui/hud/common/melee_icon"
+	"hud_icon"									"rui/hud/common/melee_icon"
+
+	// Models
+	"viewmodel"   								"mdl/Weapons/horizon_heirloom/ptpov_horizon_heirloom.rmdl"
+	"playermodel" 								"mdl/Weapons/horizon_heirloom/w_horizon_heirloom.rmdl"
+	"holstermodel"								"mdl/Props/horizon_heirloom/horizon_heirloom.rmdl"
+
+	"OnWeaponActivate"							"OnWeaponActivate_melee_horizon_heirloom"
+    "OnWeaponDeactivate"						"OnWeaponDeactivate_melee_horizon_heirloom"
+
+	"is_heirloom"								"1"
+
+    // FX
+	"impact_effect_table"                       "melee_morning_star"
+
+	// Animation
+	"activitymodifier3P"						"blackhole"
+}
