@@ -1,0 +1,196 @@
+
+
+
+global function ReserveVideoChannel
+global function ReleaseVideoChannel
+
+
+
+
+
+
+
+
+
+
+
+global function UIToClient_VideoChannelReserved
+global function UIToClient_VideoChannelFinishedPlaying
+
+
+const int NUM_BINK_CHANNELS = 10 
+
+
+
+
+
+
+
+
+
+
+
+struct
+{
+
+
+
+
+
+		int videoChannelFromUI = -1
+
+
+
+		table<int, void functionref(int)> channelOnFinishedCallbackMap
+
+} file
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+int function ReserveVideoChannel( void functionref( int channel ) onFinishedCallback = null )
+{
+	int channel
+
+
+
+		RunUIScript( "ClientToUI_RequestVideoChannel" )
+		Assert( file.videoChannelFromUI != -1 )
+		channel = file.videoChannelFromUI
+		file.videoChannelFromUI = -1
+
+
+	if ( onFinishedCallback != null )
+		file.channelOnFinishedCallbackMap[channel] <- onFinishedCallback
+
+	return channel
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+void function UIToClient_VideoChannelReserved( int channel )
+{
+	file.videoChannelFromUI = channel
+}
+
+
+
+
+void function ReleaseVideoChannel( int channel )
+{
+
+
+
+		RunUIScript( "ClientToUI_ReleaseVideoChannel", channel )
+
+
+	if ( channel in file.channelOnFinishedCallbackMap )
+		delete file.channelOnFinishedCallbackMap[channel]
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+void function UIToClient_VideoChannelFinishedPlaying( int channel )
+{
+	if ( channel in file.channelOnFinishedCallbackMap )
+	{
+		file.channelOnFinishedCallbackMap[channel]( channel )
+	}
+}
+
+
+

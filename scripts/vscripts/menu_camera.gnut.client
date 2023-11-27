@@ -1,0 +1,167 @@
+
+
+
+
+
+
+
+global function MenuCamera_Init
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+global struct MenuCameraControllerConfig
+{
+	string name = "unknown"
+
+	entity camera
+	entity cameraMover
+}
+
+
+
+
+global struct MenuCameraController
+{
+	
+}
+
+
+
+
+
+
+
+
+
+
+
+struct MenuCameraControllerState
+{
+	MenuCameraControllerConfig& cfg
+
+
+}
+
+
+
+struct FileStruct_LifetimeLevel
+{
+
+		table<MenuCameraController, MenuCameraControllerState> menuCameraControllerStateMap
+
+}
+
+
+FileStruct_LifetimeLevel fileLevel 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+void function MenuCamera_Init()
+{
+
+
+
+
+}
+
+
+
+
+
+
+
+
+
+
+
+MenuCameraControllerConfig function MenuCameraController_GetConfig( MenuCameraController handle )
+{
+	return fileLevel.menuCameraControllerStateMap[handle].cfg
+}
+
+
+
+
+MenuCameraController function StartMenuCameraController( MenuCameraControllerConfig cfg )
+{
+	MenuCameraController handle
+	MenuCameraControllerState state
+	state.cfg = cfg
+	DbgPrint( cfg.name, "StartMenuCameraController" )
+	
+	return handle
+}
+
+
+
+
+void function MenuCameraController_Stop( MenuCameraController handle )
+{
+	DbgPrint( MenuCameraController_GetConfig( handle ).name, "MenuCameraController_Stop" )
+	Signal( handle, "MenuCameraController_Stop" )
+}
+
+
+
+
+void function MenuCameraController_Refresh( MenuCameraController handle )
+{
+	DbgPrint( MenuCameraController_GetConfig( handle ).name, "MenuCameraController_Refresh" )
+	Signal( handle, "MenuCameraController_Refresh", { visible = null } )
+}
+
+
+
+
+
+
+
+
+
+
+
+void function DbgPrint( string name, string fmt, ... )
+{
+	printt( format( "[MenuCameraController %s %s] %s", name, VM_NAME(),
+		format( fmt, vargc > 0 ? vargv[0] : 0, vargc > 1 ? vargv[1] : 0, vargc > 2 ? vargv[2] : 0, vargc > 3 ? vargv[3] : 0, vargc > 4 ? vargv[4] : 0, vargc > 5 ? vargv[5] : 0, vargc > 6 ? vargv[6] : 0, vargc > 7 ? vargv[7] : 0 ) ) )
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

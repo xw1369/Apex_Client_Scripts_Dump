@@ -1,0 +1,234 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+const string HI_DATAMINERS = "TOP SECRET DATA HERE -> https://www.respawn.com/careers"
+
+
+
+
+global function CL_Staging_Area_EE_Init
+
+global function ServerToClient_DoPresentation
+
+global const string FIRING_RANGE_EE_1_SCRIPTNAME = "FiringRange_EE_1"
+global const string FIRING_RANGE_EE_2_SCRIPTNAME = "FiringRange_EE_2"
+
+struct
+{
+} file
+
+
+
+
+
+
+
+
+
+
+void function CL_Staging_Area_EE_Init()
+{
+	if ( !IsFiringRangeGameMode() )
+		return
+
+	AddCreateCallback( "prop_dynamic", OnSpawnPropDynamic )
+}
+
+
+
+void function OnSpawnPropDynamic( entity ent )
+{
+	if ( ent.GetScriptName() == FIRING_RANGE_EE_1_SCRIPTNAME )
+	{
+		ent.DisableJiggleBones()
+	}
+	if ( ent.GetScriptName() == FIRING_RANGE_EE_2_SCRIPTNAME )
+	{
+		AddAirdropTraceIgnoreEnt ( ent )
+	}
+}
+
+void function ServerToClient_DoPresentation()
+{
+	if ( GetCurrentPlaylistVarBool( "survival_staging_high_point_enabled", true ) )
+	{
+		thread DoRealization_Thread()
+		thread DoPresentation_Thread()
+	}
+}
+
+void function DoRealization_Thread()
+{
+	entity player = GetLocalViewPlayer()
+
+	EndSignal( player, "OnDeath", "OnDestroy" )
+
+	entity rotator = CreateClientsideScriptMover( $"mdl/dev/empty_model.rmdl", player.EyePosition(), <0,0,0> )
+	entity model = CreateClientSidePropDynamic( player.EyePosition() + <0,0,150>, <0,0,0>, $"mdl/creatures/bird/bird.rmdl" )
+
+	OnThreadEnd( void function() : ( rotator, model  ) {
+		model.Destroy()
+		rotator.Destroy()
+	} )
+	rotator.NonPhysicsSetRotateModeLocal( true )
+	rotator.NonPhysicsRotate( <0,0,-1>, 50 )
+
+	vector cameraForwardFlatNormalized = Normalize(FlattenVec(AnglesToForward(player.CameraAngles())))
+	vector offset = cameraForwardFlatNormalized * 400 + <0,0,300>
+
+	vector forwardAngle = VectorToAngles( cameraForwardFlatNormalized )
+	vector rotatedAngle = AnglesCompose( forwardAngle, <0, -100, 35> )
+
+	entity mover = CreateClientsideScriptMover( $"mdl/dev/empty_model.rmdl", player.CameraPosition(), <0,0,0> )
+	mover.SetParent( rotator )
+	mover.NonPhysicsSetMoveModeLocal(true)
+
+	mover.SetLocalAngles( rotatedAngle )
+	mover.SetLocalOrigin( offset )
+
+	model.SetParent( mover )
+	model.Anim_Play( "Bird_fly_cycle_long_no_root_motion" )
+
+	const float HALF_ROTATE_TIME = 6
+	const float EASE_IN_TIME = 1
+	const float START_STAGE_TIME = HALF_ROTATE_TIME + ( EASE_IN_TIME / 2 )
+	const float TOTAL_ROTATE_TIME = HALF_ROTATE_TIME + START_STAGE_TIME
+	wait TOTAL_ROTATE_TIME - 1
+}
+
+void function DoPresentation_Thread()
+{
+	entity player = GetLocalViewPlayer()
+
+	EndSignal( player, "OnDeath", "OnDestroy" )
+
+	SCB_FiringRange_EnableCharacterChange( false )
+
+	bool needToShowStats = FR_DynStats_Hide_RUI()
+	bool needToShowTimer = FR_DynTimer_Hide_RUI()
+	bool needToRestoreSettings = FR_Settings_Hide_RUI_If_Shown()
+
+	EmitSoundOnEntity( player, "FiringRangeMu1_HighPoint_1P" )
+
+	entity rotator = CreateClientsideScriptMover( $"mdl/dev/empty_model.rmdl", player.EyePosition(), <0,0,0> )
+
+	OnThreadEnd( void function() : ( player, rotator, needToShowStats, needToShowTimer, needToRestoreSettings ) {
+
+		SCB_FiringRange_EnableCharacterChange( true )
+
+		if( needToShowStats )
+		{
+			FR_DynStats_Show_RUI()
+		}
+		if( needToShowTimer )
+		{
+			FR_DynTimer_Show_RUI()
+		}
+		if ( needToRestoreSettings )
+		{
+			FR_Settings_Show_RUI()
+		}
+
+		player.ClearMenuCameraEntity()
+		rotator.Destroy()
+	} )
+
+	rotator.NonPhysicsSetRotateModeLocal( true )
+
+	const float HALF_ROTATE_TIME = 6
+	const float EASE_IN_TIME = 1
+	const float START_STAGE_TIME = HALF_ROTATE_TIME + ( EASE_IN_TIME / 2 )
+	rotator.NonPhysicsRotateTo( <0,180,0>, START_STAGE_TIME, EASE_IN_TIME, 0 )
+	entity mover = CreateClientsideScriptMover( $"mdl/dev/empty_model.rmdl", player.CameraPosition(), player.CameraAngles() )
+	mover.SetParent( rotator )
+	vector endPos = mover.GetLocalOrigin()
+	mover.NonPhysicsSetMoveModeLocal(true)
+	vector cameraForwardFlatNormalized = Normalize(FlattenVec(AnglesToForward(player.CameraAngles())))
+	mover.NonPhysicsMoveTo( (cameraForwardFlatNormalized * -300) + <0, 0, 300>, 3, 1, .5 )
+	entity camera = CreateClientSidePointCamera( mover.GetOrigin(), mover.GetAngles(), player.GetFOV() )
+	camera.SetParent( mover )
+	player.SetMenuCameraEntity( camera )
+	player.SetMenuCameraUseGameExposure()
+
+	vector focusPoint = player.CameraPosition() + (AnglesToForward(player.CameraAngles()) * Distance( player.CameraPosition(), player.EyePosition() ) )
+	entity cameraFocusPoint = CreateClientsideScriptMover( $"mdl/dev/empty_model.rmdl", focusPoint, <0,0,0> )
+	cameraFocusPoint.NonPhysicsMoveTo( focusPoint + <0, 0, 150>, 3, 1, .5 )
+
+	
+
+	float startTime = Time()
+	const float TOTAL_ROTATE_TIME = HALF_ROTATE_TIME + START_STAGE_TIME
+	float endTime = startTime + TOTAL_ROTATE_TIME
+
+	bool finshedStartStage = false
+	float startStageEndTime = Time() + START_STAGE_TIME
+
+	bool startedEndStage = false
+	const float END_STAGE_TIME = 2
+	float endStageStartTime = Time() + TOTAL_ROTATE_TIME - END_STAGE_TIME
+	while ( Time() < endTime )
+	{
+		if ( !finshedStartStage && Time() >= startStageEndTime )
+		{
+			finshedStartStage = true
+			rotator.NonPhysicsRotate( <0,0,1>, 30 )
+		}
+
+		if ( !startedEndStage && Time() >= endStageStartTime )
+		{
+			startedEndStage = true
+			cameraFocusPoint.NonPhysicsMoveTo( focusPoint, END_STAGE_TIME, 1, .5 )
+			mover.NonPhysicsMoveTo( endPos, END_STAGE_TIME, 1, .5 )
+		}
+
+		vector cameraToCameraFocus = Normalize(cameraFocusPoint.GetOrigin() - mover.GetOrigin())
+
+		camera.SetAngles( VectorToAngles(cameraToCameraFocus) )
+		
+		
+		WaitFrame()
+	}
+}
+

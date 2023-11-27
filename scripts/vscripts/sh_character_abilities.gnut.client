@@ -1,0 +1,237 @@
+
+
+
+global function ShCharacterAbilities_LevelInit
+
+
+
+
+global function CharacterClass_GetTacticalAbility
+global function CharacterClass_GetUltimateAbility
+global function CharacterClass_GetPassiveAbilities
+global function CharacterAbility_ShouldShowDetails
+global function CharacterAbility_GetWeaponClassname
+global function CharacterAbility_GetPassiveIndex
+global function CharacterAbility_GetPassiveWeaponMod
+
+
+
+
+
+
+
+
+
+struct FileStruct_LifetimeLevel
+{
+	table<ItemFlavor, ItemFlavor>         characterTacAbilityMap
+	table<ItemFlavor, ItemFlavor>         characterUltAbilityMap
+	table<ItemFlavor, array<ItemFlavor> > characterPasAbilitiesMap
+}
+FileStruct_LifetimeLevel& fileLevel
+
+
+
+
+
+
+
+
+
+void function ShCharacterAbilities_LevelInit()
+{
+	FileStruct_LifetimeLevel newFileLevel
+	fileLevel = newFileLevel
+
+	AddCallback_OnItemFlavorRegistered( eItemType.character, OnItemFlavorRegistered_Character )
+}
+
+
+
+
+void function OnItemFlavorRegistered_Character( ItemFlavor character )
+{
+	array<ItemFlavor> abilityList = []
+
+	
+	{
+		asset settingsAsset = GetGlobalSettingsAsset( ItemFlavor_GetAsset( character ), "tacticalAbility" )
+		if ( settingsAsset != $"" )
+		{
+			ItemFlavor ornull ability = RegisterItemFlavorFromSettingsAsset( settingsAsset )
+			if ( ability != null )
+			{
+				expect ItemFlavor(ability)
+				Assert( CharacterAbility_GetWeaponClassname( ability ) != "" )
+				Assert( CharacterAbility_GetPassiveIndex( ability ) == ePassives.INVALID )  
+				fileLevel.characterTacAbilityMap[character] <- ability
+				abilityList.append( ability )
+			}
+		}
+	}
+
+	
+	{
+		asset settingsAsset = GetGlobalSettingsAsset( ItemFlavor_GetAsset( character ), "ultimateAbility" )
+		if ( settingsAsset != $"" )
+		{
+			ItemFlavor ornull ability = RegisterItemFlavorFromSettingsAsset( settingsAsset )
+			if ( ability != null )
+			{
+				expect ItemFlavor(ability)
+				Assert( CharacterAbility_GetWeaponClassname( ability ) != "" )
+				Assert( CharacterAbility_GetPassiveIndex( ability ) == ePassives.INVALID )  
+				fileLevel.characterUltAbilityMap[character] <- ability
+				abilityList.append( ability )
+			}
+		}
+	}
+
+	
+	{
+		array<ItemFlavor> passives = []
+		foreach ( var passiveBlock in IterateSettingsAssetArray( ItemFlavor_GetAsset( character ), "passives" ) )
+		{
+			asset settingsAsset = GetSettingsBlockAsset( passiveBlock, "flavor" )
+			if ( settingsAsset != $"" )
+			{
+				ItemFlavor ornull ability = RegisterItemFlavorFromSettingsAsset( settingsAsset )
+				if ( ability != null )
+				{
+					expect ItemFlavor(ability)
+					Assert( CharacterAbility_GetWeaponClassname( ability ) == "" )
+					Assert( CharacterAbility_GetPassiveIndex( ability ) != ePassives.INVALID )  
+					passives.append( ability )
+					abilityList.append( ability )
+				}
+			}
+		}
+		fileLevel.characterPasAbilitiesMap[character] <- passives
+	}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+	foreach ( ItemFlavor ability in abilityList )
+	{
+		string weaponClassname = CharacterAbility_GetWeaponClassname( ability )
+
+			if ( weaponClassname != "" )
+				PrecacheWeapon( weaponClassname )
+
+
+		
+		CharacterAbility_GetPassiveIndex( ability )
+	}
+}
+
+
+
+
+
+
+
+
+
+
+ItemFlavor function CharacterClass_GetTacticalAbility( ItemFlavor character )
+{
+	Assert( ItemFlavor_GetType( character ) == eItemType.character )
+
+	return fileLevel.characterTacAbilityMap[character]
+}
+
+
+
+
+ItemFlavor function CharacterClass_GetUltimateAbility( ItemFlavor character )
+{
+	Assert( ItemFlavor_GetType( character ) == eItemType.character )
+
+	return fileLevel.characterUltAbilityMap[character]
+}
+
+
+
+
+array<ItemFlavor> function CharacterClass_GetPassiveAbilities( ItemFlavor character )
+{
+	Assert( ItemFlavor_GetType( character ) == eItemType.character )
+
+	return fileLevel.characterPasAbilitiesMap[character]
+}
+
+
+
+
+bool function CharacterAbility_ShouldShowDetails( ItemFlavor flavor )
+{
+	Assert( ItemFlavor_GetType( flavor ) == eItemType.ability )
+
+	return GetGlobalSettingsBool( ItemFlavor_GetAsset( flavor ), "showDetails" )
+}
+
+
+
+
+string function CharacterAbility_GetWeaponClassname( ItemFlavor flavor )
+{
+	Assert( ItemFlavor_GetType( flavor ) == eItemType.ability )
+
+	return GetGlobalSettingsString( ItemFlavor_GetAsset( flavor ), "weaponClassname" )
+}
+
+
+
+
+int function CharacterAbility_GetPassiveIndex( ItemFlavor flavor )
+{
+	Assert( ItemFlavor_GetType( flavor ) == eItemType.ability )
+
+	string passiveRef = GetGlobalSettingsString( ItemFlavor_GetAsset( flavor ), "passiveScriptRef" )
+	if ( passiveRef == "" )
+		return ePassives.INVALID
+
+	Assert( passiveRef in ePassives, "Unknown passive script ref: " + passiveRef )
+	return ePassives[passiveRef]
+}
+
+
+
+string function CharacterAbility_GetPassiveWeaponMod( ItemFlavor flavor )
+{
+	Assert( ItemFlavor_GetType( flavor ) == eItemType.ability )
+
+	return GetGlobalSettingsString( ItemFlavor_GetAsset( flavor ), "passiveWeaponMod" )
+}
+
+
+
+
+
+
+
+
+

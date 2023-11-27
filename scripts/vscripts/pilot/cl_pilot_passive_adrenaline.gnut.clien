@@ -1,0 +1,155 @@
+global function CLPassiveAdrenaline_Init
+
+const string PAS_ADRENALINE_STOP_SIGNAL = "PassiveAdrenaline_StopEffects"
+const asset DEFAULT_ADRENALINE_SCREEN_FX = $"P_adrenaline_screen_CP"
+const asset DEFAULT_ADRENALINE_RUI = $"ui/passive_bangalore_triggered.rpak"
+const string DEFAULT_ADRENALINE_SOUND_START 	= "Bangalore_DoubleTime_Activate"
+const string DEFAULT_ADRENALINE_COLOR_CORR = "materials/correction/adrenaline_passive.raw_hdr"
+
+
+
+
+
+
+
+
+
+
+struct
+{
+	int colorCorrection
+	int ScreenFxId
+} file
+
+
+void function CLPassiveAdrenaline_Init()
+{
+	file.ScreenFxId = PrecacheParticleSystem( DEFAULT_ADRENALINE_SCREEN_FX )
+	file.colorCorrection = ColorCorrection_Register( DEFAULT_ADRENALINE_COLOR_CORR )
+
+
+
+
+
+	RegisterSignal( PAS_ADRENALINE_STOP_SIGNAL )
+
+	StatusEffect_RegisterEnabledCallback( eStatusEffect.adrenaline_visuals, PassiveAdrenaline_StartVisualEffect )
+	StatusEffect_RegisterDisabledCallback( eStatusEffect.adrenaline_visuals, PassiveAdrenaline_StopVisualEffect )
+}
+
+void function PassiveAdrenaline_StartVisualEffect( entity ent, int statusEffect, bool actuallyChanged )
+{
+	if ( !actuallyChanged && GetLocalViewPlayer() == GetLocalClientPlayer() )
+		return
+
+	if ( ent != GetLocalViewPlayer() )
+		return
+
+	entity viewPlayer = ent
+
+	string soundName = DEFAULT_ADRENALINE_SOUND_START
+	int screenEffectID = file.ScreenFxId
+	asset adrenalineRui = DEFAULT_ADRENALINE_RUI
+
+
+
+
+
+
+
+
+	EmitSoundOnEntity( viewPlayer, soundName )
+
+	CreatePassiveAdrenalineRUI(adrenalineRui )
+	thread PassiveAdrenaline_UpdatePlayerScreenColorCorrection( viewPlayer )
+
+
+	int fxHandle = StartParticleEffectOnEntityWithPos( viewPlayer, screenEffectID, FX_PATTACH_ABSORIGIN_FOLLOW, ATTACHMENTID_INVALID, viewPlayer.EyePosition(), <0,0,0> )
+	EffectSetIsWithCockpit( fxHandle, true )
+
+	thread PassiveAdreneline_EffectsThread( viewPlayer, fxHandle, soundName, statusEffect )
+}
+
+void function PassiveAdrenaline_StopVisualEffect( entity ent, int statusEffect, bool actuallyChanged )
+{
+	if ( !actuallyChanged && GetLocalViewPlayer() == GetLocalClientPlayer() )
+		return
+
+	if ( ent != GetLocalViewPlayer() )
+		return
+
+	ent.Signal( PAS_ADRENALINE_STOP_SIGNAL )
+}
+
+void function CreatePassiveAdrenalineRUI( asset ruiAsset )
+{
+	
+	var rui = CreateTransientCockpitRui( ruiAsset, HUD_Z_BASE )
+}
+
+void function PassiveAdrenaline_UpdatePlayerScreenColorCorrection( entity player )
+{
+	Assert ( IsNewThread(), "Must be threaded off." )
+	Assert ( player == GetLocalViewPlayer() )
+
+	player.EndSignal( "OnDeath" )
+	player.EndSignal( "OnDestroy" )
+	player.EndSignal( PAS_ADRENALINE_STOP_SIGNAL )
+
+	OnThreadEnd(
+		function() : ( player )
+		{
+			ColorCorrection_SetWeight( file.colorCorrection, 0.0 )
+			ColorCorrection_SetExclusive( file.colorCorrection, false )
+		}
+	)
+
+	ColorCorrection_SetExclusive( file.colorCorrection, true )
+	ColorCorrection_SetWeight( file.colorCorrection, 1.0 )
+
+	const LERP_IN_TIME = 0.0125	
+	float startTime = Time()
+
+	while ( true )
+	{
+		
+		float weight = StatusEffect_GetSeverity( player, eStatusEffect.adrenaline_visuals )
+		
+		weight = GraphCapped( Time() - startTime, 0, LERP_IN_TIME, 0, weight )
+		ColorCorrection_SetWeight( file.colorCorrection, weight )
+
+		WaitFrame()
+	}
+}
+
+
+void function PassiveAdreneline_EffectsThread( entity viewPlayer, int fxHandle, string soundName, int statusEffect )
+{
+	EndSignal( viewPlayer, "OnDeath" )
+	EndSignal( viewPlayer, PAS_ADRENALINE_STOP_SIGNAL )
+
+	OnThreadEnd(
+		function() : ( viewPlayer, soundName, fxHandle )
+		{
+			if ( IsValid( viewPlayer ) )
+				StopSoundOnEntity( viewPlayer, soundName )
+
+			if ( !EffectDoesExist( fxHandle ) )
+				return
+
+			EffectStop( fxHandle, false, true )
+		}
+	)
+
+	while( true )
+	{
+		float severity = StatusEffect_GetSeverity( viewPlayer, statusEffect )
+		
+
+		if ( !EffectDoesExist( fxHandle ) )
+			break
+
+		EffectSetControlPointVector( fxHandle, 1, <severity,999,0> )
+		WaitFrame()
+	}
+}

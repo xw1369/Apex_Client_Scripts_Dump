@@ -1,0 +1,665 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+global function GetItemFlavorForCommunityUserInfo
+global function GetBadgeItemFlavorForCommunityUserInfo
+global function GetBadgeDataIntegerFromCommunityUserInfo
+global function GetTrackerItemFlavorForCommunityUserInfo
+global function GetTrackerDataIntegerFromCommunityUserInfo
+
+
+
+
+
+
+
+
+
+
+
+const float ONLINE_FRIEND_COUNT_QUERRY_INTERVAL  = 2.0 
+const float PLAYER_STRYDER_CHAR_DATA_ARRAY_CASUAL_UPDATE_DEBOUNCE_INTERVAL = 2.0 
+
+const bool PLAYER_STRYDER_CHAR_DATA_ARRAY_SEND_DEBUG = false
+
+
+
+
+
+
+
+
+struct
+{
+
+
+
+
+
+
+
+
+
+
+
+
+} file
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ItemFlavor function GetItemFlavorForCommunityUserInfo( CommunityUserInfo userInfo, int slotIndex, int itemType )
+{
+	ItemFlavor ornull requestedFlavor = GetItemFlavorOrNullByGUID( userInfo.charData[slotIndex], itemType )
+
+	LoadoutEntry entry
+	if ( itemType == eItemType.character )
+	{
+		entry = Loadout_Character()
+	}
+	else
+	{
+		ItemFlavor character = GetItemFlavorForCommunityUserInfo( userInfo, ePlayerStryderCharDataArraySlots.CHARACTER, eItemType.character )
+		switch ( itemType )
+		{
+			case eItemType.character_skin :
+			{
+				entry = Loadout_CharacterSkin( character )
+				break
+			}
+
+			case eItemType.gladiator_card_frame :
+			{
+				entry = Loadout_GladiatorCardFrame( character )
+				break
+			}
+
+			case eItemType.gladiator_card_stance :
+			{
+				entry = Loadout_GladiatorCardStance( character )
+				break
+			}
+
+			case eItemType.gladiator_card_intro_quip :
+			{
+				entry = Loadout_CharacterIntroQuip( character )
+				break
+			}
+			case eItemType.melee_skin :
+			{
+				entry = Loadout_MeleeSkin( character )
+				break
+			}
+
+			default:
+				unreachable 
+		}
+	}
+
+	if ( requestedFlavor == null || !IsItemFlavorValidForLoadoutSlot( EHI_null, entry, expect ItemFlavor(requestedFlavor) ) )
+		requestedFlavor = GetDefaultItemFlavorForLoadoutSlot( EHI_null, entry )
+
+	expect ItemFlavor(requestedFlavor)
+
+	return requestedFlavor
+}
+
+ItemFlavor function GetBadgeItemFlavorForCommunityUserInfo( CommunityUserInfo userInfo, ItemFlavor character, int badgeIndex )
+{
+	LoadoutEntry entry                = Loadout_GladiatorCardBadge( character, badgeIndex )
+	ItemFlavor ornull badgeItemFlavor = GetItemFlavorOrNullByGUID( userInfo.charData[ ePlayerStryderCharDataArraySlots.BANNER_BADGE1 + 2 * badgeIndex ], eItemType.gladiator_card_badge ) 
+
+	if ( badgeItemFlavor == null )
+		badgeItemFlavor = GetDefaultItemFlavorForLoadoutSlot( EHI_null, entry )
+
+	expect ItemFlavor( badgeItemFlavor )
+
+	if ( !IsItemFlavorValidForLoadoutSlot( EHI_null, entry, badgeItemFlavor ) )
+		badgeItemFlavor = GetDefaultItemFlavorForLoadoutSlot( EHI_null, entry )
+
+	return badgeItemFlavor
+}
+
+int function GetBadgeDataIntegerFromCommunityUserInfo( CommunityUserInfo userInfo, int badgeIndex )
+{
+	int dataInteger = maxint( 0, userInfo.charData[ePlayerStryderCharDataArraySlots.BANNER_BADGE1_TIER + 2 * badgeIndex] - 2 ) 
+	return dataInteger
+}
+
+ItemFlavor function GetTrackerItemFlavorForCommunityUserInfo( CommunityUserInfo userInfo, ItemFlavor character, int trackerIndex )
+{
+	LoadoutEntry entry                  = Loadout_GladiatorCardStatTracker( character, trackerIndex )
+	ItemFlavor ornull trackerItemFlavor = GetItemFlavorOrNullByGUID( userInfo.charData[ ePlayerStryderCharDataArraySlots.BANNER_TRACKER1 + 2 * trackerIndex], eItemType.gladiator_card_stat_tracker )
+	if ( trackerItemFlavor == null )
+		trackerItemFlavor = GetDefaultItemFlavorForLoadoutSlot( EHI_null, entry )
+
+	expect ItemFlavor( trackerItemFlavor )
+
+	if ( !IsItemFlavorValidForLoadoutSlot( EHI_null, entry, trackerItemFlavor ) )
+		trackerItemFlavor = GetDefaultItemFlavorForLoadoutSlot( EHI_null, entry )
+
+	return trackerItemFlavor
+}
+
+int function GetTrackerDataIntegerFromCommunityUserInfo( CommunityUserInfo userInfo, int trackerIndex )
+{
+	int dataInteger = maxint( 0, userInfo.charData[ePlayerStryderCharDataArraySlots.BANNER_TRACKER1_VALUE + 2 * trackerIndex] - 2 ) 
+	return dataInteger
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

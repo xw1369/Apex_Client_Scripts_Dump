@@ -1,0 +1,176 @@
+global function AutoPlayer_GetPlayerInventory
+global function AutoPlayer_GetLegend
+global function AutoPlayer_SetLegend
+global function AutoPlayer_DropInventory
+global function AutoPlayer_TranslateItemType
+global function AutoPlayer_GetLootTier
+global function AutoPlayer_GetAmmoPoolTypeByLootTableIndex
+global function AutoPlayer_GetLootRef
+global function AutoPlayer_IsDoorClosed
+global function AutoPlayer_GetLootbinDetails
+
+string function AutoPlayer_GetPlayerInventory( entity player )
+{
+	string items = ""
+
+	foreach ( equipSlot, es in EquipmentSlot_GetAllEquipmentSlots() )
+	{
+		LootData lootData = EquipmentSlot_GetEquippedLootDataForSlot( player, equipSlot )
+
+		items += equipSlot.tostring() + "," +
+		lootData.lootType.tostring() + "," +
+				( SURVIVAL_Loot_IsRefValid( lootData.ref ) ? "1," : "0," ) +
+		lootData.ref + "," +
+		lootData.tier.tostring()
+
+		items += "|||"
+	}
+
+	array<ConsumableInventoryItem> playerInventory = SURVIVAL_GetPlayerInventory( player )
+
+	foreach ( index, item in playerInventory )
+	{
+		LootData lootData = SURVIVAL_Loot_GetLootDataByIndex( item.type )
+
+		items += item.slot.tostring() + "," +
+		item.type.tostring() + "," +
+		item.count.tostring() + "," +
+		lootData.ref + "," +
+		lootData.tier.tostring()
+
+		items += "|||"
+	}
+
+	return items
+}
+
+string function AutoPlayer_GetLegend( entity player )
+{
+	return ItemFlavor_GetCharacterRef( LoadoutSlot_GetItemFlavor( ToEHI( player ), Loadout_Character() ) )
+}
+
+void function AutoPlayer_SetLegend( entity player, string legendReadableRef )
+{
+	ItemFlavor character = GetItemFlavorByCharacterRef( legendReadableRef )
+
+
+
+
+#if DEV
+			DEV_RequestSetItemFlavorLoadoutSlot( LocalClientEHI(), Loadout_Character(), character )
+#else
+			
+			RequestSetItemFlavorLoadoutSlot( LocalClientEHI(), Loadout_Character(), character )
+#endif
+
+}
+
+void function AutoPlayer_DropInventory( entity player, string item, int dropCount )
+{
+	EquipmentSlot eqSlot
+	eqSlot.ref = ""
+	foreach ( equipSlot, es in EquipmentSlot_GetAllEquipmentSlots() )
+	{
+		LootData lootData = EquipmentSlot_GetEquippedLootDataForSlot( player, equipSlot )
+		if ( lootData.ref == item )
+		{
+			eqSlot = es
+		}
+	}
+
+
+
+
+
+
+
+
+
+
+
+
+
+		LootData data = SURVIVAL_Loot_GetLootDataByRef( item )
+		Remote_ServerCallFunction( "ClientCallback_Sur_DropBackpackItem", data.index, dropCount )
+
+		if ( eqSlot.ref != "")
+			Remote_ServerCallFunction( "ClientCallback_Sur_DropEquipment", eqSlot.type )
+
+		if ( IsValidAttachment( item ) )
+		{
+			Remote_ServerCallFunction( "ClientCallback_Sur_UnequipAttachment", data.index, WEAPON_INVENTORY_SLOT_PRIMARY_0, true )
+			Remote_ServerCallFunction( "ClientCallback_Sur_UnequipAttachment", data.index, WEAPON_INVENTORY_SLOT_PRIMARY_1, true )
+		}
+
+}
+
+int function AutoPlayer_TranslateItemType( int lootTableIndex )
+{
+	return AutoPlayer_TranslateLootType( SURVIVAL_Loot_GetLootDataByIndex( lootTableIndex ).lootType )
+}
+
+int function AutoPlayer_GetLootTier( int lootTableIndex )
+{
+	return SURVIVAL_Loot_GetLootDataByIndex( lootTableIndex ).tier
+}
+
+int function AutoPlayer_GetAmmoPoolTypeByLootTableIndex( int ammoLootTableIndex )
+{
+	return eAmmoPoolType[ SURVIVAL_Loot_GetLootDataByIndex( ammoLootTableIndex ).ref ]
+}
+
+string function AutoPlayer_GetLootRef( int lootTableIndex )
+{
+	return SURVIVAL_Loot_GetLootDataByIndex( lootTableIndex ).ref
+}
+
+bool function AutoPlayer_IsDoorClosed( entity ent )
+{
+	if ( !IsValid( ent ) )
+		return false
+
+	if ( IsDoor( ent ) )
+		return !IsDoorOpen( ent )
+
+	if ( IsVaultPanel( ent ) )
+		return IsVaultPanelLocked( ent )
+
+
+	if ( ent.GetModelName() == EXPLOSIVE_HOLD_PROXY || ent.GetScriptName() == EXPLOSIVE_HOLD_PANEL_SCRIPTNAME )
+	{
+		return !ExplosiveHold_IsOpen( ent )
+	}
+
+
+	Warning( "AutoPlayer_IsDoorOpen: Not any kind of door. Return false" )
+	return false
+}
+
+string function AutoPlayer_GetLootbinDetails( entity ent )
+{
+	if ( ent.GetScriptName() != LOOT_BIN_SCRIPTNAME )
+	{
+		Warning( "AutoPlayer_GetLootbinDetails: Not a lootbin. Return 000" )
+		return "000"
+	}
+
+	string items = ""
+
+	if ( !LootBin_IsOpenAtAll( ent ) )
+		items += "1"
+	else
+		items += "0"
+
+	if ( LootBin_HasSecretCompartment( ent ) )
+		items += "1"
+	else
+		items += "0"
+
+	
+	if (LootBin_HasSecretCompartment( ent ) == true && GradeFlagsHas( ent, eGradeFlags.IS_OPEN_SECRET ) == false )
+		items += "1"
+	else
+		items += "0"
+
+	return items
+}

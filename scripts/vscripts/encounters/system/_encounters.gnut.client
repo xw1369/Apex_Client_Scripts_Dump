@@ -1,0 +1,94 @@
+global function EncounterSystem_Init
+
+
+
+
+
+
+bool isInitialized = false
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+void function InitEncounterTypes()
+{
+
+	InitEncounterType_SpectreHitSquad()
+
+
+
+
+
+}
+
+void function EncounterSystem_Init()
+{
+	if ( isInitialized )
+	{
+#if DEV
+			printf( "Encounter System is already initialized" )
+#endif
+		return
+	}
+	isInitialized = true
+	InitEncounterTypes()
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,205 @@
+
+
+global function InitForgeAll
+global function IsDoingPullshot
+
+
+global const bool FORGE_CHARACTER = false
+global const bool FORGE_CHARACTER_ABILITIES = (FORGE_CHARACTER && true)
+global const bool FORGE_CHARACTER_ALT_SUPER = false
+
+#if FORGE_CHARACTER
+global const asset CHARACTER_FORGE = $"settings/player/mp/pilot_survival_rosie.rpak"
+global const asset MODEL_FORGE = $"mdl/Humans/class/heavy/pilot_heavy_forge.rmdl"
+global const string WEAPON_FORGE = "mp_ability_forge_gpound"
+#endif
+
+
+
+void function InitForgeAll()
+{
+	if ( WhenBuildFlag( "Season4Chars" ) )
+		Assert( FORGE_CHARACTER, "Build merge mismatch again" )
+
+	RegisterSignal( "GPoundFinished" )
+
+#if FORGE_CHARACTER
+		NotReal()
+		NotReal()
+		NotReal()
+		NotReal()
+		NotReal()
+		NotReal()
+		NotReal()
+		NotReal()
+		NotReal()
+		NotReal()
+		NotReal()
+		NotReal()
+		NotReal()
+		NotReal()
+		NotReal()
+		NotReal()
+		NotReal()
+		NotReal()
+		NotReal()
+		NotReal()
+		NotReal()
+		NotReal()
+		NotReal()
+		NotReal()
+		NotReal()
+		NotReal()
+		NotReal()
+		NotReal()
+		NotReal()
+		NotReal()
+		NotReal()
+		NotReal()
+		NotReal()
+		NotReal()
+		NotReal()
+		NotReal()
+		NotReal()
+		NotReal()
+		NotReal()
+		NotReal()
+		NotReal()
+		NotReal()
+		NotReal()
+		NotReal()
+#endif
+
+}
+
+bool function IsDoingPullshot( entity player )
+{
+#if FORGE_CHARACTER
+		NotReal()
+		NotReal()
+		NotReal()
+		NotReal()
+		NotReal()
+		NotReal()
+		NotReal()
+		NotReal()
+		NotReal()
+		NotReal()
+		NotReal()
+		NotReal()
+		NotReal()
+		NotReal()
+		NotReal()
+		NotReal()
+		NotReal()
+		NotReal()
+		NotReal()
+		NotReal()
+		NotReal()
+		NotReal()
+#else
+		return false
+#endif
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

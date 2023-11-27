@@ -1,0 +1,830 @@
+global function MapMetrics_Init
+global function MapMetrics_RegisterNetworking
+
+
+
+
+
+
+
+
+
+
+
+
+global function MapMetrics_ClientTakeScreenshot
+global function MapMetrics_ClientInit
+global function MapMetrics_ClientEndMapMetrics
+global function MapMetrics_ClientRecordDataPoint
+const bool MAPMETRICS_DEBUG = false
+
+
+const int FPS_THRESHOLD_DEFAULT_VALUE = 55
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+const int FRAME_TIME_BUFFER_SIZE = 32
+const float FRAME_TIME_MIN_WAIT = 1.0 
+const float FRAME_TIME_MAX_WAIT = 3.0 
+const float FRAME_TIME_RETRY_WAIT = 1.0 
+const float FRAME_TIME_MAX_RETRIES = 3
+const float FRAME_TIME_STDEV_TOLERANCE = 0.0001 
+
+
+struct
+{
+
+
+
+
+
+		array<int> bandwidthInArray
+		array<int> bandwidthOutArray
+		string metricsFileName
+		string metricsDataBuffer
+		array<string> metricsDataCategories
+		bool metricsOutputRSON
+		bool adaptiveScalingOn
+
+		bool oldDvsEnable
+		bool oldPerfMetricsDrawingEnabled
+		int oldPerfMetrics
+		int	oldFpsMax
+		int oldVsyncMode
+		int oldNotFocusSleep
+		bool exitOnCompletion
+
+
+	int fpsThreshold
+} file
+
+
+void function MapMetrics_Init()
+{
+
+
+
+
+
+
+}
+
+void function MapMetrics_RegisterNetworking()
+{
+	if( GetCurrentPlaylistName().find( "map_metrics" ) < 0 )
+		return
+
+	Remote_RegisterClientFunction( "MapMetrics_ClientTakeScreenshot", "entity", "vector", -MAX_MAP_BOUNDS, MAX_MAP_BOUNDS, 32, "vector", -200.0, 200.0, 32 )
+	Remote_RegisterClientFunction( "MapMetrics_ClientInit", "int", 0, INT_MAX )
+	Remote_RegisterClientFunction( "MapMetrics_ClientEndMapMetrics" )
+	Remote_RegisterClientFunction( "MapMetrics_ClientRecordDataPoint", "entity", "vector", -32000.0, 32000.0, 32, "vector", -200.0, 200.0, 32, "int", -100, 100 )
+	Remote_RegisterServerFunction( "MapMetrics_OnClientRecordMetricsData", "int", 0, 500 )
+	Remote_RegisterServerFunction( "MapMetrics_OnClientTakeScreenshot" )
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+void function MapMetrics_ClientTakeScreenshot( entity player, vector position, vector angles )
+{
+	string screenshotFileName = CreateScreenShotFileName( position, angles )
+	player.ClientCommand( "jpeg " + screenshotFileName )
+	Remote_ServerCallFunction( "MapMetrics_OnClientTakeScreenshot" )
+}
+
+const string METRICS_FPS = "FPS"
+const string METRICS_VIEWPORT_SCALE = "Viewport scale"
+const string METRICS_NET_IN = "Network Bandwidth In (KiB/s)"
+const string METRICS_NET_OUT = "Network Bandwidth Out (KiB/s)"
+
+void function MapMetrics_InitFile( int fpsThreshold, int gridSize, array<string> metricsCategories )
+{
+	string mapName = GetMapName()
+	string hardware = GetConsoleName()
+	string buildString = GetGameVersion()
+
+	int buildNum = buildString.slice( buildString.find( "#" ) + 1 ).tointeger()
+	file.metricsFileName = format( "metrics_%s_%s_CL#%i.%s", mapName, hardware, buildNum, file.metricsOutputRSON ? "mtr" : "csv" )
+	file.metricsDataCategories = metricsCategories
+
+	if ( file.metricsOutputRSON )
+	{
+		
+		file.metricsDataBuffer +=
+			"{\n" +
+			"\t\"VisualisationData\": { \"AutoresolveName\":\"" + mapName + "\" },\n" +
+			"\t\"SampleDateTime\":\"" + GetDateTimeString( GetUnixTimestamp() ) + "\",\n" +
+			"\t\"RootNode\": {\n" +
+			"\t\t\"Name\":\"" + mapName + "\",\n" +
+			"\t\t\"Hardware\":\"" + hardware + "\",\n" +
+			"\t\t\"BuildID\":" + buildNum + ",\n" +
+			"\t\t\"FPSThreshold\":" + fpsThreshold + ",\n" +
+			"\t\t\"GridSize\":" + gridSize + ",\n" +
+			"\t\t\"Children\": {\n" +
+			"\t\t\t\"RProf\": [\n"
+	}
+	else
+	{
+		file.metricsDataBuffer = "Hardware,Build ID,Map,Fps Threshold,Grid Square Side Length,Zone,Zone name,Position"
+		foreach( string category in metricsCategories )
+		{
+			file.metricsDataBuffer += ","
+			file.metricsDataBuffer += category
+		}
+		file.metricsDataBuffer += "\n"
+
+		file.metricsDataBuffer += format( "%s,%s,%s,%i,%i", hardware, buildString, mapName, fpsThreshold, gridSize )
+		foreach( string category in metricsCategories )
+		{
+			file.metricsDataBuffer += ","
+		}
+		file.metricsDataBuffer += "\n"
+	}
+
+#if MAPMETRICS_DEBUG
+		printt( "MAP METRICS: metricsFileName: " + file.metricsFileName + ",fpsThreshold: " + file.fpsThreshold )
+#endif
+}
+
+void function MapMetrics_AppendSnapshotToFile( vector position, vector angles, int zoneId, string zoneName, table<string, float> metricsKeyValues )
+{
+	if ( file.metricsOutputRSON )
+	{
+		file.metricsDataBuffer +=
+			"\t\t\t\t{\n" +
+			"\t\t\t\t\t\"Name\":\"" + format( "RPROFx%fy%fz%f", position.x, position.y, position.z ) + "\",\n" +
+			"\t\t\t\t\t\"MetricsSet\": {\n" +
+			"\t\t\t\t\t\t\"Context\": \"Ingame Rprof\",\n" +
+			"\t\t\t\t\t\t\"ZoneID\":" + zoneId + ",\n" +
+			"\t\t\t\t\t\t\"ZoneName\":\"" + zoneName + "\",\n" +
+			"\t\t\t\t\t\t\"Position\": { x:" + position.x + ", y:" + position.y + ", z:" + position.z + " },\n" +
+			"\t\t\t\t\t\t\"Rotation\": { x:" + angles.x + ", y:" + angles.y + ", z:" + angles.z + " },\n" +
+			"\t\t\t\t\t\t\"Metrics\": {\n"
+
+
+		foreach( string category in file.metricsDataCategories )
+		{
+			file.metricsDataBuffer +=
+			"\t\t\t\t\t\t\t\"" + category + "\":" + metricsKeyValues[ category ] + ",\n"
+		}
+
+		file.metricsDataBuffer +=
+			"\t\t\t\t\t\t}\n" +
+			"\t\t\t\t\t}\n" +
+			"\t\t\t\t},\n"
+	}
+	else
+	{
+		file.bandwidthInArray.append( metricsKeyValues[ METRICS_NET_IN ].tointeger() )
+		file.bandwidthOutArray.append( metricsKeyValues[ METRICS_NET_OUT ].tointeger() )
+
+		file.metricsDataBuffer += ",,,,,"
+		file.metricsDataBuffer += zoneId + ","
+		file.metricsDataBuffer += zoneName + ","
+		file.metricsDataBuffer += "setpos " + position.x + " " + position.y + " " + position.z + "; setang " + angles.x + " " + angles.y + " " + angles.z
+
+		foreach( string category in file.metricsDataCategories )
+		{
+			file.metricsDataBuffer += ","
+			file.metricsDataBuffer += metricsKeyValues[ category ].tostring()
+		}
+		file.metricsDataBuffer += "\n"
+	}
+}
+
+void function MapMetrics_ClientEndMapMetrics()
+{
+	
+
+	if ( file.metricsOutputRSON )
+	{
+		file.metricsDataBuffer +=
+			"\t\t\t]\n" +
+			"\t\t}\n" +
+			"\t}\n" +
+			"}\n"
+	}
+
+	WriteMetricsDataToFile( file.metricsFileName, file.metricsDataBuffer, true )
+
+	file.metricsDataBuffer = ""
+	file.metricsFileName = ""
+	file.adaptiveScalingOn = false
+	file.fpsThreshold = 0
+
+	
+	SetConVarBool( "dvs_enable", file.oldDvsEnable )
+	SetConVarBool( "perf_metrics_drawing_enabled", file.oldPerfMetricsDrawingEnabled )
+	SetConVarInt( "perf_metrics", file.oldPerfMetrics )
+	SetConVarInt( "fps_max", file.oldFpsMax )
+	SetConVarInt( "not_focus_sleep", file.oldNotFocusSleep )
+	if( HasConVar( "mat_vsyncMode" ) )
+		SetConVarInt( "mat_vsyncMode", file.oldVsyncMode )
+
+#if DEV
+	if(file.exitOnCompletion)
+	{
+#if MAPMETRICS_DEBUG
+			printt( "MAP METRICS: exiting game client" )
+#endif
+		ExitGameClient()
+	}
+#endif
+}
+
+void function MapMetrics_ClientInit( int gridSize )
+{
+	string buildVersion = GetGameVersion()
+
+	file.exitOnCompletion = GetCurrentPlaylistVarBool( "map_metrics_exit_on_completion", false ) || Dev_CommandLineHasParm( "-mapmetricsexitoncompletion" )
+	file.metricsOutputRSON = GetCurrentPlaylistVarBool( "map_metrics_output_rson", false ) || Dev_CommandLineHasParm( "-mapmetricsrson" )
+	file.fpsThreshold = GetCurrentPlaylistVarInt( "map_metrics_fps_threshold", FPS_THRESHOLD_DEFAULT_VALUE )
+	file.adaptiveScalingOn = GetCurrentPlaylistVarBool( "map_metrics_adaptive_scaling", false )
+
+	array<string> metricsLabels = [ METRICS_FPS, METRICS_VIEWPORT_SCALE, METRICS_NET_IN, METRICS_NET_OUT ]
+	for ( int i = 0; i < GetPerfDataLabelCount(); i++ )
+	{
+		metricsLabels.append( GetPerfDataLabelName( i ) );
+	}
+
+	MapMetrics_InitFile( file.fpsThreshold, gridSize, metricsLabels )
+
+	
+	file.oldDvsEnable = GetConVarBool( "dvs_enable" )
+	file.oldPerfMetricsDrawingEnabled = GetConVarBool( "perf_metrics_drawing_enabled" )
+	file.oldPerfMetrics = GetConVarInt( "perf_metrics" )
+	file.oldFpsMax = GetConVarInt( "fps_max" )
+	file.oldNotFocusSleep = GetConVarInt( "not_focus_sleep" )
+	if( HasConVar( "mat_vsyncMode" ) )
+		file.oldVsyncMode = GetConVarInt( "mat_vsyncMode" )
+
+	
+	SetConVarBool( "dvs_enable", file.adaptiveScalingOn )
+	SetConVarBool( "perf_metrics_drawing_enabled", false )
+	SetConVarInt( "perf_metrics", 3 )
+	SetConVarInt( "fps_max", 0 )
+	SetConVarInt( "not_focus_sleep", 0 )
+	if( HasConVar( "mat_vsyncMode" ) )
+		SetConVarInt( "mat_vsyncMode", 0 )
+}
+
+void function MapMetrics_ClientRecordDataPoint( entity player, vector position, vector angles, int zoneId )
+{
+	thread MapMetrics_ClientRecordDataPoint_Thread( player, position, angles, zoneId )
+}
+
+void function WaitForFPSToSettle()
+{
+	float startTime = Time()
+
+	wait FRAME_TIME_MIN_WAIT
+
+	array<float> frameTimeBuffer
+	for( int i = 0; i < FRAME_TIME_BUFFER_SIZE; i++ )
+	{
+		frameTimeBuffer.append( RenderFrameTime() )
+		WaitFrame()
+	}
+
+	while( Time() - startTime < FRAME_TIME_MAX_WAIT )
+	{
+		float variance = CalculateFloatArrayVarianceWithGivenPercentile( frameTimeBuffer, 1.0 )
+		float stdev = sqrt( variance )
+		if( stdev < FRAME_TIME_STDEV_TOLERANCE )
+			break
+
+		frameTimeBuffer.fastremove( 0 )
+		frameTimeBuffer.append( RenderFrameTime() )
+		WaitFrame()
+	}
+}
+
+void function MapMetrics_ClientRecordDataPoint_Thread( entity player, vector position, vector angles, int zoneId )
+{
+	waitthread WaitForFPSToSettle()
+
+	
+	
+	
+	int testThreshold = file.fpsThreshold + 5
+
+	
+	
+	
+	
+	
+	
+	
+	
+	int fps = int( RoundToNearestInt( 1.0 / RenderFrameTime() ) )
+	if( fps < testThreshold )
+	{
+		int retryFps = 2 * file.fpsThreshold
+		for( int i = 0; i < FRAME_TIME_MAX_RETRIES; i++ )
+		{
+			wait FRAME_TIME_RETRY_WAIT
+			int thisFps = int( RoundToNearestInt( 1.0 / RenderFrameTime() ) )
+			retryFps = int( min( retryFps, thisFps ) )
+		}
+		fps = retryFps
+	}
+
+	string zoneName = "#NOT_IN_NAMED_ZONE"
+	if( zoneId != -1 )
+		zoneName = GetZoneNameForZoneId( zoneId )
+
+	if( zoneName == "" )
+		zoneName = "#NOT_IN_NAMED_ZONE"
+
+	table<string, float> metricsData
+	metricsData[ METRICS_FPS ] <- fps.tofloat()
+	metricsData[ METRICS_VIEWPORT_SCALE ] <- GetClientViewportScaling().tofloat()
+	metricsData[ METRICS_NET_IN ] <- ( GetNetworkBandwithIn() / 1024 ).tofloat()
+	metricsData[ METRICS_NET_OUT ] <- ( GetNetworkBandwithOut() / 1024 ).tofloat()
+
+	for ( int i = 0; i < GetPerfDataLabelCount(); i++ )
+	{
+		metricsData[ GetPerfDataLabelName( i ) ] <- GetPerfDataAverage( i )
+	}
+
+	MapMetrics_AppendSnapshotToFile( position, angles, zoneId, zoneName, metricsData )
+
+	
+	
+	
+	
+	
+	
+
+	Remote_ServerCallFunction( "MapMetrics_OnClientRecordMetricsData", fps )
+}
+
+void function RecordNetworkBandwidth()
+{
+	if( file.bandwidthInArray.len() < 2 )
+		return
+
+	file.bandwidthInArray.sort()
+	file.bandwidthOutArray.sort()
+
+	int maxIndex = int( 0.9 * file.bandwidthInArray.len() ) 
+	int maxBandwidthIn = file.bandwidthInArray[maxIndex - 1] / 1024
+	int maxBandwidthOut = file.bandwidthOutArray[maxIndex - 1] / 1024
+
+	float varianceIn =  CalculateIntArrayVarianceWithGivenPercentile( file.bandwidthInArray, 0.9 ) / ( 1024 * 1024 )
+	float varianceOut = CalculateIntArrayVarianceWithGivenPercentile( file.bandwidthOutArray, 0.9 ) / ( 1024 * 1024 )
+
+	string networkBandwidthInLine =  "\nMax network bandwidth in (ignoring outliers): " + maxBandwidthIn + " KiB/s\nVariance (ignoring outliers): " + varianceIn + " (KiB/s)^2\n"
+	string networkBandwidthOutLine = "\nMax network bandwidth out (ignoring outliers): " + maxBandwidthOut + " KiB/s\nVariance (ignoring outliers): " + varianceOut + " (KiB/s)^2\n"
+
+	file.metricsDataBuffer += networkBandwidthInLine
+	file.metricsDataBuffer += networkBandwidthOutLine
+
+	file.bandwidthInArray.clear()
+	file.bandwidthOutArray.clear()
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+string function CreateScreenShotFileName( vector position, vector angles )
+{
+	return "setpos_" + position.x + "_" + position.y + "_" + position.z + ",setang_" + angles.x + "_" + angles.y + "_" + angles.z
+}

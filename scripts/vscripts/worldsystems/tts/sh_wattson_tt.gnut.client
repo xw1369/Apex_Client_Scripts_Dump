@@ -1,0 +1,349 @@
+
+global function Wattson_TT_Init
+global function Wattson_TT_Register_Networking
+global function IsNessieEEActive
+
+
+
+
+
+
+
+global function ServertoClient_SetInitialValuesForBolts
+global function ServertoClient_Set_Wattson_TT_HasNessie
+global function WillCelebrateNEEVictory
+global function DoNEECelebration_Thread
+
+
+const asset VFX_NESSIE_DEATH = $"ball_confetti"
+const string SFX_NESSIE_DEFAULT_SQUEAK = "AFLTM_Vocal_Wander"
+
+const vector NESSIE_ORIGIN_A = <9009.124023, -17154.052734, 1609.412476>
+const vector NESSIE_ORIGIN_B = <9484.957031, -17906.435547, 1564.604980>
+const vector NESSIE_ORIGIN_C = <8593.604492, -17282.080078, 1599.850342>
+const vector NESSIE_ANGLES_A = <7.111723, -138.221268, 0.000000>
+const vector NESSIE_ANGLES_B = <-0.791794, 79.916199, 0.000000>
+const vector NESSIE_ANGLES_C = <10.361488, 10.796261, 0.000000>
+
+const string WATTSON_TT_BOLT_SCRIPTNAME = "wattson_tt_bolts"
+const string WATTSON_TT_SMALL_BOLT_SCRIPTNAME = "wattson_tt_bolts_small"
+const string WATTSON_TT_MOVER_SCRIPTNAME = "wattson_tt_mover"
+
+struct
+{
+
+	bool 		hasNessie = false
+
+
+
+
+
+} file
+
+void function Wattson_TT_Init()
+{
+	RegisterSignal( "PodiumVictoryFinished" )
+	RegisterSignal( "WattsonTTPylonStart" )
+
+
+
+
+
+
+
+}
+
+void function Wattson_TT_Register_Networking()
+{
+	Remote_RegisterClientFunction("ServertoClient_Set_Wattson_TT_HasNessie")
+	Remote_RegisterClientFunction("ServertoClient_SetInitialValuesForBolts", "entity")
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+void function ServertoClient_Set_Wattson_TT_HasNessie()
+{
+	file.hasNessie = true
+}
+
+bool function WillCelebrateNEEVictory()
+{
+	return file.hasNessie
+}
+
+void function DoNEECelebration_Thread( vector origin, vector angles )
+{
+	entity player = GetLocalViewPlayer()
+
+	EndSignal( player, "PodiumVictoryFinished" )
+
+	vector startPos = origin + < -45, -15, 120 >
+
+	if ( GetCurrentPlaylistVarBool( "wattson_tt_big_nessie", true ) )
+		startPos = origin + < -25, -5, -75 >
+
+	entity mover = CreateClientsideScriptMover( $"mdl/dev/empty_model.rmdl", startPos, angles )
+	entity model = CreateClientSidePropDynamic( startPos, angles, $"mdl/props/nessie/nessie_april_fools.rmdl" )
+
+	OnThreadEnd( void function() : ( mover, model  ) {
+		model.Destroy()
+		mover.Destroy()
+	} )
+
+	if ( GetCurrentPlaylistVarBool( "wattson_tt_big_nessie", true ) )
+	{
+		model.SetModelScale( 5 )
+
+		float moveTime = 6.5
+		float blendTime = moveTime / 2.0
+		vector finalPos = startPos + < 0, 0, 55 >
+
+		model.SetParent( mover, "", false  )
+
+		mover.NonPhysicsMoveTo( finalPos, moveTime, 0, blendTime )
+	}
+	else
+	{
+		model.SetModelScale( 1.5 )
+
+		float moveTime = 6.5
+		float blendTime = moveTime / 2.0
+		vector finalPos = startPos + < 0, 0, -120 >
+
+		model.SetParent( mover, "", false  )
+
+		mover.NonPhysicsRotate( <0,0,1>, 45.0 )
+		mover.NonPhysicsMoveTo( finalPos, moveTime, 0, blendTime )
+	}
+
+}
+
+
+bool function IsWattsonTTEnabled()
+{
+	if ( GetCurrentPlaylistVarBool( "wattson_tt_enabled", true ) )
+	{
+		return HasEntWithScriptName( WATTSON_TT_BOLT_SCRIPTNAME )
+	}
+
+	return false
+}
+
+bool function IsNessieEEActive()
+{
+	if ( GetCurrentPlaylistVarBool( "wattson_tt_ee_enabled", true ) )
+	{
+		return IsWattsonTTEnabled()
+	}
+
+	return false
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+void function ServertoClient_SetInitialValuesForBolts( entity bolt )
+{
+	if ( !IsValid ( bolt ) )
+		return
+
+	bolt.kv.intensity = 4.8
+}
+
+      

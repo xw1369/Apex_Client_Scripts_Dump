@@ -1,0 +1,154 @@
+
+
+
+
+
+
+global function AcidWraith_SharedInit
+
+global function AcidWraith_IsAcidWraithEventActive
+global function AcidWraith_GetCurrentSweepstakesEntryCount
+global function AcidWraith_GetEventCurrencyLifetimeTotal
+
+
+
+
+
+
+global const string REWARDSEQ_ACIDWRAITH_EVENT_CURRENCY = "rewardseq_s19fe01_currency"
+
+const string PVAR_ACIDWRAITH_TOTAL_CURRENCY = "acidWraithEventCurrencyTotal"
+const int MAX_EVENT_CURRENCY_IN_ONE_GRANT = 285
+const asset EVENT_SHOP_FLAV = $"settings/itemflav/calevent/s19fe01/event_shop.rpak"
+const asset EVENT_ENTRY_FLAV = $"settings/itemflav/voucher/s19fe01/sweeps_token.rpak"
+const asset EVENT_CURRENCY_FLAV = $"settings/itemflav/grx_currency/s19fe01_coin.rpak"
+
+
+
+void function AcidWraith_SharedInit()
+{
+
+
+
+
+}
+
+
+
+bool function AcidWraith_IsAcidWraithEventActive()
+{
+	ItemFlavor eventFlav = GetItemFlavorByAsset( EVENT_SHOP_FLAV )
+	return CalEvent_IsActive( eventFlav, GetUnixTimestamp() )
+}
+
+
+
+int function AcidWraith_GetCurrentSweepstakesEntryCount( entity player )
+{
+	Assert( player != null && IsValid( player ) )
+	ItemFlavor voucherFlav = GetItemFlavorByAsset( EVENT_ENTRY_FLAV )
+	return Voucher_GetVoucherActiveCount( player, voucherFlav )
+}
+
+
+
+int function AcidWraith_GetEventCurrencyLifetimeTotal( entity player )
+{
+	if ( AcidWraith_IsAcidWraithEventActive() )
+	{
+		return GetStat_Int( player, ResolveStatEntry( CAREER_STATS.s19aw_event_currency_total ), eStatGetWhen.CURRENT )
+	}
+
+	return 0
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

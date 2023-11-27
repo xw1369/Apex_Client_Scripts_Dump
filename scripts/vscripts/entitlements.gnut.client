@@ -1,0 +1,1285 @@
+global function Entitlements_LevelInit
+global function Entitlement_GetEntitlementEnumVal
+global function Entitlement_GetEntitlementEnumValAsString
+global function Entitlement_GetEntitlementType
+global function Entitlement_GetMenuTitleText
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+global function Entitlement_GetSKUStoreApexCoinAmount
+global function Entitlement_GetSKUStoreApexCoinTierImage
+global function Entitlement_GetSKUStoreApexCoinCardBaseImage
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+table<entity, bool> checkedPlayerRewardsSet = {}
+
+global table<string, array< ItemFlavor > > eaAccessRewardRefs
+global table<string, array< ItemFlavor > > psPlusRewardRefs
+
+global table< int, table<ItemFlavor, array< ItemFlavor > > > entitlementRewardMap
+global table< int, table<ItemFlavor, array< int > > > entitlementRewardCountsMap
+
+global table<entity, bool> playersToCheckForUpgrade
+global array< ItemFlavor > upgradableAccessRewardRefs
+
+
+
+
+
+
+
+
+
+
+
+const string GENERIC_ACKNOWLEDGEMENT_PVAR = "genericEntitlementsAcknowledgement"
+
+const string entitlementSequenceNameTemplate = "%s_SequenceRewardVariable"
+const string entitlementPersistenceStructName = "entitlementsSequenceRewards"
+
+global enum eEntitlementType
+{
+	FIRSTPARTY,
+	TWITCH_PRIME,
+	TWITCH_DROPS,
+	_COUNT
+}
+
+global enum eFirstPartyRewardType
+{
+	PS_PLUS,
+	XBOX_GOLD,
+	_COUNT
+}
+
+struct FileStruct_LifetimeLevel
+{
+
+
+
+
+}
+FileStruct_LifetimeLevel& fileLevel
+
+void function Entitlements_LevelInit()
+{
+	FileStruct_LifetimeLevel newFileLevel
+	fileLevel = newFileLevel
+
+	entitlementRewardMap.clear()
+	entitlementRewardCountsMap.clear()
+	for ( int entitlementType = 0; entitlementType < eEntitlementType._COUNT; entitlementType++ )
+	{
+		entitlementRewardMap[entitlementType] <- {}
+		entitlementRewardCountsMap[entitlementType] <- {}
+	}
+
+	
+	
+
+	AddCallback_RegisterRootItemFlavors( void function() {
+		array<asset> entitlementAssetArray = GetBaseItemFlavorsFromArray( "entitlements" )
+		entitlementAssetArray.reverse() 
+		foreach ( asset entitlementAsset in entitlementAssetArray )
+			RegisterItemFlavorFromSettingsAsset( entitlementAsset )
+
+		foreach ( asset apexCoinAsset in GetBaseItemFlavorsFromArray( "apexCoinAmounts" ) )
+			RegisterItemFlavorFromSettingsAsset( apexCoinAsset )
+	} )
+
+	AddCallback_OnItemFlavorRegistered( eItemType.character_skin, UnlockFuncRegister )
+	AddCallback_OnItemFlavorRegistered( eItemType.weapon_skin, UnlockFuncRegister )
+	AddCallback_OnItemFlavorRegistered( eItemType.gladiator_card_frame, UnlockFuncRegister )
+	AddCallback_OnItemFlavorRegistered( eItemType.gladiator_card_badge, UnlockFuncRegister )
+
+	AddCallback_OnItemFlavorRegistered( eItemType.entitlement, EntitlementRegister )
+
+
+
+
+
+
+		Remote_RegisterServerFunction( "ClientCallback_MarkEntitlementMenuSeen", "int", 0, INT_MAX )
+		Remote_RegisterUIFunction( "ServerToUI_EntitlementInitialized" )
+
+
+
+
+
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+void function UnlockFuncRegister( ItemFlavor flavor )
+{
+	if ( !ItemFlavor_HasUnlockFunc( flavor ) )
+		return
+
+	string unlockFuncKey = ItemFlavor_GetUnlockFuncKey( flavor )
+	if ( unlockFuncKey in eaAccessRewardRefs )
+		eaAccessRewardRefs[unlockFuncKey].append( flavor )
+	else if ( unlockFuncKey in psPlusRewardRefs )
+		psPlusRewardRefs[unlockFuncKey].append( flavor )
+	else if ( unlockFuncKey == "origin_access_on_pc" || unlockFuncKey == "ea_access_on_xbox" )
+		upgradableAccessRewardRefs.append( flavor )
+}
+
+
+
+
+int function Entitlement_GetEntitlementType( ItemFlavor flavor )
+{
+	Assert( ItemFlavor_GetType( flavor ) == eItemType.entitlement )
+
+	string typeString = GetGlobalSettingsString( ItemFlavor_GetAsset( flavor ), "entitlementType" )
+	switch ( typeString )
+	{
+		case "firstparty":
+			return eEntitlementType.FIRSTPARTY
+
+		case "twitch_prime":
+			return eEntitlementType.TWITCH_PRIME
+
+		case "twitch_drops":
+			return eEntitlementType.TWITCH_DROPS
+	}
+
+	Assert( false, "Unhandled entitlement type '" + typeString + "' for " + string(ItemFlavor_GetAsset( flavor )) )
+	return -1
+}
+
+
+
+
+int function Entitlement_GetEntitlementEnumVal( ItemFlavor flavor )
+{
+	Assert( ItemFlavor_GetType( flavor ) == eItemType.entitlement )
+
+	string enumString = GetGlobalSettingsString( ItemFlavor_GetAsset( flavor ), "enum" )
+
+	Assert( enumString in getconsttable() )
+	return expect int( getconsttable()[ enumString ] )
+}
+
+
+
+
+string function Entitlement_GetEntitlementEnumValAsString( ItemFlavor flavor )
+{
+	Assert( ItemFlavor_GetType( flavor ) == eItemType.entitlement )
+
+	string enumString = GetGlobalSettingsString( ItemFlavor_GetAsset( flavor ), "enum" )
+	Assert( enumString != "" )
+
+	return enumString
+}
+
+
+
+
+string function Entitlement_GetMenuTitleText( ItemFlavor flavor )
+{
+	Assert( ItemFlavor_GetType( flavor ) == eItemType.entitlement )
+	return GetGlobalSettingsString( ItemFlavor_GetAsset( flavor ), "menuTitleText" )
+}
+
+
+
+
+string function Entitlement_GetTwitchPrimeRef( ItemFlavor flavor )
+{
+	Assert( ItemFlavor_GetType( flavor ) == eItemType.entitlement, "Flavor " + ItemFlavor_GetHumanReadableRefForPIN_Slow( flavor ) + " isn't an entitlement.")
+
+	string twitchRef = GetGlobalSettingsString( ItemFlavor_GetAsset( flavor ), "twitchRef" )
+	Assert( twitchRef != "" )
+
+	return twitchRef
+}
+
+
+
+
+string function Entitlement_GetMenuPersistenceVarName( ItemFlavor flavor )
+{
+	Assert( ItemFlavor_GetType( flavor ) == eItemType.entitlement )
+
+	asset entitlementAsset = ItemFlavor_GetAsset( flavor )
+
+	if ( GetGlobalSettingsBool( entitlementAsset, "isMenuEnabled" ) == false )
+		return GENERIC_ACKNOWLEDGEMENT_PVAR
+
+	string persistenceVarName = GetGlobalSettingsString( entitlementAsset, "menuPersistenceVarName" )
+	if ( persistenceVarName == "" )
+	{
+		switch ( Entitlement_GetEntitlementType( flavor ) )
+		{
+			case eEntitlementType.FIRSTPARTY:
+				persistenceVarName = Entitlement_GetEntitlementEnumValAsString( flavor )
+				break
+
+			case eEntitlementType.TWITCH_PRIME:
+				persistenceVarName = Entitlement_GetTwitchPrimeRef( flavor )
+				break
+
+			case eEntitlementType.TWITCH_DROPS:
+				persistenceVarName = Entitlement_GetTwitchPrimeRef( flavor )
+				break
+
+			default:
+				Assert( false, "Unhandled entitlement type for " + string(ItemFlavor_GetAsset( flavor )) )
+		}
+
+		persistenceVarName += "Acknowledged"
+	}
+
+	return persistenceVarName
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+string function Entitlement_GetSKUStoreApexCoinAmount( ItemFlavor flavor )
+{
+	Assert( ItemFlavor_GetType( flavor ) == eItemType.apex_coins )
+	return GetGlobalSettingsString( ItemFlavor_GetAsset( flavor ), "apexCoinAmount" )
+}
+
+
+
+
+asset function Entitlement_GetSKUStoreApexCoinTierImage( ItemFlavor flavor )
+{
+	Assert( ItemFlavor_GetType( flavor ) == eItemType.apex_coins )
+	return GetGlobalSettingsAsset( ItemFlavor_GetAsset( flavor ), "apexCoinTierImage" )
+}
+
+
+
+
+asset function Entitlement_GetSKUStoreApexCoinCardBaseImage( ItemFlavor flavor )
+{
+	Assert( ItemFlavor_GetType( flavor ) == eItemType.apex_coins )
+	return GetGlobalSettingsAsset( ItemFlavor_GetAsset( flavor ), "apexCoinCardBaseImage" )
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+void function EntitlementRegister( ItemFlavor flavor )
+{
+	int entitlementType = Entitlement_GetEntitlementType( flavor )
+	entitlementRewardMap[entitlementType][flavor] <- []
+	entitlementRewardCountsMap[entitlementType][flavor] <- []
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+int function GetEntitlementForString( string entitlementString )
+{
+	Assert( entitlementString in getconsttable() )
+	return expect int( getconsttable()[ entitlementString ] )
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

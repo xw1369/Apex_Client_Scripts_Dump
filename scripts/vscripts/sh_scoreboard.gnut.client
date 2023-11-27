@@ -1,0 +1,334 @@
+
+
+global function Scoreboard_RegisterNetworking
+
+
+global function ClScoreboard_Init
+
+
+
+global function IsScoreboardShown
+global function UpdateScoreboardVisibility
+global function ShowScoreboard
+global function HideScoreboard
+global function ToggleScoreboard
+
+global function AddScoreboardShowCallback
+global function AddScoreboardHideCallback
+global function TPPromptIsActive
+
+global function ClientCodeCallback_ToggleScoreboard
+global function ClientToUI_ToggleScoreboard
+global function ClientToUI_ShowScoreboardWithTPPrompt
+global function ClientToUI_HideScoreboard
+
+
+
+
+
+
+
+
+
+
+
+
+
+struct
+{
+
+		array<void functionref()> scoreboardShowCallbacks
+		array<void functionref()> scoreboardHideCallbacks
+
+		bool wantsToShowScoreboard = false
+		bool scoreboardEnabled = true
+
+} file
+
+
+
+
+
+
+
+
+
+void function ClScoreboard_Init()
+{
+	RegisterConCommandTriggeredCallback( "+showscores", OnScoreboardButtonPressed )
+	RegisterMenuButtonPressedCallback( BUTTON_BACK, OnScoreboardButtonPressed )
+
+	RegisterSignal( "OnHideScoreboard" )
+
+	AddCallback_GameStateEnter( eGameState.WinnerDetermined, UpdateScoreboardVisibility )
+
+	clGlobal.isScoreboardShown = false
+}
+
+
+
+void function Scoreboard_RegisterNetworking()
+{
+	RegisterNetworkedVariable( "isScoreboardEnabled", SNDC_PLAYER_EXCLUSIVE, SNVT_BOOL, true )
+
+
+		RegisterNetVarBoolChangeCallback( "isScoreboardEnabled", EnableScoreboardStatusChanged )
+
+}
+
+
+
+
+
+
+
+
+
+bool function IsScoreboardShown()
+{
+	return clGlobal.isScoreboardShown
+}
+
+
+
+
+void function ShowScoreboard()
+{
+	file.wantsToShowScoreboard = true
+	UpdateScoreboardVisibility()
+}
+
+
+
+
+void function HideScoreboard()
+{
+	file.wantsToShowScoreboard = false
+	UpdateScoreboardVisibility()
+}
+
+
+
+
+void function ToggleScoreboard()
+{
+	file.wantsToShowScoreboard = !IsScoreboardShown()
+	UpdateScoreboardVisibility()
+}
+
+
+
+
+void function EnableScoreboardStatusChanged( entity player, bool newVal )
+{
+	bool shouldDisable = !newVal
+
+	if ( shouldDisable )
+	{
+		HideScoreboard()
+		file.scoreboardEnabled = false
+	}
+	else
+	{
+		file.scoreboardEnabled = true
+	}
+}
+
+
+
+
+bool function IsScoreboardEnabled()
+{
+	return file.scoreboardEnabled
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+void function ClientCodeCallback_ToggleScoreboard()
+{
+	ToggleScoreboard()
+}
+
+
+
+
+void function OnScoreboardButtonPressed( entity localPlayer )
+{
+	ToggleScoreboard()
+}
+
+
+
+
+
+bool function ShouldShowCharSelectForScoreboard()
+{
+	if ( IsFiringRangeGameMode() && FiringRange_IsCharacterSwitchingEnabled() )
+		return true
+
+#if DEV
+	bool cheatsEnabled = GetConVarBool( "sv_cheats" )
+	if ( !cheatsEnabled )
+		return false
+	if ( InputIsButtonDown( KEY_LSHIFT ) || InputIsButtonDown( BUTTON_STICK_LEFT ) )
+		return true
+#endif
+
+	return false
+}
+
+void function ClientToUI_ToggleScoreboard()
+{
+	if ( IsSurvivalTraining() )
+	{
+		printf( "%s() - Aborting, because we're in Training.", FUNC_NAME() )
+		return
+	}
+
+	if ( ShouldShowCharSelectForScoreboard() )
+	{
+		
+		entity player = GetLocalViewPlayer()
+
+		if ( IsAlive( player ) && player.ContextAction_IsMeleeExecution() )
+			return
+
+		if( IsInBleedoutOrRevive( player ) )
+			return
+
+		printf( "%s() - Showing character select because we're in Firing Range.", FUNC_NAME() )
+		RunUIScript( "TryCloseSurvivalInventory", null )
+		EmitSoundOnEntity( GetLocalViewPlayer(), "UI_Menu_accept" )
+		OpenCharacterSelectMenu( true )
+		return
+	}
+
+	if ( !IsScoreboardEnabled() )
+	{
+		EmitUISound( "menu_deny" )
+		return
+	}
+
+	ToggleScoreboard()
+}
+void function ClientToUI_ShowScoreboardWithTPPrompt()
+{
+	file.wantsToShowScoreboard = true
+	s_nextShowWantsTPPrompt = true
+	UpdateScoreboardVisibility()
+}
+
+
+
+
+void function ClientToUI_HideScoreboard()
+{
+	HideScoreboard()
+}
+
+
+
+
+bool s_latestShowWasForTPPrompt = false
+bool s_nextShowWantsTPPrompt = false
+bool function TPPromptIsActive()
+{
+	return (clGlobal.isScoreboardShown && s_latestShowWasForTPPrompt)
+}
+
+bool function ShouldShowScoreboard()
+{
+	if ( GetGameState() == eGameState.WinnerDetermined || GetGameState() > eGameState.Epilogue )
+		return false
+	else if ( IsViewingSquadSummary() || IsViewingDeathRecap() )
+		return false
+	else if ( GetGameState() == eGameState.Prematch && GetCurrentPlaylistVarBool( "enable_map_in_prematch", false ) )
+		return file.wantsToShowScoreboard
+	else if ( GetGameState() < eGameState.Playing && !GetCurrentPlaylistVarBool( "survival_staging_area_enabled", false ) )
+		return false
+
+	else if ( Crafting_IsPlayerAtWorkbench( GetLocalClientPlayer() ) )
+		return false
+
+	else if ( !FiringRange_IsCharacterSwitchingEnabled() )
+		return false
+
+	return file.wantsToShowScoreboard
+}
+
+void function UpdateScoreboardVisibility()
+{
+	bool wantsTPPrompt = s_nextShowWantsTPPrompt
+	s_nextShowWantsTPPrompt = false
+
+	bool shouldShow = ShouldShowScoreboard()
+	file.wantsToShowScoreboard = shouldShow 
+
+	if ( shouldShow == IsScoreboardShown() )
+		return 
+
+	clGlobal.isScoreboardShown = shouldShow
+
+	if ( shouldShow )
+	{
+		s_latestShowWasForTPPrompt = wantsTPPrompt
+		RunUIScript( "TryCloseSurvivalInventory", null )
+		RunUIScript( "SetShowingMap", true )
+
+		foreach ( func in file.scoreboardShowCallbacks )
+			func()
+
+		thread clGlobal.showScoreboardFunc()
+	}
+	else
+	{
+		thread clGlobal.hideScoreboardFunc()
+		Signal( clGlobal.signalDummy, "OnHideScoreboard" )
+
+		RunUIScript( "SetShowingMap", false )
+
+		foreach ( func in file.scoreboardHideCallbacks )
+			func()
+	}
+}
+
+
+
+
+void function AddScoreboardShowCallback( void functionref() func )
+{
+	file.scoreboardShowCallbacks.append( func )
+}
+
+
+
+
+void function AddScoreboardHideCallback( void functionref() func )
+{
+	file.scoreboardHideCallbacks.append( func )
+}
+
+
+

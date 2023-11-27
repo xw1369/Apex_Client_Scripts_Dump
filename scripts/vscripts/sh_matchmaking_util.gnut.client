@@ -1,0 +1,61 @@
+global function DoesPlaylistSupportNoFillTeams
+global function DoesPlaylistSupportNoFill
+
+
+global function StartMatchmakingStandard
+global function StartMatchmakingWithNoFillTeams
+
+
+
+bool function DoesPlaylistSupportNoFillTeams( string playlist )
+{
+	return GetPlaylistVarBool( playlist, "allow_no_fill_teams", false )
+}
+
+bool function DoesPlaylistSupportNoFill( string playlist )
+{
+	return GetPlaylistVarInt( playlist, "max_nofill_players", 0 ) > 0
+}
+
+
+void function StartMatchmaking_( string playlist, bool requestNoFillTeam )
+{
+	SetConVarInt( "match_teamNoFill", (requestNoFillTeam ? 1 : 0) )
+	StartMatchmaking( playlist )
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+	Chroma_StartMatchmaking()
+}
+
+void function StartMatchmakingStandard( string playlist )
+{
+	StartMatchmaking_( playlist, false )
+}
+
+void function StartMatchmakingWithNoFillTeams( string playlist )
+{
+	Assert( DoesPlaylistSupportNoFillTeams( playlist ) )
+	StartMatchmaking_( playlist, true )
+}
+
+
+

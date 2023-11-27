@@ -1,0 +1,1971 @@
+
+
+
+
+
+global function GamemodeUtility_Init
+global function GamemodeUtility_RegisterNetworking
+global function GamemodeUtility_IsJIPEnabledInPlaylist	
+global function GamemodeUtility_GetMixtapeAbandonPenaltyActive
+global function GamemodeUtility_ParseCircleString 
+global function GamemodeUtility_ParseVectorString 
+global function GamemodeUtility_ParseStringOfVectors 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+global function GamemodeUtility_GetTeamOrAllianceScore 
+global function GamemodeUtility_GetAllianceScoreFromTeam 
+global function GamemodeUtility_GetScoreDifference	
+global function GamemodeUtility_GetScoreDifferenceBetweenTeams	
+global function GamemodeUtility_GetWinningTeamOrAlliance	
+global function GamemodeUtility_GetWinningAlliance	
+global function GamemodeUtility_GetWinningTeamOrAllianceScore	
+global function GamemodeUtility_IsJIPEnabled	
+global function GamemodeUtility_IsJIPPlayerSpawnBonusPending 
+global function GamemodeUtility_IsPlayerAbandoning  
+global function GamemodeUtility_GetAbandonPenaltyLength 
+
+
+
+global function GamemodeUtility_ServerCallback_DisplayMatchTimeLimitWarning	
+global function GamemodeUtility_AnnouncementMessageWarning	
+global function GamemodeUtility_GetColorVectorForCaptureObjectiveState	
+global function GamemodeUtility_IsPlayerOnTeamObserver	
+global function GamemodeUtility_GetLocalTeamPlayers 
+global function GamemodeUtility_ServerCallback_PlayerJoinedMatchInProgress 
+
+
+
+
+
+
+
+
+const float UNSET_PLAYLIST_VAR_FLOAT = -1
+const int UNSET_PLAYLIST_VAR_INT = -1
+global const int EXPECTED_PARSED_CIRCLE_VALUE_COUNT = 4
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+const float GAMEMODEUTILITY_DEFAULT_MESSAGE_DURATION = 5.0 
+const float GAMEMODEUTILITY_MATCH_TIME_LIMIT_WARNING_TIME = 300.0 
+
+
+
+const string SFX_MATCH_TIME_LIMIT = "Ctrl_Match_End_Warning_1p"	
+const string SFX_JOIN_MATCH_IN_PROGRESS = "Ctrl_New_Player_Joined" 
+
+
+
+
+global enum eGamemodeUtilityCaptureObjectiveColorState
+{
+	NEUTRAL,
+	CONTESTED,
+	FRIENDLY_OWNED,
+	ENEMY_OWNED
+}
+
+
+struct {
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+		bool isLoweringDVSForGamemode = false 
+
+} file
+
+void function GamemodeUtility_Init()
+{
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+	if ( GamemodeUtility_GetShouldTweakDVSForGamemode() )
+		AddCreateCallback( "player", GamemodeUtility_OnPlayerCreated_DVSCallback_Client ) 
+
+
+
+
+
+}
+
+void function GamemodeUtility_RegisterNetworking()
+{
+	Remote_RegisterClientFunction( "GamemodeUtility_ServerCallback_DisplayMatchTimeLimitWarning", "bool" )
+	RegisterNetworkedVariable( "mixtape_isLeaverPenaltyEnabledForMatch", SNDC_GLOBAL, SNVT_BOOL, true )
+
+
+		RegisterNetVarBoolChangeCallback( "mixtape_isLeaverPenaltyEnabledForMatch", GamemodeUtility_OnLeaverPenaltyStatusChanged )
+
+
+
+	
+	if ( !IsEliminationBased() )
+		RegisterNetworkedVariable( "deaths", SNDC_PLAYER_GLOBAL, SNVT_INT, 0 )
+
+
+
+	
+	if ( GamemodeUtility_IsJIPEnabledInPlaylist() )
+	{
+
+			RegisterNetworkedVariable( "GamemodeUtility_HasJIPPlayerReceivedSpawnBonus", SNDC_PLAYER_EXCLUSIVE, SNVT_BOOL, false )
+
+		Remote_RegisterClientFunction( "GamemodeUtility_ServerCallback_PlayerJoinedMatchInProgress" )
+	}
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+bool function GamemodeUtility_IsJIPEnabled()
+{
+	return GetConVarBool( "match_jip" ) && GamemodeUtility_IsJIPEnabledInPlaylist() && GetGameState() < eGameState.Resolution
+}
+
+
+
+bool function GamemodeUtility_IsJIPEnabledInPlaylist()
+{
+	return GetCurrentPlaylistVarBool( "match_jip", false )
+}
+
+
+bool function GamemodeUtility_GetShouldTweakDVSForGamemode()
+{
+	return GetCurrentPlaylistVarBool( "should_tweak_dvs_for_gamemode", false )
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+void function GamemodeUtility_OnPlayerCreated_DVSCallback_Client( entity player )
+{
+	
+	if ( GetGameState() <= eGameState.Playing )
+	{
+		entity localClientPlayer = GetLocalClientPlayer()
+
+		if ( IsValid( player ) && IsValid( localClientPlayer ) && player == GetLocalClientPlayer() )
+			thread GamemodeUtility_ManageDVSTweakOnPlayer_Thread()
+	}
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+void function GamemodeUtility_OnLeaverPenaltyStatusChanged( entity player, bool isLeaverPenaltyEnabled )
+{
+	if ( !isLeaverPenaltyEnabled )
+		Obituary_Print_Localized( Localize( "#GAMEMODES_LEAVER_PENALTY_DEACTIVATED" ).toupper() )
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+void function GamemodeUtility_ServerCallback_DisplayMatchTimeLimitWarning( bool isFinalWarning )
+{
+	entity player = GetLocalViewPlayer()
+	if ( !IsValid( player ) )
+		return
+
+	
+	if ( GAMEMODEUTILITY_MATCH_TIME_LIMIT_WARNING_TIME < 60 )
+		return
+
+	string message = Localize( "#CONTROL_MATCH_TIMELIMIT_WARNING", GAMEMODEUTILITY_MATCH_TIME_LIMIT_WARNING_TIME/ 60 )
+	if ( isFinalWarning )
+		message = Localize( "#CONTROL_MATCH_TIMELIMIT_GAMEEND" )
+
+	GamemodeUtility_AnnouncementMessageWarning( player, message, GamemodeUtility_GetColorVectorForCaptureObjectiveState( eGamemodeUtilityCaptureObjectiveColorState.ENEMY_OWNED ), SFX_MATCH_TIME_LIMIT, GAMEMODEUTILITY_DEFAULT_MESSAGE_DURATION )
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+bool function GamemodeUtility_IsJIPPlayerSpawnBonusPending( entity player )
+{
+	if ( !IsValid( player ) || !GamemodeUtility_IsJIPEnabledInPlaylist() )
+		return false
+
+	return player.GetPlayerNetBool( "GamemodeUtility_HasJIPPlayerReceivedSpawnBonus" )
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+void function GamemodeUtility_ServerCallback_PlayerJoinedMatchInProgress()
+{
+	EmitUISound( SFX_JOIN_MATCH_IN_PROGRESS )
+}
+
+
+
+
+int function GamemodeUtility_GetScoreDifference()
+{
+	if ( AllianceProximity_IsUsingAlliances() )
+		return AllianceProximity_GetAllianceScoreDifference()
+
+	return GamemodeUtility_GetScoreDifferenceBetweenTeams()
+}
+
+
+
+
+int function GamemodeUtility_GetScoreDifferenceBetweenTeams()
+{
+	int lowestScore = -1
+	int highestScore = 0
+	int currentTeamScore = 0
+	array < int > allTeamsArray = GetAllTeams()
+
+	foreach( team in allTeamsArray )
+	{
+		currentTeamScore = GameRules_GetTeamScore( team )
+		lowestScore = currentTeamScore < lowestScore || lowestScore == -1 ? currentTeamScore : lowestScore
+		highestScore = currentTeamScore > highestScore ? currentTeamScore : highestScore
+	}
+
+	return highestScore - lowestScore
+}
+
+
+
+
+int function GamemodeUtility_GetWinningTeamOrAlliance()
+{
+	if ( AllianceProximity_IsUsingAlliances() )
+		return GamemodeUtility_GetWinningAlliance()
+
+	
+	
+	int winningTeam = GetWinningTeam()
+	winningTeam = winningTeam < TEAM_MULTITEAM_FIRST ? TEAM_INVALID : winningTeam
+	return winningTeam
+}
+
+
+
+
+int function GamemodeUtility_GetWinningAlliance()
+{
+	int winningAlliance = ALLIANCE_NONE
+	int highestScore = -1
+	int currentScoreBeingTested = 0
+	array < int > allAlliancesArray = AllianceProximity_GetAllAlliances()
+
+	foreach( alliance in allAlliancesArray )
+	{
+		currentScoreBeingTested = GetAllianceTeamsScore( alliance )
+		if ( currentScoreBeingTested > highestScore || highestScore == -1 )
+		{
+			winningAlliance = alliance
+			highestScore = currentScoreBeingTested
+		}
+	}
+
+	return winningAlliance
+}
+
+
+
+
+int function GamemodeUtility_GetWinningTeamOrAllianceScore()
+{
+	int winningTeamOrAlliance = GamemodeUtility_GetWinningTeamOrAlliance()
+
+	return GamemodeUtility_GetTeamOrAllianceScore( winningTeamOrAlliance )
+}
+
+
+
+
+int function GamemodeUtility_GetTeamOrAllianceScore( int teamOrAlliance )
+{
+	int teamScore = 0
+
+	if ( teamOrAlliance != TEAM_INVALID )
+	{
+		if ( AllianceProximity_IsUsingAlliances() )
+		{
+			teamScore = GetAllianceTeamsScore( teamOrAlliance )
+		}
+		else
+		{
+			teamScore = GameRules_GetTeamScore( teamOrAlliance )
+		}
+	}
+
+	return teamScore
+}
+
+
+
+
+int function GamemodeUtility_GetAllianceScoreFromTeam( int team )
+{
+	int allianceIndex = AllianceProximity_GetAllianceFromTeam( team )
+	return GetAllianceTeamsScore( allianceIndex )
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+bool function GamemodeUtility_IsPlayerAbandoning( entity player )
+{
+	if ( !GamemodeUtility_GetMixtapeAbandonPenaltyActive() )
+		return false
+
+	if ( GetGameState() >= eGameState.WinnerDetermined )
+		return false
+
+	if ( !GetGlobalNetBool( "mixtape_isLeaverPenaltyEnabledForMatch" ) )
+		return false
+
+	if ( GetGameState() >= eGameState.Prematch && !player.GetPlayerNetBool( "rankedDidPlayerEverHaveAFullTeam" ) )
+		return false
+
+	return true
+}
+
+
+
+
+int function GamemodeUtility_GetAbandonPenaltyLength( entity player )
+{
+	if( !IsValid( player ) )
+		return 0
+
+	int numGamesAbandoned = expect int ( player.GetPersistentVar( "numControlAbandons" ) ) + 1
+
+	int banLength
+	if ( numGamesAbandoned >= 4 )
+		banLength = GetCurrentPlaylistVarInt( "mixtape_abandon_penalty_time_4", 60 * 20 ) 
+	else
+		banLength = GetCurrentPlaylistVarInt( "mixtape_abandon_penalty_time_" + numGamesAbandoned , 60 * 2 ) 
+
+	return banLength
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+void function GamemodeUtility_AnnouncementMessageWarning( entity player, string messageText, vector titleColor, string soundAlias, float duration )
+{
+	AnnouncementData announcement = Announcement_Create( messageText )
+	Announcement_SetHeaderText( announcement, " " )
+	Announcement_SetSubText( announcement, " " )
+	Announcement_SetStyle( announcement, ANNOUNCEMENT_STYLE_GENERIC_WARNING )
+	Announcement_SetSoundAlias( announcement, soundAlias )
+	Announcement_SetPurge( announcement, true )
+	Announcement_SetPriority( announcement, 200 ) 
+	Announcement_SetDuration( announcement, duration )
+
+	Announcement_SetTitleColor( announcement, titleColor )
+	Announcement_SetVerticalOffset( announcement, 140 )
+	AnnouncementFromClass( player, announcement )
+}
+
+
+
+
+vector function GamemodeUtility_GetColorVectorForCaptureObjectiveState( int objectiveState, bool isRuiUIColor = false )
+{
+	vector color
+
+	switch( objectiveState )
+	{
+		case eGamemodeUtilityCaptureObjectiveColorState.NEUTRAL:
+			color = GetKeyColor( COLORID_COLORSWATCH_WHITE )
+			break
+		case eGamemodeUtilityCaptureObjectiveColorState.CONTESTED:
+			color = GetKeyColor( COLORID_CONTROL_CONTESTED )
+			break
+		case eGamemodeUtilityCaptureObjectiveColorState.FRIENDLY_OWNED:
+			color = GetKeyColor( COLORID_CONTROL_FRIENDLY )
+			break
+		case eGamemodeUtilityCaptureObjectiveColorState.ENEMY_OWNED:
+			color = GetKeyColor( COLORID_CONTROL_ENEMY )
+			break
+		default:
+			color = GetKeyColor( COLORID_COLORSWATCH_WHITE )
+			break
+	}
+
+	if ( isRuiUIColor )
+		color = SrgbToLinear( color / 255 )
+
+	return color
+}
+
+
+
+bool function GamemodeUtility_IsPlayerOnTeamObserver( entity player )
+{
+	if( !IsValid( player ) )
+		return false
+
+	return player.GetTeam() == TEAM_SPECTATOR
+}
+
+
+
+
+
+array<entity> function GamemodeUtility_GetLocalTeamPlayers( bool friendly )
+{
+	
+	int localPlayerTeam = GetLocalClientPlayer().GetTeam()
+	if ( IsLocalPlayerOnTeamSpectator() )
+		localPlayerTeam = TEAM_IMC
+
+	
+	int teamOrAllianceToReturn
+	array<entity> localTeamPlayersArray
+
+	if ( AllianceProximity_IsUsingAlliances() )
+	{
+		int localPlayerAlliance = AllianceProximity_GetAllianceFromTeamWithObserverCorrection( localPlayerTeam )
+		
+		teamOrAllianceToReturn = friendly ? localPlayerAlliance : AllianceProximity_GetOtherAlliance( localPlayerAlliance )
+		localTeamPlayersArray = AllianceProximity_GetAllPlayersInAlliance( teamOrAllianceToReturn, false )
+	}
+	else
+	{
+		teamOrAllianceToReturn = friendly ? localPlayerTeam : GetOtherTeam( localPlayerTeam )
+		localTeamPlayersArray = GetPlayerArrayOfTeam( teamOrAllianceToReturn )
+	}
+
+	return localTeamPlayersArray
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+bool function GamemodeUtility_GetMixtapeAbandonPenaltyActive()
+{
+	return GetCurrentPlaylistVarBool( "mixtape_match_abandon_penalty", false )
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+int function GamemodeUtility_GetMaxDroppedGrenadesOnDeath()
+{
+	return GetCurrentPlaylistVarInt( "grenade_ondeath_max_spawncount", 1 )
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+float function GetPlaylistVar_DeathboxDuration()
+{
+	return GetCurrentPlaylistVarFloat( "deathbox_duration", 60.0 )
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+void function GamemodeUtility_ManageDVSTweakOnPlayer_Thread()
+{
+#if DEV
+		Assert( IsNewThread(), "Must be threaded off" )
+#endif
+
+	entity localPlayer = GetLocalClientPlayer()
+	if ( !IsValid( localPlayer ) )
+		return
+
+	printt( "GAMEMODE UTILITY: " +  FUNC_NAME() + " is running for " + localPlayer )
+
+	EndSignal( localPlayer, "OnDestroy" )
+
+	OnThreadEnd(
+		function() : ( localPlayer )
+		{
+			printt( "GAMEMODE UTILITY: GamemodeUtility_ManageDVSTweakOnPlayer_Thread is going to set LowerDVSForGameMode to false from thread end function" )
+			GamemodeUtility_SetDVSSettingsForGamemode( false )
+		}
+	)
+
+	
+	if ( localPlayer.GetPlayerNetBool( "isJumpingWithSquad" ) || localPlayer.GetPlayerNetBool( "isJumpmaster" ) ||  GetGameState() < eGameState.Playing )
+		localPlayer.WaitSignal( "DroppodLanded" )
+
+	if ( GetGameState() < eGameState.WinnerDetermined )
+	{
+		printt( "GAMEMODE UTILITY: " +  FUNC_NAME() + " is going to set LowerDVSForGameMode to true ( player landed from free fall )" )
+		GamemodeUtility_SetDVSSettingsForGamemode( true )
+	}
+
+	
+	ClWaittillGameStateOrHigher( eGameState.WinnerDetermined )
+}
+
+
+
+
+
+
+
+
+
+void function GamemodeUtility_SetDVSSettingsForGamemode( bool shouldEnableForcedDVSSettings )
+{
+	printt( "GAMEMODE UTILITY: " +  FUNC_NAME() + " Running with shouldEnableForcedDVSSettings : " + shouldEnableForcedDVSSettings )
+
+	
+	if ( shouldEnableForcedDVSSettings && GamemodeUtility_GetShouldTweakDVSForGamemode() && !file.isLoweringDVSForGamemode )
+	{
+		LowerDVSForGameMode ( true )
+		file.isLoweringDVSForGamemode = true
+		printt( "GAMEMODE UTILITY: " +  FUNC_NAME() + " Set LowerDVSForGameMode to : true" )
+	}
+
+	
+	if ( !shouldEnableForcedDVSSettings && file.isLoweringDVSForGamemode)
+	{
+		LowerDVSForGameMode ( false )
+		file.isLoweringDVSForGamemode = false
+		printt( "GAMEMODE UTILITY: " +  FUNC_NAME() + " Set LowerDVSForGameMode to : false" )
+	}
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+array< vector > function GamemodeUtility_ParseStringOfVectors( string positionsRawString )
+{
+	array<string> positionStrings = GetTrimmedSplitString( positionsRawString, "," )
+	array<vector> positions
+	foreach( positionString in positionStrings )
+	{
+		vector pos = GamemodeUtility_ParseVectorString( positionString )
+		positions.append( pos )
+	}
+
+	return positions
+}
+
+vector function GamemodeUtility_ParseVectorString( string vectorString )
+{
+	array< string > valuesAsStrings = GetTrimmedSplitString( vectorString, WHITESPACE_CHARACTERS )
+	Assert( valuesAsStrings.len() == 3, "vectorString should have format \"x y z\"")
+
+	vector vec = < float( valuesAsStrings[0] ), float( valuesAsStrings[1] ), float( valuesAsStrings[2] ) >
+	return vec
+}
+
+
+array< float > function GamemodeUtility_ParseCircleString( string circleString )
+{
+	
+	
+	
+	array< float > circleValuesArray
+	
+	array< string > circleStringValuesArray = GetTrimmedSplitString( circleString, "," )
+
+	
+	circleString            = GamemodeUtility_GetParsedStringForCircleValues( circleStringValuesArray )
+	circleStringValuesArray = GetTrimmedSplitString( circleString, "<" )
+
+	
+	circleString            = GamemodeUtility_GetParsedStringForCircleValues( circleStringValuesArray )
+	circleStringValuesArray = GetTrimmedSplitString( circleString, ">" )
+
+	
+	circleString            = GamemodeUtility_GetParsedStringForCircleValues( circleStringValuesArray )
+	circleStringValuesArray = GetTrimmedSplitString( circleString, " " )
+
+	
+	foreach( item in circleStringValuesArray )
+	{
+		circleValuesArray.append( float( item ) )
+	}
+
+	return circleValuesArray
+}
+
+
+string function GamemodeUtility_GetParsedStringForCircleValues( array< string > stringValuesArray )
+{
+	string parsedPlaylistString = ""
+	foreach( item in stringValuesArray )
+	{
+		parsedPlaylistString += " " + item
+	}
+
+	return parsedPlaylistString
+}
+
+
+
+
+
+
+
+
+

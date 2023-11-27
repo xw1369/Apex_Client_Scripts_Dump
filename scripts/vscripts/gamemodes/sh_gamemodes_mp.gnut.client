@@ -1,0 +1,122 @@
+
+global function GameModes_Init_SV_CL
+
+void function GameModes_Init_SV_CL()
+{
+	string gameMode
+
+	gameMode = TEAM_DEATHMATCH
+
+
+
+
+
+	GameMode_AddClientInit( gameMode, ClGamemodeTdm_Init )
+	GameMode_SetScoreboardSetupFunc( gameMode, ClScoreboardMp_Init )
+
+
+	GameMode_AddSharedInit( gameMode, GamemodeTdmShared_Init )
+
+#if R2_SCOREBOARD
+	GameMode_SetScoreCompareFunc( gameMode, CompareKills )
+#endif
+
+
+	gameMode = SURVIVAL
+
+
+
+
+
+
+	GameMode_AddClientInit( gameMode, ClGamemodeSurvival_Init )
+	GameMode_SetScoreboardSetupFunc( gameMode, Fullmap_SetupScoreboard )
+
+
+	GameMode_AddSharedInit( gameMode, GamemodeSurvivalShared_Init )
+
+#if R2_SCOREBOARD
+	GameMode_SetScoreCompareFunc( gameMode, CompareAssaultScore )
+#endif
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+	gameMode = GAMEMODE_CONTROL
+
+
+
+
+
+
+		GameMode_AddClientInit( gameMode, ClGamemodeSurvival_Init )
+		GameMode_SetScoreboardSetupFunc( gameMode, Control_ScoreboardSetup )
+
+
+		GameMode_AddSharedInit( gameMode, GamemodeSurvivalShared_Init )
+
+#if R2_SCOREBOARD
+			GameMode_SetScoreCompareFunc( gameMode, CompareAssaultScore )
+#endif
+
+
+
+	gameMode = GAMEMODE_FREELANCE
+
+
+
+
+
+
+	GameMode_AddClientInit( gameMode, ClientInit_Freelance )
+	GameMode_SetScoreboardSetupFunc( gameMode, Fullmap_SetupScoreboard )
+
+
+	GameMode_AddSharedInit( gameMode, SharedInit_Freelance )
+
+#if R2_SCOREBOARD
+	GameMode_SetScoreCompareFunc( gameMode, ScoreCompare_Freelance )
+#endif
+
+
+
+	gameMode = GAMEMODE_FREEDM
+
+
+
+		GameMode_AddClientInit( gameMode, FreeDM_GamemodeInitClient )
+		GameMode_SetScoreboardSetupFunc( gameMode, FreeDM_ScoreboardSetup )
+
+
+		GameMode_AddSharedInit( gameMode, FreeDM_GamemodeInitShared )
+
+#if R2_SCOREBOARD
+			GameMode_SetScoreCompareFunc( gameMode, CompareKills )
+#endif
+
+
+
+
+
+
+
+}

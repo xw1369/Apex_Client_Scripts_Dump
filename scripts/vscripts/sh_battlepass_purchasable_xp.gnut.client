@@ -1,0 +1,32 @@
+global function ShBattlepassPurchasableXP_LevelInit
+
+
+
+
+
+
+
+
+void function ShBattlepassPurchasableXP_LevelInit()
+{
+	AddCallback_RegisterRootItemFlavors( RegisterAllBattlepassXPAssetsAsItemFlavors )
+}
+
+
+
+void function RegisterAllBattlepassXPAssetsAsItemFlavors()
+{
+	foreach ( asset battlepassXPAsset in GetBaseItemFlavorsFromArray( "battlepassPurchasableXP" ) )
+	{
+		if ( battlepassXPAsset == $"" )
+		{
+			continue
+		}
+		ItemFlavor ornull battlepassXPFlav = RegisterItemFlavorFromSettingsAsset( battlepassXPAsset )
+		if ( battlepassXPFlav == null )
+		{
+			printt( "Failed to register BP Presale Voucher ItemFlavor from Settings Asset ", battlepassXPAsset )
+		}
+	}
+}
+

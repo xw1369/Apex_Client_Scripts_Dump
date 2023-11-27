@@ -1,0 +1,261 @@
+global function ShPassiveLootHighlight_Init 
+
+global function GetLootHighlightStringForItem
+
+
+const float RANGE_ORDNANCE_HIGHLIGHT   = 30.0 * METERS_TO_INCHES
+const float RANGE_CONSUMABLE_HIGHLIGHT = 50.0 * METERS_TO_INCHES
+const float RANGE_SURVIVAL_HIGHLIGHT   = 75.0 * METERS_TO_INCHES
+
+struct ItemHighlightData
+{
+	bool functionref( LootData ) spawnFilter
+	string functionref( LootData ) lootToHighlightType
+	int minTier
+	float highlightRange
+}
+
+struct
+{
+	table<int, ItemHighlightData > passiveToHighlightData
+}file
+
+void function ShPassiveLootHighlight_Init()
+{
+	RegisterSignal( "ShPassiveLootHighlight_StopThink" )
+
+	RegisterItemHighlight( ePassives.PAS_ORDNANCE_HIGHLIGHT, eLootTier.COMMON, OrdnanceItemFilter, Ordnance_GetHighlightString, RANGE_ORDNANCE_HIGHLIGHT )
+	RegisterItemHighlight( ePassives.PAS_HEALING_ITEM_HIGHLIGHT, eLootTier.RARE, HealingItemFilter, HealingItem_GetHighlightString, RANGE_CONSUMABLE_HIGHLIGHT )
+
+
+
+
+
+
+
+}
+
+void function RegisterItemHighlight( int passive, int minTier, bool functionref( LootData ) spawnFilter, string functionref( LootData ) lootToHighlightType, float range )
+{
+	ItemHighlightData data
+	data.minTier = minTier
+	data.spawnFilter = spawnFilter
+	data.lootToHighlightType = lootToHighlightType
+	data.highlightRange = range
+	file.passiveToHighlightData[passive] <- data
+
+
+
+
+
+	AddCallback_OnPassiveChanged( passive, ItemHighlight_OnPassiveChanged )
+}
+
+void function ItemHighlight_OnPassiveChanged( entity player, int passive, bool didHave, bool nowHas )
+{
+	if ( didHave )
+	{
+		Signal( player, "ShPassiveLootHighlight_StopThink" )
+	}
+
+	if ( nowHas )
+	{
+		float range = GetHighlightRange( passive )
+		if( range == 0.0 )
+			return
+
+
+
+			thread ClientThinkThread( player, range )
+
+	}
+}
+
+float function GetHighlightRange( int passive )
+{
+	if( !( passive in file.passiveToHighlightData ) )
+		return 0.0
+
+	return file.passiveToHighlightData[passive].highlightRange
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+string function GetLootHighlightStringForItem( LootData lootData, entity highlightedEntity )
+{
+	entity player = GetLocalViewPlayer()
+	if( !IsValid( player ) )
+		return ""
+	vector localPlayerOrigin = player.GetOrigin()
+	foreach( pass, data in file.passiveToHighlightData )
+	{
+		if ( !PlayerHasPassive( player, pass ) )
+			continue
+
+		vector entOrigin = highlightedEntity.GetOrigin()
+		if( DistanceSqr( entOrigin, localPlayerOrigin ) > ( data.highlightRange * data.highlightRange ) )
+			continue
+
+		string highlight = data.lootToHighlightType( lootData )
+		if( highlight != "" )
+			return highlight
+	}
+	return ""
+}
+
+void function ClientThinkThread( entity player, float range )
+{
+	EndSignal( player, "OnDestroy" )
+	Signal( player, "ShPassiveLootHighlight_StopThink" )
+	EndSignal( player, "ShPassiveLootHighlight_StopThink" )
+
+	if ( player != GetLocalViewPlayer() )
+		return
+
+	EntitySet currLootSet
+
+	OnThreadEnd( void function() : ( currLootSet ) {
+		foreach ( entity loot, void _ in currLootSet )
+		{
+			if ( !IsValid( loot ) )
+				continue
+
+			SURVIVAL_Loot_UpdateHighlightForLoot( loot )
+		}
+	} )
+
+
+	while ( true )
+	{
+		EntitySet noLongerExistingLootSet = clone currLootSet
+
+		array<entity> newLootList
+		if ( IsAlive( player ) )
+			newLootList = GetSurvivalLootNearbyPlayer( player, range, false, false, false )
+
+		foreach ( entity loot in newLootList )
+		{
+			if ( loot in noLongerExistingLootSet )
+				delete noLongerExistingLootSet[loot]
+
+			if( !( loot in currLootSet ) )
+			{
+				currLootSet[loot] <- IN_SET
+				SURVIVAL_Loot_UpdateHighlightForLoot( loot )
+				loot.SetFadeDistance( range )
+			}
+		}
+
+		foreach ( entity noLongerExistingLoot, void _ in noLongerExistingLootSet )
+		{
+			delete currLootSet[noLongerExistingLoot]
+			if ( !IsValid( noLongerExistingLoot ) )
+				continue
+
+			SURVIVAL_Loot_UpdateHighlightForLoot( noLongerExistingLoot )
+
+			float fadeDist = range / 2.0
+			if ( SURVIVAL_Loot_IsLootIndexValid( noLongerExistingLoot.GetSurvivalInt() ) )
+				fadeDist = GetFadeDistForLoot( SURVIVAL_Loot_GetLootDataByIndex( noLongerExistingLoot.GetSurvivalInt() ) )
+			noLongerExistingLoot.SetFadeDistance( fadeDist )
+		}
+
+		WaitFrame()
+	}
+}
+
+
+string function Ordnance_GetHighlightString( LootData lootData )
+{
+	return OrdnanceItemFilter( lootData ) ? "survival_item_ordinance" : ""
+}
+
+
+bool function OrdnanceItemFilter( LootData lootData )
+{
+	return lootData.lootType == eLootType.ORDNANCE
+}
+
+string function HealingItem_GetHighlightString( LootData lootData )
+{
+	if( HealingItemFilter( lootData ) )
+	{
+		if ( lootData.tier == eRarityTier.EPIC )
+			return "survival_item_rare_vision"
+		else if ( lootData.tier == eRarityTier.RARE )
+			return "survival_item_ordinance"
+	}
+	return ""
+}
+
+bool function HealingItemFilter( LootData lootData )
+{
+	printt( "lootData:" + lootData.lootType + ", "  )
+	return lootData.lootType == eLootType.HEALTH && ( lootData.ref == "health_pickup_health_small" || lootData.ref == "health_pickup_health_large" || lootData.ref == "health_pickup_combo_small" || lootData.ref == "health_pickup_combo_large" )
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      

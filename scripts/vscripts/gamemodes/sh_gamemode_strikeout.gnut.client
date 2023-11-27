@@ -1,0 +1,707 @@
+global function IsStrikeoutGamemode
+
+
+global function Strikeout_GetMaxSquadStrikes
+global function Strikeout_GetSquadStrikes
+global function Strikeout_UI_SetSquadStrikes
+
+
+
+global function Strikeout_IsPlayerRespawnDisabled
+global function Sh_Survival_Strikeout_Init
+global function Sh_Survival_Strikeout_RegisterNetworking
+
+
+
+
+
+
+
+
+
+
+
+
+
+	global function Strikeout_StrikesChanged
+	global function ServertoClient_RespawnsDisabledAnnouncement
+	global function ServertoClient_SquadElimationAnnouncement
+	global function ServerCallback_Strikeout_SetDeathScreenCallbacks
+	global function Strikeout_DeathScreenUpdate
+	global function Strikeout_PopulateSummaryDataStrings
+	global function ServertoClient_UpdateStrikeoutRui
+
+
+
+const string SQUAD_STRIKES_REF = "Squad_Strikes"
+const string STRIKEOUT_RESPAWN_DISABLED = "Strikeout_Squad_Spawning_Disabled"
+const float STRIKEOUT_RESPAWNS_DISABLED_ANNOUNCEMENT_DURATION = 7.0
+const float STRIKEOUT_SQUAD_ELIMINATED_ANNOUNCEMENT_DURATION = 4.0
+const float STRIKEOUT_FREEFALL_ANNOUNCEMENT_DURATION = 7.0
+const int STRIKEOUT_FREEFALL_ANNOUNCEMENT_PRIORTIY = 1000
+const asset DEATH_SCREEN_RUI = $"ui/strikeout_squad_summary_header_data.rpak"
+
+const asset P_WPN_STRIKEOUT_SHIELD = $"P_3strikes_shield_p1"
+const asset P_WPN_STRIKEOUT_SHIELD_IMPACT = $"P_3strikes_impact_ripple"
+
+
+struct
+{
+
+
+
+
+
+	int squadStrikes = 0
+	int lastSquadStrikesAnnoucment = 0
+
+
+
+
+} file
+
+
+void function Sh_Survival_Strikeout_Init()
+{
+	if( !IsStrikeoutGamemode() )
+		return
+
+	Sh_Survival_Strikeout_RegisterNetworking()
+
+	PrecacheParticleSystem( P_WPN_STRIKEOUT_SHIELD )
+	PrecacheParticleSystem( P_WPN_STRIKEOUT_SHIELD_IMPACT )
+	AddCallback_EntitiesDidLoad( Strikeout_EntitiesDidLoad )
+
+	RegisterNetVarIntChangeCallback( SQUAD_STRIKES_REF, Strikeout_StrikesChanged)
+	Strikeout_OverrideGameState()
+
+	Obituary_SetVerticalOffset( 60 )
+	AddCallback_PlayerFreefallActiveChanged( StrikeOut_PlayerFreefallActiveChanged )
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+}
+
+
+
+void function Sh_Survival_Strikeout_RegisterNetworking()
+{
+	RegisterNetworkedVariable( SQUAD_STRIKES_REF, SNDC_PLAYER_EXCLUSIVE, SNVT_INT, 0.0)
+	RegisterNetworkedVariable( STRIKEOUT_RESPAWN_DISABLED, SNDC_PLAYER_EXCLUSIVE, SNVT_BOOL, false)
+	Remote_RegisterClientFunction( "ServertoClient_SquadElimationAnnouncement", "int", 1, 4)
+	Remote_RegisterClientFunction( "ServertoClient_UpdateStrikeoutRui", "entity")
+	Remote_RegisterClientFunction( "ServerCallback_Strikeout_SetDeathScreenCallbacks" )
+	Remote_RegisterClientFunction( "ServertoClient_RespawnsDisabledAnnouncement" )
+
+}
+
+void function Strikeout_EntitiesDidLoad()
+{
+	thread __EntitiesDidLoad()
+}
+
+void function __EntitiesDidLoad()
+{
+	SurvivalCommentary_SetHost( eSurvivalHostType.OCTANE )
+	return
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+bool function Strikeout_IsPlayerRespawnDisabled( entity player )
+{
+	return player.GetPlayerNetBool( STRIKEOUT_RESPAWN_DISABLED)
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+void function Strikeout_OverrideGameState()
+{
+	ClGameState_RegisterGameStateAsset( $"ui/gamestate_info_strikeout.rpak" )
+	ClGameState_RegisterGameStateFullmapAsset( $"ui/gamestate_info_fullmap_strikeout.rpak" )
+}
+
+
+
+void function ServerCallback_Strikeout_SetDeathScreenCallbacks()
+{
+	DeathScreen_SetModeSpecificRuiUpdateFunc( Strikeout_DeathScreenUpdate )
+	DeathScreen_SetDataRuiAssetForGamemode( DEATH_SCREEN_RUI )
+	SetSummaryDataDisplayStringsCallback( Strikeout_PopulateSummaryDataStrings )
+}
+
+
+
+void function Strikeout_DeathScreenUpdate( var rui )
+{
+	SquadSummaryData squadData = GetSquadSummaryData()
+
+	string titleString = squadData.squadPlacement == 1 ? "#SQUAD_PLACEMENT_GCARDS_TITLE" : "#SQUAD_HEADER_DEFEAT"
+	string killsText   = "#DEATH_SCREEN_SUMMARY_KILLS_SQUAD"
+
+	RuiSetString( rui, "headerText", titleString ) 
+	RuiSetString( rui, "killsText", killsText )
+	RuiSetInt( rui, "losingScore", Strikeout_GetSquadStrikes() )
+	RuiSetInt( rui, "winningScore", Strikeout_GetMaxSquadStrikes() )
+}
+
+
+
+void function Strikeout_PopulateSummaryDataStrings( SquadSummaryPlayerData data )
+{
+	data.modeSpecificSummaryData[0].displayString = "#DEATH_SCREEN_SUMMARY_KILLS"
+	data.modeSpecificSummaryData[1].displayString = "#DEATH_SCREEN_SUMMARY_ASSISTS"
+	data.modeSpecificSummaryData[2].displayString = "DEATH_SCREEN_SUMMARY_KNOCKDOWNS"
+	data.modeSpecificSummaryData[3].displayString = "#DEATH_SCREEN_SUMMARY_DAMAGE_DEALT"
+	data.modeSpecificSummaryData[4].displayString = "#DEATH_SCREEN_SUMMARY_SURVIVAL_TIME"
+	data.modeSpecificSummaryData[5].displayString = "#DEATH_SCREEN_SUMMARY_REVIVES"
+	data.modeSpecificSummaryData[6].displayString = ""
+}
+
+
+
+void function Strikeout_StrikesChanged( entity player, int value )
+{
+	bool isPlayer = player == GetLocalViewPlayer()
+	if( !isPlayer )
+		return
+
+	if( value < file.squadStrikes )
+		return
+
+	file.squadStrikes = value
+	RunUIScript( "Strikeout_UI_SetSquadStrikes", value )
+
+	if( value >= Strikeout_GetMaxSquadStrikes() )
+		Strikeout_UpdateGameState( player )
+
+}
+
+
+
+void function Strikeout_UpdateGameState( entity player )
+{
+	bool isPlayer = player == GetLocalViewPlayer()
+	if( !isPlayer )
+		return
+
+	var rui = ClGameState_GetRui()
+	if ( rui != null)
+	{
+		RuiSetInt( rui, "squadStrikes", file.squadStrikes )
+	}
+
+	rui = GetFullmapGamestateRui()
+	if ( rui != null)
+	{
+		RuiSetInt( rui, "squadStrikes", file.squadStrikes )
+	}
+}
+
+
+
+void function Strikeout_UI_SetSquadStrikes( int strikes )
+{
+	file.squadStrikes = strikes
+}
+
+
+
+void function ServertoClient_SquadElimationAnnouncement( int diceRoll )
+{
+	string message = "#SURVIVAL_STRIKEOUT_ANNOUNCEMENT_ELIM_MES"
+	entity localViewPlayer = GetLocalViewPlayer()
+
+	AnnouncementData announcement = Announcement_Create( message )
+	announcement.announcementStyle = ANNOUNCEMENT_STYLE_MILESTONE_SMALL
+	announcement.duration = STRIKEOUT_SQUAD_ELIMINATED_ANNOUNCEMENT_DURATION
+	announcement.titleColor = < 1,1,1 >
+
+	AnnouncementFromClass( localViewPlayer, announcement )
+	EmitSoundOnEntity( localViewPlayer, "UI_3Strikes_EnemySquadEliminated")
+}
+
+
+
+void function ServertoClient_RespawnsDisabledAnnouncement()
+{
+	string message = "#SURVIVAL_STRIKEOUT_ANNOUNCEMENT_NO_RES_MES"
+	string subText = "#SURVIVAL_STRIKEOUT_ANNOUNCEMENT_NO_RES_SUB_1"
+	entity localViewPlayer = GetLocalViewPlayer()
+
+	AnnouncementData announcement = Announcement_Create( message )
+	announcement.subText = subText
+	announcement.useColorOnSubtext = true
+	announcement.announcementStyle = ANNOUNCEMENT_STYLE_FINAL_RING_NO_RESPAWNS
+	announcement.duration = STRIKEOUT_RESPAWNS_DISABLED_ANNOUNCEMENT_DURATION
+
+	AnnouncementFromClass( localViewPlayer, announcement )
+	thread PlayWarningSFX()
+	UpdateRui_RespawnsDisabled()
+	Strikeout_UpdateGameState( localViewPlayer )
+	RunUIScript( "Strikeout_UI_SetIsRespawnDisabled", true )
+}
+
+
+
+void function StrikeOut_PlayerFreefallActiveChanged( entity player, bool isFreefallActive )
+{
+	if( isFreefallActive )
+	{
+		int strikes = Strikeout_GetSquadStrikes()
+
+		if ( file.lastSquadStrikesAnnoucment == strikes || strikes == 0 )
+			return
+
+		string message
+		string strikeSound = "UI_3Strikes_Widget_Stinger_Strike1"
+		switch ( strikes )
+		{
+			case 1:
+				message =  Localize( "#SURVIVAL_STRIKEOUT_DEATH_STRIKE_ONE" )
+				break
+			case 2:
+				message =  Localize( "#SURVIVAL_STRIKEOUT_DEATH_STRIKE_TWO" )
+				strikeSound ="UI_3Strikes_Widget_Stinger_Strike2"
+				break
+			case 3:
+				message =  Localize( "#SURVIVAL_STRIKEOUT_DEATH_STRIKE_THREE" )
+				strikeSound = "UI_3Strikes_Widget_Stinger_Strike3"
+				break
+		}
+
+		AnnouncementData announcement = Announcement_Create( message )
+		announcement.announcementStyle = ANNOUNCEMENT_STYLE_STRIKE
+		announcement.duration = STRIKEOUT_FREEFALL_ANNOUNCEMENT_DURATION
+		announcement.priority = STRIKEOUT_FREEFALL_ANNOUNCEMENT_PRIORTIY
+		AnnouncementFromClass( player, announcement )
+		Strikeout_UpdateGameState( player )
+		EmitSoundOnEntity( GetLocalViewPlayer(), strikeSound )
+
+		file.lastSquadStrikesAnnoucment = strikes
+	}
+}
+
+
+
+void function PlayWarningSFX()
+{
+	EmitSoundOnEntity( GetLocalViewPlayer(), "UI_3Strikes_RespawningDisabled" )
+}
+
+
+
+void function ServertoClient_UpdateStrikeoutRui(entity player)
+{
+	Strikeout_UpdateGameState(player)
+}
+
+
+
+void function UpdateRui_RespawnsDisabled()
+{
+	var rui = ClGameState_GetRui()
+	if ( rui != null)
+	{
+		RuiSetBool( rui,  "respawnsDisabled", true )
+	}
+
+	rui = GetFullmapGamestateRui()
+	if ( rui != null)
+	{
+		RuiSetBool( rui, "respawnsDisabled", true )
+	}
+}
+
+
+
+int function Strikeout_GetSquadStrikes()
+{
+	return file.squadStrikes
+}
+
+
+
+int function Strikeout_GetMaxSquadStrikes()
+{
+	return GetCurrentPlaylistVarInt( "respawns", 2 ) + 1
+}
+
+
+bool function GetPlaylistVar_AmmoOnKillEnabled()
+{
+	return GetCurrentPlaylistVarBool( "strikeout_ammo_on_kill_enabled", false )
+}
+
+bool function GetPlaylistVar_FreeHealingItemsOnRespawnEnabled()
+{
+	return GetCurrentPlaylistVarBool( "strikeout_healing_items_on_respawn_enabled", false )
+}
+
+bool function GetPlaylistVar_ArmorOnRespawnEnabled()
+{
+	return GetCurrentPlaylistVarBool( "strikeout_armor_on_respawn_enabled", true )
+}
+
+bool function GetPlaylistVar_AmmoOnRespawnEnabled()
+{
+	return GetCurrentPlaylistVarBool( "strikeout_ammo_on_respawn_enabled", false )
+}
+
+float function GetPlaylistVar_AmmoOnKillMultiplier()
+{
+	return GetCurrentPlaylistVarFloat( "strikeout_ammo_on_kill_multiplier", 1.0 )
+}
+
+int function GetPlaylistVar_AmmoOnKillBoxesToSpawn()
+{
+	return GetCurrentPlaylistVarInt( "strikeout_ammo_on_kill_spawns", 4 )
+}
+
+int function GetPlaylistVar_RespawnDisabledDeathstage()
+{
+	return GetCurrentPlaylistVarInt( "strikeout_respawn_disable_deathstage_close", 4 )
+}
+
+int function GetPlaylistVar_BonusHealingGrantDeathstage()
+{
+	return GetCurrentPlaylistVarInt( "strikeout_bonus_healing_items_deathstage", 3 )
+}
+
+int function GetPlaylistVar_TransparencyAmount()
+{
+	return GetCurrentPlaylistVarInt( "strikeout_transparency_amount", 140 )
+}
+
+bool function IsStrikeoutGamemode()
+{
+	return GetCurrentPlaylistVarBool( "is_gamemode_strikeout", false )
+}
+
+

@@ -1,0 +1,321 @@
+global function Lobby_AddLocalPlayer
+global function AddCallback_OnPlayerAddedToLobby
+global function Lobby_SetBannerSkin
+#if DEV
+global function DEV_SetLobbyBannerSkin
+#endif
+
+global function Lobby_OnReadyFX
+
+
+const int LOBBY_BANNER_DEFAULT_SKIN_INDEX = 0
+const int LOBBY_BANNER_MIXTAPE_SKIN_INDEX = 1
+const int LOBBY_BANNER_LTM_SKIN_INDEX = 2
+
+const int LOBBY_EVENT1_SKIN_OFFSET = 3
+const int LOBBY_EVENT2_SKIN_OFFSET = 6
+
+const asset WARP_EFFECT = $"P_env_lobby_s19_warp"
+const asset JET_EFFECT = $"P_env_lobby_s19_ship_jet"
+const asset BUTTERFLY_EFFECT = $"P_env_lobby_s19_butterfly_128"
+const float BUTTERFLY_EFFECT_COOLDOWN = 8.0
+
+
+struct LobbyShipData
+{
+	array< entity > jetEffects
+	array< entity > warpEffects
+	entity ship
+}
+
+struct
+{
+	array<void functionref( entity )> onPlayerAddedToLobbyCallbacks
+
+	array<entity> lobbyBanners
+	array<entity> lobbyBases
+#if DEV
+		bool overrideLobbyBanner = false
+#endif
+
+	array< LobbyShipData > lobbyShipData
+
+	array< entity > effectInfoTargets
+	float butterFlyCooldown = 0
+	bool shipsArrived = false
+
+} file
+
+void function Lobby_AddLocalPlayer()
+{
+	entity player = GetLocalClientPlayer()
+	Assert( IsValid( player ) )
+
+	player.FreezeControlsOnClient()
+	player.HideCrosshairNames()
+
+	SetStandardAbilityBindingsForPilot( player )
+	RefreshPresentationType()
+
+
+	
+	
+	
+	RunUIScript( "Lobby_EnableMinimapCoordsOnConnect", player.GetPlayerName() )
+
+
+	foreach ( func in file.onPlayerAddedToLobbyCallbacks )
+		func( player )
+
+	CacheLobbyBannerEnt()
+	SetupEventProps()
+	SetupEventBase()
+
+	RunUIScript( "MaybeSendPINSettingsEvent" )
+}
+
+void function AddCallback_OnPlayerAddedToLobby( void functionref( entity ) onPlayerAddedToLobbyCallback )
+{
+	Assert( ! ( file.onPlayerAddedToLobbyCallbacks.contains( onPlayerAddedToLobbyCallback ) ), "Attempted to add same callback to onPlayerAddedToLobbyCallbacks twice." )
+
+	file.onPlayerAddedToLobbyCallbacks.append( onPlayerAddedToLobbyCallback )
+}
+
+void function CacheLobbyBannerEnt()
+{
+	file.lobbyBanners = GetEntArrayByScriptName( "lobby_banner" )
+	file.lobbyBases = GetEntArrayByScriptName( "lobby_base" )
+
+	if ( IsLobbyEvent1Active() )
+	{
+		PrecacheParticleSystem( BUTTERFLY_EFFECT )
+		file.effectInfoTargets = GetEntArrayByScriptName( "event_1_effect" )
+	}
+
+	if ( IsLobbyEvent2Active() )
+	{
+		PrecacheParticleSystem( WARP_EFFECT )
+		PrecacheParticleSystem( JET_EFFECT )
+
+		InitShipData()
+	}
+}
+
+void function InitShipData()
+{
+	array< entity > warpEffects = GetEntArrayByScriptName( "holiday_ship_effect" )
+	array< entity > jetEffects = GetEntArrayByScriptName( "holiday_jet_effect" )
+	array< entity > ships = GetEntArrayByScriptName( "holiday_event_ready_up_ships" )
+
+	foreach ( ship in ships )
+	{
+		LobbyShipData data
+		data.ship = ship
+
+		foreach ( jetEffect in jetEffects )
+		{
+			printt (" Distance 1: " + Distance( ship.GetOrigin(), jetEffect.GetOrigin() ))
+			if ( Distance( ship.GetOrigin(), jetEffect.GetOrigin() ) < 100 )
+				data.jetEffects.append( jetEffect )
+		}
+
+		foreach ( warpEffect in warpEffects )
+		{
+			printt (" Distance 2: " + Distance( ship.GetOrigin(), warpEffect.GetOrigin() ))
+			if ( Distance( ship.GetOrigin(), warpEffect.GetOrigin() ) < 100 )
+				data.warpEffects.append( warpEffect )
+		}
+
+		file.lobbyShipData.append( data )
+	}
+
+}
+
+void function Lobby_OnReadyFX( bool isReady )
+{
+	if ( IsLobbyEvent1Active() )
+	{
+		float now = ClientTime()
+
+		if ( now < (file.butterFlyCooldown + 10.0))
+			return
+
+		file.butterFlyCooldown = now
+
+		thread ButterflyReadyFX()
+	}
+	else if ( IsLobbyEvent2Active()  )
+	{
+		if ( file.shipsArrived )
+			return
+
+		file.shipsArrived = true
+		foreach( data in file.lobbyShipData )
+		{
+			thread ShipWarpReadyFXThread( data )
+		}
+	}
+}
+
+void function ShipWarpReadyFXThread( LobbyShipData data )
+{
+	wait RandomFloat( 0.5 )
+
+	data.ship.SetModelScale( 50.0 )
+	foreach ( effectInfoTarget in data.warpEffects )
+	{
+		StartParticleEffectInWorld( GetParticleSystemIndex ( WARP_EFFECT ) , effectInfoTarget.GetOrigin(),  effectInfoTarget.GetAngles() )
+		printt( "effect" + effectInfoTarget.GetOrigin() )
+	}
+
+	foreach ( jetEffectsInfoTarget in data.jetEffects )
+	{
+		StartParticleEffectInWorld( GetParticleSystemIndex ( JET_EFFECT ) , jetEffectsInfoTarget.GetOrigin(),  jetEffectsInfoTarget.GetAngles() )
+		printt( "jet" + jetEffectsInfoTarget.GetOrigin() )
+	}
+
+}
+
+void function ButterflyReadyFX()
+{
+	foreach ( effectInfoTarget in file.effectInfoTargets )
+		StartParticleEffectInWorld( GetParticleSystemIndex ( BUTTERFLY_EFFECT ) , effectInfoTarget.GetOrigin(),  effectInfoTarget.GetAngles() )
+}
+
+void function Lobby_SetBannerSkin( string playlist )
+{
+	if( file.lobbyBanners.len() == 0 )
+	{
+		
+		CacheLobbyBannerEnt()
+
+		if( file.lobbyBanners.len() == 0 )
+		{
+			Warning( "Lobby_SetBannerSkin - No lobby_banner entity found!" )
+			return
+		}
+	}
+
+	string playlistName = GetParty().playlistName
+	int skinIndex =  LOBBY_BANNER_DEFAULT_SKIN_INDEX
+
+	if ( GetPlaylistVarBool( playlistName, "is_limited_mode", false ) )
+		skinIndex =  LOBBY_BANNER_LTM_SKIN_INDEX
+	else if ( GetPlaylistVarString( playlistName, "ui_slot", "" ) == "mixtape" )
+		skinIndex =  LOBBY_BANNER_MIXTAPE_SKIN_INDEX
+
+#if DEV
+		if ( file.overrideLobbyBanner )
+			return
+#endif
+
+	if ( IsLobbyEvent1Active() )
+	{
+		skinIndex = skinIndex + LOBBY_EVENT1_SKIN_OFFSET
+	}
+
+	if ( IsLobbyEvent2Active() )
+	{
+		skinIndex = skinIndex + LOBBY_EVENT2_SKIN_OFFSET
+	}
+
+	Lobby_SetBannerSkinInternal ( skinIndex )
+}
+
+void function Lobby_SetBannerSkinInternal( int skinIndex )
+{
+	foreach ( lobbyBanner in file.lobbyBanners )
+	{
+		if ( IsValid(lobbyBanner) )
+			lobbyBanner.SetSkin( skinIndex )
+	}
+}
+
+#if DEV
+void function DEV_SetLobbyBannerSkin( int i )
+{
+	if ( i == -1 )
+	{
+		file.overrideLobbyBanner = false
+		return
+	}
+
+	Lobby_SetBannerSkinInternal( i )
+	file.overrideLobbyBanner = true
+}
+#endif
+
+void function SetupEventBase()
+{
+	int skinId = 0
+
+	if ( IsLobbyEvent1Active() )
+		skinId = 1
+
+	if ( IsLobbyEvent2Active() )
+		skinId = 2
+
+	if ( skinId == 0 )
+		return
+
+	foreach ( lobbyBase in file.lobbyBases )
+	{
+		if ( IsValid( lobbyBase ) )
+		{
+			lobbyBase.SetSkin(skinId )
+		}
+	}
+}
+
+void function SetupEventProps()
+{
+	SetupEvent1Props()
+	SetupEvent2Props()
+}
+
+void function SetupEvent1Props()
+{
+	if ( !IsLobbyEvent1Active() )
+	{
+		array<entity> event_props = GetEntArrayByScriptName( "event_1_prop" )
+		foreach ( event_prop in event_props )
+		{
+			if ( IsValid( event_prop ) )
+				event_prop.Destroy()
+		}
+
+		return
+	}
+
+	
+	
+
+
+
+
+
+}
+
+void function SetupEvent2Props()
+{
+	if ( !IsLobbyEvent2Active() )
+	{
+		array<entity> event_props = GetEntArrayByScriptName( "event_2_prop" )
+		foreach ( event_prop in event_props )
+		{
+			if ( IsValid( event_prop ) )
+				event_prop.Destroy()
+		}
+
+		return
+	}
+
+	
+	
+
+
+
+
+
+
+}

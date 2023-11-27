@@ -1,0 +1,45 @@
+
+
+
+
+
+global function WORKAROUND_AssetAppend
+global function WORKAROUND_AnimAssetToAnimString
+global function WORKAROUND_PreventScriptErrors
+
+
+
+
+asset function WORKAROUND_AssetAppend( asset a, string suffix )
+{
+	return GetAssetFromString( string(a) + suffix )
+}
+
+
+
+
+string function WORKAROUND_AnimAssetToAnimString( asset animAsset )
+{
+	return split( string(animAsset), "/" ).top().slice( 0, -5 )
+}
+
+
+
+
+bool function WORKAROUND_PreventScriptErrors( void functionref() func )
+{
+	bool success = false
+	try
+	{
+		func()
+	success = true
+	}
+	catch( e )
+	{
+		
+	}
+	return success
+}
+
+
+

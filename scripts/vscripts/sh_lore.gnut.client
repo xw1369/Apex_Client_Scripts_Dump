@@ -1,0 +1,88 @@
+global function Lore_GetBio
+global function Lore_GetType
+global function Lore_GetLegendInfo
+global function Lore_GetWeaponInfo
+
+global struct LoreBioModel
+{
+	string line = ""
+	int marginTop = 0
+	int marginBottom = 0
+	int marginLeft = 0
+	int marginRight = 0
+}
+
+global struct LoreLegendModel
+{
+	string age
+	string realName
+	string alias
+	string homeWorld
+}
+
+global struct LoreWeaponModel
+{
+
+}
+
+global struct LoreModel
+{
+	string name = ""
+	string type = ""
+	array< LoreBioModel > bio
+}
+
+string function Lore_GetType( asset flavor )
+{
+	return GetGlobalSettingsString(  flavor, "type" )
+}
+
+array< LoreBioModel > function Lore_GetBio( asset flavor )
+{
+	array< LoreBioModel > bio = []
+	foreach ( var bioBlock in IterateSettingsAssetArray(  flavor, "bio" ) )
+	{
+		LoreBioModel bioModel
+
+		bioModel.line = GetSettingsBlockString( bioBlock, "line" )
+		bioModel.marginBottom = GetSettingsBlockInt( bioBlock, "paddingBottom" )
+		bioModel.marginTop = GetSettingsBlockInt( bioBlock, "paddingTop" )
+		bioModel.marginLeft = GetSettingsBlockInt( bioBlock, "paddingLeft" )
+		bioModel.marginRight = GetSettingsBlockInt( bioBlock, "paddingRight" )
+
+		bio.push( bioModel )
+	}
+
+	return bio
+}
+
+LoreLegendModel function Lore_GetLegendInfo( asset flavor )
+{
+	LoreLegendModel loreLegend
+
+	string type = Lore_GetType( flavor )
+
+	if( type == "Legend")
+	{
+		loreLegend.age = GetGlobalSettingsString( flavor, "legend_age" )
+		loreLegend.homeWorld = GetGlobalSettingsString( flavor, "legend_home_world" )
+		loreLegend.realName = GetGlobalSettingsString( flavor, "legend_real_name" )
+		loreLegend.alias = GetGlobalSettingsString( flavor, "legend_alias" )
+	}
+
+	return loreLegend
+}
+
+LoreWeaponModel function Lore_GetWeaponInfo( asset flavor )
+{
+	LoreWeaponModel loreWeapon
+
+	string type = Lore_GetType( flavor )
+
+	if( type == "Weapon")
+	{
+
+	}
+
+	return loreWeapon
+}

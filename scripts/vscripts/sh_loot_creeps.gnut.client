@@ -1,0 +1,760 @@
+global function ShLootCreeps_Init
+
+
+
+
+
+const int MAX_ACTIVE_LOOTBIN_CREEPS = 10
+global const asset MODEL_INFECTED = $"mdl/Humans/grunts/imc_grunt_lmg_corpse.rmdl"
+global const asset MODEL_SPIDER = $"mdl/creatures/spider/spider.rmdl"
+global const string LOOT_CREEP_INFECTED_TARGETNAME = "loot_creep_infected"
+global const string LOOT_CREEP_SPIDER_TARGETNAME = "loot_creep_spider"
+const asset DEATH_FX_SPIDER = $"P_infected_death"
+const asset DEATH_FX_INFECTED = $"P_infected_death"
+const asset FX_LOOTBIN_OPEN = $"P_impact_monarch_beam_v1"
+const asset SPIDER_EYEGLOW_FX = $"P_infected_spider_head" 
+const asset INFECTED_EYEGLOW_FX = $"P_infected_grunt_head" 
+
+const float LOOT_CREEP_GARBAGE_COLLECTION_COOLDOWN = 90
+
+const string LOOT_CREEP_MOVER_SCRIPTNAME = "loot_creep_mover"
+const string LOOT_CREEP_SCRIPTNAME = "lootCreep"
+
+enum eLootCreepType
+{
+	SPIDER,
+	INFECTED
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+void function ShLootCreeps_Init()
+{
+	if ( !GetCurrentPlaylistVarBool( "loot_creeps_enabled", false ) )
+	{
+		return
+	}
+
+	bool shouldInitGenericCreepAssets = false
+
+	
+	{
+		shouldInitGenericCreepAssets = true
+		PrecacheModel( MODEL_SPIDER )
+		PrecacheParticleSystem( DEATH_FX_SPIDER )
+	}
+
+	
+	{
+		shouldInitGenericCreepAssets = true
+		PrecacheModel( MODEL_INFECTED )
+		PrecacheParticleSystem( DEATH_FX_INFECTED )
+	}
+
+	if ( shouldInitGenericCreepAssets )
+	{
+		PrecacheParticleSystem( FX_LOOTBIN_OPEN )
+
+			PrecacheParticleSystem( SPIDER_EYEGLOW_FX )
+			PrecacheParticleSystem( INFECTED_EYEGLOW_FX )
+			AddCreateCallback( "prop_dynamic", OnLootCreepCreated )
+			
+
+	}
+
+
+
+
+
+
+
+
+
+
+
+
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+void function OnLootCreepCreated( entity prop )
+{
+	asset modelAsset         = prop.GetModelName().tolower()
+	int lootCreepType
+	entity creep
+	string eyeGlowAttachment = "HEADFOCUS"
+	int fxIndex
+	switch( modelAsset )
+	{
+		case MODEL_INFECTED.tolower():
+			creep = prop
+			lootCreepType = eLootCreepType.INFECTED
+			fxIndex = GetParticleSystemIndex( INFECTED_EYEGLOW_FX )
+			break
+
+		case MODEL_SPIDER.tolower():
+			creep = prop
+			lootCreepType = eLootCreepType.SPIDER
+			fxIndex = GetParticleSystemIndex( SPIDER_EYEGLOW_FX )
+			break
+
+		default:
+			return
+	}
+
+	
+	
+	
+	StartParticleEffectOnEntity( creep, fxIndex, FX_PATTACH_POINT_FOLLOW, creep.LookupAttachment( eyeGlowAttachment ) )
+}
+
+
+
+bool function ShouldPrecacheLootCreep( int lootCreepType )
+{
+	switch ( lootCreepType )
+	{
+		case eLootCreepType.SPIDER:
+			if ( GetCurrentPlaylistVarFloat( "lootbin_spiders_chance", 0 ) > 0 )
+				return true
+			break
+
+		case eLootCreepType.INFECTED:
+			if ( GetCurrentPlaylistVarFloat( "lootbin_infected_chance", 0 ) > 0 )
+				return true
+			if ( GetCurrentPlaylistVarBool( "zombie_dropship", false ) )
+				return true
+			break
+
+		default:
+			Assert( false, "Unhandled loot creep type" )
+
+	}
+
+	return false
+
+}
+
+
+
+
+
+
+
+
+
+
+

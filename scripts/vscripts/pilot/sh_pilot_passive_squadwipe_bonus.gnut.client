@@ -1,0 +1,69 @@
+global function ShPassiveSquadwipeBoost_Init
+
+
+global function ServerToClient_NotifySquadwipeCooldownReduction
+
+
+void function ShPassiveSquadwipeBoost_Init()
+{
+	Remote_RegisterClientFunction( "ServerToClient_NotifySquadwipeCooldownReduction", "entity" )
+
+
+
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+void function ServerToClient_NotifySquadwipeCooldownReduction( entity player )
+{
+	entity localViewPlayer = GetLocalViewPlayer()
+	if ( IsValid( localViewPlayer ) )
+		AddPlayerHint( 4.0, 0.5, $"", "#SQUADWIPE_EVENT_ABILIT_HINT" )
+}
+

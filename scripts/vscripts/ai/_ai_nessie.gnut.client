@@ -1,0 +1,519 @@
+global function Nessie_Init
+
+global function Nessie_IsNessieSwappable
+global function Nessie_IsSpiderSwappable
+global function Nessie_IsProwlerSwappable
+
+
+
+
+
+
+global function ServerToClient_OnEnterNessieTrigger
+global function ServerToClient_OnLeaveNessieTrigger
+
+
+const string NESSIE_AUDIO_PLAYLIST_VAR = "use_nessie_schedule_audio"
+const string NESSIE_SWAP_PLAYLIST_VAR = "nessie_swap_enabled"
+const string NESSIE_DEATH_CONFETTI_PLAYLIST_VAR = "nessie_enable_confetti"
+
+const string NESSIE_SPIDER_SWAP_PLAYLIST_VAR = "nessie_spider_swap"
+const string NESSIE_NESSIE_SWAP_PLAYLIST_VAR = "nessie_nessie_swap"
+const string NESSIE_PROWLER_SWAP_PLAYLIST_VAR = "nessie_prowler_swap"
+
+const string SIG_NESSIE_OUT_OF_RANGE = "NessieOutOfRange"
+const string SIG_NESSIE_STATE_CHANGED = "NessieStateChanged"
+
+global const asset MDL_NESSIE_SWAP = $"mdl/props/nessie/nessie_april_fools.rmdl"
+
+global const float NESSIE_SPIDER_SCALE = 2.4
+const vector NESSIE_SPIDER_OFFSET = <0, 0, 0> 
+const vector NESSIE_SPIDER_ANGLES = <0, 0, 0>
+
+const float NESSIE_PROWLER_SCALE = 5
+const vector NESSIE_PROWLER_OFFSET = <0, 0, 0>
+const vector NESSIE_PROWLER_ANGLES = <0, 0, 0>
+
+const int NESSIE_SCHEDULE_WAKEUP_DIST = 2600
+
+const float NESSIE_DOOR_TRIGGE_RADIUS = 96
+
+const string NESSIE_SPIDER_SCRIPT_NAME = "nessie_spider_script"
+const string NESSIE_PROWLER_SCRIPT_NAME = "nessie_prowler_script"
+const string NESSIE_TRIGGER_SCRIPT_NAME = "nessie_trigger_script"
+
+
+const asset VFX_NESSIE_DEATH = $"ball_confetti"
+
+
+const string SFX_NESSIE_WALK_LOOP = "AFLTM_FootstepCluster_Wander"
+const string SFX_NESSIE_RUN_LOOP = "AFLTM_FootstepCluster_Chase"
+const string SFX_NESSIE_ATTACK_A = "AFLTM_Vocal_AttackTell"
+const string SFX_NESSIE_ATTACK_B = "AFLTM_Vocal_AttackTell_VoxOnly"
+const string SFX_NESSIE_ATTACK_C = "AFLTM_Vocal_AttackTell_Charge"
+const string SFX_NESSIE_DEFAULT_SQUEAK = "AFLTM_Vocal_Wander"
+const string SFX_NESSIE_DEATH = "AFLTM_Vocal_Death"
+
+enum eNessieState {
+	IDLE,
+	ATTACK,
+	RANGED_ATTACK,
+	LUNGE,
+	ROAR,
+	WALK,
+	RUN,
+	SKIP
+}
+
+struct{
+
+
+
+}file
+
+bool function IsNessieSwap()
+{
+	return GetCurrentPlaylistVarBool( NESSIE_SWAP_PLAYLIST_VAR, true )
+}
+
+
+bool function UseEventScheduleAudio()
+{
+	return GetCurrentPlaylistVarBool( NESSIE_AUDIO_PLAYLIST_VAR, true )
+}
+
+
+bool function UseNessieConfetti()
+{
+	return GetCurrentPlaylistVarBool( NESSIE_DEATH_CONFETTI_PLAYLIST_VAR, true )
+}
+
+
+bool function Nessie_IsNessieSwappable()
+{
+	return GetCurrentPlaylistVarBool( NESSIE_NESSIE_SWAP_PLAYLIST_VAR, true )
+}
+
+
+bool function Nessie_IsSpiderSwappable()
+{
+	return GetCurrentPlaylistVarBool( NESSIE_SPIDER_SWAP_PLAYLIST_VAR, false )
+}
+
+
+bool function Nessie_IsProwlerSwappable()
+{
+	return GetCurrentPlaylistVarBool( NESSIE_PROWLER_SWAP_PLAYLIST_VAR, false )
+}
+
+void function Nessie_Init()
+{
+	PrecacheScriptString( NESSIE_TRIGGER_SCRIPT_NAME )
+	PrecacheScriptString( NESSIE_SPIDER_SCRIPT_NAME )
+	PrecacheScriptString( NESSIE_PROWLER_SCRIPT_NAME )
+
+	Remote_RegisterClientFunction( "ServerToClient_OnEnterNessieTrigger", "entity" )
+	Remote_RegisterClientFunction( "ServerToClient_OnLeaveNessieTrigger", "entity" )
+
+
+		if ( IsNessieSwap() )
+		{
+			RegisterSignal( SIG_NESSIE_OUT_OF_RANGE )
+			RegisterSignal( SIG_NESSIE_STATE_CHANGED )
+		}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+void function ServerToClient_OnEnterNessieTrigger( entity npc )
+{
+	if ( IsValid( npc ) )
+		thread Nessie_Sound_Thread( npc )
+}
+
+void function ServerToClient_OnLeaveNessieTrigger( entity npc )
+{
+	if ( IsValid( npc ) )
+		Signal( npc, SIG_NESSIE_OUT_OF_RANGE )
+}
+
+
+void function Nessie_Sound_Thread( entity npc )
+{
+	npc.EndSignal( "OnDestroy" )
+	npc.EndSignal( "OnDeath" )
+	npc.EndSignal( SIG_NESSIE_OUT_OF_RANGE )
+
+	string currSequence = ""
+	int prevState = -1
+	while ( IsValid( npc ) )
+	{
+		if ( npc.GetCurrentSequenceName() != currSequence )
+		{
+			currSequence = npc.GetCurrentSequenceName()
+			int currState = GetCurrentNessieState ( currSequence )
+			if ( currState != prevState )
+			{
+				Signal( npc, SIG_NESSIE_STATE_CHANGED )
+			}
+			switch( currState )
+			{
+				case eNessieState.ATTACK: 
+				EmitSoundOnEntity( npc, SFX_NESSIE_ATTACK_A )
+				break
+
+				case eNessieState.LUNGE: 
+				EmitSoundOnEntity( npc, SFX_NESSIE_ATTACK_C )
+				break
+
+				case eNessieState.ROAR: 
+				EmitSoundOnEntity( npc, SFX_NESSIE_ATTACK_B )
+				break
+
+				case eNessieState.RANGED_ATTACK: 
+				EmitSoundOnEntity( npc, SFX_NESSIE_ATTACK_B )
+				break
+
+				
+
+				case eNessieState.RUN:
+					thread NessieMovementSound_Thread( npc, SFX_NESSIE_RUN_LOOP )
+					thread GenericNessieVocals_Thread( npc )
+					break
+				case eNessieState.WALK:
+					thread NessieMovementSound_Thread( npc, SFX_NESSIE_WALK_LOOP )
+					thread GenericNessieVocals_Thread( npc )
+					break
+
+				case eNessieState.IDLE: 
+					thread GenericNessieVocals_Thread( npc )
+				break;
+
+				case eNessieState.SKIP: 
+					break;
+
+				default: 
+				EmitSoundOnEntity( npc, SFX_NESSIE_DEFAULT_SQUEAK )
+				break;
+			}
+			prevState = currState
+		}
+		WaitFrame()
+	}
+}
+
+int function GetCurrentNessieState( string sequence )
+{
+	if(sequence.find("spdr_idle") >= 0)
+		return eNessieState.IDLE
+
+	if(sequence.find("spdr_traverse") >= 0)
+		return eNessieState.RUN
+
+	if ( sequence.find( "attack" ) >= 0 )
+	{
+		
+		if ( sequence.find( "success" ) >= 0)
+			return eNessieState.SKIP
+		if ( sequence.find( "failure" ) >= 0)
+			return eNessieState.SKIP
+
+		if ( sequence.find( "lunge" ) >= 0 )
+			return eNessieState.LUNGE
+		if ( sequence.find( "idle" ) >= 0)
+			return eNessieState.ROAR
+
+		return eNessieState.ATTACK
+	}
+
+	if ( sequence.find( "ranged_spit" ) >= 0 )
+		return eNessieState.RANGED_ATTACK
+
+	if ( sequence.find( "melee" ) >= 0 )
+		return eNessieState.ATTACK
+
+	if ( sequence.find( "taunt" ) >= 0 )
+		return eNessieState.ROAR
+
+	if ( sequence.find( "threat" ) >= 0 )
+		return eNessieState.ROAR
+
+	if ( sequence.find( "run" ) >= 0)
+		return eNessieState.RUN
+
+	if ( sequence.find( "sprint" ) >= 0)
+		return eNessieState.RUN
+
+	if ( sequence.find( "walk" ) >= 0)
+		return eNessieState.WALK
+
+	if ( sequence.find( "trot" ) >= 0)
+		return eNessieState.WALK
+
+	return -1
+}
+
+void function NessieMovementSound_Thread( entity npc, string loop )
+{
+	npc.EndSignal( "OnDestroy" )
+	npc.EndSignal( "OnDeath" )
+	EndSignal( npc, SIG_NESSIE_OUT_OF_RANGE )
+	EndSignal( npc, SIG_NESSIE_STATE_CHANGED )
+	StopSoundOnEntityByName( npc, SFX_NESSIE_WALK_LOOP )
+	StopSoundOnEntityByName( npc, SFX_NESSIE_RUN_LOOP )
+
+	OnThreadEnd(
+		function() : ( npc )
+		{
+			StopSoundOnEntityByName( npc, SFX_NESSIE_WALK_LOOP )
+			StopSoundOnEntityByName( npc, SFX_NESSIE_RUN_LOOP )
+		}
+	)
+
+	EmitSoundOnEntity( npc, loop )
+	while( true )
+	{
+		WaitFrame()
+	}
+}
+
+void function GenericNessieVocals_Thread( entity npc )
+{
+	npc.EndSignal( "OnDestroy" )
+	npc.EndSignal( "OnDeath" )
+	EndSignal( npc, SIG_NESSIE_OUT_OF_RANGE )
+	EndSignal( npc, SIG_NESSIE_STATE_CHANGED )
+
+	while( true )
+	{
+		EmitSoundOnEntity( npc, SFX_NESSIE_DEFAULT_SQUEAK )
+		wait RandomIntRange( 1, 3 )
+	}
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

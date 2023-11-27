@@ -1,0 +1,438 @@
+
+global function InitHatchBunkers
+global function GetHatchDataGroupsById
+global function GetHatchDataGroupByDoorModel
+global function GetAllHatchDataGroups
+global function IsCanyonlandsBunkersEnabled
+global function IsHatchBunkerUnlocked
+
+
+
+
+
+
+
+global const array<string> HATCH_ZONE_IDS = ["16", "6", "5", "12", "12_treasure"]
+
+global const string HATCH_DOOR_ENTRANCE_SCRIPTNAME = "hatch_bunker_entrance_model_z%s"
+global const string HATCH_DOOR_LEAVE_SCRIPTNAME = "hatch_bunker_exit_model_z%s"
+const string HATCH_PANEL_SCRIPTNAME = "bunker_hatch_panel_model"
+
+const string ZIPLINE_TARGET_SCRIPTNAME = "hatch_special_zipline_start_target"
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+global enum eHatchState
+{
+	LOCKED,
+	UNLOCKED,
+	COUNTDOWN,
+	OPEN
+}
+
+
+
+
+global struct HatchData
+{
+	string zoneId
+	bool   isEntranceHatch = false
+	int    hatchState
+
+	entity doorModel
+	entity panelModel
+
+
+
+
+}
+
+
+struct
+{
+	array<string> hatchIdsToCountdown
+	array<string> hatchIdsUnlocked
+	int           countdownTargetUnixTime
+
+
+	table <string, array<HatchData> > hatchIdDataGroups
+	table <entity, HatchData >        hatchModelDataGroups
+} file
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+void function InitHatchBunkers()
+{
+
+
+
+
+
+	file.hatchIdsUnlocked = HATCH_ZONE_IDS
+
+	AddCallback_EntitiesDidLoad( EntitiesDidLoad )
+}
+
+
+
+void function EntitiesDidLoad()
+{
+	if ( !IsCanyonlandsBunkersEnabled() )
+		return
+
+	
+	array<HatchData> hatchEntranceDatas
+	array<HatchData> hatchLeaveDatas
+	foreach ( int hatchIndex, string id in HATCH_ZONE_IDS )
+	{
+		HatchData entranceHatchData
+		HatchData leaveHatchData
+		bool isQuestHatch = id == "12_treasure"
+
+		if ( !isQuestHatch )
+		{
+			entranceHatchData.doorModel = GetEntByScriptName( format( HATCH_DOOR_ENTRANCE_SCRIPTNAME, id ) )
+			entranceHatchData.zoneId = id
+			entranceHatchData.isEntranceHatch = true
+		}
+
+		leaveHatchData.doorModel = GetEntByScriptName( format( HATCH_DOOR_LEAVE_SCRIPTNAME, id ) )
+		leaveHatchData.zoneId = id
+		leaveHatchData.isEntranceHatch = false
+
+
+
+
+
+		if ( !isQuestHatch )
+			hatchEntranceDatas.append( entranceHatchData )
+
+		hatchLeaveDatas.append( leaveHatchData )
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+		array<HatchData> hatchDataArray
+		file.hatchIdDataGroups[ id ] <- hatchDataArray
+	}
+
+	array<HatchData> allHatchDatas
+	allHatchDatas.extend( hatchEntranceDatas )
+	allHatchDatas.extend( hatchLeaveDatas )
+
+	
+	foreach ( HatchData data in allHatchDatas )
+	{
+		
+
+
+
+
+		array<entity> linkEnts = data.doorModel.GetLinkEntArray()
+
+		foreach ( entity doorLinkEnt in linkEnts )
+		{
+			string linkEntScriptName = doorLinkEnt.GetScriptName()
+
+			if ( linkEntScriptName == HATCH_PANEL_SCRIPTNAME )
+			{
+				data.panelModel = doorLinkEnt
+			}
+			else if ( linkEntScriptName == ZIPLINE_TARGET_SCRIPTNAME )
+			{
+
+
+
+
+			}
+		}
+
+		if ( IsValid( data.panelModel ) )
+		{
+
+
+
+
+
+
+
+
+
+
+
+
+			if ( data.isEntranceHatch )
+			{
+				if ( file.hatchIdsUnlocked.contains( data.zoneId ) )
+				{
+					data.hatchState = eHatchState.UNLOCKED
+
+
+
+
+				}
+				else if ( file.hatchIdsToCountdown.contains( data.zoneId ) )
+				{
+					data.hatchState = eHatchState.COUNTDOWN
+				}
+				else
+				{
+					data.hatchState = eHatchState.LOCKED
+				}
+			}
+			else
+			{
+				data.hatchState = eHatchState.UNLOCKED
+
+
+
+
+			}
+
+
+				AddEntityCallback_GetUseEntOverrideText( data.panelModel, CreateHatchPanelOverrideTextFunc( data ) )
+
+
+			if ( data.hatchState == eHatchState.UNLOCKED )
+				AddCallback_OnUseEntity_ClientServer( data.panelModel, CreateHatchPanelFunc( data ) )
+		}
+
+		file.hatchIdDataGroups[ data.zoneId ].append( data )
+		file.hatchModelDataGroups[ data.doorModel ] <- data
+	}
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+string functionref( entity panel ) function CreateHatchPanelOverrideTextFunc( HatchData data )
+{
+	return string function( entity panel ) : ( data )
+	{
+		if ( data.hatchState == eHatchState.UNLOCKED )
+		{
+			return "#BUNKER_PANEL_UNLOCKED_HINT"
+		}
+		else if ( data.hatchState == eHatchState.COUNTDOWN )
+		{
+			int currentUnixTime  = GetUnixTimestamp()
+			int timeDelta        = file.countdownTargetUnixTime - currentUnixTime
+			string timeString    = GetDaysHoursMinutesSecondsString( timeDelta )
+			string displayString = Localize( "#BUNKER_PANEL_COUNTDOWN_HINT", timeString )
+
+			return displayString
+		}
+
+		return "#BUNKER_PANEL_DISABLED_HINT"
+	}
+}
+
+
+
+
+void functionref( entity panel, entity player, int useInputFlags ) function CreateHatchPanelFunc( HatchData data )
+{
+	return void function( entity panel, entity player, int useInputFlags ) : ( data )
+	{
+		thread OnHatchPanelActivate( data )
+
+
+
+
+	}
+}
+
+
+
+
+void function OnHatchPanelActivate( HatchData data )
+{
+
+
+
+
+
+	data.hatchState = eHatchState.OPEN
+
+
+
+
+
+
+
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+array<HatchData> function GetHatchDataGroupsById( string zoneId )
+{
+	Assert( zoneId in file.hatchIdDataGroups, "Zone id not contained in any hatch data." )
+
+	return file.hatchIdDataGroups[ zoneId ]
+}
+
+
+
+
+HatchData function GetHatchDataGroupByDoorModel( entity model )
+{
+	Assert( model in file.hatchModelDataGroups, "Model not contained in any hatch data." )
+
+	return file.hatchModelDataGroups[ model ]
+}
+
+
+
+
+table <string, array<HatchData> > function GetAllHatchDataGroups()
+{
+	return file.hatchIdDataGroups
+}
+
+
+
+
+bool function IsCanyonlandsBunkersEnabled()
+{
+	if ( GetCurrentPlaylistVarBool( "canyonlands_bunkers_enabled", true ) )
+	{
+		foreach ( string zoneId in HATCH_ZONE_IDS )
+		{
+			array<entity> entranceHatches = GetEntArrayByScriptName( format( HATCH_DOOR_ENTRANCE_SCRIPTNAME, zoneId ) )
+			array<entity> leaveHatches    = GetEntArrayByScriptName( format( HATCH_DOOR_LEAVE_SCRIPTNAME, zoneId ) )
+
+			if ( zoneId != "12_treasure" && entranceHatches.len() != 1 )
+				return false
+
+			if ( leaveHatches.len() != 1 )
+				return false
+		}
+
+		return true
+	}
+
+	return false
+}
+
+bool function IsHatchBunkerUnlocked( string hatchId )
+{
+	if ( hatchId == "12_treasure" )
+		return false
+
+	return file.hatchIdsUnlocked.contains( hatchId )
+}
+

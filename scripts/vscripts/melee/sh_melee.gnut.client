@@ -1,0 +1,1190 @@
+
+
+
+
+
+
+global function MeleeShared_Init
+
+global function Loadout_MeleeSkin
+global function MeleeWeapon_GetMainWeaponClassname
+global function MeleeWeapon_GetOffhandWeaponClassname
+global function MeleeSkin_GetMenuModel
+global function MeleeSkin_GetMenuAnimSeq
+global function MeleeSkin_GetKOSound
+global function MeleeSkin_GetMenuModelRotation
+global function MeleeSkin_HasSpecificCharacterFlavor
+global function MeleeSkin_GetCharacterFlavor
+global function MeleeSkin_GetSortOrdinal
+global function MeleeSkin_GetStoreImage
+global function MeleeSkin_GetEquipImage
+global function MeleeSkin_GetItemInspectScale
+global function MeleeSkin_GetItemInspectOffset
+
+
+
+
+
+global function DoesWeaponTriggerMeleeAttack
+global function DoesWeaponClassTriggerMeleeAttack
+global function IsWeaponClassMelee
+global function GetPlayerMeleeOffhandWeapon
+global function AttackerCanStartMelee
+global function IsValidMeleeAttackTarget
+global function MeleeWeaponCosmetics_Apply
+global function MeleeWeaponCosmetics_ApplyForWeapon
+global function MeleeSkin_GetSkinName
+global function MeleeSkin_GetCamoIndex
+global function MeleeSkin_GetSkinNameFromPlayer
+global function MeleeSkin_GetMeleeSkinFromPlayer
+
+
+
+global function CodeCallback_OnMeleePressed
+global function CodeCallback_OnMeleeStartActivity
+global function CodeCallback_OnMeleeHeld
+global function CodeCallback_OnMeleeReleased
+global function CodeCallback_IsValidMeleeAttackTarget
+global function CodeCallback_OnMeleeAttackAnimEvent
+global function Melee_Attack
+
+
+
+
+
+
+
+global function ClientCodeCallback_ShowMeleePrompt
+
+
+
+
+
+
+
+#if DEV
+global function DEV_SetMenuHeirloomOverrideGUID
+global function DEV_GetMenuHeirloomOverrideGUID
+#endif
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+const asset DEFAULT_MELEE_SKIN = $"settings/itemflav/melee_skin/default.rpak"
+const int MELEE_VIEWHANDS_SLOT = 2
+const int MELEE_OFFHAND_SLOT = 5
+
+const float MELEE_CONFIRMATION_SEVERITY_SCALE_WHEN_ENEMY = 1.0
+const float MELEE_CONFIRMATION_SEVERITY_SCALE_WHEN_NOT_ENEMY = 0.5
+
+const float MELEE_KNOCKBACK_DURATION = 0.25
+
+
+
+
+
+
+
+
+
+
+
+
+
+struct CharacterAndMeleeWeapons
+{
+	ItemFlavor& character
+	array<ItemFlavor> meleeWeapons
+}
+
+struct FileStruct_LifetimeLevel
+{
+	table<ItemFlavor, LoadoutEntry> characterMeleeSkinLoadoutEntryMap
+
+	table<ItemFlavor, int> cosmeticFlavorSortOrdinalMap
+
+	table<ItemFlavor, CharacterAndMeleeWeapons > charactersMeleeWeaponsMap 
+
+#if DEV
+	int menuHeirloomOverrideGUID = -1
+#endif
+}
+FileStruct_LifetimeLevel& fileLevel
+
+
+
+
+
+
+
+void function MeleeShared_Init()
+{
+	FileStruct_LifetimeLevel newFileLevel
+	fileLevel = newFileLevel
+
+	AddCallback_RegisterRootItemFlavors( void function() {
+		foreach ( asset meleeWeaponAsset in GetBaseItemFlavorsFromArray( "meleeWeapons" ) )
+			RegisterItemFlavorFromSettingsAsset( meleeWeaponAsset )
+	} )
+
+	AddCallback_OnItemFlavorRegistered( eItemType.character, OnItemFlavorRegistered_Character )
+	AddCallback_OnItemFlavorRegistered( eItemType.melee_weapon, OnItemFlavorRegistered_Melee_Weapon )
+
+	AddCallback_OnPreAllItemFlavorsRegistered( OnAllItemFlavorsRegistered_Melee_Weapon )
+}
+
+void function OnItemFlavorRegistered_Character( ItemFlavor character )
+{
+	CharacterAndMeleeWeapons obj
+	obj.character = character
+	obj.meleeWeapons = []
+
+	fileLevel.charactersMeleeWeaponsMap[character] <- obj
+}
+
+void function OnItemFlavorRegistered_Melee_Weapon( ItemFlavor meleeWeapon )
+{
+
+		PrecacheWeapon( MeleeWeapon_GetMainWeaponClassname( meleeWeapon ) )
+		PrecacheWeapon( MeleeWeapon_GetOffhandWeaponClassname( meleeWeapon ) )
+
+
+	array<ItemFlavor> legendsList = RegisterReferencedItemFlavorsFromArray( meleeWeapon, "legends", "flavor" )
+
+	
+	if ( legendsList.len() == 0 )
+	{
+
+
+
+
+		foreach ( obj in fileLevel.charactersMeleeWeaponsMap )
+		{
+			obj.meleeWeapons.append( meleeWeapon )
+		}
+	}
+	else 
+	{
+		foreach ( legend in legendsList )
+		{
+			fileLevel.charactersMeleeWeaponsMap[legend].meleeWeapons.append( meleeWeapon )
+		}
+	}
+
+
+
+
+
+}
+
+void function OnAllItemFlavorsRegistered_Melee_Weapon()
+{
+	
+	foreach ( obj in fileLevel.charactersMeleeWeaponsMap )
+	{
+		array<ItemFlavor> fullMeleeSkinList = []
+		ItemFlavor character = obj.character
+
+		foreach ( meleeWeapon in obj.meleeWeapons )
+		{
+			array<ItemFlavor> meleeSkinList = RegisterReferencedItemFlavorsFromArray( meleeWeapon, "skins", "flavor" )
+
+			foreach ( meleeSkin in meleeSkinList )
+			{
+				fullMeleeSkinList.append( meleeSkin )
+			}
+		}
+
+		MakeItemFlavorSet( fullMeleeSkinList, fileLevel.cosmeticFlavorSortOrdinalMap )
+
+		LoadoutEntry entry = RegisterLoadoutSlot( eLoadoutEntryType.ITEM_FLAVOR, "character_meleeskin_for_" + ItemFlavor_GetGUIDString( character ), eLoadoutEntryClass.CHARACTER )
+		entry.category     = eLoadoutCategory.CHARACTER_MELEESKINS
+#if DEV
+			entry.pdefSectionKey = "character " + ItemFlavor_GetGUIDString( character )
+			entry.DEV_name       = ItemFlavor_GetCharacterRef( character ) + " Melee Skin"
+#endif
+		entry.defaultItemFlavor         = fullMeleeSkinList[0]
+		entry.validItemFlavorList       = fullMeleeSkinList
+		entry.isSlotLocked              = bool function( EHI playerEHI ) {
+			return !IsLobby()
+		}
+		entry.associatedCharacterOrNull = character
+		entry.networkTo                 = eLoadoutNetworking.PLAYER_GLOBAL
+		entry.networkVarName			= "MeleeSkin"
+		entry.stryderCharDataArrayIndex = ePlayerStryderCharDataArraySlots.MELEE_SKIN
+		fileLevel.characterMeleeSkinLoadoutEntryMap[character] <- entry
+
+
+
+
+
+
+	}
+}
+
+int function MeleeSkin_GetSortOrdinal( ItemFlavor flavor )
+{
+	Assert( ItemFlavor_GetType( flavor ) == eItemType.melee_skin )
+
+	return fileLevel.cosmeticFlavorSortOrdinalMap[flavor]
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+void function MeleeWeaponCosmetics_Apply( entity player )
+{
+	entity primaryWeapon = player.GetNormalWeapon( MELEE_VIEWHANDS_SLOT )
+	entity offhandWeapon = player.GetOffhandWeapon( MELEE_OFFHAND_SLOT )
+
+	MeleeWeaponCosmetics_ApplyForWeapon( player, primaryWeapon )
+	MeleeWeaponCosmetics_ApplyForWeapon( player, offhandWeapon )
+}
+
+void function MeleeWeaponCosmetics_ApplyForWeapon( entity player, entity weapon )
+{
+	if ( !IsValid( weapon ) || !IsValid( player ) )
+		return
+
+	ItemFlavor character = LoadoutSlot_GetItemFlavor( ToEHI( player ), Loadout_Character() )
+	ItemFlavor meleeSkin = LoadoutSlot_GetItemFlavor( ToEHI( player ), Loadout_MeleeSkin( character ) )
+
+	MeleeWeaponCosmetics_Apply_Internal( weapon, meleeSkin )
+}
+
+void function MeleeWeaponCosmetics_Apply_Internal( entity weapon, ItemFlavor meleeSkin )
+{
+	weapon.SetSkin( 0 ) 
+
+	int skinIndex = weapon.GetSkinIndexByName( MeleeSkin_GetSkinName( meleeSkin ) )
+	int camoIndex = MeleeSkin_GetCamoIndex( meleeSkin )
+
+	
+	if ( skinIndex == -1 )
+	{
+		skinIndex = 0
+		camoIndex = 0
+	}
+
+	Assert( skinIndex >= 0 )
+	Assert( camoIndex >= 0 )
+
+	weapon.SetSkin( skinIndex )
+	weapon.SetCamo( camoIndex )
+
+
+
+
+}
+
+string function MeleeSkin_GetSkinName( ItemFlavor meleeSkin )
+{
+
+
+
+
+
+	return GetGlobalSettingsString( ItemFlavor_GetAsset( meleeSkin ), "skinName" )
+}
+
+int function MeleeSkin_GetCamoIndex( ItemFlavor meleeSkin )
+{
+
+
+
+
+
+	Assert( ItemFlavor_GetType( meleeSkin ) == eItemType.melee_skin )
+
+	return GetGlobalSettingsInt( ItemFlavor_GetAsset( meleeSkin ), "camoIndex" )
+}
+
+string function MeleeSkin_GetSkinNameFromPlayer( entity player )
+{
+	ItemFlavor character = LoadoutSlot_GetItemFlavor( ToEHI( player ), Loadout_Character() )
+	ItemFlavor meleeSkin = LoadoutSlot_GetItemFlavor( ToEHI( player ), Loadout_MeleeSkin( character ) )
+
+	return MeleeSkin_GetSkinName( meleeSkin )
+}
+
+ItemFlavor function MeleeSkin_GetMeleeSkinFromPlayer( entity player )
+{
+	ItemFlavor character = LoadoutSlot_GetItemFlavor( ToEHI( player ), Loadout_Character() )
+	ItemFlavor meleeSkin = LoadoutSlot_GetItemFlavor( ToEHI( player ), Loadout_MeleeSkin( character ) )
+
+	return meleeSkin
+}
+
+
+
+asset function MeleeSkin_GetStoreImage( ItemFlavor flavor )
+{
+	Assert( ItemFlavor_GetType( flavor ) == eItemType.melee_skin )
+
+	return GetGlobalSettingsAsset( ItemFlavor_GetAsset( flavor ), "storeImage" )
+}
+
+
+
+
+asset function MeleeSkin_GetEquipImage( ItemFlavor flavor )
+{
+	Assert( ItemFlavor_GetType( flavor ) == eItemType.melee_skin )
+
+	return GetGlobalSettingsAsset( ItemFlavor_GetAsset( flavor ), "equipImage" )
+}
+
+
+
+
+float function MeleeSkin_GetItemInspectScale( ItemFlavor flavor )
+{
+	Assert( ItemFlavor_GetType( flavor ) == eItemType.melee_skin)
+
+	return GetGlobalSettingsFloat( ItemFlavor_GetAsset( flavor ), "itemInspectScale" )
+}
+
+
+
+
+vector function MeleeSkin_GetItemInspectOffset( ItemFlavor flavor )
+{
+	Assert( ItemFlavor_GetType( flavor ) == eItemType.melee_skin)
+
+	return GetGlobalSettingsVector( ItemFlavor_GetAsset( flavor ), "itemInspectOffset" )
+}
+
+
+
+
+
+
+
+
+
+LoadoutEntry function Loadout_MeleeSkin( ItemFlavor character )
+{
+	Assert( ItemFlavor_GetType( character ) == eItemType.character )
+
+	return fileLevel.characterMeleeSkinLoadoutEntryMap[character]
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+string function MeleeWeapon_GetMainWeaponClassname( ItemFlavor meleeWeapon )
+{
+	Assert( ItemFlavor_GetType( meleeWeapon ) == eItemType.melee_weapon )
+
+	return GetGlobalSettingsString( ItemFlavor_GetAsset( meleeWeapon ), "mainWeaponClassname" )
+}
+
+
+
+
+string function MeleeWeapon_GetOffhandWeaponClassname( ItemFlavor meleeWeapon )
+{
+	Assert( ItemFlavor_GetType( meleeWeapon ) == eItemType.melee_weapon )
+
+	return GetGlobalSettingsString( ItemFlavor_GetAsset( meleeWeapon ), "offhandWeaponClassname" )
+}
+
+
+
+
+asset function MeleeSkin_GetMenuModel( ItemFlavor meleeSkin )
+{
+	Assert( ItemFlavor_GetType( meleeSkin ) == eItemType.melee_skin )
+
+	asset meleeWeaponAsset = GetGlobalSettingsAsset( ItemFlavor_GetAsset( meleeSkin ), "parentItemFlavor" )
+	ItemFlavor meleeWeapon = GetItemFlavorByAsset( meleeWeaponAsset )
+	string mainWeaponClassname = MeleeWeapon_GetMainWeaponClassname( meleeWeapon )
+	return GetWeaponInfoFileKeyFieldAsset_Global( mainWeaponClassname, "viewmodel" )
+}
+
+
+
+
+asset function MeleeSkin_GetMenuAnimSeq( ItemFlavor meleeSkin )
+{
+	Assert( ItemFlavor_GetType( meleeSkin ) == eItemType.melee_skin )
+
+	return GetGlobalSettingsAsset( ItemFlavor_GetAsset( meleeSkin ), "menuAnimSeq" )
+}
+
+
+
+
+string function MeleeSkin_GetKOSound( ItemFlavor meleeSkin )
+{
+	Assert( ItemFlavor_GetType( meleeSkin ) == eItemType.melee_skin )
+
+	return GetGlobalSettingsString( ItemFlavor_GetAsset( meleeSkin ), "koSound" )
+}
+
+
+
+
+vector function MeleeSkin_GetMenuModelRotation( ItemFlavor meleeSkin )
+{
+	Assert( ItemFlavor_GetType( meleeSkin ) == eItemType.melee_skin )
+
+	return GetGlobalSettingsVector( ItemFlavor_GetAsset( meleeSkin ), "menuMdlRot" )
+}
+
+
+
+
+bool function MeleeSkin_HasSpecificCharacterFlavor( ItemFlavor meleeSkin )
+{
+	Assert( ItemFlavor_GetType( meleeSkin ) == eItemType.melee_skin )
+
+	asset meleeWeapon = GetGlobalSettingsAsset( ItemFlavor_GetAsset( meleeSkin ), "parentItemFlavor" )
+	Assert( ItemFlavor_GetType( GetItemFlavorByAsset( meleeWeapon ) ) == eItemType.melee_weapon )
+
+	asset character = GetGlobalSettingsAsset( meleeWeapon, "parentItemFlavor" )
+
+	if ( character == "" )
+		return false
+
+	Assert( ItemFlavor_GetType( GetItemFlavorByAsset( character ) ) == eItemType.character )
+
+	return true
+}
+
+
+
+
+ItemFlavor function MeleeSkin_GetCharacterFlavor( ItemFlavor meleeSkin )
+{
+	Assert( ItemFlavor_GetType( meleeSkin ) == eItemType.melee_skin )
+
+	asset meleeWeapon = GetGlobalSettingsAsset( ItemFlavor_GetAsset( meleeSkin ), "parentItemFlavor" )
+	Assert( ItemFlavor_GetType( GetItemFlavorByAsset( meleeWeapon ) ) == eItemType.melee_weapon )
+
+	asset character = GetGlobalSettingsAsset( meleeWeapon, "parentItemFlavor" )
+	Assert( character != "", "Implies all characters can use this melee weapon. Check this case with MeleeSkin_HasSpecificCharacterFlavor()" )
+	Assert( ItemFlavor_GetType( GetItemFlavorByAsset( character ) ) == eItemType.character )
+
+	return GetItemFlavorByAsset( character )
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+bool function DoesWeaponTriggerMeleeAttack( entity weapon )
+{
+	return (weapon.IsWeaponOffhandMelee() || weapon.GetWeaponSettingBool( eWeaponVar.attack_button_presses_melee ))
+}
+
+
+
+
+bool function DoesWeaponClassTriggerMeleeAttack( string weaponName )
+{
+	return (IsWeaponClassMelee( weaponName ) || GetWeaponInfoFileKeyField_GlobalBool( weaponName, "attack_button_presses_melee" ))
+}
+
+
+
+
+bool function IsWeaponClassMelee( string weaponName )
+{
+	
+	int fireMode = expect int(GetWeaponInfoFileKeyField_Global( weaponName, "fire_mode" ))
+	return (fireMode == eWeaponFireMode.offhandMelee || fireMode == eWeaponFireMode.offhandMeleeHybrid)
+}
+
+
+
+
+entity function GetPlayerMeleeOffhandWeapon( entity player )
+{
+	entity meleeAttackWeapon = player.GetActiveWeapon( eActiveInventorySlot.mainHand ) 
+
+	bool isValid = IsValid( meleeAttackWeapon )
+
+	if ( !isValid || !meleeAttackWeapon.IsWeaponOffhandMelee() )
+	{
+		meleeAttackWeapon = player.GetOffhandWeapon( OFFHAND_MELEE ) 
+
+		if ( !IsValid( meleeAttackWeapon ) )
+			return null
+	}
+
+	Assert( meleeAttackWeapon.IsWeaponOffhandMelee() )
+
+	return meleeAttackWeapon
+}
+
+
+
+
+bool function IsValidMeleeAttackTarget( entity attacker, entity inputWeaponOrNull, entity attackWeapon, entity target )
+{
+	if ( attacker == target )
+		return false
+
+	if ( !IsValid( target ) )
+		return false
+
+	if ( target.IsBreakableGlass() )
+		return true 
+
+	if ( !target.CanBeMeleed() )
+		return false
+
+	entity targetOwner = target.GetOwner()
+	if( IsValid( targetOwner ) && attacker == targetOwner && !target.CanBeMeleedByOwner() )
+		return false
+
+
+
+
+
+
+	if ( !attacker.DoesShareRealms( target ) )
+		return false
+
+	if ( IsValid( attackWeapon ) && !attackWeapon.GetMeleeCanHitHumanSized() && IsHumanSized( target ) )
+		return false
+
+	if ( target.IsPhaseShifted() )
+		return false
+
+	if ( target.IsPlayer() || target.IsNPC() )
+	{
+		
+		if ( target.ContextAction_IsMeleeExecutionTarget() )
+			return false
+	}
+
+	return true
+}
+
+
+
+
+
+
+
+
+
+
+entity function GetMeleeAttackLungeTarget( entity attacker, entity meleeAttackWeapon )
+{
+	return PlayerMelee_LungeConeTrace( attacker, meleeAttackWeapon, SHARED_CB_IS_VALID_MELEE_ATTACK_TARGET )
+}
+
+
+
+
+bool function AttackerCanStartMelee( entity attacker, entity inputWeaponOrNull )
+{
+	Assert( attacker.IsPlayer() )
+
+	if ( !IsAlive( attacker ) )
+		return false
+
+	if ( attacker.PlayerMelee_GetState() != PLAYER_MELEE_STATE_NONE )
+		return false
+
+	if ( attacker.IsWeaponSlotDisabled( eActiveInventorySlot.mainHand ) ) 
+		return false
+
+	
+	
+
+	if ( attacker.IsPhaseShifted() )
+		return false
+
+	if ( attacker.Lunge_IsActive() )
+		return false
+
+	if ( IsValid( inputWeaponOrNull ) && !GetCurrentPlaylistVarBool( "quick_melee_enabled", true )
+	&& inputWeaponOrNull == attacker.GetOffhandWeapon( OFFHAND_MELEE ) )
+		return false
+
+	return true
+}
+
+
+
+
+bool function CodeCallback_IsValidMeleeAttackTarget( entity attacker, entity target )
+{
+	entity meleeInputWeapon  = null 
+	entity meleeAttackWeapon = GetPlayerMeleeOffhandWeapon( attacker )
+
+	if ( !IsValidMeleeAttackTarget( attacker, meleeInputWeapon, meleeAttackWeapon, target ) )
+		return false
+
+	return true
+}
+
+
+
+
+void function CodeCallback_OnMeleePressed( entity attacker, entity meleeInputWeapon )
+{
+	entity meleeAttackWeapon = GetPlayerMeleeOffhandWeapon( attacker )
+
+	if ( !AttackerCanStartMelee( attacker, meleeInputWeapon ) )
+		return
+
+	entity currentWeapon              = attacker.GetActiveWeapon( eActiveInventorySlot.mainHand )
+	bool restoreMainOffhandAfterMelee = (IsValid( currentWeapon ) && currentWeapon.IsWeaponOffhand() && currentWeapon.GetWeaponSettingBool( eWeaponVar.offhand_restore_after_melee ))
+	entity offhandToRestore           = restoreMainOffhandAfterMelee ? currentWeapon : null
+
+	attacker.ClearOffhand( eActiveInventorySlot.mainHand )
+	attacker.PlayerMelee_StartAttack( PLAYER_MELEE_STATE_KICK_ATTACK, offhandToRestore )
+
+	TryDoorLunge( attacker, meleeAttackWeapon )
+
+
+
+
+
+	attacker.SetSelectedOffhand( eActiveInventorySlot.mainHand, meleeAttackWeapon )
+}
+
+
+
+void function TryDoorLunge( entity attacker, entity lungeWeapon )
+{
+	
+	
+	{
+		bool isShadowSquad = IsPlayerShadowZombie( attacker )
+
+		bool doorLungeEnabled = !isShadowSquad && GetCurrentPlaylistVarBool( "blockable_door_can_be_hurt_by_special_kick", true )
+		entity lungeTarget    = GetMeleeAttackLungeTarget( attacker, lungeWeapon )
+
+		vector eyeTraceHitPos
+		if ( doorLungeEnabled && !IsValid( lungeTarget ) )
+		{
+			TraceResults eyeTrace = TraceLine(
+				attacker.EyePosition(), attacker.EyePosition() + 150.0 * attacker.GetViewVector(),
+				[ attacker ], TRACE_MASK_NPCWORLDSTATIC, TRACE_COLLISION_GROUP_NONE, attacker
+			)
+			lungeTarget = eyeTrace.hitEnt
+			eyeTraceHitPos = eyeTrace.endPos
+
+			TraceResults rebuiltDoorTrace = TraceLine(
+				attacker.EyePosition(), attacker.EyePosition() + 150.0 * attacker.GetViewVector(),
+				[ attacker ], TRACE_MASK_SHOT, TRACE_COLLISION_GROUP_NONE
+			)
+
+			if( rebuiltDoorTrace.fraction <= eyeTrace.fraction && IsValid( rebuiltDoorTrace.hitEnt ) && IsRebuiltDoor( rebuiltDoorTrace.hitEnt ) )
+			{
+				lungeTarget = rebuiltDoorTrace.hitEnt
+				eyeTraceHitPos = rebuiltDoorTrace.endPos
+			}
+		}
+
+		if ( doorLungeEnabled && IsValid( lungeTarget ) && ( IsDoor( lungeTarget ) || IsRebuiltDoor( lungeTarget ) ) )
+		{
+			lungeWeapon.AddMod( "proto_door_kick" )
+
+			attacker.Lunge_SetTargetPosition( <eyeTraceHitPos.x, eyeTraceHitPos.y, lungeTarget.GetWorldSpaceCenter().z - 52 > ) 
+			attacker.Lunge_SetSmoothTime( 0.7 )
+			attacker.Lunge_EnableFlying()
+		}
+		else if ( lungeWeapon.HasMod( "proto_door_kick" ) )
+		{
+			lungeWeapon.RemoveMod( "proto_door_kick" )
+		}
+	}
+}
+
+
+
+void function CodeCallback_OnMeleeStartActivity( entity attacker, entity meleeAttackWeapon )
+{
+	if ( GetBugReproNum() == 53982 )
+		Assert( attacker.PlayerMelee_IsAttackActive() )
+	else if ( !attacker.PlayerMelee_IsAttackActive() )
+		return 
+
+	const float STUN_EFFECT_CUTOFF = 0.05
+	float movestunEffect = StatusEffect_GetSeverity( attacker, eStatusEffect.move_slow )
+	bool movestunBlocked = (movestunEffect > STUN_EFFECT_CUTOFF)
+	if ( !movestunBlocked )
+	{
+		entity lungeTarget = GetMeleeAttackLungeTarget( attacker, meleeAttackWeapon )
+
+		if ( IsValid( lungeTarget ) )
+		{
+			bool lungeStartWasSuccessful = attacker.Lunge_SetTargetEntity( lungeTarget )
+
+			if ( lungeStartWasSuccessful && attacker.IsOnGround() )
+				attacker.Lunge_LockPitch( true )
+		}
+	}
+
+	
+
+
+
+
+
+}
+
+
+
+
+void function CodeCallback_OnMeleeHeld( entity player, entity weapon )
+{
+	
+}
+
+
+
+
+void function CodeCallback_OnMeleeReleased( entity player, entity weapon )
+{
+	
+}
+
+
+
+
+void function CodeCallback_OnMeleeAttackAnimEvent( entity attacker, entity meleeAttackWeapon, int impactTableOverride )
+{
+	Assert( IsValid( attacker ) )
+
+	if ( !attacker.PlayerMelee_IsAttackActive() )
+		return 
+
+	Assert( attacker.PlayerMelee_GetState() != PLAYER_MELEE_STATE_NONE )
+	Assert( !attacker.PlayerMelee_GetAttackHitEntity() )
+
+
+
+
+
+
+
+
+	float attackRange = meleeAttackWeapon.GetMeleeAttackRange()
+
+	
+	table legacyTraceResults = PlayerMelee_AttackTrace( attacker, attackRange, (bool function( entity attacker, entity target ) : (meleeAttackWeapon) {
+		return IsValidMeleeAttackTarget( attacker, null, meleeAttackWeapon, target )
+	}) )
+
+	Melee_Attack( attacker, meleeAttackWeapon, impactTableOverride, legacyTraceResults )
+}
+
+void function Melee_Attack( entity attacker, entity meleeAttackWeapon, int impactTableOverride, table legacyTraceResults )
+{
+	entity target                         = expect entity(legacyTraceResults.ent)
+	vector endPosition                    = expect vector(legacyTraceResults.position)
+	int surfaceProp                       = expect int(legacyTraceResults.surfaceProp)
+	int staticPropID                      = expect int(legacyTraceResults.staticPropID)
+	int impactEffectFlags                 = expect int(legacyTraceResults.impactEffectFlags)
+	int codeDamageType                    = expect int(legacyTraceResults.damageType)
+	vector startPosition                  = expect vector(legacyTraceResults.startPosition)
+	bool shouldHitForward                 = expect bool(legacyTraceResults.hitWithFlatTrace)
+	float attackRange                     = meleeAttackWeapon.GetMeleeAttackRange()
+	vector hitNormal                      = Normalize( startPosition - endPosition )
+	int meleeAttackWeaponImpactTableIndex = impactTableOverride >= 0 ? impactTableOverride : meleeAttackWeapon.GetImpactTableIndex()
+
+
+
+
+
+
+
+	if ( IsValid( target ) )
+	{
+		
+		
+
+		
+		if ( !attacker.PlayerMelee_IsAttackActive() )
+			return
+
+		
+		attacker.PlayerMelee_SetAttackHitEntity( target )
+		if ( !target.IsWorld() )
+			attacker.PlayerMelee_SetAttackRecoveryShouldBeQuick( true )
+
+		
+		if ( target.IsBreakableGlass() )
+		{
+
+
+
+		}
+		else
+		{
+			
+			bool targetIsEnemy  = IsEnemyTeam( attacker.GetTeam(), target.GetTeam() )
+			float severityScale = (targetIsEnemy ? MELEE_CONFIRMATION_SEVERITY_SCALE_WHEN_ENEMY : MELEE_CONFIRMATION_SEVERITY_SCALE_WHEN_NOT_ENEMY)
+			meleeAttackWeapon.DoMeleeHitConfirmation( severityScale )
+
+			
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+		}
+	}
+	else
+	{
+		
+		
+		
+		
+
+		vector impactEffectTraceBegin        = meleeAttackWeapon.GetAttackPosition()
+		vector impactEffectTraceEnd          = impactEffectTraceBegin + (attackRange * meleeAttackWeapon.GetAttackDirection())
+		TraceResults impactEffectTraceResult = TraceLineHighDetail( impactEffectTraceBegin, impactEffectTraceEnd, attacker, TRACE_MASK_SHOT, TRACE_COLLISION_GROUP_NONE, attacker )
+		if ( impactEffectTraceResult.hitEnt )
+		{
+			target = impactEffectTraceResult.hitEnt
+
+			
+			if ( target.IsPlayer() && IsEnemyTeam( attacker.GetTeam(), target.GetTeam() ) )
+				return
+
+			startPosition = impactEffectTraceBegin
+			endPosition = impactEffectTraceResult.endPos
+			hitNormal = impactEffectTraceResult.surfaceNormal
+			surfaceProp = impactEffectTraceResult.surfaceProp
+			staticPropID = impactEffectTraceResult.staticPropID
+
+
+
+		}
+	}
+
+	
+	
+	
+	
+
+	if ( IsValid( target ) )
+	{
+		attacker.DispatchImpactEffects( target, startPosition, endPosition, hitNormal, surfaceProp, staticPropID, codeDamageType, meleeAttackWeaponImpactTableIndex, attacker, impactEffectFlags )
+	}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+	
+	if ( IsValid( target ) )
+	{
+
+		float  knockbackMagnitude	= meleeAttackWeapon.GetWeaponSettingFloat( eWeaponVar.melee_knockback_velocity_magnitude )
+		vector lookDirection		= attacker.GetViewForward()
+		if ( shouldHitForward )
+		{
+			lookDirection.z = 0
+			lookDirection   = Normalize( lookDirection )
+		}
+		vector pushBackVelocity		= knockbackMagnitude * lookDirection
+
+		if ( target.CanBeMeleed() )
+		{
+			if ( target.IsPlayer() || target.IsNPC() || target.IsPlayerDecoy() )
+			{
+				vector targetDirection = target.GetWorldSpaceCenter() - attacker.GetWorldSpaceCenter()
+				if ( DotProduct( lookDirection, targetDirection ) < 0 )
+				{
+					pushBackVelocity = -pushBackVelocity
+				}
+
+
+
+
+
+				if ( target.IsPlayer() )
+				{
+					if ( LengthSqr( pushBackVelocity ) > 0.0 )
+					{
+						target.KnockBack( pushBackVelocity, MELEE_KNOCKBACK_DURATION )
+					}
+				}
+
+
+
+
+
+
+
+
+
+
+			}
+		}
+
+		
+		attacker.Lunge_ClearTarget()
+
+		vector attackerKnockBackVelocity = -pushBackVelocity
+		const float GroundOffset = 10
+		bool isAttackingGround           = (endPosition.z - GroundOffset) <= attacker.GetOrigin().z
+
+		attackerKnockBackVelocity.z = 0.0
+		attackerKnockBackVelocity *= 0.5
+		float currentVelDotInKnockbackDir = -1.0
+		if ( LengthSqr( attackerKnockBackVelocity ) > 0.0 && !isAttackingGround )
+		{
+			vector currentVel = attacker.GetVelocity()
+			currentVelDotInKnockbackDir = DotProduct(Normalize(attackerKnockBackVelocity), Normalize(currentVel))
+			if( currentVelDotInKnockbackDir <= 0.0  ) 
+			{
+				attacker.KnockBack( attackerKnockBackVelocity, 0.25 )
+			}
+		}
+
+
+#if DEV
+			const bool DEBUG_MELEE_KNOCKBACK = false
+			if ( DEBUG_MELEE_KNOCKBACK )
+			{
+				DebugDrawSphere( <endPosition.x, endPosition.y, endPosition.z - GroundOffset>, 2, <0, 100, 255>, false, 5.0 )
+				DebugDrawSphere( endPosition, 3, COLOR_RED, false, 5.0 )
+				DebugDrawSphere( attacker.GetOrigin(), 4, COLOR_GREEN, false, 5.0 )
+				DebugDrawArrow( attacker.GetOrigin(), endPosition, 3, <100, 255, 0>, false, 5.0 )
+
+				if( currentVelDotInKnockbackDir <= 0.0 )
+				{
+					printt("Melee knockback YES")
+				}
+				else
+				{
+					printt("Melee knockback NO - would have sped us up")
+				}
+
+				printt( "Melee knockback isAttackingGround: " + isAttackingGround + " endPosition.z: " + endPosition.z + " attackerOrigin.z: " + attacker.GetOrigin().z )
+			}
+#endif
+
+		attacker.GrappleDetach()
+	}
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+bool function ClientCodeCallback_ShowMeleePrompt( entity player )
+{
+	return false
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#if DEV
+void function DEV_SetMenuHeirloomOverrideGUID( int guid )
+{
+	fileLevel.menuHeirloomOverrideGUID = guid
+}
+
+
+int function DEV_GetMenuHeirloomOverrideGUID()
+{
+	return fileLevel.menuHeirloomOverrideGUID
+}
+#endif

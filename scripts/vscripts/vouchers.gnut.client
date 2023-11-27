@@ -1,0 +1,572 @@
+
+
+
+global function Vouchers_LevelInit
+global function Voucher_GetEffectBattlepassLevels
+global function Voucher_GetEffectBattlepassStars
+global function Voucher_GetEffectAccountXP
+global function Voucher_GetEffectStatRef
+global function Voucher_GetEffectStatAmount
+global function Voucher_GetModel
+global function Voucher_GetVoucherActiveCount
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+global enum eVoucherBehavior
+{
+	IMMEDIATE
+	GRX_STACKABLE
+	STACKABLE_SCRIPT_DRIVEN
+	GRX_CONSUMABLE_INSTANT
+	GRX_CONSUMABLE_OVER_TIME
+}
+
+
+
+
+global enum eVoucherOverTimeExpiryBehavior
+{
+	DURATION
+	MATCHES_PLAYED
+	SCRIPT_CONTROLLED
+}
+
+
+
+
+
+
+
+
+
+
+
+struct FileStruct_LifetimeLevel
+{
+	table<asset, int functionref( entity player )> voucherFlavGetActiveQuantityFuncMap
+}
+
+
+FileStruct_LifetimeLevel fileLevel 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+void function Vouchers_LevelInit()
+{
+
+
+
+
+
+	InitScriptDrivenVoucherCallbacks()
+
+	AddCallback_RegisterRootItemFlavors( void function() {
+		foreach ( asset voucherAsset in GetBaseItemFlavorsFromArray( "vouchers" ) )
+		{
+			ItemFlavor ornull flav = RegisterItemFlavorFromSettingsAsset( voucherAsset )
+			if ( flav == null )
+				continue
+
+
+
+
+
+
+
+
+		}
+	})
+
+
+
+
+
+
+
+
+}
+
+
+
+
+void function InitScriptDrivenVoucherCallbacks()
+{
+	
+	
+	
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ItemFlavor ornull function Voucher_GetCalEventFlav( ItemFlavor flav )
+{
+	Assert( ItemFlavor_GetType( flav ) == eItemType.voucher )
+
+	asset calEventAsset = WORKAROUND_AssetAppend( GetGlobalSettingsAsset( ItemFlavor_GetAsset( flav ), "calEventFlav" ), ".rpak" )
+	if ( IsValidItemFlavorSettingsAsset( calEventAsset ) )
+		return GetItemFlavorByAsset( calEventAsset )
+	return null
+}
+
+
+
+
+int function Voucher_GetBehavior( ItemFlavor flav )
+{
+	Assert( ItemFlavor_GetType( flav ) == eItemType.voucher )
+
+	return eVoucherBehavior[GetGlobalSettingsString( ItemFlavor_GetAsset( flav ), "behavior" )]
+}
+
+
+
+
+string ornull function Voucher_GetPDefVarNameToIncrement( ItemFlavor flav )
+{
+	Assert( ItemFlavor_GetType( flav ) == eItemType.voucher )
+
+	string val = GetGlobalSettingsString( ItemFlavor_GetAsset( flav ), "effectPersistenceName" )
+	return val == "" ? null : val
+}
+
+
+
+
+int function Voucher_GetPDefVarNameToIncrementAmount( ItemFlavor flav )
+{
+	Assert( ItemFlavor_GetType( flav ) == eItemType.voucher )
+	Assert( Voucher_GetPDefVarNameToIncrement( flav ) != null )
+
+	return GetGlobalSettingsInt( ItemFlavor_GetAsset( flav ), "effectPersistenceAmount" )
+}
+
+
+
+
+string ornull function Voucher_GetConsumableUseCountPDefVarName( ItemFlavor flav )
+{
+	Assert( ItemFlavor_GetType( flav ) == eItemType.voucher )
+
+	string val = GetGlobalSettingsString( ItemFlavor_GetAsset( flav ), "consumableUseCountPDefVarName" )
+	return val == "" ? null : val
+}
+
+
+
+
+bool function Voucher_GetShouldShowToPlayer( ItemFlavor flav )
+{
+	Assert( ItemFlavor_GetType( flav ) == eItemType.voucher )
+
+	return GetGlobalSettingsBool( ItemFlavor_GetAsset( flav ), "shouldShowToPlayer" )
+}
+
+
+
+
+bool function Voucher_GetShouldAllowPlayerToActivate( ItemFlavor flav )
+{
+	Assert( ItemFlavor_GetType( flav ) == eItemType.voucher )
+
+	return GetGlobalSettingsBool( ItemFlavor_GetAsset( flav ), "shouldAllowPlayerToActivate" )
+}
+
+
+
+
+int function Voucher_GetOverTimeExpiryBehavior( ItemFlavor flav )
+{
+	Assert( ItemFlavor_GetType( flav ) == eItemType.voucher )
+
+	return eVoucherOverTimeExpiryBehavior[GetGlobalSettingsString( ItemFlavor_GetAsset( flav ), "overTimeExpiryBehavior" )]
+}
+
+
+
+
+float function Voucher_GetOverTimeExpiryDurationHours( ItemFlavor flav )
+{
+	Assert( ItemFlavor_GetType( flav ) == eItemType.voucher )
+
+	return GetGlobalSettingsFloat( ItemFlavor_GetAsset( flav ), "overTimeExpiryDurationHours" )
+}
+
+
+
+
+int function Voucher_GetOverTimeExpiryMatchCount( ItemFlavor flav )
+{
+	Assert( ItemFlavor_GetType( flav ) == eItemType.voucher )
+
+	return GetGlobalSettingsInt( ItemFlavor_GetAsset( flav ), "overTimeExpiryMatchCount" )
+}
+
+
+
+
+string function Voucher_GetOverTimeExpiryDescLocKey( ItemFlavor flav )
+{
+	Assert( ItemFlavor_GetType( flav ) == eItemType.voucher )
+
+	return GetGlobalSettingsString( ItemFlavor_GetAsset( flav ), "overTimeExpiryDescLocKey" )
+}
+
+
+
+
+int function Voucher_GetEffectBattlepassLevels( ItemFlavor flav )
+{
+	Assert( ItemFlavor_GetType( flav ) == eItemType.voucher )
+
+	return GetGlobalSettingsInt( ItemFlavor_GetAsset( flav ), "effectBattlepassLevels" )
+}
+
+
+
+int function Voucher_GetEffectBattlepassStars( ItemFlavor flav )
+{
+	Assert( ItemFlavor_GetType( flav ) == eItemType.voucher )
+
+	return GetGlobalSettingsInt( ItemFlavor_GetAsset( flav ), "effectBattlepassStars" )
+}
+
+
+
+int function Voucher_GetEffectAccountXP( ItemFlavor flav )
+{
+	Assert( ItemFlavor_GetType( flav ) == eItemType.voucher )
+
+	return GetGlobalSettingsInt( ItemFlavor_GetAsset( flav ), "effectAccountXP" )
+}
+
+
+
+string ornull function Voucher_GetEffectStatRef( ItemFlavor flav )
+{
+	Assert( ItemFlavor_GetType( flav ) == eItemType.voucher )
+
+	string val = GetGlobalSettingsString( ItemFlavor_GetAsset( flav ), "effectStatRef" )
+	return val == "" ? null : val
+}
+
+
+
+
+int function Voucher_GetEffectStatAmount( ItemFlavor flav )
+{
+	Assert( ItemFlavor_GetType( flav ) == eItemType.voucher )
+	Assert( Voucher_GetEffectStatRef( flav ) != null )
+
+	return GetGlobalSettingsInt( ItemFlavor_GetAsset( flav ), "effectStatAmount" )
+}
+
+
+
+
+asset function Voucher_GetModel( ItemFlavor flav )
+{
+	Assert( ItemFlavor_GetType( flav ) == eItemType.voucher )
+
+	return GetGlobalSettingsAsset( ItemFlavor_GetAsset( flav ), "model" )
+}
+
+
+
+
+int function Voucher_GetVoucherActiveCount( entity player, ItemFlavor voucherFlav )
+{
+	switch ( Voucher_GetBehavior( voucherFlav ) )
+	{
+		case eVoucherBehavior.IMMEDIATE:
+			return 0
+
+		case eVoucherBehavior.STACKABLE_SCRIPT_DRIVEN:
+			if ( !(ItemFlavor_GetAsset( voucherFlav ) in fileLevel.voucherFlavGetActiveQuantityFuncMap) )
+			{
+				Assert( false, format( "Voucher %s registered with type eVoucherBehavior.STACKABLE_SCRIPT_DRIVEN but doesn't have a voucherFlavGetActiveQuantityFuncMap", string(ItemFlavor_GetAsset( voucherFlav )) ) )
+				return 0
+			}
+
+			return fileLevel.voucherFlavGetActiveQuantityFuncMap[ItemFlavor_GetAsset( voucherFlav )]( player )
+
+		case eVoucherBehavior.GRX_STACKABLE:
+
+
+
+			return GRX_GetConsumableCount( ItemFlavor_GetGRXIndex( voucherFlav ) )
+
+
+		case eVoucherBehavior.GRX_CONSUMABLE_INSTANT:
+
+
+
+			return GRX_GetConsumableCount( ItemFlavor_GetGRXIndex( voucherFlav ) )
+
+
+		case eVoucherBehavior.GRX_CONSUMABLE_OVER_TIME:
+			return 0 
+	}
+	Assert( false )
+	return 0
+}
+
+
+
+
+int function GetVoucherRedeemedCount( entity player, ItemFlavor voucherFlav )
+{
+	switch ( Voucher_GetBehavior( voucherFlav ) )
+	{
+		case eVoucherBehavior.IMMEDIATE:
+		case eVoucherBehavior.STACKABLE_SCRIPT_DRIVEN:
+		case eVoucherBehavior.GRX_STACKABLE:
+			return 0 
+
+		case eVoucherBehavior.GRX_CONSUMABLE_INSTANT:
+			string ornull pDefVarName = Voucher_GetConsumableUseCountPDefVarName( voucherFlav )
+			Assert( pDefVarName != null )
+
+			expect string( pDefVarName )
+			return player.GetPersistentVarAsInt( pDefVarName )
+
+		case eVoucherBehavior.GRX_CONSUMABLE_OVER_TIME:
+			return 0 
+	}
+	Assert( false )
+	return 0
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
