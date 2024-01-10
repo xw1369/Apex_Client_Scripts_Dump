@@ -90,7 +90,7 @@ ImpactTable
 		"2" "P_impact_exp_med_dirt_grnd"
 		"3" "P_impact_exp_med_concrete_grnd"
 		"4" "P_impact_exp_med_concrete_grnd"
-		"5" "P_impact_exp_med_concrete_grnd"
+		"5" "P_impact_exp_med_water"
 		"6" "P_impact_exp_med_concrete_grnd"
 		"7" "P_impact_exp_med_concrete_grnd"
 		"8" "P_impact_exp_med_concrete_grnd"
@@ -147,6 +147,8 @@ ImpactTable
 
 		"headshot_flesh" "explo_plasmalarge_impact_3p_vs_3p"
 		"headshot_mechanical" "explo_plasmalarge_impact_3p_vs_3p"
+
+		"5" "explo_plasmalarge_impact_3p_vs_3p"
 	}
 
 	Sound_attacker
@@ -186,6 +188,8 @@ ImpactTable
 
 		"headshot_flesh" "explo_plasmalarge_impact_1p_vs_3p"
 		"headshot_mechanical" "explo_plasmalarge_impact_3p_vs_1p"
+
+		"5" "explo_plasmalarge_impact_1p_vs_3p"
 	}
 
 	Sound_victim
@@ -225,5 +229,7 @@ ImpactTable
 
 		"headshot_flesh" "explo_plasmalarge_impact_3p_vs_1p"
 		"headshot_mechanical" "explo_plasmalarge_impact_3p_vs_1p"
+
+		"5" "explo_plasmalarge_impact_3p_vs_3p"
 	}
 }

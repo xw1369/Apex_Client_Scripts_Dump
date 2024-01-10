@@ -205,6 +205,7 @@ struct GladiatorCardData
 
 
 
+
 enum eCeremonyPresentationMode
 {
 	APEX_PACK,
@@ -306,6 +307,8 @@ void function LootBoxCeremony_SharedInit()
 	Remote_RegisterServerFunction( "Server_GrantLegendaryStickersIfCollectionCompleted" )
 	Remote_RegisterUIFunction( "ForceOpenRewardPacks" )
 }
+
+
 
 
 
@@ -744,6 +747,10 @@ bool function ZerothItemIsSpecial( ItemFlavor flav, bool isThematicCharacterPack
 	if ( ItemFlavor_GetSourceIcon( flav ) != $"" )
 		return true
 
+
+		if ( ItemFlavor_GetType( flav ) == eItemType.reward_set_tracker )
+			return true
+
 	if ( isThematicCharacterPack && packTheme == GetItemFlavorAssociatedCharacterOrWeapon( flav ) && ItemFlavor_GetQuality( flav ) >= eRarityTier.RARE )
 		return true
 
@@ -773,14 +780,32 @@ array<ItemFlavor> function FilterAndSortPackResults( array<ItemFlavor> resultLis
 	bool isThematicWeaponCategoryPack = false 
 	bool isThematicWeaponPack = false 
 
+
+		
+		ItemFlavor ornull rewardSetTracker = null
+
 	
 	foreach ( ItemFlavor result in resultList )
 	{
-		if ( ItemFlavor_GetType( result ) == eItemType.account_pack )
+		int resultType = ItemFlavor_GetType( result )
+		if ( resultType == eItemType.account_pack )
+		{
 			continue
+		}
+
+		if ( resultType == eItemType.reward_set_tracker )
+		{
+			rewardSetTracker = result
+		}
 
 		out.append( result )
 	}
+
+	if ( rewardSetTracker != null )
+	{
+		out = FilterRewardSetItemsFromPackList( expect ItemFlavor( rewardSetTracker ), out )
+	}
+
 
 	out.randomize()
 
@@ -812,6 +837,15 @@ array<ItemFlavor> function FilterAndSortPackResults( array<ItemFlavor> resultLis
 				packThemeType = ItemFlavor_GetType( expect ItemFlavor( packTheme ) ) 
 			}
 		}
+	}
+	else if ( ItemFlavor_GetAccountPackType( fileLevel.currentPackFlav ) == eAccountPackType.EVENT_THEMATIC )
+	{
+		bool hasHolosprays = GetGlobalSettingsBool( ItemFlavor_GetAsset( fileLevel.currentPackFlav ), "hasHolosprays" )
+		if ( hasHolosprays )
+		{
+			packThemeType = eItemType.emote_icon
+		}
+		isThematicItemTypePack = true
 	}
 
 	
@@ -847,6 +881,17 @@ array<ItemFlavor> function FilterAndSortPackResults( array<ItemFlavor> resultLis
 			if ( ItemFlavor_GetSourceIcon( b ) == packIcon )
 				return 1
 		}
+
+
+			if ( ItemFlavor_GetType( a ) == eItemType.reward_set_tracker )
+			{
+				return -1
+			}
+			if ( ItemFlavor_GetType( b ) == eItemType.reward_set_tracker )
+			{
+				return 1
+			}
+
 
 		
 		if ( isThematicCharacterPack )
@@ -1066,7 +1111,6 @@ void function UIToClient_SpecialItemPresentation_Threaded( SettingsAssetGUID ite
 		if ( !IsValid( fileLevel.cameraMover.GetParent() ) )
 			fileLevel.cameraMover.SetParent( fileLevel.lootTickModel, "CAMERA" )
 	}
-
 
 	GetLocalClientPlayer().SetMenuCameraEntityWithAudio( fileLevel.cameraEnt )
 
@@ -1864,6 +1908,16 @@ void function ShowRewardBasedOnItemType( int itemType, ItemFlavor item, vector a
 		case eItemType.sticker:
 			thread ShowRewards_Sticker( item, attachOrigin, attachAngles, rarity, displayIndex )
 			break
+
+
+			case eItemType.reward_set_tracker:
+				thread ShowRewards_RewardSetTracker( item, attachOrigin, attachAngles, rarity, displayIndex )
+				break
+
+			case eItemType.artifact_component_deathbox:
+				thread ShowRewards_Deathbox( item, attachOrigin, attachAngles, rarity, displayIndex )
+				break
+
 
 		default:
 			Warning( "Loot Ceremony reward item type not supported: " + DEV_GetEnumStringSafe( "eItemType", itemType ) )
@@ -2807,6 +2861,97 @@ void function ShowRewards_Loadscreen( ItemFlavor item, vector origin, vector ang
 
 
 
+const float RUI_REWARD_SET_TRACKER_WIDTH = 630.0
+const float RUI_REWARD_SET_TRACKER_HEIGHT = 820.0
+const float RUI_REWARD_SET_TRACKER_Z_OFFSET = 30.0
+const float RUI_REWARD_SET_TRACKER_SCALE = 0.0625
+
+void function ShowRewards_RewardSetTracker( ItemFlavor item, vector origin, vector angles, int rarity, int displayIndex )
+{
+	EndSignal( level, "EndSetPresentationType" )
+	EndSignal( fileLevel.signalDummy, "LootCeremonyExit" )
+	EndSignal( fileLevel.signalDummy, "LootCeremonyAnimSeqStart" )
+
+	
+	vector placardOrigin = origin + <0, 0, RUI_REWARD_SET_TRACKER_Z_OFFSET>
+	vector placardAngles = VectorToAngles( AnglesToForward( angles ) * -1 )
+
+	UISize screenSize = GetScreenSize()
+	var topo = CreateRUITopology_Worldspace( placardOrigin, placardAngles, 1920, 1080 )
+	var rui  = RuiCreate( $"ui/world_space_image2d.rpak", topo, RUI_DRAW_WORLD, 0 )
+
+	RuiSetBool( rui, "isVisible", true )
+	RuiSetImage( rui, "image2d", RewardSetTracker_GetDisplayImageAsset( item ) )
+	RuiSetFloat( rui, "imageWidth", RUI_REWARD_SET_TRACKER_WIDTH )
+	RuiSetFloat( rui, "imageHeight", RUI_REWARD_SET_TRACKER_HEIGHT )
+	RuiSetFloat( rui, "imageScale", RUI_REWARD_SET_TRACKER_SCALE )
+	RuiSetBool( rui, "disableLoadIcon", true )
+
+	OnThreadEnd(
+		function() : ( rui, topo )
+		{
+			RuiDestroyIfAlive( rui )
+			RuiTopology_Destroy( topo )
+		}
+	)
+
+	if ( IsSpecialItemPresentationModeActive() )
+	{
+		PopulateInspectMenuDetails( item, rarity, 1, "", "" )
+		
+		
+		WaitSignal( fileLevel.signalDummy, "LootCeremonyInspectModeEnd" )
+	}
+	else
+	{
+		InspectMenuFunctionality_RUI( item, displayIndex, rarity, rui )
+	}
+}
+
+
+
+const float RUI_DEATHBOX_WIDTH = 800.0
+const float RUI_DEATHBOX_HEIGHT = 450.0
+const float RUI_DEATHBOX_Z_OFFSET = 30
+
+void function ShowRewards_Deathbox( ItemFlavor item, vector origin, vector angles, int rarity, int displayIndex )
+{
+	EndSignal( level, "EndSetPresentationType" )
+	EndSignal( fileLevel.signalDummy, "LootCeremonyExit" )
+	EndSignal( fileLevel.signalDummy, "LootCeremonyAnimSeqStart" )
+
+	
+	vector placardOrigin = origin + <0, 0, RUI_DEATHBOX_Z_OFFSET>
+	float width          = RUI_DEATHBOX_WIDTH / 16.0
+	float height         = RUI_DEATHBOX_HEIGHT / 16.0
+	vector placardAngles = VectorToAngles( AnglesToForward( angles ) * -1 )
+
+	var topo = CreateRUITopology_Worldspace( placardOrigin, placardAngles, width, height )
+	var rui  = RuiCreate( $"ui/finisher_video.rpak", topo, RUI_DRAW_VIEW_MODEL, 0 )
+
+	int videoChannel = ReserveVideoChannel()
+	RuiSetInt( rui, "channel", videoChannel )
+	StartVideoOnChannel( videoChannel, Deathbox_GetVideo( item ), true, 0.0 )
+
+	OnThreadEnd(
+		function() : ( rui, topo, videoChannel )
+		{
+			RuiDestroyIfAlive( rui )
+			RuiTopology_Destroy( topo )
+			ReleaseVideoChannel( videoChannel )
+		}
+	)
+
+	if ( IsSpecialItemPresentationModeActive() )
+		SpecialItemPresentationView_RUI( item, rarity, rui )
+	else
+		InspectMenuFunctionality_RUI( item, displayIndex, rarity, rui )
+}
+
+
+
+
+
 const float RUI_SKYDIVE_EMOTE_WIDTH = 800.0
 const float RUI_SKYDIVE_EMOTE_HEIGHT = 450.0
 const float RUI_SKYDIVE_EMOTE_Z_OFFSET = 30
@@ -3041,7 +3186,7 @@ const float RUI_PLACARD_HEIGHT 			= 256.0
 const float RUI_PLACARD_Z_OFFSET		= 7.0
 const float RUI_PLACARD_FORWARD_OFFSET 	= 32.0
 const bool  RUI_PLACARD_DEBUG 			= false
-const int   MYTHIC_RARITY_INDEX 		= eRarityTier.MYTHIC + 1 
+const int   MYTHIC_PRESTIGE_RARITY_INDEX = eRarityTier._COUNT 
 
 
 void function ShowRewards_Placard( ItemFlavor item, vector origin, vector angles, int rarity, int displayIndex )
@@ -3073,7 +3218,7 @@ void function ShowRewards_Placard( ItemFlavor item, vector origin, vector angles
 		int tierIndex = Mythics_GetSkinTierIntForSkin( item )
 
 		RuiSetString( ruiPlacard, "nameText", Localize( "#TIER", tierIndex ) )
-		rarity = MYTHIC_RARITY_INDEX
+		rarity = MYTHIC_PRESTIGE_RARITY_INDEX
 
 		if ( tierIndex == 1 && Mythics_SkinHasCustomSkydivetrail( item ) )
 			RuiSetString( ruiPlacard, "additionalText", "+" + Localize( "#PRESTIGE_PLUS_SKYDIVE_TRAIL" ).toupper() )
@@ -3179,18 +3324,7 @@ void function MythicModelFade( entity model )
 	foreach ( entity childEnt in hierachy )
 	{
 		childEnt.Highlight_ResetFlags()
-		childEnt.Highlight_SetCurrentContext( HIGHLIGHT_CONTEXT_NEUTRAL )
-		if( Highlight_RefactorEnabled() )
-		{
-			Highlight_EnableContext_ClientOnly( childEnt, HIGHLIGHT_CONTEXT_NEUTRAL, eHighlightContextClientOnly.MYTHIC_MODEL_FADE )
-		}
-		else
-		{
-			int highlightState = childEnt.Highlight_GetState( HIGHLIGHT_CONTEXT_NEUTRAL )
-			childEnt.Highlight_SetFunctions( HIGHLIGHT_CONTEXT_NEUTRAL, HIGHLIGHT_FILL_LOBBY_IN_MATCH, true, 0, 1, highlightState, false )
-			childEnt.Highlight_SetParam( HIGHLIGHT_CONTEXT_NEUTRAL, 0, <0.01, 0.01, 0.01> )
-			childEnt.Highlight_SetParam( HIGHLIGHT_CONTEXT_NEUTRAL, 1, <400.0, 100.0, 100.0> )
-		}
+		childEnt.Highlight_SetCurrentContext( HIGHLIGHT_CLIENT_ONLY_INDEX +  eHighlightContextClientOnly.MYTHIC_MODEL_FADE )
 		childEnt.Highlight_SetFadeInTime( 1 )
 		childEnt.Highlight_SetFadeOutTime( 999999 )
 		childEnt.Highlight_StartOn()
@@ -3207,15 +3341,7 @@ void function MythicModelClear( entity model )
 	array<entity> hierachy = GetEntityAndImmediateChildren( model )
 	foreach ( entity childEnt in hierachy )
 	{
-		if( Highlight_RefactorEnabled() )
-		{
-			Highlight_DisableContext( childEnt, HIGHLIGHT_CONTEXT_NEUTRAL )
-		}
-		else
-		{
-			int highlightState = childEnt.Highlight_GetState( HIGHLIGHT_CONTEXT_NEUTRAL )
-			childEnt.Highlight_SetFunctions( HIGHLIGHT_CONTEXT_NEUTRAL, 0, true, HIGHLIGHT_OUTLINE_NONE, 1.0, highlightState, false )
-		}
+		childEnt.Highlight_SetCurrentContext( HIGHLIGHT_INVALID_ID )
 	}
 }
 
@@ -3682,8 +3808,21 @@ array<LoadoutEntry> function EquipButton_GetItemLoadoutEntries( ItemFlavor item,
 			break
 
 		case eItemType.melee_skin:
+
+			if ( !MeleeSkin_HasSpecificCharacterFlavor( item ) )
+			{
+				loadoutEntries = [ Loadout_MeleeSkin( LoadoutSlot_GetItemFlavor( LocalClientEHI(), Loadout_Character() ) ) ]
+				break
+			}
+
 			loadoutEntries = [ Loadout_MeleeSkin( MeleeSkin_GetCharacterFlavor( item ) ) ]
 			break
+
+
+		case eItemType.artifact_component_deathbox:
+			loadoutEntries = [ Loadout_Deathbox( LoadoutSlot_GetItemFlavor( LocalClientEHI(), Loadout_Character() ) ) ]
+			break
+
 
 		case eItemType.gladiator_card_badge:
 			ItemFlavor character = LoadoutSlot_GetItemFlavor( LocalClientEHI(), Loadout_Character() )
@@ -3746,14 +3885,17 @@ array<LoadoutEntry> function EquipButton_GetItemLoadoutEntries( ItemFlavor item,
 			}
 			break
 
-		
+			case eItemType.reward_set_tracker:
+				break
+			case eItemType.voucher:
+				break
 
+
+		
 		case eItemType.character:
-			
 			ItemFlavor characterSkin = CharacterClass_GetDefaultSkin( item )
 			loadoutEntries = [ Loadout_CharacterSkin( CharacterSkin_GetCharacterFlavor( characterSkin ) ) ]
 			break
-
 
 		default:
 			Assert( false, "Loot Ceremony equip button does not support reward type: " + DEV_GetEnumStringSafe( "eItemType", itemType ) )
@@ -4070,7 +4212,12 @@ void function PopulateInspectMenuDetails_WeaponSkin( ItemFlavor item, int rarity
 
 void function PopulateInspectMenuDetails_MeleeSkin( ItemFlavor item, int rarity, int quantity )
 {
-	PopulateInspectMenuDetails( item, rarity, quantity, ItemFlavor_GetShortName( MeleeSkin_GetCharacterFlavor( item ) ) )
+
+	string miscString = MeleeSkin_HasSpecificCharacterFlavor( item ) ? ItemFlavor_GetShortName( MeleeSkin_GetCharacterFlavor( item ) ) : "#REWARD_GENERIC"
+
+
+
+	PopulateInspectMenuDetails( item, rarity, quantity, miscString )
 }
 
 
@@ -4135,6 +4282,13 @@ void function PopulateInspectMenuDetails( ItemFlavor item, int rarity, int quant
 		itemTypeName = ItemFlavor_GetLongName( item )
 		itemName = ""
 	}
+
+		else if ( itemType == eItemType.reward_set_tracker )
+		{
+			itemTypeName = Localize( ItemFlavor_GetLongName( item ) )
+			itemName = Localize( ItemFlavor_GetShortName( item ) )
+		}
+
 	else if ( Mythics_IsItemFlavorMythicSkin( item ) )
 	{
 		int mythicTier = Mythics_GetSkinTierIntForSkin( item )
@@ -4160,18 +4314,6 @@ void function PopulateInspectMenuDetails( ItemFlavor item, int rarity, int quant
 	RuiSetBool( rui, "showControlsHints", ShouldShowControlHintsForItemType( itemType ) )
 
 	
-	
-	
-
-	if ( ItemFlavor_GetGUIDString( item ) == "SAID01999064606" ) 
-	{
-		RuiSetString( rui, "itemType", Localize( "#character_revenant_NAME" ) )
-		RuiSetString( rui, "itemName", "" )
-		RuiSetString( rui, "miscText", "" )
-		RuiSetString( rui, "descText", Localize ( "#S18RR_CHARACTER_UNLOCK_DESC" ) )
-		RuiSetInt( rui, "rarity", -1 )
-	}
-
 
 	
 	RuiSetFloat( rui, "descTextPositionScalar", ((itemType == eItemType.gladiator_card_stat_tracker) ? 1.0 : 0.0) )
@@ -4213,9 +4355,11 @@ void function PopulateInspectMenuDetails( ItemFlavor item, int rarity, int quant
 		eItemType.account_currency,
 		eItemType.account_currency_bundle,
 		eItemType.voucher,
-		eItemType.emote_icon,
-		eItemType.character_emote,
 		eItemType.sticker,
+
+			eItemType.reward_set_tracker,
+			eItemType.artifact_component_deathbox,
+
 	]
 
 	bool hasValidCharacterOrWeapon = ( GetItemFlavorAssociatedCharacterOrWeapon( item ) != null ) 
@@ -4276,7 +4420,17 @@ void function PopulateInspectMenuDetails( ItemFlavor item, int rarity, int quant
 	}
 	else
 	{
-		RuiSetString( equipButtonRui, "buttonText", "#EQUIP_LOOT_REWARD" )
+		bool agnosticEquipToCurrentCharacter = ( itemType == eItemType.melee_skin || itemType == eItemType.character_emote || itemType == eItemType.emote_icon )
+		if ( agnosticEquipToCurrentCharacter && !hasValidCharacterOrWeapon )
+		{
+			ItemFlavor character = LoadoutSlot_GetItemFlavor( LocalClientEHI(), Loadout_Character() )
+			RuiSetString( equipButtonRui, "buttonText", Localize( "#EQUIP_LOOT_REWARD_TO", Localize( ItemFlavor_GetLongName( character ) ) ) )
+		}
+		else
+		{
+			RuiSetString( equipButtonRui, "buttonText", "#EQUIP_LOOT_REWARD" )
+		}
+
 		RuiSetString( equipButtonRui, "descText", Localize( "#CURRENTLY_EQUIPPED_ITEM", Localize( GetCurrentlyEquippedItemNameForItemTypeSlot( item ) ) ) )
 		RuiSetInt( equipButtonRui, "descTextRarity", GetCurrentlyEquippedItemRarityForItemTypeSlot( item ) )
 
@@ -5537,6 +5691,12 @@ void function WaitForTimeComplete( float timeToWait )
 
 
 
+
+
+
+
+
+
 bool function IsSpecialItemPresentationModeActive()
 {
 	return fileLevel.specialItemPresentationModeActive
@@ -6285,8 +6445,74 @@ bool function IsSpecialItemPresentationModeActive()
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 const float BLACK_FADE_TIME = 0.25
 const float BLACK_FADE_TIME_HOLD = 0.25
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

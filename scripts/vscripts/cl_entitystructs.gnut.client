@@ -220,6 +220,10 @@ global struct ClientPlayerStruct
 
 
 
+
+
+
+
 		table< int, bool > FRSettings_Bools
 		table< int, int >  FRSettings_Ints
 		table< int, bool > FRDummieBehaviors_Bools
@@ -284,8 +288,6 @@ global struct ClientWeaponStruct
 	entity translocate_predictedInitialProjectile = null
 	entity translocate_predictedRedirectedProjectile = null
 	table ornull translocate_impactRumbleObj = null
-	
-	bool   translocate_isADSForced = false
 
 
 

@@ -3,6 +3,7 @@
 global function ShLobaPassiveEyeForQuality_LevelInit
 
 global function GetEyeForQualityRadius
+global function GetEyeForQualityCanSee
 
 
 
@@ -228,6 +229,20 @@ void function FadeLootBinLootHighlightsOutThenIn( array<entity> loot )
 float function GetEyeForQualityRadius()
 {
 	return GetCurrentPlaylistVarFloat( "loba_pas_eye_for_quality_range", GetBlackMarketNearbyLootRadius() )
+}
+
+bool function GetEyeForQualityCanSee( LootData data )
+{
+	if ( data.tier - 1 >= eRarityTier.EPIC )
+		return true
+
+
+		if ( data.ref.find( "hopup_golden_horse" ) != -1 )
+			return true
+
+
+
+	return false
 }
 
 

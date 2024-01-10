@@ -2,6 +2,7 @@ global function MapZones_SharedInit
 global function MapZones_RegisterNetworking
 global function MapZones_RegisterDataTable
 global function GetZoneNameForZoneId
+global function MapZones_AddMinimapLevelLabel
 global function GetZoneMiniMapNameForZoneId
 global function MapZones_GetZoneIdForTriggerName
 global function GetDevNameForZoneId
@@ -16,6 +17,11 @@ global function SCB_OnPlayerEntersMapZone
 global function MapZones_ZoneIntroText
 global function MapZones_ZoneIntroTextFullscreenWithSubtext
 global function MapZones_GetChromaBackgroundForZoneId
+
+
+
+
+
 
 
 
@@ -87,11 +93,36 @@ global enum eZonePop
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 struct
 {
-	bool            mapZonesInitialized = false
-	var             mapZonesDataTable
-	table<int, int> calculatedZoneTiers
+	bool            	mapZonesInitialized = false
+	var             	mapZonesDataTable
+	table< int, int > 	calculatedZoneTiers
 
 
 
@@ -279,6 +310,21 @@ string function GetZoneNameForZoneId( int zoneId )
 }
 
 
+void function MapZones_AddMinimapLevelLabel( string name, float x, float y, float scale = 1.0, float width = 200, bool overrideLabelDisable = false )
+{
+	if ( GetCurrentPlaylistVarBool( "disable_minimap_labels", false ) && !overrideLabelDisable )
+		return
+
+
+		SURVIVAL_AddMinimapLevelLabel( name, x, y, scale, width, overrideLabelDisable )
+
+
+
+
+
+}
+
+
 string function MapZones_GetChromaBackgroundForZoneId( int zoneId )
 {
 	int column = GetDataTableColumnByName( file.mapZonesDataTable, "chroma" )
@@ -328,6 +374,33 @@ string function MapZones_GetZoneStatsRef( int zoneId )
 
 	return statsRef
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

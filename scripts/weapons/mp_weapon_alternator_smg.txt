@@ -3,7 +3,7 @@
 #base "_base_laser_sights.txt"
 
                     
-                                          
+#base "_base_hopup_golden_horse_green.txt"
       
 
 WeaponData
@@ -24,9 +24,10 @@ WeaponData
 	"fire_mode"   									"automatic"
 
                     
-                                                               
-                                                                 
-                                                          
+	"OnWeaponActivate"							    "GoldenHorseGreen_OnWeaponActivate"
+	"OnWeaponDeactivate"							"GoldenHorseGreen_OnWeaponDeactivate"
+	"OnWeaponReload"								"GoldenHorseGreen_OnWeaponReload"
+	"OnWeaponReloadFinished"                        "GoldenHorseGreen_OnWeaponReloadFinished"
       
 
 	// Menu

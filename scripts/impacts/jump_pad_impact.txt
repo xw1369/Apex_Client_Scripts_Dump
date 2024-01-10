@@ -1,4 +1,4 @@
-// "Gamematerial" "effect_name"
+"5" ""5" "P_impact_water_hrz"" "Gamematerial" "effect_name"
 
 
 ImpactTable
@@ -13,34 +13,34 @@ ImpactTable
 
 	FX
 	{
-		"C" "P_launchpad_launch" //Concrete, rock, porcelain, boulder, gravel, asphalt, brick, concrete_block, plaster
-		"D" "P_launchpad_launch" //Dirt, slipperyslime, snow, carpet, cardboard, floatingstandable, ceiling_tile, papercup
-		"E" "P_launchpad_launch" // metal_titan
+		"C" "P_launchpad_launch" "5" ""5" "P_impact_water_hrz""Concrete, rock, porcelain, boulder, gravel, asphalt, brick, concrete_block, plaster
+		"D" "P_launchpad_launch" "5" ""5" "P_impact_water_hrz""Dirt, slipperyslime, snow, carpet, cardboard, floatingstandable, ceiling_tile, papercup
+		"E" "P_launchpad_launch" "5" ""5" "P_impact_water_hrz"" metal_titan
 
-		"F" "P_launchpad_launch" //flesh
-		"G" "P_launchpad_launch" //metalgrate, chainlink, chain
-		"H" "P_launchpad_launch" //alienflesh
+		"F" "P_launchpad_launch" "5" ""5" "P_impact_water_hrz""flesh
+		"G" "P_launchpad_launch" "5" ""5" "P_impact_water_hrz""metalgrate, chainlink, chain
+		"H" "P_launchpad_launch" "5" ""5" "P_impact_water_hrz""alienflesh
 
-		"J" "P_launchpad_launch" //grass
-		"K" "P_launchpad_launch" //Mud
-		"L" "P_launchpad_launch" //plastic_barrel, plastic_box, item, rubber, rubbertire, jeeptire, slidingrubbertire, brakingrubbertire, slidingrubbertire_front, slidingrubbertire_rear
-		"M" "P_launchpad_launch" //Default, metal, metal_box, solidmetal, armorflesh, metal_bouncy, slippery_metal, shellcasing_small, shellcasing_large, metal_barrel, floating_metal_barrel, weapon
+		"J" "P_launchpad_launch" "5" ""5" "P_impact_water_hrz""grass
+		"K" "P_launchpad_launch" "5" ""5" "P_impact_water_hrz""Mud
+		"L" "P_launchpad_launch" "5" ""5" "P_impact_water_hrz""plastic_barrel, plastic_box, item, rubber, rubbertire, jeeptire, slidingrubbertire, brakingrubbertire, slidingrubbertire_front, slidingrubbertire_rear
+		"M" "P_launchpad_launch" "5" ""5" "P_impact_water_hrz""Default, metal, metal_box, solidmetal, armorflesh, metal_bouncy, slippery_metal, shellcasing_small, shellcasing_large, metal_barrel, floating_metal_barrel, weapon
 		"N" "P_launchpad_launch"
-		"O" "P_launchpad_launch" //Foliage
-		"P" "P_launchpad_launch" //Computer
+		"O" "P_launchpad_launch" "5" ""5" "P_impact_water_hrz""Foliage
+		"P" "P_launchpad_launch" "5" ""5" "P_impact_water_hrz""Computer
 
-		"R" "P_launchpad_launch" //metalpanel, grenade, canister
-		"S" "P_launchpad_launch" //water, slime
-		"T" "P_launchpad_launch" //tile
-		"U" "P_launchpad_launch" //glass_breakable
+		"R" "P_launchpad_launch" "5" ""5" "P_impact_water_hrz""metalpanel, grenade, canister
+		"S" "P_launchpad_launch" "5" ""5" "P_impact_water_hrz""water, slime
+		"T" "P_launchpad_launch" "5" ""5" "P_impact_water_hrz""tile
+		"U" "P_launchpad_launch" "5" ""5" "P_impact_water_hrz""glass_breakable
 
-		"V" "P_launchpad_launch" //Metal Vent
-		"W" "P_launchpad_launch" //Wood, Wood_lowdensity, Wood_Box, Wood_Crate, Wood_Plank, Wood_Solid, Wood_Furniture, Wood_Panel watermelon
+		"V" "P_launchpad_launch" "5" ""5" "P_impact_water_hrz""Metal Vent
+		"W" "P_launchpad_launch" "5" ""5" "P_impact_water_hrz""Wood, Wood_lowdensity, Wood_Box, Wood_Crate, Wood_Plank, Wood_Solid, Wood_Furniture, Wood_Panel watermelon
 
-		"X" "P_launchpad_launch" //xo_shield
+		"X" "P_launchpad_launch" "5" ""5" "P_impact_water_hrz""xo_shield
 
-		"Y" "P_launchpad_launch" //glass, brokenglass, glassbottle, pottery
-		"Z" "P_launchpad_launch"  //sand
+		"Y" "P_launchpad_launch" "5" ""5" "P_impact_water_hrz""glass, brokenglass, glassbottle, pottery
+		"Z" "P_launchpad_launch"  "5" ""5" "P_impact_water_hrz""sand
 
 		"0" "P_launchpad_launch"
 		"1" "P_launchpad_launch"
@@ -51,7 +51,7 @@ ImpactTable
 		"6" "P_launchpad_launch"
 		"7" "P_launchpad_launch"
 		"8" "P_launchpad_launch"
-		"9" "P_launchpad_launch" //puddle
+		"9" "P_launchpad_launch" "5" ""5" "P_impact_water_hrz""puddle
 
 		"splash" "P_launchpad_launch"
 		"slime_splash" "P_launchpad_launch"
@@ -93,12 +93,14 @@ ImpactTable
 		"W" "JumpPad_LaunchPlayer_3p"
 		"X"	"JumpPad_LaunchPlayer_3p"
 		"Y" "JumpPad_LaunchPlayer_3p"
-		"Z" "JumpPad_LaunchPlayer_3p"  //sand
-		//"splash" "Water.BulletImpact"
-		//"slime_splash" "Water.BulletImpact"
+		"Z" "JumpPad_LaunchPlayer_3p"  "5" ""5" "P_impact_water_hrz""sand
+		"5" ""5" "P_impact_water_hrz"""splash" "Water.BulletImpact"
+		"5" ""5" "P_impact_water_hrz"""slime_splash" "Water.BulletImpact"
 
 		"airburst" "JumpPad_LaunchPlayer_3p"
 		"shieldhit" "JumpPad_LaunchPlayer_3p"
+
+		"5" "JumpPad_LaunchPlayer_3p"
 	}
 
 	Sound_attacker
@@ -128,13 +130,15 @@ ImpactTable
 		"W" "JumpPad_LaunchPlayer_1p"
 		"X"	"JumpPad_LaunchPlayer_1p"
 		"Y" "JumpPad_LaunchPlayer_1p"
-		"Z" "JumpPad_LaunchPlayer_1p"  //sand
+		"Z" "JumpPad_LaunchPlayer_1p"  "5" ""5" "P_impact_water_hrz""sand
 
-		//"splash" "Water.BulletImpact"
-		//"slime_splash" "Water.BulletImpact"
+		"5" ""5" "P_impact_water_hrz"""splash" "Water.BulletImpact"
+		"5" ""5" "P_impact_water_hrz"""slime_splash" "Water.BulletImpact"
 
 		"airburst" "JumpPad_LaunchPlayer_1p"
 		"shieldhit" "JumpPad_LaunchPlayer_1p"
+
+		"5" "JumpPad_LaunchPlayer_1p"
 	}
 
 	Sound_victim
@@ -164,13 +168,15 @@ ImpactTable
 		"W" "JumpPad_LaunchPlayer_1p"
 		"X"	"JumpPad_LaunchPlayer_1p"
 		"Y" "JumpPad_LaunchPlayer_1p"
-		"Z" "JumpPad_LaunchPlayer_1p"  //sand
+		"Z" "JumpPad_LaunchPlayer_1p"  "5" ""5" "P_impact_water_hrz""sand
 
-		//"splash" "Water.BulletImpact"
-		//"slime_splash" "Water.BulletImpact"
+		"5" ""5" "P_impact_water_hrz"""splash" "Water.BulletImpact"
+		"5" ""5" "P_impact_water_hrz"""slime_splash" "Water.BulletImpact"
 
 		"airburst" "JumpPad_LaunchPlayer_1p"
 		"shieldhit" "JumpPad_LaunchPlayer_1p"
+
+		"5" "JumpPad_LaunchPlayer_1p"
 	}
 
 

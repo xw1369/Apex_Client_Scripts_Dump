@@ -1010,7 +1010,63 @@ void function FreeDM_SetAudioEvent( int event, string eventString )
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 const int FramesToWait = 60 
+
+
+
 
 
 
@@ -2101,7 +2157,8 @@ void function FreeDM_DelayedShowScoreboard()
 
 void function ServerCallback_FreeDM_ChampionSounds( int winningTeamOrAlliance )
 {
-	entity localPlayer = GetLocalViewPlayer()
+	entity localPlayer = GetLocalClientPlayer()
+
 	bool isWinner = false
 
 	if ( AllianceProximity_IsUsingAlliances() )
@@ -2109,22 +2166,31 @@ void function ServerCallback_FreeDM_ChampionSounds( int winningTeamOrAlliance )
 	else
 		isWinner = localPlayer.GetTeam() == winningTeamOrAlliance
 
+	var endMusic
+	var endSound
 	if( isWinner )
 	{
 		SetChampionScreenSound( file.audioEvents[eFreeDMAudioEvents.Victory_Sound] )
 
-			EmitSoundOnEntity( localPlayer, TDM_VICTORY_SOUND )
+			endSound = EmitSoundOnEntity_NoTimeScale( localPlayer, TDM_VICTORY_SOUND )
 
-		EmitSoundOnEntity( localPlayer, file.audioEvents[eFreeDMAudioEvents.Victory_Music] )
+		endMusic = EmitSoundOnEntity_NoTimeScale( localPlayer, file.audioEvents[eFreeDMAudioEvents.Victory_Music] )
 	}
 	else
 	{
 		SetChampionScreenSound( file.audioEvents[eFreeDMAudioEvents.Defeat_Sound] )
 
-			EmitSoundOnEntity( localPlayer, TDM_LOSS_SOUND )
+			endSound = EmitSoundOnEntity_NoTimeScale( localPlayer, TDM_LOSS_SOUND )
 
-		EmitSoundOnEntity( localPlayer, file.audioEvents[eFreeDMAudioEvents.Loss_Music] )
+		endMusic = EmitSoundOnEntity_NoTimeScale( localPlayer, file.audioEvents[eFreeDMAudioEvents.Loss_Music] )
 	}
+
+
+		SetPlayThroughKillReplay( endMusic )
+		SetPlayThroughPOVTransitions( endMusic )
+		SetPlayThroughKillReplay( endSound )
+		SetPlayThroughPOVTransitions( endSound )
+
 }
 
 
@@ -2162,7 +2228,6 @@ void function UICallback_FreeDM_OpenCharacterSelect()
 	const bool showLockedCharacters = true
 	bool isJIP = GamemodeUtility_IsJIPPlayerSpawnBonusPending( clientPlayer )
 	HideScoreboard()
-
 	OpenCharacterSelectMenu( browseMode, showLockedCharacters, isJIP )
 }
 

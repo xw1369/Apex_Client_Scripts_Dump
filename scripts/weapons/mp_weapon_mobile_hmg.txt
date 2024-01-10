@@ -30,7 +30,7 @@ WeaponData
 	"offhand_interupts_weapon_anims"				"1"
 	"offhand_uses_hud_ammo_status"                  "1"
 
-	"damage_flags"									"DF_BULLET | DF_DISMEMBERMENT"
+	"damage_flags"									"DF_BULLET"
 
 	"should_destroy_doors"							"1"
 	"is_hmg_weapon"								    "1"

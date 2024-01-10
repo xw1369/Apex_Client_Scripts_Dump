@@ -25,7 +25,7 @@ WeaponData
 	"allow_gibraltar_shield"                        "0"
 	"offhand_uses_hud_ammo_status"                  "1"
 
-	"damage_flags"									"DF_BULLET | DF_DISMEMBERMENT"
+	"damage_flags"									"DF_BULLET"
 
 	"is_turret_weapon"								"1"
 

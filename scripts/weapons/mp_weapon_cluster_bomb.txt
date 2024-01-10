@@ -94,7 +94,7 @@ WeaponData
 	"damage_near_value_titanarmor"					"0"
 	"damage_far_value_titanarmor"					"0"
 
-	"damage_flags"									"DF_RAGDOLL | DF_EXPLOSION | DF_DISMEMBERMENT"
+	"damage_flags"									"DF_RAGDOLL | DF_EXPLOSION"
 
 	"critical_hit"									"0"
 

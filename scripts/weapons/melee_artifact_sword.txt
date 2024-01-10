@@ -1,0 +1,35 @@
+#base "melee_pilot_emptyhanded.txt"
+
+WeaponData
+{
+
+	// General
+	"printname"   								"Melee"
+	"shortprintname"							"Melee"
+	"description" 								"Description needed"
+	"longdesc"									"Description needed"
+
+	"menu_icon"									"rui/hud/common/melee_icon"
+	"hud_icon"									"rui/hud/common/melee_icon"
+
+	// Models
+	"viewmodel"   								"mdl/Weapons/ragold_artifact/ragold_artifact_base_v.rmdl"
+	"playermodel" 								"mdl/Weapons/ragold_artifact/ragold_artifact_base_w.rmdl"
+
+                    
+	"OnWeaponActivate"							"OnWeaponActivate_melee_artifact_sword"
+    "OnWeaponDeactivate"						"OnWeaponDeactivate_melee_artifact_sword"
+     
+                                                                 
+                                                                       
+      
+
+	"is_heirloom"								"1"
+	"is_artifact"                               "1"
+
+    // FX
+	"impact_effect_table"                       "sword_impacts"
+
+	// Animation
+	"activitymodifier3P"						"artifact_sword"
+}

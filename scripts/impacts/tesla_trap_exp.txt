@@ -45,7 +45,7 @@ ImpactTable
 		"2" "P_tesla_trap_exp"
 		"3" "P_tesla_trap_exp"
 		"4" "P_tesla_trap_exp"
-		"5" "P_tesla_trap_exp"
+		"5" "P_tesla_trap_exp" //water_hrz
 		"6" "P_tesla_trap_exp"
 		"7" "P_tesla_trap_exp"
 		"8" "P_tesla_trap_exp"

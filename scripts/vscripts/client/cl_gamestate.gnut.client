@@ -787,7 +787,7 @@ void function ClGameState_Changed( entity playerEnt, int newVal )
 
 			float announcementDuration = 7.0
 			if ( IsRoundWinningKillReplayEnabled() == true && (!IsRoundBased() && IsSwitchSidesBased()) ) 
-				announcementDuration = SWITCHING_SIDES_DELAY + ROUND_WINNING_KILL_REPLAY_TOTAL_LENGTH
+				announcementDuration = SWITCHING_SIDES_DELAY + GetRoundWinningKillReplayTotalLength()
 
 			AnnouncementData announcement = Announcement_Create( "#GameState_HALFTIME" )
 			announcement.sortKey = RUI_SORT_SCREENFADE + 1 

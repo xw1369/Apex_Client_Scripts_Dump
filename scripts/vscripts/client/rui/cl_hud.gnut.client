@@ -300,6 +300,14 @@ void function DamageFlyout( float damageAmount, vector damagePosition, entity vi
 	bool isStructure 	  = false
 	bool isShadowForm	  = false
 
+
+
+
+
+
+
+
+
 	int sortKey = (file.lastSortKey++) % 100
 
 	asset shieldIcon = $""
@@ -307,13 +315,20 @@ void function DamageFlyout( float damageAmount, vector damagePosition, entity vi
 	bool overshield = false
 	float timeScale = 1.0 	
 	float shieldFrac = -1.0
-	if ( isShieldShot || isShieldBreak || isOvershieldShot || hitType == eHitType.ARMOR )
+	if ( isShieldShot || isShieldBreak || isOvershieldShot || hitType == eHitType.ARMOR
+
+
+
+		)
 	{
 		if ( victim.IsPlayer() )
 		{
 			LootData shieldData = EquipmentSlot_GetEquippedLootDataForSlot( victim, "armor" )
 			shieldIcon = shieldData.hudIcon
 			shieldLevel = shieldData.tier
+
+
+
 		}
 
 		else if ( victim.IsNPC() && IsTrainingDummie( victim ) )
@@ -424,6 +439,15 @@ void function DamageFlyout( float damageAmount, vector damagePosition, entity vi
 		timeScale = STUN_GRENADE_ICON_TIMESCALE
 	}
 
+
+		if ( TitanSword_Block_PlayerIsBlocking( victim ) && isSourShot )
+		{
+			
+			shieldIcon = GIBRALTAR_PASSIVE_ICON
+			isSourShot = false
+		}
+
+
 	if ( showHitIndicator )
 	{
 		if ( file.rui_hitIndicator == null )
@@ -454,6 +478,19 @@ void function DamageFlyout( float damageAmount, vector damagePosition, entity vi
 			RuiSetImage( rui, "shieldStatusIcon", $"rui/hud/character_abilities/conduit_tactical_enemy_shielded" )
 		else
 			RuiSetImage( rui, "shieldStatusIcon", $"" )
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 		RuiSetFloat( rui, "timeScale", timeScale )
@@ -541,6 +578,18 @@ void function DamageFlyout( float damageAmount, vector damagePosition, entity vi
 		RuiSetBool( stackingRui, "isStructure", isStructure )
 
 
+
+
+
+
+
+
+
+
+
+
+
+
 			if ( overshield )
 				RuiSetImage( stackingRui, "shieldStatusIcon", $"rui/hud/character_abilities/conduit_tactical_enemy_shielded" )
 			else
@@ -552,10 +601,10 @@ void function DamageFlyout( float damageAmount, vector damagePosition, entity vi
 
 
 
-
-
-
-
+		if ( isCritShot && isHeadShot && GoldenHorsePurple_HasMod( weapon ) )
+		{
+			RuiSetString( stackingRui, "extraText", "#WPN_HOPUP_GOLDEN_HORSE_PURPLE_CRIT" )
+		}
 
 
 		flyoutData.stackingDamageRui = stackingRui
@@ -600,10 +649,10 @@ void function DamageFlyout( float damageAmount, vector damagePosition, entity vi
 
 
 
-
-
-
-
+				if ( isCritShot && isHeadShot && GoldenHorsePurple_HasMod( weapon ) )
+				{
+					RuiSetString( floatingRui, "extraText", "#WPN_HOPUP_GOLDEN_HORSE_PURPLE_CRIT" )
+				}
 
 
 			DamageData newDamageData

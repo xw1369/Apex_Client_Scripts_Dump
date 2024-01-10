@@ -40,7 +40,7 @@ ImpactTable
 		"2" "P_hmn_footstep_lava" //lava_rock_hot
 //		"3" "openslot"
 //		"4" "openslot"
-//		"5" "openslot"
+		"5" "P_impact_water_hrz" //water_hrz
 //		"6" "openslot"
 //		"7" "openslot"
 //		"8" "openslot"
@@ -95,6 +95,7 @@ Sound
 
 		"1" "Phys_Imp_ArcGrenade_Dirt" //lava_flow
 		"2" "Phys_Imp_ArcGrenade_Dirt" //lava_rock_hot
+		"5" "Phys_Imp_ArcGrenade_Water"
 
 		"splash" "Phys_Imp_ArcGrenade_Water"
 		//"slime_splash" "physics_watersplash"
@@ -136,6 +137,7 @@ Sound
 
 		"1" "Phys_Imp_ArcGrenade_Dirt" //lava_flow
 		"2" "Phys_Imp_ArcGrenade_Dirt" //lava_rock_hot
+		"5" "Phys_Imp_ArcGrenade_Water"
 
 		"splash" "Phys_Imp_ArcGrenade_Water"
 		//"slime_splash" "Water.BulletImpact"
@@ -177,6 +179,7 @@ Sound
 
 		"1" "Phys_Imp_ArcGrenade_Dirt" //lava_flow
 		"2" "Phys_Imp_ArcGrenade_Dirt" //lava_rock_hot
+		"5" "Phys_Imp_ArcGrenade_Water"
 
 		"splash" "Phys_Imp_ArcGrenade_Water"
 		//"slime_splash" "Water.BulletImpact"

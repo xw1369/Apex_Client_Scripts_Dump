@@ -9,6 +9,9 @@ global function ShGRX_RegisterItemFlavor
 
 
 
+
+
+
 global function IsValidItemFlavorGRXIndex
 global function GetGRXIndexByGRXRef
 global function GetItemFlavorByGRXIndex
@@ -26,11 +29,11 @@ global function GRXCurrencyBundle_GetCurrencyFlav
 global function GRXCurrencyBundle_GetValue
 global function GRX_IsInventoryReady
 global function GRX_HasInventoryEverBeenReady
+global function GRX_GetNumberOfOwnedItemsByPlayer
 global function GRX_IsItemOwnedByPlayer
 global function GRX_IsItemOwnedByPlayer_AllowOutOfDateData
 global function GRX_GetPlayerEdition
 global function GRX_IsOfferRestricted
-global function GRX_HasUpToDateBundleOffers
 global function GRXPack_IsEphemeral
 global function GRXPack_IsExpectedToContainSingleItemWithCurrency
 global function GRXPack_GetTickModel
@@ -46,6 +49,10 @@ global function GRXPack_GetStickerCompletionRewardPack
 global function DEV_GetItemFlavorByGRXRef
 global function DEV_IsValidGRXRef
 #endif
+
+
+
+
 
 
 
@@ -162,7 +169,6 @@ global function GRXPack_GetTickSoundAlias
 
 
 
-
 global function GRX_GetMostRecentPackOpeningResults
 global function GRXPack_GetCustomColor
 global function GRXPack_GetCustomCountTextCol
@@ -216,10 +222,15 @@ global function ClientCodeCallback_GRXPackOpened
 
 
 
+
 global const int MAX_REWARDS_PER_REWARD_SEQ_CALL = 255
 
 const int QUEUED_REWARDS_MAX_COUNT = 12
 const int QUEUED_REWARDS_MAX_ITEMS_COUNT = 1
+
+
+
+
 
 
 
@@ -245,8 +256,6 @@ global enum eItemFlavorGRXMode
 	CURRENCY = GRX_ITEMFLAVORMODE_CURRENCY,
 	OWNERSHIP_TARGET = -1337,
 }
-
-
 
 
 
@@ -529,7 +538,6 @@ struct PlayerGRXScriptState
 		bool hasInventoryEverBeenClean = false
 		int  marketplaceEdition = -1
 		bool isOfferRestricted = false
-		bool hasUpToDateBundleOffers = false
 
 
 
@@ -627,6 +635,7 @@ struct FileStruct_LifetimeLevel
 
 
 
+
 #if GRX_DEBUG_PRINTS
 		bool GRX_DEBUG_PRINTS_disableTemporarily = false
 #endif
@@ -671,10 +680,7 @@ void function ShGRX_LevelInit()
 		GRX_CURRENCIES[GRX_CURRENCY_HEIRLOOM] = expect ItemFlavor(RegisterItemFlavorFromSettingsAsset( $"settings/itemflav/grx_currency/heirloom.rpak" )) 
 
 		
-		
-		
-		
-		GRX_CURRENCIES[GRX_CURRENCY_EVENT] = expect ItemFlavor(RegisterItemFlavorFromSettingsAsset( $"settings/itemflav/grx_currency/s19fe01_coin.rpak" )) 
+		GRX_CURRENCIES[GRX_CURRENCY_EVENT] = expect ItemFlavor(RegisterItemFlavorFromSettingsAsset( $"settings/itemflav/grx_currency/s19me01_coin.rpak" )) 
 
 		foreach ( int currencyIndex, ItemFlavor flav in GRX_CURRENCIES )
 		{
@@ -710,8 +716,11 @@ void function ShGRX_LevelInit()
 
 		Remote_RegisterUIFunction( "ServerToUI_PROTO_YouAreGreenLightedForGRX" )
 		Remote_RegisterUIFunction( "ServerToUI_GRX_QueuedRewardsGiven" )
+		Remote_RegisterUIFunction( "ServerToUI_SetMilestonePackAutoOpenStatus", "bool" )
 
+		Remote_RegisterServerFunction( "UICallback_AutoOpenMilestonePacks" )
 		Remote_RegisterServerFunction( "ClientCallback_acknowledge_reward", "int", 0, QUEUED_REWARDS_MAX_COUNT, "int", INT_MIN, INT_MAX )
+
 
 
 
@@ -1075,6 +1084,22 @@ int function GRX_GetPlayerEdition( entity player = null )
 
 
 
+
+int function GRX_GetNumberOfOwnedItemsByPlayer( array<ItemFlavor> items, entity player = null )
+{
+	if ( !GetPlayerGRXScriptState( player ).isInventoryReady )
+		return 0
+	int count = 0
+	foreach( item in items )
+	{
+		if ( GRX_IsItemOwnedByPlayer( item, player ) )
+		{
+			count++
+		}
+	}
+	return count
+}
+
 bool function GRX_IsItemOwnedByPlayer( ItemFlavor flav, entity player = null )
 {
 	Assert( GetPlayerGRXScriptState( player ).isInventoryReady, "Called GRX_IsItemOwnedByPlayer while the player's inventory was not ready" )
@@ -1206,6 +1231,27 @@ bool function IsItemOwnedByPlayerInternal( ItemFlavor flav, entity player = null
 
 	return has
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -2096,6 +2142,57 @@ ItemFlavorBag function GRX_GetMostRecentPackOpeningResults()
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 asset function GRXPack_GetOpenButtonIcon( ItemFlavor flav )
 {
 	Assert( ItemFlavor_GetType( flav ) == eItemType.account_pack )
@@ -2253,37 +2350,6 @@ bool function GRXPack_PlayerOwnsAllItemsInPack( entity player, ItemFlavor pack )
 
 	return true
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -3087,7 +3153,6 @@ PlayerGRXScriptState function GetPlayerGRXScriptState( entity player )
 		return fileLevel.localGRXState
 
 }
-
 
 
 
@@ -4332,6 +4397,29 @@ void function UIToClient_GRXInventoryCleanStateChange( bool isClean, int marketp
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 #if DEV
 
 
@@ -4349,7 +4437,6 @@ void function UIToClient_GRXInventoryCleanStateChange( bool isClean, int marketp
 
 
 #endif
-
 
 
 
@@ -5590,25 +5677,6 @@ bool function GRX_IsOfferRestricted( entity player = null )
 
 
 
-bool function GRX_HasUpToDateBundleOffers( entity player = null )
-{
-
-
-
-	if ( player == null )
-		player = GetLocalClientPlayer()
-
-
-
-
-
-	PlayerGRXScriptState grxState = GetPlayerGRXScriptState( player )
-	return grxState.hasUpToDateBundleOffers
-}
-
-
-
-
 
 
 
@@ -5812,47 +5880,6 @@ bool function GRX_IsItemCoveredByOfferRestrictions( ItemFlavor flav )
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 #if DEV
 
 
@@ -5876,6 +5903,13 @@ bool function GRX_IsItemCoveredByOfferRestrictions( ItemFlavor flav )
 
 
 #endif
+
+
+
+
+
+
+
 
 
 

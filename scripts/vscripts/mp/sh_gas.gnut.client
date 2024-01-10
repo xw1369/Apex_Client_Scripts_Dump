@@ -120,20 +120,6 @@ void function ShGas_Init()
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 	RegisterSignal( "StopPassiveGasProtectionOnHUD" )
 
 	file.lastDOFLerpTime = Time()
@@ -147,11 +133,6 @@ void function ShGas_Init()
 	AddCallback_OnPassiveChanged( ePassives.PAS_GAS_PROTECTION, ShowPassiveGasProtectionOnHUD )
 
 }
-
-
-
-
-
 
 
 

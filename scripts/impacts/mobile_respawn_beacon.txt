@@ -41,7 +41,7 @@ ImpactTable
 		"2" "P_impact_proj_med_lava" //lava_rock_hot
 		"3" "P_impact_proj_med_default"
 		"4" "P_impact_proj_med_default"
-		"5" "P_impact_proj_med_default"
+		"5" "P_impact_exp_med_water"
 		"6" "P_impact_proj_med_default"
 		"7" "P_impact_proj_med_default"
 		"8" "P_impact_proj_med_default"
@@ -56,7 +56,7 @@ ImpactTable
 		"critical_hit" "impact_metal"
 
 	}
-	
+
 	FX // additive decals
 	{
 		"C" "P_impact_mrb_rock" //Concrete, rock, porcelain, boulder, gravel, asphalt, brick, concrete_block, plaster
@@ -119,7 +119,7 @@ ImpactTable
 		"2" "Survival_MobileRespawnBeacon_Impact_Default" //lava_rock_hot
 //		"3" "openslot"
 //		"4" "openslot"
-//		"5" "openslot"
+//		"5" "Survival_MobileRespawnBeacon_Impact_Default"
 //		"6" "openslot"
 //		"7" "openslot"
 //		"8" "openslot"
@@ -170,7 +170,7 @@ ImpactTable
 		"1" "Survival_MobileRespawnBeacon_Impact_Default" //lava_flow
 		"2" "Survival_MobileRespawnBeacon_Impact_Default" //lava_rock_hot
 //		"3" "openslot"
-//		"4" "openslot"
+		"4" "Survival_MobileRespawnBeacon_Impact_Default"
 //		"5" "openslot"
 //		"6" "openslot"
 //		"7" "openslot"
@@ -223,7 +223,7 @@ ImpactTable
 		"2" "Survival_MobileRespawnBeacon_Impact_Default" //lava_rock_hot
 //		"3" "openslot"
 //		"4" "openslot"
-//		"5" "openslot"
+		"5" "Survival_MobileRespawnBeacon_Impact_Default"
 //		"6" "openslot"
 //		"7" "openslot"
 //		"8" "openslot"

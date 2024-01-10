@@ -43,6 +43,7 @@ global function IsWeaponInSingleShotMode
 global function IsWeaponInBurstMode
 global function IsWeaponOffhand
 global function IsWeaponInAutomaticMode
+global function IsMeleeWeaponNotFists
 global function OnWeaponReadyToFire_ability_tactical
 global function GetMeleeWeapon
 global function OnWeaponRegenEndGeneric
@@ -4422,6 +4423,18 @@ bool function IsWeaponInAutomaticMode( entity weapon )
 	return !weapon.GetWeaponSettingBool( eWeaponVar.is_semi_auto )
 }
 
+bool function IsMeleeWeaponNotFists( entity player )
+{
+	if ( !IsValid(player) )
+		return false
+
+	entity meleeWeapon = player.GetOffhandWeapon( OFFHAND_MELEE )
+	bool isHeirloom = meleeWeapon.GetWeaponSettingBool( eWeaponVar.is_heirloom )
+	bool isArtifact = meleeWeapon.GetWeaponSettingBool( eWeaponVar.is_artifact )
+
+	return isHeirloom || isArtifact
+}
+
 
 bool function OnWeaponAttemptOffhandSwitch_Never( entity weapon )
 {
@@ -6031,6 +6044,11 @@ void function OnWeaponDeactivate_Smart_Reload ( entity weapon )
 
 	if( !IsValid( weapon ) || !IsValid( player) )
 		return
+
+
+
+
+
 
 
 

@@ -122,6 +122,9 @@ struct FileStruct_LifetimeLevel
 		array<PredictedLootActionData>         predictedActions
 		bool                                   predictedActionsDirty = false
 
+
+
+
 		vector categoryHeaderTextCol
 
 }
@@ -555,11 +558,43 @@ void function OnPlayerEquipmentChanged( entity player, string equipSlot, int idx
 void function UpdateSurvivalGroundList( SurvivalGroundListUpdateParams params )
 {
 	entity deathBox = GetEntityFromEncodedEHandle( fileLevel.currentDeathBoxEEH )
-	if ( !IsValid( deathBox ) || Distance( params.player.GetOrigin(), deathBox.GetOrigin() ) > DEATH_BOX_MAX_DIST || GetGameState() >= eGameState.WinnerDetermined || GetLocalViewPlayer().ContextAction_IsReviving() )
+
+	bool outOfRange = !IsPlayerCloseEnoughToDeathBoxToLoot(params.player, deathBox)
+
+
+
+
+
+	if ( !IsValid( deathBox ) || outOfRange || GetGameState() >= eGameState.WinnerDetermined || GetLocalViewPlayer().ContextAction_IsReviving() )
 	{
+
+
+
 		RunUIScript( "CloseAllMenus" )
 		return
 	}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 	float maxPredictedPickupTimeBeforeAssumingMispredict = GetCurrentPlaylistVarFloat( "death_box_menu_max_predicted_pickup_time", 0.55 )
 	for ( int predictedPickupIdx = 0; predictedPickupIdx < fileLevel.predictedActions.len(); predictedPickupIdx++ )
@@ -610,6 +645,17 @@ void function UpdateSurvivalGroundList( SurvivalGroundListUpdateParams params )
 				DeathBoxEntryData entryData = fileLevel.deathBoxEntryDataByLootEnt[lootEnt]
 				entriesToUpdateSet[entryData] <- IN_SET
 			}
+
+
+
+
+
+
+
+
+
+
+
 			continue
 		}
 
@@ -743,6 +789,15 @@ void function UpdateSurvivalGroundList( SurvivalGroundListUpdateParams params )
 
 		if ( isBlackMarket && GetBlackMarketUseCount( deathBox, GetLocalClientPlayer() ) >= GetBlackMarketUseLimit( deathBox, GetLocalClientPlayer() ) )
 			deathBoxBlocked = true
+
+
+
+
+
+
+
+
+
 
 		specialStateSamenessKey += "|" + (deathBoxBlocked ? "blocked" : "usable")
 
@@ -1283,6 +1338,21 @@ void function UpdateItem( DeathBoxListPanelItem item )
 	bool isBackpackItem = ( lootType.index != eLootType.MAINWEAPON && lootType.equipmentSlot == "" && lootFlavor.inventorySlotCount > 0 )
 	entryData.isClickable = entryData.isUsable && !entryData.isBlocked && ( entryData.isRelevant || isBackpackItem )
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 	Hud_SetEnabled( button, true )
 	RuiSetBool( rui, "isUsable", entryData.isUsable )
 	Hud_SetLocked( button, !entryData.isUsable )
@@ -1296,6 +1366,10 @@ void function UpdateItem( DeathBoxListPanelItem item )
 	{
 		
 		bool isEvolving = EvolvingArmor_IsEquipmentEvolvingArmor( lootFlavor.ref )
+
+
+
+
 		entity localPlayer = GetLocalClientPlayer()
 		int armorTier = EquipmentSlot_GetEquipmentTier( localPlayer, "armor" )
 
@@ -1735,18 +1809,42 @@ void function SendItemActionCommand( DeathBoxEntryData entryData, int count, ent
 	if ( actionType == eLootAction.ATTACH_TO_STOWED )
 		pickupFlags = pickupFlags | PICKUP_FLAG_ATTACH_STOWED_ONLY
 
-	entity deathboxEnt = GetEntityFromEncodedEHandle( fileLevel.currentDeathBoxEEH )
-	
-	
-	Remote_ServerCallFunction("ClientCallback_PickupSurvivalLootFromDeathbox",
-		entryData.lootFlav.index,
-		count,
-		preferredLootEnt,
-		deathboxEnt,
-		pickupFlags,
-		(backpackSwapSlot != null ? expect int(backpackSwapSlot) : -1)
-	)
-	
+	entity boxEnt = GetEntityFromEncodedEHandle( fileLevel.currentDeathBoxEEH )
+	if ( IsValid( boxEnt ) )
+	{
+		switch ( boxEnt.GetNetworkedClassName() )
+		{
+			case "prop_death_box":
+			{
+				Remote_ServerCallFunction( "ClientCallback_PickupSurvivalLootFromDeathbox",
+					entryData.lootFlav.index,
+					count,
+					preferredLootEnt,
+					boxEnt,
+					pickupFlags,
+							( backpackSwapSlot != null ? expect int( backpackSwapSlot ) : -1 )
+				)
+				break
+			}
+			case "prop_loot_grabber":
+			{
+				Remote_ServerCallFunction( "ClientCallback_PickupSurvivalLootFromLootGrabber",
+					entryData.lootFlav.index,
+					count,
+					preferredLootEnt,
+					boxEnt,
+					pickupFlags,
+							( backpackSwapSlot != null ? expect int( backpackSwapSlot ) : -1 )
+				)
+				break
+			}
+			default:
+			{
+				Assert( false, "Attempted to pick up from non known box entity of type: " + string( boxEnt.GetNetworkedClassName() ) )
+				break
+			}
+		}
+	}
 
 	PredictedLootActionData plad
 	plad.type = actionType
@@ -1756,7 +1854,7 @@ void function SendItemActionCommand( DeathBoxEntryData entryData, int count, ent
 	plad.backpackSwapSlot = backpackSwapSlot
 
 
-	if ( IsVendingMachine(deathboxEnt) )
+	if ( IsVendingMachine( boxEnt ) )
 	{
 		plad.actionIsFromVendingMachine = true
 	}

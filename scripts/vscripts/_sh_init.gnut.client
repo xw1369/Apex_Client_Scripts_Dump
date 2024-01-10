@@ -98,6 +98,7 @@ void function SV_CL_Init()
 
 	Decoy_Init()
 	ShEHI_LevelInit_End()
+	PropOverride_Init()
 
 	NPCPrecache_AllNPCTypes()
 
@@ -194,9 +195,7 @@ void function SV_CL_Init()
 	ShImage2D_LevelInit()
 	ShBattlepassPresaleVoucher_LevelInit()
 	ShBattlepassPurchasableXP_LevelInit()
-
-		Sh_Boosts_Init()
-
+	Sh_Boosts_Init()
 
 		ShEventAbilities_Init()
 		ShPassiveLootHighlight_Init()
@@ -247,12 +246,18 @@ void function SV_CL_Init()
 
 
 
+
+	ShRewardSetTracker_LevelInit()
+
 	ShItems_LevelInit_Finish()
 	ShItemPerPlayerState_LevelInit()
 	ShLoadouts_LevelInit_Finish()
 	ShStatsInternals_LevelInit()
 	ShStats_LevelInit()
 	ShChallenges_LevelInit_PostStats()
+
+
+
 	Sh_Ranked_Init() 
 
 		Sh_ArenasRanked_Init() 
@@ -393,6 +398,10 @@ void function SV_CL_Init()
 
 
 
+
+
+
+
 		AirdropExtra_Init()
 
 
@@ -429,10 +438,6 @@ void function SV_CL_Init()
 
 
 
-
-
-
-
 	ShTutorial_Init()
 	Sh_PassiveVoices_Init()
 	ShPassiveWarlordsIre_Init()
@@ -447,6 +452,18 @@ void function SV_CL_Init()
 
 
 		ShPassiveConduit_Init()
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -616,7 +633,7 @@ void function SV_CL_Init()
 
 
 
-
+		GoldenHorse_Init()
 
 
 	
@@ -645,7 +662,7 @@ void function SV_CL_Init()
 	
 
 
-		ShadowArmy_Init() 
+		ShadowArmy_Init()
 		ShadowArmy_RespawnBeacon_Init()
 
 
@@ -686,9 +703,7 @@ void function SV_CL_Init()
 
 
 
-
-		Sh_Mastery_Init()
-
+	Sh_Mastery_Init()
 
 
 
@@ -714,7 +729,25 @@ void function SV_CL_Init()
 
 
 
+
+
+
+
+
+	POIPlayerSpawning_Init()
+
+
+
+
+
+	Odl_SmokeTestInit()
+
+	ThunderdomeSkull_Init()
 }
+
+
+
+
 
 
 
@@ -1106,6 +1139,10 @@ void function Shared_Lobby_Init()
 		EventShop_Init()
 
 
+
+		MilestoneEvents_Init()
+
+
 	StoryChallengeEvents_Init()
 	Sh_Ranked_ItemRegistrationInit() 
 
@@ -1126,9 +1163,7 @@ void function Shared_Lobby_Init()
 
 		ShEventAbilities_Init()
 
-
-		Sh_Boosts_Init()
-
+	Sh_Boosts_Init()
 	ShMusic_LevelInit()
 	ShBattlePass_LevelInit()
 
@@ -1158,12 +1193,18 @@ void function Shared_Lobby_Init()
 
 
 
+
+	ShRewardSetTracker_LevelInit()
+
 	ShItems_LevelInit_Finish()
 	ShItemPerPlayerState_LevelInit()
 	ShLoadouts_LevelInit_Finish()
 	ShStatsInternals_LevelInit()
 	ShStats_LevelInit()
 	ShChallenges_LevelInit_PostStats()
+
+
+
 	Sh_Ranked_Init() 
 
 		CLUI_Ranked_Init()
@@ -1208,12 +1249,14 @@ void function Shared_Lobby_Init()
 
 
 
-
-		Sh_Mastery_Init()
-
+	Sh_Mastery_Init()
 
 
 		AcidWraith_SharedInit()
+
+
+
+		GoldenHorse_SharedInit()
 
 }
 

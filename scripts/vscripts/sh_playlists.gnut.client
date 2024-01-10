@@ -15,6 +15,10 @@ global function Playlist_GetLTMSlotPlaylist
 global function Playlist_GetNewModeVersion
 global function Playlist_GetScheduleData
 global function Playlist_ShouldBeHiddenForScheduleBlocks
+global function Playlist_GetRankedSeasonEndDate
+global function Playlist_HasRankedSeasonEndDate
+global function Playlist_ShouldLockRankedPlaylistForPatch
+global function Playlist_IsPastRankedSeasonEndDate
 global function ShPlaylist_Init
 global function GetPlaylistRotationGroup
 
@@ -27,6 +31,7 @@ global function GetThumbnailImageFromImageMap
 global function GetGamemodeLogoFromImageMap
 global function GetImageFromMiniIconMap
 global function GetBinkFromBinkMap
+
 
 
 
@@ -59,6 +64,7 @@ global const table<string, asset> GAMEMODE_IMAGE_MAP = {
 	ranked_3 = $"rui/menu/gamemode/playlist_bg_olympus_mu2_ranked",
 	ranked_4 = $"rui/menu/gamemode/playlist_bg_storm_point_ranked",
 	ranked_5 = $"rui/menu/gamemode/playlist_bg_divided_moon_ranked",
+	ranked_6 = $"rui/menu/gamemode/playlist_bg_storm_point_ranked_mu2",
 	solo_iron_crown = $"rui/menu/gamemode/solo_iron_crown",
 	solo = $"rui/menu/gamemode/solo_iron_crown",
 	duos = $"rui/menu/gamemode/duos_v2",
@@ -69,6 +75,11 @@ global const table<string, asset> GAMEMODE_IMAGE_MAP = {
 
 
 		trios_halloween = $"rui/menu/gamemode/trios_halloween",
+
+
+
+		trios_golden_horse = $"rui/menu/gamemode/trios_GH_small",
+
 
 	panel_worlds_edge = $"rui/menu/gamemode/playlist_bg_worldsedge_vanilla",
 	panel_worlds_edge_mu1 = $"rui/menu/gamemode/playlist_bg_worldsedge_mu3",
@@ -232,6 +243,7 @@ global const table<string, asset> GAMEMODE_THUMBNAIL_IMAGE_MAP = {
 	ranked_3 = $"rui/menu/gamemode/playlist_bg_sq_olympus_mu2_ranked",
 	ranked_4 = $"rui/menu/gamemode/playlist_bg_sq_storm_point_ranked",
 	ranked_5 = $"rui/menu/gamemode/playlist_bg_sq_divided_moon_ranked",
+	ranked_6 = $"rui/menu/gamemode/playlist_bg_sq_storm_point_ranked_mu2",
 	solo_iron_crown = $"rui/menu/gamemode/solo_iron_crown",
 	solo = $"rui/menu/gamemode/solo_iron_crown",
 	duos = $"rui/menu/gamemode/playlist_bg_sq_duos",
@@ -246,7 +258,7 @@ global const table<string, asset> GAMEMODE_THUMBNAIL_IMAGE_MAP = {
 
 
 
-
+		trios_golden_horse = $"rui/menu/gamemode/playlist_bg_sq_trios_golden_horse",
 
 
 	panel_worlds_edge = $"rui/menu/gamemode/playlist_bg_sq_worldsedge_mu3",
@@ -813,6 +825,59 @@ bool function Playlist_ShouldBeHiddenForScheduleBlocks( string plName )
 	return false
 }
 
+bool function Playlist_HasRankedSeasonEndDate()
+{
+	return Playlist_GetRankedSeasonEndDate() != null
+}
+
+int ornull function Playlist_GetRankedSeasonEndDate()
+{
+	string varVal = GetCurrentPlaylistVarString( "ranked_season_end_date", "" )
+	if ( varVal.len() > 0 )
+	{
+		return DateTimeStringToUnixTimestamp( varVal )
+	}
+
+	return null
+}
+
+bool function Playlist_ShouldLockRankedPlaylistForPatch( string plName )
+{
+	if ( !Playlist_HasRankedSeasonEndDate() )
+		return false
+
+	PlaylistScheduleData scheduleData = Playlist_GetScheduleData( plName )
+	if ( scheduleData.blocks.len() > 0 )
+	{
+		if ( scheduleData.currentBlock == null )
+			return true
+
+		TimestampRange currentBlock = expect TimestampRange( scheduleData.currentBlock )
+
+		bool outsideCurrentBlock = currentBlock.startUnixTime > GetUnixTimestamp() || currentBlock.endUnixTime < GetUnixTimestamp()
+		bool pastEndDate = Playlist_IsPastRankedSeasonEndDate()
+
+		
+		if ( outsideCurrentBlock && !pastEndDate )
+			return true
+	}
+
+	return false
+}
+
+bool function Playlist_IsPastRankedSeasonEndDate()
+{
+	int ornull seasonEndTime = Playlist_GetRankedSeasonEndDate()
+	if ( seasonEndTime != null )
+	{
+		expect int( seasonEndTime )
+		int current = GetUnixTimestamp()
+		return GetUnixTimestamp() >= seasonEndTime
+	}
+
+	return false
+}
+
 
 
 
@@ -850,9 +915,7 @@ void function ShPlaylist_CacheData()
 		file.cachedPlaylistArray[index] = playlistData
 		file.cachedPlaylistMap[name] <- playlistData
 	}
-
 	Boost_OnPlaylistsRegistered()
-
 }
 
 
@@ -1061,6 +1124,10 @@ const table<string, asset> GAMEMODE_EMBLEM_MAP = {
 
 		emblem_uprising = $"rui/menu/gamemode_emblem/emblem_uprising",
 
+
+
+		emblem_golden_horse = $"rui/gamemodes/golden_horse/golden_horse_mode_icon",
+
 }
 
 
@@ -1114,6 +1181,57 @@ string function GetPlaylistRotationGroup()
 #endif
 	return rotationGroup
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

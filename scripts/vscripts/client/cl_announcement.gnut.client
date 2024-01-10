@@ -28,6 +28,10 @@ global const int ANNOUNCEMENT_STYLE_TDM_ROUND_WON = 15
 	global const int ANNOUNCEMENT_STYLE_FINAL_RING_NO_RESPAWNS= 18
 
 
+
+
+
+
 global const int ANNOUNCEMENT_POSITION_ZONE_NONE = 0
 global const int ANNOUNCEMENT_POSITION_ZONE_TOP_CENTER = 1
 global const int ANNOUNCEMENT_POSITION_ZONE_CENTER = 2
@@ -518,6 +522,17 @@ void function AnnouncementMessage_DisplayOnHud( AnnouncementData announcement )
 			EmitSoundOnEntity( player, announcement.soundAlias )
 			break
 
+
+
+
+
+
+
+
+
+
+
+
 		case ANNOUNCEMENT_STYLE_SWEEP:
 			if ( announcement.drawOverScreenFade )
 				rui = RuiCreate( $"ui/announcement_center_sweep.rpak", clGlobal.topoFullScreen, RUI_DRAW_HUD, RUI_SORT_SCREENFADE + 1 )
@@ -808,17 +823,25 @@ void function ServertoClient_LTM_AnnouncementSplash()
 	entity player = GetLocalViewPlayer()
 	if ( !IsValid( player ) )
 		return
-	string playlistName = GetCurrentPlaylistName()
-	asset emblemImage = ASSET_ANNOUNCEMENT_ICON
+	string playlistName           = GetCurrentPlaylistName()
+	asset emblemImage             = ASSET_ANNOUNCEMENT_ICON
 	float duration                = ANNOUNCEMENT_DURATION
 	string messageText            = GetCurrentPlaylistVarString( "name", "#GAMEMODE_ANNOUNCE_NONE" )
 	string subText                = GetCurrentPlaylistVarString( "announce_desc", "#GAMEMODE_ANNOUNCE_SUBTEXT_NONE" )
+	int subTextCount              = GetCurrentPlaylistVarInt( "announce_count", 1 )
 	vector titleColor             = <0, 0, 0>
 	asset icon                    = $""
 	asset leftIcon                = GetCurrentPlaylistVarAsset( "announce_emblem_left", emblemImage )
-	asset rightIcon               = GetCurrentPlaylistVarAsset( "announce_emblem_right", emblemImage)
+	asset rightIcon               = GetCurrentPlaylistVarAsset( "announce_emblem_right", emblemImage )
 	string soundAlias             = SFX_HUD_ANNOUNCE_LTM
 	int style                     = ANNOUNCEMENT_STYLE_SWEEP
+
+	if ( subTextCount > 1 )
+	{
+		int textSelection = RandomIntRange( 0, subTextCount )
+		subText = subText + "_" + textSelection
+	}
+
 	AnnouncementData announcement = Announcement_Create( messageText )
 	announcement.drawOverScreenFade = true
 	Announcement_SetSubText( announcement, subText )

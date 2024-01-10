@@ -65,6 +65,9 @@ void function LootRollerSpawned( entity ent )
 
 	LootRollerClientData data
 	data.rollerModel = ent
+	if ( ent.GetTier() > 1 )
+		data.lootTier = ent.GetTier()
+	data.hasVaultKey = ent.GetHasVaultKey()
 
 	int fxIdx = GetParticleSystemIndex( LOOT_ROLLER_EYE_FX )
 	for( int i; i < NUM_LOOT_ROLLER_FX_ATTACH_POINTS; i++ )

@@ -95,7 +95,16 @@ void function PlaneCreated( entity plane )
 
 void function JumpmasterStatusChanged( entity statusChangePlayer, bool newValue )
 {
-	PlayerPlaneStatusChanged( statusChangePlayer, newValue )
+
+
+
+
+
+
+
+	{
+		PlayerPlaneStatusChanged( statusChangePlayer, newValue )
+	}
 
 	if ( newValue == false )
 		return
@@ -112,7 +121,12 @@ void function JumpmasterStatusChanged( entity statusChangePlayer, bool newValue 
 
 void function PlayerPlaneStatusChanged( entity statusChangePlayer, bool newValue )
 {
-	__PlayerPlaneStatusChanged( statusChangePlayer )
+
+
+
+	{
+		__PlayerPlaneStatusChanged( statusChangePlayer )
+	}
 }
 
 void function OnLocalViewPlayerChanged( entity player )
@@ -469,7 +483,6 @@ void function DestroySquadLeaderBox( entity vehicle )
 {
 	if ( file.sqadLeaderBoxRui != null )
 	{
-		ReleaseHUDRui( file.sqadLeaderBoxRui )
 		RuiDestroyIfAlive( file.sqadLeaderBoxRui )
 		file.sqadLeaderBoxRui = null
 		entity player = GetLocalClientPlayer()
@@ -635,12 +648,12 @@ void function HoldTryRelinquishSquadLeaderOrBreakFromSquadTimer( entity player, 
 	wait margin
 }
 
-bool function HasHoldButtonAction()
+bool function HasHoldButtonAction( bool requirePlane = true )
 {
 	entity player = GetLocalClientPlayer()
 	int team = player.GetTeam()
 
-	if ( !player.GetPlayerNetBool( "playerInPlane" ) )
+	if ( requirePlane && !player.GetPlayerNetBool( "playerInPlane" ) )
 		return false
 
 	

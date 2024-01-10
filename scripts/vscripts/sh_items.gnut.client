@@ -35,6 +35,7 @@ global function ItemFlavor_GetType
 global function ItemFlavor_GetAsset
 global function ItemFlavor_GetSettingsBlock
 global function ItemFlavor_SortByTier
+global function ItemFlavor_GetSourceIcon 
 
 global function ItemFlavor_GetTypeName
 global function ItemFlavor_GetLongName
@@ -43,7 +44,6 @@ global function ItemFlavor_GetLongDescription
 global function ItemFlavor_GetShortDescription
 global function ItemFlavor_GetRewardShortDescription
 global function ItemFlavor_GetIcon
-global function ItemFlavor_GetSourceIcon
 global function IsItemFlavorTypeEquippable
 global function ItemFlavor_GetTypeUICategory
 
@@ -89,6 +89,7 @@ global function ItemFlavor_IsTheDefault
 global function ItemFlavor_IsTheRandom
 global function ItemTypeHasDefault
 global function ItemTypeHasRandom
+global function ItemTypeAlphabetizable
 global function ItemFlavor_HasEntitlement
 global function ItemFlavor_GetEntitlement
 global function ItemFlavor_HasFeatures
@@ -110,15 +111,12 @@ global function FilterItemFlavorsByType
 global function ItemFlavor_ChallengesHaveMetaData
 global function ItemFlavor_CalEventsHaveTimeStampMetaData
 global function ItemFlavor_GetMetaData
+global function IsCalEvent
 
 global function DEV_DescItemFlavor
 
 #if DEV
 global function DEV_GetAllItemFlavors
-#endif
-
-#if DEV
-global function DEV_PrintAllGRXRefs
 #endif
 
 
@@ -165,7 +163,7 @@ global enum eItemType
 	calevent_collection
 	calevent_themedshop
 
-
+		calevent_milestone
 
 	calevent_buffet
 	calevent_login
@@ -173,9 +171,7 @@ global enum eItemType
 	calevent_skustore
 	calevent_event_shop
 	calevent_apex_cup
-
-		calevent_boost_event
-
+	calevent_boost_event
 	_CALEVENT_RANGE_END
 
 	
@@ -226,6 +222,9 @@ global enum eItemType
 	image_2d
 	battlepass_presale_voucher
 
+		reward_set_tracker
+
+
 
 		character_class
 		character_perk
@@ -238,9 +237,17 @@ global enum eItemType
 	__loot_end
 
 
+	artifact_component_START
+	
+	
+	artifact_component_deathbox
 
 
 
+
+
+
+	artifact_component_END
 
 
 	
@@ -259,10 +266,7 @@ global enum eItemType
 	mythic_bundle 
 	lore
 	ranked_2pt0_period
-
-
-		boost_type
-
+	boost_type
 
 
 		ranked_trial
@@ -303,6 +307,12 @@ table<int, int> itemTypeUICategoryMap = {
 	[eItemType.gladiator_card_badge] = eItemTypeUICategory.CHARACTER,
 	[eItemType.loot_main_weapon] = eItemTypeUICategory.NONE,
 	[eItemType.melee_weapon] = eItemTypeUICategory.NONE,
+
+	[eItemType.artifact_component_deathbox] = eItemTypeUICategory.CHARACTER,
+
+
+
+
 
 
 
@@ -350,6 +360,12 @@ global table<int, string> itemTypeNameMap = {
 	[eItemType.loot_main_weapon] = "#itemtype_loot_main_weapon_NAME",
 	[eItemType.melee_weapon] = "#itemtype_melee_weapon_NAME",
 
+	[eItemType.artifact_component_deathbox] = "#itemtype_artifact_component_deathbox_NAME",
+
+
+
+
+
 
 
 	[eItemType.battlepass_purchased_xp] = "#itemtype_battlepass_purchased_xp_NAME",
@@ -363,6 +379,9 @@ global table<int, string> itemTypeNameMap = {
 	[eItemType.sticker] = "#itemtype_sticker_NAME",
 
 		[eItemType.quest_comic] = "#itemtype_quest_comic_NAME",
+
+
+	[eItemType.reward_set_tracker] = "#itemtype_reward_set_tracker_NAME",
 
 }
 
@@ -381,6 +400,7 @@ global enum eAccountPackType
 	THEMATIC,
 	MYTHIC,
 	EVENT_THEMATIC,
+	SIRNGE,
 }
 
 global enum eItemFlavorPlaylistAvailability
@@ -1012,7 +1032,7 @@ string function ItemFlavor_GetRewardShortDescription( ItemFlavor flav )
 		case eItemType.character_emote:
 			ItemFlavor ornull ref = CharacterQuip_GetCharacterFlavor( flav )
 			if ( ref == null )
-				return ""
+				return Localize( "#REWARD_EMOTE_GENERIC" )
 
 			expect ItemFlavor( ref )
 
@@ -1105,7 +1125,6 @@ asset function ItemFlavor_GetSourceIcon( ItemFlavor flavor )
 }
 
 
-
 int function ItemFlavor_GetAccountPackType( ItemFlavor pack )
 {
 	Assert( IsItemFlavorStructValid( pack.guid, eValidation.ASSERT ) )
@@ -1119,6 +1138,8 @@ int function ItemFlavor_GetAccountPackType( ItemFlavor pack )
 		return eAccountPackType.THEMATIC
 	else if ( GetGlobalSettingsString( ItemFlavor_GetAsset( pack ), "packType" ) == "MYTHIC_PACK" )
 		return eAccountPackType.MYTHIC
+	else if ( GetGlobalSettingsString( ItemFlavor_GetAsset( pack ), "packType" ) == "SIRNGE_PACK" )
+		return eAccountPackType.SIRNGE
 
 	return eAccountPackType.APEX 
 }
@@ -1553,18 +1574,49 @@ array<ItemFlavor> function RegisterReferencedItemFlavorsFromArray( ItemFlavor pa
 	return loaded
 }
 
-
-void function MakeItemFlavorSet( array<ItemFlavor> list, table<ItemFlavor, int> sortOrdinalMap = {} )
+void function MakeItemFlavorSet( array<ItemFlavor> list, table<ItemFlavor, int> sortOrdinalMap, bool validateHasNonGRX )
 {
+	
+
+
+
+
+
+
+
+
+	if ( validateHasNonGRX )
+	{
+		ItemFlavor defaultFlavor = list[0]
+		if ( ItemFlavor_GetGRXMode( defaultFlavor ) != eItemFlavorGRXMode.NONE )
+		{
+			bool found = false
+			foreach ( ItemFlavor flav in list )
+			{
+				if ( ItemFlavor_GetGRXMode( flav ) == eItemFlavorGRXMode.NONE )
+				{
+					defaultFlavor = flav
+					found         = true
+					break
+				}
+			}
+			Assert( found )
+			list.fastremovebyvalue( defaultFlavor )
+			list.insert( 0, defaultFlavor )
+		}
+		Assert( ItemFlavor_GetGRXMode( list[0] ) == eItemFlavorGRXMode.NONE )
+	}
+
 	foreach ( int index, ItemFlavor flavor in list )
 	{
-		sortOrdinalMap[flavor] <- index 
+		sortOrdinalMap[flavor] <- index
 	}
 }
 
 
 ItemFlavor ornull function RegisterItemFlavorFromSettingsAsset( asset settingsAsset )
 {
+	Assert( settingsAsset != $"" )
 #if DEV
 		fileLevel.DEV_hasItemRegistrationStarted = true
 #endif
@@ -1603,8 +1655,11 @@ ItemFlavor ornull function RegisterItemFlavorFromSettingsAsset( asset settingsAs
 	int availability = flavor.typeIndex == eItemType.character ? GetPlaylistAvailabilityByRef( [ humanReadableRef, guidString ] ) : GetPlaylistAvailabilityByRef( [ guidString ] )
 	if ( availability == eItemFlavorPlaylistAvailability.DISABLED )
 	{
-		Warning( "Item flavor disabled by dev-only playlist vars: " + humanReadableRef + " | " + guidString )
-		Warning( "!!WARNING!! Item flavor disabled by playlist, this is dev-only and should not remain: " + humanReadableRef )
+#if DEV
+			printt( "Item flavor disabled by dev-only playlist vars: " + humanReadableRef + " | " + guidString )
+#else
+			Warning( "Item flavor disabled by dev-only playlist vars: " + humanReadableRef + " | " + guidString )
+#endif
 
 #if DEBUG_ITEM_FLAVOR_REGISTRATION
 			printt( "DEBUG_ITEM_FLAVOR_REGISTRATION", FUNC_NAME(), settingsAsset, "Disabled by playlist!" )
@@ -2194,7 +2249,20 @@ ItemFlavor ornull function GetItemFlavorAssociatedCharacterOrWeapon( ItemFlavor 
 			return GladiatorCardStatTracker_GetCharacterFlavor( itemFlav )
 
 		case eItemType.melee_skin:
-			return MeleeSkin_GetCharacterFlavor( itemFlav )
+		{
+
+			if ( MeleeSkin_HasSpecificCharacterFlavor( itemFlav ) )
+
+			{
+				return MeleeSkin_GetCharacterFlavor( itemFlav )
+			}
+
+			else
+			{
+				return null
+			}
+
+		}
 
 		case eItemType.character_emote:
 			return CharacterQuip_GetCharacterFlavor( itemFlav )
@@ -2267,6 +2335,25 @@ bool function ItemTypeHasRandom( int itemType )
 	return false
 }
 
+bool function ItemTypeAlphabetizable( int itemType )
+{
+	switch ( itemType )
+	{
+		case eItemType.gladiator_card_intro_quip:
+		case eItemType.gladiator_card_kill_quip:
+		case eItemType.weapon_charm:
+		case eItemType.character_skin:
+		case eItemType.music_pack:
+		case eItemType.loadscreen:
+		case eItemType.gladiator_card_stance:
+		case eItemType.gladiator_card_frame:
+		case eItemType.weapon_skin:
+		case eItemType.sticker:
+			return true
+	}
+
+	return false
+}
 
 bool function ItemFlavor_IsTheDefault( ItemFlavor flavor )
 {
@@ -2484,48 +2571,6 @@ bool function IsCalEvent( int itemType )
 
 
 
-
-#if DEV
-void function DEV_PrintAllGRXRefs()
-{
-	array <ItemFlavor> allItemFlavs = GetAllItemFlavors()
-
-	string currentType = "" 
-	string grxDump = ""
-	grxDump += "------- ALL ASSETS -------\n"
-	grxDump += "TYPE , ASSET PATH , GRX REF , LONG NAME , LONG KEY, RARITY, PARENT CHAR OR WEAPON\n"
-	foreach ( ItemFlavor flav in allItemFlavs )
-	{
-		
-		if ( ItemFlavor_GetGRXMode( flav ) == eItemFlavorGRXMode.NONE || ItemFlavor_GetGRXMode( flav ) == eItemFlavorGRXMode.OWNERSHIP_TARGET )
-			continue
-
-		string quality = ItemFlavor_HasQuality( flav ) ? DEV_GetEnumStringSafe( "eRarityTier", ItemFlavor_GetQuality( flav ) ) : "NULL"
-
-		asset parentFlav = GetGlobalSettingsAsset( ItemFlavor_GetAsset( flav ), "parentItemFlavor" )
-		string parentName = "NULL"
-		if ( parentFlav != "" && IsValidItemFlavorSettingsAsset( parentFlav ) )
-		{
-			parentName = Localize( ItemFlavor_GetShortName( GetItemFlavorByAsset( parentFlav ) ) )
-		}
-
-		grxDump += Localize( ItemFlavor_GetTypeName( flav ) ) + " , " + DEV_ItemFlavor_GetCleanedAssetPath( flav ) + " , " + ItemFlavor_GetGRXAlias( flav ) + " , " +
-				Localize( ItemFlavor_GetLongName( flav ) )  + " , " + ItemFlavor_GetLongName( flav ) + " , " + quality + " , " + parentName + "\n"
-	}
-	grxDump += "------- END ASSETS -------\n"
-	DEV_PrintGRXRefsToFile( grxDump )
-}
-
-void function DEV_PrintGRXRefsToFile( string out )
-{
-	const string DEBUG_OUTPUT_PATH = "../../dumps/" 
-	printt( "Dumping GRX refs to depot/r5dev/dumps/grx_refs_dump.txt" )
-	DevTextBufferClear()
-	DevTextBufferWrite( out )
-	DevTextBufferDumpToFile( DEBUG_OUTPUT_PATH + "grx_refs_dump.txt" )
-	DevTextBufferClear()
-}
-#endif
 
 
 

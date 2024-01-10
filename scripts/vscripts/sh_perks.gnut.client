@@ -90,8 +90,9 @@ global struct PerkInfo
 
 	bool functionref( entity ) canPingEnt = null
 	vector functionref( entity ) getPingPosition = null
-	float functionref( entity ) getPingMaxDistance = null
+	float functionref( entity ) getDynamicPingMaxDistance = null
 	float worldspaceIconUpOffset = 0
+	float staticPingDistance = PERK_ENT_MAX_PING_DISTANCE
 
 }
 
@@ -138,6 +139,7 @@ struct
 	table< entity, var >				 entityToWorldSpaceicon
 	array< entity >					     pingedPerkProps
 	PerkPingInfo 						 highlightedEnt
+	table<int, array<entity> > 			visiblePerkEntities
 
 } file
 
@@ -645,6 +647,16 @@ int function GetPingTypeForEntity( entity ent )
 
 
 
+
+
+
+
+
+
+
+
+
+
 int function Perks_GetRoleForPlayer( entity player )
 {
 	LoadoutEntry loadoutCharacter = Loadout_Character()
@@ -788,6 +800,7 @@ void function Perks_UpdatePerkPropMinimapVisibility( entity player )
 {
 	clGlobal.levelEnt.Signal( "UpdatePerkMinimapVisibility" )
 
+	file.visiblePerkEntities.clear()
 	foreach( PerkInfo perk in file.perkInfoTable )
 	{
 		ArrayRemoveInvalid( perk.minimapEntities )
@@ -795,6 +808,7 @@ void function Perks_UpdatePerkPropMinimapVisibility( entity player )
 		if( !shouldSee )
 			continue
 
+		file.visiblePerkEntities[perk.perkId] <- perk.minimapEntities
 		bool hasPerk = Perks_DoesPlayerHavePerk( GetLocalViewPlayer(), perk.perkId )
 		foreach( entity prop in perk.minimapEntities )
 		{
@@ -977,12 +991,20 @@ bool function Perks_UpdateHighlightedPerkIcon()
 	entity bestEnt = null
 	int bestPerkIndex = -1
 
-	foreach( PerkInfo perk in file.perkInfoTable )
+
+	foreach( perkId, perkProps in file.visiblePerkEntities )
 	{
-		if( !Perks_ShouldLocalPlayerSeeMinimapHudForPerk( perk.perkId ) )
-			continue
-		ArrayRemoveInvalid( perk.minimapEntities )
-		foreach( entity ent in perk.minimapEntities )
+		PerkInfo perk = file.perkInfoTable[perkId]
+		array<entity> filteredEnts
+		if( perk.getDynamicPingMaxDistance != null )
+		{
+			filteredEnts = perkProps
+		}
+		else
+		{
+			filteredEnts = GetEntitiesFromArrayNearPos( perkProps, playerEyePos, perk.staticPingDistance )
+		}
+		foreach( entity ent in filteredEnts )
 		{
 			if( Perks_IsEntHiddenFromTeam( ent, GetLocalViewPlayer().GetTeam(), perk ) )
 				continue
@@ -999,11 +1021,13 @@ bool function Perks_UpdateHighlightedPerkIcon()
 			{
 				iconPos = ent.GetOrigin() + <0,0,perk.worldspaceIconUpOffset>
 			}
-			float pingDistance = PERK_ENT_MAX_PING_DISTANCE
-			if( perk.getPingMaxDistance != null )
-				pingDistance = perk.getPingMaxDistance( ent )
-			if( DistanceSqr( iconPos, playerEyePos ) > pingDistance * pingDistance )
-				continue
+
+			if( perk.getDynamicPingMaxDistance != null )
+			{
+				float pingDistance = perk.getDynamicPingMaxDistance( ent )
+				if( DistanceSqr( iconPos, playerEyePos ) > pingDistance * pingDistance )
+					continue
+			}
 			vector eyeToIcon = iconPos - playerEyePos
 			vector eyeToIconNormalized = Normalize( eyeToIcon )
 			float dot = DotProduct( eyeToIconNormalized, viewVector )

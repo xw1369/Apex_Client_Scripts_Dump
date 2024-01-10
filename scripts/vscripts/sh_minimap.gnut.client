@@ -52,6 +52,10 @@ global enum eMinimapObject_prop_script
 
 
 
+
+
+
+
 	SPIKE_STRIP,
 	DEPLOYABLE_MEDIC,
 	PHASE_GATE,
@@ -186,7 +190,7 @@ global enum eMinimapObject_npc
 	AI_PVEOBJECTIVE,
 	FD_TURRET,
 
-
+		LOOT_TICK_GH,
 
 	COUNT
 }

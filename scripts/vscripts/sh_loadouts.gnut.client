@@ -27,6 +27,9 @@ global function LoadoutSlot_GetInteger
 global function LoadoutSlot_WaitForItemFlavor
 global function LoadoutSlot_GetUsableFavorites
 global function LoadoutSlot_GetFavorites
+
+global function LoadoutSlot_GetBackups
+
 global function LoadoutSlot_GetRawStorageContents
 
 global function AddCallback_ItemFlavorLoadoutSlotDidChange_AnyPlayer
@@ -112,6 +115,8 @@ const bool LOADOUTS_DBG = false
 
 
 global const string LOADOUT_TREE_TOP_TIER = "! general"
+global const string LOADOUT_PDEF_PREFIX = "loadouts."
+global const string LOADOUT_ID_READY = "Loadout_%s_Ready"
 
 
 
@@ -165,6 +170,9 @@ global enum eLoadoutCategory
 	STICKERS,
 	CHARACTER_QUIPS,
 
+		DEATHBOX,
+
+
 
 
 
@@ -190,6 +198,8 @@ global const table< int, string > LOADOUT_CATEGORIES_TO_NAMES_MAP = {
 	[eLoadoutCategory.SKYDIVE_TRAIL] = "skydive_trail",
 	[eLoadoutCategory.STICKERS] = "stickers",
 	[eLoadoutCategory.CHARACTER_QUIPS] = "character_quips",
+
+	[eLoadoutCategory.DEATHBOX] = "deathbox",
 
 
 
@@ -238,20 +248,24 @@ global struct LoadoutEntry
 	int maxFavoriteCount = 0 
 	
 
+	int backupCount = 0 
+	array<string> ornull backupPdefKeys = null 
+
+
 	
 	int           networkTo = eLoadoutNetworking.PLAYER_EXCLUSIVE
 	string ornull networkVarName = ""
 
 	
-	LoadoutEntry_IsSlotLocked                     isSlotLocked = null 
-	bool                                          isAllowedToChangeDuringMatch = false 
+	LoadoutEntry_IsSlotLocked      isSlotLocked = null 
+	bool           isAllowedToChangeDuringMatch = false 
 	ItemFlavor ornull associatedCharacterOrNull = null 
 
 	ItemFlavor& defaultItemFlavor 
 	ItemFlavor& favoriteItemFlavor 
 
 	array<ItemFlavor> validItemFlavorList = [] 
-	array<string>     favoritePdefKeys = [] 
+	array<string> ornull favoritePdefKeys = null 
 	
 	
 
@@ -395,6 +409,10 @@ void function ShLoadouts_LevelInit_Begin()
 		Remote_RegisterServerFunction( "ClientCallback_favorites_clear", "int", INT_MIN, INT_MAX, "int", INT_MIN, INT_MAX )
 
 
+		Remote_RegisterServerFunction( LOADOUT_CLIENT_CALLBACK_TOGGLE_GOLDEN_HORSE_DEATHBOX, "int", 0, INT_MAX, "int", 0, INT_MAX ) 
+
+
+
 
 
 
@@ -511,6 +529,9 @@ void function ShLoadouts_LevelInit_Finish()
 {
 
 		Remote_RegisterClientFunction( "ServerToClient_LoadoutSlotDidChange", "entity", "int", 0, fileLevel.loadoutSlotEntries.len() )
+
+		Remote_RegisterClientFunction( LOADOUT_SERVER_CALLBACK_GOLDEN_HORSE_DEATHBOX_TOGGLED, "int", 0, INT_MAX, "int", 0, INT_MAX ) 
+
 		int batchMax = fileLevel.loadoutSlotEntries.len() + 1
 		Remote_RegisterClientFunction( "ServerToClient_LoadoutSlotDidChangeBatch", "entity",
 			"int", 0, batchMax, "int", 0, batchMax, "int", 0, batchMax, "int", 0, batchMax, "int", 0, batchMax, "int", 0, batchMax, "int", 0, batchMax, "int", 0, batchMax,
@@ -524,6 +545,15 @@ void function ShLoadouts_LevelInit_Finish()
 		{
 			Assert( entry.validItemFlavorList.len() > 0, "Entry " + entry.id + " had an empty validItemFlavorList" )
 			Assert( IsItemFlavorStructValid( entry.defaultItemFlavor.guid, eValidation.DONT_ASSERT ), "entry.defaultValue must have a valid value." )
+
+
+
+
+
+
+
+
+
 		}
 		else if ( entry.type == eLoadoutEntryType.INTEGER )
 		{
@@ -558,7 +588,7 @@ void function ShLoadouts_LevelInit_Finish()
 			}
 		}
 
-		RegisterSignal( "Loadout_" + entry.id + "_Ready" )
+		RegisterSignal( format( LOADOUT_ID_READY, entry.id ) )
 
 		if ( entry.networkTo == eLoadoutNetworking.PLAYER_GLOBAL )
 		{
@@ -655,10 +685,31 @@ void function ShLoadouts_LevelInit_Finish()
 		{
 			Assert( entry.validItemFlavorList.len() > 0, "No item flavors are registered that are valid for loadout slot '" + entry.id + "'" )
 
-			for ( int favoriteIdx = 0; favoriteIdx < entry.maxFavoriteCount; favoriteIdx++ )
+			if ( entry.maxFavoriteCount > 0 )
 			{
-				entry.favoritePdefKeys.append( format( "%s_fav%02d", entry.id, favoriteIdx ) )
+				array<string> favorites = []
+				for ( int favoriteIdx = 0; favoriteIdx < entry.maxFavoriteCount; favoriteIdx++ )
+				{
+					favorites.append( format( "%s_fav%02d", entry.id, favoriteIdx ) )
+				}
+				entry.favoritePdefKeys = favorites
 			}
+
+
+			if ( entry.backupCount > 0 )
+			{
+				Assert( ( entry.backupCount != 0 && entry.maxFavoriteCount == 0 )
+							|| ( entry.backupCount == 0 && entry.maxFavoriteCount != 0 )
+							|| ( entry.backupCount == 0 && entry.maxFavoriteCount == 0 ) )
+
+				array<string> backups = []
+				for ( int bakIdx = 0; bakIdx < entry.backupCount; bakIdx++ )
+				{
+					backups.append( format( "%s_bak_%02d", entry.id, bakIdx ) )
+				}
+				entry.backupPdefKeys = backups
+			}
+
 		}
 
 		if ( entry.associatedCharacterOrNull != null )
@@ -816,14 +867,53 @@ array<ItemFlavor> function LoadoutSlot_GetFavorites( EHI playerEHI, LoadoutEntry
 
 
 	array<ItemFlavor> items
-	foreach ( key in entry.favoritePdefKeys )
+
+	if ( entry.favoritePdefKeys == null )
+		return items
+
+	array<string> ornull favorites = entry.favoritePdefKeys
+	expect array<string>( favorites )
+	foreach ( key in favorites )
 	{
 
 
 				Assert( playerEHI == LocalClientEHI() )
 
 			entity player = FromEHI( playerEHI )
-			int guid      = expect int(player.GetPersistentVar( "loadouts." + key ))
+			int guid      = expect int(player.GetPersistentVar( LOADOUT_PDEF_PREFIX + key ))
+
+
+
+
+
+
+
+		if ( guid != 0 && IsValidItemFlavorGUID( guid, eValidation.DONT_ASSERT ) )  
+		{
+			ItemFlavor flav = GetItemFlavorByGUID( guid )
+			if ( IsItemFlavorGRXUnlockedForLoadoutSlot( playerEHI, flav ) )
+				items.append( flav )
+		}
+	}
+
+	return items
+}
+
+
+array<ItemFlavor> function LoadoutSlot_GetBackups( EHI playerEHI, LoadoutEntry entry )
+{
+	array<ItemFlavor> items
+	Assert( entry.backupPdefKeys != null )
+	array<string> ornull backups = entry.backupPdefKeys
+	expect array<string>( backups )
+	foreach ( key in backups )
+	{
+
+
+				Assert( playerEHI == LocalClientEHI() )
+
+			entity player = FromEHI( playerEHI )
+			int guid      = expect int(player.GetPersistentVar( LOADOUT_PDEF_PREFIX + key ))
 
 
 
@@ -884,7 +974,7 @@ ItemFlavor function LoadoutSlot_WaitForItemFlavor( EHI playerEHI, LoadoutEntry e
 				break
 		}
 
-		WaitSignal( WaitForEHISignalDummy( playerEHI ), "Loadout_" + entry.id + "_Ready" )
+		WaitSignal( WaitForEHISignalDummy( playerEHI ), format( LOADOUT_ID_READY, entry.id ) )
 	}
 
 	return ConvertLoadoutSlotContentsIndexToItemFlavor( entry, slotContentsIndex )
@@ -1582,6 +1672,19 @@ array<LoadoutEntry> function GetAllLoadoutSlots()
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
 void function ShLoadouts_OnPlayerEHICreated( EHI player, bool thisCallIsHappeningBecauseTheUIVMReset = false )
 {
 	EHIScriptStruct ehiss = GetEHIScriptStruct( player )
@@ -1932,7 +2035,7 @@ int function GetLoadoutSlotContentsIndexFromPersistence( EHI playerEHI, LoadoutE
 
 
 		entity player         = FromEHI( playerEHI )
-		int slotContentsIndex = expect int(player.GetPersistentVar( "loadouts." + entry.id ))
+		int slotContentsIndex = expect int(player.GetPersistentVar( LOADOUT_PDEF_PREFIX + entry.id ))
 
 
 
@@ -2012,6 +2115,20 @@ int function GetLoadoutSlotContentsIndexFromNetworkVar( EHI playerEHI, LoadoutEn
 		return GetEHIScriptStruct( playerEHI ).netVarsLastSeenValuesMap[entry.nvIndex]
 
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -2314,7 +2431,7 @@ void function RefreshLoadoutSlotInternal( EHI playerEHI, LoadoutEntry entry, tab
 
 	if ( slotContentsIndex != SLOT_CONTENTS_SENTINEL_NOTREADY && slotContentsIndex != SLOT_CONTENTS_SENTINEL_INVALID )
 	{
-		Signal( GetEHISignalDummy( playerEHI ), "Loadout_" + entry.id + "_Ready" )
+		Signal( GetEHISignalDummy( playerEHI ), format( LOADOUT_ID_READY, entry.id ) )
 	}
 
 	if ( slotContentsIndex == SLOT_CONTENTS_SENTINEL_NOTREADY || slotContentsIndex == SLOT_CONTENTS_SENTINEL_INVALID )
@@ -2406,9 +2523,6 @@ void function ServerToClient_LoadoutSlotSetFailed()
 	RunUIScript( "ClientToUI_PlayLootCeremonySound", "menu_deny" )
 	return
 }
-
-
-
 
 
 

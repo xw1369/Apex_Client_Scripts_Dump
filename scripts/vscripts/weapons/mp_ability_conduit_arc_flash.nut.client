@@ -511,6 +511,9 @@ int function IsValidTacTarget( entity user, entity target, bool ignoreFaceWhenCl
 	if ( target.IsPhaseShifted() )
 		return eLockResult.FAILED_GENERIC
 
+	if ( GetRespawnStatus( target ) != eRespawnStatus.NONE )
+		return eLockResult.FAILED_GENERIC
+
 	float distanceSqr = DistanceSqr( user.GetOrigin(), target.GetOrigin() )
 	if ( ignoreFaceWhenClose && distanceSqr < ARC_FLASH_MIN_RANGE_SQR )
 		return eLockResult.SUCCESS
@@ -586,6 +589,8 @@ int function GetPlayerTempshieldAmt( entity player )
 
 	return player.GetPlayerNetInt( TEMPSHIELD_NETVAR )
 }
+
+
 
 
 
@@ -1031,13 +1036,14 @@ void function SingleTargetRui_Thread(  entity player, entity target )
 		return
 
 	EndSignal( target, "OnDestroy", "OnDeath" )
+	EndSignal( target, "OnModelChanged" )
 	EndSignal( player, "TargetingStop" )
 	EndSignal( player, "OnDestroy" )
 
 	file.trackedAllys[player].append(target)
 
 	var rui = RuiCreate( $"ui/conduit_simplified_ally_ui.rpak", clGlobal.topoFullScreen, RUI_DRAW_HUD, RuiCalculateDistanceSortKey( player.EyePosition(), target.GetOrigin() ) )
-	InitHUDRui( rui, true )
+	InitHUDRui( rui )
 
 	RuiSetBool( rui, "isVisible", false )
 
@@ -1054,6 +1060,7 @@ void function SingleTargetRui_Thread(  entity player, entity target )
 	vector teamMemberColor = GetKeyColor( COLORID_MEMBER_COLOR0, teamMemberIndex )
 	RuiSetFloat3( rui, "teamMemberColor", SrgbToLinear( teamMemberColor / 255.0 ) )
 
+	target.DoModelChangeScriptCallback( true )
 	OnThreadEnd(
 		function() : ( rui, target, player)
 		{
@@ -1063,6 +1070,7 @@ void function SingleTargetRui_Thread(  entity player, entity target )
 
 			if ( IsValid( target ) )
 			{
+				target.DoModelChangeScriptCallback( false )
 				target.SetTargetInfoStatusIcon( $"" )
 			}
 		}
@@ -1081,7 +1089,7 @@ void function SingleTargetRui_Thread(  entity player, entity target )
 		bool isValidTacTarget = tacTargetResult == eLockResult.SUCCESS
 		bool isOutOfRange = tacTargetResult == eLockResult.FAILED_OUT_OF_RANGE
 
-		bool isVisible = !Bleedout_IsBleedingOut(player) && !player.Player_IsSkydiving() && ( isValidTacTarget || isPassiveTarget )
+		bool isVisible = ( isValidTacTarget || isPassiveTarget ) && IsPlayerInValidTacState( player )
 		RuiSetBool( rui, "isVisible", isVisible )
 
 		
@@ -1175,6 +1183,20 @@ void function SingleTargetRui_Thread(  entity player, entity target )
 	}
 }
 
+bool function IsPlayerInValidTacState( entity player )
+{
+	if ( Bleedout_IsBleedingOut(player) )
+		return false
+
+	if ( player.Player_IsSkydiving() )
+		return false
+
+	if ( player.IsDrivingVehicle() )
+		return false
+
+	return true
+}
+
 
 
 
@@ -1244,7 +1266,9 @@ void function ArcFlash_ShieldsRepairingThread( entity player )
 	if ( state == eArcFlashState.CHARGE )
 	{
 		int fxID = GetParticleSystemIndex( FX_TEMPSHIELD_1P )
-		entity cockpit = GetLocalViewPlayer().GetCockpit()
+		entity cockpit = player.GetCockpit()
+		if ( !IsValid(cockpit) )
+			return
 		fxHandle = StartParticleEffectOnEntity( cockpit, fxID, FX_PATTACH_ABSORIGIN_FOLLOW, ATTACHMENTID_INVALID )
 		EffectSetIsWithCockpit( fxHandle, true )
 		EffectSetControlPointVector( fxHandle, 1, TEMPSHIELD_COLOR )

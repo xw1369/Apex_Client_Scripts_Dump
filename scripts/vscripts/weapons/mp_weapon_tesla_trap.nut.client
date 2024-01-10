@@ -347,6 +347,8 @@ void function MpWeaponTeslaTrap_Init()
 
 
 
+
+
 		PrecacheParticleSystem( TESLA_TRAP_PLACE_RANGE_FX )
 		AddCreateCallback( "prop_script", TeslaTrap_OnPropScriptCreated )
 		AddDestroyCallback( "prop_script", TeslaTrap_OnPropScriptDestroyed )
@@ -2896,6 +2898,10 @@ void function TeslaTrap_PlacementProxy( entity weapon, entity player, asset mode
 
 
 
+
+
+
+
 entity function TeslaTrap_CalculateFocalTrap( entity player, entity trap )
 {
 	TeslaTrapPlayerPlacementData placementData
@@ -3106,6 +3112,16 @@ void function OnFocusTrapChanged( entity player, entity newEnt )
 
 	TeslaTrap_SetFocalTrapForPlayer( localViewPlayer, newEnt )
 }
+
+
+
+
+
+
+
+
+
+
 
 
 

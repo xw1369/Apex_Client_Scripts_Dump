@@ -15,6 +15,7 @@ global function Perk_CanPickUpExpiredBanners
 global function Perk_CanExpiredBannerBeRecovered
 global function GetCraftableTeamBanners
 global function Perk_CanTeammateCraftPlayerBanner
+global function DoesTeammateHaveBannerCraftingPerk
 
 
 global const string EXPIRED_BANNER_RECOVERY_NETVAR 		= "hasExpiredBannerPerk"
@@ -653,6 +654,23 @@ void function CreateCraftedBannerRui( entity banner )
 
 	WaitFrame()
 	WaitForever()
+}
+
+
+
+bool function DoesTeammateHaveBannerCraftingPerk( entity player )
+{
+	bool hasPerk = false
+	array<entity> teammates = GetPlayerArrayOfTeam( player.GetTeam() )
+	foreach ( teamMember in teammates )
+	{
+		if ( Perks_DoesPlayerHavePerk( teamMember, ePerkIndex.BANNER_CRAFTING ) )
+		{
+			hasPerk = true
+			break
+		}
+	}
+	return hasPerk
 }
 
                         

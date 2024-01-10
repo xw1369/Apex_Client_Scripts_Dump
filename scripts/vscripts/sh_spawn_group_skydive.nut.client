@@ -22,6 +22,7 @@ global function SpawnGroupSkydive_ShouldTeamHavePoolOfRespawns
 
 
 
+
 struct
 {
 	float functionref( int ) GetSquadSpawnDelay_Callback
@@ -87,6 +88,13 @@ void function ShSpawnSquadSkyDive_Init()
 
 
 
+
+
+
+
+
+
+
 int function SpawnSquadSkyDive_GetRemainingRespawnsForAllPlayersInSquad( int team )
 {
 	
@@ -114,13 +122,6 @@ int function SpawnSquadSkyDive_GetRemainingRespawnsForPlayer( entity player )
 
 	return player.GetPlayerNetInt( "respawnsRemaining" )
 }
-
-
-
-
-
-
-
 
 
 

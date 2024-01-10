@@ -285,6 +285,10 @@ var function OnWeaponTossReleaseAnimEvent_void_ring( entity weapon, WeaponPrimar
 			Signal( weapon, "VoidRing_EndPreview" )
 
 	}
+	else
+	{
+		return 0
+	}
 
 	return ammoReq
 }
@@ -398,6 +402,20 @@ void function OnVoidRingPlanted( entity projectile, DeployableCollisionParams co
 
 
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

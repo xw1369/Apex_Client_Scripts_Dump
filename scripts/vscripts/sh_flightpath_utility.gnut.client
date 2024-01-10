@@ -1046,7 +1046,6 @@ bool function VerifyAirdropPoint( vector baseOrigin, float yaw, bool isCarePacka
 		break
 	}
 
-
 	
 	vector playerMins = <-16, -16, 0>
 	vector playerMaxs = <16, 16, 72>

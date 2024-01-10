@@ -364,27 +364,8 @@ void function OnEchoLocatorPlanted( entity projectile, DeployableCollisionParams
 
 
 
+
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -1853,7 +1834,7 @@ void function EchoLocatorFootstepVFX_Thread( entity echoLocator )
 
 								lockFXID[potentialVictim].fxHandle    = StartParticleEffectOnEntity( potentialVictim, GetParticleSystemIndex( ECHO_LOCATOR_TARGET_ANIMATED ), FX_PATTACH_POINT_FOLLOW, potentialVictim.LookupAttachment( "CHESTFOCUS" ) )
 
-									Effects_SetParticleFlag( lockFXID[potentialVictim].fxHandle, PARTICLE_SCRIPT_FLAG_LOS_BLOCKSCAN, true )
+
 
 								lockFXID[potentialVictim].initialLock = false
 							}
@@ -1862,7 +1843,7 @@ void function EchoLocatorFootstepVFX_Thread( entity echoLocator )
 							{
 								lockFXID[potentialVictim].fxHandle    = StartParticleEffectOnEntity( potentialVictim, GetParticleSystemIndex( ECHO_LOCATOR_TARGET_NON_ANIMATED ), FX_PATTACH_POINT_FOLLOW, potentialVictim.LookupAttachment( "CHESTFOCUS" ) )
 
-									Effects_SetParticleFlag( lockFXID[potentialVictim].fxHandle, PARTICLE_SCRIPT_FLAG_LOS_BLOCKSCAN, true )
+
 
 								lockFXID[potentialVictim].initialLock = false
 							}
@@ -2095,7 +2076,7 @@ void function EchoLocatorFootstepVFXClient( entity victim, int team )
 	vector color = ( victim.IsPlayer() || IsTrainingDummie( victim ) || victim.IsPlayerDecoy() ) ? ENEMY_COLOR_FX : NEUTRAL_COLOR_FX
 	EffectSetControlPointVector( handle, 1, color )
 
-		Effects_SetParticleFlag( handle, PARTICLE_SCRIPT_FLAG_LOS_BLOCKSCAN, true )
+
 
 }
 

@@ -2,7 +2,7 @@
 #base "_base_shotgun_bolts.txt"
 
                     
-                                        
+#base "_base_hopup_golden_horse_red.txt"
       
 
 WeaponData
@@ -28,7 +28,11 @@ WeaponData
 	"fire_mode"   									"automatic"
 
                
-                         
+                           
+                                                                    
+                                                                                               
+
+                                                                                  
                      
 
 	"OnWeaponPrimaryAttack"							"OnWeaponPrimaryAttack_weapon_shotgun_pistol"
@@ -88,7 +92,7 @@ WeaponData
 	"fx_muzzle_flash_world"							"P_mozambique_base_FULL"
 	"fx_muzzle_flash_attach"						"muzzle_flash"
 
-	"damage_flags"									"DF_SHOTGUN | DF_BULLET | DF_KNOCK_BACK | DF_DISMEMBERMENT"
+	"damage_flags"									"DF_SHOTGUN | DF_BULLET | DF_KNOCK_BACK"
 	"damage_type" 									"bullet"
 	"damage_headshot_scale"							"1.25"
 
@@ -98,7 +102,11 @@ WeaponData
 
 	"critical_hit_damage_scale"						"1"
 
+              
+                               
+     
 	"ammo_clip_size"   								"6"
+      
 	"ammo_per_shot"									"1"
 
 	"ammo_no_remove_from_stockpile"					"0"
@@ -107,12 +115,21 @@ WeaponData
     "uses_ammo_pool"                                "1"
 
 	// Damage - When Used by Players
+              
+                                     
+                                  
+                                      
+                                           
+                                           
+                                               
+     
     "damage_near_value"   							"15"
     "damage_far_value"								"15"
     "damage_very_far_value"							"15"
     "damage_near_value_titanarmor"					"15"
     "damage_far_value_titanarmor" 					"15"
     "damage_very_far_value_titanarmor" 				"15"
+      
 	"damage_leg_scale"                              "1.0"
 
     "damage_near_distance"							"500"
@@ -426,12 +443,19 @@ WeaponData
                                                  
 
                                                  
-                                                              
+                                                             
                                                                        
 
                                                      
                                                      
 
+                                   
+                                             
+                                           
+                                           
+                                           
+                                                 
+                                              
              
 
                          
@@ -444,6 +468,29 @@ WeaponData
              
              
 
+                                         
+             
+                                                                                                    
+                                               
+             
+
+                                         
+             
+                                                                                                    
+                                               
+             
+
+                                         
+             
+                                                                                                    
+                                               
+             
+
+                                         
+             
+                                                                                                   
+                                               
+             
               
 	}
 

@@ -1672,6 +1672,8 @@ void function ServerToClient_MedBayHealVisualsDisabled( entity player )
 
 
 
+
+
 bool function MedBay_IsOnCooldown()
 {
 	if ( !IsValid( file.waypointTracker ) )

@@ -45,7 +45,7 @@ ImpactTable
 		"2" "P_impact_exp_emp_med_lava" //lava_rock_hot
 //		"3" "openslot"
 //		"4" "openslot"
-//		"5" "openslot"
+		"5" "P_impact_exp_emp_med_default"
 //		"6" "openslot"
 //		"7" "openslot"
 //		"8" "openslot"
@@ -96,6 +96,7 @@ ImpactTable
 
 		"1" "Explo_ProximityEMP_Impact_3P"
 		"2" "Explo_ProximityEMP_Impact_3P"
+		"5" "Explo_ProximityEMP_Impact_3P"
 
 		//"splash" "Water.BulletImpact"
 		//"slime_splash" "Water.BulletImpact"
@@ -138,6 +139,7 @@ ImpactTable
 
 		"1" "Explo_ProximityEMP_Impact_1P"
 		"2" "Explo_ProximityEMP_Impact_1P"
+		"5" "Explo_ProximityEMP_Impact_1P"
 
 		//"splash" "Water.BulletImpact"
 		//"slime_splash" "Water.BulletImpact"
@@ -180,6 +182,7 @@ ImpactTable
 
 		"1" "Explo_ProximityEMP_Impact_3P"
 		"2" "Explo_ProximityEMP_Impact_3P"
+		"5" "Explo_ProximityEMP_Impact_3P"
 
 		//"splash" "Water.BulletImpact"
 		//"slime_splash" "Water.BulletImpact"

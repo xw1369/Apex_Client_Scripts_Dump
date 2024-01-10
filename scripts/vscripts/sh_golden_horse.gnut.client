@@ -1,0 +1,142 @@
+
+
+
+
+
+
+global function GoldenHorse_SharedInit
+
+global function GoldenHorse_IsGoldenHorseEventActive
+global function GoldenHorse_GetEventCurrencyLifetimeTotal
+
+
+
+
+
+
+global const string REWARDSEQ_GOLDENHORSE_EVENT_CURRENCY = "rewardseq_s19me01_currency"
+
+const string PVAR_GOLDENHORSE_TOTAL_CURRENCY = "goldenHorseEventCurrencyTotal"
+const asset EVENT_SHOP_FLAV = $"settings/itemflav/calevent/s19me01/event_shop.rpak"
+const asset EVENT_CURRENCY_FLAV = $"settings/itemflav/grx_currency/s19me01_coin.rpak"
+
+
+
+void function GoldenHorse_SharedInit()
+{
+
+
+
+
+}
+
+
+
+bool function GoldenHorse_IsGoldenHorseEventActive()
+{
+	ItemFlavor eventFlav = GetItemFlavorByAsset( EVENT_SHOP_FLAV ) 
+	return CalEvent_IsActive( eventFlav, GetUnixTimestamp() )
+}
+
+
+
+int function GoldenHorse_GetEventCurrencyLifetimeTotal( entity player )
+{
+	if ( GoldenHorse_IsGoldenHorseEventActive() )
+	{
+		return GetStat_Int( player, ResolveStatEntry( CAREER_STATS.s19gh_event_currency_total ), eStatGetWhen.CURRENT )
+	}
+
+	return 0
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                          

@@ -128,6 +128,9 @@ global const GAMEMODE_HALLOWEEN_18_1 = "halloween_18_1_trios"
 global const GAMEMODE_HALLOWEEN_18_1_HARBINGER = "halloween_18_1_harbinger_trios"
 
 
+global const GAMEMODE_GOLDEN_HORSE = "golden_horse_trios"
+
+
 
 
 
@@ -141,6 +144,9 @@ global const GAMEMODE_STRIKEOUT = "strikeout"
 
 
 global const GAMEMODE_BANNERBOMB = "bannerbomb"
+
+
+
 
 
 
@@ -251,6 +257,7 @@ global const vector TEAM_COLOR_PARTY = <PARTY_R, PARTY_G, PARTY_B>
 global const vector TEAM_COLOR_YOU = <LOCAL_R, LOCAL_G, LOCAL_B>
 global const vector BURN_COLOR = <BURN_R, BURN_G, BURN_B>
 global const vector CRAFTING_COLOR = <CRAFTING_R, CRAFTING_G, CRAFTING_B>
+global const vector CRAFTING_2PT0_COLOR = <183, 135, 255>
 global const vector COLOR_AIRDROP = <128, 188, 255>
 global const vector COLOR_AIRDROP_RARITY_COMMON = <192, 192, 192>
 global const vector COLOR_AIRDROP_RARITY_RARE = <80, 160, 215>
@@ -754,39 +761,11 @@ global const REQUIRES_PILOT = 1
 global const REQUIRES_TITAN = 2
 
 global const HIGHLIGHT_USE_DEFAULT = -1
-global struct HighlightContext
-{
-	int    highlightId
-	int    contextId
-	string name
-	bool   adsFade = true
-
-	float nearDist = 0
-	float farDist = -1.0 
-	float farFadeInDist
-	bool  requiresNotFullHealth
-	bool  requiresCanPickupOrdnance
-	bool  requiresCanPickupClip
-	int   requiresClass = REQUIRES_ANY
-	bool  requiresWeakPointsVisible
-	bool  requiresOwnedByLocalPlayer = false
-	bool  requiresStationary = false
-	bool  disableDeathFade = false
-
-	int                        drawFuncId = 0
-	void functionref( entity ) thinkFunction
-
-	int colorID = -1
-
-	bool teamAgnostic = false
-}
 
 global struct ShGlobals
 {
 	table<string, array<void functionref(entity, var)> >    deathCallbacks
 	table<int, array<void functionref(entity, var)> >       damageSourceIdCallbacks
-
-	table<string, HighlightContext> highlight
 }
 
 global ShGlobals shGlobal
@@ -824,9 +803,8 @@ global enum ePresentationType
 	APPLIED_STICKER_SMALL_CELL,
 	APPLIED_STICKER_LARGE_CELL,
 	UNAPPLIED_STICKER,
-
 	WEAPON_TRIAL_CELEBRATIONS,
-
+	MELEE_INSPECT,
 
 	COUNT
 }
@@ -1078,6 +1056,9 @@ global enum eHitType
 	VORTEX,
 	SHADOW,
 	OVERSHIELD,
+
+
+
 }
 
 global const vector TEMPSHIELD_COLOR = <19, 207, 69>
@@ -1120,6 +1101,10 @@ global enum eCommsAction
 
 
 
+
+
+
+
 	PING_WEAPON_BOW,
 
 
@@ -1130,13 +1115,13 @@ global enum eCommsAction
 		PING_WEAPON_NEMESIS,
 
 
+		PING_WEAPON_TITAN_SWORD,
+		QUICKCHAT_TITAN_SWORD_READY_FULL,
 
 
-
-
-
-
-
+		PING_ATTACHMENT_HOPUP_GOLDEN_HORSE,
+		PING_NPC_LOOT_TICK_GH,
+		QUICKCHAT_GH_MARK_LOOT_TICKS,
 
 	
 	PING_OFFHAND_GRENADE_FIRESTAR,
@@ -1265,6 +1250,13 @@ global enum eCommsAction
 		PING_ITEM_COPYCAT_KIT
 		PING_ITEM_REV_SHELL
 		PING_ITEM_REV_SHELL_INAIR
+
+
+
+
+
+
+
 
 
 
@@ -1500,6 +1492,12 @@ global enum eCommsAction
 	PING_MATERIALS,
 	REPLY_CRAFTING_NEXT_HARVESTER_OR_WORKBENCH,
 	REPLY_CRAFTING_PING_ALL_WORKBENCHES,
+
+
+
+
+
+
 
 	
 	QUICKCHAT_CELEBRATE,
@@ -1836,6 +1834,11 @@ global enum eCommsAction
 
 
 
+
+
+
+
+
 		FLAVOR_NPC_MARVIN,
 
 
@@ -2012,6 +2015,17 @@ global enum eCommsAction
 
 
 
+
+
+
+
+
+
+
+
+
+
+
 	_count
 }
 
@@ -2038,7 +2052,6 @@ global const string REVIVE_SHIELD_SCRIPTNAME = "revive_shield"
 global const string GENERIC_PING_PANEL_SCRIPTNAME = "generic_panel"
 global const string GENERIC_PING_PANEL_SCRIPTNAME_COOLDOWN = "generic_panel_cooldown"
 global const string GENERIC_PING_PANEL_SCRIPTNAME_INACTIVE = "generic_panel_inactive"
-global const string JUMP_PAD_TARGETNAME = "jump_pad"
 global const string JUMP_PAD_NEUTRAL_SCRIPTNAME = "jump_pad_neutral"
 global const string SKYDIVE_LAUNCHER_TARGETNAME = "skydive_launcher"
 
@@ -2253,6 +2266,7 @@ global enum eFRSettingType
 	SHOWRUI,				
 	SHOWDYNSTATS,			
 	SHOWDYNTIMER,			
+	LEGENDUPGRADES_RESET,	
 	INFINITEMAGS,			
 	SHOWHITMARKS,			
 	SHOW3RDPERSON,			
@@ -2713,6 +2727,10 @@ global enum eRuiArgType
 
 
 global const string POISPAWN_PLACEDCENTER_SCRIPTNAME = "poispawn_placedcenter"
+
+
+
+
 
 
 

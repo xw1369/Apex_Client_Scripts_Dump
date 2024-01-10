@@ -776,6 +776,23 @@ void function SmartAmmo_LockedOntoWarningHUD_Update()
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 		else if ( StatusEffect_HasSeverity( player, eStatusEffect.rev_shell_targeted ) )
 		{
 			 RuiSetString( file.lockon_hud, "lockMessage", "#REV_SHELL_LOCKON" )
@@ -788,6 +805,27 @@ void function SmartAmmo_LockedOntoWarningHUD_Update()
 			 RuiSetFloat3( file.lockon_hud, "borderColor", <1, 0, 0> )
 			 RuiSetBool( file.lockon_hud, "showProgress", false )
 		}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

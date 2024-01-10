@@ -59,7 +59,7 @@ void function RollingRespawn_Init()
 	if ( GetRespawnStyle() != eRespawnStyle.ROLLING_RESPAWN )
 		return
 
-	Remote_RegisterServerFunction( "ClientCallback_TryRespawnPlayer", "entity" )
+	Remote_RegisterServerFunction( "ClientCallback_TryRespawnPlayer", "typed_entity", "player_waypoint" )
 
 
 

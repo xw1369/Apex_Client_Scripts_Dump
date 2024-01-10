@@ -1,0 +1,9 @@
+WeaponData
+{
+	Mods
+	{
+		hopup_golden_horse_red
+		{
+		}
+	}
+}

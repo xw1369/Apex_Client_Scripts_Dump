@@ -48,7 +48,7 @@ ImpactTable
 		"2" "P_hmn_footstep_lava" //lava_rock_hot
 //		"3" "openslot"
 //		"4" "openslot"
-//		"5" "openslot"
+		"5" "P_impact_water_hrz"
 //		"6" "openslot"
 //		"7" "openslot"
 //		"8" "openslot"
@@ -100,6 +100,7 @@ ImpactTable
 
 		"1" "Conduit_Jammers_Land_Water" //lava_flow
 		"2" "Conduit_Jammers_Land_Mud" //lava_rock_hot
+		"5" "Conduit_Jammers_Land_Water"
 
 		"splash" "Water.BulletImpact"
 		"slime_splash" "Water.BulletImpact"
@@ -141,6 +142,7 @@ ImpactTable
 
 		"1" "Conduit_Jammers_Land_Water" //lava_flow
 		"2" "Conduit_Jammers_Land_Mud" //lava_rock_hot
+		"5" "Conduit_Jammers_Land_Water"
 
 		"splash" "Water.BulletImpact"
 		"slime_splash" "Water.BulletImpact"
@@ -182,6 +184,7 @@ ImpactTable
 
 		"1" "Conduit_Jammers_Land_Water" //lava_flow
 		"2" "Conduit_Jammers_Land_Mud" //lava_rock_hot
+		"5" "Conduit_Jammers_Land_Water"
 
 		"splash" "Water.BulletImpact"
 		"slime_splash" "Water.BulletImpact"

@@ -18,11 +18,6 @@ global function Sh_Survival_Strikeout_RegisterNetworking
 
 
 
-
-
-
-
-
 	global function Strikeout_StrikesChanged
 	global function ServertoClient_RespawnsDisabledAnnouncement
 	global function ServertoClient_SquadElimationAnnouncement
@@ -123,29 +118,6 @@ void function __EntitiesDidLoad()
 	SurvivalCommentary_SetHost( eSurvivalHostType.OCTANE )
 	return
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -692,11 +664,6 @@ int function GetPlaylistVar_RespawnDisabledDeathstage()
 int function GetPlaylistVar_BonusHealingGrantDeathstage()
 {
 	return GetCurrentPlaylistVarInt( "strikeout_bonus_healing_items_deathstage", 3 )
-}
-
-int function GetPlaylistVar_TransparencyAmount()
-{
-	return GetCurrentPlaylistVarInt( "strikeout_transparency_amount", 140 )
 }
 
 bool function IsStrikeoutGamemode()

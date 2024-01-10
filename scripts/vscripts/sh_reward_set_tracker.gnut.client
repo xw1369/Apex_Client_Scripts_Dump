@@ -1,0 +1,115 @@
+
+
+global function ShRewardSetTracker_LevelInit
+
+global function RewardSetTracker_GetDisplayImageAsset
+global function RewardSetTracker_GetFilterType
+global function FilterRewardSetItemsFromPackList
+
+#if DEV
+global function DEV_RewardSetTracker_GetTrackerFlavByGRXRef
+#endif
+
+
+
+
+
+
+
+
+void function ShRewardSetTracker_LevelInit()
+{
+	AddCallback_RegisterRootItemFlavors( RegisterAllRewardSetTrackersAsItemFlavors )
+}
+
+
+
+void function RegisterAllRewardSetTrackersAsItemFlavors()
+{
+	foreach ( asset rewardSetTrackerAsset in GetBaseItemFlavorsFromArray( "rewardSetTrackers" ) )
+	{
+		if ( rewardSetTrackerAsset == $"" )
+		{
+			continue
+		}
+		ItemFlavor ornull rewardSetTrackerOrNull = RegisterItemFlavorFromSettingsAsset( rewardSetTrackerAsset )
+		if ( rewardSetTrackerOrNull == null )
+		{
+			printt( "Failed to register Reward Set Tracker ItemFlavor from Settings Asset ", rewardSetTrackerAsset )
+			continue
+		}
+		ItemFlavor trackerFlav = expect ItemFlavor( rewardSetTrackerOrNull )
+		RegisterItemFlavorFromSettingsAsset( GetGlobalSettingsAsset( ItemFlavor_GetAsset( trackerFlav ), "filterType" ) )
+	}
+}
+
+
+
+
+
+
+
+
+
+asset function RewardSetTracker_GetDisplayImageAsset( ItemFlavor flavor )
+{
+	Assert( ItemFlavor_GetType( flavor ) == eItemType.reward_set_tracker )
+
+	return GetGlobalSettingsAsset( ItemFlavor_GetAsset( flavor ), "rewardCeremonyDisplayImage" )
+}
+
+
+ItemFlavor function RewardSetTracker_GetFilterTypeFlav( ItemFlavor tracker )
+{
+	Assert( IsItemFlavorStructValid( tracker.guid, eValidation.ASSERT ) )
+	Assert( ItemFlavor_GetType( tracker ) == eItemType.reward_set_tracker )
+
+	return GetItemFlavorByAsset( GetGlobalSettingsAsset( ItemFlavor_GetAsset( tracker ), "filterType" ) )
+}
+
+
+int function RewardSetTracker_GetFilterType( ItemFlavor rewardSetTracker )
+{
+	Assert( IsItemFlavorStructValid( rewardSetTracker.guid, eValidation.ASSERT ) )
+	Assert( ItemFlavor_GetType( rewardSetTracker ) == eItemType.reward_set_tracker )
+
+	return ItemFlavor_GetType( RewardSetTracker_GetFilterTypeFlav( rewardSetTracker ) )
+}
+
+
+#if DEV
+ItemFlavor ornull function DEV_RewardSetTracker_GetTrackerFlavByGRXRef( string grxRef )
+{
+	array<ItemFlavor> trackers = GetAllItemFlavorsOfType( eItemType.reward_set_tracker )
+	foreach ( ItemFlavor tracker in trackers )
+	{
+		if ( GetGlobalSettingsString( ItemFlavor_GetAsset( tracker ), "grxRef" ) == grxRef )
+		{
+			return tracker
+		}
+	}
+	return null
+}
+#endif
+
+
+array<ItemFlavor> function FilterRewardSetItemsFromPackList( ItemFlavor trackerFlav, array<ItemFlavor> packList )
+{
+	Assert( IsItemFlavorStructValid( trackerFlav.guid, eValidation.ASSERT ) )
+	Assert( ItemFlavor_GetType( trackerFlav ) == eItemType.reward_set_tracker,
+		format("FilterRewardSetItemsFromPackList expects an ItemFlavor with type == eItemType.reward_set_tracker, but received type %d instead.", ItemFlavor_GetTypeName( trackerFlav ) ) )
+
+	int filterType = RewardSetTracker_GetFilterType( trackerFlav )
+	array<ItemFlavor> filteredPackList
+	foreach( ItemFlavor flav in packList )
+	{
+		if ( ItemFlavor_GetType( flav ) != filterType )
+		{
+			filteredPackList.append( flav )
+		}
+	}
+	return filteredPackList
+}
+
+
+                          

@@ -39,7 +39,7 @@ ImpactTable
 		"2" "P_Armored_Leap_Impact_lava" //lava_rock_hot
 		"3" "P_Armored_Leap_Impact_dirt"
 		"4" "P_Armored_Leap_Impact_dirt"
-		"5" "P_Armored_Leap_Impact_dirt"
+		"5" "P_Armored_Leap_Impact_water"
 		"6" "P_Armored_Leap_Impact_dirt"
 		"7" "P_Armored_Leap_Impact_dirt"
 		"8" "P_Armored_Leap_Impact_dirt"
@@ -87,7 +87,7 @@ ImpactTable
 		"2" "Newcastle_ultimate_WallSlam_impact_concrete" //lava_rock_hot
 //		"3" "openslot"
 //		"4" "openslot"
-//		"5" "openslot"
+		"5" "Newcastle_ultimate_WallSlam_impact_water"
 //		"6" "openslot"
 //		"7" "openslot"
 //		"8" "openslot"
@@ -136,7 +136,7 @@ ImpactTable
 		"2" "Newcastle_ultimate_WallSlam_impact_concrete" //lava_rock_hot
 //		"3" "openslot"
 //		"4" "openslot"
-//		"5" "openslot"
+		"5" "Newcastle_ultimate_WallSlam_impact_water"
 //		"6" "openslot"
 //		"7" "openslot"
 //		"8" "openslot"
@@ -185,7 +185,7 @@ ImpactTable
 		"2" "Newcastle_ultimate_WallSlam_impact_concrete" //lava_rock_hot
 //		"3" "openslot"
 //		"4" "openslot"
-//		"5" "openslot"
+		"5" "Newcastle_ultimate_WallSlam_impact_water"
 //		"6" "openslot"
 //		"7" "openslot"
 //		"8" "openslot"

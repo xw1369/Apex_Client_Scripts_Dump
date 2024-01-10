@@ -14,7 +14,7 @@ ImpactTable
 		"H" "P_pilot_dash_imp_metal" //alienflesh
 
 		"J" "P_pilot_dash_imp_dust"	  //grass
-		"K" "P_hmn_bslam_mud_small"		//Mud
+		"K" "P_pilot_dash_imp_mud"		//Mud
 		"L" "P_pilot_dash_imp_metal" //plastic_barrel, plastic_box, item, rubber, rubbertire, jeeptire, slidingrubbertire, brakingrubbertire, slidingrubbertire_front, slidingrubbertire_rear
 		"M" "P_pilot_dash_imp_metal" //Default, metal, metal_box, solidmetal, armorflesh, metal_bouncy, slippery_metal, shellcasing_small, shellcasing_large, metal_barrel, floating_metal_barrel, weapon
 		"N" "P_pilot_dash_imp_dust"
@@ -36,10 +36,10 @@ ImpactTable
 
 		"0" "P_pilot_dash_imp_dust" //unused
 		"1" "P_pilot_dash_imp_lava_nodecal" //lava_flow
-		"2" "P_pilot_dash_imp_lava" //lava_rock_hot
+		"2" "P_pilot_dash_imp_lava_nodecal" //lava_rock_hot
 		"3" "P_pilot_dash_imp_dust" //unused
 		"4" "P_pilot_dash_imp_dust" //unused
-		"5" "P_pilot_dash_imp_dust" //unused
+		"5" "P_pilot_dash_imp_water" //unused
 		"6" "P_pilot_dash_imp_dust" //unused
 		"7" "P_pilot_dash_imp_dust" //unused
 		"8" "P_pilot_dash_imp_dust" //unused
@@ -56,5 +56,169 @@ ImpactTable
 
 		"headshot_flesh" "none" //Human headshot
 		"headshot_mechanical" "none" //Robotic Headshot
+	}
+
+	Sound
+	{
+		"C" "none"
+		"D" "none"
+		"E" "none"
+
+		"F" "none"
+		"G" "none" // "ChainLink.BulletImpact"
+		"H" "none"
+
+		"J" "none"
+		"K" "none"  // mud?
+		"L" "none" // "Plastic_Box.BulletImpact"
+		"M" "none"	//"ArmorFlesh.BulletImpact"
+		"N" "none"	// sand?
+		"O" "none"
+		"P" "none"
+
+		"Q" "none"
+		"R" "none"
+		"S" "none"
+		"T" "none"
+
+		"V" "none"
+		"W" "none"
+		"X"	"none" // Titan bubble shield
+		"Y" "none"
+		"Z" "none"
+
+		"0" "none"
+		"1" "none" //lava_flow
+		"2" "none" //lava_rock_hot
+		"3" "none"
+		"4" "none"
+		"5" "none"
+		"6" "none"
+		"7" "none"
+		"8" "none"
+		"9" "none"
+
+		"splash" "none"
+		"slime_splash" "none"
+
+		"airburst" "none"
+		"shieldhit" "none"
+		"holohit" "none"
+
+		"headshot_flesh" "none"
+		"headshot_mechanical" "none"
+	}
+
+	Sound_attacker
+	{
+		"C" "none"
+		"D" "none"
+		"E" "none"
+
+		"F" "none"
+		"G" "none" // "ChainLink.BulletImpact"
+		"H" "none"
+
+		"J" "none"
+		"K" "none"  // mud?
+		"L" "none" // "Plastic_Box.BulletImpact"
+		"M" "none"	//"ArmorFlesh.BulletImpact"
+		"N" "none"	// sand?
+		"O" "none"
+		"P" "none"
+
+		"Q" "none"
+		"R" "none"
+		"S" "none"
+		"T" "none"
+
+		"V" "none"
+		"W" "none"
+		"X"	"none" // Titan bubble shield
+		"Y" "none"
+		"Z" "none"
+
+		"0" "none"
+		"1" "none" //lava_flow
+		"2" "none" //lava_rock_hot
+		"3" "none"
+		"4" "none"
+		"5" "none"
+		"6" "none"
+		"7" "none"
+		"8" "none"
+		"9" "none"
+
+		"splash" "none"
+		"slime_splash" "none"
+
+		"airburst" "none"
+		"shieldhit" "none"
+		"holohit" "none"
+
+		"headshot_flesh" "none"
+		"headshot_mechanical" "none"
+	}
+
+	Sound_victim
+	{
+		"C" "none"
+		"D" "none"
+		"E" "none"
+
+		"F" "none"
+		"G" "none" // "ChainLink.BulletImpact"
+		"H" "none"
+
+		"J" "none"
+		"K" "none"  // mud?
+		"L" "none" // "Plastic_Box.BulletImpact"
+		"M" "none"	//"ArmorFlesh.BulletImpact"
+		"N" "none"	// sand?
+		"O" "none"
+		"P" "none"
+
+		"Q" "none"
+		"R" "none"
+		"S" "none"
+		"T" "none"
+
+		"V" "none"
+		"W" "none"
+		"X"	"none" // Titan bubble shield
+		"Y" "none"
+		"Z" "none"
+
+		"0" "none"
+		"1" "none" //lava_flow
+		"2" "none" //lava_rock_hot
+		"3" "none"
+		"4" "none"
+		"5" "none"
+		"6" "none"
+		"7" "none"
+		"8" "none"
+		"9" "none"
+
+		"splash" "none"
+		"slime_splash" "none"
+
+		"airburst" "none"
+		"shieldhit" "none"
+		"holohit" "none"
+
+		// Victim headshot sounds taken care of in PlayVictimHeadshotConfirmation():
+		//"headshot_flesh" "none"
+		//"headshot_mechanical" "none"
+	}
+
+	Sound_victim_from_AI
+	{
+		"F" "none"
+		"P" "none"
+
+		// Victim headshot sounds taken care of in PlayVictimHeadshotConfirmation():
+		//"headshot_flesh" "none"
+		//"headshot_mechanical" "none"
 	}
 }

@@ -69,7 +69,7 @@ WeaponData
     "damage_type" 									"bullet"
     //"damage_falloff_type"							"inverse"
     //"damage_inverse_distance"						"100"
-    "damage_flags"									"DF_SHOTGUN | DF_BULLET | DF_KNOCK_BACK | DF_DISMEMBERMENT"
+    "damage_flags"									"DF_SHOTGUN | DF_BULLET | DF_KNOCK_BACK"
 
     "headshot_distance" 							"1500"
 

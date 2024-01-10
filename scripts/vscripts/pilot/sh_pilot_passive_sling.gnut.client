@@ -105,8 +105,13 @@ bool function CanPlayerEquipWeaponRefToSling( entity player, string ref, bool do
 	if( data.tier > 1 && !ModeUsesLoadoutWeapons() )
 		return false
 
-	if( data.lootTags.contains( WEAPON_LOCKEDSET_MOD_WHITESET ) && !ModeUsesLoadoutWeapons() )
-		return false
+
+
+
+
+		if( data.lootTags.contains( WEAPON_LOCKEDSET_MOD_WHITESET ) && !ModeUsesLoadoutWeapons() )
+			return false
+
 
 	return true
 }
@@ -171,6 +176,98 @@ void function PassiveSling_OnPassiveChanged( entity player, int passive, bool di
 
 	}
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -511,9 +608,7 @@ void function UpdateSlingPassiveRui( entity player )
 
 		RuiSetString(  file.slingPassiveRui, "weaponName", weaponName )
 
-
-			WeaponRuiUpdateMastery( file.slingPassiveRui, slingWeapon, "hudIconMastered", "isMastered", "moreSparksMastered")
-
+		WeaponRuiUpdateMastery( file.slingPassiveRui, slingWeapon, "hudIconMastered", "isMastered", "moreSparksMastered")
 	}
 	else
 	{
@@ -527,9 +622,7 @@ void function UpdateSlingPassiveRui( entity player )
 		RuiSetFloat( file.slingPassiveRui, "maxMagAmmo", 0.0 )
 		RuiSetFloat( file.slingPassiveRui, "maxAmmo", 0.0 )
 		RuiSetBool( file.slingPassiveRui, "slingEmptyAimingAtWeapon", false )
-
-			RuiSetBool( file.slingPassiveRui, "isMastered", false )
-
+		RuiSetBool( file.slingPassiveRui, "isMastered", false )
 	}
 
 	if( SURVIVAL_GetPrimaryWeapons( player ).len() <= 0 )

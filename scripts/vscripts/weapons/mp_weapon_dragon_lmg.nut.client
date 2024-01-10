@@ -91,9 +91,26 @@ void function OnWeaponActivate_weapon_dragon_lmg( entity weapon )
 		}
 
 		if ( weapon.HasMod( DRAGON_LMG_ENERGIZED_MOD ) )
+		{
 			weapon.EmitWeaponSound_1p3p( EQUIPPED_WHILE_CHARGED, $"" )
+
+		}
 		else
+		{
 			weapon.kv.rendercolor = "0 0 0"
+		}
+
+
+
+
+
+
+
+
+
+
+
+
 
 }
 

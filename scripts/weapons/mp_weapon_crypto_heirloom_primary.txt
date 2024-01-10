@@ -34,8 +34,9 @@ WeaponData
 
 	// Animation
 	"activitymodifier3P"							"sword"
+	"activitymodifier1p"                            "sword_1p"
 	
-		// Bob - Hip
+	// Bob - Hip
 	"bob_cycle_time"                           "0.4"
 	"bob_max_speed"                            "150"
 	"bob_vert_dist"                            "0.19"
@@ -61,4 +62,12 @@ WeaponData
 	"sway_translate_gain"                      "2.5"
 	"sway_rotate_gain"                         "7"
 
+	Mods
+	{
+		sword_rt01
+		{
+			"activitymodifier3P"		"sword_rt01"
+			"activitymodifier1p"        "sword_rt01_1p"
+		}
+	}
 }

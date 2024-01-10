@@ -94,6 +94,8 @@ ImpactTable
 
 		"headshot_flesh" "gravitystar_explo_3P"
 		"headshot_mechanical" "gravitystar_explo_3P"
+
+		"5" "gravitystar_explo_3P"
 	}
 
 	Sound_attacker
@@ -133,6 +135,8 @@ ImpactTable
 
 		"headshot_flesh" "gravitystar_explo_3p"
 		"headshot_mechanical" "gravitystar_explo_3p"
+
+		"5" "gravitystar_explo_3p"
 	}
 
 	Sound_victim
@@ -172,6 +176,8 @@ ImpactTable
 
 		"headshot_flesh" "gravitystar_explo_3P"
 		"headshot_mechanical" "gravitystar_explo_3P"
+
+		"5" "gravitystar_explo_3P"
 	}
 
 

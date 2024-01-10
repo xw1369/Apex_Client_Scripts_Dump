@@ -73,6 +73,9 @@ global enum eConsumableType
 
 
 
+
+
+
 	ULTIMATE
 
 	_count
@@ -348,6 +351,21 @@ void function Consumable_Init()
 		file.consumableTypeToInfo[ eConsumableType.HEALTH_SMALL ] <- healthSmall
 	}
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 	{
 		
 		ConsumableInfo ultimateBattery
@@ -373,6 +391,9 @@ void function Consumable_Init()
 
 	file.modNameToConsumableType[ "phoenix_kit" ] <-        eConsumableType.COMBO_FULL
 	file.modNameToConsumableType[ "ultimate_battery" ] <-    eConsumableType.ULTIMATE
+
+
+
 
 
 
@@ -478,7 +499,7 @@ void function OnWeaponOwnerChanged_Consumable( entity weapon, WeaponOwnerChanged
 	if ( !IsValid( changeParams.oldOwner ) )
 	{
 
-		if ( weaponOwner == GetLocalClientPlayer() || IsSpectatorSpectatingPlayer( weaponOwner ) )
+		if ( weaponOwner == GetLocalViewPlayer() )
 
 		{
 			TryAddWeaponPersistenceData( weapon )
@@ -643,7 +664,7 @@ void function OnWeaponActivate_Consumable( entity weapon )
 
 
 
-		if ( weapon.GetOwner() != GetLocalClientPlayer() && !IsSpectatorSpectatingPlayer( weapon.GetOwner() ) )
+		if ( weapon.GetOwner() != GetLocalClientPlayer() )
 			return
 
 
@@ -673,10 +694,14 @@ void function OnWeaponActivate_Consumable( entity weapon )
 
 		file.healCompletedSuccessfully = false
 
-		if ( CharacterSelect_MenuIsOpen() )
-			CloseCharacterSelectMenu()
-		if ( !( IsPrivateMatch() && IsSpectator( GetLocalClientPlayer() ) ) ) 
+		if ( !IsSpectator( GetLocalClientPlayer() ) && !IsWatchingKillReplay() )
+		{
+			if ( CharacterSelect_MenuIsOpen() )
+				CloseCharacterSelectMenu()
+
 			RunUIScript( "CloseAllMenus" )
+		}
+
 
 
 
@@ -712,7 +737,14 @@ void function OnWeaponActivate_Consumable( entity weapon )
 		if ( InPrediction() )
 
 		{
+
+
+
+
 			useData.statusEffectHandles.append( StatusEffect_AddEndless( weaponOwner, eStatusEffect.move_slow, GetCurrentPlaylistVarFloat( "survival_healthkits_move_speed_reduction", 0.4 ) ) )
+
+
+
 			useData.statusEffectHandles.append( StatusEffect_AddEndless( weaponOwner, eStatusEffect.disable_wall_run, 1.0 ) )
 			useData.statusEffectHandles.append( StatusEffect_AddEndless( weaponOwner, eStatusEffect.disable_double_jump, 1.0 ) )
 		}
@@ -882,7 +914,7 @@ void function OnWeaponDeactivate_Consumable( entity weapon )
 
 
 
-		if ( IsValid( weaponOwner ) && weaponOwner != GetLocalClientPlayer() && !IsSpectatorSpectatingPlayer( weaponOwner ) )
+		if ( IsValid( weaponOwner ) && weaponOwner != GetLocalViewPlayer() )
 			return
 
 		Signal( weaponOwner, "ConsumableDestroyRui" )
@@ -1263,7 +1295,7 @@ var function OnWeaponPrimaryAttack_Consumable( entity weapon, WeaponPrimaryAttac
 
 
 
-		if ( player != GetLocalClientPlayer() )
+		if ( player != GetLocalViewPlayer() )
 			return
 
 		file.healCompletedSuccessfully = true
@@ -1409,7 +1441,7 @@ void function Consumable_HandleConsumableUseCommand( entity player, string consu
 
 void function AddModAndFireWeapon_Thread( entity player, string modName )
 {
-	if ( ! (player == GetLocalClientPlayer() && player == GetLocalViewPlayer()) )
+	if ( !( player == GetLocalClientPlayer() && player == GetLocalViewPlayer() ) )
 		return
 
 	if ( player.IsBot() )
@@ -1770,7 +1802,16 @@ string function GetCanUseResultString( int consumableUseActionResult )
 			return "#DENY_NO_KITS"
 
 		case eUseConsumableResult.DENY_NO_SHIELDS:
-			return "#DENY_NO_SHIELDS"
+		{
+
+
+
+
+
+
+				return "#DENY_NO_SHIELDS"
+
+		}
 
 		case eUseConsumableResult.DENY_FULL:
 			return "#DENY_FULL"
@@ -1799,6 +1840,7 @@ void function ServerToClient_DoUltAccelScreenFx()
 {
 	Consumable_DoUltAccelScreenFx( GetLocalViewPlayer() )
 }
+
 
 
 
@@ -2372,8 +2414,10 @@ int function Consumable_GetConsumableRecoveryType( int consumableType )
 
 bool function Consumable_CanUseConsumable( entity player, int consumableType, bool printReason = true )
 {
-	if ( IsPlayerShadowZombie( player ) )
-		return false
+
+		if ( IsPlayerShadowZombie( player ) )
+			return false
+
 
 
 	int canUseResult = TryUseConsumable( player, consumableType )
@@ -2454,10 +2498,8 @@ int function TryUseConsumable( entity player, int consumableType )
 	{
 		if ( player.ContextAction_IsRodeo() )
 			break 
-
 		if ( player.ContextAction_IsZipline() && PlayerHasPassive( player, ePassives.PAS_PATHFINDER ) && !S16_PathfinderSkirmisherPassiveActive() )
 			break 
-
 
 		return eUseConsumableResult.DENY_NONE
 	}

@@ -1,7 +1,7 @@
 global function Lifesteal_Init
 
 
-global function ServerToClient_AddLifestealHealVFX
+global function ServerToClient_ShowLifesteal
 
 
 
@@ -15,14 +15,14 @@ const string LIFESTEAL_WEAPON_VAR = "lifesteal_heal_percent"
 const float VALENTINES_HEAL_DEBOUNCE_SEC = 10
 
 
+ const VFX_COCKPIT_HEALTH = $"P_heal_loop_screen"
+ const VFX_COCKPIT_SHIELDS = $"P_armor_FP_charging_CP"
+ const VFX_PLAYER_HEALED_3P = $"P_armor_3P_loop_CP"
 
 
 
 
 
-const VFX_COCKPIT_HEALTH = $"P_bMat_heal_loop_FP" 
-const VFX_COCKPIT_SHIELDS = $"P_bmat_armor_charging_FP" 
-const VFX_PLAYER_HEALED_3P = $"P_bmat_armor_charging_3P"
 
 
 const SFX_RECEIVING_HEAL_1P = "DateNight_AOE_Bow_Healing_Success_1P"
@@ -32,12 +32,10 @@ const SFX_RECEIVING_HEAL_3P = "DateNight_AOE_Success_Stinger_3P"
 struct
 {
 
-
-
-
-
 		bool  isHealing = false
 		float healedEndTime
+		int healAmountTotal
+		var healRui
 
 } file
 
@@ -47,8 +45,24 @@ void function Lifesteal_Init()
 	PrecacheParticleSystem( VFX_COCKPIT_SHIELDS )
 	PrecacheParticleSystem( VFX_PLAYER_HEALED_3P )
 
-	Remote_RegisterClientFunction( "ServerToClient_AddLifestealHealVFX", "bool" )
+	Remote_RegisterClientFunction( "ServerToClient_ShowLifesteal", "bool", "int", INT_MIN, INT_MAX )
+
+
+	AddCallback_GameStateEnter( eGameState.Postmatch, Lifesteal_OnGameState_Ending )
+
 }
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -204,20 +218,37 @@ void function Lifesteal_Init()
 
 
 const float HEAL_VFX_DURATION = 1
-void function ServerToClient_AddLifestealHealVFX( bool onlyShields )
+const float HEAL_HUD_LINGER = 1.5
+void function ServerToClient_ShowLifesteal( bool onlyShields, int amount )
 {
-	AddHealVFX( HEAL_VFX_DURATION, onlyShields )
-}
+	if ( Time() > file.healedEndTime )
+		file.healAmountTotal = amount
+	else
+		file.healAmountTotal += amount
 
-void function AddHealVFX( float duration, bool onlyShields )
-{
-	file.healedEndTime = (Time() + duration)
+	file.healedEndTime = (Time() + HEAL_VFX_DURATION )
+	entity player = GetLocalViewPlayer()
+	int armorTier = EquipmentSlot_GetEquipmentTier( player, "armor" )
+	armorTier = armorTier <= 0 ? 1 : armorTier
 
 	if ( !file.isHealing )
-		thread HealVFX_Thread( onlyShields )
+		thread HealVFX_Thread( onlyShields, armorTier )
+
+	ShowHealHUD( file.healedEndTime + HEAL_HUD_LINGER, onlyShields, file.healAmountTotal, armorTier )
 }
 
-void function HealVFX_Thread( bool onlyShields )
+void function ShowHealHUD( float endTime, bool onlyShields, int amount, int armorTier )
+{
+	if ( file.healRui == null )
+		file.healRui = CreateCockpitPostFXRui( $"ui/lifesteal_hud.rpak" , MINIMAP_Z_BASE )
+
+	RuiSetGameTime( file.healRui, "endTime", endTime )
+	RuiSetBool( file.healRui, "onlyShields", onlyShields )
+	RuiSetInt( file.healRui, "healAmount", amount )
+	RuiSetInt( file.healRui, "shieldTier", armorTier )
+}
+
+void function HealVFX_Thread( bool onlyShields, int armorTier )
 {
 	entity player = GetLocalViewPlayer()
 
@@ -232,7 +263,6 @@ void function HealVFX_Thread( bool onlyShields )
 	EffectSetIsWithCockpit( fxHandle, true )
 	if ( onlyShields )
 	{
-		int armorTier      = EquipmentSlot_GetEquipmentTier( player, "armor" )
 		vector shieldColor = GetFXRarityColorForTier( armorTier )
 		EffectSetControlPointVector( fxHandle, 1, shieldColor )
 	}
@@ -247,5 +277,14 @@ void function HealVFX_Thread( bool onlyShields )
 
 	while( (file.healedEndTime > Time()) )
 		WaitFrame()
+}
+
+void function Lifesteal_OnGameState_Ending()
+{
+	if ( file.healRui == null )
+		return
+
+	RuiDestroyIfAlive( file.healRui )
+	file.healRui = null
 }
 

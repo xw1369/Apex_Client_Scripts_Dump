@@ -1,6 +1,8 @@
 global function CLEventNotification_Init
 global function ServerCallback_EventNotification
 global function ServerCallback_EventNotification_Entity
+global function ServerCallback_EventNotification_EventEntity
+global function ServerCallback_EventNotification_Entity_EventEntity
 global function HideEventNotification
 global function AddEventNotificationCallback
 
@@ -9,12 +11,22 @@ void function CLEventNotification_Init()
 	RegisterSignal( "SetEventNotification" )
 }
 
-void function ServerCallback_EventNotification( int eventID, entity ent )
+void function ServerCallback_EventNotification( int eventID )
+{
+	EventNotification( eventID, null, null )
+}
+
+void function ServerCallback_EventNotification_Entity( int eventID, entity ent )
 {
 	EventNotification( eventID, ent, null )
 }
 
-void function ServerCallback_EventNotification_Entity( int eventID, entity ent, entity eventEntity )
+void function ServerCallback_EventNotification_EventEntity( int eventID, entity eventEntity )
+{
+	EventNotification( eventID, null, eventEntity )
+}
+
+void function ServerCallback_EventNotification_Entity_EventEntity( int eventID, entity ent, entity eventEntity )
 {
 	EventNotification( eventID, ent, eventEntity )
 }

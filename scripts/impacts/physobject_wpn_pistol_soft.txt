@@ -35,7 +35,7 @@ ImpactTable
 //		"2" "openslot"
 //		"3" "openslot"
 //		"4" "openslot"
-//		"5" "openslot"
+		"5" "P_impact_water_hrz"
 //		"6" "openslot"
 //		"7" "openslot"
 //		"8" "openslot"
@@ -85,6 +85,8 @@ ImpactTable
 		"shieldhit" "Phys_Large_Medkit_Imp_Hard_Default"
 		"headshot_flesh" "Phys_Large_Medkit_Imp_Hard_Flesh"
 		"headshot_mechanical" "Phys_Large_Medkit_Imp_Hard_Metal"
+
+		"5" "Phys_Wpn_Pistol_Imp_Soft_Water"
 	}
 
 	Sound_attacker
@@ -124,6 +126,8 @@ ImpactTable
 		"shieldhit" "Phys_Ammo_Imp_Dirt"
 		"headshot_flesh" "Phys_Ammo_Imp_Dirt"
 		"headshot_mechanical" "Phys_Ammo_Imp_Dirt"
+
+		"5" "Phys_Wpn_Pistol_Imp_Soft_Water"
 	}
 
 	Sound_victim
@@ -162,6 +166,8 @@ ImpactTable
 		"shieldhit" "Phys_Imp_Default_Default"
 		"headshot_flesh" "Phys_Imp_Default_flesh_3P_vs_1P"
 		"headshot_mechanical" "Phys_Imp_Default_Metal"
+
+		"5" "Phys_Wpn_Pistol_Imp_Soft_Water"
 	}
 
 	Sound_victim_from_AI
@@ -200,6 +206,8 @@ ImpactTable
 		"shieldhit" "Phys_Imp_Default_Default"
 		"headshot_flesh" "Phys_Imp_Default_Default"
 		"headshot_mechanical" "Phys_Imp_Default_Default"
+
+		"5" "Phys_Wpn_Pistol_Imp_Soft_Water"
 	}
 }
 

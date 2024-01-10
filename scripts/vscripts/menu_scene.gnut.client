@@ -1230,15 +1230,11 @@ void function HighlightSubject( MenuSceneHighlightConfig cfg, entity subject )
 	{
 		ent.Highlight_ResetFlags()
 		ent.Highlight_SetVisibilityType( HIGHLIGHT_VIS_ALWAYS )
-		ent.Highlight_SetCurrentContext( HIGHLIGHT_CONTEXT_NEUTRAL )
-		if( Highlight_RefactorEnabled() )
-		{
-			Highlight_EnableContext_ClientOnly( ent, HIGHLIGHT_CONTEXT_NEUTRAL, eHighlightContextClientOnly.MENU_SCENE )
-		}
-		int highlightId = ent.Highlight_GetState( HIGHLIGHT_CONTEXT_NEUTRAL )
-		ent.Highlight_SetFunctions( HIGHLIGHT_CONTEXT_NEUTRAL, HIGHLIGHT_FILL_MENU_MODEL_REVEAL, true, HIGHLIGHT_OUTLINE_MENU_MODEL_REVEAL, cfg.radius, highlightId, false )
-		ent.Highlight_SetParam( HIGHLIGHT_CONTEXT_NEUTRAL, 0, cfg.color )
-		ent.Highlight_SetParam( HIGHLIGHT_CONTEXT_NEUTRAL, 1, <cfg.intensityScalar, 1, 0> )
+		int contextId = HIGHLIGHT_CLIENT_ONLY_INDEX + eHighlightContextClientOnly.MENU_SCENE
+		ent.Highlight_SetCurrentContext( contextId )
+		ent.Highlight_SetFunctions( contextId, HIGHLIGHT_FILL_MENU_MODEL_REVEAL, true, HIGHLIGHT_OUTLINE_MENU_MODEL_REVEAL, cfg.radius, false )
+		ent.Highlight_SetParam( contextId, 0, cfg.color )
+		ent.Highlight_SetParam( contextId, 1, <cfg.intensityScalar, 1, 0> )
 
 		ent.Highlight_SetFadeInTime( cfg.fadeInTime )
 		ent.Highlight_SetFadeOutTime( cfg.fadeOutTime )

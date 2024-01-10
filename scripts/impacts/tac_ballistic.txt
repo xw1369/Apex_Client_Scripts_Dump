@@ -43,7 +43,7 @@ ImpactTable
 		"2" "P_impact_lava" 			//lava_rock_hot
 		"3" "impact_concrete_large"
 		"4" "impact_concrete_large"
-		"5" "impact_concrete_large"
+		"5" "P_impact_water_LG" //water_hrz
 		"6" "impact_concrete_large"
 		"7" "impact_concrete_large"
 		"8" "impact_concrete_large"
@@ -97,7 +97,7 @@ ImpactTable
 		"2" "P_clbr_tac_impact" //lava_rock_hot
 //		"3" "openslot"
 //		"4" "openslot"
-//		"5" "openslot"
+		"5" "none"
 //		"6" "openslot"
 //		"7" "openslot"
 //		"8" "openslot"
@@ -159,6 +159,8 @@ ImpactTable
 
 		//"airburst" ""
 		"shieldhit" "humanshield_light_bulletimpact_3p_vs_3p"
+
+		"5" "Water.Ballistic.BulletImpact_3P_vs_3P"
 	}
 
 	Sound_attacker
@@ -195,6 +197,8 @@ ImpactTable
 
 		//"airburst" ""
 		"shieldhit" "humanshield_light_bulletimpact_1p_vs_3p"
+
+		"5" "Water.Ballistic.BulletImpact_1P_vs_3P"
 	}
 
 	Sound_victim
@@ -231,5 +235,7 @@ ImpactTable
 
 		//"airburst" ""
 		"shieldhit" "humanshield_light_bulletimpact_3p_vs_1p"
+
+		"5" "Water.Ballistic.BulletImpact_3P_vs_1P"
 	}
 }

@@ -43,7 +43,7 @@ ImpactTable
 //		"2" "openslot"
 //		"3" "openslot"
 //		"4" "openslot"
-//		"5" "openslot"
+		"5" "P_impact_water_hrz" //water_hrz
 //		"6" "openslot"
 //		"7" "openslot"
 //		"8" "openslot"
@@ -119,6 +119,8 @@ ImpactTable
 
 		"headshot_flesh" "Phys_Imp_RevShellSeeker_Flesh"
 		"headshot_mechanical" "Phys_Imp_RevShellSeeker_Metal"
+
+		"5" "Phys_Imp_RevShellSeeker_Water"
 	}
 
 	Sound_attacker
@@ -158,6 +160,8 @@ ImpactTable
 
 		"headshot_flesh" "Phys_Imp_RevShellSeeker_Flesh"
 		"headshot_mechanical" "Phys_Imp_RevShellSeeker_Metal"
+
+		"5" "Phys_Imp_RevShellSeeker_Water"
 	}
 
 	Sound_victim
@@ -198,6 +202,8 @@ ImpactTable
 		// Victim headshot sounds taken care of in PlayVictimHeadshotConfirmation():
 		//"headshot_flesh" "Phys_Imp_RevShellSeeker_Flesh"
 		//"headshot_mechanical" "Phys_Imp_RevShellSeeker_Metal"
+
+		"5" "Phys_Imp_RevShellSeeker_Water"
 	}
 
 	Sound_victim_from_AI

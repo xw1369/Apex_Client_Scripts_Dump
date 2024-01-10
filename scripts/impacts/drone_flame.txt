@@ -142,6 +142,8 @@ ImpactTable
 
 		//"airburst" ""
 		"shieldhit" "weapon_titan_flamethrower_fire_3p"
+
+		"5" "weapon_titan_flamethrower_fire_3p"
 	}
 
 	Sound_attacker
@@ -179,6 +181,8 @@ ImpactTable
 		//"airburst" ""
 		"shieldhit" "weapon_titan_flamethrower_fire_3p"
 		"critical_hit" "weapon_titan_flamethrower_fire_3p"
+
+		"5" "weapon_titan_flamethrower_fire_3p"
 	}
 
 	Sound_victim
@@ -216,5 +220,7 @@ ImpactTable
 		//"airburst" ""
 		"shieldhit" "weapon_titan_flamethrower_fire_3p"
 		"critical_hit" "weapon_titan_flamethrower_fire_3p"
+
+		"5" "weapon_titan_flamethrower_fire_3p"
 	}
 }

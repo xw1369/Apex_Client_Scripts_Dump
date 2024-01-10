@@ -15,18 +15,10 @@ const int LOBBY_BANNER_LTM_SKIN_INDEX = 2
 const int LOBBY_EVENT1_SKIN_OFFSET = 3
 const int LOBBY_EVENT2_SKIN_OFFSET = 6
 
-const asset WARP_EFFECT = $"P_env_lobby_s19_warp"
-const asset JET_EFFECT = $"P_env_lobby_s19_ship_jet"
-const asset BUTTERFLY_EFFECT = $"P_env_lobby_s19_butterfly_128"
-const float BUTTERFLY_EFFECT_COOLDOWN = 8.0
+const asset GH_READY_UP_RING_EFFECT = $"P_env_lobby_s19_readyup_ring"
+const asset GH_READY_UP_YELLOW_EFFECT = $"P_env_lobby_s19_readyup_yellow"
 
-
-struct LobbyShipData
-{
-	array< entity > jetEffects
-	array< entity > warpEffects
-	entity ship
-}
+const float READY_UP_FX_COOLDOWN = 5.0
 
 struct
 {
@@ -38,12 +30,10 @@ struct
 		bool overrideLobbyBanner = false
 #endif
 
-	array< LobbyShipData > lobbyShipData
 
-	array< entity > effectInfoTargets
-	float butterFlyCooldown = 0
-	bool shipsArrived = false
-
+	float readyUpCooldown = 0
+	array< entity > ringEffects
+	array< entity > lightEffects
 } file
 
 void function Lobby_AddLocalPlayer()
@@ -88,98 +78,47 @@ void function CacheLobbyBannerEnt()
 
 	if ( IsLobbyEvent1Active() )
 	{
-		PrecacheParticleSystem( BUTTERFLY_EFFECT )
-		file.effectInfoTargets = GetEntArrayByScriptName( "event_1_effect" )
+		PrecacheParticleSystem( GH_READY_UP_RING_EFFECT )
+		PrecacheParticleSystem( GH_READY_UP_YELLOW_EFFECT )
+		file.ringEffects = GetEntArrayByScriptName( "event_ring_effect" )
+		file.lightEffects = GetEntArrayByScriptName( "event_light_effect" )
 	}
 
 	if ( IsLobbyEvent2Active() )
 	{
-		PrecacheParticleSystem( WARP_EFFECT )
-		PrecacheParticleSystem( JET_EFFECT )
 
-		InitShipData()
 	}
-}
-
-void function InitShipData()
-{
-	array< entity > warpEffects = GetEntArrayByScriptName( "holiday_ship_effect" )
-	array< entity > jetEffects = GetEntArrayByScriptName( "holiday_jet_effect" )
-	array< entity > ships = GetEntArrayByScriptName( "holiday_event_ready_up_ships" )
-
-	foreach ( ship in ships )
-	{
-		LobbyShipData data
-		data.ship = ship
-
-		foreach ( jetEffect in jetEffects )
-		{
-			printt (" Distance 1: " + Distance( ship.GetOrigin(), jetEffect.GetOrigin() ))
-			if ( Distance( ship.GetOrigin(), jetEffect.GetOrigin() ) < 100 )
-				data.jetEffects.append( jetEffect )
-		}
-
-		foreach ( warpEffect in warpEffects )
-		{
-			printt (" Distance 2: " + Distance( ship.GetOrigin(), warpEffect.GetOrigin() ))
-			if ( Distance( ship.GetOrigin(), warpEffect.GetOrigin() ) < 100 )
-				data.warpEffects.append( warpEffect )
-		}
-
-		file.lobbyShipData.append( data )
-	}
-
 }
 
 void function Lobby_OnReadyFX( bool isReady )
 {
 	if ( IsLobbyEvent1Active() )
 	{
-		float now = ClientTime()
-
-		if ( now < (file.butterFlyCooldown + 10.0))
+		if ( !isReady )
 			return
 
-		file.butterFlyCooldown = now
+		float now = ClientTime()
 
-		thread ButterflyReadyFX()
+		if ( now < (file.readyUpCooldown + READY_UP_FX_COOLDOWN))
+			return
+
+		file.readyUpCooldown = now
+
+		thread Event1ReadyFX()
 	}
 	else if ( IsLobbyEvent2Active()  )
 	{
-		if ( file.shipsArrived )
-			return
 
-		file.shipsArrived = true
-		foreach( data in file.lobbyShipData )
-		{
-			thread ShipWarpReadyFXThread( data )
-		}
 	}
 }
 
-void function ShipWarpReadyFXThread( LobbyShipData data )
+void function Event1ReadyFX()
 {
-	wait RandomFloat( 0.5 )
+	foreach ( ringEffect in file.ringEffects )
+		StartParticleEffectInWorld( GetParticleSystemIndex ( GH_READY_UP_RING_EFFECT ) , ringEffect.GetOrigin(),  ringEffect.GetAngles() )
 
-	data.ship.SetModelScale( 50.0 )
-	foreach ( effectInfoTarget in data.warpEffects )
-	{
-		StartParticleEffectInWorld( GetParticleSystemIndex ( WARP_EFFECT ) , effectInfoTarget.GetOrigin(),  effectInfoTarget.GetAngles() )
-		printt( "effect" + effectInfoTarget.GetOrigin() )
-	}
-
-	foreach ( jetEffectsInfoTarget in data.jetEffects )
-	{
-		StartParticleEffectInWorld( GetParticleSystemIndex ( JET_EFFECT ) , jetEffectsInfoTarget.GetOrigin(),  jetEffectsInfoTarget.GetAngles() )
-		printt( "jet" + jetEffectsInfoTarget.GetOrigin() )
-	}
-
-}
-
-void function ButterflyReadyFX()
-{
-	foreach ( effectInfoTarget in file.effectInfoTargets )
-		StartParticleEffectInWorld( GetParticleSystemIndex ( BUTTERFLY_EFFECT ) , effectInfoTarget.GetOrigin(),  effectInfoTarget.GetAngles() )
+	foreach ( lightEffect in file.lightEffects )
+		StartParticleEffectInWorld( GetParticleSystemIndex ( GH_READY_UP_YELLOW_EFFECT ) , lightEffect.GetOrigin(),  lightEffect.GetAngles() )
 }
 
 void function Lobby_SetBannerSkin( string playlist )

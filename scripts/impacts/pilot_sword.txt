@@ -19,15 +19,17 @@ ImpactTable
 		"O" "P_pilot_swd_metal" //Foliage
 		"P" "P_pilot_swd_metal" //Computer
 
+		"Q" "P_pilot_swd_snow" 			//Snow
+
 		"R" "P_pilot_swd_metal" //metalpanel, grenade, canister
 		"S" "xo_footstep_water" //water, slime
 		"T" "P_pilot_swd_concrete" //tile
 		"U" "P_pilot_swd_metal" //glass_breakable
 
 		"V" "P_pilot_swd_metal" //Metal Vent
-		"W" "P_pilot_swd_metal" //Wood, Wood_lowdensity, Wood_Box, Wood_Crate, Wood_Plank, Wood_Solid, Wood_Furniture, Wood_Panel watermelon
+		"W" "P_pilot_swd_wood" //Wood, Wood_lowdensity, Wood_Box, Wood_Crate, Wood_Plank, Wood_Solid, Wood_Furniture, Wood_Panel watermelon
 
-		"X" "P_impact_exp_med_xo_shield" //xo_shield
+		"X" "P_sword_impact_xo_shield" //xo_shield
 
 		"Y" "P_pilot_swd_metal" //glass, brokenglass, glassbottle, pottery
 		"Z" "P_pilot_swd_sand"  //sand
@@ -37,8 +39,10 @@ ImpactTable
 		"airburst" ""
 		"shieldhit" "P_armor_impact"
 		"critical_hit" "xo_damage_exp_1"
+
+		 "5" "xo_footstep_water" //water_hrz
 	}
-	
+
 	Sound
 	{
 
@@ -74,6 +78,8 @@ ImpactTable
 
 		"airburst" ""
 		"shieldhit" "titan_sword_impact_victim_shield_3p_vs_3p"
+
+		"5" "titan_sword_impact_water_3p_vs_3p"
 	}
 
 	Sound_attacker
@@ -111,6 +117,8 @@ ImpactTable
 		"airburst" ""
 
 		"shieldhit" "titan_sword_impact_victim_shield_1p_vs_3p"
+
+		"5" "titan_sword_impact_water_1p_vs_3p"
 	}
 
 	Sound_victim
@@ -148,6 +156,8 @@ ImpactTable
 		"airburst" ""
 
 		"shieldhit" "titan_sword_impact_victim_shield_3p_vs_3p"
+
+		"5" "titan_sword_impact_water_3p_vs_3p"
 	}
 
 	Sound_victim_from_AI

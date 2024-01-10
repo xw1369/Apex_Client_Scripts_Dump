@@ -65,6 +65,22 @@ global function SetShouldIgnorePersistence
 
 
 
+global function SafeGetPersistentVar
+global function SafeGetPersistentVarAsInt
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -655,6 +671,45 @@ void function ServerToClient_OnPersistentDataReady()
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+var function SafeGetPersistentVar( entity player, string key )
+{
+	if ( IsValid( player ) && player.IsConnectionActive() )
+		return player.GetPersistentVar( key )
+	return null
+}
+
+int function SafeGetPersistentVarAsInt( entity player, string key )
+{
+	if ( IsValid( player ) && player.IsConnectionActive() )
+		return player.GetPersistentVarAsInt( key )
+	return 0
+}
 
 
 

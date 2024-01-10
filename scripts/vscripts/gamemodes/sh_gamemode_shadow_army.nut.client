@@ -14,13 +14,12 @@
 
 
 
-
-
 global function ShadowArmy_Init
 global function ShGameMode_ShadowArmy_RegisterNetworking
 global function IsShadowArmyGamemode
 global function IsShadowArmyGamemodeCineVersion
 global function ShadowArmy_GetNumRevSquadsForMatchStart
+
 
 
 
@@ -330,8 +329,6 @@ struct
 
 
 
-
-
 	int evacTargetCount = 0
 
 
@@ -349,6 +346,12 @@ void function ShadowArmy_Init()
 {
 	if ( !IsShadowArmyGamemode() )
 		return
+
+
+
+
+
+
 
 
 
@@ -486,9 +489,6 @@ void function ShGameMode_ShadowArmy_RegisterNetworking()
 		RegisterNetVarIntChangeCallback ( "shadowArmy_LegendsInEvacShips", UpdateLegendInEvacShipHUDCount )
 
 }
-
-
-
 
 
 
@@ -710,54 +710,6 @@ float function GetShadowRevBaseSpawnCooldown()
 {
 	return GetCurrentPlaylistVarFloat( "respawn_cooldown", SHADOWARMY_DEFAULT_SHORT_SPAWN_DELAY )
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -1480,9 +1432,6 @@ void function ShadowArmy_OnRoundChanged_Client( int stage, float nextCircleStart
 
 
 
-
-
-
 array < entity > function ShadowArmy_GetEnemySquadPlayersForAllianceIntro( int alliance )
 {
 	int enemyAlliance = AllianceProximity_GetOtherAlliance( alliance )
@@ -1547,7 +1496,12 @@ array < entity > function ShadowArmy_GetEnemySquadPlayersForAllianceIntro( int a
 	else
 	{
 		
-		finalSquad = AllianceProximity_GetTeamsInAlliance( enemyAlliance )[ 0 ]
+		array < int > teamsInAllianceArray = AllianceProximity_GetTeamsInAlliance( enemyAlliance )
+		
+		if ( teamsInAllianceArray.len() > 0 )
+			finalSquad = teamsInAllianceArray[ 0 ]
+		else
+			return []
 	}
 
 	
@@ -1797,6 +1751,50 @@ int function ShadowArmy_GetCurrentGamePhase()
 {
 	return GetGlobalNetInt( "shadowArmy_GamePhase" )
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -2669,7 +2667,6 @@ int function ShadowArmy_GetLegendSpawnGroupsNumber()
 
 
 
-
 void function ShadowArmy_OnTeamChangedAlliance_Client( int team, int newAlliance )
 {
 	entity localViewPlayer = GetLocalViewPlayer()
@@ -3041,6 +3038,10 @@ void function OnShadowArmyGamePhaseChanged_Client( entity player, int newGamePha
 
 
 
+
+
+
+
 void function ShadowArmy_ServerCallback_GivePlayerRepeatingEnemyMapScans()
 {
 	thread RunRepeatingEnemyMapScans_Thread()
@@ -3172,12 +3173,6 @@ void function RunRepeatingEnemyMapScans_Thread()
 		wait REPEAT_INTERVAL
 	}
 }
-
-
-
-
-
-
 
 
 
@@ -3846,7 +3841,6 @@ void function ShadowArmy_ServerCallback_SetDeathScreenCallbacks()
 {
 	DeathScreen_SetModeSpecificRuiUpdateFunc( ShadowArmy_DeathScreenUpdate )
 	DeathScreen_SetDataRuiAssetForGamemode( DEATH_SCREEN_RUI )
-	
 }
 
 
@@ -3897,6 +3891,22 @@ string function ShadowArmy_GetVictoryConditionForFlagset( int gameResultFlags )
 
 	return victoryCondition
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -4059,14 +4069,6 @@ void function ShadowArmy_ServerCallback_UpdateEvacTargetCountOnHud( int targetCo
 			RuiSetInt( rui, "legendEvacTarget", targetCount )
 	}
 }
-
-
-
-
-
-
-
-
 
 
 
@@ -5088,9 +5090,6 @@ void function RunPostAllianceAssignmentCompleteLogic_Thread( entity localPlayer 
 
 void function ShadowArmy_OnSpectateTargetChanged( entity player, entity previousTarget, entity currentTarget )
 {
-	if ( IsShadowArmyGamemodeCineVersion() && GetGameState() >= eGameState.Resolution)
-		return
-
 	if ( IsValid( currentTarget ) && currentTarget.IsPlayer() && GetGameState() == eGameState.Playing )
 	{
 		thread RunPostAllianceAssignmentCompleteLogic_Thread( player )

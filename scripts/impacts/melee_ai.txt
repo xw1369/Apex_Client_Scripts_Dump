@@ -89,6 +89,8 @@ ImpactTable
 
 		"airburst" ""
 		"shieldhit" "TitanShield.Light.BulletImpact_3P_vs_3P"
+
+		"5" "AI.Melee_Impact"
 	}
 
 	Sound_attacker
@@ -124,6 +126,8 @@ ImpactTable
 
 		"airburst" ""
 		"shieldhit" "TitanShield.Light.BulletImpact_1P_vs_3P"
+
+		"5" "AI.Melee_Impact"
 	}
 
 	Sound_victim
@@ -159,6 +163,8 @@ ImpactTable
 
 		"airburst" ""
 		"shieldhit" "TitanShield.Light.BulletImpact_3P_vs_1P"
+
+		"5" "AI.Melee_Impact"
 	}
 
 	Sound_victim_from_AI
@@ -188,5 +194,7 @@ ImpactTable
 
 		"Y" "AI.Melee_Impact"
 		"Z" "AI.Melee_Impact"
+
+		"5" "AI.Melee_Impact"
 	}
 }

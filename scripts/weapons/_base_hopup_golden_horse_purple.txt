@@ -1,0 +1,31 @@
+WeaponData
+{
+	"golden_horse_purple_chance"            "0.15"
+	"golden_horse_purple_growth"            "0.04"
+	"golden_horse_purple_whiff"             "8.0"
+	"golden_horse_purple_reset_sec"         "5.0"
+
+	Mods
+	{
+		hopup_golden_horse_purple
+		{
+			//"golden_horse_chance_purple"            "0.2"
+		}
+
+		hopup_golden_horse_active_purple
+		{
+            "projectile_trail_effect_0_1p"     				"P_tracer_proj_smg_hammer_point"
+            "projectile_trail_effect_0_3p"     				"P_tracer_proj_smg_hammer_point"
+            "impact_effect_table" 							"hammer_point_bullet"
+
+//skullies
+//        	"damage_headshot_scale"			"2.5"
+//        	"projectile_trail_effect_0_1p"	"P_tracer_proj_sniper_piercer"
+//        	"projectile_trail_effect_0_3p"	"P_tracer_proj_sniper_piercer"
+//			"fire_sound_1_player_1p"		"weapon_dmr_fire_skull_1p"
+//			"fire_sound_1_player_3p"		"weapon_dmr_fire_skull_3p"
+//			"fire_sound_1_npc"				"weapon_dmr_fire_skull_3p"
+//Problem with fire sound is it only has to trigger on one bullet - probably better to use a stinger
+		}
+	}
+}

@@ -96,7 +96,7 @@ void function Perk_CarePackageInsight_Init()
 		carePackageInsight.ruiThinkThread = Perk_CarePackageInsight_UpdateLookatRevealProgressRui
 		carePackageInsight.canPingEnt = Perk_CarePackageInsight_CanPingEnt
 		carePackageInsight.getPingPosition = Perk_CarePackageInsight_GetPingPositionForEnt
-		carePackageInsight.getPingMaxDistance = Perk_CarePackageInsight_GetPingDistanceForEnt
+		carePackageInsight.getDynamicPingMaxDistance = Perk_CarePackageInsight_GetPingDistanceForEnt
 
 
 	Perks_RegisterClassPerk( carePackageInsight )
@@ -198,6 +198,9 @@ bool function S16_PathfinderSkirmisherPassiveActive()
 {
 	return GetCurrentPlaylistVarBool( "s16_pathfinder_skirmisher_passive_active", true )
 }
+
+
+
 
 
 

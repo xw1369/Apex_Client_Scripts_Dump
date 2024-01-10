@@ -42,7 +42,7 @@ ImpactTable
 		"2" "none"
 		"3" "none"
 		"4" "none"
-		"5" "none"
+		"5" "none" //water_hrz
 		"6" "none"
 		"7" "none"
 		"8" "none"

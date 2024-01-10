@@ -518,6 +518,41 @@ WeaponData
          
               
 
+                             
+                
+   
+                                                                                               
+                                                                                             
+                                                                               
+
+                                                         
+                                                                
+                                                                   
+                                                                                           
+                                         
+
+                                               
+                                                   
+                                                
+
+                                                       
+                                                       
+                                                          
+
+                                                      
+                                                    
+                                             
+
+                    
+                                                
+                                                
+                                                
+                                                 
+
+                                              
+   
+              
+
         ultimate_battery_supercharged_fx
         {
             "charge_effect_1p"						"P_watt_UA_charge"

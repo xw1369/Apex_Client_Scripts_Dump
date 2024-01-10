@@ -12,6 +12,7 @@ global function ShadowShield_IsAllowedStickyEnt
 
 
 
+
 global function ServerToClient_UpdateDamageRUI
 global function ServerToClient_DoShadowShieldDamageIndicator
 
@@ -299,6 +300,25 @@ bool function IsForgedShadowsShield( entity ent )
 	return ent.GetTargetName() == FORGED_SHADOWS_SHIELD_NAME
 }
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 bool function ShadowShield_IsAllowedStickyEnt( entity shadowShield, entity stickyEnt, string stickyEntWeaponClassName )
 {
 	if( !IsValid( shadowShield ) || !IsValid( stickyEnt ) )
@@ -575,6 +595,10 @@ void function ShadowForm_Start( entity player, entity weapon )
 		WaitFrame()
 	}
 }
+
+
+
+
 
 
 

@@ -110,5 +110,10 @@ WeaponData
 		{
 	    	"activitymodifier1P"                            "fist_blades"
         }
+
+		artifact_equipped
+		{
+			"activitymodifier1P"                            "artifact_equipped"
+		}
 	}
 }

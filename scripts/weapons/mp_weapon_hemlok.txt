@@ -3,7 +3,7 @@
 #base "_base_barrels_medium.txt"
 
                     
-                                         
+#base "_base_hopup_golden_horse_blue.txt"
       
 
 WeaponData

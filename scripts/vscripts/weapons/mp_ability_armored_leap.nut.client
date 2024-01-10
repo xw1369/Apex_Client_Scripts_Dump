@@ -64,17 +64,17 @@ const bool DEBUG_BETTER_AIR_POS								= false
 
 const float ARMORED_LEAP_DISTANCE_MIN 						= 50.0
 
+const float ARMORED_LEAP_DISTANCE 							= 40 * METERS_TO_INCHES 
+const float ARMORED_LEAP_MAX_ALLY_RANGE 					= 80 * METERS_TO_INCHES 
 
 
 
-const float ARMORED_LEAP_DISTANCE 							= 1400.0 	
-const float ARMORED_LEAP_MAX_ALLY_RANGE 					= 2800 		
 
 const float ARMORED_LEAP_MAX_SLAM_FOLLOW_DISTANCE 			= 1500
 
+const float ARMORED_LEAP_MAX_LEAP_HEIGHT 					= 25 * METERS_TO_INCHES 
 
 
-const float ARMORED_LEAP_MAX_LEAP_HEIGHT 					= 800 		
 
 const float ARMORED_LEAP_MAX_LEAP_HEIGHT_ALLY 				= 50 * METERS_TO_INCHES 
 const float ARMORED_LEAP_MIN_AIR_HEIGHT 					= 100 
@@ -142,16 +142,16 @@ const float ARMORED_LEAP_MOVERS_MAX_SPEED_FOR_END_DEFAULT 	= 12.0
 
 const float ARMORED_LEAP_WARNING_DURATION 					= 1.5
 
-
-
-
-const float ARMORED_LEAP_RECOVERY_TIME						= 1.0 		
+const float ARMORED_LEAP_RECOVERY_TIME						= 0.75 		
 const float ARMORED_LEAP_CAM_RECOVERY_TIME					= 0.5		
 
 
 
 
-const float ARMORED_LEAP_RECOVERY_MOVESLOW_DURATION 		= 2.0
+
+const float ARMORED_LEAP_RECOVERY_MOVESLOW_DURATION 		= 1.0
+
+
 
 const float ARMORED_LEAP_ABOVE_LEDGE_DEGREE_CHECK_OFFSET 	= 8 		
 const float ARMORED_LEAP_LEDGE_INSET_AMOUNT			 		= 100
@@ -336,6 +336,8 @@ const string ARMORED_LEAP_ALLY_TARGETED_CHATTER_3P 				= "diag_mp_newcastle_bc_s
 const string ARMORED_LEAP_ALLY_BUDDY_TARGETED_CHATTER_3P 		= "diag_mp_newcastle_bc_superSquadObserving_3p"
 const string CASTLE_WALL_DESTROYED_CHATTER_VO_1P 				= "diag_mp_newcastle_bc_superDestroyed_1p"
 const string CASTLE_WALL_DESTROYED_CHATTER_VO_3P 				= "diag_mp_newcastle_bc_superDestroyed_3p"
+const string CASTLE_WALL_REMOVED_CHATTER_VO_1P 					= "diag_mp_newcastle_bc_superAdjust_1p"
+const string CASTLE_WALL_REMOVED_CHATTER_VO_3P 					= "diag_mp_newcastle_bc_superAdjust_3p"
 
 const string ARMORED_LEAP_TARGET_FAIL_DEFAULT					= "#HINT_NEWCASTLE_LEAP_TARGET_FAIL_DEFAULT"
 const string ARMORED_LEAP_TARGET_FAIL_BLOCKED_LAND				= "#HINT_NEWCASTLE_LEAP_TARGET_FAIL_BLOCKED_LAND"
@@ -495,6 +497,8 @@ struct
 
 	bool hasVisorThreatDetection	= VISOR_THREAT_DETECTION
 
+	table< entity, bool > canDoWallRemoveChatter = {}
+
 
 
 
@@ -608,7 +612,6 @@ void function MpAbilityArmoredLeap_Init()
 	AddCallback_PlayerCanUseZipline( ArmoredLeap_CanUseZipline )
 
 	AddCallback_OnPassiveChanged( ePassives.PAS_AXIOM, OnNewcastlePassiveChanged )
-
 
 
 
@@ -3561,14 +3564,6 @@ void function ArmoredLeap_VisionMode_Thread( entity player )
 
 	WaitForever()
 }
-
-
-
-
-
-
-
-
 
 
 
@@ -7454,6 +7449,52 @@ bool function CastleWall_CanUse( entity player, entity ent, int useFlags )
 	SURVIVAL_PlayerAllowedToPickup( player ) &&
 	! GradeFlagsHas( ent, eGradeFlags.IS_BUSY )
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

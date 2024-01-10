@@ -373,6 +373,8 @@ void function InitPathTTBoxingRingEntities()
 
 
 
+
+
 const array<string> RING_ANNOUNCER_LINES = [
 	"bc_OlyPathTTRing_recalibrate",
 	"bc_OlyPathTTRing_run_away",

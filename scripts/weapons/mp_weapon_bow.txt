@@ -7,7 +7,7 @@
 #base "ap_settings/_ap_weapon_range_long.txt"
 
                     
-                                           
+#base "_base_hopup_golden_horse_purple.txt"
       
 
 "WeaponData"
@@ -530,6 +530,12 @@
 	"arrows_shatter_color"                      "255 122 52"        //if you change this, you also have to change the values in compound_bow.rui and weapon_bow.rui
 
 	"trophy_system_ignores"                          "always"
+
+                    
+	"golden_horse_purple_chance"            "0.15"
+	"golden_horse_purple_growth"            "0.05"
+	"golden_horse_purple_whiff"             "6.0"
+      
 
 	"Mods"
 	{

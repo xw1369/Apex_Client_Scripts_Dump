@@ -21,6 +21,10 @@ global function AutoPlayer_GetSuddenDeathGameState
 
 
 
+
+
+
+
 struct
 {
 	array< ItemFlavor >	forbiddenCharacters
@@ -66,6 +70,16 @@ void function AutoPlayer_Init()
 			}
 		}
 	}
+
+
+
+
+
+
+
+
+
+
 #if AUTO_PLAYER_DEV
 
 			AddCallback_GameStateEnter( eGameState.WinnerDetermined, AutoPlayer_GameStateWinnerDetermined )
@@ -449,3 +463,34 @@ int function AutoPlayer_GetSuddenDeathGameState()
 {
 	return eGameState.SuddenDeath
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

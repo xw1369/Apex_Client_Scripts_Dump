@@ -5,7 +5,7 @@
 #base "_base_projectile_ricochet.txt"
 
                     
-                                         
+#base "_base_hopup_golden_horse_yellow.txt"
       
 
 WeaponData
@@ -31,7 +31,7 @@ WeaponData
 	"minimap_reveal_distance"						"32000"
 	"leveled_pickup"								"1"
 
-	"damage_flags"									"DF_BULLET | DF_DISMEMBERMENT"
+	"damage_flags"									"DF_BULLET"
 
 	// Menu
 	"menu_category"                                 "lmg"

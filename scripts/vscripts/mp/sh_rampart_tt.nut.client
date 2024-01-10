@@ -55,6 +55,16 @@ const string SFX_VEND_SUSTAIN = "VendingMachine_Shield_Sustain"
 
 
 
+
+
+
+
+
+
+
+
+
+
 const string VFX_SHIELD_DISABLE = "P_rampart_vendit_shield_disable"
 const string VFX_ALARM_LIGHT = "P_vault_door_alarm_oly_mu1_sm"
 const string VFX_ALARM_LIGHT_NAME = "rampart_tt_vfx_alarm_light"
@@ -111,6 +121,9 @@ struct
 
 
 
+
+
+
 }file
 
 
@@ -146,6 +159,12 @@ void function Rampart_TT_Init()
 
 
 }
+
+
+
+
+
+
 
 
 
@@ -379,6 +398,7 @@ string function Vend_UseTextOverride( entity panel )
 
 
 
+
 	return str
 }
 
@@ -404,6 +424,11 @@ void function Vend_OnUse( entity panel, entity player, int useInputFlags )
 
 void function Vend_UseThink_Thread( entity ent, entity playerUser )
 {
+
+
+
+
+
 
 
 
@@ -460,6 +485,14 @@ void function Vend_DisplayRui( entity ent, entity player, var rui, ExtendedUseSe
 	RuiSetGameTime( rui, "startTime", Time() )
 	RuiSetGameTime( rui, "endTime", Time() + settings.duration )
 }
+
+
+
+
+
+
+
+
 
 
 
@@ -1173,6 +1206,47 @@ bool function CheckRampartTTMuralLegends( entity player )
 	
 	return false
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

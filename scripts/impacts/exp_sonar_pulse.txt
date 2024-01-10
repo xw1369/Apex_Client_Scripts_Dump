@@ -95,6 +95,8 @@ ImpactTable
 
 		//"airburst" ""
 		"shieldhit" "Titan_Tone_SonarLock_Impact_Pulse_3P"
+
+		"5" "Titan_Tone_SonarLock_Impact_Pulse_3P"
 	}
 
 	Sound_attacker
@@ -131,6 +133,8 @@ ImpactTable
 
 		//"airburst" ""
 		"shieldhit" "Titan_Tone_SonarLock_Impact_Pulse_1P"
+
+		"5" "Titan_Tone_SonarLock_Impact_Pulse_1P"
 	}
 
 	Sound_victim
@@ -167,6 +171,8 @@ ImpactTable
 
 		//"airburst" ""
 		"shieldhit" "Titan_Tone_SonarLock_Impact_Pulse_3P"
+
+		"5" "Titan_Tone_SonarLock_Impact_Pulse_3P"
 	}
 
 

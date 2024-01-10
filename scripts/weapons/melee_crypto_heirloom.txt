@@ -28,4 +28,14 @@ WeaponData
 
 	// Animation
 	"activitymodifier3P"						"sword"
+	"activitymodifier1p"                        "sword_1p"
+
+	Mods
+    {
+        sword_rt01
+        {
+            "activitymodifier3P"		"sword_rt01"
+            "activitymodifier1p"        "sword_rt01_1p"
+        }
+    }
 }

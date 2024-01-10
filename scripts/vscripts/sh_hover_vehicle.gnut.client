@@ -10,6 +10,7 @@ global function HoverVehicle_AttachEntToNearestAbilityAttachment
 global function HoverVehicle_IsVehicleEmpty
 
 global function CodeCallback_OnVehicleJumpPadLaunch
+global function CodeCallback_GetVehiclePhysicsModel
 
 global function HoverVehicle_GetTurretOperator
 global function HoverVehicle_GetExtendedPlayerArray
@@ -66,6 +67,8 @@ global function HoverVehicle_ServerToClient_SetVehicleNotAtPlatformTracking
 
 
 const asset HOVER_VEHICLE_MODEL = $"mdl/vehicle/olympus_hovercraft/olympus_hovercraft_v2.rmdl"
+const asset TWO_PASSENGER_MODEL = $"mdl/vehicle/olympus_hovercraft/olympus_hovercraft_v2_two_passengers.rmdl"
+
 global const string HOVER_VEHICLE_SCRIPTNAME = "hover_vehicle"
 
 
@@ -182,9 +185,13 @@ bool function HoverVehicles_PingFromMap_Enabled()
 
 void function HoverVehicle_Init()
 {
+	PrecacheModel( TWO_PASSENGER_MODEL )
+
 	RegisterSignal( SIG_VEHICLE_EMBARK_BEGIN )
 
 	AddCallback_EntitiesDidLoad( EntitiesDidLoad )
+
+
 
 	if ( !HoverVehiclesAreEnabled() )
 		return
@@ -225,8 +232,6 @@ void function HoverVehicle_Init()
 	PrecacheParticleSystem( FX_VEHICLE_SPAWN_POINT )
 
 	HoverVehicle_InitFX()
-
-
 
 
 
@@ -825,6 +830,8 @@ bool function EntIsHoverVehicle( entity ent )
 
 
 
+
+
 void function Client_OnVehicleCreated( entity vehicle )
 {
 	
@@ -931,6 +938,18 @@ array<entity> function HoverVehicle_GetExtendedPlayerArray( entity vehicle )
 
 	return results
 }
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -2054,6 +2073,11 @@ void function CodeCallback_OnVehicleJumpPadLaunch( entity vehicle, entity trigge
 	}
 
 	s_lastTimeDidJumpPadFX = timeNow
+}
+
+string function CodeCallback_GetVehiclePhysicsModel()
+{
+	return string( TWO_PASSENGER_MODEL )
 }
 
 

@@ -36,6 +36,8 @@ global const float REGEN_DAMAGE_DELAY_DEFAULT = 6.0
 
 
 
+
+
 struct {
 
 
@@ -294,6 +296,9 @@ bool function IsHealActive( entity player )
 
 
 
+
+
+
 void function HealthRegen_OnLocalPlayerDamaged( float damage, vector damageOrigin, int damageType, int damageSourceId, entity attacker )
 {
 	entity player = GetLocalClientPlayer()
@@ -308,6 +313,28 @@ void function HealthRegen_OnLocalPlayerDamaged( float damage, vector damageOrigi
 
 	thread HealthRegen_RegenTriggerNotice_Thread( false )
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

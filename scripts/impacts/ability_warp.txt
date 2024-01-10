@@ -45,7 +45,7 @@ ImpactTable
 		"2" "P_warp_imp_default"
 		"3" "P_warp_imp_default"
 		"4" "P_warp_imp_default"
-		"5" "P_warp_imp_default"
+		"5" "P_warp_imp_water" //water_hrz
 		"6" "P_warp_imp_default"
 		"7" "P_warp_imp_default"
 		"8" "P_warp_imp_default"

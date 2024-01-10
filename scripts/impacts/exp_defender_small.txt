@@ -156,6 +156,8 @@ ImpactTable
 
 		//"airburst" ""
 		"shieldhit" "ChargeRifle_SmallBeam_Bulletimpact_3p_vs_3p"
+
+		"5" "ChargeRifle_SmallBeam_Bulletimpact_3p_vs_3p"
 	}
 
 	Sound_attacker
@@ -192,6 +194,8 @@ ImpactTable
 
 		//"airburst" ""
 		"shieldhit" "ChargeRifle_SmallBeam_Bulletimpact_1p_vs_3p"
+
+		"5" "ChargeRifle_SmallBeam_Bulletimpact_1p_vs_3p"
 	}
 
 	Sound_victim
@@ -229,6 +233,8 @@ ImpactTable
 
 		//"airburst" ""
 		"shieldhit" "ChargeRifle_SmallBeam_Bulletimpact_3p_vs_3p"
+
+		"5" "ChargeRifle_SmallBeam_Bulletimpact_3p_vs_3p"
 	}
 
 

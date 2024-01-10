@@ -38,7 +38,7 @@ WeaponData
 	// "OnProjectileIgnite"							"Grenade_OnProjectileIgnite"
 	"OnProjectileExplode"                           "Grenade_UpdateStats"
 
-	"projectile_killreplay_enabled"					"1"
+	"projectile_killreplay_enabled"					"0"
 
 	"grenade_arc_indicator_show_from_hip"			"0"
 	"grenade_arc_indicator_bounce_count"			"1"
@@ -127,7 +127,7 @@ WeaponData
 	"damage_near_value_titanarmor"					"0"
 	"damage_far_value_titanarmor"					"0"
 
-	"damage_flags"									"DF_RAGDOLL | DF_EXPLOSION | DF_DISMEMBERMENT | DF_GIB"
+	"damage_flags"									"DF_RAGDOLL | DF_EXPLOSION | DF_GIB"
 
 	"critical_hit"									"0"
 

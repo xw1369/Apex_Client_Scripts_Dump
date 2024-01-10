@@ -46,7 +46,7 @@ ImpactTable
 		"2" "P_impact_exp_xsmll_metal"
 		"3" "P_impact_exp_xsmll_metal"
 		"4" "P_impact_exp_xsmll_metal"
-		"5" "P_impact_exp_xsmll_metal"
+		"5" "P_impact_exp_xsmll_water"
 		"6" "P_impact_exp_xsmll_metal"
 		"7" "P_impact_exp_xsmll_metal"
 		"8" "P_impact_exp_xsmll_metal"
@@ -98,6 +98,8 @@ ImpactTable
 
 		"airburst" "Weapon.Explosion_Med"
 		"shieldhit" "TitanShield.Explosive.BulletImpact_3P_vs_3P"
+
+		"5" "Weapon.Explosion_Med"
 	}
 
 	Sound_attacker
@@ -135,6 +137,8 @@ ImpactTable
 
 		"airburst" "Weapon.Explosion_Med"
 		"shieldhit" "TitanShield.Explosive.BulletImpact_1P_vs_3P"
+
+		"5" "Weapon.Explosion_Med"
 	}
 
 	Sound_victim
@@ -172,6 +176,8 @@ ImpactTable
 
 		"airburst" "Weapon.Explosion_Med"
 		"shieldhit" "TitanShield.ARLRocket.BulletImpact_3P_vs_1P" // Custom for ARL so rapid-fire shieldhit explos don't get overbearing
+
+		"5" "Weapon.Explosion_Med"
 	}
 
 

@@ -2,7 +2,7 @@
 #base "_base_mags_energy.txt"
 
                     
-                                           
+#base "_base_hopup_golden_horse_red.txt"
       
 
 WeaponData
@@ -22,7 +22,7 @@ WeaponData
 
 	"fire_mode"   									"automatic"
 
-    "damage_flags"									"DF_BULLET | DF_GIB | DF_DISMEMBERMENT"
+    "damage_flags"									"DF_BULLET | DF_GIB"
 
 	// Menu
 	"menu_category"                                 "ar"
@@ -398,7 +398,7 @@ WeaponData
                                       
                                              
 
-                                                                        
+                                                     
 
                              
                                   

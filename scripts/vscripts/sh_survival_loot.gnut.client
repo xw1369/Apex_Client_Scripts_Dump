@@ -249,7 +249,7 @@ global function GetPropSurvivalExtraPropertyFromEnt
 
 
 
-
+global function IsPlayerCloseEnoughToDeathBoxToLoot
 
 
 
@@ -433,6 +433,9 @@ global enum eHealthPickupType
 
 
 
+
+
+
 	ULTIMATE
 
 	_count
@@ -510,6 +513,7 @@ global enum eAttachmentTag
 	SMG
 	LAUNCHER
 	MARKSMAN
+	MELEE
 	ALL
 	BARREL
 }
@@ -523,6 +527,7 @@ global const table<string, int> weaponClassToTag = {
 	smg = eAttachmentTag.SMG
 	launcher = eAttachmentTag.LAUNCHER
 	marksman = eAttachmentTag.MARKSMAN
+	melee = eAttachmentTag.MELEE
 }
 
 global struct KitHealData
@@ -684,8 +689,9 @@ void function SURVIVAL_Loot_InitShared()
 
 	
 	Remote_RegisterServerFunction( "ClientCallback_PickupAllSurvivalItem", "int", INT_MIN, INT_MAX, "bool" )
-	Remote_RegisterServerFunction( "ClientCallback_PickupSurvivalItem_WithBoxEnt", "entity", "int", INT_MIN, INT_MAX, "entity" )
-	Remote_RegisterServerFunction( "ClientCallback_PickupSurvivalItem_NoBoxEnt", "entity", "int", INT_MIN, INT_MAX )
+	Remote_RegisterServerFunction( "ClientCallback_PickupSurvivalItem_WithLootGrabEnt", "typed_entity", "prop_survival", "int", INT_MIN, INT_MAX, "typed_entity", "prop_loot_grabber" )
+	Remote_RegisterServerFunction( "ClientCallback_PickupSurvivalItem_WithDeathBoxEnt", "typed_entity", "prop_survival", "int", INT_MIN, INT_MAX, "typed_entity", "prop_death_box" )
+	Remote_RegisterServerFunction( "ClientCallback_PickupSurvivalItem_NoBoxEnt", "typed_entity", "prop_survival", "int", INT_MIN, INT_MAX )
 	Remote_RegisterServerFunction( "ClientCallback_PickupSurvivalItem_UI", "int", INT_MIN, INT_MAX, "int", INT_MIN, INT_MAX, "int", INT_MIN, INT_MAX )
 
 	
@@ -697,7 +703,8 @@ void function SURVIVAL_Loot_InitShared()
 	Remote_RegisterServerFunction( "ClientCallback_BackpackOpened" )
 	Remote_RegisterServerFunction( "ClientCallback_BackpackClosed" )
 	Remote_RegisterServerFunction( "ClientCallback_Sur_SwapPrimaryPositions" )
-	Remote_RegisterServerFunction( "ClientCallback_PickupSurvivalLootFromDeathbox", "int", INT_MIN, INT_MAX, "int", INT_MIN, INT_MAX, "entity", "entity", "int", INT_MIN, INT_MAX, "int", INT_MIN, INT_MAX )
+	Remote_RegisterServerFunction( "ClientCallback_PickupSurvivalLootFromDeathbox", "int", INT_MIN, INT_MAX, "int", INT_MIN, INT_MAX, "typed_entity", "prop_survival", "typed_entity", "prop_death_box", "int", INT_MIN, INT_MAX, "int", INT_MIN, INT_MAX )
+	Remote_RegisterServerFunction( "ClientCallback_PickupSurvivalLootFromLootGrabber", "int", INT_MIN, INT_MAX, "int", INT_MIN, INT_MAX, "typed_entity", "prop_survival", "typed_entity", "prop_loot_grabber", "int", INT_MIN, INT_MAX, "int", INT_MIN, INT_MAX )
 
 
 		AddCreateCallback( "prop_survival", OnPropSurvivalCreate )
@@ -832,6 +839,21 @@ void function SURVIVAL_Loot_InitShared()
 		file.healthPickups[ eHealthPickupType.HEALTH_SMALL ] <- healthPickup
 	}
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 	healthKitUseOrder.append( eHealthPickupType.SHIELD_LARGE )
 
 
@@ -880,8 +902,8 @@ void function SURVIVAL_Loot_InitShared()
 			continue
 
 
-
-
+			
+			HopupGoldenHorse_Switcheroo( wData )
 
 
 		if ( wData.supportedAttachments.len() == 0 )
@@ -1078,6 +1100,11 @@ void function SURVIVAL_Loot_InitShared()
 			wData.supportedAttachments.removebyvalue( attachmentToDisable )
 			wData.disabledAttachments.append( attachmentToDisable )
 		}
+
+
+			
+			HopupGoldenHorse_Switcheroo_LockedSets( wData )
+
 	}
 
 	RegisterNetworkedVariable( NV_EVOLVING_ARMOR_KILL_COUNT, SNDC_PLAYER_EXCLUSIVE, SNVT_UNSIGNED_INT, 0 )
@@ -2431,9 +2458,35 @@ void function OnPropSurvivalCreate( entity prop )
 
 
 
+
+
+
+
+
+
+
+
+
 	AddCallback_OnUseEntity_ClientServer( prop, OnUseSurvivalPickup )
 	SetCallback_CanUseEntityCallback( prop, SurvivalLoot_CanUseFunction )
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -2612,15 +2665,15 @@ void function SURVIVAL_Loot_UpdateHighlightForLoot( entity prop )
 				switch ( ref )
 				{
 					case SPECIAL_AMMO:
-						highlight = "survival_item_ammo_energy"
+						highlight = "survival_item_ammo_a"
 						break
 
 					case HIGHCAL_AMMO:
-						highlight = "survival_item_ammo_b"
+						highlight = "survival_item_ammo_a"
 						break
 
 					case SHOTGUN_AMMO:
-						highlight = "survival_item_ammo_shotgun"
+						highlight = "survival_item_ammo_a"
 						break
 
 
@@ -2631,7 +2684,7 @@ void function SURVIVAL_Loot_UpdateHighlightForLoot( entity prop )
 
 
 					case SNIPER_AMMO:
-						highlight = "survival_item_ammo_energy"
+						highlight = "survival_item_ammo_a"
 						break
 
 					default:
@@ -2652,15 +2705,27 @@ void function SURVIVAL_Loot_UpdateHighlightForLoot( entity prop )
 			}
 
 
+
+			highlight = GoldenHorse_UpdateLootHighlight( prop, ref, data.tier, highlight )
+
+
 		if ( prop.e.eyeForQuality_isScanned && PlayerHasPassive( GetLocalViewPlayer(), ePassives.PAS_LOBA_EYE_FOR_QUALITY ) )
 		{
-			if ( data.tier - 1 == eRarityTier.MYTHIC )
-				highlight = "survival_item_heirloom_loba"
-			else if ( data.tier - 1 == eRarityTier.LEGENDARY )
-				highlight = "survival_item_legendary_loba"
-			else if ( data.tier - 1 == eRarityTier.EPIC )
-				highlight = "survival_item_epic_loba"
+			if ( GetEyeForQualityCanSee( data ) )
+			{
+				if ( data.tier - 1 == eRarityTier.MYTHIC )
+					highlight = "survival_item_heirloom_no_los_check"
+				else if ( data.tier - 1 == eRarityTier.LEGENDARY )
+					highlight = "survival_item_legendary_no_los_check"
+				else if ( data.tier - 1 == eRarityTier.EPIC )
+					highlight = "survival_item_epic_no_los_check"
+				else if ( data.tier - 1 == eRarityTier.RARE )
+					highlight = "survival_item_rare_no_los_check"
+				else if ( data.tier - 1 == eRarityTier.COMMON )
+					highlight = "survival_item_gh_no_los_check"
+			}
 		}
+
 
 
 
@@ -4246,19 +4311,58 @@ string function GetWeaponToReplace( entity player )
 
 void function RunClientCallback_PickupSurvivalItem( entity player, entity lootEnt, int pickupFlags, entity boxEnt )
 {
+	if ( !IsValid( lootEnt ) )
+		return
 
-		if ( IsValid( boxEnt ) )
-			Remote_ServerCallFunction( "ClientCallback_PickupSurvivalItem_WithBoxEnt", lootEnt, pickupFlags, boxEnt )
-		else
+	if ( lootEnt.GetNetworkedClassName() != "prop_survival" )
+	{
+		Assert( false, "Attempted to pick up non prop_survival survival item of type: " + string( lootEnt.GetNetworkedClassName() ) )
+		return
+	}
+
+	if ( IsValid( boxEnt ) )
+	{
+		switch ( boxEnt.GetNetworkedClassName() )
+		{
+			case "prop_death_box":
+			{
+
+					Remote_ServerCallFunction( "ClientCallback_PickupSurvivalItem_WithDeathBoxEnt", lootEnt, pickupFlags, boxEnt )
+
+
+
+
+
+				break
+			}
+			case "prop_loot_grabber":
+			{
+
+					Remote_ServerCallFunction( "ClientCallback_PickupSurvivalItem_WithLootGrabEnt", lootEnt, pickupFlags, boxEnt )
+
+
+
+
+
+				break
+			}
+			default:
+			{
+				Assert( false, "Attempted to pick up from non known box entity of type: " + string( boxEnt.GetNetworkedClassName() ) )
+				return
+			}
+		}
+	}
+	else
+	{
+
 			Remote_ServerCallFunction( "ClientCallback_PickupSurvivalItem_NoBoxEnt", lootEnt, pickupFlags )
 
 
 
 
 
-
-
-
+	}
 }
 
 
@@ -4725,17 +4829,6 @@ void function ServerCallback_AttachedMod( int wIdx, int mIdx )
 
 	
 }
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -5351,6 +5444,14 @@ void function SURVIVAL_SetShieldHealthMaxOverrideCallback( int functionref( enti
 int function SURVIVAL_GetCharacterShieldHealthMaxForArmor( entity player, LootData data )
 {
 	int shieldMaxHealth = 0
+
+
+
+
+
+
+
+
 	if ( EvolvingArmor_IsEquipmentEvolvingArmor( data.ref ) )
 	{
 		shieldMaxHealth = EvolvingArmor_GetCharacterShieldHealthMaxForArmorTier( player, data.tier )
@@ -6020,6 +6121,9 @@ string function GetStringForTagId( int tagId )
 		case eAttachmentTag.MARKSMAN:
 			return "#TAG_MARKSMAN"
 
+		case eAttachmentTag.MELEE:
+			return "#TAG_MELEE"
+
 		default:
 			Assert( false )
 	}
@@ -6170,6 +6274,12 @@ bool function ShouldPickupDNAFromDeathBox( entity ent, entity player )
 
 	if( ent.GetNetBool( DEATH_BOX_BANNER_EXPIRED_NETVAR ) && !Perk_CanPickUpExpiredBanners( player, ent ) )
 		return false
+
+
+
+
+
+
 
 
 	if ( ent.GetTeam() != TEAM_UNASSIGNED )
@@ -6378,6 +6488,19 @@ bool function Survival_PickupItem( entity pickup, entity player, int pickupFlags
 		as = expect LootActionStruct( forcedAction )
 
 	int pickupCount    = pickup.GetClipCount()
+
+
+
+
+
+
+
+
+
+
+
+
+
 	bool shouldDestroy = SURVIVAL_ApplyLootAction( as.action, pickup, player, pickupFlags, deathBox, desiredCount )
 	int newPickupCount = pickup.GetClipCount()
 
@@ -6735,6 +6858,10 @@ int function GetPropSurvivalExtraPropertyFromEnt( entity ent )
 
 
 
+
+
+
+
 int function GetPropSurvivalFlagsPropertyFromEnt( entity ent )
 {
 	return GetPropSurvivalFlagsProperty( ent.GetSurvivalProperty() )
@@ -6866,8 +6993,32 @@ bool function IsPlayerCloseEnoughToDeathBoxToLoot( entity player, entity deathBo
 	if ( !IsValidAndUsableDeathBoxEnt( deathBox ) )
 		return false
 
-	return DistanceSqr( player.GetOrigin(), deathBox.GetOrigin() ) <= ( DEATH_BOX_MAX_DIST * DEATH_BOX_MAX_DIST )
+	float distanceToDeathbox = DistanceSqr( player.GetOrigin(), deathBox.GetOrigin() )
+	float maxSquareDist = ( DEATH_BOX_MAX_DIST * DEATH_BOX_MAX_DIST )
+
+
+
+
+
+
+
+
+
+
+
+
+	return distanceToDeathbox <= maxSquareDist
 }
+
+
+
+
+
+
+
+
+
+
 
 
 

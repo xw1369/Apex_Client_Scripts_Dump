@@ -55,9 +55,7 @@ const array<asset> STORE_BACKGROUND_FX_TIERS =
 	$"P_store_BG_bundle_T5", 
 ]
 
-
 const asset WEAPON_MASTERY_BACKGROUND_FX = $"P_wpnmstry_BG_bundle_T4"
-
 
 
 
@@ -224,6 +222,7 @@ struct
 
 		entity storeInspectRefEnt
 		entity weaponOverviewRefEnt
+		entity meleeInspectRefEnt
 
 		entity								currentCameraTarget
 		table<int, entity>                  cameraTargets
@@ -264,6 +263,7 @@ struct
 		MenuModelData appliedStickerModelData
 		MenuModelData unappliedStickerModelData
 		MenuModelData weaponOverviewModelData
+		MenuModelData meleeInspectModelData
 
 		int                                          currentStickerObjectType = -1
 		int                                          currentUnappliedStickerInstance = -1
@@ -351,6 +351,8 @@ global function UIToClient_PreviewCharacterSkin
 global function UIToClient_PreviewCharacterSkinFromCharacterSkinPanel
 global function UIToClient_PreviewWeaponSkin
 global function UIToClient_PreviewStoreItem
+global function UIToClient_PreviewMeleeSkin
+global function UIToClient_ClearMeleeSkinPreview
 global function UIToClient_OverviewWeapon
 global function UIToClient_PreviewUnappliedSticker
 
@@ -474,9 +476,7 @@ void function ClMenuModels_Init()
 
 
 
-
 	PrecacheParticleSystem( WEAPON_MASTERY_BACKGROUND_FX )
-
 
 
 	RegisterSignal( "EndRevConvo" )
@@ -1006,6 +1006,13 @@ void function InitPresentationData()
 	}
 
 	{
+		PresentationDef pd = file.presentationData[ePresentationType.MELEE_INSPECT]
+		pd.modelData = file.meleeInspectModelData
+		pd.startFunc = StartPresentation_MELEE_INSPECT
+		pd.endFunc = EndPresentation_MELEE_INSPECT
+	}
+
+	{
 		PresentationDef pd = file.presentationData[ePresentationType.CLUB_LANDING]
 		pd.modelData = null
 		pd.startFunc = StartPresentation_CLUBS_LANDING
@@ -1054,14 +1061,12 @@ void function InitPresentationData()
 		pd.endFunc = EndPresentation_UNAPPLIED_STICKER
 	}
 
-
 	{
 		PresentationDef pd = file.presentationData[ePresentationType.WEAPON_TRIAL_CELEBRATIONS]
 		pd.modelData = null
 		pd.startFunc = StartPresentation_WEAPON_TRIAL_CELEBRATIONS
 		pd.endFunc = EndPresentation_WEAPON_TRIAL_CELEBRATIONS
 	}
-
 
 	Menu_InitPresentationDataFromCameraSettings()
 }
@@ -1103,8 +1108,8 @@ void function InitMenuModelFlashData()
 		fd.fillIntensityScalar    = 5000
 		fd.outlineIntensityScalar = 1
 		fd.fadeInTime             = 0.2
-		fd.fadeOutTime            = 0.75
-		fd.lifeTime               = 1
+		fd.fadeOutTime            = 0.55
+		fd.lifeTime               = 0.2
 		fd.outlineRadius          = 1
 	}
 
@@ -1113,8 +1118,8 @@ void function InitMenuModelFlashData()
 		fd.fillIntensityScalar    = 5000
 		fd.outlineIntensityScalar = 1
 		fd.fadeInTime             = 0.75
-		fd.fadeOutTime            = 1
-		fd.lifeTime               = 2
+		fd.fadeOutTime            = 0.2
+		fd.lifeTime               = 0.75
 		fd.outlineRadius          = 1
 	}
 
@@ -1134,7 +1139,7 @@ void function InitMenuModelFlashData()
 		fd.outlineIntensityScalar = 300
 		fd.fadeInTime             = 0.01
 		fd.fadeOutTime            = 0.3
-		fd.lifeTime               = 0.1
+		fd.lifeTime               = 0.01
 		fd.outlineRadius          = 2
 	}
 
@@ -1376,6 +1381,19 @@ void function EndPresentation_STORE_INSPECT()
 	CameraZoomThreadEnd()
 }
 
+void function StartPresentation_MELEE_INSPECT()
+{
+	ModelData_GetMover( file.meleeInspectModelData ).SetOrigin( file.meleeInspectRefEnt.GetOrigin() )
+
+	ModelData_GetMover( file.customizeCharacter ).SetOrigin( GetEntByScriptName( "customize_character_skin_ref" ).GetOrigin() + <0, 0, -500> )
+	UpdateMenuCharacterModel( GetLocalClientPlayer(), -1 )
+}
+
+void function EndPresentation_MELEE_INSPECT()
+{
+	ClearMeleeInspectItem()
+	CameraZoomThreadEnd()
+}
 
 void function StartPresentation_WEAPON_TRIAL_CELEBRATIONS()
 {
@@ -1407,7 +1425,6 @@ void function EndPresentation_WEAPON_TRIAL_CELEBRATIONS()
 	if ( EffectDoesExist( file.storeBackgroundFXHandle ) )
 		EffectStop( file.storeBackgroundFXHandle, true, false )
 }
-
 
 void function StartPresentation_WEAPON_OVERVIEW_INSPECT()
 {
@@ -1670,6 +1687,22 @@ void function EnableLobbyMenuCameraZoom()
 
 		cameraTargetIndex = eCameraTargetNames.weapon_mastery_inspect_camera_target
 	}
+	else if ( file.desiredPresentationType == ePresentationType.MELEE_INSPECT )
+	{
+		entity model        = ModelData_GetModel( file.meleeInspectModelData )
+		ItemFlavor itemFlav = ModelData_GetSkinFlavor( file.meleeInspectModelData )
+
+		if( !IsItemFlavorStructValid( itemFlav.guid, eValidation.DONT_ASSERT ) )
+			return
+
+		int itemType = ItemFlavor_GetType( itemFlav )
+		if ( itemType != eItemType.melee_skin )
+			return
+
+		focalPoint = model.GetAttachmentOrigin( model.LookupAttachment( "MENU_ROTATE" ) )
+		maxZoomDistance = ZOOM_DISTANCE_CHARACTER_SKIN
+		cameraTargetIndex = eCameraTargetNames.customize_character_camera_target
+	}
 
 	
 
@@ -1707,7 +1740,7 @@ bool function IsEventLobbyActive()
 	if ( eventLobbyOverride )
 		return true
 
-	if ( IsLobbyEvent2Active() )
+	if ( IsLobbyEvent1Active() )
 		return true
 
 	return false
@@ -1816,6 +1849,14 @@ void function InitMenuEntities()
 	ModelData_SetBaseRotationDelta( file.weaponOverviewModelData, baseRotationDelta )
 	model = CreateMenuModel( file.weaponOverviewModelData, $"mdl/dev/empty_model.rmdl" )
 	ModelData_CreateMover( file.weaponOverviewModelData )
+
+	refEnt = GetEntByScriptName( "customize_character_skin_ref" )
+	file.meleeInspectRefEnt = refEnt
+	ModelData_SetBaseOrigin( file.meleeInspectModelData, refEnt.GetOrigin() )
+	ModelData_SetBaseAngles( file.meleeInspectModelData, <0, 0, 0> )
+	ModelData_SetBaseRotationDelta( file.meleeInspectModelData, baseRotationDelta )
+	model = CreateMenuModel( file.meleeInspectModelData, $"mdl/dev/empty_model.rmdl" )
+	ModelData_CreateMover( file.meleeInspectModelData )
 
 	
 	refEnt = GetEntByScriptName( "battlepass_right_ref" )    
@@ -2004,8 +2045,7 @@ void function UIToClient_PreviewCharacterEmote( int guid, int overrideCharacterF
 	UpdateMenuCharacterModel( GetLocalClientPlayer(), overrideCharacterFlavorGUID )
 
 	ItemFlavor flav = GetItemFlavorByGUID( guid )
-
-	string anim3p     = CharacterQuip_GetAnim3p( flav )
+	string anim3p   = CharacterQuip_GetAnim3p( flav, GetItemFlavorByGUID( overrideCharacterFlavorGUID ) )
 
 	entity model = ModelData_GetModel( file.customizeCharacter )
 	if ( model.Anim_HasActivity( anim3p ) || model.Anim_HasSequence( anim3p ) )
@@ -3055,6 +3095,44 @@ void function UpdateModelsforWeaponOverview( vector origin, vector moverAngles, 
 	model.SetModelScale( modelScale )
 }
 
+void function UpdateModelsforMeleeInspect( vector origin, vector moverAngles, vector modelAngles, asset modelAsset, float modelScale )
+{
+	ModelData_SetBaseOrigin( file.meleeInspectModelData, origin )
+	ModelData_SetBaseAngles( file.meleeInspectModelData, moverAngles )
+	entity model = CreateMenuModel( file.meleeInspectModelData, modelAsset )
+	if ( IsValid( file.meleeInspectModelData.mover ) )
+	{
+		file.meleeInspectModelData.mover.Destroy()
+		ModelData_CreateMover( file.meleeInspectModelData )
+	}
+	ModelData_SetBaseAngles( file.meleeInspectModelData, modelAngles )
+	model.SetModelScale( modelScale )
+}
+
+void function UpdateMeleeInspectDisplay( ItemFlavor item )
+{
+	Assert( ItemFlavor_GetType( item ) == eItemType.melee_skin )
+
+	entity refEnt = file.meleeInspectRefEnt
+	vector origin = refEnt.GetOrigin() + <-10, 0, 42> + MeleeSkin_GetItemInspectOffset( item )
+	vector angles = refEnt.GetAngles()
+
+	asset modelAsset = MeleeSkin_GetMenuModel( item )
+	float modelScale = MeleeSkin_GetItemInspectScale( item ) * 4.444444
+
+	UpdateModelsforMeleeInspect( origin, angles, angles, modelAsset, modelScale )
+	entity model = ModelData_GetModel( file.meleeInspectModelData )
+
+	vector extraRotation = MeleeSkin_GetMenuModelRotation( item )
+	vector originOffset = GetAttachmentOriginOffset( model, "MENU_ROTATE", extraRotation )
+	model.SetLocalOrigin( originOffset )
+	model.SetLocalAngles( extraRotation )
+
+	asset animSeq = MeleeSkin_GetMenuAnimSeq( item )
+	if ( animSeq != $"" )
+		model.Anim_Play( animSeq )
+}
+
 void function UpdateStoreItemDisplay_WeaponCharm( ItemFlavor item )
 {
 	Assert( ItemFlavor_GetType( item ) == eItemType.weapon_charm )
@@ -3691,7 +3769,8 @@ void function UpdateStoreItemDisplay_StandingEmote( ItemFlavor item )
 	Assert( ItemFlavor_GetType( item ) == eItemType.character_emote )
 
 	ItemFlavor ornull character = CharacterQuip_GetCharacterFlavor( item )
-	Assert( character != null )
+	if ( character == null )
+		character = LoadoutSlot_GetItemFlavor( LocalClientEHI(), Loadout_Character() )
 	expect ItemFlavor( character )
 
 	entity refEnt = file.storeInspectRefEnt
@@ -3704,7 +3783,7 @@ void function UpdateStoreItemDisplay_StandingEmote( ItemFlavor item )
 
 	UpdateModelsforStoreItem( origin, angles, angles, modelAsset, modelScale )
 
-	string anim3p = CharacterQuip_GetAnim3p( item )
+	string anim3p = CharacterQuip_GetAnim3p( item, character )
 	entity model = ModelData_GetModel( file.storeInspectModelData )
 	entity mover = ModelData_GetMover( file.storeInspectModelData )
 
@@ -3737,6 +3816,34 @@ void function UpdateStoreItemDisplay_Sticker( ItemFlavor item )
 	Sticker_CreateFlashData( stickerInstance, model, eMenuModelFlashType.DEFAULT, flashColor )
 	Sticker_OnPlaced( stickerInstance, Sticker_FlashOnLoadComplete )
 }
+
+
+void function UpdateStoreItemDisplay_Deathbox( ItemFlavor item )
+{
+	Assert( ItemFlavor_GetType( item ) == eItemType.artifact_component_deathbox )
+
+	entity refEnt = file.storeInspectRefEnt
+	vector origin = refEnt.GetOrigin() + <0, 0, 31>
+	vector angles = refEnt.GetAngles()
+	vector placardAngles = AnglesCompose( angles, <0, 180, 0> )
+
+	const asset ruiAsset = $"ui/finisher_video.rpak"
+	const float ruiAspectRatio = 1920.0 / 1080.0
+	const float ruiHeight = 52
+	const float ruiWidth = ruiHeight * ruiAspectRatio
+
+	var topo = CreateRUITopology_Worldspace( origin, placardAngles, ruiWidth, ruiHeight )
+	var rui = RuiCreate( ruiAsset, topo, RUI_DRAW_VIEW_MODEL, 0 )
+	int videoChannel = ReserveVideoChannel()
+
+	RuiSetInt( rui, "channel", videoChannel )
+	StartVideoOnChannel( videoChannel, Deathbox_GetVideo( item ), true, 0.0 )
+
+	file.topo = topo
+	file.rui = rui
+	file.videoChannel = videoChannel
+}
+
 
 
 void function UIToClient_PreviewStoreItem( SettingsAssetGUID itemFlavorGUID, bool isSingleItem = false )
@@ -3896,6 +4003,15 @@ void function UIToClient_PreviewStoreItem( SettingsAssetGUID itemFlavorGUID, boo
 			EnableTurnLockout()
 			UpdateStoreItemDisplay_Sticker( item )
 			break
+
+
+		case eItemType.artifact_component_deathbox:
+			autoRotate = false
+			DisableModelTurn()
+			EnableTurnLockout()
+			UpdateStoreItemDisplay_Deathbox( item )
+			break
+
 	}
 
 	ModelData_ResetRotation( file.storeInspectModelData )
@@ -3918,6 +4034,34 @@ void function UIToClient_PreviewStoreItem( SettingsAssetGUID itemFlavorGUID, boo
 	thread TransitionStoreBackgroundFX( item )
 
 	thread EnableLobbyMenuCameraZoom()
+}
+
+void function UIToClient_PreviewMeleeSkin( SettingsAssetGUID itemFlavorGUID )
+{
+	ClearMeleeInspectItem()
+
+	ItemFlavor item = GetItemFlavorByGUID( itemFlavorGUID )
+
+	ModelData_SetSkinFlavor( file.meleeInspectModelData, item ) 
+
+	UpdateMeleeInspectDisplay( item )
+
+	ModelData_ResetRotation( file.meleeInspectModelData )
+	ModelData_SetBaseRotationDelta( file.meleeInspectModelData, STORE_ITEM_BASE_ROTATION_DELTA )
+
+	entity mover = ModelData_GetMover( file.meleeInspectModelData )
+	if ( IsValid( mover ) )
+		mover.NonPhysicsRotate( <0, 0, -1>, STORE_ITEM_ROTATE_SPEED )
+
+	
+	file.cameraZoomModelInitialized = true
+
+	thread EnableLobbyMenuCameraZoom()
+}
+
+void function UIToClient_ClearMeleeSkinPreview()
+{
+	ClearMeleeInspectItem()
 }
 
 void function UIToClient_OverviewWeapon( SettingsAssetGUID itemFlavorGUID )
@@ -4059,6 +4203,32 @@ void function ClearStoreInspectItem()
 	{
 		StopSoundOnEntity( GetLocalClientPlayer(), file.storePlayingAudioAlias )
 		file.storePlayingAudioAlias = ""
+	}
+
+	EnableModelTurn()
+	DisableTurnLockout()
+}
+
+void function ClearMeleeInspectItem()
+{
+	Signal( level, "EndPendingItemInspectThreads" )
+
+	CameraZoomThreadEnd()
+
+	if ( IsValid( file.meleeInspectModelData.model ) )
+	{
+		foreach ( entity ent in GetEntityAndAllChildren( file.meleeInspectModelData.model ) )
+		{
+			if ( IsValid( ent ) )
+				ent.Destroy()
+		}
+	}
+
+	entity mover = ModelData_GetMover( file.meleeInspectModelData )
+	if( IsValid( mover ) )
+	{
+		mover.SetOrigin( ModelData_GetBaseOrigin( file.meleeInspectModelData ) )
+		mover.SetAngles( ModelData_GetBaseAngles( file.meleeInspectModelData ) )
 	}
 
 	EnableModelTurn()
@@ -4763,6 +4933,11 @@ void function ModelRotationThread()
 				file.storeInspectModelData.mover.NonPhysicsStop()
 				currentRotationDelta = ModelData_GetRotationDelta( modelData )
 			}
+			else if ( file.desiredPresentationType == ePresentationType.MELEE_INSPECT )
+			{
+				file.meleeInspectModelData.mover.NonPhysicsStop()
+				currentRotationDelta = ModelData_GetRotationDelta( modelData )
+			}
 		}
 	}
 }
@@ -5255,15 +5430,11 @@ void function FlashMenuModel( entity model, int flashType, vector flashColor, bo
 
 	model.Highlight_ResetFlags()
 	model.Highlight_SetVisibilityType( HIGHLIGHT_VIS_ALWAYS )
-	model.Highlight_SetCurrentContext( HIGHLIGHT_CONTEXT_NEUTRAL )
-	if( Highlight_RefactorEnabled() )
-	{
-		Highlight_EnableContext_ClientOnly( model, HIGHLIGHT_CONTEXT_NEUTRAL, eHighlightContextClientOnly.FLASH_MENU_MODEL )
-	}
-	int highlightState = model.Highlight_GetState( HIGHLIGHT_CONTEXT_NEUTRAL )
-	model.Highlight_SetFunctions( HIGHLIGHT_CONTEXT_NEUTRAL, fill, true, outline, fd.outlineRadius, highlightState, false )
-	model.Highlight_SetParam( HIGHLIGHT_CONTEXT_NEUTRAL, 0, flashColor )
-	model.Highlight_SetParam( HIGHLIGHT_CONTEXT_NEUTRAL, 1, <fd.fillIntensityScalar, fd.outlineIntensityScalar, 0> )
+	int contextId = HIGHLIGHT_CLIENT_ONLY_INDEX +  eHighlightContextClientOnly.FLASH_MENU_MODEL
+	model.Highlight_SetCurrentContext( contextId )
+	model.Highlight_SetFunctions( contextId, fill, true, outline, fd.outlineRadius, false )
+	model.Highlight_SetParam( contextId, 0, flashColor )
+	model.Highlight_SetParam( contextId, 1, <fd.fillIntensityScalar, fd.outlineIntensityScalar, 0> )
 	model.Highlight_SetFadeInTime( fd.fadeInTime )
 	model.Highlight_SetFadeOutTime( fd.fadeOutTime )
 	model.Highlight_StartOn()
@@ -5282,15 +5453,11 @@ void function FlashMenuModel( entity model, int flashType, vector flashColor, bo
 		{
 			childEnt.Highlight_ResetFlags()
 			childEnt.Highlight_SetVisibilityType( HIGHLIGHT_VIS_ALWAYS )
-			childEnt.Highlight_SetCurrentContext( HIGHLIGHT_CONTEXT_NEUTRAL )
-			if( Highlight_RefactorEnabled() )
-			{
-				Highlight_EnableContext_ClientOnly( childEnt, HIGHLIGHT_CONTEXT_NEUTRAL, eHighlightContextClientOnly.FLASH_MENU_MODEL )
-			}
-			int childHighlightState = childEnt.Highlight_GetState( HIGHLIGHT_CONTEXT_NEUTRAL )
-			childEnt.Highlight_SetFunctions( HIGHLIGHT_CONTEXT_NEUTRAL, fill, true, outline, fd.outlineRadius, childHighlightState, false )
-			childEnt.Highlight_SetParam( HIGHLIGHT_CONTEXT_NEUTRAL, 0, flashColor )
-			childEnt.Highlight_SetParam( HIGHLIGHT_CONTEXT_NEUTRAL, 1, <fd.fillIntensityScalar, fd.outlineIntensityScalar, 0> )
+			contextId = HIGHLIGHT_CLIENT_ONLY_INDEX +  eHighlightContextClientOnly.FLASH_MENU_MODEL
+			childEnt.Highlight_SetCurrentContext( contextId )
+			childEnt.Highlight_SetFunctions( contextId, fill, true, outline, fd.outlineRadius, false )
+			childEnt.Highlight_SetParam( contextId, 0, flashColor )
+			childEnt.Highlight_SetParam( contextId, 1, <fd.fillIntensityScalar, fd.outlineIntensityScalar, 0> )
 			childEnt.Highlight_SetFadeInTime( fd.fadeInTime )
 			childEnt.Highlight_SetFadeOutTime( fd.fadeOutTime )
 			childEnt.Highlight_StartOn()
@@ -5304,19 +5471,7 @@ void function MenuModelHighlightInMatch( entity model )
 {
 	model.Highlight_ResetFlags()
 	model.Highlight_SetVisibilityType( HIGHLIGHT_VIS_ALWAYS )
-	model.Highlight_SetCurrentContext( HIGHLIGHT_CONTEXT_NEUTRAL )
-	if( Highlight_RefactorEnabled() )
-	{
-		Highlight_EnableContext_ClientOnly( model, HIGHLIGHT_CONTEXT_NEUTRAL, eHighlightContextClientOnly.MENU_MODEL_IN_MATCH )
-	}
-	else
-	{
-		int highlightId = model.Highlight_GetState( HIGHLIGHT_CONTEXT_NEUTRAL )
-		model.Highlight_SetFunctions( HIGHLIGHT_CONTEXT_NEUTRAL, HIGHLIGHT_FILL_LOBBY_IN_MATCH, true, HIGHLIGHT_OUTLINE_NONE, 1.0, highlightId, false )
-		model.Highlight_SetParam( HIGHLIGHT_CONTEXT_NEUTRAL, 0, <0, 0, 0> )
-		model.Highlight_SetParam( HIGHLIGHT_CONTEXT_NEUTRAL, 1, <1000, 1, 0> )
-	}
-
+	model.Highlight_SetCurrentContext( HIGHLIGHT_CLIENT_ONLY_INDEX +  eHighlightContextClientOnly.MENU_MODEL_IN_MATCH )
 	model.Highlight_SetFadeInTime( 0.0 )
 	model.Highlight_SetFadeOutTime( 0.0 )
 	model.Highlight_StartOn()
@@ -5326,15 +5481,7 @@ void function MenuModelHighlightInMatch( entity model )
 void function MenuModelHighlightClear( entity model )
 {
 	const int HIGHLIGHT_FILL_NONE = 0
-	if( Highlight_RefactorEnabled() )
-	{
-		Highlight_DisableContext( model, HIGHLIGHT_CONTEXT_NEUTRAL )
-	}
-	else
-	{
-		int highlightId = model.Highlight_GetState( HIGHLIGHT_CONTEXT_NEUTRAL )
-		model.Highlight_SetFunctions( HIGHLIGHT_CONTEXT_NEUTRAL, HIGHLIGHT_FILL_NONE, true, HIGHLIGHT_OUTLINE_NONE, 1.0, highlightId, false )
-	}
+	model.Highlight_SetCurrentContext( HIGHLIGHT_INVALID_ID )
 	model.Highlight_SetLifeTime( 0.0 )
 }
 

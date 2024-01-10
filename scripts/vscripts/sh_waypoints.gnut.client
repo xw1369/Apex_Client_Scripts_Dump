@@ -18,7 +18,6 @@ global function Waypoints_RegisterCustomType
 global function Waypoints_GetActiveLootPings
 
 global function SetWaypointRui_HUD
-global function AddCallback_OnWaypointRuiSet
 
 global function UpdateWaypointRuiVisibility
 
@@ -36,6 +35,13 @@ global function ShutdownWaypointRuis
 global function Waypoint_IsPOI
 global function Waypoint_ShowPingWheel
 global function GetPingedEntForLocWaypoint
+
+
+
+
+
+
+
 
 
 
@@ -206,7 +212,11 @@ global enum eWaypoint
 
 
 
-		ABILITY_ECHO_LOCATOR,
+	ABILITY_ECHO_LOCATOR,
+
+
+
+
 
 	SKYDIVE_EMOTE_ICON,
 	_count
@@ -242,7 +252,6 @@ struct
 	table< int, float >                                                  	waypointCreation
 
 		bool commsWaypointSoundsEnabled = true
-		table< entity, array<void functionref(entity, var) > > 				ruiSetCallbackFunctions
 
 } file
 
@@ -410,6 +419,9 @@ void function PlayerWaypoint_CreateCallback( entity wp )
 
 		case eWaypoint.OBJECTIVE_ENT:
 		case eWaypoint.OBJECTIVE_POS:
+
+
+
 			InstanceWP_Objective( wp )
 			break
 
@@ -512,28 +524,6 @@ void function SetWaypointRui_HUD( entity wp, var rui )
 	Assert( wp.wp.ruiHud == null )
 	RuiSetBool( rui, "isFinished", false )
 	wp.wp.ruiHud = rui
-
-	if ( wp in file.ruiSetCallbackFunctions )
-	{
-		foreach( func in file.ruiSetCallbackFunctions[ wp ] )
-		{
-			func( wp, rui )
-		}
-	}
-}
-
-void function AddCallback_OnWaypointRuiSet( entity wp, void functionref(entity, var) callbackFunc )
-{
-	if ( wp in file.ruiSetCallbackFunctions )
-	{
-		file.ruiSetCallbackFunctions[wp].append( callbackFunc )
-	}
-	else
-	{
-		array< void functionref( entity, var ) > funcList
-		funcList.append( callbackFunc )
-		file.ruiSetCallbackFunctions[wp] <- funcList
-	}
 }
 
 void function HidePingsOnWinnerDetermined()
@@ -967,7 +957,11 @@ void function CreateRUIsForObjectiveWP( entity wp )
 	vector iconScale        = <1, 1, 0>
 	bool noCreateForMinimap = ((wp.GetWaypointGroupFlags() & WPGF_NO_CREATE_MINIMAP_ICONS) != 0)
 
+
+
+
 	if ( wpType == eWaypoint.OBJECTIVE_ENT )
+
 	{
 		entity targ0 = wp.GetWaypointEntity( 0 )
 
@@ -1328,6 +1322,24 @@ void function InstanceWP_WinterExpress_Train( entity wp )
 	RuiTrackGameTime( wRui, "fadeOutEndTime", wp, RUI_TRACK_WAYPOINT_GAMETIME, 0 )
 	RuiTrackGameTime( fRui, "fadeOutEndTime", wp, RUI_TRACK_WAYPOINT_GAMETIME, 0 )
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -2944,6 +2956,11 @@ void function InstanceLootPing( entity wp )
 
 	RuiSetFloat3( rui, "targetOffset", <0, 0, maxs.z - mins.z> + <0, 0, 4> )
 
+
+		if ( TitanSword_WeaponRefIsTitanSword( lootData.ref ) )
+			RuiSetFloat3( rui, "targetOffset", <0, 0, 10> + <0, 0, 4> )
+
+
 	RuiSetFloat( rui, "pingOpacity", GetConVarFloat( "hud_setting_pingAlpha" ) )
 
 	RuiSetImage( rui, "iconImage", lootData.hudIcon )
@@ -4048,6 +4065,27 @@ void function TogglePlayerWaypointMute( entity player )
 
 	file.mutedPlayers[ player ] = !file.mutedPlayers[ player ]
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

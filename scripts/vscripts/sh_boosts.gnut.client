@@ -1,5 +1,4 @@
 
-
 global function Sh_Boosts_Init
 global function Boost_GetBoostType
 global function Boost_GetBoostEvent
@@ -176,6 +175,7 @@ global struct BoostConfig
 	
 	array< string > gamemodeConditions = []
 	array< string > regionConditions = []
+	array< string > platformConditions = []
 	int partyCondition = eBoolInheritable.INHERIT
 }
 
@@ -226,6 +226,7 @@ global struct Boost
 	
 	array< string > gamemodeConditions = []
 	array< string > regionConditions = []
+	array< string > platformConditions = []
 	bool partyCondition = false
 
 	
@@ -247,6 +248,7 @@ struct BoostPlaylistData
 	
 	array< string > gamemodeConditions = []
 	array< string > regionConditions = []
+	array< string > platformConditions = []
 	int partyCondition = eBoolInheritable.INHERIT
 
 	
@@ -349,7 +351,6 @@ void function Sh_Boosts_Init()
 
 	
 }
-
 
 
 
@@ -534,6 +535,8 @@ void function OnAllItemsRegistered()
 	ImportPlaylistData()
 	Boost_RefreshBoosts()
 
+	Debug_PrintPlaylist()
+
 
 
 	file.initialized = true
@@ -712,15 +715,22 @@ void function ApplyBoostConfigDataFromBakery( BoostConfig boostConfig, asset boo
 	}
 
 	boostConfig.regionConditions = []
-	foreach ( var gamemodeConditionData in IterateSettingsAssetArray( boostEventOrBoostTypeAsset, "conditions_region" ) )
+	foreach ( var regionConditionData in IterateSettingsAssetArray( boostEventOrBoostTypeAsset, "conditions_region" ) )
 	{
-		string countryCode = GetSettingsBlockString( gamemodeConditionData, "region" )
+		string countryCode = GetSettingsBlockString( regionConditionData, "region" )
 		Assert( countryCode != "", format( "Empty country code found while importing region conditions for asset %i!", ItemFlavor_GetGUID( boostEventOrBoostTypeItemFlavor) ) )
 		Assert( boostConfig.regionConditions.find( countryCode ) < 0, format( "Duplicate country code condition found while importing region conditions for asset %i!", ItemFlavor_GetGUID( boostEventOrBoostTypeItemFlavor) ) )
 		boostConfig.gamemodeConditions.push( countryCode )
 	}
 
 	boostConfig.partyCondition = ParseBoolInheritableString( GetGlobalSettingsString( boostEventOrBoostTypeAsset, "condition_party" ) )
+
+	boostConfig.platformConditions = []
+	foreach ( var platformConditionData in IterateSettingsAssetArray( boostEventOrBoostTypeAsset, "conditions_platform" ) )
+	{
+		boostConfig.gamemodeConditions.push( GetSettingsBlockString( platformConditionData, "platform" ) )
+	}
+
 }
 
 void function ImportBoostEventFromBakery( asset boostEventAsset, ItemFlavor ornull boostEventCalEvent )
@@ -792,6 +802,8 @@ void function RegisterPlaylistData()
 		array< string > gamemodeConditions = split( gamemodeConditionsRaw, WHITESPACE_CHARACTERS )
 		string regionConditionsRaw         = GetPlaylistVarString( PROG_MODIFIER_PLAYLIST_SOURCE, "progboost_regionConditions_" + i, "" ) 
 		array< string > regionConditions   = split( regionConditionsRaw, WHITESPACE_CHARACTERS )
+		string platformConditionsRaw       = GetPlaylistVarString( PROG_MODIFIER_PLAYLIST_SOURCE, "progboost_platformConditions_" + i, "" ) 
+		array< string > platformConditions = split( platformConditionsRaw, WHITESPACE_CHARACTERS )
 
 		playlistData.guid = i + 1 
 		playlistData.typeId = GetPlaylistVarString( PROG_MODIFIER_PLAYLIST_SOURCE, "progboost_typeId_" + i, "" )
@@ -802,6 +814,7 @@ void function RegisterPlaylistData()
 		playlistData.effects = ParsePlaylistModifierString( effectsRaw )
 		playlistData.regionConditions = regionConditions
 		playlistData.partyCondition = GetPlaylistVarInt( PROG_MODIFIER_PLAYLIST_SOURCE, "progboost_partyCondition_" + i, eBoolInheritable.INHERIT )
+		playlistData.platformConditions = platformConditions
 
 		
 		array< string > uiColorRaw = split( GetPlaylistVarString( PROG_MODIFIER_PLAYLIST_SOURCE, "progboost_uiColor_" + i, "0 0 0" ), WHITESPACE_CHARACTERS )
@@ -908,6 +921,7 @@ void function ApplyPlaylistData( BoostEvent boostEvent, BoostPlaylistData playli
 	boostConfig.gamemodeConditions = playlistData.gamemodeConditions 
 	boostConfig.regionConditions = playlistData.regionConditions 
 	boostConfig.partyCondition = playlistData.partyCondition
+	boostConfig.platformConditions = playlistData.platformConditions
 }
 
 void function ImportBoostTypesFromPlaylist()
@@ -1024,7 +1038,7 @@ BoostTable function BuildPlayerActiveBoosts( entity player )
 		Assert( boost.boostCategory != eBoostCategory.INHERIT, format( "Boost Category for boost %i (%s) was not set properly!", boost.guid, boost.boostId ) )
 
 		
-		if ( !RegionConditionsMet( player, boost, true ) )
+		if ( !BoostBuildingConditionsMet( player, boost, true ) )
 		{
 			continue
 		}
@@ -1359,6 +1373,7 @@ void function CopyBoostConfig( BoostConfig from, BoostConfig to )
 	to.gamemodeConditions = from.gamemodeConditions.slice( 0 )
 	to.regionConditions = from.regionConditions.slice( 0 )
 	to.partyCondition = from.partyCondition
+	to.platformConditions = from.platformConditions.slice( 0 )
 }
 
 Boost function ApplyBoostConfigToBoost( BoostConfig boostConfig, Boost boost )
@@ -1380,6 +1395,7 @@ Boost function ApplyBoostConfigToBoost( BoostConfig boostConfig, Boost boost )
 	boost.regionConditions        = boostConfig.regionConditions.len() > 0 ? boostConfig.regionConditions : boost.regionConditions
 	
 	boost.partyCondition          = boostConfig.partyCondition != eBoolInheritable.INHERIT ? boostConfig.partyCondition == eBoolInheritable.TRUE : boost.partyCondition
+	boost.platformConditions      = boostConfig.platformConditions.len() > 0 ? boostConfig.platformConditions : boostConfig.platformConditions
 
 	return boost
 }
@@ -1445,7 +1461,20 @@ string function LocalizeList( array< string > locIds )
 {
 	const MAX_LOC = 5 
 	int numStr = locIds.len()
-	Assert( numStr <= MAX_LOC )
+
+	
+	
+	if ( numStr > MAX_LOC )
+	{
+		printf("\nsh_boosts %s: Loc Ids:\n", FUNC_NAME() )
+		for ( int i = 0; i < numStr; i++ )
+		{
+			printf( "\t sh_boosts %s: locId[%i]: '%s'\n", FUNC_NAME(), i, locIds[i] )
+		}
+
+		Assert ( false, "LocalizeList() has more entries than it can localize!" )
+		
+	}
 	if ( numStr == 0 )
 		return ""
 
@@ -1776,6 +1805,13 @@ void function CheckAndNotifyBoostsEnded( entity player, BoostTable currentActive
 
 
 
+bool function BoostBuildingConditionsMet( entity player, Boost boost, bool currentMatch )
+{
+	return RegionConditionsMet( player, boost, currentMatch )
+		&& PlatformConditionsMet( player, boost, currentMatch )
+}
+
+
 bool function GamemodeConditionsMet( entity player, Boost boost, bool currentMatch )
 {
 	if ( boost.gamemodeConditions.len() == 0 )
@@ -1856,112 +1892,170 @@ int function ParseBoolInheritableString( string itemFlavVal )
 }
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+bool function PlatformConditionsMet( entity player, Boost boost, bool currentMatch )
+{
+	if ( boost.platformConditions.len() == 0 )
+	{
+		return true
+	}
+
+	
+
+
+
+		string playerHardware = GetUnspoofedPlayerHardware()
+
+	array< string > platformConditions = boost.platformConditions
+	if ( DEBUG_PRINT_BOOSTS )
+	{
+		string conditions = ""
+		foreach ( platform in platformConditions )
+		{
+			conditions += platform + " "
+		}
+
+		printf( "%s(): Player hardware: %s | conditions: %s", FUNC_NAME(), playerHardware, conditions )
+	}
+	return platformConditions.find( playerHardware ) >= 0
+}
+
+void function Debug_PrintPlaylist()
+{
+	if ( DEBUG_PRINT_BOOSTS )
+	{
+		printf( "---- sh_boosts PLAYLIST: %i ----\n", file.playlistData.len() )
+		foreach ( BoostPlaylistData playlistData in file.playlistData )
+		{
+			
+			string gamemodeConditions = ""
+			foreach ( string pinmatchtype in playlistData.gamemodeConditions )
+			{
+				gamemodeConditions += format( "\t\t sh_boosts pb_pl: %s \n", pinmatchtype )
+			}
+			string regionConditions = ""
+			foreach ( string pinmatchtype in playlistData.regionConditions )
+			{
+				regionConditions += format( "\t\t sh_boosts pb_pl: %s \n", pinmatchtype )
+			}
+			string partyCondition = GetEnumString( "eBoolInheritable", playlistData.partyCondition )
+
+			string modifiers = ""
+			foreach ( BoostModifier effect in playlistData.effects )
+			{
+				modifiers += format( "\t\t sh_boosts pb_pl: %s %s %f | %s ", GetEnumString( "eBoostModifierType", effect.type), effect.property, effect.amount, GetEnumString( "eBoostCalculationType", effect.calculationType) )
+			}
+			string platformConditions = ""
+			foreach ( string platform in playlistData.platformConditions )
+			{
+				platformConditions += format( "\t\t sh_boosts pb_pl: %s \n", platform )
+			}
+
+
+			string playlistDataString = format(
+				"%s: (sh_boosts pb_pl): PlaylistData:\n"
+				+ "\t sh_boosts pb_pl: guid: %i\n"
+				+ "\t sh_boosts pb_pl: typeId: %s\n"
+				+ "\t sh_boosts pb_pl: eventId: %s\n"
+				+ "\t sh_boosts pb_pl: startDate: %i \n"
+				+ "\t sh_boosts pb_pl: endDate: %i \n"
+				+ "\t sh_boosts pb_pl: gamemodeConditions:\n%s"
+				+ "\t sh_boosts pb_pl: regionConditions:\n%s"
+				+ "\t sh_boosts pb_pl: partyCondition:%s\n"
+				+ "\t sh_boosts pb_pl: platformConditions:\n%s"
+				+ "\t sh_boosts pb_pl: modifiers: \n%s\n",
+				FUNC_NAME(),
+				playlistData.guid,
+				playlistData.typeId,
+				playlistData.eventId,
+				playlistData.startDate,
+				playlistData.endDate,
+				gamemodeConditions,
+				regionConditions,
+				partyCondition,
+				platformConditions,
+				modifiers
+			)
+			print(playlistDataString)
+		}
+		printf( "---- sh_boosts pb /PLAYLIST: ----\n" )
+	}
+}
+
+void function Debug_PrintPlayerBoosts( entity player )
+{
+	if ( DEBUG_PRINT_BOOSTS )
+	{
+		BoostTable boosts = Boost_GetActiveBoosts( player )
+
+
+
+			printf( "---- sh_boosts pb ACTIVE BOOSTS: %i ----\n", boosts.len() )
+
+		foreach ( Boost boost in boosts )
+		{
+			
+			string gamemodeConditions = ""
+			foreach ( string pinmatchtype in boost.gamemodeConditions )
+			{
+				gamemodeConditions += format( "\t\t sh_boosts pb: %s \n", pinmatchtype )
+			}
+			string regionConditions = ""
+			foreach ( string pinmatchtype in boost.regionConditions )
+			{
+				regionConditions += format( "\t\t sh_boosts pb: %s \n", pinmatchtype )
+			}
+
+			string modifiers = ""
+			foreach ( BoostModifier effect in boost.effects )
+			{
+				modifiers += format( "\t\t sh_boosts pb: %s %s %f | %s \n", GetEnumString( "eBoostModifierType", effect.type), effect.property, effect.amount, GetEnumString( "eBoostCalculationType", effect.calculationType) )
+			}
+
+			string platformConditions = ""
+			foreach ( string platform in boost.platformConditions )
+			{
+				platformConditions += format( "\t\t sh_boosts pb: %s \n", platform )
+			}
+
+			string boostInfoStr = format(
+				"sh_boosts pb: Boost:\n"
+				+ "\t sh_boosts pb: guid: %i\n"
+				+ "\t sh_boosts pb: typeId: %s\n"
+				+ "\t sh_boosts pb: boostId: %s\n"
+				+ "\t sh_boosts pb: boostCategory: %s\n"
+				+ "\t sh_boosts pb: startDate: %i \n"
+				+ "\t sh_boosts pb: endDate: %i \n"
+				+ "\t sh_boosts pb: gamemodeConditions:\n%s"
+				+ "\t sh_boosts pb: regionConditions:\n%s"
+				+ "\t sh_boosts pb: partyCondition: %s\n"
+				+ "\t sh_boosts pb: platformConditions:\n%s"
+				+ "\t sh_boosts pb: modifiers: \n%s\n"
+				+ "\t sh_boosts pb: desc: %s \n",
+				boost.guid,
+				boost.typeId,
+				boost.boostId,
+				GetEnumString( "eBoostCategory", boost.boostCategory ),
+				boost.startDate,
+				boost.endDate,
+				gamemodeConditions,
+				regionConditions,
+				boost.partyCondition ? "Yes" : "No",
+				platformConditions,
+				modifiers,
+				boost.boostDescriptionLong
+			)
+			print( boostInfoStr )
+		}
+		print("---- sh_boosts pb / ACTIVE BOOSTS ----\n")
+	}
+
+}
+
+void function Debug_PrintBoosts( entity player )
+{
+	Debug_PrintPlayerBoosts( player )
+	Debug_PrintPlaylist()
+}
 
 
 
@@ -2042,6 +2136,7 @@ int function ParseBoolInheritableString( string itemFlavVal )
 			{
 				gamemodeConditions += format( "\t\t db_pab: %s \n", pinmatchtype )
 			}
+
 			string regionConditions = ""
 			foreach ( string pinmatchtype in boost.regionConditions )
 			{
@@ -2052,6 +2147,12 @@ int function ParseBoolInheritableString( string itemFlavVal )
 			foreach ( BoostModifier effect in boost.effects )
 			{
 				modifiers += format( "\t\t db_pab: %s %s %f | %s \n", GetEnumString( "eBoostModifierType", effect.type), effect.property, effect.amount, GetEnumString( "eBoostCalculationType", effect.calculationType) )
+			}
+
+			string platformConditions = ""
+			foreach ( string platform in boost.platformConditions )
+			{
+				platformConditions += format( "\t\t db_pab: %s \n", platform )
 			}
 
 			string boostInfoStr = format(
@@ -2065,6 +2166,7 @@ int function ParseBoolInheritableString( string itemFlavVal )
 				+ "\t db_pab: gamemodeConditions:\n%s"
 				+ "\t db_pab: regionConditions:\n%s"
 				+ "\t db_pab: partyCondition: %s\n"
+				+ "\t db_pab: platformConditions:\n%s"
 				+ "\t db_pab: modifiers: \n%s\n"
 				+ "\t db_pab: desc: %s \n",
 				boost.guid,
@@ -2076,6 +2178,7 @@ int function ParseBoolInheritableString( string itemFlavVal )
 				gamemodeConditions,
 				regionConditions,
 				boost.partyCondition ? "Yes" : "No",
+				platformConditions,
 				modifiers,
 				boost.boostDescriptionLong
 			)
@@ -2107,6 +2210,12 @@ int function ParseBoolInheritableString( string itemFlavVal )
 				modifiers += format( "\t\t db_ppd: %s %s %f | %s ", GetEnumString( "eBoostModifierType", effect.type), effect.property, effect.amount, GetEnumString( "eBoostCalculationType", effect.calculationType) )
 			}
 
+			string platformConditions = ""
+			foreach ( string platform in playlistData.platformConditions )
+			{
+				platformConditions += format( "\t\t db_ppd: %s \n", platform )
+			}
+
 			string playlistDataString = format(
 				"%s: (db_ppd): PlaylistData:\n"
 				+ "\t db_ppd: guid: %i\n"
@@ -2117,6 +2226,7 @@ int function ParseBoolInheritableString( string itemFlavVal )
 				+ "\t db_ppd: gamemodeConditions:\n%s"
 				+ "\t db_ppd: regionConditions:\n%s"
 				+ "\t db_ppd: partyCondition:%s\n"
+				+ "\t db_ppd: platformConditions:\n%s"
 				+ "\t db_ppd: modifiers: \n%s\n",
 					FUNC_NAME(),
 					playlistData.guid,
@@ -2127,6 +2237,7 @@ int function ParseBoolInheritableString( string itemFlavVal )
 					gamemodeConditions,
 					regionConditions,
 					partyCondition,
+					platformConditions,
 					modifiers
 			)
 			print(playlistDataString)
@@ -2290,9 +2401,15 @@ BoostTable function Boost_GetPreviousAppliedBoosts( entity player )
 
 Boost ornull function Boost_GetBoost( entity player, int guid )
 {
-	Assert( player in file.playerBoosts && guid in file.playerBoosts[ player ], format( "Boost %i is not invalid!", guid) )
 	if( player in file.playerBoosts && guid in file.playerBoosts[ player ] )
+    {
 		return file.playerBoosts[ player ][ guid ]
+    }
+    else 
+    {
+    	Warning( "Boost %i is not valid!", guid)
+    }
+
 	return null
 }
 
@@ -2514,6 +2631,7 @@ bool function Boost_ConditionsMet( entity player, Boost boost, bool currentMatch
 	bool allConditionsMet = RegionConditionsMet( player, boost, currentMatch )
 		&& GamemodeConditionsMet( player, boost, currentMatch )
 		&& PartyConditionMet( player, boost, currentMatch )
+		&& PlatformConditionsMet( player, boost, currentMatch )
 	return allConditionsMet
 }
 
@@ -2606,6 +2724,10 @@ int function Boost_GetBonusPostGameAccountXP( entity player, int xpType )
 {
 	string pKey = format( "xp_bonus[%i]", xpType )
 	int bonus   = player.GetPersistentVarAsInt( pKey )
+
+	if ( DEBUG_PRINT_BOOSTS )
+		printf( "sh_boosts %s( %i ): %i", FUNC_NAME(), xpType, bonus )
+
 	return bonus
 }
 
@@ -2623,6 +2745,10 @@ int function Boost_GetBonusPostGameMythicProgressBonus( entity player, int pIdx 
 {
 	string pKey = format( "postGameChallengesProgress[%i].mythicProgressBonus", pIdx )
 	int bonusProgress = player.GetPersistentVarAsInt( pKey )
+
+	if ( DEBUG_PRINT_BOOSTS )
+		printf( "sh_boosts %s( %i ): %i", FUNC_NAME(), pIdx, bonusProgress )
+
 	return bonusProgress
 }
 
@@ -2786,5 +2912,3 @@ int function Boost_GetBonusPostGameMythicProgressBonus( entity player, int pIdx 
 
 
 
-
-                                  

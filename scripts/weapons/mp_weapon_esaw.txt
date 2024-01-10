@@ -4,7 +4,7 @@
 #base "_base_stocks_tactical.txt"
 
                     
-                                        
+#base "_base_hopup_golden_horse_blue.txt"
       
 
 WeaponData
@@ -28,7 +28,7 @@ WeaponData
 	"minimap_reveal_distance"						"32000"
 	"leveled_pickup"								"1"
 
-	"damage_flags"									"DF_BULLET | DF_DISMEMBERMENT"
+	"damage_flags"									"DF_BULLET"
 
 	"heartbeat_sensor_size"                         "110"
 

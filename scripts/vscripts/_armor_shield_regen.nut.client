@@ -422,7 +422,7 @@ void function ShieldRegen_RegenTriggerNotice_Thread( bool skipDelay )
 #endif
 
 	entity player = GetLocalClientPlayer()
-	if ( !IsValid( player ) )
+	if ( !IsValid( player ) || !IsValid(file.armorShieldRegenRui))
 		return
 
 	player.EndSignal( "OnDestroy" )

@@ -39,7 +39,7 @@ ImpactTable
         "2" "P_mm_pcs_impact_lava" //lava_rock_hot
 		"3" "P_mm_pcs_impact_default"
 		"4" "P_mm_pcs_impact_default"
-		"5" "P_mm_pcs_impact_default"
+		"5" "P_mm_pcs_impact_water"
 		"6" "P_mm_pcs_impact_default"
 		"7" "P_mm_pcs_impact_default"
 		"8" "P_mm_pcs_impact_default"

@@ -95,6 +95,8 @@ ImpactTable
 
 		"headshot_flesh" "Weapon_EnergySyphon_Impact_Lvl2_3P"
 		"headshot_mechanical" "Weapon_EnergySyphon_Impact_Lvl2_3P"
+
+		"5" "Weapon_EnergySyphon_Impact_Lvl2_3P"
 	}
 
 	Sound_attacker
@@ -134,6 +136,8 @@ ImpactTable
 
 		"headshot_flesh" "Weapon_EnergySyphon_Impact_Lvl2_1P"
 		"headshot_mechanical" "Weapon_EnergySyphon_Impact_Lvl2_1P"
+
+		"5" "Weapon_EnergySyphon_Impact_Lvl2_1P"
 	}
 
 	Sound_victim
@@ -173,6 +177,8 @@ ImpactTable
 
 		"headshot_flesh" "Weapon_EnergySyphon_Impact_Lvl2_3P"
 		"headshot_mechanical" "Weapon_EnergySyphon_Impact_Lvl2_3P"
+
+		"5" "Weapon_EnergySyphon_Impact_Lvl2_3P"
 	}
 
 

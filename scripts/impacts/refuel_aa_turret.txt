@@ -42,7 +42,7 @@ ImpactTable
 		"2" "P_impact_exp_aa_turret"
 		"3" "P_impact_exp_aa_turret"
 		"4" "P_impact_exp_aa_turret"
-		"5" "P_impact_exp_aa_turret"
+		"5" "P_impact_exp_aa_turret" //water_hrz
 		"6" "P_impact_exp_aa_turret"
 		"7" "P_impact_exp_aa_turret"
 		"8" "P_impact_exp_aa_turret"
@@ -80,6 +80,8 @@ ImpactTable
 		"Y" "Glass.Heavy.BulletImpact_3P_vs_3P"
 		"Z" "Sand.Heavy.BulletImpact_3P_vs_3P"
 
+		"5" "Water.Heavy.BulletImpact_3P_vs_3P"
+
 		//"splash" "Water.BulletImpact"
 		//"slime_splash" "Water.BulletImpact"
 
@@ -115,12 +117,14 @@ ImpactTable
 		"X" "TitanBubbleShield.Heavy.BulletImpact_1P_vs_3P"
 		"Y" "Glass.Heavy.BulletImpact_1P_vs_3P"
 		"Z" "Sand.Heavy.BulletImpact_1P_vs_3P"
-		
+
 		//"splash" "Water.BulletImpact"
 		//"slime_splash" "Water.BulletImpact"
 
 		//"airburst" ""
 		"shieldhit" "TitanShield.Heavy.BulletImpact_1P_vs_3P"
+
+		"5" "Water.Heavy.BulletImpact_1P_vs_3P"
 	}
 
 	Sound_victim
@@ -157,6 +161,8 @@ ImpactTable
 
 		//"airburst" ""
 		"shieldhit" "TitanShield.Heavy.BulletImpact_3P_vs_1P"
+
+		"5" "Water.Heavy.BulletImpact_3P_vs_1P"
 	}
 
 	Sound_victim

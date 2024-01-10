@@ -1,5 +1,23 @@
+
+
+
+
+
 global function OnWeaponPrimaryAttack_weapon_shotgun_pistol
 global function OnProjectileCollision_weapon_shotgun_pistol
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -150,4 +168,80 @@ void function OnProjectileCollision_weapon_shotgun_pistol( entity projectile, ve
 
 
 
-                    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+               

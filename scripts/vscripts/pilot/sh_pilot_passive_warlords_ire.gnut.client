@@ -32,7 +32,6 @@ void function ShPassiveWarlordsIre_Init()
 
 
 
-
 		AddCallback_PlayerClassChanged( OnPlayerClassChanged )
 		AddLocalPlayerDidDamageCallback( PassiveWarlordsIre_OnLocalPlayerDidDamage )
 		AddCallback_OnPrimaryWeaponStatusUpdate( OnPrimaryWeaponStatusUpdate )
@@ -75,11 +74,6 @@ void function PassiveWarlordsIre_OnPassiveChanged( entity player, int passive, b
 
 
 }
-
-
-
-
-
 
 
 

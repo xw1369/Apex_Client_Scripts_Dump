@@ -38,7 +38,7 @@ ImpactTable
 		"2" "P_impact_lava" //lava_rock_hot
 //		"3" "openslot"
 //		"4" "openslot"
-//		"5" "openslot"
+		"5" "P_impact_water_hrz"
 //		"6" "openslot"
 //		"7" "openslot"
 //		"8" "openslot"
@@ -87,7 +87,7 @@ ImpactTable
 		"2" "Generic_Sickle_ImpactBlunt_Concrete_3p_vs_3p" //lava_rock_hot
 //		"3" "openslot"
 //		"4" "openslot"
-//		"5" "openslot"
+		"5" "Generic_Sickle_ImpactBlunt_Water_3p_vs_3p"
 //		"6" "openslot"
 //		"7" "openslot"
 //		"8" "openslot"
@@ -138,7 +138,7 @@ ImpactTable
 		"2" "Generic_Sickle_ImpactBlunt_Concrete_1p_vs_3p" //lava_rock_hot
 //		"3" "openslot"
 //		"4" "openslot"
-//		"5" "openslot"
+		"5" "Generic_Sickle_ImpactBlunt_Water_1p_vs_3p"
 //		"6" "openslot"
 //		"7" "openslot"
 //		"8" "openslot"
@@ -188,7 +188,7 @@ ImpactTable
 		"2" "Player_Melee_ImpactBlunt_Dirt_3p_vs_3p" //lava_rock_hot
 //		"3" "openslot"
 //		"4" "openslot"
-//		"5" "openslot"
+		"5" "Player_Melee_ImpactBlunt_Water_3p_vs_3p"
 //		"6" "openslot"
 //		"7" "openslot"
 //		"8" "openslot"
@@ -238,7 +238,7 @@ ImpactTable
 		"2" "Victim_Sickle_ImpactBlunt_3p_vs_1p" //lava_rock_hot
 //		"3" "openslot"
 //		"4" "openslot"
-//		"5" "openslot"
+		"5" "Victim_Sickle_ImpactBlunt_3p_vs_1p"
 //		"6" "openslot"
 //		"7" "openslot"
 //		"8" "openslot"

@@ -87,6 +87,8 @@ ImpactTable
 
 		"airburst" "Char_13_Tactical_Impact"
 		"shieldhit" "Char_13_Tactical_Impact"
+
+		"5" "Char_13_Tactical_Impact"
 	}
 
 	Sound_attacker
@@ -123,6 +125,8 @@ ImpactTable
 
 		//"airburst" "Char_13_Tactical_Impact"
 		"shieldhit" "Char_13_Tactical_Impact"
+
+		"5" "Char_13_Tactical_Impact"
 	}
 
 	Sound_victim
@@ -159,6 +163,8 @@ ImpactTable
 
 		//"airburst" "Char_13_Tactical_Impact"
 		"shieldhit" "Char_13_Tactical_Impact"
+
+		"5" "Char_13_Tactical_Impact"
 	}
 
 

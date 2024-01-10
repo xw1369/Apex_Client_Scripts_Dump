@@ -43,7 +43,7 @@ ImpactTable
 		"2" "P_hmn_land_impact_lava" //lava_rock_hot
 		"3" "P_hmn_bslam_concrete"
 		"4" "P_hmn_bslam_concrete"
-		"5" "P_hmn_bslam_concrete"
+		"5" "P_fuse_tac_impact_water"
 		"6" "P_hmn_bslam_concrete"
 		"7" "P_hmn_bslam_concrete"
 		"8" "P_hmn_bslam_concrete"
@@ -88,6 +88,7 @@ ImpactTable
 
 		"1" "Fuse_Ricochet_Grenade_Explo_Mud_3p"
     	"2" "Fuse_Ricochet_Grenade_Explo_3p"
+    	"5" "Fuse_Ricochet_Grenade_Explo_Water_3p"
 
      	//"splash" "Fuse_Ricochet_Grenade_Explo_Water_3p"
     	//"slime_splash" "Fuse_Ricochet_Grenade_Explo_Mud_3p"
@@ -127,6 +128,7 @@ ImpactTable
 
 		"1" "Fuse_Ricochet_Grenade_Explo_Mud_3p"  //lava_flow
 		"2" "Fuse_Ricochet_Grenade_Explo_3p"
+		"5" "Fuse_Ricochet_Grenade_Explo_Water_3p"
 
 		//"splash" "Fuse_Ricochet_Grenade_Explo_Water_3p"
 		//"slime_splash" "Fuse_Ricochet_Grenade_Explo_Mud_3p"
@@ -166,6 +168,7 @@ ImpactTable
 
 		"1" "Fuse_Ricochet_Grenade_Explo_Mud_3p"
 		"2" "Fuse_Ricochet_Grenade_Explo_3p"
+		"5" "Fuse_Ricochet_Grenade_Explo_Water_3p"
 
 		//"splash" "Fuse_Ricochet_Grenade_Explo_Water_3p"
 		//"slime_splash" "Fuse_Ricochet_Grenade_Explo_Mud_3p"

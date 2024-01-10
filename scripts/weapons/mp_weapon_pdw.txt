@@ -4,7 +4,7 @@
 #base "_base_laser_sights.txt"
 
                     
-                                          
+#base "_base_hopup_golden_horse_green.txt"
       
 
 WeaponData
@@ -35,15 +35,16 @@ WeaponData
 	"stat_rof"										"70"
 
 	// Models
-	"viewmodel"   									"mdl/weapons/prowler_smg/ptpov_prowler_smg.rmdl"
-	"playermodel" 									"mdl/weapons/prowler_smg/w_prowler_smg.rmdl"
+	"viewmodel"   									"mdl/techart/mshop/weapons/class/smg/prowler/prowler_base_v.rmdl"
+	"playermodel" 									"mdl/techart/mshop/weapons/class/smg/prowler/prowler_base_w.rmdl"
 	"holster_offset"								"8 0 0"
 
 	// Script - Callbacks
 	"OnWeaponActivate"                              "OnWeaponActivate_weapon_pdw"
 	"OnWeaponDeactivate"                            "OnWeaponDeactivate_weapon_pdw"
                     
-                                                          
+	"OnWeaponReload"								"GoldenHorseGreen_OnWeaponReload"
+	"OnWeaponReloadFinished"                        "GoldenHorseGreen_OnWeaponReloadFinished"
       
 
 	"chroma_color"									".2 1 .6"

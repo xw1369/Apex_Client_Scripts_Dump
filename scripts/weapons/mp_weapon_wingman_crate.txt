@@ -43,5 +43,12 @@ WeaponData
             "fire_sound_2_player_3p"		    "weapon_wingman_fire_skull_3p"
             "fire_sound_2_npc"				    "weapon_wingman_fire_skull_3p"
         }
+
+        hopup_headshot_dmg_elite_ghorse
+        {
+            "fire_sound_2_player_1p"		    "weapon_wingman_fire_skull_1p"
+            "fire_sound_2_player_3p"		    "weapon_wingman_fire_skull_3p"
+            "fire_sound_2_npc"				    "weapon_wingman_fire_skull_3p"
+        }
     }
 }

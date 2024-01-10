@@ -1,0 +1,511 @@
+global function Odl_SmokeTestInit
+
+
+global function Odl_ClientSmokeTestCallback
+global function Odl_ClientEndCurrentTest
+global function Odl_ClientAddSpawnPoint
+
+
+#if DEV
+global function OdlStressSwitchChar
+global function OdlStressDoForceReload
+global function OdlStressDoRandomSkin
+global function OdlRemoveTesterEnts
+global function OdlStressTestCreateTesterEnt
+global function OdlSetPostLoadWaitFrames
+
+global function OdslStressTestAllTesterEnts
+
+global function OdslKillTest
+
+
+
+
+
+
+
+global struct ODLTestingParams
+{
+	int testNetworkId
+	bool doForceReload
+	bool randomSkin
+	int entCount
+	int postLoadWaitFrames
+	int postLoadWaitFramesMax
+	float reselectPercentage
+	int maxReselect
+}
+
+global table<string, table> ALL_ODL_TEST_PARAMS =
+{
+	["basic_force_reload_stress_test"] = {
+		enabled = false
+		testNetworkId = 0,
+		doForceReload = true,
+		randomSkin = false,
+		doFullResetAtEnd = false,
+		entCount = 1,
+		postLoadWaitFrames = 0
+		postLoadWaitFramesMax = 0
+		reselectPercentage = 0
+		maxReselect = 0
+	},
+	["lod_streaming_stress_basic"] = {
+		enabled = false
+		testNetworkId = 1,
+		doForceReload = true,
+		randomSkin = false,
+		doFullResetAtEnd = false,
+		entCount = 1,
+		postLoadWaitFrames = 1
+		postLoadWaitFramesMax = 10
+		reselectPercentage = 0
+		maxReselect = 0
+	},
+	["small_group_load_stress_test"] = {
+		enabled = false
+		testNetworkId = 2,
+		doForceReload = true,
+		doFullResetAtEnd = false,
+		randomSkin = true,
+		entCount = 6,
+		postLoadWaitFrames = 0
+		postLoadWaitFramesMax = 10
+		reselectPercentage = 0
+		maxReselect = 0
+	},
+	["reselect_stress_basic"] = {
+		enabled = false
+		testNetworkId = 3,
+		doForceReload = false,
+		doFullResetAtEnd = true,
+		randomSkin = true,
+		entCount = 6,
+		postLoadWaitFrames = 0
+		postLoadWaitFramesMax = 0
+		reselectPercentage = 0.1
+		maxReselect = 5
+	},
+	["reselect_stress_50"] = {
+		enabled = false
+		testNetworkId = 4,
+		doForceReload = false,
+		doFullResetAtEnd = true,
+		randomSkin = true,
+		entCount = 6,
+		postLoadWaitFrames = 0
+		postLoadWaitFramesMax = 0
+		reselectPercentage = 0.5
+		maxReselect = 5
+	},
+	["reselect_stress_100"] = {
+		enabled = false
+		testNetworkId = 5,
+		doForceReload = false,
+		doFullResetAtEnd = true,
+		randomSkin = true,
+		entCount = 6,
+		postLoadWaitFrames = 0
+		postLoadWaitFramesMax = 0
+		reselectPercentage = 1.0
+		maxReselect = 5
+	},
+	["reselect_max_stress"] = {
+		enabled = false
+		testNetworkId = 6,
+		doForceReload = false,
+		doFullResetAtEnd = true,
+		randomSkin = true,
+		entCount = 60,
+		postLoadWaitFrames = 0
+		postLoadWaitFramesMax = 0
+		reselectPercentage = 0.1
+		maxReselect = 5
+	},
+}
+
+const array<string> BLACKLIST_MDLS = [
+	"mdl/techart/mshop/characters/legends/ballistic/ballistic_v23_goldenweek_v.rmdl",
+	"mdl/Humans/class/heavy/caustic_v23_goldenweek_w.rmdl"
+]
+
+
+const array<string> WHITELIST_MDSL = [
+
+]
+
+float SMOKE_TEST_TIME = 60
+
+struct
+{
+	table dummy = {}
+	array<entity> testerEnts = []
+	array<vector> spawnPoints = []
+	array<vector> spawnRotations = []
+	table testingParams 
+} file;
+
+void function OdlSetPostLoadWaitFrames(int frames)
+{
+	file.testingParams.postLoadWaitFrames = frames
+}
+
+void function OdlRemoveTesterEnts()
+{
+	foreach(entity e in file.testerEnts)
+	{
+		e.Destroy()
+	}
+
+	file.testerEnts.clear()
+}
+
+void function OdlStressDoForceReload(bool v)
+{
+	file.testingParams.doForceReload = v
+}
+
+void function OdlStressDoRandomSkin(bool v)
+{
+	file.testingParams.randomSkin = v
+}
+
+void function DoSkinLoadExample()
+{
+	asset skin = $"mdl/Humans/class/medium/pilot_medium_holo.rmdl"
+	PrecacheModel( skin )
+
+	vector origin = gp()[0].GetOrigin()
+	vector angles = gp()[0].GetAngles()
+	entity skinDummy = CreatePropDynamic( skin, origin, angles )
+}
+
+void function OdlStressSwitchChar( entity e )
+{
+	while (true)
+	{
+		
+		ItemFlavor char = GetRandomGoodItemFlavorForLoadoutSlot( ToEHI( gp()[0] ), Loadout_Character() )
+		ItemFlavor skin = CharacterClass_GetDefaultSkin( char )
+		
+		if ( file.testingParams.randomSkin )
+		{
+			ItemFlavor maybeSkin = GetRandomGoodItemFlavorForLoadoutSlot( ToEHI( gp()[0] ), Loadout_CharacterSkin( char ) )
+			if ( !BLACKLIST_MDLS.contains( CharacterSkin_GetBodyModel( maybeSkin ) ) )
+			{
+				skin = maybeSkin
+			}
+		}
+
+		int odlHandle = ODL_FindAsset(ODL_SKINS, CharacterSkin_GetBodyModel( skin ))
+		if (odlHandle == -1)
+			continue
+
+		if (ODL_IsLoaded(ODL_SKINS, odlHandle))
+			continue
+
+		e.SetModel( CharacterSkin_GetBodyModel( skin ) )
+		int skinIndex = e.GetSkinIndexByName( CharacterSkin_GetSkinName( skin ) )
+		int camoIndex = CharacterSkin_GetCamoIndex( skin )
+		e.SetSkin( skinIndex )
+		e.SetCamo( camoIndex )
+		e.Anim_Play( "ACT_MP_MENU_LOBBY_CENTER_IDLE" )
+
+		return
+	}
+}
+
+
+void function OdlStressReSelectorThread( entity e )
+{
+	EndSignal(file.dummy, "KillOdlStressTest")
+	EndSignal(e, "OnDestroy")
+	EndSignal(e, "KillOdlReSelector")
+
+	int odlHandle = ODL_FindAsset(ODL_SKINS, e.GetModelName())
+	if (odlHandle == -1)
+		return
+
+	int reselectCounter = 0
+	while(!ODL_IsLoaded(ODL_SKINS, odlHandle) && reselectCounter < file.testingParams.maxReselect)
+	{
+		WaitFrame()
+		odlHandle = ODL_FindAsset(ODL_SKINS, e.GetModelName())
+		if (odlHandle == -1)
+			return
+
+		
+		if ( RandomFloat(1.0) < file.testingParams.reselectPercentage )
+		{
+			OdlStressSwitchChar(e)
+			odlHandle = ODL_FindAsset(ODL_SKINS, e.GetModelName())
+			if (odlHandle == -1)
+				return
+
+			printt( "RESELECTING" )
+
+			++reselectCounter
+		}
+	}
+}
+
+void function OdlStressWaitOnSwitch( entity e )
+{
+	int odlHandle = ODL_FindAsset(ODL_SKINS, e.GetModelName())
+	if (odlHandle == -1)
+		return
+
+	int reselectCounter = 0
+	while(!ODL_IsLoaded(ODL_SKINS, odlHandle))
+	{
+		WaitFrame()
+		odlHandle = ODL_FindAsset(ODL_SKINS, e.GetModelName())
+
+		if (odlHandle == -1)
+			return
+	}
+}
+
+void function FullResetAndWait( array<entity> es )
+{
+	array<int> handles = []
+	foreach ( e in es )
+	{
+		handles.append(ODL_FindAsset(ODL_SKINS, e.GetModelName()))
+		e.SetModel($"mdl/props/nessie/nessie_april_fools.rmdl")
+	}
+
+	
+	ODL_UnloadAllUnused(ODL_SKINS)
+
+	
+	foreach(int handle in handles)
+	{
+		while(ODL_IsLoaded(ODL_SKINS, handle))
+		{
+			WaitFrame()
+		}
+	}
+}
+
+void function OdslStressTestOnceOnMulti( array<entity> es )
+{
+	foreach( entity e in es )
+	{
+		OdlStressSwitchChar( e )
+		thread OdlStressReSelectorThread( e )
+	}
+	if (file.testingParams.doForceReload)
+		ODL_UnloadAllUnused(ODL_SKINS)
+	foreach( entity e in es )
+	{
+		OdlStressWaitOnSwitch( e )
+		Signal(e, "KillOdlReSelector")
+	}
+
+	int waitingFrames = RandomIntRange( expect int(file.testingParams.postLoadWaitFrames), expect int(file.testingParams.postLoadWaitFramesMax) + 1 )
+	for (int i = 0; i < waitingFrames; ++i)
+	{
+		WaitFrame()
+	}
+
+	if (file.testingParams.doFullResetAtEnd)
+	{
+		FullResetAndWait(es)
+	}
+}
+
+entity function OdlStressTestCreateTesterEnt(vector origin, vector angles)
+{
+	entity dummyEnt = CreatePropDynamic( $"mdl/props/nessie/nessie_april_fools.rmdl", origin, angles )
+	file.testerEnts.append(dummyEnt)
+	return dummyEnt
+}
+
+void function OdslStressTestAllTesterEntsThread()
+{
+	EndSignal(file.dummy, "KillOdlStressTest")
+	while(true)
+	{
+		OdslStressTestOnceOnMulti( file.testerEnts )
+	}
+}
+
+void function OdslStressTestAllTesterEnts()
+{
+	thread OdslStressTestAllTesterEntsThread()
+}
+
+void function OdslKillTest()
+{
+	Signal(file.dummy, "KillOdlStressTest")
+	OdlRemoveTesterEnts()
+}
+
+void function Odl_ClientAddSpawnPoint(vector pos, vector angle)
+{
+	file.spawnPoints.append(pos)
+	file.spawnRotations.append(angle)
+}
+
+
+void function Odl_ClientSmokeTestPreamble()
+{
+	OdlRemoveTesterEnts()
+
+	
+	for (int entIdx = 0; entIdx < file.testingParams.entCount; ++entIdx)
+	{
+		vector pos = file.spawnPoints[entIdx % file.spawnPoints.len()]
+		vector angle = file.spawnRotations[entIdx % file.spawnPoints.len()]
+		OdlStressTestCreateTesterEnt(pos, angle)
+	}
+}
+
+void function Odl_ClientSmokeTestCallback( int testId )
+{
+	
+	string testName = ""
+	foreach (string name, table testInfo in ALL_ODL_TEST_PARAMS)
+	{
+		if (testInfo.testNetworkId == testId)
+		{
+			testName = name
+			break
+		}
+	}
+
+	printt( "Client running " + testName )
+
+	thread function() : (testName)
+	{
+		EndSignal(file.dummy, "KillOdlStressTest")
+
+		file.testingParams = ALL_ODL_TEST_PARAMS[testName]
+		Odl_ClientSmokeTestPreamble()
+
+		wait 5.0
+
+		OdslStressTestAllTesterEnts()
+	}()
+}
+
+void function Odl_ClientEndCurrentTest()
+{
+	file.spawnRotations.clear()
+	file.spawnPoints.clear()
+	OdslKillTest()
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#else
+
+
+void function Odl_ClientSmokeTestCallback( int testId )
+{
+}
+
+void function Odl_ClientEndCurrentTest()
+{
+}
+
+void function Odl_ClientAddSpawnPoint(vector pos, vector angle)
+{
+}
+
+#endif
+
+void function Odl_SmokeTestInit()
+{
+	RegisterSignal("KillOdlStressTest")
+	RegisterSignal("KillOdlReSelector")
+	Remote_RegisterClientFunction( "Odl_ClientSmokeTestCallback", "int", 0, 255 )
+	Remote_RegisterClientFunction( "Odl_ClientEndCurrentTest" )
+	Remote_RegisterClientFunction( "Odl_ClientAddSpawnPoint", "vector", -FLT_MAX, FLT_MAX, 32, "vector", -FLT_MAX, FLT_MAX, 32 )
+
+#if DEV
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+	SMOKE_TEST_TIME = GetConVarFloat( "sh_odsl_test_time_sec" )
+#endif
+}

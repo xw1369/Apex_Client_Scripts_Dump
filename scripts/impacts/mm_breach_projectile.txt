@@ -37,7 +37,7 @@ ImpactTable
 		"2" "P_impact_lava_nodecal" //lava_rock_hot
 //		"3" "openslot"
 //		"4" "openslot"
-//		"5" "openslot"
+		"5" "P_mm_breach_imp_proj_default"
 //		"6" "openslot"
 //		"7" "openslot"
 //		"8" "openslot"
@@ -97,7 +97,7 @@ ImpactTable
             "2" "none" //lava_rock_hot
             "3" "none" //spiderflesh
             "4" "none"
-            "5" "none"
+            "5" "Maggie_Tac_Projectile_water_impact_3p_vs_3p"
             "6" "none"
             "7" "none"
             "8" "none"
@@ -157,7 +157,7 @@ ImpactTable
             "2" "none" //lava_rock_hot
             "3" "none" //spiderflesh
             "4" "none"
-            "5" "none"
+            "5" "Maggie_Tac_Projectile_water_impact_1p_vs_3p"
             "6" "none"
             "7" "none"
             "8" "none"
@@ -217,7 +217,7 @@ ImpactTable
             "2" "none" //lava_rock_hot
             "3" "none" //spiderflesh
             "4" "none"
-            "5" "none"
+            "5" "Maggie_Tac_Projectile_water_impact_3p_vs_3p"
             "6" "none"
             "7" "none"
             "8" "none"

@@ -63,6 +63,7 @@ global function ThemedShopEvent_HasSpecialsTab
 
 
 
+
 struct FileStruct_LifetimeLevel
 {
 	table<ItemFlavor, array<ItemFlavor> > eventChallengesMap
@@ -126,6 +127,15 @@ ItemFlavor ornull function GetActiveThemedShopEvent( int t )
 	}
 	return event
 }
+
+
+
+
+
+
+
+
+
 
 
 

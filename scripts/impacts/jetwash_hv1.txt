@@ -38,7 +38,7 @@ ImpactTable
 		"2" "P_veh_jetwash_hv1_concrete" //lava_rock_hot
 		"3" "P_veh_jetwash_hv1_metal"
 		"4" "P_veh_jetwash_hv1_metal"
-		"5" "P_veh_jetwash_hv1_metal"
+		"5" "P_veh_jetwash_hv1_water"
 		"6" "P_veh_jetwash_hv1_metal"
 		"7" "P_veh_jetwash_hv1_metal"
 		"8" "P_veh_jetwash_hv1_metal"

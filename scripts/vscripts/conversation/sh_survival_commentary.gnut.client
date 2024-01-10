@@ -1131,13 +1131,15 @@ bool function CanPlayerSpeak( entity player )
 		return false
 
 
-		
-		if ( !IsShadowArmyGamemode() )
 
-		{
-			if ( IsPlayerShadowZombie( player ) )
-				return false
-		}
+			
+			if ( !IsShadowArmyGamemode() )
+
+			{
+				if ( IsPlayerShadowZombie( player ) )
+					return false
+			}
+
 
 	return true
 }

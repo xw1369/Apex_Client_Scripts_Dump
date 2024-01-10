@@ -453,10 +453,10 @@ array<string> function GetSubjectNamesForCommsAction( int commsAction, entity su
 			return [Localize( "#NPC_LOOT_TICK_UI_TITLE" )]
 		}
 
-
-
-
-
+		else if ( commsAction == eCommsAction.PING_NPC_LOOT_TICK_GH )
+		{
+			return [Localize( "#NPC_LOOT_TICK_UI_TITLE_GH" )]
+		}
 
 		else if ( commsAction == eCommsAction.PING_ENEMY_NPC_PROWLER )
 		{

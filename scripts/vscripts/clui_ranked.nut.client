@@ -731,6 +731,11 @@ void function Ranked_OnSpectateTargetChanged( entity spectatingPlayer, entity pr
 
 
 
+
+
+
+
+
 void function PopulateRuiWithRankedProvisionalBadgeDetails( var rui, int numMatchesCompleted, int rankScore, int ladderPosition, bool isNested = false, int maxPips = 10, bool useDynamicPips = false, bool isPromotional = false )
 {
 	

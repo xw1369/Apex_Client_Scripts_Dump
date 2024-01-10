@@ -29,7 +29,7 @@ WeaponData
     // Ammo
     "ammo_suck_behavior"							"primary_weapons"
 
-	"damage_flags"									"DF_BULLET | DF_DISMEMBERMENT"
+	"damage_flags"									"DF_BULLET"
 	"damage_type" 									"none"
 
 	"trophy_system_ignores"                         "always"

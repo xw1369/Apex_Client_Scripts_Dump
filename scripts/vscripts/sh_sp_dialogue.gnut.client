@@ -1675,7 +1675,7 @@ void function PlayClientDialogue_Internal( int aliasID, int dialogueFlags, array
 	if ( IsBitFlagSet( dialogueFlags, eDialogueFlags.BLOCK_ANNOUNCER ) )
 		file.blockAnnouncer = true
 
-	if ( !(milesAlias in FORBIDDEN_DIALOGUE_EVENT_NAMES) )
+	if ( !(milesAlias in FORBIDDEN_DIALOGUE_EVENT_NAMES) && !IsWatchingKillReplay() )
 	{
 		foreach ( entity speaker in speakers )
 		{

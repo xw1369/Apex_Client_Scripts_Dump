@@ -212,10 +212,7 @@ void function ClientToUI_ToggleScoreboard()
 		
 		entity player = GetLocalViewPlayer()
 
-		if ( IsAlive( player ) && player.ContextAction_IsMeleeExecution() )
-			return
-
-		if( IsInBleedoutOrRevive( player ) )
+		if( !CharacterSelect_Menu_ShouldOpen( player ) )
 			return
 
 		printf( "%s() - Showing character select because we're in Firing Range.", FUNC_NAME() )

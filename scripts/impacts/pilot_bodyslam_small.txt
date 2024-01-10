@@ -41,7 +41,7 @@ ImpactTable
 		"2" "P_impact_lava" //lava_rock_hot
 		"3" "P_hmn_bslam_concrete_small"
 		"4" "P_hmn_bslam_concrete_small"
-		"5" "P_hmn_bslam_concrete_small"
+		"5" "P_hmn_bslam_water_small"
 		"6" "P_hmn_bslam_concrete_small"
 		"7" "P_hmn_bslam_concrete_small"
 		"8" "P_hmn_bslam_concrete_small"

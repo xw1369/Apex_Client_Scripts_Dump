@@ -534,7 +534,7 @@ const table<int, string> damageFlagsToNames =
 	
 	[DF_KNOCK_BACK            ] = "DF_KNOCK_BACK",
 	
-	[DF_DISMEMBERMENT        ] = "DF_DISMEMBERMENT",
+	[DF_OVERFLOW        ] = "DF_OVERFLOW",
 	[DF_MAX_RANGE            ] = "DF_MAX_RANGE",
 	[DF_SHIELD_DAMAGE        ] = "DF_SHIELD_DAMAGE",
 	[DF_CRITICAL            ] = "DF_CRITICAL",

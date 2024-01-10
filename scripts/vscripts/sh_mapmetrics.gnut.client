@@ -419,6 +419,7 @@ void function MapMetrics_ClientTakeScreenshot( entity player, vector position, v
 }
 
 const string METRICS_FPS = "FPS"
+const string METRICS_MEMORY = "Free memory"
 const string METRICS_VIEWPORT_SCALE = "Viewport scale"
 const string METRICS_NET_IN = "Network Bandwidth In (KiB/s)"
 const string METRICS_NET_OUT = "Network Bandwidth Out (KiB/s)"
@@ -476,15 +477,17 @@ void function MapMetrics_AppendSnapshotToFile( vector position, vector angles, i
 {
 	if ( file.metricsOutputRSON )
 	{
+		vector forward = AnglesToForward( angles )
+
 		file.metricsDataBuffer +=
 			"\t\t\t\t{\n" +
-			"\t\t\t\t\t\"Name\":\"" + format( "RPROFx%fy%fz%f", position.x, position.y, position.z ) + "\",\n" +
+			"\t\t\t\t\t\"Name\":\"" + format( "RPROFx%fy%fz%fdx%fdy%fdz%f", position.x, position.y, position.z, forward.x, forward.y, forward.z ) + "\",\n" +
 			"\t\t\t\t\t\"MetricsSet\": {\n" +
 			"\t\t\t\t\t\t\"Context\": \"Ingame Rprof\",\n" +
 			"\t\t\t\t\t\t\"ZoneID\":" + zoneId + ",\n" +
 			"\t\t\t\t\t\t\"ZoneName\":\"" + zoneName + "\",\n" +
 			"\t\t\t\t\t\t\"Position\": { x:" + position.x + ", y:" + position.y + ", z:" + position.z + " },\n" +
-			"\t\t\t\t\t\t\"Rotation\": { x:" + angles.x + ", y:" + angles.y + ", z:" + angles.z + " },\n" +
+			"\t\t\t\t\t\t\"Direction\": { x:" + forward.x + ", y:" + forward.y + ", z:" + forward.z + " },\n" +
 			"\t\t\t\t\t\t\"Metrics\": {\n"
 
 
@@ -547,7 +550,6 @@ void function MapMetrics_ClientEndMapMetrics()
 	if( HasConVar( "mat_vsyncMode" ) )
 		SetConVarInt( "mat_vsyncMode", file.oldVsyncMode )
 
-#if DEV
 	if(file.exitOnCompletion)
 	{
 #if MAPMETRICS_DEBUG
@@ -555,7 +557,6 @@ void function MapMetrics_ClientEndMapMetrics()
 #endif
 		ExitGameClient()
 	}
-#endif
 }
 
 void function MapMetrics_ClientInit( int gridSize )
@@ -567,7 +568,7 @@ void function MapMetrics_ClientInit( int gridSize )
 	file.fpsThreshold = GetCurrentPlaylistVarInt( "map_metrics_fps_threshold", FPS_THRESHOLD_DEFAULT_VALUE )
 	file.adaptiveScalingOn = GetCurrentPlaylistVarBool( "map_metrics_adaptive_scaling", false )
 
-	array<string> metricsLabels = [ METRICS_FPS, METRICS_VIEWPORT_SCALE, METRICS_NET_IN, METRICS_NET_OUT ]
+	array<string> metricsLabels = [ METRICS_FPS, METRICS_MEMORY, METRICS_VIEWPORT_SCALE, METRICS_NET_IN, METRICS_NET_OUT ]
 	for ( int i = 0; i < GetPerfDataLabelCount(); i++ )
 	{
 		metricsLabels.append( GetPerfDataLabelName( i ) );
@@ -664,6 +665,7 @@ void function MapMetrics_ClientRecordDataPoint_Thread( entity player, vector pos
 
 	table<string, float> metricsData
 	metricsData[ METRICS_FPS ] <- fps.tofloat()
+	metricsData[ METRICS_MEMORY ] <- GetFreeMemoryBytes()
 	metricsData[ METRICS_VIEWPORT_SCALE ] <- GetClientViewportScaling().tofloat()
 	metricsData[ METRICS_NET_IN ] <- ( GetNetworkBandwithIn() / 1024 ).tofloat()
 	metricsData[ METRICS_NET_OUT ] <- ( GetNetworkBandwithOut() / 1024 ).tofloat()

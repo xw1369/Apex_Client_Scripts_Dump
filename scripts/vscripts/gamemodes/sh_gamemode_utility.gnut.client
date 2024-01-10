@@ -10,6 +10,7 @@ global function GamemodeUtility_GetMixtapeAbandonPenaltyActive
 global function GamemodeUtility_ParseCircleString 
 global function GamemodeUtility_ParseVectorString 
 global function GamemodeUtility_ParseStringOfVectors 
+global function GamemodeUtility_GetKillReplayActive 
 
 
 
@@ -59,6 +60,7 @@ global function GamemodeUtility_GetColorVectorForCaptureObjectiveState
 global function GamemodeUtility_IsPlayerOnTeamObserver	
 global function GamemodeUtility_GetLocalTeamPlayers 
 global function GamemodeUtility_ServerCallback_PlayerJoinedMatchInProgress 
+global function GamemodeUtility_ServerCallback_TriggerScanOfVictimTeam 
 
 
 
@@ -174,8 +176,17 @@ void function GamemodeUtility_Init()
 
 
 
+
+
+
+
+
+
 	if ( GamemodeUtility_GetShouldTweakDVSForGamemode() )
 		AddCreateCallback( "player", GamemodeUtility_OnPlayerCreated_DVSCallback_Client ) 
+
+	if ( GamemodeUtility_ShouldPingVictimSquadLocationOnDown() || GamemodeUtility_ShouldPingVictimSquadLocationOnKill() )
+		RegisterSignal( "StartedVictimSquadMapScan" )
 
 
 
@@ -207,6 +218,9 @@ void function GamemodeUtility_RegisterNetworking()
 
 		Remote_RegisterClientFunction( "GamemodeUtility_ServerCallback_PlayerJoinedMatchInProgress" )
 	}
+
+	if ( GamemodeUtility_ShouldPingVictimSquadLocationOnDown() || GamemodeUtility_ShouldPingVictimSquadLocationOnKill() )
+		Remote_RegisterClientFunction( "GamemodeUtility_ServerCallback_TriggerScanOfVictimTeam", "int", 0, TEAM_MULTITEAM_FIRST + MAX_TEAMS + 1 )
 }
 
 
@@ -386,6 +400,69 @@ bool function GamemodeUtility_GetShouldTweakDVSForGamemode()
 
 
 
+bool function GamemodeUtility_ShouldPingVictimSquadLocationOnDown()
+{
+	return GetCurrentPlaylistVarBool( "map_ping_victim_squad_on_down", false )
+}
+
+
+bool function GamemodeUtility_ShouldPingVictimSquadLocationOnKill()
+{
+	return GetCurrentPlaylistVarBool( "map_ping_victim_squad_on_kill", false )
+}
+
+
+float function GamemodeUtility_GetDurationOfVictimSquadMapPing()
+{
+	return GetCurrentPlaylistVarFloat( "victim_squad_map_ping_duration", 0.0 )
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -491,10 +568,187 @@ void function GamemodeUtility_OnPlayerCreated_DVSCallback_Client( entity player 
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 void function GamemodeUtility_OnLeaverPenaltyStatusChanged( entity player, bool isLeaverPenaltyEnabled )
 {
 	if ( !isLeaverPenaltyEnabled )
 		Obituary_Print_Localized( Localize( "#GAMEMODES_LEAVER_PENALTY_DEACTIVATED" ).toupper() )
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+void function GamemodeUtility_ServerCallback_TriggerScanOfVictimTeam( int victimTeam )
+{
+	
+	if ( GetAllTeams().contains( victimTeam ) )
+		thread RunVictimSquadMapScan_Thread( victimTeam )
+}
+
+
+
+
+const float POST_PULSE_WAIT = 1.0 
+const float SCAN_FADE_DURATION = 1.5
+void function RunVictimSquadMapScan_Thread( int victimTeam )
+{
+#if DEV
+		Assert( IsNewThread(), "Must be threaded off" )
+#endif
+
+	EndSignal( clGlobal.levelEnt, "OnDestroy" )
+
+	if ( IsValid( clGlobal.levelEnt ) )
+		EndSignal( clGlobal.levelEnt, "OnDestroy" )
+
+	entity localPlayer = GetLocalClientPlayer()
+
+	if ( !IsValid( localPlayer ) || !IsAlive( localPlayer ) )
+		return
+
+	
+	localPlayer.Signal( "StartedVictimSquadMapScan" )
+
+	EndSignal( localPlayer, "OnDestroy", "OnDeath", "StartedVictimSquadMapScan" )
+
+	array<var> fullMapRuis
+	array<var> minimapRuis
+
+	OnThreadEnd(
+		function() : ( fullMapRuis, minimapRuis )
+		{
+			foreach( var ruiToDestroy in fullMapRuis )
+			{
+				Fullmap_RemoveRui( ruiToDestroy )
+				RuiDestroyIfAlive( ruiToDestroy )
+			}
+
+			foreach( var ruiToDestroy in minimapRuis)
+			{
+				Minimap_CommonCleanup( ruiToDestroy )
+			}
+		}
+	)
+
+	float scanDuration = GamemodeUtility_GetDurationOfVictimSquadMapPing()
+	if ( scanDuration > 0.0 )
+	{
+		
+		vector pulseOrigin = localPlayer.GetOrigin()
+		FullMap_PlayCryptoPulseSequence( pulseOrigin, true, scanDuration + POST_PULSE_WAIT )
+
+		
+		wait POST_PULSE_WAIT
+
+		
+		int team = localPlayer.GetTeam()
+		array< entity > livingVictimsArray = GetPlayerArrayOfTeam_Alive( victimTeam )
+		array< entity > scanEntsArray
+		
+		foreach ( victim in livingVictimsArray )
+		{
+			if ( !Bleedout_IsBleedingOut( victim ) )
+				scanEntsArray.append( victim )
+		}
+
+		
+		float startTime = Time()
+		float totalScanDurationWithFadeOut = scanDuration + SCAN_FADE_DURATION
+		float endTime = startTime + totalScanDurationWithFadeOut
+		float timeToStartFade = startTime + scanDuration
+
+		
+		foreach( entity victim in scanEntsArray )
+		{
+
+
+
+
+
+			
+			var fRui = FullMap_AddEnemyLocation( victim )
+			fullMapRuis.append( fRui )
+
+			
+			var mRui = Minimap_AddEnemyToMinimap( victim )
+			minimapRuis.append( mRui )
+			RuiSetGameTime( mRui, "fadeStartTime", timeToStartFade )
+			RuiSetGameTime( mRui, "fadeEndTime", endTime )
+		}
+
+		
+		wait totalScanDurationWithFadeOut
+	}
 }
 
 
@@ -968,27 +1222,6 @@ int function GamemodeUtility_GetAllianceScoreFromTeam( int team )
 	int allianceIndex = AllianceProximity_GetAllianceFromTeam( team )
 	return GetAllianceTeamsScore( allianceIndex )
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -1959,6 +2192,11 @@ string function GamemodeUtility_GetParsedStringForCircleValues( array< string > 
 	}
 
 	return parsedPlaylistString
+}
+
+bool function GamemodeUtility_GetKillReplayActive()
+{
+	return GetCurrentPlaylistVarBool( "killreplay_enabled", false )
 }
 
 

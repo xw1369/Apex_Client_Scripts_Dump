@@ -187,6 +187,23 @@ void function Decoy_Init()
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 void function CodeCallback_PlayerDecoyStateChange( entity decoy, int previousState, int currentState )
 {
 	
@@ -205,7 +222,6 @@ var function OnWeaponPrimaryAttack_holopilot( entity weapon, WeaponPrimaryAttack
 	if ( weapon.GetWeaponChargeLevelMax() > 1 )
 		chargeLevel *= 2 
 	
-
 
 
 

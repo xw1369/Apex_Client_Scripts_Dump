@@ -8,6 +8,8 @@ global function Crafting_IsEnabled
 
 
 
+
+
 global function Crafting_GetPlayerCraftingMaterials
 global function Crafting_GetLootDataFromIndex
 global function Crafting_GetCraftingDataArray
@@ -104,6 +106,7 @@ global function ServerCallback_Crafting_Notify_Player_On_Obit
 
 
 
+
 global function Crafting_OnMenuItemSelected
 global function Crafting_OnWorkbenchMenuClosed
 global function TryCloseCraftingMenuFromDamage
@@ -113,6 +116,7 @@ global function ServerCallback_SetCraftingIndexForSpectator
 global function MarkNextStepForPlayer
 global function MarkAllWorkbenches
 global function DestroyWorkbenchMarkers
+global function HarvesterAnimThread
 
 global function Crafting_ShowCraftingMapFeature
 
@@ -121,6 +125,9 @@ global function Crafting_GetWorkbenchDescString
 
 global function Crafting_IsPlayerAtWorkbench
 
+global function Crafting_GetCraftingIcon
+global function Crafting_GetSmallCraftingIcon
+global function Crafting_GetCraftingZoneIcon
 
 #if DEV
 global function DEV_Crafting_TogglePreMatchRotation
@@ -181,6 +188,9 @@ const string WORKBENCH_IDLE_GROUND_ANIM = "crafting_replicator_ready_groundidle"
 
 
 
+
+
+
 const asset WORKBENCH_HOLO_FX = $"P_workbench_holo"
 
 
@@ -206,6 +216,12 @@ const int HARVESTER_TEAMMATE_REWARD = 25
 const asset WORKBENCH_ICON_ASSET = $"rui/hud/gametype_icons/survival/crafting_workbench"
 const asset WORKBENCH_ICON_LIMITED_ASSET = $"rui/hud/gametype_icons/survival/crafting_workbench_limited"
 const asset WORKBENCH_ICON_AIRDROP_ASSET = $"rui/hud/gametype_icons/survival/crafting_workbench_airdrop"
+
+
+
+
+
+
 const asset HARVESTER_ICON_ASSET = $"rui/hud/gametype_icons/survival/crafting_harvester"
 const asset CRAFTING_SMALL_HARVESTER_ASSET = $"rui/hud/gametype_icons/survival/crafting_small_harvester"
 const asset CRAFTING_SMALL_WORKBENCH_ASSET = $"rui/hud/ping/icon_ping_crafting_hexagon"
@@ -323,6 +339,18 @@ enum eCrafting_Obit_NotifyType
 	COUNT_
 }
 
+
+
+
+
+
+
+
+
+
+
+
+
 global struct CraftingBundle
 {
 	array< string > 			itemsInBundle
@@ -434,6 +462,7 @@ struct {
 
 	
 	table< EHI, entity >			harvesterTableLocal
+
 
 
 
@@ -563,11 +592,13 @@ void function Crafting_Init()
 
 
 
+
 	if ( !Crafting_PlaylistVar_IsEnabled() )
 		return
 
 	printf( "CRAFTING: Crafting Systems enabled" )
 	file.isEnabled = true
+
 
 
 
@@ -644,6 +675,11 @@ void function Crafting_Init()
 	PrecacheParticleSystem( WORKBENCH_ENGINE_SMOKE_FX )
 	PrecacheParticleSystem( WORKBENCH_DOOR_OPEN_FX )
 	PrecacheParticleSystem( WORKBENCH_PRINTING_FX )
+
+
+
+
+
 }
 
 void function Crafting_RegisterNetworking()
@@ -709,6 +745,26 @@ bool function Crafting_PlaylistVar_IsEnabled()
 {
 	return( GetCurrentPlaylistVarBool( "crafting_enabled", true ))
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1574,6 +1630,101 @@ void function Crafting_OnGameStatePlaying_Thread()
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 array<string> function GetItemNamesFromCraftingBundle( CraftingBundle craftedBundle )
 {
 	array<string> arrayResults
@@ -1748,14 +1899,14 @@ void function MapPackage_Crafting_Workbench( entity ent, var rui )
 {
 	bool isAirdrop = ent.GetTargetName() == "craftingWorkbenchAirdropIcon"
 
-	RuiSetImage( rui, "defaultIcon", isAirdrop ? WORKBENCH_ICON_AIRDROP_ASSET : WORKBENCH_ICON_ASSET )
+	RuiSetImage( rui, "defaultIcon", Crafting_GetCraftingIcon( isAirdrop ) )
 
 	RuiSetImage( rui, "clampedDefaultIcon", $"" )
 	RuiSetBool( rui, "useTeamColor", false )
 
 	if ( !isAirdrop )
 	{
-		RuiSetImage( rui, "smallIcon", CRAFTING_SMALL_WORKBENCH_ASSET )
+		RuiSetImage( rui, "smallIcon", Crafting_GetSmallCraftingIcon() )
 		RuiSetBool( rui, "hasSmallIcon", true )
 	}
 
@@ -1769,14 +1920,14 @@ void function MiniMapPackage_Crafting_Workbench( entity ent, var rui )
 {
 	bool isAirdrop = ent.GetTargetName() == "craftingWorkbenchAirdropIcon"
 
-	RuiSetImage( rui, "defaultIcon", isAirdrop ? WORKBENCH_ICON_AIRDROP_ASSET : WORKBENCH_ICON_ASSET )
+	RuiSetImage( rui, "defaultIcon", Crafting_GetCraftingIcon( isAirdrop ) )
 
 	RuiSetImage( rui, "clampedDefaultIcon", $"" )
 	RuiSetBool( rui, "useTeamColor", false )
 
 	if ( !isAirdrop )
 	{
-		RuiSetImage( rui, "smallIcon", CRAFTING_SMALL_WORKBENCH_ASSET )
+		RuiSetImage( rui, "smallIcon", Crafting_GetSmallCraftingIcon() )
 		RuiSetBool( rui, "hasSmallIcon", true )
 	}
 
@@ -2846,11 +2997,6 @@ void function Crafting_Obit_Notify_Single( entity notifyingPlayer, int notifyTyp
 
 
 
-
-
-
-
-
 int function Crafting_GetPlayerCraftingMaterials( entity player )
 {
 
@@ -2878,6 +3024,67 @@ bool function Crafting_IsPlayerAtWorkbench( entity player )
 
 	return false
 }
+
+asset function Crafting_GetCraftingIcon( bool isAirdrop )
+{
+
+
+
+
+
+
+
+	return isAirdrop ? WORKBENCH_ICON_AIRDROP_ASSET : WORKBENCH_ICON_ASSET
+}
+
+asset function Crafting_GetSmallCraftingIcon()
+{
+
+
+
+
+
+
+
+	return CRAFTING_SMALL_WORKBENCH_ASSET
+}
+
+asset function Crafting_GetCraftingZoneIcon()
+{
+
+
+
+
+
+
+
+	return CRAFTING_ZONE_ASSET
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -3436,11 +3643,15 @@ void function OnWorkbenchClusterCreated( entity target )
 
 
 
-
-
-
 		}
 	}
+
+
+
+
+
+
+
 
 	
 	file.workbenchClusterArray.append( target )
@@ -3504,6 +3715,9 @@ void function UseCraftingWorkbench( entity bench, entity player, int pickupFlags
 
 	if( player.Player_IsSkywardFollowing() )
 		return
+
+
+
 
 
 
@@ -4571,6 +4785,105 @@ ExtendedUseSettings function WorkbenchExtendedUseSettings( entity ent, entity pl
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 int function EnsureValidEvoTier( int evoTier )
 {
 
@@ -4632,31 +4945,26 @@ array< string > function GenerateCraftingItemsInCategory( entity player, Craftin
 
 	if ( craftingRotation == eCraftingRotationStyle.PERK )
 	{
-		if ( categoryToCheck.category == "banner" && ( Perk_CanBuyBanners( player ) && ( GetRespawnStyle() == eRespawnStyle.RESPAWN_CHAMBERS ) || Perks_DoesPlayerHavePerk( player, ePerkIndex.BANNER_CRAFTING ) ) )
+
+
+
+
+
+
+
+
 		{
-			CraftingBundle bundle = GetBundleForCategory( categoryToCheck )
-			return bundle.itemsInBundle
-		}
-		else
-		{
-			return []
+			if ( categoryToCheck.category == "banner" && ( Perk_CanBuyBanners( player ) && ( GetRespawnStyle() == eRespawnStyle.RESPAWN_CHAMBERS ) || Perks_DoesPlayerHavePerk( player, ePerkIndex.BANNER_CRAFTING ) ) )
+			{
+				CraftingBundle bundle = GetBundleForCategory( categoryToCheck )
+				return bundle.itemsInBundle
+			}
+			else
+			{
+				return []
+			}
 		}
 	}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 	if ( craftingRotation == eCraftingRotationStyle.LOADOUT_BASED )
@@ -5125,7 +5433,7 @@ void function Crafting_ShowCraftingMapFeature()
 
 
 
-			SetMapFeatureItem( 100, "#CRAFTING_CLUSTER_MAP_FEATURE", "#CRAFTING_CLUSTER_MAP_FEATURE_DESC", WORKBENCH_ICON_ASSET )
+			SetMapFeatureItem( 100, "#CRAFTING_CLUSTER_MAP_FEATURE", "#CRAFTING_CLUSTER_MAP_FEATURE_DESC", Crafting_GetCraftingIcon( false ) )
 	}
 }
 
@@ -5142,12 +5450,22 @@ table<int, var> function CreateMarker( entity markedEnt, bool shouldFadeOutNearC
 			iconToUse = HARVESTER_ICON_ASSET
 			break
 		case WORKBENCH_CLUSTER_SCRIPTNAME:
-			iconToUse = WORKBENCH_ICON_ASSET
+			iconToUse = Crafting_GetCraftingIcon( false )
 			break
 	}
 
-	int fxId = GetParticleSystemIndex( WORKBENCH_BEAM_FX )
-	int fxHandle = StartParticleEffectInWorldWithHandle( fxId, markedEnt.GetOrigin(), markedEnt.GetAngles() )
+	int fxHandle
+
+
+
+
+
+
+
+
+	{
+		fxHandle = StartParticleEffectInWorldWithHandle( GetParticleSystemIndex( WORKBENCH_BEAM_FX ), markedEnt.GetOrigin(), markedEnt.GetAngles() )
+	}
 
 	entity localViewPlayer = GetLocalViewPlayer()
 	vector pos             = markedEnt.GetOrigin() + (markedEnt.GetUpVector() * 200)
@@ -5248,15 +5566,6 @@ void function OnWaitingForPlayers_Client()
 	
 	if ( file.gameStartRuiCreated )
 		return
-
-
-	if ( IsShadowArmyGamemodeCineVersion() )
-	{
-		thread GameStart_CleanupThread()
-		return
-	}
-
-
 
 
 
@@ -5367,6 +5676,13 @@ var function SetupWorkbenchPreview( var baseRui, int index, string uiHandle, boo
 		RuiSetImage( rui, "iconImage", hudIcon )
 		RuiSetInt( rui, "lootTier", lootRef.tier )
 
+
+			if ( lootRef.ref == "hopup_golden_horse_green" )
+			{
+				RuiSetInt( rui, "lootTier", GOLDEN_HORSE_SPECIAL_EVENT_LOOT_TIER )
+			}
+
+
 		if ( lootRef.lootType == eLootType.MAINWEAPON )
 		{
 			RuiSetBool( rui, "isWeapon", true )
@@ -5416,7 +5732,7 @@ void function OnGameStartedPlaying_Client()
 			file.fullmapRui.append( rui )
 		}
 
-		InitHUDRui( file.fullmapRui[0], false )
+		InitHUDRui( file.fullmapRui[0] )
 		Fullmap_AddRui( file.fullmapRui[0] )
 
 		file.fullmapInitialized = true
@@ -5501,6 +5817,13 @@ void function OnPlayerMatchStateChanged( entity player, int newState )
 
 vector function GetCraftingColor()
 {
+
+
+
+
+
+
+
 	return SrgbToLinear( <0, 255, 240> / 255.0 )
 }
 
@@ -5508,6 +5831,10 @@ vector function GetCraftingColor()
 
 void function Crafting_Workbench_OpenCraftingMenu( entity workbench )
 {
+
+
+
+
 	CommsMenu_Shutdown( false )
 	HideScoreboard()
 
@@ -5694,6 +6021,9 @@ void function Crafting_Workbench_CloseCraftingMenu( )
 	if ( CommsMenu_GetCurrentCommsMenu() != eCommsMenuStyle.CRAFTING )
 		return
 
+
+
+
 	CommsMenu_Shutdown( true )
 }
 
@@ -5715,7 +6045,7 @@ void function CreateWorkbenchWorldIcon( entity workbench, bool isLimitedStock = 
 	entity localViewPlayer = GetLocalViewPlayer()
 	vector pos             = workbench.GetOrigin() + (workbench.GetUpVector() * 160)
 	var rui                = CreateCockpitRui( $"ui/survey_beacon_marker_icon.rpak", RuiCalculateDistanceSortKey( localViewPlayer.EyePosition(), pos ) )
-	RuiSetImage( rui, "beaconImage", isLimitedStock ? WORKBENCH_ICON_LIMITED_ASSET : WORKBENCH_ICON_ASSET )
+	RuiSetImage( rui, "beaconImage", isLimitedStock ? WORKBENCH_ICON_LIMITED_ASSET : Crafting_GetCraftingIcon( false ) )
 	RuiSetGameTime( rui, "startTime", Time() )
 	RuiSetFloat3( rui, "pos", pos )
 	RuiSetFloat( rui, "sizeMin", 48 )
@@ -5776,6 +6106,8 @@ void function SetupProgressWaypoint_Internal( entity waypoint )
 	RuiSetBool( waypoint.wp.ruiHud, "reverseProgress", false )
 	RuiSetBool( waypoint.wp.ruiHud, "iconColorOverride", true )
 	RuiSetFloat3( waypoint.wp.ruiHud, "iconColor", Crafting_GetWaypointColor( waypoint ) )
+	RuiSetImage( waypoint.wp.ruiHud, "fillBackgroundImage", $"rui/hud/gametype_icons/obj_background_capturepoint" )
+	RuiSetImage( waypoint.wp.ruiHud, "fillImage", $"rui/hud/gametype_icons/obj_background_capturepoint_fill" )
 
 	RuiTrackGameTime( waypoint.wp.ruiHud, "captureEndTime", waypoint, RUI_TRACK_WAYPOINT_GAMETIME, RUI_TRACK_INDEX_CAPTURE_END_TIME )
 	RuiTrackFloat( waypoint.wp.ruiHud, "captureTimeRequired", waypoint, RUI_TRACK_WAYPOINT_FLOAT, RUI_TRACK_INDEX_REQUIRED_TIME )
@@ -5926,6 +6258,13 @@ void function Crafting_PopulateItemRuiAtIndex( var rui, int index )
 		RuiSetImage( rui, "icon", hudIcon )
 		printt("CRAFTING LOOT ICON : " + lootRef.hudIcon)
 		RuiSetInt( rui, "tier", lootRef.tier )
+
+			if ( lootRef.ref == "hopup_golden_horse_green" )
+			{
+				RuiSetInt( rui, "tier", GOLDEN_HORSE_SPECIAL_EVENT_LOOT_TIER )
+			}
+
+
 		if ( lootRef.lootType == eLootType.MAINWEAPON )
 			RuiSetBool( rui, "isWeapon", true )
 		else if ( lootRef.lootType == eLootType.AMMO && validItemList.len() > 1 && validItemList[1] != "" )
@@ -6057,6 +6396,14 @@ void function Crafting_PopulateItemRuiAtIndex( var rui, int index )
 	bool canAfford = Crafting_GetPlayerCraftingMaterials( GetLocalViewPlayer() ) >= cost
 	RuiSetBool( rui, "isEnabled", canBuy && canAfford )
 
+	
+
+
+
+
+
+
+
 	CraftingBundle bundle = GetBundleForCategory( item )
 	bundle.attachedRui[index] <- rui
 
@@ -6108,6 +6455,63 @@ void function Update_CraftingItems_Availabilities()
 		}
 	}
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -6571,6 +6975,35 @@ bool function PingCrafterUnderAim( entity crafter )
 
 	return true
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

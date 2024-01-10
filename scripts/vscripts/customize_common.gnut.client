@@ -1415,9 +1415,6 @@ vector function GetSkydiveSmokeColorForTeam( int team )
 
 
 
-
-
-
 array<LoadoutEntry> function GetAppropriateLoadoutSlotsForItemFlavor( ItemFlavor itemFlav )
 {
 	int itemType = ItemFlavor_GetType( itemFlav )
@@ -1425,62 +1422,33 @@ array<LoadoutEntry> function GetAppropriateLoadoutSlotsForItemFlavor( ItemFlavor
 	{
 		case eItemType.character_skin:
 			return [ Loadout_CharacterSkin( CharacterSkin_GetCharacterFlavor( itemFlav ) ) ]
-			break
 
 		case eItemType.weapon_skin:
 			return [ Loadout_WeaponSkin( WeaponSkin_GetWeaponFlavor( itemFlav ) ) ]
-			break
 
 		case eItemType.gladiator_card_frame:
 			if ( GladiatorCardFrame_IsSharedBetweenCharacters( itemFlav ) )
-			{
 				return []
-				break
-			}
 
 			return [ Loadout_GladiatorCardFrame( expect ItemFlavor( GladiatorCardFrame_GetCharacterFlavor( itemFlav ) ) ) ]
-			break
 
 		case eItemType.gladiator_card_stance:
 			return [ Loadout_GladiatorCardStance( GladiatorCardStance_GetCharacterFlavor( itemFlav ) ) ]
-			break
 
 		case eItemType.character_execution:
 			return [ Loadout_CharacterExecution( CharacterExecution_GetCharacterFlavor( itemFlav ) ) ]
-			break
 
 		case eItemType.gladiator_card_intro_quip:
 			return [ Loadout_CharacterIntroQuip( CharacterIntroQuip_GetCharacterFlavor( itemFlav ) ) ]
-			break
 
 		case eItemType.gladiator_card_kill_quip:
 			return [ Loadout_CharacterKillQuip( CharacterKillQuip_GetCharacterFlavor( itemFlav ) ) ]
-			break
 
 		case eItemType.gladiator_card_stat_tracker:
 			if ( GladiatorCardStatTracker_IsSharedBetweenCharacters( itemFlav ) )
-			{
 				return []
-				break
-			}
 
 			ItemFlavor character = expect ItemFlavor( GladiatorCardStatTracker_GetCharacterFlavor( itemFlav ) )
-			
-			
-			
-			
-			
-			
-			
-			
-			
-			
-			
-			
-			
-			
-			
-
 			array<LoadoutEntry> slots
 			for ( int trackerIdx = 0; trackerIdx < GLADIATOR_CARDS_NUM_TRACKERS; trackerIdx++ )
 			{
@@ -1491,19 +1459,20 @@ array<LoadoutEntry> function GetAppropriateLoadoutSlotsForItemFlavor( ItemFlavor
 				}
 			}
 			return slots
-			break
 
 		case eItemType.melee_skin:
+
+			if ( !MeleeSkin_HasSpecificCharacterFlavor( itemFlav ) )
+				return [ Loadout_MeleeSkin( LoadoutSlot_GetItemFlavor( LocalClientEHI(), Loadout_Character() ) ) ]
+
+
 			return [ Loadout_MeleeSkin( MeleeSkin_GetCharacterFlavor( itemFlav ) ) ]
-			break
 
 		case eItemType.music_pack:
 			return [ Loadout_MusicPack() ]
-			break
 
 		case eItemType.loadscreen:
 			return [ Loadout_Loadscreen() ]
-			break
 	}
 
 	return []
@@ -1560,7 +1529,18 @@ string function GetLocalizedItemFlavorDescriptionForOfferButton( ItemFlavor item
 
 	if ( GetCurrentPlaylistVarBool( "item_flavor_loc_desc_nostrip", true  ) ) 
 	{
-		return Localize( "#OFFER_ITEM_DESC", Localize( qualityName ), Localize( assocatedFlavName ), Localize( typeName ) )
+		if ( qualityName == "" && assocatedFlavName == "" )
+		{
+			return Localize( "#OFFER_ITEM_DESC_N_1", Localize( typeName ) )
+		}
+		else if ( qualityName == "" )
+		{
+			return Localize( "#OFFER_ITEM_DESC_N_2", Localize( assocatedFlavName ), Localize( typeName ) )
+		}
+		else
+		{
+			return Localize( "#OFFER_ITEM_DESC", Localize( qualityName ), Localize( assocatedFlavName ), Localize( typeName ) )
+		}
 	}
 	else
 	{
@@ -1704,6 +1684,11 @@ asset function CustomizeMenu_GetRewardButtonImage( ItemFlavor flavor )
 
 		case eItemType.event_ability:
 			buttonImage = ItemFlavor_GetIcon( flavor )
+			break
+
+
+		case eItemType.artifact_component_deathbox:
+			buttonImage = $"rui/menu/buttons/battlepass/icon_deathbox"
 			break
 
 		default:

@@ -1212,8 +1212,6 @@ void function OnDeployableShieldPlanted( entity projectile )
 
 
 
-
-
 void function CodeCallback_ScriptMoverTraversalStopped( entity ent, bool isBlocked )
 {
 	if ( ent.GetScriptName() != SHIELD_THROW_SCRIPTNAME )
@@ -1232,8 +1230,6 @@ void function CodeCallback_ScriptMoverTraversalStopped( entity ent, bool isBlock
 
 
 }
-
-
 
 
 

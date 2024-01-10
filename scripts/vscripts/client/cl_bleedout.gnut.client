@@ -412,6 +412,9 @@ bool function CanSelfRevive( entity player )
 {
 	if ( PlayerHasPassive( player, ePassives.PAS_SELF_REVIVE ) )
 	{
+		if ( Bleedout_GetIsInfiniteSelfResEnabled() )
+			return true
+
 
 
 

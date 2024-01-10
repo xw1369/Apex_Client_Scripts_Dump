@@ -506,6 +506,12 @@ bool function PlayerPetsEnabled()
 
 
 
+
+
+
+
+
+
 void function OnPetCreatedClient( entity pet )
 {
 	thread function() : ( pet )
@@ -535,6 +541,14 @@ void function OnPetCreatedClient( entity pet )
 	}()
 
 }
+
+
+
+
+
+
+
+
 
 
 

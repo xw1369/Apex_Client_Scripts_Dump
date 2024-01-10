@@ -509,7 +509,17 @@ void function SURVIVAL_Loot_All_InitShared()
 				data.desc = GetWeaponInfoFileKeyField_WithMods_GlobalString( data.baseWeapon, data.baseMods, "description" )
 				data.hudIcon = GetWeaponInfoFileKeyFieldAsset_Global( data.baseWeapon, "hud_icon" )
 				data.craftingIcon = GetWeaponInfoFileKeyFieldAsset_Global( data.baseWeapon, "crafting_icon" )
-				data.model = GetWeaponInfoFileKeyFieldAsset_Global( data.baseWeapon, "playermodel" )
+
+
+				
+				if ( !TitanSword_WeaponRefIsTitanSword( data.ref ) )
+				{
+					data.model = GetWeaponInfoFileKeyFieldAsset_Global( data.baseWeapon, "playermodel" )
+				}
+
+
+
+
 				if ( IsWeaponKeyFieldDefined( data.baseWeapon, "ammo_pool_type" ) && GetWeaponInfoFileKeyField_Global( data.baseWeapon, "uses_ammo_pool" ) != false )
 				{
 					
@@ -1015,6 +1025,11 @@ vector function GetRarityColor( entity ent )
 	int lootIndex = ent.GetSurvivalInt()
 	Assert( lootIndex >= 0 )
 	LootData lootData = SURVIVAL_Loot_GetLootDataByIndex( lootIndex )
+
+
+		if ( lootData.ref == "hopup_golden_horse_green" )
+			return GetKeyColor( COLORID_HUD_LOOT_TIER_GH, 0 ) * 0.85
+
 
 	return GetKeyColor( COLORID_TEXT_LOOT_TIER0, lootData.tier )
 }

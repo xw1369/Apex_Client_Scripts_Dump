@@ -277,7 +277,8 @@ void function Squads_SetCustomPlayerInfo( entity player )
 
 		SetCustomPlayerInfoColor( player, LinearToSrgb( color ) * 255 )
 
-		player.SetTargetInfoIcon( Teams_GetTeamIcon( team ) )
+		int scoreboardTeam = isUsingAlliances ? allianceOrTeam : team - TEAM_IMC
+		player.SetTargetInfoIcon( Teams_GetTeamIcon( scoreboardTeam ) )
 		player.SetTargetInfoIconColor( color, 1.0 )
 
 		if( sameAllianceOrTeam )

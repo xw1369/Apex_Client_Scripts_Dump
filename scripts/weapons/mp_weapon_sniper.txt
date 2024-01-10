@@ -2,7 +2,7 @@
 #base "_base_optics_ranged.txt"
 
                     
-                                        
+#base "_base_hopup_golden_horse_red.txt"
       
 
 "WeaponData"
@@ -79,7 +79,7 @@
 	"damage_rodeo"                             "900"
 
 	// Damage - Behavior
-	"damage_flags"                             "DF_SNIPER | DF_BULLET | DF_KNOCK_BACK | DF_DISMEMBERMENT | DF_GIB"
+	"damage_flags"                             "DF_SNIPER | DF_BULLET | DF_KNOCK_BACK | DF_GIB"
 	"pass_through_depth"                       "64"
 	"pass_through_damage_preserved_scale"      "0.8"
 

@@ -17,6 +17,7 @@ global function GetAllWeaponItemFlavors
 global function GetAllWeaponCategories
 global function GetWeaponsInCategory
 global function GetAllWeaponsInCategory
+global function GetAllMeleeWeapons
 global function MainWeapon_GetIsShippingWeapon
 global function MainWeapon_GetLoadoutOverviewOffset
 global function MainWeapon_GetLoadoutOverviewRotation
@@ -275,6 +276,10 @@ array<ItemFlavor> function GetAllWeaponsInCategory( ItemFlavor category )
 	return categoryWeapons
 }
 
+array<ItemFlavor> function GetAllMeleeWeapons()
+{
+	return GetAllItemFlavorsOfType( eItemType.melee_weapon )
+}
 
 bool function MainWeapon_GetIsShippingWeapon( ItemFlavor flavor )
 {

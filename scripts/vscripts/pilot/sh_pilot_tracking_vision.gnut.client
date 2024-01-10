@@ -43,6 +43,9 @@ global const float WHITE_RAVEN_MAX_ENEMY_DETECTION_RANGE	= 40000
 const float WHITE_RAVEN_CLOSE_ENEMY_DISTANCE 				= 7000 	
 const float WHITE_RAVEN_CLOSE_BREADCRUMB_DISTANCE 			= 2000 	
 
+const vector WHITE_RAVEN_PERCH_HULL_MINS 					= <-10,-10, 0>
+const vector WHITE_RAVEN_PERCH_HULL_MAXS 					= < 10, 10, 20>
+
 const float WHITE_RAVEN_PERCH_MIN_SPAWN_RANGE 				= 1800
 const float WHITE_RAVEN_PERCH_MAX_SPAWN_RANGE 				= 3000
 const float WHITE_RAVEN_PERCH_OFF_SPAWN_HEIGHT				= 200
@@ -275,6 +278,12 @@ global enum eTrackingVisionNetworkedPOITypes
 	PLAYER_ABILITY_CONDUIT_ULTIMATE_DAMAGE,
 
 
+
+
+
+
+
+
 	_count,
 }
 
@@ -440,6 +449,10 @@ int function TrackingVision_GetPriorityForPOIType( int poiEventID )
 		case eTrackingVisionNetworkedPOITypes.PLAYER_TRAVERSAL_ZIPLINE_STOP:
 		case eTrackingVisionNetworkedPOITypes.PLAYER_HEAL:
 		case eTrackingVisionNetworkedPOITypes.PLAYER_STARTBLEEDOUT:
+
+
+
+
 			return eTrackingPOIPriority.VERY_HIGH
 
 		case eTrackingVisionNetworkedPOITypes.PLAYER_RELOAD:
@@ -462,6 +475,9 @@ int function TrackingVision_GetPriorityForPOIType( int poiEventID )
 		case eTrackingVisionNetworkedPOITypes.PLAYER_ABILITY_MAGGIE_WRECKING_BALL_PATH:
 		case eTrackingVisionNetworkedPOITypes.PLAYER_ABILITY_ASH_ENEMY_TETHERED:
 		case eTrackingVisionNetworkedPOITypes.PLAYER_ABILITY_ASH_DATAKNIFE_USED:
+
+
+
 			return eTrackingPOIPriority.HIGH
 
 		case eTrackingVisionNetworkedPOITypes.PLAYER_LOOT_PICKUP_ARMOR:
@@ -563,6 +579,9 @@ vector function TrackingVision_GetOffsetForPOI( int poiEventID )
 		case eTrackingVisionNetworkedPOITypes.DOOR_DESTROYED:
 		case eTrackingVisionNetworkedPOITypes.PLAYER_ABILITY_DEPLOYABLE_MEDIC:
 		case eTrackingVisionNetworkedPOITypes.PLAYER_ABILITY_ASH_ENEMY_TETHERED:
+
+
+
 			return <0,0,0>
 
 		case eTrackingVisionNetworkedPOITypes.PLAYER_TRAVERSAL_FOOTPRINT:
@@ -624,6 +643,9 @@ vector function TrackingVision_GetOffsetForPOI( int poiEventID )
 
 		case eTrackingVisionNetworkedPOITypes.PLAYER_ABILITY_DIRTY_BOMB:
 		case eTrackingVisionNetworkedPOITypes.PLAYER_ABILITY_BLACK_MARKET:
+
+
+
 			return < 0, 0, 54.0 >
 
 
@@ -671,6 +693,10 @@ vector function TrackingVision_GetOffsetForPOI( int poiEventID )
 
 
 		case eTrackingVisionNetworkedPOITypes.PLAYER_ABILITY_REDEPLOY_BALLOON:
+
+
+
+
 
 
 
@@ -1117,29 +1143,41 @@ void function Bloodhound_PassiveToggle( entity player, int passive, bool didHave
 
 
 
-bool function TrackingVision_IsValidRavenHull( vector hullPos )
-{
-	const vector WHITE_RAVEN_PERCH_HULL_MINS = <-10,-10, 0>
-	const vector WHITE_RAVEN_PERCH_HULL_MAXS = < 10, 10, 20>
 
-	array<entity> ignoreArray = GetPlayerArray()
 
-	vector hullOffset = <0,0,5> 
-	hullPos = hullPos + hullOffset
 
-#if DEV
-		if( DEBUG_WHITE_RAVEN_SPAWN_DRAW )
-		{
-			DebugDrawBox( hullPos, WHITE_RAVEN_PERCH_HULL_MINS, WHITE_RAVEN_PERCH_HULL_MAXS, COLOR_RED, 1, 15 )
-		}
-#endif
 
-	TraceResults hullTrace = TraceHull( hullPos, hullPos + hullOffset, WHITE_RAVEN_PERCH_HULL_MINS, WHITE_RAVEN_PERCH_HULL_MAXS, ignoreArray, TRACE_MASK_SOLID, TRACE_COLLISION_GROUP_NONE )
-	if( hullTrace.fraction < 1 )
-		return false
 
-	return true
-}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -2413,6 +2451,11 @@ vector function TrackingVision_GetWhiteRavenPingPos( entity player, vector perch
 
 	return pingPos + <0,0,pingOffset>
 }
+
+
+
+
+
 
 
 

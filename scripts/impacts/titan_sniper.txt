@@ -49,7 +49,7 @@ ImpactTable
 		"2" "P_impact_titan_sniper_default"
 		"3" "P_impact_titan_sniper_default"
 		"4" "P_impact_titan_sniper_default"
-		"5" "P_impact_titan_sniper_default"
+		"5" "P_impact_titan_sniper_default" //water_hrz
 		"6" "P_impact_titan_sniper_default"
 		"7" "P_impact_titan_sniper_default"
 		"8" "P_impact_titan_sniper_default"

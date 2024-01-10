@@ -2,7 +2,7 @@
 #base "_base_mags_heavy.txt"
 
                     
-                                           
+#base "_base_hopup_golden_horse_purple.txt"
       
 
 WeaponData
@@ -132,7 +132,7 @@ WeaponData
 	"viewmodel_offset_ads"							"0 0.04 0"
 
 	"dof_zoom_nearDepthStart"						"1.25"
-	"dof_zoom_nearDepthEnd"							"7.9"
+	"dof_zoom_nearDepthEnd"							"6.0"
 	"dof_nearDepthStart"							"0.0"
 	"dof_nearDepthEnd"								"0.0"
 

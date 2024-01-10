@@ -5,7 +5,7 @@
 #base "_base_mags_energy.txt"
 
                     
-                                          
+#base "_base_hopup_golden_horse_green.txt"
       
 
 WeaponData
@@ -51,7 +51,7 @@ WeaponData
 	"projectile_gravity_scale"						"0.5"
 	"projectile_lifetime" 							"4.0"
 
-	"damage_flags"									"DF_BULLET | DF_GIB | DF_DISMEMBERMENT"
+	"damage_flags"									"DF_BULLET | DF_GIB"
 
 	"OnWeaponActivate"								"OnWeaponActivate_weapon_lstar"
 	"OnWeaponPrimaryAttack"							"OnWeaponPrimaryAttack_weapon_lstar"
@@ -59,7 +59,7 @@ WeaponData
 	"OnWeaponCooldown"								"OnWeaponCooldown_weapon_lstar"
 
                     
-                                                                 
+	"OnWeaponDeactivate"							"GoldenHorseGreen_OnWeaponDeactivate"
       
 
 	// Menu

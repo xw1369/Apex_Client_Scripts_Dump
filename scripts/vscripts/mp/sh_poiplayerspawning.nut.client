@@ -1,3 +1,4 @@
+global function POIPlayerSpawning_Exists
 global function POIPlayerSpawning_Init
 
 
@@ -12,22 +13,67 @@ global function POIPlayerSpawning_Init
 
 
 
+
+
+
+
+global function  CL_POISpawn_LandingMarkers_Destroy
+
+
+
+const vector CUSTOM_DROPSHIP_PARALLEL_ANGLES = < 0, 1, 0 >
+
+
+
+enum eTeamType
+{
+	INVALID,
+	HUMAN,
+	MIXED,
+	BOTS,
+	COUNT_
+}
+
+
+const string 	CUSTOMDROPSHIP_ANIM_FLYIN_NAME = "dropship_classic_mp_flyin"
+const string	CUSTOMDROPSHIP_SOUND_NAME = "goblin_imc_evac_hover"
+
 const string 	CURATED_SPAWNPOINT_CLASSNAME 		= "info_poispawning_squadspawn"
 const string 	CURATED_SPAWNPOINT_SCRIPTNAME 		= "poispawning_curated_spawn"
 const float 	POISPAWN_SQUADS_MINDISTANCE 		= 3937.01 * 2.0 
 const float 	POISPAWN_CURATEDSPAWNS_MINDISTANCE 	= 3937.01 * 1.0 
-const int 		POISPAWN_MAX_SPAWNPOINTS_PER_ZONE 	= 12
+const int 		POISPAWN_MAX_SPAWNPOINTS_PER_ZONE 	= 2
 const float 	POISPAWN_GROUPRADIUS 				= 64
 const float		POISPAWN_CLEARING_DISTANCE 			= 96 
-const float 	POISPAWN_AIRDROPHEIGHT 				= 15200
+const float 	POISPAWN_AIRDROPHEIGHT 				= 12709 
 const float 	POISPAWN_GROUNDSPAWNHEIGHT 			= 128
+const float 	POISPAWN_STARTRADIUS_DEFAULT 		= 65000
 const int		SQUADS_PERGROUP_DEFAULT 			= 2
+
+const float 	POISPAWN_CONSTRAINEDDIVE_2DRADIUS = 2952.8 
+
+const asset		GROUNDMARKER_FX_RING 	= $"P_ar_target_fuse_instant" 
+const asset 	GROUNDMARKER_FX_CENTER 	= $"P_ar_loot_drop_point_cp"
+const asset 	GROUNDMARKER_FX_BEACON 	= $"P_ar_loot_drop_point_far_cp"
+const float		GROUNDMARKER_RING_FX_RADIUSDIVISOR = 20.0
+const vector 	GROUNDMARKER_RING_FX_COLOR = < 19, 255, 190 >
+const vector	GROUNDMARKER_RING_FX_OUTERMOST_COLOR = < 255, 19, 19 >
+const vector 	GROUNDMARKER_CENTER_FX_COLOR = < 19, 219, 190 >
+const string	POISPAWN_SKYDIVEDESTWP_NAME = "poispawn_wp"
+const int		POISPAWN_SKYDIVEDESTWP_NDX_TEAM = 0
 
 #if DEV
 const FORCEDEBUG = false
 #endif
 
 
+
+struct sSkydiveLandingMarker
+{
+	entity landingWP
+	entity centerFX
+	entity minimapObj
+}
 
 struct
 {
@@ -78,7 +124,272 @@ struct
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+		array< int > LandingMarker_FX_Rings
+		array< int > LandingMarker_FX_Beams
+
 } file
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -214,6 +525,15 @@ void function DEVLine( bool debugParm, vector start, vector end, vector color, b
 	}
 }
 
+void function DEVCylinder( bool debugParm, vector center, vector angles, float radius, float height, vector color, bool bShowThruGeo, float showTime )
+{
+	bool doDebug = debugParm || FORCEDEBUG
+	if( doDebug )
+	{
+		DebugDrawCylinder( center, angles, radius, height, color, bShowThruGeo, showTime )
+	}
+}
+
 void function DEVPrint( bool debugParm, string str )
 {
 	bool doDebug = debugParm || FORCEDEBUG
@@ -228,6 +548,10 @@ void function DEVPrint( bool debugParm, string str )
 
 
 
+bool function POIPlayerSpawning_Exists()
+{
+	return( GetCurrentPlaylistVarBool( "poiplayerspawning_exists", false ))
+}
 
 
 bool function PLV_RandomSpawnPoints()
@@ -250,6 +574,22 @@ float function PLV_Airdrop_Height()
 bool function PLV_DropShipJump()
 {
 	return( GetCurrentPlaylistVarBool( "poiplayerspawning_dropshipjump", true ) )
+}
+
+bool function PLV_CustomDropship()
+{
+	return( GetCurrentPlaylistVarBool( "poiplayerspawning_customdropship", true ) )
+}
+
+bool function PLV_CustomDropship_AllShipsParallel()
+{
+	
+	return( GetCurrentPlaylistVarBool( "poiplayerspawning_customdropship_allshipsparallel", true ) )
+}
+
+bool function PLV_CustomDropship_Skip1P()
+{
+	return( GetCurrentPlaylistVarBool( "poiplayerspawning_customdropship_skip1p", true ) )
 }
 
 bool function PLV_PingPairedEnemyOnLanding()
@@ -275,7 +615,12 @@ bool function PLV_UseCuratedSpawns()
 
 bool function PLV_SpawnWithFreefall()
 {
-	return( GetCurrentPlaylistVarBool( "poiplayerspawning_spawnwithfreefall", true ) )
+	return( GetCurrentPlaylistVarBool( "poiplayerspawning_spawnwithfreefall", false ) )
+}
+
+float function PLV_Skydive2DRadius()
+{
+	return( GetCurrentPlaylistVarFloat( "poiplayerspawning_skydive2dradius", POISPAWN_CONSTRAINEDDIVE_2DRADIUS ) )
 }
 
 
@@ -414,9 +759,25 @@ bool function PLV_SpawnWithFreefall()
 
 void function POIPlayerSpawning_Init()
 {
+	if( !POIPlayerSpawning_Exists() )
+		return
+
+	PrecacheParticleSystem( GROUNDMARKER_FX_RING )
+	PrecacheParticleSystem( GROUNDMARKER_FX_CENTER )
+	PrecacheParticleSystem( GROUNDMARKER_FX_BEACON )
 
 
 
+
+
+
+		Waypoints_RegisterCustomType( POISPAWN_SKYDIVEDESTWP_NAME, CL_POISpawn_LandingMarkers_Create )
+
+
+	Remote_RegisterClientFunction( "CL_POISpawn_LandingMarkers_Destroy" )
+
+	RegisterSignal( "POISpawn_TeamLanded" )
+	RegisterSignal( "POISpawn_CustomDropship_CameraZoom" )
 }
 
 
@@ -816,6 +1177,761 @@ void function POIPlayerSpawning_Init()
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+void function CL_POISpawn_LandingMarkers_Create( entity wp )
+{
+	entity player = GetLocalViewPlayer()
+
+	int playerTeam = player.GetTeam()
+	int wpTeam = wp.GetWaypointInt( POISPAWN_SKYDIVEDESTWP_NDX_TEAM )
+
+	if( playerTeam != wpTeam )
+		return
+
+	int ringFXIndex = GetParticleSystemIndex( GROUNDMARKER_FX_RING )
+
+	vector destination = wp.GetOrigin()
+
+	float skydiveRadius = PLV_Skydive2DRadius()
+
+	int numRings = 3
+	for( int i = 0; i <= numRings; i++ )
+	{
+		float radiusMod 	= 1 - ( i * 0.025 )
+		float ringRadius 	= skydiveRadius * radiusMod / GROUNDMARKER_RING_FX_RADIUSDIVISOR
+
+		
+		int ringFX = StartParticleEffectInWorldWithHandle( ringFXIndex, destination, < 0,0,0 > )
+		vector ringColor = GROUNDMARKER_RING_FX_COLOR * radiusMod
+		EffectSetControlPointVector( ringFX, 1, ringColor )
+		EffectSetControlPointVector( ringFX, 2, < ringRadius, 0, 0> )
+		file.LandingMarker_FX_Rings.append( ringFX )
+	}
+
+	
+	int numBeams = 19
+	vector destElevated = destination + < 0, 0, 5000 >
+	array< vector > destLocsArray = GetPointsOnCircle( destElevated, <0,0,0>, skydiveRadius, numBeams  )
+	array< vector > destGroundLocsArray
+
+	int beamFXIndex       = GetParticleSystemIndex( GROUNDMARKER_FX_BEACON )
+	foreach( dest in destLocsArray )
+	{
+		vector destOnGround = OriginToGround( dest )
+		int beamFX = StartParticleEffectInWorldWithHandle( beamFXIndex, destOnGround, < 0, 180 ,0 > )
+		EffectSetControlPointVector( beamFX, 1, GROUNDMARKER_RING_FX_COLOR )
+		file.LandingMarker_FX_Beams.append( beamFX )
+	}
+}
+
+void function CL_POISpawn_LandingMarkers_Destroy()
+{
+	foreach( ringFX in file.LandingMarker_FX_Rings )
+	{
+		if( EffectDoesExist( ringFX ) )
+		{
+			EffectStop( ringFX, true, true )
+		}
+	}
+	file.LandingMarker_FX_Rings.clear()
+
+	foreach( beamFX in file.LandingMarker_FX_Beams )
+	{
+		if( EffectDoesExist( beamFX ) )
+		{
+			EffectStop( beamFX, true, true )
+		}
+	}
+	file.LandingMarker_FX_Rings.clear()
+}
 
 
 

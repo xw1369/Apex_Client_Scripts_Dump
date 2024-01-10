@@ -103,12 +103,12 @@ void function AddRemoveSonarHealthRUI( entity highlightEnt, int oldContext, int 
 	if ( oldContext == newContext )
 		return
 
-	if ( newContext == HIGHLIGHT_CONTEXT_SONAR )
+	if ( newContext == GetHighlightId( HIGHLIGHT_BLOODHOUND_SONAR ) )
 	{
 		ReconScan_ShowHudForTarget( GetLocalViewPlayer(), highlightEnt )
 	}
 
-	if ( oldContext == HIGHLIGHT_CONTEXT_SONAR )
+	if ( oldContext == GetHighlightId( HIGHLIGHT_BLOODHOUND_SONAR ) )
 	{
 		ReconScan_RemoveHudForTarget( GetLocalViewPlayer(), highlightEnt )
 	}
@@ -127,28 +127,16 @@ void function AddRemoveSonarOverviewScanRUI( entity highlightEnt, int oldContext
 	if ( oldContext == newContext )
 		return
 
-	if ( newContext == HIGHLIGHT_CONTEXT_SONAR )
+	if ( newContext == GetHighlightId( HIGHLIGHT_BLOODHOUND_SONAR ) )
 	{
 		ReconScan_ShowHudForTarget( GetLocalViewPlayer(), highlightEnt, true, $"ui/recon_overview_scan_target.rpak" )
 	}
 
-	if ( oldContext == HIGHLIGHT_CONTEXT_SONAR )
+	if ( oldContext == GetHighlightId( HIGHLIGHT_BLOODHOUND_SONAR ) )
 	{
 		ReconScan_RemoveHudForTarget( GetLocalViewPlayer(), highlightEnt )
 	}
 }
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -791,7 +779,7 @@ void function ServerCallback_SetSonarHighlightDrawDist_AllianceProximity( entity
 
 	
 	if ( playerTeam != sonarSourceTeam && playerTeam != enemyTeam && IsFriendlyTeam( playerTeam, sonarSourceTeam ) )
-		Highlight_SetAllianceProximityDrawFunc( enemy, HIGHLIGHT_CONTEXT_SONAR )
+		Highlight_SetAllianceProximityDrawFunc( enemy, HIGHLIGHT_BLOODHOUND_SONAR )
 
 }
 

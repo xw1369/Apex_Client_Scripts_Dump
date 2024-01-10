@@ -47,7 +47,7 @@ ImpactTable
 		"2" "P_plasma_exp_MD"
 		"3" "P_plasma_exp_MD"
 		"4" "P_plasma_exp_MD"
-		"5" "P_plasma_exp_MD"
+		"5" "P_impact_exp_med_water"
 		"6" "P_plasma_exp_MD"
 		"7" "P_plasma_exp_MD"
 		"8" "P_plasma_exp_MD"
@@ -108,6 +108,8 @@ ImpactTable
 
 		"headshot_flesh" "explo_plasmasmall_impact_3p_vs_1p"
 		"headshot_mechanical" "explo_plasmasmall_impact_3p_vs_1p"
+
+		"5" "explo_plasmasmall_impact_3p_vs_3p"
 	}
 
 	Sound_attacker
@@ -147,6 +149,8 @@ ImpactTable
 
 		"headshot_flesh" "explo_plasmasmall_impact_3p_vs_1p"
 		"headshot_mechanical" "explo_plasmasmall_impact_3p_vs_1p"
+
+		"5" "explo_plasmasmall_impact_1p_vs_3p"
 	}
 
 	Sound_victim
@@ -186,6 +190,8 @@ ImpactTable
 
 		"headshot_flesh" "explo_plasmasmall_impact_3p_vs_1p"
 		"headshot_mechanical" "explo_plasmasmall_impact_3p_vs_1p"
+
+		"5" "explo_plasmasmall_impact_3p_vs_3p"
 	}
 
 	Sound_victim_from_AI

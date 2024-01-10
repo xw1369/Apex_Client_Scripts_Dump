@@ -1,3 +1,4 @@
+
 global function ShAbilityShadowZombie_Init
 global function IsPlayerShadowZombie
 global function Ability_Shadow_Zombie_RegisterNetworking
@@ -867,4 +868,5 @@ bool function AreTeammatesShadowZombiesOrRespawning( entity player )
 	return true
 
 }
+
 

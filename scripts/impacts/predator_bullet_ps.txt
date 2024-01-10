@@ -42,7 +42,7 @@ ImpactTable
 		"2" "P_impact_sparks_predator_PS"
 		"3" "P_impact_sparks_predator_PS"
 		"4" "P_impact_sparks_predator_PS"
-		"5" "P_impact_sparks_predator_PS"
+		"5" "P_impact_sparks_predator_PS" //water_hrz
 		"6" "P_impact_sparks_predator_PS"
 		"7" "P_impact_sparks_predator_PS"
 		"8" "P_impact_sparks_predator_PS"
@@ -88,7 +88,7 @@ ImpactTable
 		"2" "impact_dirt_large"
 		"3" "impact_concrete_large"
 		"4" "impact_concrete_large"
-		"5" "impact_concrete_large"
+		"5" "P_impact_water_LG"
 		"6" "impact_concrete_large"
 		"7" "impact_concrete_large"
 		"8" "impact_concrete_large"
@@ -141,6 +141,9 @@ ImpactTable
 
 		//"airburst" "Explo_40mm_Impact_3P"
 		"shieldhit" "TitanShield.Explosive.BulletImpact_3P_vs_3P"
+
+		"5" "Explo_40mm_Impact_3P"
+
 	}
 
 	Sound_attacker
@@ -177,6 +180,8 @@ ImpactTable
 
 		//"airburst" "Explo_40mm_Impact_1P"
 		"shieldhit" "TitanShield.Explosive.BulletImpact_1P_vs_3P"
+
+		"5" "Explo_40mm_Impact_1P"
 	}
 
 	Sound_victim
@@ -213,5 +218,7 @@ ImpactTable
 
 		//"airburst" "Explo_40mm_Impact_3P"
 		"shieldhit" "TitanShield.Explosive.BulletImpact_3P_vs_1P"
+
+		"5" "Explo_40mm_Impact_3P"
 	}
 }

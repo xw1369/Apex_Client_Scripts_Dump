@@ -110,7 +110,7 @@ PIPSlotState function BeginMovingPIP( entity camera, int colorCorrectionLayer = 
 }
 
 
-void function CaptureStillPIPThenEndMovingPIPThread( PIPSlotState movingSlotState, PIPSlotState ornull[1] outArray_stillSlotState, bool allowWaitForStillSlot = false )
+void function CaptureStillPIPThenEndMovingPIPThread( PIPSlotState movingSlotState, PIPSlotState ornull[1] outArray_stillSlotState, string ornull cacheName = null, bool allowWaitForStillSlot = false )
 {
 	Assert( movingSlotState.slotIndex != -1 ) 
 	Assert( movingSlotState.isUsableForMoving ) 
@@ -192,6 +192,9 @@ void function CaptureStillPIPThenEndMovingPIPThread( PIPSlotState movingSlotStat
 
 	
 	movingSlotState.camera.QueueMonitorSnapshot( stillSlotState.slotIndex )
+
+	if ( cacheName != null )
+		movingSlotState.camera.SetMonitorSnapshotCacheName( expect string( cacheName ) )
 
 	WaitSignal( stillSlotState, "PIPSnapshotCaptured" )
 	

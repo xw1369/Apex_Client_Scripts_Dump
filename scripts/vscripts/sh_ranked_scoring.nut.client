@@ -89,6 +89,9 @@ global struct RankedPlacementScoreStruct
 	
 	int   placementPosition
 	int   placementPoints
+
+
+
 }
 
 struct
@@ -122,6 +125,9 @@ void function Ranked_InitPlacementScoring()
 		RankedPlacementScoreStruct placementScoringData
 		placementScoringData.placementPosition            = GetDataTableInt( dataTable, i, GetDataTableColumnByName( dataTable, "placement" ) )
 		placementScoringData.placementPoints              = GetDataTableInt( dataTable, i, GetDataTableColumnByName( dataTable, "placementPoints" ) )
+
+
+
 		file.placementScoringData.append( placementScoringData )
 
 
@@ -182,6 +188,23 @@ int function Ranked_GetPointsForPlacement( int placement )
 }
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 float function Ranked_GetParticipationMutlipler( )
 {
 	return GetCurrentPlaylistVarFloat( "ranked_participation_mod", PARTICIPATION_MODIFIER )
@@ -193,6 +216,8 @@ int function Ranked_GetPenaltyPointsForAbandon( )
 	string playlistVarString      = "ranked_abandon_cost"
 	return GetCurrentPlaylistVarInt( playlistVarString, Ranked_GetCostForEntry() )
 }
+
+
 
 
 

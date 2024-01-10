@@ -42,7 +42,7 @@ ImpactTable
 		"2" "P_boost_jetwash_default"
 		"3" "P_boost_jetwash_default"
 		"4" "P_boost_jetwash_default"
-		"5" "P_boost_jetwash_default"
+		"5" "P_boost_jetwash_water"
 		"6" "P_boost_jetwash_default"
 		"7" "P_boost_jetwash_default"
 		"8" "P_boost_jetwash_default"

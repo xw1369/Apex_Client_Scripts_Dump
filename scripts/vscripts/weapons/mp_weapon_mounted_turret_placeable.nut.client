@@ -49,7 +49,7 @@ const asset CAMERA_RIG = $"mdl/props/editor_ref_camera/editor_ref_camera.rmdl"
 const asset MOUNTED_TURRET_PLACEABLE_MODEL = $"mdl/props/rampart_turret/rampart_turret.rmdl"
 const asset MOUNTED_TURRET_PLACEABLE_SHIELD_COL_MODEL = $"mdl/fx/sentry_turret_shield.rmdl"
 const asset MOUNTED_TURRET_PLACEABLE_SHIELD_FX = $"P_anti_titan_shield_3P"
-const asset COLLISION_CYLINDER_MODEL = $"mdl/props/rampart_cover_wall_replacement/rampart_cover_wall_invisible_collision_40x15_phys.rmdl"
+global const asset COLLISION_CYLINDER_MODEL = $"mdl/props/rampart_cover_wall_replacement/rampart_cover_wall_invisible_collision_40x15_phys.rmdl"
 const asset MOUNTED_TURRET_VEHICLE_COLLISION_MODEL = $"mdl/props/rampart_turret_vehicle_clip/rampart_turret_vehicle_clip_static.rmdl"
 
 global const string MOUNTED_TURRET_PLACEABLE_WEAPON_NAME = "mp_weapon_mounted_turret_placeable"
@@ -345,6 +345,8 @@ bool function OnWeaponAttemptOffhandSwitch_weapon_mounted_turret_placeable( enti
 {
 	return true
 }
+
+
 
 
 

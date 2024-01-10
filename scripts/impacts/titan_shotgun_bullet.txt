@@ -46,7 +46,7 @@ ImpactTable
 		"2" "P_ricochet_sparks_large"
 		"3" "P_ricochet_sparks_large"
 		"4" "P_ricochet_sparks_large"
-		"5" "P_ricochet_sparks_large"
+		"5" "P_impact_water_LG" //water_hrz
 		"6" "P_ricochet_sparks_large"
 		"7" "P_ricochet_sparks_large"
 		"8" "P_ricochet_sparks_large"
@@ -102,6 +102,8 @@ ImpactTable
 
 		//"airburst" ""
 		"shieldhit" "TitanShield.Heavy.BulletImpact_3P_vs_3P"
+
+		"5" "Water.Heavy.BulletImpact_3P_vs_3P"
 	}
 
 	Sound_attacker
@@ -138,6 +140,8 @@ ImpactTable
 
 		//"airburst" ""
 		"shieldhit" "TitanShield.Heavy.BulletImpact_1P_vs_3P"
+
+		"5" "Water.Heavy.BulletImpact_1P_vs_3P"
 	}
 
 	Sound_victim
@@ -174,6 +178,8 @@ ImpactTable
 
 		//"airburst" ""
 		"shieldhit" "TitanShield.Heavy.BulletImpact_3P_vs_1P"
+
+		"5" "Water.Heavy.BulletImpact_3P_vs_1P"
 	}
 
 

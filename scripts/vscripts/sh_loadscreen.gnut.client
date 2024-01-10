@@ -67,7 +67,7 @@ void function OnRegisterRootItemFlavors()
 		loadscreenList.append( expect ItemFlavor( loadscreenOrNull ) )
 	}
 
-	MakeItemFlavorSet( loadscreenList, fileLevel.loadscreenFlavorSortOrdinalMap )
+	MakeItemFlavorSet( loadscreenList, fileLevel.loadscreenFlavorSortOrdinalMap, true )
 
 	entry.validItemFlavorList = loadscreenList
 	entry.defaultItemFlavor = loadscreenList[1]

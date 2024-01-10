@@ -25,6 +25,7 @@ global function AddCallback_PlayerLanded
 global function HasCallback_PlayerLanded
 
 global function CodeCallback_ForceScriptError
+global function CodeCallback_ForceScriptErrorTest
 
 global function AddCallback_PlayerClassChanged
 global function AddCallback_PlayerClassActuallyChanged
@@ -93,6 +94,10 @@ global function RemoveCallback_OnWeaponAttack
 global function CodeCallback_OnPlayerOverheat
 global function AddCallback_OnPlayerOverheat
 
+global function CodeCallback_GetExtendedRangeUseEntitiesForPlayer
+global function AddGetExtendedRangeUseEntityCallback
+global function RemoveGetExtendedRangeUseEntityCallback
+
 struct
 {
 
@@ -110,6 +115,8 @@ struct
 
 	array<void functionref( entity, entity, entity )> onPlayerSwitchedWeaponCallbacks
 	table<entity , entity>							  playerPreviousActiveWeapon
+
+	array< void functionref( entity, array<entity> ) > getExtendedRangeUseEntityCallbacks
 } file
 
 void function CodeCallbacksShared_Init()
@@ -619,6 +626,10 @@ void function CodeCallback_ForceScriptError( entity ent, string errorMsg )
 	Assert( false, errorMsg )
 }
 
+void function CodeCallback_ForceScriptErrorTest( string errorMsg )
+{
+	ForceScriptError( errorMsg ) 
+}
 
 void function AddCallback_OnVehicleLaunch( entity ent, void functionref( entity ) callbackFunc )
 {
@@ -993,4 +1004,28 @@ void function RemoveCallback_OnWeaponAttack( void functionref( entity player, en
 		Assert( clGlobal.onWeaponAttackCallbacks.contains( callbackFunc ), "Callback " + string( callbackFunc ) + " doesn't exist" )
 		clGlobal.onWeaponAttackCallbacks.fastremovebyvalue( callbackFunc )
 
+}
+
+
+array<entity> function CodeCallback_GetExtendedRangeUseEntitiesForPlayer( entity player )
+{
+	array<entity> extendedRangeUseEnts
+	foreach ( callbackFunc in file.getExtendedRangeUseEntityCallbacks )
+	{
+		callbackFunc( player, extendedRangeUseEnts )
+	}
+
+	return extendedRangeUseEnts
+}
+
+void function AddGetExtendedRangeUseEntityCallback( void functionref( entity, array<entity> ) callbackFunc )
+{
+	Assert( !file.getExtendedRangeUseEntityCallbacks.contains( callbackFunc ), "Already added " + string( callbackFunc ) )
+	file.getExtendedRangeUseEntityCallbacks.append( callbackFunc )
+}
+
+void function RemoveGetExtendedRangeUseEntityCallback( void functionref( entity, array<entity> ) callbackFunc )
+{
+	Assert( file.getExtendedRangeUseEntityCallbacks.contains( callbackFunc ), "Callback " + string( callbackFunc ) + " doesn't exist" )
+	file.getExtendedRangeUseEntityCallbacks.fastremovebyvalue( callbackFunc )
 }

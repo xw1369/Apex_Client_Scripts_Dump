@@ -29,12 +29,17 @@ global function UICallback_HideSquadSummary
 global function UICallback_ShowDeathRecap
 global function UICallback_CloseDeathRecap
 global function UICallback_ShowSpectateTab
+global function UICallback_HideSpectateTab
 global function UICallback_CloseDeathScreenMenu
 global function UICallback_ReportPlayer
 global function UICallback_BlockPlayer
 global function UICallback_SquadSummaryDisplayed
 global function UICallback_UpdateHeader
 global function UICallback_ToggleGladCard
+
+
+
+
 global function UICallback_SelectRecapBlock
 global function UICallback_NextRecapBlock
 global function UICallback_PrevRecapBlock
@@ -52,6 +57,7 @@ global function DeathScreenSummaryShouldFadeIn
 global function SetHeaderBannerOverrideFunc
 global function DeathScreenSetBannerEnabled
 global function ClearHeaderBannerOverrideFunc
+global function SignalShowRoundEndSquadResults
 
 global function ReportPlayer
 global function ViewPlayerProfileByPlayerInfo
@@ -114,7 +120,13 @@ struct
 	var            sidePaneRui
 	bool           showGladCard = true 
 	bool           allowGladCard = true
+
+
+
+
 	EncodedEHandle lastObserverTargetEHandle = 0
+
+	var recapElem
 
 	var blackBarRui
 	var deathScreenHeaderRui
@@ -163,6 +175,8 @@ void function Cl_DeathScreen_Init()
 	AddOnSpectatorTargetChangedCallback( DeathScreen_SpectatorTargetChanged )
 	AddCallback_OnBleedoutEnded( DeathScreen_BleedoutEnded )
 	AddCallback_OnGameStateChanged( DeathScreen_OnNetworkedGameStateChanged )
+	AddCallback_KillReplayStarted( DeathScreen_OnRoundWinningKillReplay )
+	AddCallback_KillReplayEnded( DeathScreen_OnKillReplayEnd )
 
 	AddCallback_GameStateEnter( eGameState.Playing, DeathScreen_OnPlaying )
 	AddCallback_GameStateEnter( eGameState.Resolution, DeathScreen_OnGameStateChanged )
@@ -300,6 +314,27 @@ void function ServerCallback_SquadEliminated( int eliminiatedTeam )
 	FlagSet( "SquadEliminated" )
 }
 
+void function DeathScreen_Destroy()
+{
+	
+	if ( file.blackBarRui != null )
+	{
+		RuiDestroyIfAlive( file.blackBarRui )
+		file.blackBarRui = null
+	}
+
+	if ( IsViewingDeathScreen() )
+	{
+		
+		RunUIScript( "UI_CloseDeathScreenMenu" )
+	}
+
+	
+	UpdateGladCardVisibility()
+
+	
+	FlagClear( "SquadEliminated" )
+}
 
 void function DeathScreen_OnPlayerLifeStateChanged( entity player, int oldState, int newState )
 {
@@ -332,23 +367,10 @@ void function DeathScreen_OnPlayerLifeStateChanged( entity player, int oldState,
 	if ( player != clientPlayer )
 		return
 
+
 	if ( newState == LIFE_ALIVE && !IsWatchingReplay() )
 	{
-		
-		if ( file.blackBarRui != null )
-		{
-			RuiDestroyIfAlive( file.blackBarRui )
-			file.blackBarRui = null
-		}
-
-		if ( IsViewingDeathScreen() )
-		{
-			
-			RunUIScript( "UI_CloseDeathScreenMenu" )
-		}
-
-		
-		FlagClear( "SquadEliminated" )
+		DeathScreen_Destroy()
 	}
 }
 
@@ -395,6 +417,24 @@ void function DeathScreen_BleedoutEnded( entity player )
 		
 		file.deathRecapDataUpdated = false
 		file.deathRecapDamageBlocks.clear()
+	}
+}
+
+void function DeathScreen_OnRoundWinningKillReplay()
+{
+	if ( !IsReplayRoundWinning() )
+		return
+
+	DeathScreen_Destroy()
+}
+
+void function DeathScreen_OnKillReplayEnd()
+{
+	if ( IsViewingSpectateTab() )
+	{
+		SwitchDeathScreenTab( eDeathScreenPanel.SCOREBOARD )
+		if ( file.deathScreenHeaderRui != null )
+			RuiSetBool( file.deathScreenHeaderRui , "isKillReplay", (GetCurrentTabIndex()  == eDeathScreenPanel.SPECTATE) && GamemodeUtility_GetKillReplayActive() )
 	}
 }
 
@@ -815,6 +855,7 @@ void function DeathScreenUpdateHeader( var headerElem )
 			RuiSetString( headerRui, "playerObfuscatedID", "" )
 
 		RuiSetBool( headerRui, "spectatingEnemy", IsEnemyTeam( viewPlayer.GetTeam(), clientPlayer.GetTeam() ) )
+		RuiSetBool( headerRui, "isKillReplay", (GetCurrentTabIndex()  == eDeathScreenPanel.SPECTATE) && GamemodeUtility_GetKillReplayActive() )
 		RuiSetInt( headerRui, "teamMemberIndex", EEH_GetTeamMemberIndex( playerEHI ) )
 	}
 	else
@@ -1011,9 +1052,13 @@ void function UICallback_ShowSquadSummary( var headerElem, var headerDataElem )
 	if ( !file.hasShownSquadSummary )
 		EmitSoundOnEntity( clientPlayer, "UI_Menu_RoundSummary_Results" )
 
-	Signal( clGlobal.levelEnt, "ShowRoundEndSquadResults" ) 
+	SignalShowRoundEndSquadResults()
 }
 
+void function SignalShowRoundEndSquadResults()
+{
+	Signal( clGlobal.levelEnt, "ShowRoundEndSquadResults" ) 
+}
 
 void function UpdateSquadSummaryOnPersistenceUpdate( entity clientPlayer )
 {
@@ -1120,7 +1165,10 @@ void function UICallback_ShowDeathRecap( var headerElem, var recapElem, var b0, 
 
 	
 	file.damageBlockElementArray = [b0, b1, b2, b3, b4, b5, b6, b7, b8, b9]
-	thread DeathRecapShow( recapElem )
+
+	file.recapElem = recapElem
+
+	thread DeathRecapShow( file.recapElem )
 
 	
 	bool shouldFadeInBlur = !file.hasShownDeathRecap && oldTabIndex == eDeathScreenPanel.SPECTATE
@@ -1239,15 +1287,11 @@ void function UICallback_ShowSpectateTab( var headerElem )
 	}
 
 
-
-
-
-
-
-
-
-
-
+	
+	if ( GamemodeUtility_GetKillReplayActive() )
+	{
+		SetDeathScreenTabTitle( eDeathScreenPanel.SPECTATE, "#DEATH_KILL_REPLAY" )
+	}
 
 
 	if ( ClApexScreens_IsDisabled() )
@@ -1257,6 +1301,14 @@ void function UICallback_ShowSpectateTab( var headerElem )
 	
 
 	file.hasSpectated = true
+}
+
+void function UICallback_HideSpectateTab()
+{
+	if ( GamemodeUtility_GetKillReplayActive() )
+	{
+		EnableDeathScreenTab( eDeathScreenPanel.SPECTATE, false )
+	}
 }
 
 
@@ -1416,6 +1468,20 @@ void function UICallback_ToggleGladCard( bool show )
 
 	thread UpdateGladCardVisibility()
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 void function UICallback_TryPingRespawn()
@@ -1807,6 +1873,30 @@ void function UpdateGladCardVisibility()
 }
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 void function SetAllowGladCard( bool allowGladCard )
 {
 	file.allowGladCard = allowGladCard
@@ -1877,6 +1967,12 @@ void function DisplaySpectatorCardSidePane( int situation, int playerEHI, asset 
 	ChangeNestedGladiatorCardOwner( nestedGCHandleFront, playerEHI, null, eGladCardLifestateOverride.ALIVE )
 
 	SetNestedGladiatorCardIsKiller( nestedGCHandleFront, playerEHI == GetKillerEnum() )
+
+
+
+
+
+
 
 	OnThreadEnd( void function() : ( nestedGCHandleFront ) {
 		CleanupNestedGladiatorCard( nestedGCHandleFront )
@@ -2005,7 +2101,7 @@ void function DeathRecapShow( var recapElem )
 	if ( GetGameState() >= eGameState.WinnerDetermined )
 		shouldDoRecapHeaderAnimation = false
 
-	var recapRui = Hud_GetRui( recapElem )
+	var recapRui = Hud_GetRui( file.recapElem )
 	if ( file.deathScreenRecapRui != recapRui )
 		file.deathScreenRecapRui = recapRui
 
@@ -2048,6 +2144,10 @@ void function DeathRecapShow( var recapElem )
 	NestedGladiatorCardHandle playerCardHandle = CreateNestedGladiatorCard( recapRui, "cardSlot0", eGladCardDisplaySituation.APEX_SCREEN_STILL, eGladCardPresentation.FULL_BOX )
 	ChangeNestedGladiatorCardOwner( playerCardHandle, playerEHandle )
 	SetNestedGladiatorCardDisableBlur( playerCardHandle, true )
+
+
+
+
 
 	RecapAttackerGladCardData playerCardData
 	playerCardData.cardSlotIndex  = 0
@@ -2100,6 +2200,10 @@ void function DeathRecapShow( var recapElem )
 		NestedGladiatorCardHandle cardHandle = CreateNestedGladiatorCard( recapRui, cardArgName, eGladCardDisplaySituation.APEX_SCREEN_STILL, eGladCardPresentation.FULL_BOX )
 		ChangeNestedGladiatorCardOwner( cardHandle, attackerEHandle )
 		SetNestedGladiatorCardDisableBlur( cardHandle, true )
+
+
+
+
 
 		RecapAttackerGladCardData cardData
 		cardData.cardSlotIndex  = cardSlotIndex
@@ -2212,8 +2316,7 @@ void function DeathRecapShow( var recapElem )
 		thread PlayRecapAnimSounds( player )
 	}
 
-	const int defaultSelectionIndex = 0
-	UpdateSelectedRecapBlock( defaultSelectionIndex )
+	UpdateSelectedRecapBlock( file.selectedRecapBlock != -1 ? file.selectedRecapBlock : 0 )
 }
 
 
@@ -2486,6 +2589,10 @@ void function UpdateGladCardDataTable( EncodedEHandle newEHandle, EncodedEHandle
 	NestedGladiatorCardHandle cardHandle = CreateNestedGladiatorCard( file.deathScreenRecapRui, cardArgName, situation, eGladCardPresentation.FULL_BOX )
 	ChangeNestedGladiatorCardOwner( cardHandle, newEHandle )
 	SetNestedGladiatorCardDisableBlur( cardHandle, true )
+
+
+
+
 
 	RecapAttackerGladCardData cardData
 	cardData.cardSlotIndex  = selectedCardData.cardSlotIndex

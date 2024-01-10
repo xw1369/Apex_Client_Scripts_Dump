@@ -50,7 +50,7 @@ ImpactTable
 		"2" "P_impact_exp_lrg_sand"
 		"3" "P_impact_exp_lrg_sand"
 		"4" "P_impact_exp_lrg_sand"
-		"5" "P_impact_exp_lrg_sand"
+		"5" "P_impact_exp_lrg_water"
 		"6" "P_impact_exp_lrg_sand"
 		"7" "P_impact_exp_lrg_sand"
 		"8" "P_impact_exp_lrg_sand"
@@ -104,6 +104,8 @@ Sound
 
 		"airburst" "Explo_TRL_Impact_3P"
 		"shieldhit" "TitanShield.Explosive.BulletImpact_3P_vs_3P"
+
+		"5" "Explo_TRL_Impact_3P"
 	}
 
 	Sound_attacker
@@ -140,6 +142,8 @@ Sound
 
 		"airburst" "Explo_TRL_Impact_1P"
 		"shieldhit" "TitanShield.Explosive.BulletImpact_1P_vs_3P"
+
+		"5" "Explo_TRL_Impact_1P"
 	}
 
 	Sound_victim
@@ -176,6 +180,8 @@ Sound
 
 		"airburst" "Explo_TRL_Impact_3P"
 		"shieldhit" "TitanShield.Explosive.BulletImpact_3P_vs_1P"
+
+		"5" "Explo_TRL_Impact_3P"
 	}
 }
 

@@ -69,12 +69,7 @@ void function ShAmbientDialogue_Init()
 {
 	if ( !GetCurrentPlaylistVarBool( "ambient_dialogue_enabled", true ) )
 	{
-		Warning( "WARNING! Ambient dialogue disabled!" )
-		return
-	}
-	if ( GunGame_IsModeEnabled() )
-	{
-		Warning( "WARNING! Ambient dialogue disabled!" )
+		printt( "Ambient dialogue disabled. Check playlist var ambient_dialogue_enabled to enable it" )
 		return
 	}
 

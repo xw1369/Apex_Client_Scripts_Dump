@@ -85,7 +85,7 @@ ImpactTable
 		"1" "P_impact_lava_nodecal" //lava_flow
 		"2" "P_impact_lava" //lava_rock_hot
 //		"3" "openslot"
-//		"4" "openslot"
+		"4" "P_impact_water"
 //		"5" "openslot"
 //		"6" "openslot"
 //		"7" "openslot"
@@ -135,7 +135,7 @@ ImpactTable
 		"2" "Generic_RazorsEdge_Impact_Concrete_3p_vs_3p" //lava_rock_hot
 //		"3" "openslot"
 //		"4" "openslot"
-//		"5" "openslot"
+		"5" "Generic_RazorsEdge_Impact_Water_3p_vs_3p"
 //		"6" "openslot"
 //		"7" "openslot"
 //		"8" "openslot"
@@ -186,7 +186,7 @@ ImpactTable
 		"2" "Generic_RazorsEdge_Impact_Concrete_1p_vs_3p" //lava_rock_hot
 //		"3" "openslot"
 //		"4" "openslot"
-//		"5" "openslot"
+		"5" "Generic_RazorsEdge_Impact_Water_1p_vs_3p"
 //		"6" "openslot"
 //		"7" "openslot"
 //		"8" "openslot"
@@ -236,7 +236,7 @@ ImpactTable
 		"2" "Player_Melee_Impact_Dirt_3p_vs_3p" //lava_rock_hot
 //		"3" "openslot"
 //		"4" "openslot"
-//		"5" "openslot"
+		"5" "Player_Melee_Impact_Water_3p_vs_3p"
 //		"6" "openslot"
 //		"7" "openslot"
 //		"8" "openslot"
@@ -286,7 +286,7 @@ ImpactTable
 		"2" "Victim_RazorsEdge_Impact_3p_vs_1p" //lava_rock_hot
 //		"3" "openslot"
 //		"4" "openslot"
-//		"5" "openslot"
+		"5" "Victim_RazorsEdge_Impact_3p_vs_1p"
 //		"6" "openslot"
 //		"7" "openslot"
 //		"8" "openslot"

@@ -13,7 +13,6 @@ global function StatEntry_GetIndex
 global function StatEntry_GetRef
 global function StatEntry_GetType
 global function StatEntry_GetBehavior
-global function StatEntry_GetFlags
 global function DoesStatSatisfyValue
 
 global function RegisterAccumulatedStat_Int
@@ -22,8 +21,6 @@ global function RegisterExpensiveCalculatedStat_Int
 global function RegisterCachedCalculatedStat_Int
 global function RegisterStatEnumStruct
 global function HasStatCachingOptimizations
-
-
 
 
 
@@ -74,11 +71,6 @@ global enum eStatBehavior
 	ACCUMULATED, 
 	VARIABLE, 
 }
-global enum eStatFlags
-{
-	STORE_START_OF_PREVIOUS_MATCH = (1 << 0),
-	PERSISTENCE_WRITE_IMMEDIATELY = (1 << 1),
-}
 
 
 global struct CalcStatCache
@@ -96,7 +88,6 @@ global enum eStatGetWhen
 {
 	CURRENT,
 	START_OF_CURRENT_MATCH,
-	START_OF_PREVIOUS_MATCH,
 }
 
 
@@ -113,12 +104,10 @@ global struct StatEntry
 	int    indexWithinType
 	string persistenceFullKey_Current
 	var    persistenceFullKey_Current_Handle
-	string persistenceFullKey_StartOfPreviousMatch
-	var    persistenceFullKey_StartOfPreviousMatch_Handle
 
 	int    type = eStatType.INVALID
 	int    behavior
-	int    flags = 0
+	bool   writeImmediately = false 
 	bool   shouldCache 
 	int    gameMode 
 
@@ -163,8 +152,6 @@ global struct StatEnumStruct
 	string enumName
 
 	array<string> choices 
-	string sopmChoice 
-	string sopmEnumName 
 
 #if DEV
 		string structName
@@ -182,7 +169,7 @@ global struct StatTemplate
 
 	int  type = eStatType.INVALID 
 	int  behavior 
-	int  flags = 0
+	bool writeImmediately = false 
 	bool shouldCache = false 
 	int  gameMode 
 
@@ -242,18 +229,20 @@ struct FileStruct_LifetimeLevel
 FileStruct_LifetimeLevel& fileLevel
 
 const string STATS_PERSISTENCE_PREFIX_CURRENT = "stats"
-const string STATS_PERSISTENCE_PREFIX_START_OF_PREVIOUS_MATCH = "stats_sopm"
 
 
 
 
 #if DEV
+
+
+const string STATS_SAFEZONE_FILENAME_FILTER = "sh_stats"
 void function StatCallStackCheck( bool DEV_isManualDevSet, int up = 2 )
 {
 	
 	string fileName =  FILE_NAME( up )
-	if ( fileName != "sh_stats_internals.gnut" && fileName != "sh_stats.gnut" && DEV_isManualDevSet == false )
-		Assert( false, "Tried to manipulate a stat from " + fileName + ". Do NOT call Stat manipulation functions directly EXCEPT in a DEV_ helper function." )
+	if ( fileName.find(STATS_SAFEZONE_FILENAME_FILTER) == -1 && DEV_isManualDevSet == false )
+		Assert( false, "Tried to manipulate a stat from " + fileName + ". Do NOT call Stat manipulation functions directly EXCEPT in a DEV_ helper function or from the intended safe zone stat files." )
 }
 #endif
 
@@ -279,10 +268,6 @@ void function ShStatsInternals_LevelInit()
 
 
 
-
-
-
-		Remote_RegisterServerFunction( "ClientCallback_UpdateSOPMStatValue", "int", 0, INT_MAX )
 
 
 
@@ -329,7 +314,7 @@ int function GetStat_Int( entity player, StatEntry entry, int when = eStatGetWhe
 
 	Assert( entry.type == eStatType.INT )
 
-		if ( !IsBitFlagSet( entry.flags, eStatFlags.PERSISTENCE_WRITE_IMMEDIATELY ) )
+		if ( !entry.writeImmediately )
 			Assert( when != eStatGetWhen.CURRENT || IsLobby(), format( "Cannot get current stats in client or UI VM during a match (they could be out of date): %s", entry.persistenceFullKey_Current ) )
 
 
@@ -413,22 +398,11 @@ int function GetStat_Int( entity player, StatEntry entry, int when = eStatGetWhe
 
 
 
-
-
-
-
-
-
 		if ( when == eStatGetWhen.CURRENT || when == eStatGetWhen.START_OF_CURRENT_MATCH )
 		{
-			if ( !IsBitFlagSet( entry.flags, eStatFlags.PERSISTENCE_WRITE_IMMEDIATELY ) )
+			if ( !entry.writeImmediately )
 				Assert( when != eStatGetWhen.CURRENT || IsLobby() )
 			return expect int(player.GetPersistentVar( entry.persistenceFullKey_Current ))
-		}
-		else if ( when == eStatGetWhen.START_OF_PREVIOUS_MATCH )
-		{
-			Assert( IsBitFlagSet( entry.flags, eStatFlags.STORE_START_OF_PREVIOUS_MATCH ), "Tried to get with eStatGetWhen.START_OF_PREVIOUS_MATCH on a stat that does not have eStatFlags.STORE_START_OF_PREVIOUS_MATCH set." )
-			return expect int(player.GetPersistentVar( entry.persistenceFullKey_StartOfPreviousMatch ))
 		}
 		unreachable
 
@@ -488,14 +462,6 @@ int function StatEntry_GetType( StatEntry entry )
 int function StatEntry_GetBehavior( StatEntry entry )
 {
 	return entry.behavior
-}
-
-
-
-
-int function StatEntry_GetFlags( StatEntry entry )
-{
-	return entry.flags
 }
 
 
@@ -1022,17 +988,13 @@ StatEntry function ResolveStatEntry( StatTemplate template, ... )
 
 
 
-StatEnumStruct function RegisterStatEnumStruct( StatEnumStruct ornull parentSESOrNull, string fieldName, string enumName, array<string> choices, string sopmEnumName = "", string sopmChoice = "" )
+StatEnumStruct function RegisterStatEnumStruct( StatEnumStruct ornull parentSESOrNull, string fieldName, string enumName, array<string> choices )
 {
 	StatEnumStruct ses
 	ses.parentEnumStruct = parentSESOrNull
 	ses.fieldName = fieldName
 	ses.enumName = enumName
 	ses.choices = choices
-
-	Assert( ( sopmEnumName.len() == 0 && sopmChoice.len() == 0 ) || ( sopmEnumName.len() > 0 && sopmChoice.len() > 0 ), "sopmEnumName and sopmChoice must be both empty or both given." )
-	ses.sopmChoice = sopmChoice
-	ses.sopmEnumName = sopmEnumName
 
 #if DEV
 		if ( parentSESOrNull == null )
@@ -1057,14 +1019,14 @@ StatEnumStruct function RegisterStatEnumStruct( StatEnumStruct ornull parentSESO
 
 
 
-StatTemplate function InternalRegisterStatCommon( StatEnumStruct ornull parentSESOrNull, string fieldName, int type, int behavior, int flags, bool shouldCache, int gameMode )
+StatTemplate function InternalRegisterStatCommon( StatEnumStruct ornull parentSESOrNull, string fieldName, int type, int behavior, bool writeImmediately, bool shouldCache, int gameMode )
 {
 	StatTemplate template
 
 	template.fieldName = fieldName
 	template.type = type
 	template.behavior = behavior
-	template.flags = flags
+	template.writeImmediately = writeImmediately
 	template.shouldCache = shouldCache
 	template.gameMode = gameMode
 	Assert( !shouldCache || template.behavior == eStatBehavior.CALCULATED )
@@ -1075,7 +1037,7 @@ StatTemplate function InternalRegisterStatCommon( StatEnumStruct ornull parentSE
 
 		template.rootEntry.type = template.type
 		template.rootEntry.behavior = template.behavior
-		template.rootEntry.flags = template.flags
+		template.rootEntry.writeImmediately = template.writeImmediately
 		template.rootEntry.shouldCache = template.shouldCache
 		template.rootEntry.gameMode = template.gameMode
 
@@ -1088,19 +1050,6 @@ StatTemplate function InternalRegisterStatCommon( StatEnumStruct ornull parentSE
 #endif
 			{
 				template.rootEntry.persistenceFullKey_Current_Handle = PersistenceGetVarHandle( template.rootEntry.persistenceFullKey_Current )
-			}
-		}
-
-		if ( (template.flags & eStatFlags.STORE_START_OF_PREVIOUS_MATCH) > 0 )
-		{
-			template.rootEntry.persistenceFullKey_StartOfPreviousMatch = STATS_PERSISTENCE_PREFIX_START_OF_PREVIOUS_MATCH + "." + fieldName
-
-#if DEV
-			
-			if ( !DEV_ShouldIgnorePersistence() )
-#endif
-			{
-				template.rootEntry.persistenceFullKey_StartOfPreviousMatch_Handle = PersistenceGetVarHandle( template.rootEntry.persistenceFullKey_StartOfPreviousMatch )
 			}
 		}
 
@@ -1150,7 +1099,7 @@ StatTemplate function InternalRegisterStatCommon( StatEnumStruct ornull parentSE
 
 
 
-StatTemplateEnumKeyResolver function BuildStatTemplateEnumKeyResolversRecursive( StatTemplate template, int depth, array<StatEnumStruct> sesAncestorsReversed, StatTemplate stat, string partialKey, array<string> enumKeys, string sopmPartialKey = "" )
+StatTemplateEnumKeyResolver function BuildStatTemplateEnumKeyResolversRecursive( StatTemplate template, int depth, array<StatEnumStruct> sesAncestorsReversed, StatTemplate stat, string partialKey, array<string> enumKeys )
 {
 	StatTemplateEnumKeyResolver resolver
 
@@ -1168,13 +1117,11 @@ StatTemplateEnumKeyResolver function BuildStatTemplateEnumKeyResolversRecursive(
 			StatEntry entry
 			entry.type = template.type
 			entry.behavior = template.behavior
-			entry.flags = template.flags
+			entry.writeImmediately = template.writeImmediately
 			entry.shouldCache = template.shouldCache
 			entry.gameMode = template.gameMode
 
 			string entryPersistencePartialKey = partialKey + ancestor.fieldName + "[" + choice + "]" + "." + stat.fieldName
-			string sopmChoice = ancestor.sopmChoice.len() == 0 ? choice : ancestor.sopmChoice
-			string sopmEntryPersistencePartialKey = sopmPartialKey + ancestor.fieldName + "[" + sopmChoice + "]" + "." + stat.fieldName
 			entry.persistenceFullKey_Current = STATS_PERSISTENCE_PREFIX_CURRENT + "." + entryPersistencePartialKey
 
 			if ( template.gameMode == MODE_SPECIFIC )
@@ -1197,18 +1144,6 @@ StatTemplateEnumKeyResolver function BuildStatTemplateEnumKeyResolversRecursive(
 				}
 			}
 
-			if ( (entry.flags & eStatFlags.STORE_START_OF_PREVIOUS_MATCH) > 0 )
-			{
-				entry.persistenceFullKey_StartOfPreviousMatch = STATS_PERSISTENCE_PREFIX_START_OF_PREVIOUS_MATCH + "." + sopmEntryPersistencePartialKey
-
-#if DEV
-				
-				if ( !DEV_ShouldIgnorePersistence() )
-#endif
-				{
-					entry.persistenceFullKey_StartOfPreviousMatch_Handle = PersistenceGetVarHandle( entry.persistenceFullKey_StartOfPreviousMatch )
-				}
-			}
 			entry.enumKeys = grownEnumKeys
 
 			entry.index = fileLevel.allStats.len()
@@ -1231,13 +1166,11 @@ StatTemplateEnumKeyResolver function BuildStatTemplateEnumKeyResolversRecursive(
 		foreach ( string choice in ancestor.choices )
 		{
 			string grownPartialKey      = partialKey + ancestor.fieldName + "[" + choice + "]."
-			string sopmChoice           = ancestor.sopmChoice.len() == 0 ? choice : ancestor.sopmChoice
-			string sopmgrownPartialKey  = sopmPartialKey + ancestor.fieldName + "[" + sopmChoice + "]."
 
 			array<string> grownEnumKeys = []
 			grownEnumKeys.extend( enumKeys )
 			grownEnumKeys.append( choice )
-			StatTemplateEnumKeyResolver subResolver = BuildStatTemplateEnumKeyResolversRecursive( stat, depth + 1, sesAncestorsReversed, stat, grownPartialKey, grownEnumKeys, sopmgrownPartialKey )
+			StatTemplateEnumKeyResolver subResolver = BuildStatTemplateEnumKeyResolversRecursive( stat, depth + 1, sesAncestorsReversed, stat, grownPartialKey, grownEnumKeys )
 			resolver.children[choice] <- subResolver
 		}
 	}
@@ -1248,26 +1181,26 @@ StatTemplateEnumKeyResolver function BuildStatTemplateEnumKeyResolversRecursive(
 
 
 
-StatTemplate function RegisterAccumulatedStat_Int( StatEnumStruct ornull enumStructOrNull, string fieldName, int gameMode, int flags = 0 )
+StatTemplate function RegisterAccumulatedStat_Int( StatEnumStruct ornull enumStructOrNull, string fieldName, int gameMode, bool writeImmediately )
 {
-	return InternalRegisterStatCommon( enumStructOrNull, fieldName, eStatType.INT, eStatBehavior.ACCUMULATED, flags, false, gameMode )
+	return InternalRegisterStatCommon( enumStructOrNull, fieldName, eStatType.INT, eStatBehavior.ACCUMULATED, writeImmediately, false, gameMode )
 }
 
 
 
 
-StatTemplate function RegisterVariableStat_Int( StatEnumStruct ornull enumStructOrNull, string fieldName, int gameMode, int flags = 0 )
+StatTemplate function RegisterVariableStat_Int( StatEnumStruct ornull enumStructOrNull, string fieldName, int gameMode, bool writeImmediately )
 {
-	return InternalRegisterStatCommon( enumStructOrNull, fieldName, eStatType.INT, eStatBehavior.VARIABLE, flags, false, gameMode )
+	return InternalRegisterStatCommon( enumStructOrNull, fieldName, eStatType.INT, eStatBehavior.VARIABLE, writeImmediately, false, gameMode )
 }
 
 
 
 
-StatTemplate function InternalRegisterCalculatedStatCommon( StatEnumStruct ornull enumStructOrNull, string fieldName, int flags, bool shouldCache,
+StatTemplate function InternalRegisterCalculatedStatCommon( StatEnumStruct ornull enumStructOrNull, string fieldName, bool writeImmediately, bool shouldCache,
 		StatCalcFuncInfo functionref( StatEntry, array<StatTemplate> ) setupFunc, array<StatTemplate> sourceTemplates, int gameMode )
 {
-	StatTemplate stat = InternalRegisterStatCommon( enumStructOrNull, fieldName, eStatType.INT, eStatBehavior.CALCULATED, flags, shouldCache, gameMode )
+	StatTemplate stat = InternalRegisterStatCommon( enumStructOrNull, fieldName, eStatType.INT, eStatBehavior.CALCULATED, writeImmediately, shouldCache, gameMode )
 
 	
 	
@@ -1297,80 +1230,20 @@ StatTemplate function InternalRegisterCalculatedStatCommon( StatEnumStruct ornul
 
 
 
-StatTemplate function RegisterExpensiveCalculatedStat_Int( StatEnumStruct ornull enumStructOrNull, string fieldName, int flags,
+StatTemplate function RegisterExpensiveCalculatedStat_Int( StatEnumStruct ornull enumStructOrNull, string fieldName, bool writeImmediately,
 		StatCalcFuncInfo functionref( StatEntry, array<StatTemplate> ) setupFunc, array<StatTemplate> sourceTemplates, int gameMode )
 {
-	return InternalRegisterCalculatedStatCommon( enumStructOrNull, fieldName, flags, false, setupFunc, sourceTemplates, gameMode )
+	return InternalRegisterCalculatedStatCommon( enumStructOrNull, fieldName, writeImmediately, false, setupFunc, sourceTemplates, gameMode )
 }
 
 
 
 
-StatTemplate function RegisterCachedCalculatedStat_Int( StatEnumStruct ornull enumStructOrNull, string fieldName, int flags,
+StatTemplate function RegisterCachedCalculatedStat_Int( StatEnumStruct ornull enumStructOrNull, string fieldName, bool writeImmediately,
 		StatCalcFuncInfo functionref( StatEntry, array<StatTemplate> ) setupFunc, array<StatTemplate> sourceTemplates, int gameMode )
 {
-	return InternalRegisterCalculatedStatCommon( enumStructOrNull, fieldName, flags, true, setupFunc, sourceTemplates, gameMode )
+	return InternalRegisterCalculatedStatCommon( enumStructOrNull, fieldName, writeImmediately, true, setupFunc, sourceTemplates, gameMode )
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

@@ -45,7 +45,7 @@ ImpactTable
 		"2" "P_impact_lava" //lava_rock_hot
 //		"3" "openslot"
 //		"4" "openslot"
-//		"5" "openslot"
+		"5" "P_impact_water_hrz"
 //		"6" "openslot"
 //		"7" "openslot"
 //		"8" "openslot"
@@ -122,7 +122,7 @@ ImpactTable
 		"2" "Concrete.BulletImpact_3P_vs_3P" //lava_rock_hot
 //		"3" "openslot"
 //		"4" "openslot"
-//		"5" "openslot"
+		"5" "Water.BulletImpact_3P_vs_3P"
 //		"6" "openslot"
 //		"7" "openslot"
 //		"8" "openslot"
@@ -172,7 +172,7 @@ ImpactTable
 		"2" "Concrete.BulletImpact_1P_vs_3P" //lava_rock_hot
 //		"3" "openslot"
 //		"4" "openslot"
-//		"5" "openslot"
+		"5" "Water.BulletImpact_1P_vs_3P"
 //		"6" "openslot"
 //		"7" "openslot"
 //		"8" "openslot"
@@ -219,6 +219,7 @@ ImpactTable
 
 		"1" "Mud.BulletImpact_3P_vs_1P"  // lava_flow
 		"2" "Default.BulletImpact_3P_vs_1P" // lava_rock_hot
+		"5" "Water.BulletImpact_3P_vs_1P"
 
 		"splash" "Water.BulletImpact"
 		"slime_splash" "Water.BulletImpact"

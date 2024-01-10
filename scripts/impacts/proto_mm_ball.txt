@@ -41,6 +41,8 @@ Sound
 		"shieldhit" "none"
 		"headshot_flesh" "none"
 		"headshot_mechanical" "none"
+
+		"5" "Phys_Imp_MaggieBall_Water" //water_hrz
 	}
 
 	Sound_attacker
@@ -80,6 +82,8 @@ Sound
 		"shieldhit" "none"
 		"headshot_flesh" "none"
 		"headshot_mechanical" "none"
+
+		"5" "Phys_Imp_MaggieBall_Water"
 	}
 
 	Sound_victim
@@ -118,6 +122,8 @@ Sound
 		"shieldhit" "none"
 		"headshot_flesh" "none"
 		"headshot_mechanical" "none"
+
+		"5" "Phys_Imp_MaggieBall_Water"
 	}
 
 	Sound_victim_from_AI
@@ -157,5 +163,6 @@ Sound
 		"headshot_flesh" "none"
 		"headshot_mechanical" "none"
 
+		"5" "Phys_Imp_MaggieBall_Water"
     }
 }

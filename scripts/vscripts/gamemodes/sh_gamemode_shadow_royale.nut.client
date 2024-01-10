@@ -18,7 +18,7 @@ const asset ICON_SPAWN_SHADOW_ENEMY		= $"rui/gamemodes/shadow_squad/shadow_icon_
 const asset ICON_SPAWN_SHADOW_FRIEND	= $"rui/gamemodes/shadow_squad/shadow_icon_spawn"
 const asset DEATH_SCREEN_RUI            = $"ui/header_data_shadow_squad.rpak"
 
-global const array<string> SHADOW_ROYALE_DISABLED_BATTLE_CHATTER_EVENTS = [ "bc_killLeaderNew" ]
+const array<string> SHADOW_ROYALE_DISABLED_BATTLE_CHATTER_EVENTS = [ "bc_killLeaderNew" ]
 
 enum eShadowRoyaleMessage
 {
@@ -1450,3 +1450,5 @@ void function EmitSoundOnEntityDelayed( entity player, string alias, float delay
 
 	EmitSoundOnEntity( player, alias )
 }
+
+      

@@ -1,0 +1,146 @@
+
+
+
+global function StatsRegister_Control
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+void function StatsRegister_Control()
+{
+	CAREER_STATS.gamemode_control_objectives_captured = RegisterAccumulatedStat_Int( null, "gamemode_control_objectives_captured", eChallengeGameMode.CONTROL, CHALLENGES_CALC_DEPENDS )
+	CAREER_STATS.gamemode_control_personal_exp_points_earned = RegisterAccumulatedStat_Int( null, "gamemode_control_personal_exp_points_earned", eChallengeGameMode.CONTROL, CHALLENGES_CALC_DEPENDS )
+	CAREER_STATS.gamemode_control_capture_bonuses_claimed_by_team = RegisterAccumulatedStat_Int( null, "gamemode_control_capture_bonuses_claimed_by_team", eChallengeGameMode.CONTROL, CHALLENGES_CALC_DEPENDS )
+	CAREER_STATS.gamemode_control_killed_enemy_1_tier_higher = RegisterAccumulatedStat_Int( null, "gamemode_control_killed_enemy_1_tier_higher", eChallengeGameMode.CONTROL, CHALLENGES_CALC_DEPENDS )
+	CAREER_STATS.gamemode_control_killed_enemy_2_tier_higher = RegisterAccumulatedStat_Int( null, "gamemode_control_killed_enemy_2_tier_higher", eChallengeGameMode.CONTROL, CHALLENGES_CALC_DEPENDS )
+	CAREER_STATS.gamemode_control_killed_objective_attacker = RegisterAccumulatedStat_Int( null, "gamemode_control_killed_objective_attacker", eChallengeGameMode.CONTROL, CHALLENGES_CALC_DEPENDS )
+	CAREER_STATS.gamemode_control_killed_objective_defender = RegisterAccumulatedStat_Int( null, "gamemode_control_killed_objective_defender", eChallengeGameMode.CONTROL, CHALLENGES_CALC_DEPENDS )
+	CAREER_STATS.gamemode_control_became_expleader = RegisterAccumulatedStat_Int( null, "gamemode_control_became_expleader", eChallengeGameMode.CONTROL, CHALLENGES_CALC_DEPENDS )
+	CAREER_STATS.gamemode_control_killed_expleader = RegisterAccumulatedStat_Int( null, "gamemode_control_killed_expleader", eChallengeGameMode.CONTROL, CHALLENGES_CALC_DEPENDS )
+	CAREER_STATS.gamemode_control_highest_exp_as_expleader = RegisterAccumulatedStat_Int( null, "gamemode_control_highest_exp_as_expleader", eChallengeGameMode.CONTROL, CHALLENGES_CALC_DEPENDS )
+	CAREER_STATS.gamemode_control_time_on_objective = RegisterAccumulatedStat_Int( null, "gamemode_control_time_on_objective", eChallengeGameMode.CONTROL, TRACKERS_NEED )
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                              

@@ -263,26 +263,21 @@ array< string > function ParseEquipmentLoadoutText( string loadoutText, bool use
 	else if ( useDefaultLoadout )
 		equipmentToAdd = file.equipmentLoadoutDefault
 
-
-
-
+	if ( GetCurrentPlaylistVarBool( "should_give_lvl0_evo_armor", true ) )
 	{
-		if ( GetCurrentPlaylistVarBool( "should_give_lvl0_evo_armor", true ) )
+		bool give0Armor = true
+		foreach ( string equipmentRef in equipmentToAdd )
 		{
-			bool give0Armor = true
-			foreach ( string equipmentRef in equipmentToAdd )
+			if ( SURVIVAL_Loot_GetLootDataByRef( equipmentRef ).lootType == eLootType.ARMOR )
 			{
-				if ( SURVIVAL_Loot_GetLootDataByRef( equipmentRef ).lootType == eLootType.ARMOR )
-				{
-					give0Armor = false
-					break
-				}
+				give0Armor = false
+				break
 			}
-			if ( give0Armor )
-			{
-				equipmentToAdd.append( "armor_pickup_lv0_evolving" )
-				displayIgnoredItems.append( "armor_pickup_lv0_evolving" )
-			}
+		}
+		if ( give0Armor )
+		{
+			equipmentToAdd.append( "armor_pickup_lv0_evolving" )
+			displayIgnoredItems.append( "armor_pickup_lv0_evolving" )
 		}
 	}
 
@@ -418,11 +413,6 @@ void function Init_CharacterClassToLoadoutNameTable()
 		file.characterClassToLoadoutNameTable[ value ] <- loadoutName
 	}
 }
-
-
-
-
-
 
 
 

@@ -43,7 +43,7 @@ ImpactTable
 //		"2" "openslot"
 //		"3" "openslot"
 //		"4" "openslot"
-//		"5" "openslot"
+		"5" "P_impact_water_LG" //water_hrz
 //		"6" "openslot"
 //		"7" "openslot"
 //		"8" "openslot"
@@ -109,6 +109,8 @@ ImpactTable
 
 		"headshot_flesh" "Flesh.LSTAR.BulletImpact_3P_vs_3P"
 		"headshot_mechanical" "Android.LSTAR.BulletImpact_3P_vs_3P"
+
+		"5" "Water.Heavy.BulletImpact_3P_vs_3P"
 	}
 
 	Sound_attacker
@@ -148,6 +150,8 @@ ImpactTable
 
 		"headshot_flesh" "Flesh.LSTAR.BulletImpact_1P_vs_3P"
 		"headshot_mechanical" "Android.LSTAR.BulletImpact_1P_vs_3P"
+
+		"5" "Water.Heavy.BulletImpact_1P_vs_3P"
 	}
 
 	Sound_victim
@@ -187,5 +191,7 @@ ImpactTable
 
 		"headshot_flesh" "Flesh.LSTAR.BulletImpact_3P_vs_1P"
 		"headshot_mechanical" "Android.LSTAR.BulletImpact_3P_vs_1P"
+
+		"5" "Water.Heavy.BulletImpact_3P_vs_1P"
 	}
 }

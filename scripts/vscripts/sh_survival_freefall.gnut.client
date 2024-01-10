@@ -26,6 +26,9 @@ global const string JUMPTOWER_PING_NAME = "jump_tower"
 
 
 
+const CONSTRAINEDDIVE_RADIUS_DEFAULT = 984.252 
+
+
 
 
 
@@ -362,6 +365,35 @@ SkyDiveTrailPackage function GetSkyDiveTrailPackageForPlayerWithOverrides( entit
 
 	return SkydiveTrail_GetPackageForIndex( index )
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -2395,6 +2427,11 @@ void function CodeCallback_PlayerSkydiveBegin( entity player )
 
 
 
+
+
+
+
+
 	
 
 
@@ -2665,6 +2702,10 @@ void function Freefall_OnPlayerCreated( entity skyDivingPlayer )
 
 void function Client_OnPlayerSpawned( entity localPlayer )
 {
+
+
+
+
 	if( file.skydiveRui != null )
 	{
 		RuiDestroyIfAlive( file.skydiveRui )

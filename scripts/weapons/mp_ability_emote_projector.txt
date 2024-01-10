@@ -44,8 +44,8 @@ WeaponData
 	"sound_weapon_ready"							"survival_ui_tactical_ready"
 
 	// Effects
-	"bounce_effect_table"							"deployable_cover_bounce_table"
-	"impact_effect_table" 							"exp_deployable_cover"
+	"bounce_effect_table"							"bounce_small_nosound"
+	//"impact_effect_table" 							"exp_deployable_cover"
 
 	"vortex_absorb_effect"							"wpn_vortex_projectile_prox_mine_FP"
 	"vortex_absorb_effect_third_person"				"wpn_vortex_projectile_prox_mine"
@@ -67,10 +67,6 @@ WeaponData
 	"critical_hit"									"0"
 
 	// Sounds
-	"sound_throw_1p"								"Pilot_Hardcover_Toss_1P"
-    "sound_deploy_1p"								"weapon_sentryfragdrone_pinpull_1p"
-    "sound_throw_3p"								"weapon_sentryfragdrone_throw_3p"
-    "sound_deploy_3p"								"weapon_sentryfragdrone_pinpull_3p"
 	"sound_grenade_projectile"						""
 	"sound_dryfire"									"Survival_UI_Ability_NotReady"
 

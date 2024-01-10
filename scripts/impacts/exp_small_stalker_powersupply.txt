@@ -39,7 +39,7 @@ ImpactTable
 		"2" "P_impact_exp_smll_metal"
 		"3" "P_impact_exp_smll_metal"
 		"4" "P_impact_exp_smll_metal"
-		"5" "P_impact_exp_smll_metal"
+		"5" "P_impact_exp_smll_water"
 		"6" "P_impact_exp_smll_metal"
 		"7" "P_impact_exp_smll_metal"
 		"8" "P_impact_exp_smll_metal"
@@ -83,6 +83,8 @@ ImpactTable
 
 		//"airburst" "explo_small_stalker_powersupply_3p"
 		"shieldhit" "TitanShield.Explosive.BulletImpact_3P_vs_3P"
+
+		"5" "explo_small_stalker_powersupply_3p"
 	}
 
 	Sound_attacker
@@ -119,6 +121,8 @@ ImpactTable
 
 		//"airburst" "explo_small_stalker_powersupply_3p"
 		"shieldhit" "TitanShield.Explosive.BulletImpact_1P_vs_3P"
+
+		"5" "explo_small_stalker_powersupply_3p"
 	}
 
 	Sound_victim
@@ -155,6 +159,8 @@ ImpactTable
 
 		//"airburst" "explo_small_stalker_powersupply_3p"
 		"shieldhit" "TitanShield.Explosive.BulletImpact_3P_vs_1P"
+
+		"5" "explo_small_stalker_powersupply_3p"
 	}
 
 

@@ -12,7 +12,8 @@ global function ExtendedUseTextOverride
 global enum eExtendedUseRuiType
 {
 	COCKPIT,
-	FULLSCREEN
+	FULLSCREEN,
+	NONE
 }
 
 global struct ExtendedUseSettings
@@ -86,27 +87,31 @@ void function ExtendedUse( entity ent, entity player, ExtendedUseSettings settin
 		settings.startFunc( ent, player, settings )
 
 
-		var rui
-		if ( settings.displayRuiType == eExtendedUseRuiType.FULLSCREEN )
+		if ( settings.displayRuiType != eExtendedUseRuiType.NONE )
 		{
-			rui = CreateFullscreenRui( settings.displayRui )
-		}
-		else
-		{
-			rui = CreateCockpitRui( settings.displayRui )
-		}
-
-		settings.displayRuiFunc( ent, player, rui, settings )
-		file.extendedUseRui = rui
-		entity localViewPlayer = GetLocalViewPlayer()
-
-		OnThreadEnd(
-			function() : ( rui )
+			var rui
+			if ( settings.displayRuiType == eExtendedUseRuiType.FULLSCREEN )
 			{
-				file.extendedUseRui = null
-				RuiDestroy( rui )
+				rui = CreateFullscreenRui( settings.displayRui )
 			}
-		)
+			else
+			{
+				rui = CreateCockpitRui( settings.displayRui )
+			}
+
+			settings.displayRuiFunc( ent, player, rui, settings )
+			file.extendedUseRui = rui
+
+			OnThreadEnd(
+				function() : ( rui )
+				{
+					file.extendedUseRui = null
+					RuiDestroy( rui )
+				}
+			)
+		}
+
+		entity localViewPlayer = GetLocalViewPlayer()
 
 
 	table<string, bool> e
@@ -237,9 +242,8 @@ void function ExtendedUse( entity ent, entity player, ExtendedUseSettings settin
 
 void function ExtendedUse_TrackContinuousUse( entity player, entity useTarget, float useTime, float jumpStartTime, int inputFlags, bool requireMatchingUseEnt )
 {
-	player.EndSignal( "OnDeath" )
-	useTarget.EndSignal( "OnDeath" )
-	useTarget.EndSignal( "OnDestroy" )
+	player.EndSignal( "OnDeath", "OnDestroy" )
+	useTarget.EndSignal( "OnDeath", "OnDestroy" )
 
 	table result = {}
 	result.success <- false
@@ -273,13 +277,24 @@ void function ExtendedUse_TrackContinuousUse( entity player, entity useTarget, f
 			}
 		}
 
-		vector eyePos      = player.UseableEyePosition( useTarget )
-		vector eyePos2D    = <eyePos.x, eyePos.y, 0.0>
-		vector useOrigin   = useTarget.GetOrigin()
-		vector useOrigin2D = <useOrigin.x, useOrigin.y, 0.0>
-		float vertDist     = player.GetOrigin().z - useTarget.GetOrigin().z
-		if ( (DistanceSqr( eyePos2D, useOrigin2D ) > maxDist2) || ((vertDist * vertDist) > maxDist2) )
-			return
+		bool checkMoveDistance = !IsBitFlagSet(useTarget.GetUsableValue(), USABLE_FROM_EXTENDED_RANGE)
+
+
+
+
+
+
+
+		if ( checkMoveDistance )
+		{
+			vector eyePos      = player.UseableEyePosition( useTarget )
+			vector eyePos2D    = <eyePos.x, eyePos.y, 0.0>
+			vector useOrigin   = useTarget.GetOrigin()
+			vector useOrigin2D = <useOrigin.x, useOrigin.y, 0.0>
+			float vertDist     = player.GetOrigin().z - useTarget.GetOrigin().z
+			if ( (DistanceSqr( eyePos2D, useOrigin2D ) > maxDist2) || ((vertDist * vertDist) > maxDist2) )
+				return
+		}
 
 		if ( requireMatchingUseEnt && player.GetUseEntity() != useTarget )
 			return

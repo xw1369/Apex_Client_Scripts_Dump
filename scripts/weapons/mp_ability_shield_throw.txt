@@ -173,8 +173,13 @@ WeaponData
 	"aimassist_disable_hipfire"						"1"
 	"aimassist_disable_ads"							"1"
 	"toss_pullout_time"								"0.06" //see ANIMATION before adjusting
+                     
+                                           
+                                                 
+	     
 	"toss_time"										"0.85" //0.3
-	"toss_overhead_time"							"0.85" //0.4
+    "toss_overhead_time"							"0.85" //0.4
+       
 
 
 	// Projectile

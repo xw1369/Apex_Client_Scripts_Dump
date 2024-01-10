@@ -113,6 +113,13 @@ var function OnWeaponPrimaryAttack_care_package_medic( entity weapon, WeaponPrim
 
 
 
+
+
+
+
+
+
+
 		PlayerUsedOffhand( ownerPlayer, weapon )
 		SetCarePackageDeployed( true )
 		ownerPlayer.Signal( "DeployableCarePackagePlacement" )
@@ -121,6 +128,39 @@ var function OnWeaponPrimaryAttack_care_package_medic( entity weapon, WeaponPrim
 	int ammoReq = weapon.GetAmmoPerShot()
 	return ammoReq
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

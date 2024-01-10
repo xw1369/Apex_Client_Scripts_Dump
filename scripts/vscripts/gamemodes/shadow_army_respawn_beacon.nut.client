@@ -1337,9 +1337,6 @@ void function ShadowArmy_RespawnBeaconOnUse_Common( entity beacon, entity player
 
 
 
-
-
-
 const float POST_SIGNAL_DELAY = 0.1 
 void function ManageRespawnBeaconData_Thread( entity beacon, var rui )
 {

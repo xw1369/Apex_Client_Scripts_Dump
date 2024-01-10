@@ -1614,6 +1614,13 @@ void function OnDeployableMedicPlanted( entity projectile,  DeployableCollisionP
 
 
 
+
+
+
+
+
+
+
 void function DeployableMedic_OnPropScriptCreated( entity ent )
 {
 }
@@ -1681,6 +1688,9 @@ void function DeployableMedic_HealVisualsThread( entity viewPlayer, int fxHandle
 
 bool function CanDeployHealDrone( entity player )
 {
+	if(GetLocalViewPlayer() != player)
+		return false
+
 	if ( !player.HasPassive( ePassives.PAS_MEDIC ) )
 		return false
 

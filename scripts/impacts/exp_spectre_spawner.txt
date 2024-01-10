@@ -81,6 +81,8 @@ ImpactTable
 
 		"airburst" "Wpn_TripleThreat_Grenade.ImpactHard"
 		"shieldhit" "TitanShield.Explosive.BulletImpact_3P_vs_3P"
+
+		"5" "Wpn_TripleThreat_Grenade.ImpactHard"
 	}
 
 	Sound_attacker
@@ -117,6 +119,8 @@ ImpactTable
 
 		"airburst" "Wpn_TripleThreat_Grenade.ImpactHard"
 		"shieldhit" "TitanShield.Explosive.BulletImpact_1P_vs_3P"
+
+		"5" "Wpn_TripleThreat_Grenade.ImpactHard"
 	}
 
 	Sound_victim
@@ -153,6 +157,8 @@ ImpactTable
 
 		"airburst" "Wpn_TripleThreat_Grenade.ImpactHard"
 		"shieldhit" "TitanShield.Explosive.BulletImpact_3P_vs_1P"
+
+		"5" "Wpn_TripleThreat_Grenade.ImpactHard"
 	}
 
 

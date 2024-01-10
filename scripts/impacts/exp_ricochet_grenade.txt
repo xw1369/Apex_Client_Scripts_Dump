@@ -39,7 +39,7 @@ ImpactTable
     	"2" "P_impact_exp_med_metal"
     	"3" "P_impact_exp_med_metal"
     	"4" "P_impact_exp_med_metal"
-    	"5" "P_impact_exp_med_metal"
+    	"5" "P_impact_exp_med_water"
     	"6" "P_impact_exp_med_metal"
     	"7" "P_impact_exp_med_metal"
     	"8" "P_impact_exp_med_metal"
@@ -89,6 +89,7 @@ ImpactTable
 
 		"1" "Fuse_Ricochet_Grenade_Explo_Mud_3p"
     	"2" "Fuse_Ricochet_Grenade_Explo_3p"
+    	"5" "Fuse_Ricochet_Grenade_Explo_Water_3p"
 
      	//"splash" "Fuse_Ricochet_Grenade_Explo_Water_3p"
     	//"slime_splash" "Fuse_Ricochet_Grenade_Explo_Mud_3p"
@@ -128,6 +129,7 @@ ImpactTable
 
 		"1" "Fuse_Ricochet_Grenade_Explo_Mud_1p"  //lava_flow
 		"2" "Fuse_Ricochet_Grenade_Explo_1p"
+		"5" "Fuse_Ricochet_Grenade_Explo_Water_1p"
 
 		//"splash" "Fuse_Ricochet_Grenade_Explo_Water_1p"
 		//"slime_splash" "Fuse_Ricochet_Grenade_Explo_Mud_1p"
@@ -167,6 +169,8 @@ ImpactTable
 
 		"1" "Fuse_Ricochet_Grenade_Explo_Mud_3p"
 		"2" "Fuse_Ricochet_Grenade_Explo_3p"
+		"5" "Fuse_Ricochet_Grenade_Explo_Water_3p"
+
 
 		//"splash" "Fuse_Ricochet_Grenade_Explo_Water_3p"
 		//"slime_splash" "Fuse_Ricochet_Grenade_Explo_Mud_3p"

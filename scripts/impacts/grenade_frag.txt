@@ -8,11 +8,11 @@ ImpactTable
 		"C" "impact_concrete_40mm"
 		"D" "impact_dirt_40mm"
 		"E" "impact_metal_titan_40mm"
-	
+
 		"F" "impact_metal_40mm"
 		"G" "impact_metal_40mm"
 		"H" "impact_alienflesh"
-	
+
 		"J" "impact_dirt_40mm"
 		"K" "impact_dirt_40mm"
 		"L" "impact_concrete_40mm"
@@ -20,15 +20,15 @@ ImpactTable
 		"N" "impact_dirt_40mm"
 		"O" "impact_dirt_40mm"
 		"P" "impact_metal_40mm"
-	
+
 		"R" "impact_concrete_40mm"
 		"S" "impact_water_40mm"
 		"T" "impact_concrete_40mm"
 		"U" "impact_metal_40mm"
-	
+
 		"V" "impact_metal_40mm"
 		"W" "impact_concrete_40mm"
-	
+
 		"Y" "impact_metal_40mm"
 
 		"0" "impact_dirt_40mm"
@@ -36,7 +36,7 @@ ImpactTable
 		"2" "impact_dirt_40mm"
 		"3" "impact_concrete_40mm"
 		"4" "impact_concrete_40mm"
-		"5" "impact_concrete_40mm"
+		"5" "impact_water_40mm"
 		"6" "impact_concrete_40mm"
 		"7" "impact_concrete_40mm"
 		"8" "impact_concrete_40mm"

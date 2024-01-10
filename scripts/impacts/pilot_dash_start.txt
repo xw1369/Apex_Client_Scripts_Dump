@@ -42,7 +42,7 @@ ImpactTable
 		"2" "P_hmn_land_impact_lava" //lava_rock_hot
 		"3" "P_pilot_dash_start_concrete"
 		"4" "P_pilot_dash_start_concrete"
-		"5" "P_pilot_dash_start_concrete"
+		"5" "P_impact_exp_med_water"
 		"6" "P_pilot_dash_start_concrete"
 		"7" "P_pilot_dash_start_concrete"
 		"8" "P_pilot_dash_start_concrete"
@@ -55,6 +55,170 @@ ImpactTable
 		"shadowhit" "P_pilot_dash_start_metal"
 		"holohit" "P_pilot_dash_start_metal"
 		"critical_hit" "P_pilot_dash_start_metal"
+	}
+
+	Sound
+	{
+		"C" "titansword_special_dash_impact_3p"
+		"D" "titansword_special_dash_impact_3p"
+		"E" "titansword_special_dash_impact_3p"
+
+		"F" "titansword_special_dash_impact_3p"
+		"G" "titansword_special_dash_impact_3p" // "ChainLink.BulletImpact"
+		"H" "titansword_special_dash_impact_3p"
+
+		"J" "titansword_special_dash_impact_3p"
+		"K" "titansword_special_dash_impact_3p"  // mud?
+		"L" "titansword_special_dash_impact_3p" // "Plastic_Box.BulletImpact"
+		"M" "titansword_special_dash_impact_3p"	//"ArmorFlesh.BulletImpact"
+		"N" "titansword_special_dash_impact_3p"	// sand?
+		"O" "titansword_special_dash_impact_3p"
+		"P" "titansword_special_dash_impact_3p"
+
+		"Q" "titansword_special_dash_impact_3p"
+		"R" "titansword_special_dash_impact_3p"
+		"S" "titansword_special_dash_impact_3p"
+		"T" "titansword_special_dash_impact_3p"
+
+		"V" "titansword_special_dash_impact_3p"
+		"W" "titansword_special_dash_impact_3p"
+		"X"	"titansword_special_dash_impact_3p" // Titan bubble shield
+		"Y" "titansword_special_dash_impact_3p"
+		"Z" "titansword_special_dash_impact_3p"
+
+		"0" "titansword_special_dash_impact_3p"
+		"1" "titansword_special_dash_impact_3p" //lava_flow
+		"2" "titansword_special_dash_impact_3p" //lava_rock_hot
+		"3" "titansword_special_dash_impact_3p"
+		"4" "titansword_special_dash_impact_3p"
+		"5" "titansword_special_dash_impact_3p"
+		"6" "titansword_special_dash_impact_3p"
+		"7" "titansword_special_dash_impact_3p"
+		"8" "titansword_special_dash_impact_3p"
+		"9" "titansword_special_dash_impact_3p"
+
+		"splash" "titansword_special_dash_impact_3p"
+		"slime_splash" "titansword_special_dash_impact_3p"
+
+		"airburst" "none"
+		"shieldhit" "none"
+		"holohit" "none"
+
+		"headshot_flesh" "none"
+		"headshot_mechanical" "none"
+	}
+
+	Sound_attacker
+	{
+		"C" "none"
+		"D" "none"
+		"E" "none"
+
+		"F" "none"
+		"G" "none" // "ChainLink.BulletImpact"
+		"H" "none"
+
+		"J" "none"
+		"K" "none"  // mud?
+		"L" "none" // "Plastic_Box.BulletImpact"
+		"M" "none"	//"ArmorFlesh.BulletImpact"
+		"N" "none"	// sand?
+		"O" "none"
+		"P" "none"
+
+		"Q" "none"
+		"R" "none"
+		"S" "none"
+		"T" "none"
+
+		"V" "none"
+		"W" "none"
+		"X"	"none" // Titan bubble shield
+		"Y" "none"
+		"Z" "none"
+
+		"0" "none"
+		"1" "none" //lava_flow
+		"2" "none" //lava_rock_hot
+		"3" "none"
+		"4" "none"
+		"5" "none"
+		"6" "none"
+		"7" "none"
+		"8" "none"
+		"9" "none"
+
+		"splash" "none"
+		"slime_splash" "none"
+
+		"airburst" "none"
+		"shieldhit" "none"
+		"holohit" "none"
+
+		"headshot_flesh" "none"
+		"headshot_mechanical" "none"
+	}
+
+	Sound_victim
+	{
+		"C" "none"
+		"D" "none"
+		"E" "none"
+
+		"F" "none"
+		"G" "none" // "ChainLink.BulletImpact"
+		"H" "none"
+
+		"J" "none"
+		"K" "none"  // mud?
+		"L" "none" // "Plastic_Box.BulletImpact"
+		"M" "none"	//"ArmorFlesh.BulletImpact"
+		"N" "none"	// sand?
+		"O" "none"
+		"P" "none"
+
+		"Q" "none"
+		"R" "none"
+		"S" "none"
+		"T" "none"
+
+		"V" "none"
+		"W" "none"
+		"X"	"none" // Titan bubble shield
+		"Y" "none"
+		"Z" "none"
+
+		"0" "none"
+		"1" "none" //lava_flow
+		"2" "none" //lava_rock_hot
+		"3" "none"
+		"4" "none"
+		"5" "none"
+		"6" "none"
+		"7" "none"
+		"8" "none"
+		"9" "none"
+
+		"splash" "none"
+		"slime_splash" "none"
+
+		"airburst" "none"
+		"shieldhit" "none"
+		"holohit" "none"
+
+		// Victim headshot sounds taken care of in PlayVictimHeadshotConfirmation():
+		//"headshot_flesh" "none"
+		//"headshot_mechanical" "none"
+	}
+
+	Sound_victim_from_AI
+	{
+		"F" "none"
+		"P" "none"
+
+		// Victim headshot sounds taken care of in PlayVictimHeadshotConfirmation():
+		//"headshot_flesh" "none"
+		//"headshot_mechanical" "none"
 	}
 
 }

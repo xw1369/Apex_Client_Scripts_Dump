@@ -42,7 +42,7 @@ ImpactTable
 		"2" "P_xo_exp_ground_default"
 		"3" "P_xo_exp_ground_default"
 		"4" "P_xo_exp_ground_default"
-		"5" "P_xo_exp_ground_default"
+		"5" "P_xo_exp_ground_water" //water_hrz
 		"6" "P_xo_exp_ground_default"
 		"7" "P_xo_exp_ground_default"
 		"8" "P_xo_exp_ground_default"

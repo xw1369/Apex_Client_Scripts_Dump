@@ -219,7 +219,7 @@ void function InitWeaponScripts()
 
 
 
-
+		HopupGoldenHorse_Init()
 
 
 	MpAbilityShifter_Init()
@@ -258,11 +258,13 @@ void function InitWeaponScripts()
 
 
 
-
+		MpWeaponTitanSword_Init()
 
 	MpWeaponZipline_Init()
 	MpWeaponAlternatorSMG_Init()
 	MpWeaponShotgun_Init()
+
+
 
 	MpWeaponThermiteGrenade_Init()
 	MeleeWraithKunai_Init()
@@ -313,6 +315,8 @@ void function InitWeaponScripts()
 
 
 
+		MeleeArtifactSword_Init()
+		MpWeaponArtifactSwordPrimary_Init()
 
 
 
@@ -320,10 +324,8 @@ void function InitWeaponScripts()
 
 
 
-
-
-
-
+		MeleeCryptoHeirloomRt01_Init()
+		MpWeaponCryptoHeirloomRt01Primary_Init()
 
 
 
@@ -350,6 +352,8 @@ void function InitWeaponScripts()
 
 		MpAbilityPortableAutoLoader_Init()
 		MpWeaponDebuffZone_Init()
+
+
 
 
 
@@ -525,6 +529,7 @@ void function InitWeaponScripts()
 
 
 
+
 	MpWeaponBlackHole_Init()
 	MpSpaceElevatorAbility_Init()
 
@@ -652,9 +657,7 @@ void function InitWeaponScripts()
 
 
 
-
-		MpWeaponNemesis_Init()
-
+	MpWeaponNemesis_Init()
 
 
 
@@ -1016,6 +1019,21 @@ float function EvaluatePolynomial( float x, array<float> coefficientArray )
 bool function GetReplayDisabled()
 {
 	return GetGlobalNonRewindNetBool( "replayDisabled" )
+}
+
+float function GetRoundWinningKillReplayStartupWait()
+{
+	return GetCurrentPlaylistVarFloat( "round_winning_kill_replay_startup_wait", 2.1 )
+}
+
+float function GetRoundWinningKillReplayLength()
+{
+	return GetCurrentPlaylistVarFloat( "round_winning_kill_replay_length", 5.9 )
+}
+
+float function GetRoundWinningKillReplayTotalLength()
+{
+	return GetRoundWinningKillReplayStartupWait() + GetRoundWinningKillReplayLength()
 }
 
 table function ArrayValuesToTableKeys( arr )
@@ -5581,52 +5599,69 @@ LineSegment function ClampLineSegmentToRectangle2D( vector p0, vector p1, vector
 	vector bottomRight  = <rectP1.x, rectP0.y, 0>
 	vector topRight 	= rectP1
 
-	vector newP0 = <p0.x, p0.y, 0>
-	vector newP1 = <p1.x, p1.y, 0>
+	PassByReferenceVector newP0
+	PassByReferenceVector newP1
+	newP0.value = <p0.x, p0.y, 0>
+	newP1.value = <p1.x, p1.y, 0>
 
 	
-	if ( Do2DLinesIntersect( p0, p1, topLeft, bottomLeft ) )
-	{
-		if ( p0.x < topLeft.x )
-			newP0 = Get2DLineIntersection( p0, p1, topLeft, bottomLeft )
-		if ( p1.x < topLeft.x )
-			newP1 = Get2DLineIntersection( p0, p1, topLeft, bottomLeft )
-	}
+	if ( p0.x < topLeft.x )
+		Get2DLineIntersection( p0, p1, topLeft, bottomLeft, newP0 )
+	if ( p1.x < topLeft.x )
+		Get2DLineIntersection( p0, p1, topLeft, bottomLeft, newP1 )
 
 	
-	if ( Do2DLinesIntersect( p0, p1, topRight, bottomRight ) )
-	{
-		if ( p0.x > bottomRight.x )
-			newP0 = Get2DLineIntersection( p0, p1, topRight, bottomRight )
-		if ( p1.x > bottomRight.x )
-			newP1 = Get2DLineIntersection( p0, p1, topRight, bottomRight )
-	}
+	if ( p0.x > bottomRight.x )
+		Get2DLineIntersection( p0, p1, topRight, bottomRight, newP0 )
+	if ( p1.x > bottomRight.x )
+		Get2DLineIntersection( p0, p1, topRight, bottomRight, newP1 )
 
 	
-	if ( Do2DLinesIntersect( p0, p1, topLeft, topRight ) )
-	{
-		if ( p0.y > topLeft.y )
-			newP0 = Get2DLineIntersection( p0, p1, topLeft, topRight )
-		if ( p1.y > topLeft.y )
-			newP1 = Get2DLineIntersection( p0, p1, topLeft, topRight )
-	}
+	if ( p0.y > topLeft.y )
+		Get2DLineIntersection( p0, p1, topLeft, topRight, newP0 )
+	if ( p1.y > topLeft.y )
+		Get2DLineIntersection( p0, p1, topLeft, topRight, newP1 )
 
 	
-	if ( Do2DLinesIntersect( p0, p1, bottomLeft, bottomRight ) )
-	{
-		if ( p0.y < bottomRight.y )
-			newP0 = Get2DLineIntersection( p0, p1, bottomLeft, bottomRight )
-		if ( p1.y < bottomRight.y )
-			newP1 = Get2DLineIntersection( p0, p1, bottomLeft, bottomRight )
-	}
+	if ( p0.y < bottomRight.y )
+		Get2DLineIntersection( p0, p1, bottomLeft, bottomRight, newP0 )
+	if ( p1.y < bottomRight.y )
+		Get2DLineIntersection( p0, p1, bottomLeft, bottomRight, newP1 )
 
 	LineSegment lineSegment
-	lineSegment.start = newP0
-	lineSegment.end = newP1
+	lineSegment.start = newP0.value
+	lineSegment.end = newP1.value
 
 	return lineSegment
 }
 
+
+
+
+
+
+void function Get2DLineIntersection( vector A, vector B, vector C, vector D, PassByReferenceVector P )
+{
+	float s1_x = B.x - A.x
+	float s1_y = B.y - A.y
+	float s2_x = D.x - C.x
+	float s2_y = D.y - C.y
+
+	float determinant = -s2_x * s1_y + s1_x * s2_y
+
+	if ( fabs( determinant ) < FLT_EPSILON )
+		return
+
+	float s = (-s1_y * (A.x - C.x) + s1_x * (A.y - C.y)) / determinant
+	float t = (s2_x * (A.y - C.y) - s2_y * (A.x - C.x)) / determinant
+
+	if ( s >= 0.0 && s <= 1.0 && t >= 0.0 && t <= 1.0 )
+	{
+		
+		vector intersection = < A.x + (t * s1_x), A.y + (t * s1_y), 0.0>
+		P.value = intersection
+	}
+}
 
 bool function Do2DLinesIntersect( vector A, vector B, vector C, vector D )
 {
@@ -5652,20 +5687,6 @@ bool function Do2DLinesIntersect( vector A, vector B, vector C, vector D )
 
 	return !(r < 0 || r > 1 || s < 0 || s > 1)
 }
-
-
-vector function Get2DLineIntersection( vector A, vector B, vector C, vector D )
-{
-	float dy1 = B.y - A.y
-	float dx1 = B.x - A.x
-	float dy2 = D.y - C.y
-	float dx2 = D.x - C.x
-	float x   = ((C.y - A.y) * dx1 * dx2 + dy1 * dx2 * A.x - dy2 * dx1 * C.x) / (dy1 * dx2 - dy2 * dx1)
-	float y   = (fabs( dx1 ) > 0.00001) ? (A.y + (dy1 / dx1) * (x - A.x)) : (C.y + (dy2 / dx2) * (x - C.x))
-	vector p  = <x, y, 0>
-	return p
-}
-
 
 int function GetSlotForWeapon( entity player, entity weapon )
 {
@@ -6069,15 +6090,21 @@ array<entity> function GetPlayerArray_ConnectedNotSpectatorTeam()
 }
 
 
-entity function GetJumpmasterForTeam( int team )
+entity function GetJumpmasterForTeam( int team, bool mustBeAlive = true )
 {
 	entity jumpMaster
 
-	array<entity> teammates = GetPlayerArrayOfTeam_Alive( team )
+	array<entity> teammates = mustBeAlive ? GetPlayerArrayOfTeam_Alive( team ) : GetPlayerArrayOfTeam( team )
+
 	foreach ( entity player in teammates )
 	{
-		if ( !player.GetPlayerNetBool( "playerInPlane" ) )
-			continue
+
+
+
+
+			if ( !player.GetPlayerNetBool( "playerInPlane" ) )
+				continue
+
 
 		if ( !player.GetPlayerNetBool( "isJumpingWithSquad" ) )
 			continue
@@ -6090,14 +6117,19 @@ entity function GetJumpmasterForTeam( int team )
 }
 
 
-int function GetNumPlayersJumpingWithSquad( int team )
+int function GetNumPlayersJumpingWithSquad( int team, bool mustBeAlive = true  )
 {
 	int count               = 0
-	array<entity> teammates = GetPlayerArrayOfTeam_Alive( team )
+	array<entity> teammates = mustBeAlive ? GetPlayerArrayOfTeam_Alive( team ) : GetPlayerArrayOfTeam( team )
 	foreach ( entity player in teammates )
 	{
-		if ( !player.GetPlayerNetBool( "playerInPlane" ) )
-			continue
+
+
+
+
+			if ( !player.GetPlayerNetBool( "playerInPlane" ) )
+				continue
+
 
 		if ( !player.GetPlayerNetBool( "isJumpingWithSquad" ) )
 			continue
@@ -6395,6 +6427,52 @@ table< var, array< entity > > function GetAllMatchReservationParties()
 }
 
 
+void function PollPartyMembersInSquad( entity player )
+{
+	if ( IsValid( player ) )
+		thread PollPartyMembersInSquad_Thread( player )
+}
+
+void function PollPartyMembersInSquad_Thread( entity player )
+{
+	EndSignal( player, "OnDestroy" )
+
+	bool allMembersPresentInSquad = false
+
+	while ( true )
+	{
+		table< string, bool > activeSquadMembers
+		Party party = GetParty()
+
+		int team = player.GetTeam()
+		foreach ( entity teammate in GetPlayerArrayOfTeam( team ) )
+		{
+			if ( IsValid( teammate ) && teammate.IsConnectionActive() )
+				activeSquadMembers[teammate.GetUserID()] <- true
+		}
+
+		bool allPresent = true
+		foreach ( partyMember in party.members )
+		{
+			if ( !( partyMember.uid in activeSquadMembers ) )
+			{
+				allPresent = false
+				break
+			}
+		}
+
+		if ( allPresent != allMembersPresentInSquad )
+		{
+			allMembersPresentInSquad = allPresent
+			RunUIScript( "UpdateSystemMenuPartySquadPresence", allPresent )
+		}
+
+		wait 0.1
+	}
+}
+
+
+
 Point function CreatePoint( vector origin, vector angles )
 {
 	Point data
@@ -6492,7 +6570,7 @@ void function GivePlayerSettingsMods( entity player, array<string> additionalMod
 }
 
 
-void function TakePlayerSettingsMods( entity player, array<string> modsToTake )
+void function TakePlayerSettingsMods( entity player, array<string> modsToTake, bool isHealthReset = true )
 {
 	array<string> mods = player.GetPlayerSettingsMods()
 	int oldMaxHealth = player.GetMaxHealth()

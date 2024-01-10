@@ -36,7 +36,7 @@ ImpactTable
         "2" "P_mm_ball_bounce_lava" //lava_rock_hot
 		"3" "P_mm_ball_bounce_default"
 		"4" "P_mm_ball_bounce_default"
-		"5" "P_mm_ball_bounce_default"
+		"5" "P_mm_ball_bounce_water"
 		"6" "P_mm_ball_bounce_default"
 		"7" "P_mm_ball_bounce_default"
 		"8" "P_mm_ball_bounce_default"
@@ -86,6 +86,8 @@ ImpactTable
 		"shieldhit" "none"
 		"headshot_flesh" "none"
 		"headshot_mechanical" "none"
+
+		"5" "Phys_Imp_MaggieBall_Water"
 	}
 
 	Sound_attacker
@@ -125,6 +127,8 @@ ImpactTable
 		"shieldhit" "none"
 		"headshot_flesh" "none"
 		"headshot_mechanical" "none"
+
+		"5" "Phys_Imp_MaggieBall_Water"
 	}
 
 	Sound_victim
@@ -163,6 +167,8 @@ ImpactTable
 		"shieldhit" "none"
 		"headshot_flesh" "none"
 		"headshot_mechanical" "none"
+
+		"5" "Phys_Imp_MaggieBall_Water"
 	}
 
 	Sound_victim_from_AI
@@ -201,6 +207,8 @@ ImpactTable
 		"shieldhit" "none"
 		"headshot_flesh" "none"
 		"headshot_mechanical" "none"
+
+		"5" "Phys_Imp_MaggieBall_Water"
 
     }
 }

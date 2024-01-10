@@ -1,7 +1,26 @@
 global function ShFlyers_Init
 
-global function IsFlyerThatStillHasDeathBox
-global function GetDeathBoxFromFlyer
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+global function ServerToClient_PlayLootRarityFXOnDeathboxDrop
+
 
 global const FLYER_MODEL = $"mdl/Creatures/flyer/flyer_kingscanyon_animated.rmdl"
 const FLYER_1000X_MODEL = $"mdl/Creatures/flyer/flyer_kingscanyon_animated.rmdl"
@@ -39,30 +58,7 @@ global const string CAGED_FLYER_SCRIPT_NAME = "cagedFlyer"
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-global function ServerCallback_PlayLootRarityFXOnDeathboxDrop
-
-
-
 	const asset FX_FLYER_GLOW = $"P_flyer_glow"
-
 
 
 
@@ -168,6 +164,85 @@ void function ShFlyers_Init()
 		}
 
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 bool function EvilFlyersEnabled()
@@ -1302,86 +1377,7 @@ bool function EvilFlyersEnabled()
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-void function ServerCallback_PlayLootRarityFXOnDeathboxDrop( entity deathBox  )
+void function ServerToClient_PlayLootRarityFXOnDeathboxDrop( entity deathBox  )
 {
 	thread PlayLootRarityFXOnDeathboxDrop_threaded( deathBox  )
 }

@@ -41,7 +41,7 @@ ImpactTable
 		"2" "P_Bdagger_exp_default" // lava_rock_hot
 		"3" "P_Bdagger_exp_default" //
 		"4" "P_Bdagger_exp_default" //
-		"5" "P_Bdagger_exp_default" //
+		"5" "P_Bdagger_exp_default" // water_hrz
 		"6" "P_Bdagger_exp_default" //
 		"7" "P_Bdagger_exp_default" //
 		"8" "P_Bdagger_exp_default" //

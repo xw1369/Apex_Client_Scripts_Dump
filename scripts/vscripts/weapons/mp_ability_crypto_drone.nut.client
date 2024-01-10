@@ -113,7 +113,7 @@ const float CRYPTO_DRONE_STICK_RANGE = 670.0
 const vector CRYPTO_DRONE_HULL_TRACE_MIN	= <-14, -14, 0>
 const vector CRYPTO_DRONE_HULL_TRACE_MAX	= <14, 14, 14>
 
-const asset CRYPTO_DRONE_SIGHTBEAM_FX = $"P_BT_scan_SML_no_streaks"
+const asset CRYPTO_DRONE_SIGHTBEAM_FX = $"P_drone_scan_SML_no_streaks" 
 
 
 const bool CRYPTO_DRONE_USE_SONAR_FX = false
@@ -1020,6 +1020,21 @@ void function CryptoDrone_WeaponInputThink( entity player, entity weapon )
 			weapon.RemoveMod( "crypto_drone_access" )
 	}
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

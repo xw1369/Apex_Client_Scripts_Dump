@@ -188,7 +188,7 @@ void function EnableViewerWatermark()
 	file.watermarkEnabled = true
 
 	var watermarkRui = RuiCreate( MINIMAP_UID_COORDS_RUI, clGlobal.topoFullScreen, RUI_DRAW_HUD, MINIMAP_Z_BASE + 1000 )
-	InitHUDRui( watermarkRui, true )
+	InitHUDRui( watermarkRui )
 
 	float watermarkTextScale = GetCurrentPlaylistVarFloat( "watermark_text_scale", 1.0 )
 	float watermarkAlphaScale = GetCurrentPlaylistVarFloat( "watermark_alpha_scale", 1.0 )
@@ -1698,7 +1698,6 @@ void function ClientCodeCallback_ToggleCharacterSelectMenu( bool enableCharacter
 		{
 			if ( file.currentAssetType != eAssetType.ASSETTYPE_CHARACTER || file.showCharacterSelectMenu )
 				return
-
 
 			player.SetMenuCameraEntityWithAudio( characterSelectMenu.camera )
 			file.showCharacterSelectMenu = true

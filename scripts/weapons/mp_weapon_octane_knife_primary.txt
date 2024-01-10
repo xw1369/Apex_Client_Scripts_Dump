@@ -31,7 +31,7 @@ WeaponData
     "holster_type"									"pistol"
 
 	// Behavior
-	"deployfirst_time"								"1.9"
+	"deployfirst_time"								"3.0"
 
 	// Animation
 	"activitymodifier3P"							"knife"
@@ -94,10 +94,10 @@ WeaponData
 	"sway_turn_up_translate_x"  					".1"
 	"sway_turn_down_translate_x"  					"-.1"
 
-	"sway_turn_left_rotate_roll"   					"4"
-	"sway_turn_right_rotate_roll"  					"-4"
-	"sway_turn_up_rotate_pitch"   					"3"
-	"sway_turn_down_rotate_pitch" 					"-3"
-	"sway_turn_up_rotate_roll"   					"-0.8"
-	"sway_turn_down_rotate_roll" 					"0.8"
+	//"sway_turn_left_rotate_roll"   					"4"
+	//"sway_turn_right_rotate_roll"  					"-4"
+	//"sway_turn_up_rotate_pitch"   					"3"
+	//"sway_turn_down_rotate_pitch" 					"-3"
+	//"sway_turn_up_rotate_roll"   					"-0.8"
+	//"sway_turn_down_rotate_roll" 					"0.8"
 }

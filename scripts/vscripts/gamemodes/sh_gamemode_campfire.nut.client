@@ -614,6 +614,7 @@ bool function Campfire_IsModeActive()
 
 
 
+
 void function OnCampfireCreated( entity target )
 {
 	if ( target.GetTargetName() != CAMPFIRE_TARGET_NAME )

@@ -77,6 +77,12 @@ global function CL_LootBinOpening
 
 
 
+
+
+global const string SUPPORT_LOOT_BIN_SKIN_NAME = "SecretLoot"
+
+
+
 global const string LOOT_BIN_DELAY_LOOT_SPAWNING_PLAYLIST_VAR = "survival_lootbin_delay_loot_spawning"
 
 
@@ -873,6 +879,17 @@ void function AddCallback_OnLootBinOpening( OnLootBinOpeningCallbackType callbac
 
 
 
+
+
+
+
+
+
+
+
+
+
+
 bool function LootBin_HasSecretCompartment( entity lootBin )
 {
 
@@ -885,7 +902,7 @@ bool function LootBin_HasSecretCompartment( entity lootBin )
 
 
 
-	if( lootBin.GetSkin() == lootBin.GetSkinIndexByName( "SecretLoot" ) )
+	if( lootBin.GetSkin() == lootBin.GetSkinIndexByName( SUPPORT_LOOT_BIN_SKIN_NAME ) )
 		return true
 
 

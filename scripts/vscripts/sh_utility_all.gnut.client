@@ -191,6 +191,8 @@ struct
 	bool devUnlockedSPMissions
 
 	int hud_setting_accessibleChatCache
+
+	float skyZPos = MAX_WORLD_COORD_BUFFER
 } file
 
 void function ShUtilityAll_Init()
@@ -1046,7 +1048,6 @@ int function LOWORD( int value )
 	return value
 }
 
-
 bool function IsWeaponKeyFieldDefined( string ref, string variable )
 {
 	var val = GetWeaponInfoFileKeyField_Global( ref, variable )
@@ -1057,6 +1058,13 @@ bool function IsWeaponKeyFieldDefined( string ref, string variable )
 	return false
 }
 
+bool function IsWithinRadius( vector testLoc, vector center, float radius )
+{
+	float radiusToTestSqr = pow( radius, 2 )
+	float positionDistSqr = Distance2DSqr( testLoc, center )
+
+	return( positionDistSqr <= radiusToTestSqr )
+}
 
 string function GetWeaponInfoFileKeyField_GlobalString( string ref, string variable )
 {
@@ -1084,6 +1092,13 @@ int function GetWeaponInfoFileKeyField_WithMods_GlobalInt( string ref, array<str
 	var val = GetWeaponInfoFileKeyField_WithMods_Global( ref, mods, variable )
 	Assert( val != null, "Weapon key \"" + variable + "\" does not exist in weapon \"" + ref + "\" !" )
 	return expect int( val )
+}
+
+float function GetWeaponInfoFileKeyField_WithMods_GlobalFloat( string ref, array<string> mods, string variable )
+{
+	var val = GetWeaponInfoFileKeyField_WithMods_Global( ref, mods, variable )
+	Assert( val != null, "Weapon key \"" + variable + "\" does not exist in weapon \"" + ref + "\" !" )
+	return expect float( val )
 }
 
 int function GetWeaponInfoFileKeyField_GlobalInt_WithDefault( string ref, string variable, int defaultVal )
@@ -2026,6 +2041,60 @@ vector function OriginToGround( vector origin, int traceMask = TRACE_MASK_NPCWOR
 	return traceResult.endPos
 }
 
+vector function GetGroundPositionOpenToSky( vector origin, bool excludePlayers = true )
+{
+	vector newOrigin = < origin.x, origin.y, file.skyZPos >
+
+	vector endOrigin = < origin.x, origin.y, -MAX_WORLD_COORD_BUFFER >
+
+	array< entity > excludeEnts
+	if ( excludePlayers )
+	{
+		excludeEnts.extend( GetPlayerArray_Alive() )
+	}
+
+	
+	TraceResults traceResult = TraceLine( newOrigin, endOrigin, excludeEnts, TRACE_MASK_SHOT, TRACE_COLLISION_GROUP_NONE )
+
+	newOrigin = traceResult.endPos
+
+	int maxTries = 4
+	int tries = 0
+
+	for ( tries = 0; tries < maxTries; tries++ ) 
+	{
+		if( traceResult.hitSky )
+		{
+			if( traceResult.endPos.z < 0 ) 
+			{
+				
+				newOrigin = < origin.x, origin.y, origin.z >
+				break
+			}
+			else
+			{
+				
+				file.skyZPos = traceResult.endPos.z - 1000
+
+				vector startPos = < origin.x, origin.y, file.skyZPos >
+
+				traceResult = TraceLine( startPos, endOrigin, excludeEnts, TRACE_MASK_SHOT, TRACE_COLLISION_GROUP_NONE )
+
+				newOrigin = traceResult.endPos
+			}
+		}
+		else
+		{
+			break
+		}
+	}
+
+	
+	Assert( tries < maxTries, "Traces for Pings from map are hitting the skybox too many times, the skybox may be too large or misconfigured." )
+
+	return newOrigin
+}
+
 WallToTopResults function TraceFromWallToTop(vector wallPos, vector wallNormal, array<entity> ignoreEnts, float checkBackDistance, float checkUpDistance, int traceMask, int collisionGroup, float DEBUG_DRAW_TIME = 0.0, bool doHullTrace = false, vector hullBoundsMin = ZERO_VECTOR, vector hullBoundsMax = ZERO_VECTOR )
 {
 	WallToTopResults results
@@ -2226,7 +2295,7 @@ bool function IsLobbyEvent1Active()
 #endif
 
 
-	if ( IsAcidWraithEventActive() )
+	if ( GoldenHorse_IsGoldenHorseEventActive() )
 		return true
 
 
@@ -2247,33 +2316,21 @@ bool function IsLobbyEvent2Active()
 		}
 #endif
 
-
-	if ( IsUprisingEventActive() )
-		return true
-
-
-	return false
-
-}
-
-
-bool function IsUprisingEventActive()
-{
-	if ( CalEvent_IsActive( GetItemFlavorByAsset( $"settings/itemflav/calevent/s19ce01/collection.rpak" ), GetUnixTimestamp() ) )
-		return true
-
 	return false
 }
 
 
 
-bool function IsAcidWraithEventActive()
-{
-	if ( CalEvent_IsActive( GetItemFlavorByAsset( $"settings/itemflav/calevent/s19fe01/event_shop.rpak" ), GetUnixTimestamp() ) )
-		return true
 
-	return false
-}
+
+
+
+
+
+
+
+
+
 
 
 bool function IsVDUDialogueEnabled()
@@ -3224,6 +3281,11 @@ vector function RoundVectorInLocalSpace( vector vec, float interval, vector pare
 	return vec
 }
 
+bool function VectorInWorldBounds( vector vec )
+{
+	return fabs( vec.x ) <= MAX_WORLD_COORD_BUFFER && fabs( vec.y ) <= MAX_WORLD_COORD_BUFFER && fabs( vec.z ) <= MAX_WORLD_COORD_BUFFER
+}
+
 
 #if DEV
 void function DEV_LifetimeDebugTool( entity thing )
@@ -4055,12 +4117,6 @@ bool function IsPlayerCharacter( entity player, string characterCheck )
 	return true
 }
 
-
-bool function POIPlayerSpawning_Exists()
-{
-	return( GetCurrentPlaylistVarBool( "poiplayerspawning_exists", false ))
-}
-
 #if DEV
 bool function DEV_ForceLoadAllEntityTypes()
 {
@@ -4094,4 +4150,11 @@ bool function IsInBleedoutOrRevive( entity player )
 
 	return( bleedingOut || reviveRelated )
 }
+
+
+
+
+
+
+
 

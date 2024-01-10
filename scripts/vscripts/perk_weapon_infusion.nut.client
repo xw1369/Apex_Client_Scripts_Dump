@@ -96,7 +96,7 @@ void function Perk_WeaponInfusion_Init()
 		Remote_RegisterClientFunction( "CL_WeaponDurability_DeactivateHUDMeter", "entity" )
 		Remote_RegisterClientFunction( "ServerToClient_AppendUnstableHarvesterEnt", "entity", "entity" )
 		Remote_RegisterClientFunction( "ServerToClient_UpdateUsedHarvesters", "entity", "entity" )
-		Remote_RegisterServerFunction( "ClientCallback_AttemptUse_UnstableHarvester", "entity" )
+		Remote_RegisterServerFunction( "ClientCallback_AttemptUse_UnstableHarvester", "typed_entity", "prop_dynamic" )
 
 
 

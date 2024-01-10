@@ -83,6 +83,7 @@ Sound
 
 		"1" "Phys_Imp_MaggieUltBall_Piece_Default" //lava_flow
 		"2" "Phys_Imp_MaggieUltBall_Piece_Default" //lava_rock_hot
+		"5" "Phys_Imp_MaggieUltBall_Piece_Default_Soft"
 
 
 		"splash" "Phys_Imp_MaggieUltBall_Piece_Default_Soft"
@@ -129,6 +130,8 @@ Sound
 
 		"airburst" "none"
 		"shieldhit" "Phys_Imp_MaggieUltBall_Piece_Default"
+
+		"5" "Phys_Imp_MaggieUltBall_Piece_Default_Soft"
 	}
 
 	Sound_victim
@@ -162,6 +165,7 @@ Sound
 
 		"1" "Phys_Imp_MaggieUltBall_Piece_Default" //lava_flow
 		"2" "Phys_Imp_MaggieUltBall_Piece_Default" //lava_rock_hot
+		"5" "Phys_Imp_MaggieUltBall_Piece_Default_Soft"
 
 		"splash" "Phys_Imp_MaggieUltBall_Piece_Default_Soft"
 		"slime_splash" "Phys_Imp_MaggieUltBall_Piece_Default_Soft"

@@ -54,6 +54,7 @@ void function MpWeaponZipline_Init()
     PrecacheParticleSystem( ZIPLINE_STATION_EXPLOSION )
     PrecacheParticleSystem( TEMP_ZIPLINE_RANGE_FX )
 
+
     PrecacheMaterial( $"cable/zipline" )
     PrecacheMaterial( $"cable/zipline_active" )
 
@@ -601,7 +602,7 @@ void function WeaponActiveVFXThread_Client( entity weapon )
 
 	int fxId = GetParticleSystemIndex( TEMP_ZIPLINE_RANGE_FX )
 	int pulseVFX  = StartParticleEffectOnEntity( owner, fxId, FX_PATTACH_ABSORIGIN_FOLLOW, ATTACHMENTID_INVALID )
-	float ziplineRange = GetWeaponInfoFileKeyField_GlobalFloat(weapon.GetWeaponClassName(), "zipline_distance_max")
+	float ziplineRange =  GetWeaponInfoFileKeyField_WithMods_GlobalFloat( weapon.GetWeaponClassName(), weapon.GetMods(), "zipline_distance_max" )
 	EffectSetControlPointVector( pulseVFX, 1, <ziplineRange, 0, 0> )
 
 	OnThreadEnd(

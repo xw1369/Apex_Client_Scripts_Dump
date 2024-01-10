@@ -38,7 +38,7 @@ const int NESSIE_SCHEDULE_WAKEUP_DIST = 2600
 
 const float NESSIE_DOOR_TRIGGE_RADIUS = 96
 
-const string NESSIE_SPIDER_SCRIPT_NAME = "nessie_spider_script"
+global const string NESSIE_SPIDER_SCRIPT_NAME = "nessie_spider_script"
 const string NESSIE_PROWLER_SCRIPT_NAME = "nessie_prowler_script"
 const string NESSIE_TRIGGER_SCRIPT_NAME = "nessie_trigger_script"
 
@@ -145,6 +145,10 @@ void function Nessie_Init()
 
 
 }
+
+
+
+
 
 
 

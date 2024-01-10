@@ -37,7 +37,7 @@ ImpactTable
 //		"2" "openslot"
 //		"3" "openslot"
 //		"4" "openslot"
-//		"5" "openslot"
+		"5" "xo_footstep_water"
 //		"6" "openslot"
 //		"7" "openslot"
 //		"8" "openslot"
@@ -85,6 +85,8 @@ ImpactTable
 
 		"airburst" ""
 		"shieldhit" "TitanShield.MeleeImpact_3P_vs_3P"
+
+		"5" "titan_melee_hit_3P"
 	}
 
 	Sound_attacker
@@ -121,6 +123,8 @@ ImpactTable
 
 		"airburst" ""
 		"shieldhit" "TitanShield.MeleeImpact_1P_vs_3P"
+
+		"5" "titan_melee_hit"
 	}
 
 	Sound_victim
@@ -157,6 +161,8 @@ ImpactTable
 
 		"airburst" ""
 		"shieldhit" "TitanShield.MeleeImpact_3P_vs_1P"
+
+		"5" "titan_melee_hit_3P"
 	}
 
 	Sound_victim_from_AI

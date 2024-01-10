@@ -7,8 +7,17 @@ const asset CRYPTO_AMB_EXHAUST_FP = $"P_crypto_sword_exhaust"
 const asset CRYPTO_AMB_EXHAUST_3P = $"P_crypto_sword_base_3P"  
 
 
+const string SWORD_RT01_MOD = "sword_rt01"
 
 
+const table<string, table< int, int > > HEIRLOOM_SKIN_REMAP =
+{
+	["heirloom_rt01"] =
+	{
+		[eDamageSourceId.mp_weapon_crypto_heirloom] = eDamageSourceId.mp_weapon_crypto_heirloom_rt01_primary,
+		[eDamageSourceId.melee_crypto_heirloom] = eDamageSourceId.melee_crypto_heirloom_rt01,
+	},
+}
 
 void function MpWeaponCryptoHeirloomPrimary_Init()
 {
@@ -20,7 +29,18 @@ void function MpWeaponCryptoHeirloomPrimary_Init()
 
 
 
+
+
+
+
 }
+
+
+
+
+
+
+
 
 void function OnWeaponActivate_weapon_crypto_heirloom_primary( entity weapon )
 {
@@ -32,12 +52,16 @@ void function OnWeaponActivate_weapon_crypto_heirloom_primary( entity weapon )
 		weapon.PlayWeaponEffect( CRYPTO_AMB_EXHAUST_FP, CRYPTO_AMB_EXHAUST_3P, "Fx_def_blade_01", true )
 		weapon.PlayWeaponEffect( CRYPTO_AMB_EXHAUST_FP, CRYPTO_AMB_EXHAUST_3P, "Fx_def_blade_02", true )
 		weapon.PlayWeaponEffect( CRYPTO_AMB_EXHAUST_FP, CRYPTO_AMB_EXHAUST_3P, "Fx_def_blade_03", true )
+
+		if ( IsServer() || InPrediction() )
+			weapon.RemoveMod( SWORD_RT01_MOD )
 	}
 
-
-
-
-
+	else if ( meleeSkinName == "heirloom_rt01" )
+	{
+		if ( IsServer() || InPrediction() )
+			weapon.AddMod( SWORD_RT01_MOD )
+	}
 
 
 }

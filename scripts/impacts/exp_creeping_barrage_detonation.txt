@@ -50,7 +50,7 @@ ImpactTable
 		"2" "P_impact_exp_lrg_lava" //lava_rock_hot
 		"3" "P_impact_exp_XLG_concrete"
 		"4" "P_impact_exp_XLG_concrete"
-		"5" "P_impact_exp_XLG_concrete"
+		"5" "P_impact_exp_XLG_water"
 		"6" "P_impact_exp_XLG_concrete"
 		"7" "P_impact_exp_XLG_concrete"
 		"8" "P_impact_exp_XLG_concrete"
@@ -95,6 +95,7 @@ ImpactTable
 
 		"1" "bangalore_ultimate_explosion_water" //lava_flow
 		"2" "bangalore_ultimate_explosion_concrete" //lava_rock_hot
+		"5" "bangalore_ultimate_explosion_water"
 
 		//"splash" "Water.BulletImpact"
 		//"slime_splash" "Water.BulletImpact"
@@ -175,6 +176,7 @@ ImpactTable
 
 		"1" "bangalore_ultimate_explosion_water" //lava_flow
 		"2" "bangalore_ultimate_explosion_concrete" //lava_rock_hot
+		"5" "bangalore_ultimate_explosion_water"
 
 		//"splash" "Water.BulletImpact"
 		//"slime_splash" "Water.BulletImpact"

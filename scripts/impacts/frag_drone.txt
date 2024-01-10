@@ -80,6 +80,8 @@ ImpactTable
 
 		"airburst" "sentryfragdrone_unpack_3p"
 		"shieldhit" "sentryfragdrone_unpack_3p"
+
+		"5" "sentryfragdrone_unpack_3p"
 	}
 
 	Sound_attacker
@@ -116,6 +118,8 @@ ImpactTable
 
 		"airburst" "sentryfragdrone_unpack_3p"
 		"shieldhit" "sentryfragdrone_unpack_3p"
+
+		"5" "sentryfragdrone_unpack_3p"
 	}
 
 	Sound_victim
@@ -152,6 +156,8 @@ ImpactTable
 
 		"airburst" "sentryfragdrone_unpack_3p"
 		"shieldhit" "sentryfragdrone_unpack_3p"
+
+		"5" "sentryfragdrone_unpack_3p"
 	}
 
 }

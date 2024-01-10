@@ -320,6 +320,27 @@ void function GameModes_Init()
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 		RegisterSignal( "GameModes_CompletedResolutionCleanup" )
 		GameMode_OverrideCompletedResolutionCleanupFunc( GameModes_DefaultCompletedResolutionCleanupFunc )
 

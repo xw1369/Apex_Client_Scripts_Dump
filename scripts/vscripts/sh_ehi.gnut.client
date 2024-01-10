@@ -866,7 +866,18 @@ string function GetDisplayablePlayerNameFromEHI( EHI playerEHI )
 	bool isSetToObsfuscatedName = ( ShouldPlayerNameBeAnonymized( playerEHI ) || !DisplayObituaryName() )
 	bool isPlayerEHISameAsLocalClientEHI = playerEHI == LocalClientEHI()
 
-	if ( isSetToObsfuscatedName && !isPlayerEHISameAsLocalClientEHI && EHI_GetTeam( playerEHI ) != EHI_GetTeam( LocalClientEHI() ) )
+	int playerTeam = EHI_GetTeam( playerEHI )
+	int localPlayerTeam = EHI_GetTeam( LocalClientEHI() )
+	if ( AllianceProximity_IsUsingAlliances() )
+	{
+		
+		
+		
+		playerTeam = AllianceProximity_GetOriginalPlayerTeam_FromPlayerEHI( playerEHI )
+		localPlayerTeam = AllianceProximity_GetOriginalPlayerTeam_FromPlayerEHI( LocalClientEHI() )
+	}
+
+	if ( isSetToObsfuscatedName && !isPlayerEHISameAsLocalClientEHI && !IsFriendlyTeam( playerTeam, localPlayerTeam ) )
 	{
 #if DEV
 		printt( "GetPlayerNameFromEHI DisplayObituaryName[" + DisplayObituaryName() + "] ------- " + playerName)
@@ -878,15 +889,6 @@ string function GetDisplayablePlayerNameFromEHI( EHI playerEHI )
 #endif
 
 		return GetObsfuscatedName( playerEHI )
-	}
-
-	
-	
-	
-	if ( AllianceProximity_IsUsingAlliances() )
-	{
-		if ( isSetToObsfuscatedName && !isPlayerEHISameAsLocalClientEHI && AllianceProximity_GetOriginalPlayerTeam_FromPlayerEHI( playerEHI ) != AllianceProximity_GetOriginalPlayerTeam_FromPlayerEHI( LocalClientEHI() ) )
-			return GetObsfuscatedName( playerEHI )
 	}
 
 	return clubTag + " " + playerName
@@ -1010,17 +1012,21 @@ string function GetPlayerNameUnlessAnonymized( EHI playerEHI )
 
 bool function ShouldPlayerNameBeAnonymized( EHI playerEHI )
 {
+	
+	if ( GetLocalClientPlayer().GetTeam() == TEAM_SPECTATOR )
+		return false
+
+	
+	
+	if ( IsPrivateMatch() )
+		return ShouldPrivateMatchBeAnonymized()
+
+	
 	if ( IsViewingDeathScreen() )
 		return false
 
 	if ( IsLobby() )
 		return false
-
-	if ( GetLocalClientPlayer().GetTeam() == TEAM_SPECTATOR )
-		return false
-
-	if ( IsPrivateMatch() )
-		return ShouldPrivateMatchBeAnonymized()
 
 	if ( GetCurrentPlaylistVarBool( "DisablePlayerAnonymity", false ) == true )
 		return false

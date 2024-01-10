@@ -22,13 +22,13 @@ void function OnWeaponDeactivate_G7( entity weapon )
 var function OnWeaponPrimaryAttack_G7( entity weapon, WeaponPrimaryAttackParams attackParams )
 {
 
-
+		GoldenHorsePurple_OnWeaponPrimaryAttack( weapon, attackParams )
 
 
 	weapon.FireWeapon_Default( attackParams.pos, attackParams.dir, 1.0, 1.0, false )
 
 
-
+		GoldenHorsePurple_PostFire( weapon )
 
 
 	return weapon.GetWeaponSettingInt( eWeaponVar.ammo_per_shot )

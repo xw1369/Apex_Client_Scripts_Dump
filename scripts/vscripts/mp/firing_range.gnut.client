@@ -209,6 +209,10 @@ const bool DEBUG_RESPAWNING = false
 
 
 
+
+
+
+
 global function SCB_CloseCharacterSelectMenu
 global function FiringRange_IsCharacterSwitchingEnabled
 global function SCB_FiringRange_EnableCharacterChange
@@ -216,6 +220,7 @@ global function SCB_FiringRange_SetPlayerInFinale
 global function FiringRange_IsPlayerInFinale
 
 global function SCB_Broadcast_FRSetting_FriendlyFire_Change
+
 
 
 
@@ -360,11 +365,15 @@ void function FiringRangeGameMode_Init()
 	if ( !IsFiringRangeGameMode() )
 		return
 
+	
+	Assert( GetMapName() == "mp_rr_canyonlands_staging_mu1", "Invalid: the firing range playlist only supports mp_rr_canyonlands_staging_mu1" )
+
 	Remote_RegisterServerFunction( "UCB_SV_FRSetting_FriendlyFire_Toggle" )
 
 	Remote_RegisterServerFunction( "UCB_SV_FRSetting_FriendlyFire", "bool", "bool" )
 	Remote_RegisterClientFunction( "SCB_CloseCharacterSelectMenu" )
 	Remote_RegisterClientFunction( "SCB_Broadcast_FRSetting_FriendlyFire_Change", "entity" )
+
 
 
 
@@ -402,6 +411,10 @@ void function FiringRangeGameMode_Init()
 
 
 			Remote_RegisterServerFunction( "UCB_ResetDoors" )
+
+
+
+
 
 
 		Remote_RegisterServerFunction( "UICallback_FRDummies_Reset" )
@@ -1509,6 +1522,54 @@ void function SCB_Broadcast_FRDummie_Speed_Change( entity playerThatChanged, int
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 bool function CheckFRSettingsBroadcastDebounce( int SCBType )
 {
 	if( !( SCBType in file.lastFRSettingsBroadcastTimes ) )
@@ -1581,6 +1642,36 @@ bool function FiringRange_IsPlayerInFinale()
 {
 	return file.inFinale
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

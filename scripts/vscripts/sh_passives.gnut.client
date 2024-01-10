@@ -165,9 +165,12 @@ global enum ePassives
 
 
 
+
+
+
+
+
 	PAS_DUMMIE,
-
-
 
 
 
@@ -306,6 +309,18 @@ global enum ePassives
 
 
 		PAS_REVENANT_REWORK,
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

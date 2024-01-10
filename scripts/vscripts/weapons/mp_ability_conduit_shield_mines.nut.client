@@ -31,6 +31,7 @@ global const string SHIELD_MINES_WEAPON_NAME = "mp_ability_conduit_shield_mines"
 const string SHIELD_MINE_IMPACT_SOUND = "Conduit_Ult_Impact_Default_3p"
 
 const asset FX_SHIELD_MINE_PREVIEW = $"P_ar_ping_squad_CP"
+const asset FX_SHIELD_MINE_PREVIEW_CHEAP = $"P_ar_ping_squad_cheap_CP"
 const asset FX_SHIELD_MINE_RING_PREVIEW = $"P_ar_target_fuse_instant"
 const asset FX_SHIELD_MINE_PROJ = $"P_con_ult_proj"
 
@@ -53,11 +54,16 @@ const float SHIELD_MINES_AIM_PITCH_INCREMENT_MAX = 7
 
 struct
 {
+
+
+
+	table< entity, vector > cachedImpactPos
 } file
 
 void function Mp_ability_shield_mines_init()
 {
 	PrecacheParticleSystem( FX_SHIELD_MINE_PREVIEW )
+	PrecacheParticleSystem( FX_SHIELD_MINE_PREVIEW_CHEAP )
 	PrecacheParticleSystem( FX_SHIELD_MINE_RING_PREVIEW )
 	PrecacheParticleSystem( FX_SHIELD_MINE_PROJ )
 
@@ -92,6 +98,21 @@ void function OnWeaponDeactivate_ability_shield_mines( entity weapon )
 	entity owner = weapon.GetOwner()
 	if ( IsValid(owner) )
 		owner.Signal( "ShieldMines_ArcPreviewStop" )
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 }
 
@@ -155,7 +176,16 @@ var function OnWeaponPrimaryAttack_ability_shield_mines( entity weapon, WeaponPr
 
 
 	
-	vector impactPos = GetFinalImpactPos( weapon, weaponOwner )
+	vector impactPos
+	if ( attackParams.burstIndex == 0 )
+	{
+		impactPos = GetFinalImpactPos( weapon, weaponOwner )
+		file.cachedImpactPos[weaponOwner] <- impactPos
+	}
+	else if ( attackParams.burstIndex == 1 )
+	{
+		impactPos = file.cachedImpactPos[weaponOwner]
+	}
 
 	TraceResults trUp = TraceLine( impactPos, impactPos + <0,0,SHIELD_MINE_AIRBURST_HEIGHT>, [ weaponOwner ], TRACE_MASK_GRENADE, TRACE_COLLISION_GROUP_PROJECTILE )
 	vector finalTargetPos = trUp.endPos
@@ -170,6 +200,22 @@ var function OnWeaponPrimaryAttack_ability_shield_mines( entity weapon, WeaponPr
 		offset *= -1
 
 	finalTargetPos += offset
+	
+	
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -183,6 +229,8 @@ var function OnWeaponPrimaryAttack_ability_shield_mines( entity weapon, WeaponPr
 	
 
 	entity grenade = Grenade_Launch( weapon, attackParams.pos, as.fire_velocity/launchSpeed, projectilePredicted, projectileLagCompensated, ZERO_VECTOR )
+
+
 
 
 
@@ -306,6 +354,7 @@ void function OnProjectileCollision_ability_shield_mines( entity projectile, vec
 
 void function WeaponArcPreviewThread_Client( entity owner, entity weapon )
 {
+
 	owner.EndSignal( "ShieldMines_ArcPreviewStop" )
 	owner.EndSignal( "OnDestroy" )
 	weapon.EndSignal( "OnDestroy" )
@@ -339,7 +388,7 @@ void function WeaponArcPreviewThread_Client( entity owner, entity weapon )
 
 	for (int i=0; i<maxMarkers; ++i )
 	{
-		int sideMarkerFX = StartParticleEffectInWorldWithHandle( GetParticleSystemIndex( FX_SHIELD_MINE_PREVIEW ), ZERO_VECTOR, ZERO_VECTOR )
+		int sideMarkerFX = StartParticleEffectInWorldWithHandle( GetParticleSystemIndex( FX_SHIELD_MINE_PREVIEW_CHEAP ), ZERO_VECTOR, ZERO_VECTOR )
 		sideMarkerHandles.append( sideMarkerFX )
 		EffectSetControlPointVector( sideMarkerFX, 0, initialImpactPos )
 		EffectSetControlPointVector( sideMarkerFX, 1, FRIENDLY_COLOR_FX )

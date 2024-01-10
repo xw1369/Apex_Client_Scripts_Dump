@@ -694,6 +694,8 @@ float function SniperUlt_GetMarkedDuration()
 
 
 
+
+
 void function OnClientAnimEvent_ability_sniper_ult( entity weapon, string name )
 {
 	GlobalClientEventHandler( weapon, name )

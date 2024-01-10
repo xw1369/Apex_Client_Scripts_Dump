@@ -12,6 +12,9 @@ global function GetRankedGameData
 global function Ranked_GetRankedLevelRequirement
 global function Ranked_GetTiers
 global function Ranked_GetCostForEntry
+
+
+
 global function Ranked_GetRankedDivisionDataForTier
 global function Ranked_GetNextTierData
 global function Ranked_GetLadderPosition
@@ -1048,6 +1051,12 @@ int function Ranked_GetCostForEntry()
 
 
 
+
+
+
+
+
+
 int function Ranked_GetHistoricalRankScore( entity player, string rankedSeasonGUID, bool highScore = false )
 {
 	
@@ -1719,8 +1728,8 @@ int function Ranked_GetXProgMergedPersistenceData( entity player, string persist
 
 
 
+	return SafeGetPersistentVarAsInt( player, persistenceKey )
 
-	return player.GetPersistentVarAsInt( persistenceKey )
 }
 
 
@@ -1854,6 +1863,22 @@ array< SharedRankedDivisionData > function Ranked_GetRankedDivisionDataForTier( 
 
 	return data
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

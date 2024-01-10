@@ -46,6 +46,8 @@ const asset BUBBLE_BUNKER_SHIELD_PROJECTILE = $"mdl/props/gibraltar_bubbleshield
 
 
 
+
+
 const string BUBBLE_BUNKER_SOUND_ENDING = "Gibraltar_BubbleShield_Ending"
 const string BUBBLE_BUNKER_SOUND_FINISH = "Gibraltar_BubbleShield_Deactivate"
 
@@ -86,6 +88,8 @@ void function MpWeaponBubbleBunker_Init()
 
 	PrecacheScriptString( GIBRALTAR_DOME_SCRIPTNAME )
 	PrecacheScriptString( BUBBLE_BUNKER_MOVER_SCRIPTNAME )
+
+
 
 
 
@@ -278,6 +282,28 @@ void function OnBubbleBunkerPlanted( entity projectile, DeployableCollisionParam
 
 
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

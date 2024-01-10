@@ -5,7 +5,7 @@
 #base "_base_stocks_tactical.txt"
 
                     
-                                          
+#base "_base_hopup_golden_horse_green.txt"
       
 
 WeaponData
@@ -32,7 +32,8 @@ WeaponData
 	"OnWeaponNpcPrimaryAttack"						"OnWeaponNpcPrimaryAttack_weapon_shotgun"
     "OnProjectileCollision"                         "OnProjectileCollision_weapon_shotgun"
                     
-                                                          
+	"OnWeaponReload"								"GoldenHorseGreen_OnWeaponReload"
+	"OnWeaponReloadFinished"                        "GoldenHorseGreen_OnWeaponReloadFinished"
       
 
 	// Menu

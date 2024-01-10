@@ -29,7 +29,6 @@ global function Control_RegisterNetworking
 
 
 
-
 global function ServerCallback_Control_ShowSpawnSelection
 global function ServerCallback_Control_UpdateSpawnWaveTimerTime
 global function ServerCallback_Control_UpdateSpawnWaveTimerVisibility
@@ -578,6 +577,22 @@ enum eControlMRBPlacementState
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 struct ControlAnnouncementData
 {
 	bool isInitialized = false
@@ -618,7 +633,6 @@ struct {
 
 	vector cameraLocation
 	vector cameraAngles
-
 
 
 
@@ -868,6 +882,7 @@ void function Control_Init()
 			printt( "CONTROL: CONTROL_DETAILED_DEBUG is set to true, debug prints that fire very frequently are enabled" )
 		else
 			printt( "CONTROL: CONTROL_DETAILED_DEBUG is set to false, to enable debug prints that fire frequently set CONTROL_DETAILED_DEBUG to true" )
+
 
 
 
@@ -2630,17 +2645,6 @@ float function Control_GetMRBAirdropDelay()
 
 
 
-
-
-
-
-
-
-
-
-
-
-
 void function Control_SetHomeBaseBadPlacesForMRBForAlliance( int alliance, array < vector > locations )
 {
 	if ( alliance == ALLIANCE_A )
@@ -2652,64 +2656,6 @@ void function Control_SetHomeBaseBadPlacesForMRBForAlliance( int alliance, array
 		file.allianceBBlockedHomeBasePositionsForMRB.extend( locations )
 	}
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -3029,6 +2975,199 @@ void function Control_PingObjectiveFromObjID( int objID )
 		}
 	}
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -5809,7 +5948,7 @@ void function Control_BountyInfoOverride_Thread( entity wp, TimedEventLocalClien
 		true,
 		"",
 		Localize( data.eventName ),
-		wp.GetWaypointGametime( TIMEDEVENT_WAYPOINT_EVENT_END_TIME ) - wp.GetWaypointGametime( TIMEDEVENT_WAYPOINT_EVENT_START_TIME ),
+		wp.GetWaypointGametime( TIMEDEVENT_WAYPOINT_EVENT_END_TIME ) - Time(),
 		CONTROL_MESSAGE_DURATION_LONG,
 		false,
 		true,
@@ -5914,13 +6053,13 @@ void function Control_LockoutInfoOverride_Thread( entity wp, TimedEventLocalClie
 		WaitFrame()
 	}
 
-	float eventEnd = wp.GetWaypointGametime( TIMEDEVENT_WAYPOINT_EVENT_END_TIME )
+	float eventEndTime = wp.GetWaypointGametime( TIMEDEVENT_WAYPOINT_EVENT_END_TIME )
 	int majorityTeam = wp.GetWaypointInt( 5 )
 	entity localViewPlayer = GetLocalViewPlayer()
 	entity localClientPlayer = GetLocalClientPlayer()
 
 	OnThreadEnd(
-		function() : ( wp, eventEnd, majorityTeam, localClientPlayer )
+		function() : ( wp, eventEndTime, majorityTeam, localClientPlayer )
 		{
 			file.isLockout = false
 
@@ -5934,7 +6073,7 @@ void function Control_LockoutInfoOverride_Thread( entity wp, TimedEventLocalClie
 				RuiSetBool( scoreRui, "isLockout", false )
 			}
 
-			if ( Time() < eventEnd )
+			if ( Time() < eventEndTime )
 			{
 				entity localPlayer = GetLocalViewPlayer()
 
@@ -6000,12 +6139,14 @@ void function Control_LockoutInfoOverride_Thread( entity wp, TimedEventLocalClie
 		}
 
 
+		float eventDuration = eventEndTime - Time()
+
 		Control_ObjectiveScoreTracker_PushAnnouncement( wp,
 			true,
 			"",
 			Localize( data.eventName ),
-			wp.GetWaypointGametime( TIMEDEVENT_WAYPOINT_EVENT_END_TIME ) - wp.GetWaypointGametime( TIMEDEVENT_WAYPOINT_EVENT_START_TIME ),
-			wp.GetWaypointGametime( TIMEDEVENT_WAYPOINT_EVENT_END_TIME ) - wp.GetWaypointGametime( TIMEDEVENT_WAYPOINT_EVENT_START_TIME ),
+			eventDuration,
+			eventDuration,
 			true,
 			true,
 			data.colorOverride)
@@ -7157,6 +7298,17 @@ int function Control_GetNumOwnedObjectivesByAlliance( int alliance )
 
 	return numOwnedObjectives
 }
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -9259,18 +9411,6 @@ bool function Control_IsValidRespawnChoice( int respawnChoice )
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
 void function UICallback_Control_SpawnButtonClicked( int respawnChoice )
 {
 	if ( !Control_IsValidRespawnChoice( respawnChoice ) )
@@ -9674,25 +9814,34 @@ void function ServerCallback_PlayMatchEndMusic_Control( int victoryCondition )
 	if ( !IsValid( clientPlayer ) )
 		return
 
+	var endMusic
+	var endSound
 	
 	if ( clientPlayer.GetTeam() == GetWinningTeam() )
 	{
-		EmitSoundOnEntity( clientPlayer, CONTROL_SFX_GAME_END_VICTORY )
+		endMusic = EmitSoundOnEntity_NoTimeScale( clientPlayer, CONTROL_SFX_GAME_END_VICTORY )
 
 		if ( victoryCondition == eWinReason.LOCKOUT || ( file.isLockout && victoryCondition == eWinReason.TEAM_FORFEIT ) ) 
-			EmitSoundOnEntity( clientPlayer, "Music_Ctrl_LockOut_Victory" )
+			endSound = EmitSoundOnEntity_NoTimeScale( clientPlayer, "Music_Ctrl_LockOut_Victory" )
 		else
-			EmitSoundOnEntity( clientPlayer, "Music_Ctrl_RampUp_Victory" )
+			endSound = EmitSoundOnEntity_NoTimeScale( clientPlayer, "Music_Ctrl_RampUp_Victory" )
 	}
 	else
 	{
-		EmitSoundOnEntity( clientPlayer, CONTROL_SFX_GAME_END_LOSS )
+		endMusic = EmitSoundOnEntity_NoTimeScale( clientPlayer, CONTROL_SFX_GAME_END_LOSS )
 
 		if ( victoryCondition == eWinReason.LOCKOUT || ( file.isLockout && victoryCondition == eWinReason.TEAM_FORFEIT ) ) 
-			EmitSoundOnEntity( clientPlayer, "Music_Ctrl_LockOut_Loss" )
+			endSound = EmitSoundOnEntity_NoTimeScale( clientPlayer, "Music_Ctrl_LockOut_Loss" )
 		else
-			EmitSoundOnEntity( clientPlayer, "Music_Ctrl_RampUp_Loss" )
+			endSound = EmitSoundOnEntity_NoTimeScale( clientPlayer, "Music_Ctrl_RampUp_Loss" )
 	}
+
+
+		SetPlayThroughKillReplay( endMusic )
+		SetPlayThroughPOVTransitions( endMusic )
+		SetPlayThroughKillReplay( endSound )
+		SetPlayThroughPOVTransitions( endSound )
+
 }
 
 
@@ -10998,9 +11147,6 @@ void function OnVehicleBaseSpawned( entity vehicleBase )
 	if ( vehicleBase.GetScriptName() != "Control_SetUsableVehicleBase" )
 		return
 }
-
-
-
 
 
 
@@ -13305,6 +13451,21 @@ float function Control_GetEXPPercentToNextTier( entity player )
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 bool function Control_IsActiveWeaponUnHolstered( entity player )
 {
 	if ( !IsValid( player ) )
@@ -14577,7 +14738,7 @@ void function Control_MRBTimedEvent_InfoOverride_Thread( entity wp, TimedEventLo
 			true,
 			"",
 			Localize( data.eventName ),
-			wp.GetWaypointGametime( TIMEDEVENT_WAYPOINT_EVENT_END_TIME ) - wp.GetWaypointGametime( TIMEDEVENT_WAYPOINT_EVENT_START_TIME ),
+			wp.GetWaypointGametime( TIMEDEVENT_WAYPOINT_EVENT_END_TIME ) - Time(),
 			timeToWait,
 			false,
 			true,

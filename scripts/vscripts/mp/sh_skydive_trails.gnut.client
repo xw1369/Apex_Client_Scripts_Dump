@@ -299,7 +299,7 @@ void function RegisterSkydiveTrails()
 		fileLevel.skyDiveTrailPackageIndexTable[ skyDiveTrailPackageIndex++ ] <- trailPackage
 	}
 
-	MakeItemFlavorSet( trailFlavs, fileLevel.skyDiveTrailsSortOrdinalMap )
+	MakeItemFlavorSet( trailFlavs, fileLevel.skyDiveTrailsSortOrdinalMap, true )
 
 	LoadoutEntry entry = RegisterLoadoutSlot( eLoadoutEntryType.ITEM_FLAVOR, "skydive_trail", eLoadoutEntryClass.ACCOUNT )
 	entry.category     = eLoadoutCategory.SKYDIVE_TRAIL
@@ -531,7 +531,13 @@ void function StartFriendlyEnemySkydiveTrailFXForPlayer_threaded( entity skyDivi
 		{
 			string attachment = fxStruct.attachName
 			int friendlyID = GetParticleSystemIndex( fxStruct.fx )
-			int friendlyFXHandle = StartParticleEffectOnEntity( skyDivingPlayer, friendlyID, fxStruct.attachType, skyDivingPlayer.LookupAttachment( attachment ) )
+			int attachmentID = skyDivingPlayer.LookupAttachment( attachment )
+
+			
+			if ( attachmentID == 0 )
+				continue
+
+			int friendlyFXHandle = StartParticleEffectOnEntity( skyDivingPlayer, friendlyID, fxStruct.attachType, attachmentID )
 
 			vector smokeColor
 			if ( fxStruct.useSkyDiveSmokeColorForTeam  )
@@ -550,7 +556,13 @@ void function StartFriendlyEnemySkydiveTrailFXForPlayer_threaded( entity skyDivi
 		{
 			string attachment = fxStruct.attachName
 			int enemyID = GetParticleSystemIndex( fxStruct.fx )
-			int enemyFXHandle = StartParticleEffectOnEntity( skyDivingPlayer, enemyID, fxStruct.attachType, skyDivingPlayer.LookupAttachment( attachment ) )
+			int attachmentID = skyDivingPlayer.LookupAttachment( attachment )
+
+			
+			if ( attachmentID == 0 )
+				continue
+
+			int enemyFXHandle = StartParticleEffectOnEntity( skyDivingPlayer, enemyID, fxStruct.attachType, attachmentID )
 
 			vector smokeColor
 			if ( fxStruct.useSkyDiveSmokeColorForTeam  )
@@ -618,7 +630,7 @@ void function CleanupFriendlyEnemySkydiveTrailFXForPlayer( entity skyDivingPlaye
 	if (  skyDivingPlayerEHI in fileLevel.EHIToEnemyJumpJetFXHandlesTable )
 	{
 		foreach( int enemyFXHandle in fileLevel.EHIToEnemyJumpJetFXHandlesTable[ skyDivingPlayerEHI ] )
-			EffectStop(  enemyFXHandle, false, true ) 
+			EffectStop(  enemyFXHandle, true, false ) 
 
 		fileLevel.EHIToEnemyJumpJetFXHandlesTable[ skyDivingPlayerEHI ].clear()
 	}

@@ -45,7 +45,7 @@ ImpactTable
 		"2" "P_impact_exp_emp_drone" //lava_rock_hot
 //		"3" "openslot"
 //		"4" "openslot"
-//		"5" "openslot"
+		"5" "P_impact_exp_emp_drone"
 //		"6" "openslot"
 //		"7" "openslot"
 //		"8" "openslot"
@@ -90,6 +90,7 @@ ImpactTable
 
 		"1" "Char11_UltimateA_C_3p"
 		"2" "Char11_UltimateA_C_3p"
+		"5" "Char11_UltimateA_C_3p"
 
 		//"splash" "Water.BulletImpact"
 		//"slime_splash" "Water.BulletImpact"
@@ -132,6 +133,7 @@ ImpactTable
 
 		"1" "Explo_ProximityEMP_Impact_1P"
 		"2" "Explo_ProximityEMP_Impact_1P"
+		"5" "Explo_ProximityEMP_Impact_1P"
 
 		//"splash" "Water.BulletImpact"
 		//"slime_splash" "Water.BulletImpact"
@@ -174,6 +176,7 @@ ImpactTable
 
 		"1" "Char11_UltimateA_C_3p"
 		"2" "Char11_UltimateA_C_3p"
+		"5" "Char11_UltimateA_C_3p"
 
 		//"splash" "Water.BulletImpact"
 		//"slime_splash" "Water.BulletImpact"

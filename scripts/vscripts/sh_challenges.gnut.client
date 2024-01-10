@@ -155,6 +155,7 @@ enum eChallengeCategory
 	DAILY,
 	TOP_WEEKLY,
 	EVENTSHOP_DAILY_CHALLENGE,
+	EVENTSHOP_EVENT_CHALLENGE,
 	FAVORITES,
 }
 
@@ -209,6 +210,7 @@ global enum eChallengeTimeSpanKind
 {
 	BEGINNER,
 	EVENTSHOP_DAILY_CHALLENGE, 
+	EVENTSHOP_EVENT_CHALLENGE, 
 	DAILY,
 	SEASON_WEEKLY,
 	SEASON_WEEKLY_RECURRING,
@@ -235,8 +237,6 @@ global enum eTinyLabelPlacementStyle
 	CENTER = 2
 	BOTTOM = 3
 }
-
-
 
 
 
@@ -601,17 +601,11 @@ void function ShChallenges_LevelInit_PostStats()
 
 					StatEntry stat = GetStatEntryByRef( statRef )
 
-					if ( (StatEntry_GetFlags( stat ) & eStatFlags.STORE_START_OF_PREVIOUS_MATCH) == 0 )
-					{
-						Assert( false, format( "Challenge '%s' refers to stat that does not have the STORE_END_OF_PREVIOUS_MATCH flag: '%s'", string(ItemFlavor_GetAsset( challenge )), statRef ) )
-						continue
-					}
-
-					if ( (StatEntry_GetFlags( stat ) & eStatFlags.PERSISTENCE_WRITE_IMMEDIATELY) == 0 )
-					{
-						Assert( false, format( "Challenge '%s' refers to stat that does not have the PERSISTENCE_WRITE_IMMEDIATELY flag: '%s'", string(ItemFlavor_GetAsset( challenge )), statRef ) )
-						continue
-					}
+					
+					
+					
+					
+					
 
 					if ( Challenge_GetTimeSpanKind( challenge ) == eChallengeTimeSpanKind.EVENT_HIDDEN )
 					{
@@ -642,11 +636,6 @@ void function ShChallenges_LevelInit_PostStats()
 		}
 	}
 
-
-
-
-
-	
 
 
 
@@ -745,8 +734,6 @@ void function OnChallengeRegistered( ItemFlavor challenge )
 {
 	
 }
-
-
 
 
 
@@ -1238,6 +1225,10 @@ array<ItemFlavor> function GetChallengesByCategory( entity player, int challenge
 				challenges = GetAssignedChallengesByTimeSpan( player, eChallengeTimeSpanKind.EVENTSHOP_DAILY_CHALLENGE )
 				break
 
+			case eChallengeCategory.EVENTSHOP_EVENT_CHALLENGE:
+				challenges = GetAssignedChallengesByTimeSpan( player, eChallengeTimeSpanKind.EVENTSHOP_EVENT_CHALLENGE )
+				break
+
 				unreachable
 		}
 	}
@@ -1631,6 +1622,15 @@ array<int> function GetChallengeCategoryIDArray( bool hideStories = false )
 		categoryIDtoStringArray.append( eChallengeCategory.EVENTSHOP_DAILY_CHALLENGE )
 	}
 
+	if ( EventShop_CurrentActiveEventShopHasEventChallenges() )
+	{
+		ItemFlavor ornull activeEventShop = EventShop_GetCurrentActiveEventShop()
+		if ( EventShop_GetShowEventChallengesInLobby( expect ItemFlavor(activeEventShop) ) )
+		{
+			categoryIDtoStringArray.append( eChallengeCategory.EVENTSHOP_EVENT_CHALLENGE )
+		}
+	}
+
 
 	
 	if( !hideStories )
@@ -1675,6 +1675,10 @@ void function UpdateChallengeCategorySelection( var rui, bool longName = false, 
 
 
 		RuiSetBool( rui, "isObserver", GetLocalClientPlayer().IsObserver() && GetLocalClientPlayer().GetTeam() == TEAM_SPECTATOR )
+
+
+
+
 
 
 
@@ -1906,7 +1910,11 @@ string function GetCategoryStringFromType( int categoryID, bool longName = false
 				break
 
 			case eChallengeCategory.EVENTSHOP_DAILY_CHALLENGE:
-				return "#CATEGORY_REWARD_SHOP_DAILY_CHALLENGE" + appendStr
+				return "#CATEGORY_REWARD_SHOP_DAILY" + appendStr
+				break
+
+			case eChallengeCategory.EVENTSHOP_EVENT_CHALLENGE:
+				return "#CATEGORY_REWARD_SHOP_EVENT" + appendStr
 				break
 		}
 	}
@@ -1930,6 +1938,41 @@ void function SetSeasonColors( var rui )
 		RuiSetFloat3( rui, "seasonColor", Season_GetTabBGSelectedCol( season ) )
 	}
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -2414,6 +2457,15 @@ bool function Challenge_IsChallengesStateInititated( entity player )
 	PlayerChallengesState pcs = GetPlayerChallengesState( player )
 	return pcs.challengeStateMap.len() > 0
 }
+
+
+
+
+
+
+
+
+
 
 
 
@@ -4487,7 +4539,7 @@ bool function IsChallengePlaylistEnabled( ItemFlavor challengeFlav )
 void function UpdateChallengeRowsRui( entity player, array<ItemFlavor> challenges, array<var> rowRuis = [] )
 {
 	
-	Assert( challenges.len() <= NUM_DAILY_CHALLENGES, "total:" + challenges.len() )
+	Assert( challenges.len() <= NUM_DAILY_CHALLENGES, "total:" + challenges.len() + " Are Event Challenges set to show a set of more than 5 challenges in the lobby?" )
 
 	foreach ( int rowIdx, var rui in rowRuis )
 	{
@@ -4800,6 +4852,8 @@ void function UpdateChallengeRowsRui( entity player, array<ItemFlavor> challenge
 
 
 
+
+
 void function UpdateChallengeBoxBPLevelBadge( entity player, var rui )
 {
 	EHI playerEHI                      = ToEHI( player )
@@ -4872,6 +4926,19 @@ void function UpdateChallengeBoxHeaderBPProgress( entity player, var rui )
 		}
 	}
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -5836,16 +5903,6 @@ array<ChallengeRewardDisplayData> function GetChallengeRewardDisplayData( ItemFl
 
 
 
-
-
-
-
-
-
-
-
-
-
 string function Challenge_GetDescription( ItemFlavor challenge, int tier, bool getAlt = false )
 {
 	int tierCount = Challenge_GetTierCount( challenge )
@@ -5906,43 +5963,6 @@ bool function DoesPlayerHaveChallenge( entity player, ItemFlavor flavor )
 	PlayerChallengesState pcs = GetPlayerChallengesState( player )
 	return (flavor in pcs.challengeStateMap)
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -6385,8 +6405,6 @@ array<ItemFlavor> function GetAllChallengesOfTimespan( int timeSpan, int weekInd
 
 	return results
 }
-
-
 
 
 
@@ -7444,7 +7462,12 @@ bool function IsStoryCategory( int challengeCategory )
 
 bool function IsEventShopChallengeCategory( int challengeCategory )
 {
-	return challengeCategory == eChallengeCategory.EVENTSHOP_DAILY_CHALLENGE
+	return challengeCategory == eChallengeCategory.EVENTSHOP_DAILY_CHALLENGE || challengeCategory == eChallengeCategory.EVENTSHOP_EVENT_CHALLENGE
+}
+
+bool function IsEventShopEventChallengeCategory( int challengeCategory )
+{
+	return challengeCategory == eChallengeCategory.EVENTSHOP_EVENT_CHALLENGE
 }
 
 ItemFlavor ornull function GetActiveBuffetEventForCategory( int t, int currCat )
@@ -7558,55 +7581,35 @@ bool function Challenge_CanBeCompletedInBR( ItemFlavor flavor )
 
 
 
+void function SpecialEventChallengeToolTipSetup( var button, ItemFlavor challenge, ToolTipData toolTipData )
+{
+	
+	
+	
+	
+	
 
+	
+	
+	
+	
+	
 
+	
+	
+	
+	
+	
 
+	
+	
+	
+	
+	
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+	
+	
+	
+	
+	
+}

@@ -683,8 +683,6 @@ int function PhaseShift( entity ent, float warmupTime, float duration, int shift
 
 
 
-
-
 void function ClientPhaseShiftWarmupThread( entity player, float warmupTime, int shiftStyle = PHASETYPE_DEFAULT )
 {
 	player.EndSignal( "OnDeath" )

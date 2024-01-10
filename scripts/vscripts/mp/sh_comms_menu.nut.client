@@ -16,6 +16,9 @@ global function CommsMenu_OpenMenuTo
 global function CommsMenu_Shutdown
 global function CommsMenu_OpenMenuForNewPing
 global function CommsMenu_OpenMenuForPingReply
+
+
+
 global function CommsMenu_HasValidSelection
 global function CommsMenu_ExecuteSelection
 global function CommsMenu_GetCurrentCommsMenu
@@ -99,6 +102,10 @@ global enum eChatPage
 
 
 	CRAFTING,
+
+
+
+
 
 
 
@@ -343,10 +350,48 @@ void function CommsMenu_OpenMenuForPingReply( entity player, entity wp )
 		}
 
 		SetFocusedWaypointForced( wp )
-		RuiSetBool( wp.wp.ruiHud, "hasWheelFocus", true )
+		if( wp.wp.ruiHud != null )
+			RuiSetBool( wp.wp.ruiHud, "hasWheelFocus", true )
+
 		s_focusWaypoint = wp
 	}
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 void function CommsMenu_OpenMenuTo( entity player, int chatPage, int commsMenuStyle, bool debounce = true )
 {
@@ -829,6 +874,9 @@ array<CommsMenuOptionData> function BuildMenuOptions( int chatPage )
 
 
 
+
+
+
 				results.append( MakeOption_UseHealItem( eHealthPickupType.HEALTH_SMALL ) )
 				results.append( MakeOption_UseHealItem( eHealthPickupType.HEALTH_LARGE ) )
 			}
@@ -899,19 +947,21 @@ array<CommsMenuOptionData> function BuildMenuOptions( int chatPage )
 
 					if( data.category == "banner" )
 					{
-						if ( ( Perk_CanBuyBanners( player ) || Perks_DoesPlayerHavePerk( player, ePerkIndex.BANNER_CRAFTING ) ) && ( GetRespawnStyle() == eRespawnStyle.RESPAWN_CHAMBERS ) )
+
+
+
+
+
+
+
 						{
-							results.append( MakeOption_CraftItem( counter ) )
+							if ( ( Perk_CanBuyBanners( player ) || Perks_DoesPlayerHavePerk( player, ePerkIndex.BANNER_CRAFTING ) ) && ( GetRespawnStyle() == eRespawnStyle.RESPAWN_CHAMBERS ) )
+							{
+								results.append( MakeOption_CraftItem( counter ) )
+							}
 						}
 					}
 					else
-
-
-
-
-
-
-
 
 
 
@@ -930,6 +980,14 @@ array<CommsMenuOptionData> function BuildMenuOptions( int chatPage )
 			break
 		}
 		
+
+
+
+
+
+
+
+
 
 
 
@@ -1095,7 +1153,20 @@ string[2] function GetPromptsForMenuOption( int index )
 				else if ( validItems[0] == "expired_banners" )
 				{
 					promptTexts[0] = Localize( "#BANNER" )
-					promptTexts[1] = Localize( "#REPLICATER_CRAFT_BANNER_DESCRIPTION" )
+
+
+
+
+
+
+
+
+
+
+
+					{
+						promptTexts[1] = Localize( "#REPLICATER_CRAFT_BANNER_DESCRIPTION" )
+					}
 				}
 				else if( validItems[0] == "next_care_package_drop_location" )
 				{
@@ -1782,6 +1853,11 @@ void function ShowCommsMenu( int chatPage )
 		{
 			int index = options[idx].craftingIndex
 			Crafting_PopulateItemRuiAtIndex( nestedRui, index )
+
+
+
+
+
 		}
 		
 
@@ -2776,7 +2852,6 @@ void function DestroyCommsMenu_( bool instant )
 	if ( instant )
 	{
 		RuiDestroy( file.menuRui )
-		ReleaseHUDRui( file.menuRui )
 	}
 	else
 		file.menuRuiLastShutdown = file.menuRui
@@ -2866,6 +2941,9 @@ var function CommsMenu_GetMenuRui()
 {
 	return file.menuRui
 }
+
+
+
 
 
 

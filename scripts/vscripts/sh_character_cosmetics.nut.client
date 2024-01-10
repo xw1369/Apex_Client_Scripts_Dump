@@ -18,6 +18,7 @@ global function CharacterExecution_GetAttackerPreviewAnimSeq
 global function CharacterExecution_GetVictimPreviewAnimSeq
 global function CharacterExecution_GetSortOrdinal
 global function CharacterExecution_GetVictimOverrideExecution
+global function CharacterExecution_GetExecutionDependencyType
 global function CharacterClass_GetDefaultSkin
 global function CharacterSkin_GetCharacterFlavor
 global function CharacterSkin_GetBodyModel
@@ -83,6 +84,14 @@ global const int MAX_FAVORITE_SKINS = 8
 #endif
 
 
+global enum eExecutionDependency
+{
+	NONE,
+	SKIN,
+	MELEE_ITEM
+}
+
+
 
 
 
@@ -117,6 +126,7 @@ void function ShCharacterCosmetics_LevelInit()
 
 void function OnItemFlavorRegistered_Character( ItemFlavor characterClass )
 {
+	bool setShouldContainANonGRXItem = CharacterClass_GetIsShippingCharacter( characterClass )
 	
 	{
 		array<ItemFlavor> skinList = RegisterReferencedItemFlavorsFromArray( characterClass, "skins", "flavor" )
@@ -129,7 +139,7 @@ void function OnItemFlavorRegistered_Character( ItemFlavor characterClass )
 		}
 		Assert( characterClass == GetItemFlavorByAsset( CHARACTER_RANDOM ) || characterClass in fileLevel.defaultSkins, "No default skin found for: " + string(ItemFlavor_GetAsset( characterClass )) )
 
-		MakeItemFlavorSet( skinList, fileLevel.cosmeticFlavorSortOrdinalMap )
+		MakeItemFlavorSet( skinList, fileLevel.cosmeticFlavorSortOrdinalMap, setShouldContainANonGRXItem )
 
 		LoadoutEntry entry = RegisterLoadoutSlot( eLoadoutEntryType.ITEM_FLAVOR, "character_skin_for_" + ItemFlavor_GetGUIDString( characterClass ), eLoadoutEntryClass.CHARACTER )
 		entry.category     = eLoadoutCategory.CHARACTER_SKINS
@@ -167,7 +177,7 @@ void function OnItemFlavorRegistered_Character( ItemFlavor characterClass )
 	{
 		array<ItemFlavor> executionsList = RegisterReferencedItemFlavorsFromArray( characterClass, "executions", "flavor" )
 
-		MakeItemFlavorSet( executionsList, fileLevel.cosmeticFlavorSortOrdinalMap )
+		MakeItemFlavorSet( executionsList, fileLevel.cosmeticFlavorSortOrdinalMap, setShouldContainANonGRXItem )
 
 		LoadoutEntry entry = RegisterLoadoutSlot( eLoadoutEntryType.ITEM_FLAVOR, "character_execution_for_" + ItemFlavor_GetGUIDString( characterClass ), eLoadoutEntryClass.CHARACTER )
 		entry.category     = eLoadoutCategory.CHARACTER_EXECUTIONS
@@ -215,7 +225,7 @@ void function OnItemFlavorRegistered_Character( ItemFlavor characterClass )
 	
 	{
 		array<ItemFlavor> quipList = RegisterReferencedItemFlavorsFromArray( characterClass, "introQuips", "flavor" )
-		MakeItemFlavorSet( quipList, fileLevel.cosmeticFlavorSortOrdinalMap )
+		MakeItemFlavorSet( quipList, fileLevel.cosmeticFlavorSortOrdinalMap, setShouldContainANonGRXItem )
 
 		LoadoutEntry entry = RegisterLoadoutSlot( eLoadoutEntryType.ITEM_FLAVOR, "character_intro_quip_for_" + ItemFlavor_GetGUIDString( characterClass ), eLoadoutEntryClass.CHARACTER )
 		entry.category     = eLoadoutCategory.CHARACTER_INTRO_QUIPS
@@ -240,7 +250,7 @@ void function OnItemFlavorRegistered_Character( ItemFlavor characterClass )
 	
 	{
 		array<ItemFlavor> quipList = RegisterReferencedItemFlavorsFromArray( characterClass, "killQuips", "flavor" )
-		MakeItemFlavorSet( quipList, fileLevel.cosmeticFlavorSortOrdinalMap )
+		MakeItemFlavorSet( quipList, fileLevel.cosmeticFlavorSortOrdinalMap, setShouldContainANonGRXItem )
 
 		LoadoutEntry entry = RegisterLoadoutSlot( eLoadoutEntryType.ITEM_FLAVOR, "character_kill_quip_for_" + ItemFlavor_GetGUIDString( characterClass ), eLoadoutEntryClass.CHARACTER )
 		entry.category     = eLoadoutCategory.CHARACTER_KILL_QUIPS
@@ -263,16 +273,17 @@ void function OnItemFlavorRegistered_Character( ItemFlavor characterClass )
 
 	{
 		array<ItemFlavor> quipList = RegisterReferencedItemFlavorsFromArray( characterClass, "emoteIcons", "flavor" )
-		MakeItemFlavorSet( quipList, fileLevel.cosmeticFlavorSortOrdinalMap )
+		MakeItemFlavorSet( quipList, fileLevel.cosmeticFlavorSortOrdinalMap, false ) 
 		allEmotes.extend( quipList )
 	}
 
-	array<ItemFlavor> emotesList = RegisterReferencedItemFlavorsFromArray( characterClass, "emotes", "flavor" )
-	MakeItemFlavorSet( emotesList, fileLevel.cosmeticFlavorSortOrdinalMap )
-	allEmotes.extend( emotesList )
-
-	
-	RegisterEquippableQuipsForCharacter( characterClass, allEmotes, emotesList )
+	{
+		array<ItemFlavor> emotesList = RegisterReferencedItemFlavorsFromArray( characterClass, "emotes", "flavor" )
+		MakeItemFlavorSet( emotesList, fileLevel.cosmeticFlavorSortOrdinalMap, setShouldContainANonGRXItem )
+		allEmotes.extend( emotesList )
+		
+		RegisterEquippableQuipsForCharacter( characterClass, allEmotes, emotesList )
+	}
 
 	
 	RegisterSkydiveEmotesForCharacter( characterClass )
@@ -495,7 +506,8 @@ void function CharacterSkin_Apply( entity ent, ItemFlavor skin )
 		{
 			if ( child.GetModelName() == BLOODHOUND_BIRD_MDL )
 			{
-				child.SetSkin ( skinIndex == 22 ? 2 : 0 )
+				string characterSkinName = CharacterSkin_GetSkinName( skin )
+				child.SetSkin ( characterSkinName == "bloodhound_epicp_v21_aether" ? 2 : 0 )
 			}
 		}
 	}
@@ -799,6 +811,15 @@ ItemFlavor ornull function CharacterExecution_GetVictimOverrideExecution( ItemFl
 	}
 
 	return null
+}
+
+
+int function CharacterExecution_GetExecutionDependencyType( ItemFlavor characterExecution )
+{
+	Assert( ItemFlavor_GetType( characterExecution ) == eItemType.character_execution )
+
+	int executionDependency = GetGlobalSettingsInt( ItemFlavor_GetAsset( characterExecution ), "executionDependency" )
+	return executionDependency
 }
 
 

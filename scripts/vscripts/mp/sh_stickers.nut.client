@@ -42,6 +42,7 @@ global function Sticker_FlashOnLoadComplete
 global function DEV_TestCreateStickerMesh
 global function DEV_TestCreateStickerDecal
 global function DEV_StickerTestSetupForLocalPlayer
+global function DEV_ReturnRandomStickerFlavs
 #endif
 
 
@@ -122,7 +123,7 @@ void function RegisterStickers()
 		stickerItemList.append( stickerItem )
 	}
 
-	MakeItemFlavorSet( stickerItemList, fileLevel.stickerSortOrdinalMap )
+	MakeItemFlavorSet( stickerItemList, fileLevel.stickerSortOrdinalMap, true )
 
 	foreach ( int stickerObjectType in eStickerObjectType )
 	{
@@ -615,3 +616,13 @@ void function Sticker_FlashOnLoadComplete( int stickerInstance )
 
 
 
+
+#if DEV
+array<ItemFlavor>function DEV_ReturnRandomStickerFlavs( int numRandomStickers )
+{
+	array<ItemFlavor> stickers = GetAllItemFlavorsOfType( eItemType.sticker )
+	Assert( numRandomStickers <= stickers.len(), "Tried to get more stickers than are available in the game.")
+	stickers.randomize()
+	return stickers.slice( 0, numRandomStickers )
+}
+#endif

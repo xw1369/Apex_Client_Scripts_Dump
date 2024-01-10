@@ -42,8 +42,10 @@ void function RemoteFunctions_Init_Begin()
 
 	RegisterNetworkedVariable( "skyDiveTrailOverrideIndex", SNDC_PLAYER_GLOBAL, SNVT_INT, -1 )
 
-	Remote_RegisterClientFunction( "ServerCallback_EventNotification", "int", 0, eEventNotifications.len(), "entity" )
-	Remote_RegisterClientFunction( "ServerCallback_EventNotification_Entity", "int", 0, eEventNotifications.len(), "entity", "entity" )
+	Remote_RegisterClientFunction( "ServerCallback_EventNotification", "int", 0, eEventNotifications.len() )
+	Remote_RegisterClientFunction( "ServerCallback_EventNotification_Entity", "int", 0, eEventNotifications.len(), "entity" )
+	Remote_RegisterClientFunction( "ServerCallback_EventNotification_EventEntity", "int", 0, eEventNotifications.len(), "entity" )
+	Remote_RegisterClientFunction( "ServerCallback_EventNotification_Entity_EventEntity", "int", 0, eEventNotifications.len(), "entity", "entity" )
 
 	Remote_RegisterClientFunction( "ServerCallback_UpdateHudWeaponData", "entity" )
 	Remote_RegisterClientFunction( "ServerCallback_UpdateHudWeaponDataNoEntity" )
@@ -126,7 +128,10 @@ void function RemoteFunctions_Init_Begin()
 		RegisterNetworkedVariable( "thirdBadgeIndex", SNDC_DEATH_BOX, SNVT_BIG_INT, -1 )
 		RegisterNetworkedVariable( "thirdBadgeDataInt", SNDC_DEATH_BOX, SNVT_BIG_INT, -1 )
 
-		Remote_RegisterClientFunction( "ServerCallback_PlayLootRarityFXOnDeathboxDrop", "entity" )
+		RegisterNetworkedVariable( "highlightFar", SNDC_DEATH_BOX, SNVT_BOOL, false )
+		RegisterNetworkedVariable( "maxLootTier", SNDC_DEATH_BOX, SNVT_INT, 0 )
+
+		Remote_RegisterClientFunction( "ServerToClient_PlayLootRarityFXOnDeathboxDrop", "entity" )
 
 
 	RegisterNetworkedVariable( "lootRarity", SNDC_DEATH_BOX, SNVT_INT, -1 )
@@ -362,7 +367,6 @@ void function RemoteFunctions_Init_Begin()
 
 
 			Remote_RegisterClientFunction( "ServerCallback_PlayerBootsOnGround" )
-			Remote_RegisterClientFunction( "ServerCallback_RefreshDeathBox" )
 
 			Remote_RegisterClientFunction( "ServerCallback_AutoReloadComplete", "entity" )
 
@@ -518,6 +522,20 @@ void function RemoteFunctions_Init_Begin()
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 			WinterExpress_RegisterNetworking()
 
 
@@ -612,6 +630,9 @@ void function RemoteFunctions_Init_Begin()
 
 
 
+
+
+
 			HoverVehicle_RegisterNetworking()
 
 
@@ -656,6 +677,8 @@ void function RemoteFunctions_Init_Begin()
 	Remote_RegisterClientFunction( "ServerCallback_YouDied", "entity", "float", -1.0, 1.0, 10, "int", -1, eDamageSourceId.len(), "float", 0.0, 200.0, 32 )
 	Remote_RegisterClientFunction( "ServerCallback_YouRespawned" )
 
+	Remote_RegisterClientFunction( "ServerCallback_PreKillReplaySounds" )
+
 	if ( !IsLobby() )
 		Remote_RegisterClientFunction( "ServerCallback_ShowDeathHint", "int", 0, MAX_DEATH_HINTS )
 
@@ -663,7 +686,7 @@ void function RemoteFunctions_Init_Begin()
 	Remote_RegisterClientFunction( "ServerCallback_DataKnifeStartLeech", "float", -1.0, FLT_MAX, 32 )
 	Remote_RegisterClientFunction( "ServerCallback_DataKnifeCancelLeech" )
 	Remote_RegisterClientFunction( "ServerCallback_ControlPanelRefresh", "entity" )
-	Remote_RegisterClientFunction( "ServerCallback_OnEntityKilled", "entity", "entity", "int", INT_MIN, INT_MAX, "int", eDamageSourceId.invalid, eDamageSourceId.len() ) 
+	Remote_RegisterClientFunction( "ServerCallback_OnPlayerOrNpcKilled", "entity", "entity", "int", INT_MIN, INT_MAX, "int", eDamageSourceId.invalid, eDamageSourceId.len() ) 
 	Remote_RegisterClientFunction( "ServerCallback_OnEnemyDowned", "entity", "entity", "int", INT_MIN, INT_MAX, "int", eDamageSourceId.invalid, eDamageSourceId.len(), "int", INT_MIN, INT_MAX ) 
 	Remote_RegisterClientFunction( "ServerCallback_ResetReconnectParametersAsync" )
 	Remote_RegisterUIFunction( "SCBUI_PlayerConnectedOrDisconnected", "bool" )
@@ -720,6 +743,10 @@ void function RemoteFunctions_Init_Begin()
 
 
 		Remote_RegisterClientFunction( "ServerToClient_SetRisingWallAmbientGenericState", "entity", "bool" )
+
+
+
+
 
 
 
@@ -889,10 +916,8 @@ void function RemoteFunctions_Init_Begin()
 
 	
 
-
-		
-		Remote_RegisterServerFunction( "ClientToServer_MarkAllBoostsAsSeen" )
-
+	
+	Remote_RegisterServerFunction( "ClientToServer_MarkAllBoostsAsSeen" )
 
 	
 	Remote_RegisterClientFunction( "Dev_CreateTextInfoPanel", "vector", -MAX_MAP_BOUNDS, MAX_MAP_BOUNDS, 32, "vector", -MAX_MAP_BOUNDS, MAX_MAP_BOUNDS, 32, "bool", "float", -10000.0, 10000.0, 32 )
@@ -988,6 +1013,9 @@ void function RemoteFunctions_Init_Begin()
 			{
 				RunUIScript( "UICallback_SetUIVar", "uiDisableDev", newVal )
 			} )
+
+
+
 
 
 	

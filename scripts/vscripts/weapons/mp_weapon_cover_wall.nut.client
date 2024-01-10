@@ -28,7 +28,7 @@ global function IsAmpedWallEnt
 
 
 
-const string COVER_WALL_WEAPON_NAME = "mp_weapon_cover_wall"
+global const string COVER_WALL_WEAPON_NAME = "mp_weapon_cover_wall"
 const asset COVER_WALL_MODEL = $"mdl/props/rampart_cover_wall/rampart_cover_wall.rmdl"
 const asset COLLISION_CYLINDER_MODEL = $"mdl/props/rampart_cover_wall_replacement/rampart_cover_wall_invisible_collision_120x10_phys.rmdl"
 

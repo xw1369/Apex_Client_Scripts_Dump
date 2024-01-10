@@ -24,6 +24,7 @@ global const asset BLOODHOUND_BIRD_MDL = $"mdl/creatures/bird/bird.rmdl"
 global const asset REVENANT_MDL = $"mdl/humans/class/heavy/pilot_heavy_revenant.rmdl"
 const string BLOODHOUND_BIRD_KEY = "set_bloodhound_raven_skin"
 const string REVENANT_SHADOW_KEY = "set_revenant_shadow_skin"
+const string MELEE_SKIN_KEY = "match_melee_skin"
 
 const bool SCRIPT_ANIM_WINDOWS_DEBUG = false
 
@@ -55,8 +56,8 @@ const int WRAITH_KUNAI_SKIN_NEW = 1
 
 struct {
 	table<string, void functionref(ScriptAnimWindow, var, entity)> createPropScriptCallbackMap
-	table<string, void functionref(entity ent, string parameter)> scriptAnimWindowStartCallbacks
-	table<string, void functionref(entity ent, string parameter)> scriptAnimWindowStopCallbacks
+	table<string, void functionref(entity ent, string parameter)>  scriptAnimWindowStartCallbacks
+	table<string, void functionref(entity ent, string parameter)>  scriptAnimWindowStopCallbacks
 } file
 
 
@@ -73,6 +74,7 @@ void function ShAnimWindows_LevelInit()
 		RegisterAnimWindowPropScriptCallback( "add_glad_card_rui", AddGladCardRUIToProp )
 		RegisterAnimWindowPropScriptCallback( BLOODHOUND_BIRD_KEY, AnimWindow_SetBloodhoundRavenPropSkin )
 		RegisterAnimWindowPropScriptCallback( REVENANT_SHADOW_KEY, AnimWindow_SetRevenantShadowPropSkin )
+		RegisterAnimWindowPropScriptCallback( MELEE_SKIN_KEY, AnimWindow_MatchMeleePropSkin )
 
 
 
@@ -96,7 +98,7 @@ void function ShAnimWindows_LevelInit()
 		RegisterAnimWindowType( CLIENT, "HideWeapon3P", AnimWindow_HideWeapon3P_Init, AnimWindow_HideWeapon3P_Precache, AnimWindow_HideWeapon3P_Start, AnimWindow_HideWeapon3P_Transition, AnimWindow_HideWeapon3P_Stop )
 		RegisterAnimWindowType( CLIENT, "OverrideCharacterSelectCamera", AnimWindow_OverrideCharacterSelectCamera_Init, AnimWindow_OverrideCharacterSelectCamera_Precache, AnimWindow_OverrideCharacterSelectCamera_Start, AnimWindow_OverrideCharacterSelectCamera_Transition, AnimWindow_OverrideCharacterSelectCamera_Stop )
 
-		RegisterSignal("StopLodOriginAttachment")
+		RegisterSignal( "StopLodOriginAttachment" )
 
 }
 
@@ -210,7 +212,7 @@ void function CreateTeaseRui( entity prop, asset ruiAsset, int logId )
 	entity viewPlayer = GetLocalViewPlayer()
 
 	string screenText = ""
-	int phase = 0
+	int phase         = 0
 
 	if ( !IsValid( viewPlayer ) || !IsValid( prop ) )
 		return
@@ -326,7 +328,7 @@ void function AnimWindow_CreateProp_Start( ScriptAnimWindow window, var settings
 	else if ( selectModelFrom != eAnimWindowCreatePropModelSelectionStrategy.SCRIPT_KEY )
 	{
 		string characterSkinName = window.ent.GetSkinNameByIndex( window.ent.GetSkin() )
-		int characterCamo = window.ent.GetCamo()
+		int characterCamo        = window.ent.GetCamo()
 		AbilityCosmetics_Apply( prop, characterSkinName, characterCamo )
 	}
 
@@ -352,6 +354,7 @@ void function AnimWindow_CreateProp_Start( ScriptAnimWindow window, var settings
 
 void function AnimWindow_CreateProp_Transition( ScriptAnimWindow window, var settingsBlock )
 {
+	string scriptCallbackKey = GetSettingsBlockString( settingsBlock, "scriptCallbackKey" )
 	asset animSeq         = GetSettingsBlockAsset( settingsBlock, "animSequence" )
 	string attachmentName = GetSettingsBlockString( settingsBlock, "attachPoint" )
 	float scale           = GetSettingsBlockFloat( settingsBlock, "scale" )
@@ -366,11 +369,31 @@ void function AnimWindow_CreateProp_Transition( ScriptAnimWindow window, var set
 	
 	
 
+	if ( scriptCallbackKey == MELEE_SKIN_KEY && window.ent.IsPlayer() )
+	{
+		string meleeSkinName = MeleeSkin_GetSkinNameFromPlayer( window.ent )
+		if ( meleeSkinName != "" && meleeSkinName != "default" )
+		{
+			int skindex = prop.GetSkinIndexByName( meleeSkinName )
+
+			var animArr       = GetSettingsBlockArray( settingsBlock, "additionalAnims" )
+			int animArraySize = GetSettingsArraySize( animArr )
+
+			if ( animArraySize > 0 && skindex > 1 && skindex - 2 < animArraySize )
+			{
+				var animElem = GetSettingsArrayElem( animArr, skindex - 2 )
+				asset anim   = GetSettingsBlockAsset( animElem, "animSequence" )
+
+				animSeq = anim
+			}
+		}
+	}
+
 	if ( animSeq != $"" )
 	{
 		prop.Anim_Play( animSeq )
 
-		float curCycle   = window.ent.GetCycle()
+		float curCycle = window.ent.GetCycle()
 
 		float cycleValue = 0
 		if ( window.endCycle > window.startCycle )
@@ -408,6 +431,7 @@ void function SetModelOnPropByScriptKey( entity propEnt, string key, entity pare
 		case "bloodhound_raven":
 			propEnt.SetModel( BLOODHOUND_BIRD_MDL )
 			break
+
 		case "lifeline_drone":
 			propEnt.SetModel( LIFELINE_DRONE_MDL )
 			propEnt.SetSkin( LIFELINE_DRONE_ONLINE_SKIN )
@@ -423,7 +447,7 @@ void function SetModelOnPropByScriptKey( entity propEnt, string key, entity pare
 				expect ItemFlavor( meleeSkinFlavor )
 				asset meleeWeaponAsset = GetGlobalSettingsAsset( ItemFlavor_GetAsset( meleeSkinFlavor ), "parentItemFlavor" )
 				ItemFlavor meleeWeapon = GetItemFlavorByAsset( meleeWeaponAsset )
-				string skinname = MeleeWeapon_GetMainWeaponClassname( meleeWeapon )
+				string skinname        = MeleeWeapon_GetMainWeaponClassname( meleeWeapon )
 				usesNewKunai = skinname == "mp_weapon_wraith_kunai_rt01_primary"
 			}
 
@@ -436,6 +460,7 @@ void function SetModelOnPropByScriptKey( entity propEnt, string key, entity pare
 				propEnt.SetSkin( WRAITH_KUNAI_SKIN )
 			}
 			break
+
 
 		default:
 			Assert( false, "Unknown script key for CreateProp anim window: " + key )
@@ -634,16 +659,17 @@ void function AnimWindow_PlayFX_Stop( ScriptAnimWindow window, var settingsBlock
 
 void function AnimWindow_SetConVar_Start( ScriptAnimWindow window, var settingsBlock )
 {
-	string conVarName	 = GetSettingsBlockString( settingsBlock, "conVarName" )
-	float startValue     = GetSettingsBlockFloat( settingsBlock, "startValue" )
+	string conVarName = GetSettingsBlockString( settingsBlock, "conVarName" )
+	float startValue  = GetSettingsBlockFloat( settingsBlock, "startValue" )
 
 	SetConVarFloat( strip( conVarName ), startValue )
 }
 
+
 void function AnimWindow_SetConVar_Stop( ScriptAnimWindow window, var settingsBlock )
 {
-	string conVarName	 = GetSettingsBlockString( settingsBlock, "conVarName" )
-	float endValue       = GetSettingsBlockFloat( settingsBlock, "endValue" )
+	string conVarName = GetSettingsBlockString( settingsBlock, "conVarName" )
+	float endValue    = GetSettingsBlockFloat( settingsBlock, "endValue" )
 
 	if ( endValue == -1.0 )
 		SetConVarToDefault( strip( conVarName ) )
@@ -660,27 +686,29 @@ void function AnimWindow_SetConVar_Stop( ScriptAnimWindow window, var settingsBl
 void function AnimWindow_Callback_Start( ScriptAnimWindow window, var settingsBlock )
 {
 	string callbackName = GetSettingsBlockString( settingsBlock, "callbackName" )
-	string parameter = GetSettingsBlockString( settingsBlock, "callbackParameter" )
+	string parameter    = GetSettingsBlockString( settingsBlock, "callbackParameter" )
 
 	Assert( callbackName in file.scriptAnimWindowStartCallbacks, "%s callback name doesn't contain a start callback function to call" )
 	file.scriptAnimWindowStartCallbacks[callbackName]( window.ent, parameter )
 }
 
+
 void function AnimWindow_Callback_Stop( ScriptAnimWindow window, var settingsBlock )
 {
 	string callbackName = GetSettingsBlockString( settingsBlock, "callbackName" )
-	string parameter = GetSettingsBlockString( settingsBlock, "callbackParameter" )
+	string parameter    = GetSettingsBlockString( settingsBlock, "callbackParameter" )
 
 	Assert( callbackName in file.scriptAnimWindowStopCallbacks, "%s callback name doesn't contain a stop callback function to call" )
 	file.scriptAnimWindowStopCallbacks[callbackName]( window.ent, parameter )
 }
 
+
 void function RegisterScriptAnimWindowCallbacks( string callbackName, void functionref( entity, string ) startCallbackFunc, void functionref( entity, string ) stopCallbackFunc )
 {
-	Assert( !( callbackName in file.scriptAnimWindowStartCallbacks ), "Tried to add Script Anim Window Start Callback that was already added" )
+	Assert( !(callbackName in file.scriptAnimWindowStartCallbacks), "Tried to add Script Anim Window Start Callback that was already added" )
 	file.scriptAnimWindowStartCallbacks[ callbackName ] <- startCallbackFunc
 
-	Assert( !( callbackName in file.scriptAnimWindowStopCallbacks ), "Tried to add Script Anim Window Stop Callback that was already added" )
+	Assert( !(callbackName in file.scriptAnimWindowStopCallbacks), "Tried to add Script Anim Window Stop Callback that was already added" )
 	file.scriptAnimWindowStopCallbacks[ callbackName ] <- stopCallbackFunc
 }
 
@@ -827,8 +855,9 @@ void function AnimWindow_SetSkin_Start( ScriptAnimWindow window, var settingsBlo
 void function AnimWindow_SetPropSkin_Start( ScriptAnimWindow window, var settingsBlock )
 {
 	string skinName = GetSettingsBlockString( settingsBlock, "skinName" )
-	int camoIndex = GetSettingsBlockInt( settingsBlock, "camoIndex" )
+	int camoIndex   = GetSettingsBlockInt( settingsBlock, "camoIndex" )
 
+	printt( "PROP SKIN: " + window.ent.GetModelName() + " SKIN: " + skinName )
 	AbilityCosmetics_Apply ( window.ent, skinName, camoIndex )
 }
 
@@ -859,17 +888,18 @@ void function AnimWindow_SetLodOriginAttachment_Thread( entity ent, int attachme
 void function AnimWindow_SetLodOriginAttachment_Start( ScriptAnimWindow window, var settingsBlock )
 {
 
-	string attachment = GetSettingsBlockString( settingsBlock, "attachment" )
-	int attachmentId = window.ent.LookupAttachment( attachment )
+		string attachment = GetSettingsBlockString( settingsBlock, "attachment" )
+		int attachmentId  = window.ent.LookupAttachment( attachment )
 
-	thread AnimWindow_SetLodOriginAttachment_Thread( window.ent, attachmentId )
+		thread AnimWindow_SetLodOriginAttachment_Thread( window.ent, attachmentId )
 
 }
+
 
 void function AnimWindow_SetLodOriginAttachment_Stop( ScriptAnimWindow window, var settingsBlock )
 {
 
-	Signal( window.ent, "StopLodOriginAttachment" )
+		Signal( window.ent, "StopLodOriginAttachment" )
 
 }
 
@@ -1152,6 +1182,7 @@ void function AnimWindow_SetColorModScaleOverDuration_Init()
 
 }
 
+
 void function AnimWindow_SetColorModScaleOverDuration_Start( ScriptAnimWindow window, var settingsBlock )
 {
 
@@ -1159,12 +1190,13 @@ void function AnimWindow_SetColorModScaleOverDuration_Start( ScriptAnimWindow wi
 
 }
 
+
 void function AnimWindow_SetColorModScaleOverDuration_Transition( ScriptAnimWindow window, var settingsBlock )
 {
 
-		float rampUpDuration = GetSettingsBlockFloat( settingsBlock, "rampUpDuration" )
-		float plateauDuration = GetSettingsBlockFloat( settingsBlock, "plateauDuration" )
-		float rampDownDuration  = GetSettingsBlockFloat( settingsBlock, "rampDownDuration" )
+		float rampUpDuration   = GetSettingsBlockFloat( settingsBlock, "rampUpDuration" )
+		float plateauDuration  = GetSettingsBlockFloat( settingsBlock, "plateauDuration" )
+		float rampDownDuration = GetSettingsBlockFloat( settingsBlock, "rampDownDuration" )
 
 		thread SetColorModScaleOverDuration( window.ent, window.endCycle, rampUpDuration, plateauDuration, rampDownDuration )
 
@@ -1176,11 +1208,11 @@ void function SetColorModScaleOverDuration( entity ent, float endCycle, float ra
 	Signal( ent, "SetColorModScaleEnd" )
 	EndSignal( ent, "OnDestroy", "SetColorModScaleEnd" )
 
-	float startTime = Time()
-	float totalDuration =  rampUpDuration + plateauDuration + rampDownDuration
+	float startTime     = Time()
+	float totalDuration = rampUpDuration + plateauDuration + rampDownDuration
 
-	float rampUpCompletion = rampUpDuration
-	float plateauCompletion = rampUpCompletion + plateauDuration
+	float rampUpCompletion   = rampUpDuration
+	float plateauCompletion  = rampUpCompletion + plateauDuration
 	float rampDownCompletion = plateauCompletion + rampDownDuration
 
 	OnThreadEnd( void function() : ( ent ) {
@@ -1195,18 +1227,18 @@ void function SetColorModScaleOverDuration( entity ent, float endCycle, float ra
 		if ( timeSinceStart < rampUpCompletion )
 		{
 			
-			ent.SetColorModScaleIntensity( Smooth01( 1.0 - ( timeSinceStart / rampUpCompletion  ) ) )
+			ent.SetColorModScaleIntensity( Smooth01( 1.0 - (timeSinceStart / rampUpCompletion) ) )
 		}
 		else if ( timeSinceStart < plateauCompletion )
 		{
 			
-			if( ent.GetColorModScaleIntensity() != 0.0 )
+			if ( ent.GetColorModScaleIntensity() != 0.0 )
 				ent.SetColorModScaleIntensity( 0.0 )
 		}
 		else if ( timeSinceStart < rampDownCompletion )
 		{
 			
-			ent.SetColorModScaleIntensity( Smooth01( ( timeSinceStart - plateauCompletion ) / rampDownDuration ) )
+			ent.SetColorModScaleIntensity( Smooth01( (timeSinceStart - plateauCompletion) / rampDownDuration ) )
 		}
 
 		WaitFrame()
@@ -1217,7 +1249,7 @@ void function SetColorModScaleOverDuration( entity ent, float endCycle, float ra
 void function AnimWindow_SetColorModScaleOverDuration_Stop( ScriptAnimWindow window, var settingsBlock )
 {
 
-		if( IsValid( window.ent ) )
+		if ( IsValid( window.ent ) )
 			window.ent.Signal( "SetColorModScaleEnd" )
 
 }
@@ -1320,8 +1352,8 @@ void function AnimWindow_MirageHoloFX_Stop( ScriptAnimWindow window, var setting
 
 void function AnimWindow_LifelineDroneCommonFX_Init()
 {
-	LIFELINE_DRONE_JET_FX_IDX = PrecacheParticleSystem( LIFELINE_DRONE_JET_FX )
-	LIFELINE_DRONE_VENT_FX_IDX = PrecacheParticleSystem( LIFELINE_DRONE_VENT_FX )
+	LIFELINE_DRONE_JET_FX_IDX     = PrecacheParticleSystem( LIFELINE_DRONE_JET_FX )
+	LIFELINE_DRONE_VENT_FX_IDX    = PrecacheParticleSystem( LIFELINE_DRONE_VENT_FX )
 	LIFELINE_DRONE_EYEGLOW_FX_IDX = PrecacheParticleSystem( LIFELINE_DRONE_EYEGLOW_FX )
 
 		RegisterSignal( "StopLifelineDroneCommonFX" )
@@ -1400,11 +1432,19 @@ void function AnimWindow_LifelineDroneCommonFX_Stop( ScriptAnimWindow window, va
 
 
 
-void function AnimWindow_SetBloodhoundRavenPropSkin ( ScriptAnimWindow window, var settingsBlock, entity prop )
+void function AnimWindow_SetBloodhoundRavenPropSkin( ScriptAnimWindow window, var settingsBlock, entity prop )
 {
 	if ( IsValid( prop ) )
 	{
-		if ( prop.GetModelName() == BLOODHOUND_BIRD_MDL && window.ent.GetSkin() == 22 )
+
+		entity player = window.ent
+		ItemFlavor character = LoadoutSlot_GetItemFlavor( ToEHI( player ), Loadout_Character() )
+		ItemFlavor skin      = LoadoutSlot_GetItemFlavor( ToEHI( player ), Loadout_CharacterSkin( character ) )
+		string characterSkinName = CharacterSkin_GetSkinName( skin )
+
+		
+
+		if ( prop.GetModelName() == BLOODHOUND_BIRD_MDL && characterSkinName == "bloodhound_epicp_v21_aether" )
 		{
 			prop.SetSkin ( 2 )
 		}
@@ -1418,12 +1458,51 @@ void function AnimWindow_SetBloodhoundRavenPropSkin ( ScriptAnimWindow window, v
 
 
 
-void function AnimWindow_SetRevenantShadowPropSkin ( ScriptAnimWindow window, var settingsBlock, entity prop )
+void function AnimWindow_SetRevenantShadowPropSkin( ScriptAnimWindow window, var settingsBlock, entity prop )
 {
 	if ( IsValid( prop ) )
 	{
-		Assert( prop.GetSkinIndexByName( "ShadowSqaud" ) != -1, "Tried to apply revenant shadow skin through an anim window, but the model doesn't have the ShadowSqaud(sp) skin.")
+		Assert( prop.GetSkinIndexByName( "ShadowSqaud" ) != -1, "Tried to apply revenant shadow skin through an anim window, but the model doesn't have the ShadowSqaud(sp) skin." )
 		prop.SetSkin( prop.GetSkinIndexByName( "ShadowSqaud" ) )
+	}
+}
+
+
+void function AnimWindow_MatchMeleePropSkin( ScriptAnimWindow window, var settingsBlock, entity prop )
+{
+	if ( !IsValid( prop ) )
+		return
+
+	entity parentEnt = window.ent
+
+	if ( !IsValid( parentEnt ) )
+		return
+
+	string meleeSkinName = ""
+	
+	if ( parentEnt.IsPlayer() )
+	{
+		meleeSkinName = MeleeSkin_GetSkinNameFromPlayer( parentEnt )
+		printt( "Execution uses player melee skin: " + meleeSkinName )
+	}
+	else 
+	{
+		ItemFlavor ornull meleeSkinFlavor = parentEnt.e.animWindowMeleeSkinItemFlavor
+
+		if ( meleeSkinFlavor != null )
+		{
+			expect ItemFlavor( meleeSkinFlavor )
+			meleeSkinName = MeleeSkin_GetSkinName( meleeSkinFlavor )
+			printt( "Glad card uses melee skin: " + meleeSkinName )
+		}
+	}
+
+	if ( meleeSkinName != "" && meleeSkinName != "default" )
+	{
+		int skindex = prop.GetSkinIndexByName( meleeSkinName )
+		printt( "Setting prop melee skin to " + meleeSkinName + " :: " + skindex )
+		if ( skindex != -1 )
+			prop.SetSkin( skindex )
 	}
 }
 
@@ -1538,20 +1617,20 @@ struct
 
 
 void function RegisterAnimWindowType( bool isForThisVM, string type,
-void functionref() initFunc, 
-void functionref( var ) precacheFunc, 
-void functionref( ScriptAnimWindow, var ) startFunc,
-void functionref( ScriptAnimWindow, var ) transitionFunc, 
-void functionref( ScriptAnimWindow, var ) stopFunc )
+		void functionref() initFunc, 
+		void functionref( var ) precacheFunc, 
+		void functionref(ScriptAnimWindow, var ) startFunc,
+		void functionref( ScriptAnimWindow, var ) transitionFunc, 
+		void functionref(ScriptAnimWindow, var ) stopFunc )
 {
 	Assert( !(type in fileLevel.animWindowTypeNameInfoMap) )
 	Assert( startFunc != null )
 	AnimWindowTypeInfo awti
-	awti.isForThisVM = isForThisVM
-	awti.precacheFunc = precacheFunc
-	awti.startFunc = startFunc
+	awti.isForThisVM    = isForThisVM
+	awti.precacheFunc   = precacheFunc
+	awti.startFunc      = startFunc
 	awti.transitionFunc = transitionFunc
-	awti.stopFunc = stopFunc
+	awti.stopFunc       = stopFunc
 #if DEV
 		disableoverwrite( fileLevel.animWindowTypeNameInfoMap )
 #endif

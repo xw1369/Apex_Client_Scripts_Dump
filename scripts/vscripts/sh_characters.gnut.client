@@ -338,7 +338,7 @@ void function OnRegisterRootItemFlavors()
 		characterList.append( expect ItemFlavor(characterOrNull) )
 	}
 
-	MakeItemFlavorSet( characterList, fileLevel.characterFlavorSortOrdinalMap )
+	MakeItemFlavorSet( characterList, fileLevel.characterFlavorSortOrdinalMap, true )
 
 	entry.validItemFlavorList = characterList
 

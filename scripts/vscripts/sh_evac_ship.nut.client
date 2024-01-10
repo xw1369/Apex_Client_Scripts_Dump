@@ -848,6 +848,16 @@ void function EvacShip_RegisterNetworking()
 
 
 
+
+
+
+
+
+
+
+
+
+
 void function EvacShip_ServerCallback_DisplayShipFullHint()
 {
 	AddPlayerHint( EVACSHIP_ANNOUNCEMENT_DURATION, 0.5, $"", Localize( "#EVAC_SHIP_FULL_HINT" ) )

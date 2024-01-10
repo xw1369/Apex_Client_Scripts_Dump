@@ -47,7 +47,7 @@ ImpactTable
 		"2" "P_impact_exp_XLG_concrete"
 		"3" "P_impact_exp_XLG_concrete"
 		"4" "P_impact_exp_XLG_concrete"
-		"5" "P_impact_exp_XLG_concrete"
+		"5" "P_impact_exp_XLG_water"
 		"6" "P_impact_exp_XLG_concrete"
 		"7" "P_impact_exp_XLG_concrete"
 		"8" "P_impact_exp_XLG_concrete"
@@ -102,6 +102,8 @@ ImpactTable
 
 		"airburst" "Explo_Satchel_Impact_3P"
 		"shieldhit" "TitanShield.Explosive.BulletImpact_3P_vs_3P"
+
+		"5" "Explo_Satchel_Impact_3P"
 	}
 
 	Sound_attacker
@@ -138,6 +140,8 @@ ImpactTable
 
 		"airburst" "Explo_Satchel_Impact_1P"
 		"shieldhit" "TitanShield.Explosive.BulletImpact_1P_vs_3P"
+
+		"5" "Explo_Satchel_Impact_3P"
 	}
 
 	Sound_victim
@@ -168,6 +172,8 @@ ImpactTable
 		"X"	"TitanBubbleShield.Explosive.BulletImpact_3P_vs_3P"
 		"Y" "Explo_Satchel_Impact_3P"
 		"Z" "Explo_Satchel_Impact_3P"
+
+		"5" "Explo_Satchel_Impact_3P"
 
 		//"splash" "Water.BulletImpact"
 		//"slime_splash" "Water.BulletImpact"

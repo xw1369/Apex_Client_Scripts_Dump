@@ -9,6 +9,7 @@ global function ShCharacterAbilities_LevelInit
 global function CharacterClass_GetTacticalAbility
 global function CharacterClass_GetUltimateAbility
 global function CharacterClass_GetPassiveAbilities
+global function CharacterClass_GetPassiveAbilityToShow
 global function CharacterAbility_ShouldShowDetails
 global function CharacterAbility_GetWeaponClassname
 global function CharacterAbility_GetPassiveIndex
@@ -183,6 +184,23 @@ array<ItemFlavor> function CharacterClass_GetPassiveAbilities( ItemFlavor charac
 	return fileLevel.characterPasAbilitiesMap[character]
 }
 
+
+
+ItemFlavor function CharacterClass_GetPassiveAbilityToShow( ItemFlavor character )
+{
+	ItemFlavor ornull passiveAbility = null
+	foreach ( ItemFlavor ability in CharacterClass_GetPassiveAbilities( character ) )
+	{
+		if ( CharacterAbility_ShouldShowDetails( ability ) )
+		{
+			passiveAbility = ability
+			break
+		}
+	}
+	expect ItemFlavor( passiveAbility )
+
+	return passiveAbility
+}
 
 
 

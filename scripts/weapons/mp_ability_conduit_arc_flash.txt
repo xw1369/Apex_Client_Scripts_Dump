@@ -34,6 +34,7 @@ WeaponData
     "OnWeaponReadyToFire"                           "OnWeaponReadyToFire_ability_conduit_arc_flash"
     "OnWeaponPrimaryAttack"                         "OnWeaponPrimaryAttack_ability_conduit_arc_flash"
     "OnWeaponPrimaryAttackAnimEvent"                "OnWeaponPrimaryAttackAnimEvent_ability_conduit_arc_flash"
+	"OnWeaponRegenEnd"                              "OnWeaponRegenEndGeneric"
 
     MP_BASE
     {

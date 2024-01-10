@@ -365,7 +365,7 @@ void function ClMinimap_Init()
 	StatusEffect_RegisterDisabledCallback( eStatusEffect.minimap_jammed, MinimapJammed_Disabled )
 
 	file.fullmap_legendRui = RuiCreate( $"ui/map_legend.rpak", clGlobal.topoFullscreenFullMap, FULLMAP_RUI_DRAW_LAYER, 20 )
-	InitHUDRui( file.fullmap_legendRui, false )
+	InitHUDRui( file.fullmap_legendRui )
 	Fullmap_AddRui( file.fullmap_legendRui )
 
 	if ( !IsPrivateMatch() )
@@ -379,7 +379,7 @@ void function ClMinimap_Init()
 		file.fullmap_challengeRuiArray.append( RuiCreate( $"ui/minimap_challenge_row.rpak", clGlobal.topoFullscreenFullMap, FULLMAP_RUI_DRAW_LAYER, RUI_SORT_SCREENFADE - 1 ) )
 		foreach( rui in file.fullmap_challengeRuiArray )
 		{
-			InitHUDRui( rui, false )
+			InitHUDRui( rui )
 			Scoreboard_AddRui( rui )
 		}
 
@@ -422,13 +422,13 @@ void function ClMinimap_Init()
 
 	foreach ( rui in file.fullmap_unitframesRui )
 	{
-		InitHUDRui( rui, false )
+		InitHUDRui( rui )
 		Scoreboard_AddRui( rui )
 	}
 
 	foreach ( rui in file.fullmap_jipframesRui )
 	{
-		InitHUDRui( rui, false )
+		InitHUDRui( rui )
 	}
 
 	asset fullmap_gamestateRuiAsset = GetFullmapGameStateAsset()
@@ -439,7 +439,7 @@ void function ClMinimap_Init()
 		file.fullmap_gamestateRui = RuiCreate( fullmap_gamestateRuiAsset, clGlobal.topoFullscreenFullMap, FULLMAP_RUI_DRAW_LAYER, 20)
 
 
-	InitHUDRui( file.fullmap_gamestateRui, false )
+	InitHUDRui( file.fullmap_gamestateRui )
 	Scoreboard_AddRui( file.fullmap_gamestateRui )
 
 	foreach( func in file.onFullmapCreated_Callbacks )
@@ -487,7 +487,7 @@ void function OnSpectatorVisibleEnemiesChanged( bool enemiesVisible )
 var function CreateMinimapRui( asset ruiAsset, int sortKey = 0 )
 {
 	var rui = RuiCreate( ruiAsset, clGlobal.topoFullscreenHudPermanent, RUI_DRAW_HUD, sortKey )
-	InitHUDRui( rui, true )
+	InitHUDRui( rui )
 	return rui
 }
 
@@ -987,7 +987,6 @@ var function Minimap_CommonAdd( asset ruiAsset, int zOrder, vector objPos = < 0,
 void function Minimap_CommonCleanup( var rui )
 {
 	file.minimapOtherRuis.removebyvalue( rui )
-	ReleaseHUDRui( rui )
 	RuiDestroy( rui )
 }
 
@@ -1923,7 +1922,14 @@ void function UpdateFullmapRuiTracks()
 	UpdateEquipmentSlot( viewPlayer, viewPlayerRui )
 
 	RuiSetInt( viewPlayerRui, "frameSlot", -1 )
-	RuiSetBool( viewPlayerRui, "useShadowFormFrame", viewPlayer.IsShadowForm() && !IsPlayerShadowZombie( viewPlayer ) )
+
+	bool isPlayerShadow = false
+
+
+		isPlayerShadow = IsPlayerShadowZombie( viewPlayer )
+
+
+	RuiSetBool( viewPlayerRui, "useShadowFormFrame", viewPlayer.IsShadowForm() && !isPlayerShadow )
 
 
 		RuiTrackBool( viewPlayerRui, "hasAltStatus", viewPlayer, RUI_TRACK_SCRIPT_NETWORK_VAR_BOOL, GetNetworkedVariableIndex( EXPIRED_BANNER_RECOVERY_NETVAR ) )
@@ -1994,7 +2000,7 @@ void function UpdateFullmapRuiTracks()
 		UpdateEquipmentSlot( teamMember, rui )
 
 		RuiSetInt( rui, "frameSlot", slotIndex )
-		RuiSetBool( rui, "useShadowFormFrame", teamMember.IsShadowForm() && !IsPlayerShadowZombie( teamMember ) )
+		RuiSetBool( rui, "useShadowFormFrame", teamMember.IsShadowForm() && !isPlayerShadow )
 
 
 

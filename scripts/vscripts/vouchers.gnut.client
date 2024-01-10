@@ -568,5 +568,3 @@ int function GetVoucherRedeemedCount( entity player, ItemFlavor voucherFlav )
 
 
 
-
-

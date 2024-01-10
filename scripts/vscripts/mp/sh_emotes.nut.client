@@ -448,6 +448,10 @@ void function OnItemFlavorRegistered_Character( ItemFlavor characterClass )
 
 
 
+
+
+
+
 void function OnPodiumCharacterModelSpawned( entity characterModel, ItemFlavor character, int eHandle )
 {
 	file.characterPodiumModelIsEmoting[ characterModel ] <- false
@@ -1157,9 +1161,11 @@ void function ModelPerformEmote( entity model, ItemFlavor item, entity mover, bo
 	if ( IsEmoteEnabledForPodiumScreen() && !CanLocalClientPerformPodiumScreenEmote() )
 		RuiSetBool( GetPodiumSequenceRui(), "emoteAvailable", false )
 
-	bool isLocalPlayerModel = ( GetPodiumScreenCharacterModelForEHI( LocalClientEHI() ) == model )
+	EHI lcPlayer 			= LocalClientEHI()
+	bool isLocalPlayerModel = ( GetPodiumScreenCharacterModelForEHI( lcPlayer ) == model )
+	ItemFlavor character    = LoadoutSlot_GetItemFlavor( lcPlayer, Loadout_Character() )
 
-	string anim3p     = CharacterQuip_GetAnim3p( item )
+	string anim3p     = CharacterQuip_GetAnim3p( item, character )
 	string loopAnim3p = CharacterQuip_GetAnimLoop3p( item )
 
 	bool usesLoop = loopAnim3p != ""
@@ -1230,6 +1236,7 @@ void function ModelPerformEmote( entity model, ItemFlavor item, entity mover, bo
 		}
 	}
 }
+
 
 
 

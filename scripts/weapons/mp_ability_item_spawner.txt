@@ -103,10 +103,6 @@ WeaponData
 
 	Mods
 	{
-		pas_power_cell
-		{
-			"regen_ammo_refill_rate"	"*1.35"
-		}
 
 		dev_mod_low_recharge
 		{

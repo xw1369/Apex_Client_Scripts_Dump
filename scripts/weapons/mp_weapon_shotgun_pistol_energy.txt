@@ -41,7 +41,7 @@ WeaponData
    "damage_headshot_scale"							"1.5"
    "headshot_distance" 							"5905"  // 150m
 
-   "damage_flags" 					                "DF_GIB | DF_DISMEMBERMENT"
+   "damage_flags" 					                "DF_GIB"
 
    // hipfire spread
    "spread_stand_hip"								"5.0"

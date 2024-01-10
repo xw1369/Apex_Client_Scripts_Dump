@@ -18,6 +18,8 @@ global function GeneratePlayersInViewInfo
 
 
 
+global const string HEARTBEAT_SENSOR_WEAPON_NAME = "mp_ability_heartbeat_sensor"
+
 global const float HEARTBEAT_SENSOR_NATURAL_RANGE = 50 / INCHES_TO_METERS 
 global const float HEARTBEAT_SENSOR_INITIAL_ACTIVATION_DELAY_DEFAULT = 0.4
 global const float HEARTBEAT_SENSOR_PING_INTERVAL_MIN = 0.4

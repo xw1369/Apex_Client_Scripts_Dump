@@ -5,7 +5,7 @@
       
 
                     
-                                         
+#base "_base_hopup_golden_horse_blue.txt"
       
 
 "WeaponData"

@@ -156,6 +156,14 @@ void function Mp_ability_shield_mines_line_init()
 
 
 
+
+
+
+
+
+
+
+
 float function GetMineRadius( entity owner )
 {
 	float result = SHIELD_MINE_RANGE
@@ -296,8 +304,12 @@ void function OnProjectileCollision_ability_shield_mines_line( entity projectile
 		return
 	}
 
-	
-	EmitSoundAtPosition( TEAM_ANY, projectile.GetOrigin(), SHIELD_MINE_IMPACT_SOUND )
+
+
+
+
+
+
 
 
 
@@ -322,28 +334,6 @@ void function OnProjectileCollision_ability_shield_mines_line( entity projectile
 
 	projectile.Destroy()
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

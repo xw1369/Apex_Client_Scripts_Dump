@@ -4,7 +4,7 @@
 #base "_base_mags_sniper.txt"
 
                     
-                                         
+#base "_base_hopup_golden_horse_yellow.txt"
       
 
 WeaponData
@@ -200,7 +200,7 @@ WeaponData
     //"explosion_shake_duration"						"0.5"
 
 
-	"damage_flags" 					                "DF_SNIPER | DF_GIB | DF_KNOCK_BACK | DF_DISMEMBERMENT"
+	"damage_flags" 					                "DF_SNIPER | DF_GIB | DF_KNOCK_BACK"
    	"pass_through_depth"                            "20000"
    	"pass_through_damage_preserved_scale"           "0.8"
 

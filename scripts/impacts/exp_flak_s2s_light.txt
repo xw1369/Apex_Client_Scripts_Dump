@@ -95,6 +95,8 @@ ImpactTable
 
 		"airburst" "northstar_rocket_explode"
 		"shieldhit" "TitanShield.Explosive.BulletImpact_3P_vs_3P"
+
+		"5" "northstar_rocket_explode"
 	}
 
 	Sound_attacker
@@ -131,6 +133,8 @@ ImpactTable
 
 		"airburst" "Explo_Archer_Impact_1P"
 		"shieldhit" "TitanShield.Explosive.BulletImpact_1P_vs_3P"
+
+		"5" "northstar_rocket_explode"
 	}
 
 	Sound_victim
@@ -167,6 +171,8 @@ ImpactTable
 
 		"airburst" "northstar_rocket_explode"
 		"shieldhit" "TitanShield.Explosive.BulletImpact_3P_vs_1P"
+
+		"5" "northstar_rocket_explode"
 	}
 
 	Sound_victim_from_AI

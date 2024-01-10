@@ -1,5 +1,9 @@
 const string MUNITIONS_BOX_SCRIPT_NAME = "assault_perk_loot_bin"
+
+
+
 global const string MUNITIONS_BOX_LOOT_BIN_SKIN_NAME = "MunitionsBox"
+
 
 const int HOP_UP_DROP_CHANCE = 20
 const int MAG_DROP_CHANCE = 65
@@ -66,7 +70,7 @@ void function Perk_MunitionsBox_Init()
 
 			munitionsBox.worldspaceIconUpOffset = 20
 			munitionsBox.ruiThinkThread = Perk_MunitionsBin_RuiThinkThread
-			munitionsBox.getPingMaxDistance = Perk_MunitionsBin_GetPingMaxDistance
+			munitionsBox.staticPingDistance = 1500
 
 
 
@@ -1429,6 +1433,13 @@ void function OnMunitionsBoxSpawned( entity ent )
 
 
 
+
+
+
+
+
+
+
 void function MunitionsBox_ServerToClient_DisplayOpenedMunitionsBoxPrompt()
 {
 	AddOnscreenPromptFunction( "quickchat", InvokePingOpenedMunitionsBox, 6.0, Localize( "#PING_OPEN_MUNITIONS_BOX" ) )
@@ -1443,10 +1454,5 @@ void function Perk_MunitionsBin_RuiThinkThread( var rui, entity ent )
 {
 	RuiSetFloat( rui, "minAlphaDist", 1500 )
 	RuiSetFloat( rui, "maxAlphaDist", 2000 )
-}
-
-float function Perk_MunitionsBin_GetPingMaxDistance( entity ent )
-{
-	return 1500
 }
 

@@ -1808,6 +1808,27 @@ bool function CanDeployOnEnt( entity ent, vector pos )
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 void function OnClientAnimEvent_ability_spike_strip( entity weapon, string name )
 {
 	GlobalClientEventHandler( weapon, name )

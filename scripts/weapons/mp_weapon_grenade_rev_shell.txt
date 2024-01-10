@@ -94,7 +94,7 @@ WeaponData
 	"explosion_shake_amplitude"						"20"
 	"explosion_shake_frequency"						"45"
 	"explosion_shake_duration"						"0.25"
-	"damage_flags"									"DF_RAGDOLL | DF_EXPLOSION | DF_DISMEMBERMENT | DF_GIB"
+	"damage_flags"									"DF_RAGDOLL | DF_EXPLOSION | DF_GIB"
 
 	"explosion_damage"								"75"
 	"explosion_damage_heavy_armor"					"75"

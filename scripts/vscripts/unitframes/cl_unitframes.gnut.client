@@ -483,6 +483,14 @@ void function CreateTeamUnitFrame( entity player )
 	SetUnitFramePosition( unitFrame )
 	UpdateEquipmentSlot( player, unitFrame.rui )
 	SquadLeader_UpdateUnitFrameRui(  player, rui )
+
+
+
+
+
+
+
+
 }
 
 int function SquadMemberIndexSort( entity a, entity b )
@@ -612,6 +620,12 @@ void function SetUnitFrameDataFromOwner( var rui, entity ent, entity localPlayer
 
 
 		RuiTrackInt( rui, "overshield", ent, RUI_TRACK_SCRIPT_NETWORK_VAR_INT, GetNetworkedVariableIndex( TEMPSHIELD_NETVAR ) )
+
+
+
+
+
+
 
 
 	int observerMode = 0

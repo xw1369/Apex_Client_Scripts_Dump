@@ -96,7 +96,7 @@ ImpactTable
             "2" "none" //lava_rock_hot
             "3" "none" //spiderflesh
             "4" "none"
-            "5" "none"
+            "5" "Default.Grapple.Impact_3P_vs_3P"
             "6" "none"
             "7" "none"
             "8" "none"
@@ -156,7 +156,7 @@ ImpactTable
             "2" "none" //lava_rock_hot
             "3" "none" //spiderflesh
             "4" "none"
-            "5" "none"
+            "5" "Default.Grapple.Impact_1P_vs_3P"
             "6" "none"
             "7" "none"
             "8" "none"
@@ -216,7 +216,7 @@ ImpactTable
             "2" "none" //lava_rock_hot
             "3" "none" //spiderflesh
             "4" "none"
-            "5" "none"
+            "5" "Default.Grapple.Impact_3P_vs_3P"
             "6" "none"
             "7" "none"
             "8" "none"

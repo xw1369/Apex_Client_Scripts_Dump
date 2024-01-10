@@ -52,7 +52,7 @@ void function ShSkydiveEmotes_LevelInit()
 void function RegisterSkydiveEmotesForCharacter( ItemFlavor characterClass )
 {
 	array<ItemFlavor> skydiveEmotesList = RegisterReferencedItemFlavorsFromArray( characterClass, "skydiveEmotes", "flavor" )
-	MakeItemFlavorSet( skydiveEmotesList, fileLevel.skydiveEmoteSortOrdinalMap )
+	MakeItemFlavorSet( skydiveEmotesList, fileLevel.skydiveEmoteSortOrdinalMap, true )
 
 	fileLevel.loadoutCharacterSkydiveEmoteSlotMap[characterClass] <- []
 

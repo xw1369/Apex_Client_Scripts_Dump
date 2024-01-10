@@ -41,7 +41,7 @@ global function RemoveCallback_OnPlayerDisconnected
 global function IsPlayerEliminated
 
 global function ServerCallback_GiveMatchLossProtection
-global function ServerCallback_OnEntityKilled
+global function ServerCallback_OnPlayerOrNpcKilled
 global function ServerCallback_OnEnemyDowned
 
 global function ServerCallback_SetAssistInformation
@@ -66,6 +66,12 @@ struct {
 	float lastBloodDecalTime = 0
 
 	array< string > playerDebugStateDynamicFields
+
+
+
+
+
+
 } file
 
 struct BloodDecalParams
@@ -94,6 +100,7 @@ void function ClPlayer_Init()
 	RegisterSignal( "HealthChanged" )
 	RegisterSignal( "ShieldChanged" )
 	RegisterSignal( "TargetChanged" )
+	RegisterSignal( "OnModelChanged" )
 
 	FlagInit( "DamageDistancePrint" )
 	FlagInit( "EnableTitanModeChange", true )
@@ -110,6 +117,8 @@ void function ClPlayer_Init()
 	AddCreateCallback( "npc_titan", EnableDoDeathCallback )
 	AddCallback_ClientOnPlayerConnectionStateChanged( Player_OnPlayerConnectionStateChanged )
 
+	AddCallback_OnPlayerLifeStateChanged( Player_Play3PDeathSounds )
+
 	level.menuHideGroups <- {}
 
 	level.spawnAsTitanSelected <- false
@@ -118,6 +127,11 @@ void function ClPlayer_Init()
 
 	if ( GetConVarBool( "cl_liveapi_enabled" ) )
 		ClLiveAPI_Init()
+
+
+
+
+
 }
 
 entity function FindEnemyRodeoParent( entity player )
@@ -565,8 +579,19 @@ void function ClientCodeCallback_PlayerDidDamage( PlayerDidDamageParams params )
 	}
 	else if ( isOvershieldShot )
 	{
-		PlayShieldHitEffect( params, TEMPSHIELD_COLOR )
-		showCrosshairHitIndicator = true
+
+
+
+
+
+
+
+
+
+		{
+			PlayShieldHitEffect( params, TEMPSHIELD_COLOR )
+			showCrosshairHitIndicator = true
+		}
 	}
 	else if ( isArmorShot || isShieldShot )
 	{
@@ -634,7 +659,19 @@ void function ClientCodeCallback_PlayerDidDamage( PlayerDidDamageParams params )
 		else if ( isVortexHit )
 			hitType = eHitType.VORTEX
 
+
+
+
+
+
+
+
+
+
+
 		DamageFlyout( damageAmount, damagePosition, victim, hitType, damageFlags, damageType, weapon )
+
+
 	}
 
 	bool playedHitSound = false
@@ -1066,7 +1103,7 @@ string function BloodSprayDecals_Toggle()
 }
 #endif
 
-void function ServerCallback_OnEntityKilled( entity attacker, entity victim, int scriptDamageType, int damageSourceId )
+void function ServerCallback_OnPlayerOrNpcKilled( entity attacker, entity victim, int scriptDamageType, int damageSourceId )
 {
 	bool isHeadShot = IsBitFlagSet( scriptDamageType, DF_HEADSHOT)
 
@@ -1234,6 +1271,8 @@ void function ServerCallback_SetAssistInformation( int damageSourceId, entity la
 
 void function ClientCodeCallback_OnModelChanged( entity ent )
 {
+	if( IsValid(ent) )
+		Signal(ent, "OnModelChanged")
 	
 
 
@@ -1743,7 +1782,9 @@ string function GetPlayerDeathSound1P()
 
 void function PlayLocal1PDeathSound()
 {
-	EmitSoundOnEntity( GetLocalClientPlayer(), GetPlayerDeathSound1P() )
+	var soundHandle = EmitSoundOnEntity( GetLocalClientPlayer(), GetPlayerDeathSound1P() )
+	SetPlayThroughPOVTransitions( soundHandle )
+	SetPlayThroughKillReplay( soundHandle ) 
 }
 
 
@@ -1779,6 +1820,21 @@ void function OnClientPlayerDying( entity player )
 	player.cv.deathTime = Time()
 
 	thread DeathCamCheck( player )
+}
+
+void function Player_Play3PDeathSounds( entity player, int oldLifeState, int newLifeState )
+{
+	if ( newLifeState == LIFE_DYING )
+	{
+		
+		
+		if ( IsWatchingKillReplay() && IsReplayRoundWinning() && player == GetLocalClientPlayer().GetKillReplayVictim() )
+			return
+
+		var soundHandle = EmitSoundOnEntity( player, "Player.Death" )
+		SetPlayThroughKillReplay( soundHandle )
+		SetPlayThroughPOVTransitions( soundHandle )
+	}
 }
 
 

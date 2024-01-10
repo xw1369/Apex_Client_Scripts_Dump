@@ -156,8 +156,8 @@ void function PrivateMatch_Init()
 
 
 		
-		Remote_RegisterServerFunction( "ClientCallback_PrivateMatchKickPlayer", "entity" )
-		Remote_RegisterServerFunction( "ClientCallback_PrivateMatchSetPlayerTeam", "entity", "int", TEAM_UNASSIGNED, TEAM_MULTITEAM_LAST )
+		Remote_RegisterServerFunction( "ClientCallback_PrivateMatchKickPlayer", "typed_entity", "player" )
+		Remote_RegisterServerFunction( "ClientCallback_PrivateMatchSetPlayerTeam", "typed_entity", "player", "int", TEAM_UNASSIGNED, TEAM_MULTITEAM_LAST )
 		Remote_RegisterServerFunction( "ClientCallback_PrivateMatchToggleAimAssist" )
 		Remote_RegisterServerFunction( "ClientCallback_PrivateMatchToggleAnonymousMode" )
 		Remote_RegisterServerFunction( "ClientCallback_PrivateMatchSetPlaylist", "int", 0, GetPlaylistCount() - 1 )
@@ -165,7 +165,7 @@ void function PrivateMatch_Init()
 		Remote_RegisterServerFunction( "ClientCallback_PrivateMatchEndMatchEarly" )
 
 		
-		Remote_RegisterServerFunction( "ClientCallback_PrivateMatchChangeObserverTarget", "entity" )
+		Remote_RegisterServerFunction( "ClientCallback_PrivateMatchChangeObserverTarget", "typed_entity", "player" )
 		Remote_RegisterServerFunction( "ClientCallback_PrivateMatchToggleSurveyRing" )
 		Remote_RegisterServerFunction( "ClientCallback_PrivateMatchRefreshSurveyRing" )
 		Remote_RegisterServerFunction( "ClientCallback_PrivateMatchReportObserverTargetChanged" )
@@ -1172,7 +1172,7 @@ void function PrivateMatch_OnGameStateChanged( int newVal )
 	if( newVal == eGameState.Playing )
 	{
 		entity observerTarget = GetObserverPresetTarget()
-		if( observerTarget != null )
+		if ( observerTarget != null && observerTarget.IsPlayer() )
 			Remote_ServerCallFunction( "ClientCallback_PrivateMatchChangeObserverTarget", observerTarget )
 	}
 	else if ( newVal == eGameState.WinnerDetermined )

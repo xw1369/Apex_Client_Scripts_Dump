@@ -2006,6 +2006,16 @@ int function GetCombatRangeRealm( entity ent )
 
 
 
+
+
+
+
+
+
+
+
+
+
 void function SCB_DynDummie_Spawns_Changed()
 {
 	

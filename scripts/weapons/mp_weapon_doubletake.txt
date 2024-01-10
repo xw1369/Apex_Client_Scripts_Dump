@@ -2,7 +2,7 @@
 #base "_base_mags_energy.txt"
 
                     
-                                          
+#base "_base_hopup_golden_horse_green.txt"
       
 
 "WeaponData"
@@ -43,7 +43,8 @@
     "OnWeaponActivate"                              "OnWeaponActivate_weapon_doubletake"
     "OnWeaponDeactivate"                            "OnWeaponDeactivate_weapon_doubletake"
                     
-                                                          
+	"OnWeaponReload"								"GoldenHorseGreen_OnWeaponReload"
+	"OnWeaponReloadFinished"                        "GoldenHorseGreen_OnWeaponReloadFinished"
       
 
 	"charge_time" 									"0.0"
@@ -84,7 +85,7 @@
 	"damage_leg_scale"                             "0.9"
 
 	// Damage - Behavior
-	"damage_flags"                                 "DF_BULLET | DF_KNOCK_BACK | DF_DISMEMBERMENT"
+	"damage_flags"                                 "DF_BULLET | DF_KNOCK_BACK"
 
 	// Viewmodel
 	"viewmodel_offset_ads"                         "0 -3.0 0"

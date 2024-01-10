@@ -45,7 +45,7 @@ ImpactTable
 		"3" "P_test_impact_debug_light" //spiderflesh
 
 		"4" "P_test_impact_debug_light" //"openslot"
-		"5" "P_test_impact_debug_light" //"openslot"
+		"5" "P_test_impact_debug_light" //water_hrz
 		"6" "P_test_impact_debug_light" //"openslot"
 		"7" "P_test_impact_debug_light" //"openslot"
 		"8" "P_test_impact_debug_light" //"openslot"

@@ -169,7 +169,7 @@ void function OnRegisterRootItemFlavors()
 			WORKAROUND_UI_MUSIC_SOUND_LIST.append( alias2 )
 	}
 
-	MakeItemFlavorSet( musicPackList, fileLevel.musicPackFlavorSortOrdinalMap )
+	MakeItemFlavorSet( musicPackList, fileLevel.musicPackFlavorSortOrdinalMap, true )
 
 	LoadoutEntry entry = RegisterLoadoutSlot( eLoadoutEntryType.ITEM_FLAVOR, "music_pack_selection", eLoadoutEntryClass.ACCOUNT )
 	entry.networkTo = eLoadoutNetworking.PLAYER_EXCLUSIVE

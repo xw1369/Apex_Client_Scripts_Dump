@@ -5,7 +5,7 @@
 #base "_base_stocks_tactical.txt"
 
                     
-                                           
+#base "_base_hopup_golden_horse_yellow.txt"
       
 
 WeaponData

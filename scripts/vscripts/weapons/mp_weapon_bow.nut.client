@@ -333,11 +333,11 @@ var function OnWeaponPrimaryAttack_weapon_bow( entity weapon, WeaponPrimaryAttac
 
 
 
-
+		GoldenHorsePurple_OnWeaponPrimaryAttack( weapon, attackParams )
 
 	weapon.FireWeapon_Default( attackParams.pos, attackParams.dir, speedMultiplier, 1.0, ignoreSpread )
 
-
+		GoldenHorsePurple_PostFire( weapon )
 
 
 	MarksmansTempo_OnFire( weapon, file.bowTempoSettings, true )

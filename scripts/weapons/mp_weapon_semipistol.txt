@@ -6,7 +6,7 @@
       
 
                     
-                                        
+#base "_base_hopup_golden_horse_red.txt"
       
 
 WeaponData
@@ -32,6 +32,7 @@ WeaponData
 	
                
                           
+                                                                             
                      
 	
 	// Callbacks
@@ -272,9 +273,9 @@ WeaponData
 
                  
           
-                                                   
                                                     
                                                      
+                                                      
 
                                                      
                                                         
@@ -285,9 +286,9 @@ WeaponData
 
                        
           
-                                                   
                                                     
                                                      
+                                                      
 
                                                      
                                                         
@@ -298,9 +299,9 @@ WeaponData
 
                  
     
-                                                   
                                                     
                                                      
+                                                      
 
                                                      
                                                         

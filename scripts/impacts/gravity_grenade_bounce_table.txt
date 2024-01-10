@@ -45,7 +45,7 @@ ImpactTable
 		"2" "P_hmn_footstep_lava" //lava_rock_hot
 //		"3" "openslot"
 //		"4" "openslot"
-//		"5" "openslot"
+		"5" "P_impact_water_hrz"
 //		"6" "openslot"
 //		"7" "openslot"
 //		"8" "openslot"
@@ -82,7 +82,7 @@ ImpactTable
 		"P" "GravityMine_SurfaceImpact_Metal_3P"
 
 		"R" "GravityMine_SurfaceImpact_Metal_3P"
-		"S" "GravityMine_SurfaceImpact_Concrete_3P"
+		"S" "Water.BulletImpact"
 		"T" "GravityMine_SurfaceImpact_Concrete_3P"
 		"U" "GravityMine_SurfaceImpact_Concrete_3P"
 
@@ -101,6 +101,8 @@ ImpactTable
 
 		"headshot_flesh" "PulseBlade_SurfaceImpact_Flesh_3P"
 		"headshot_mechanical" "PulseBlade_SurfaceImpact_Metal_3P"
+
+		"5" "Water.BulletImpact"
 	}
 
 	Sound_attacker
@@ -122,7 +124,7 @@ ImpactTable
 		"P" "GravityMine_SurfaceImpact_Metal_3P"
 
 		"R" "GravityMine_SurfaceImpact_Metal_3P"
-		"S" "GravityMine_SurfaceImpact_Concrete_3P"
+		"S" "Water.BulletImpact"
 		"T" "GravityMine_SurfaceImpact_Concrete_3P"
 		"U" "GravityMine_SurfaceImpact_Concrete_3P"
 
@@ -141,6 +143,8 @@ ImpactTable
 
 		"headshot_flesh" "none"
 		"headshot_mechanical" "none"
+
+		"5" "Water.BulletImpact"
 	}
 
 	Sound_victim
@@ -162,7 +166,7 @@ ImpactTable
 		"P" "GravityMine_SurfaceImpact_Metal_3P"
 
 		"R" "GravityMine_SurfaceImpact_Metal_3P"
-		"S" "GravityMine_SurfaceImpact_Concrete_3P"
+		"S" "Water.BulletImpact"
 		"T" "GravityMine_SurfaceImpact_Concrete_3P"
 		"U" "GravityMine_SurfaceImpact_Concrete_3P"
 
@@ -182,6 +186,8 @@ ImpactTable
 		// Victim headshot sounds taken care of in PlayVictimHeadshotConfirmation():
 		//"headshot_flesh" "Flesh.BulletImpact_3P_vs_1P"
 		//"headshot_mechanical" "Android.Light.BulletImpact_3P_vs_1P"
+
+		"5" "Water.BulletImpact"
 	}
 
 	Sound_victim_from_AI

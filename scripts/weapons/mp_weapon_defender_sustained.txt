@@ -116,7 +116,7 @@ WeaponData
 	"sustained_laser_use_deferred_traces"			"0"
 
     // Damage - When Used by Players
-    "damage_flags" 					                "DF_GIB | DF_DISMEMBERMENT"
+    "damage_flags" 					                "DF_GIB"
 
     "damage_near_value"   							"5"
     "damage_far_value"								"5"

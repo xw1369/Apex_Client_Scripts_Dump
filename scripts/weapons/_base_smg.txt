@@ -35,7 +35,7 @@ WeaponData
 	"heartbeat_sensor_size"                         "84"
 
     // Damage - General
-	"damage_flags"									"DF_BULLET | DF_DISMEMBERMENT"
+	"damage_flags"									"DF_BULLET"
     "damage_shield_scale"                           "1"
 
 	"damage_headshot_scale"							"1.25" //1.5

@@ -37,7 +37,7 @@ ImpactTable
 //		"2" "openslot"
 		"3" "P_veh_impact_shield"//Default_silent, Vehicle Walls //DO NOT COPY SPEACIAL FOR VEHICLE
 //		"4" "openslot"
-//		"5" "openslot"
+		"5" "P_veh_vh1_scrape"
 //		"6" "openslot"
 //		"7" "openslot"
 //		"8" "openslot"
@@ -78,8 +78,8 @@ ImpactTable
 
 		"Y" "HoverVehicle_Scrape"
 		"Z" "HoverVehicle_Scrape"
-
 		"3" "HoverVehicle_Scrape" //Default_silent, Vehicle Walls //DO NOT COPY SPEACIAL FOR VEHICLE
+		"5" "HoverVehicle_Scrape"
 
 		"splash" "HoverVehicle_Scrape"
 		"slime_splash" "HoverVehicle_Scrape"

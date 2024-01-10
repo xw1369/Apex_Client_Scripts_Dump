@@ -35,7 +35,7 @@ ImpactTable
 //		"2" "openslot"
 //		"3" "openslot"
 //		"4" "openslot"
-//		"5" "openslot"
+		"5" "P_impact_xo_shield_cp" //water_hrz
 //		"6" "openslot"
 //		"7" "openslot"
 //		"8" "openslot"
@@ -85,6 +85,8 @@ ImpactTable
 		"shieldhit" "TitanShield.Light.BulletImpact_3P_vs_3P"
 		"headshot_flesh" "player_melee_impact_flesh_3P_vs_3P"
 		"headshot_mechanical" "Pilot_Melee_Kick_Impact_Android_3P_vs_3P"
+
+		"5" "Player_Melee_Impact_Water_3p_vs_3p"
 	}
 
 	Sound_attacker
@@ -124,6 +126,8 @@ ImpactTable
 		"shieldhit" "TitanShield.Light.BulletImpact_1P_vs_3P"
 		"headshot_flesh" "player_melee_impact_flesh_1P_vs_3P"
 		"headshot_mechanical" "Pilot_Melee_Kick_Impact_Android_1P_vs_3P"
+
+		"5" "Player_Melee_Impact_Water_1p_vs_3p"
 	}
 
 	Sound_victim
@@ -163,6 +167,8 @@ ImpactTable
 		"shieldhit" "TitanShield.Light.BulletImpact_3P_vs_1P"
 		"headshot_flesh" "player_melee_impact_flesh_3P_vs_1P"
 		"headshot_mechanical" "Pilot_Melee_Kick_Impact_Android_3P_vs_1P"
+
+		"5" "Player_Melee_Impact_Water_3p_vs_3p"
 	}
 
 	Sound_victim_from_AI
@@ -201,6 +207,8 @@ ImpactTable
 		"shieldhit" "TitanShield.Light.BulletImpact_3P_vs_1P"
 		"headshot_flesh" "player_melee_impact_flesh_3P_vs_1P_AIGruntGenerated"
 		"headshot_mechanical" "Pilot_Melee_Kick_Impact_Android_3P_vs_1P"
+
+		"5" "Player_Melee_Impact_Water_3p_vs_3p"
 	}
 }
 

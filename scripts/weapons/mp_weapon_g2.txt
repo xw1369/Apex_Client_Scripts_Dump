@@ -6,7 +6,7 @@
       
 
                     
-                                           
+#base "_base_hopup_golden_horse_yellow.txt"
       
 
 "WeaponData"
@@ -64,7 +64,7 @@
 	"heartbeat_sensor_size"                    "65"
 
 	// Damage
-	"damage_flags"                             "DF_BULLET | DF_KNOCK_BACK | DF_DISMEMBERMENT"
+	"damage_flags"                             "DF_BULLET | DF_KNOCK_BACK"
 
 	"damage_rodeo"                             "220"
 

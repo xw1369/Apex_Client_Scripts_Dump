@@ -629,6 +629,4 @@ void function OnWeaponChargeEnd_weapon_incap_shield( entity weapon )
 
 
 
-
-
 #endif

@@ -67,6 +67,13 @@ const float SPACEELEVATOR_TUNING_HOVER_HEIGHT_PCT = 0.9
 const float SPACEELEVATOR_TUNING_LIFETIME = 10
 const float SPACEELEVATOR_TUNING_KEEP_ALIVE_MAX_TIME = 5
 
+
+
+
+
+
+
+
 const asset SPACEELEVATOR_SHAFT_MDL_ASSET = $"mdl/fx/nova_elevator_shield.rmdl"
 const asset SPACEELEVATOR_SHAFT_FX = $"p_wpn_grav_lift_column"
 const float SPACEELEVATOR_SHAFT_SPACING = 160
@@ -110,6 +117,10 @@ void function MpSpaceElevator_Init()
 	
 	PrecacheParticleSystem( SPACEELEVATOR_SHAFT_FX )
 	PrecacheParticleSystem( FX_PROJECTILE_DESTROYED )
+
+
+
+
 
 	PrecacheParticleSystem( HORIZON_FINISHER_REPULSOR_FLASH )
 
@@ -159,6 +170,13 @@ int function GetSpaceElevatorHeight( entity player )
 
 
 
+
+
+
+
+
+
+
 	return result
 }
 
@@ -171,8 +189,39 @@ float function GetSpaceElevatorLifetime( entity player )
 
 
 
+
+
+
+
+
+
+
+
 	return result
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -982,6 +1031,12 @@ void function SPACEELEVATOR_InTriggerThread( entity trigger, entity player )
 				if ( ShouldSpaceElevatorAffectPlayer( player ) )
 				{
 					SPACEELEVATOR_EjectPlayer( player, trigger )
+
+
+
+
+
+
 				}
 			}
 		}
@@ -1110,6 +1165,19 @@ void function SPACEELEVATOR_EjectPlayer( entity player, entity trigger )
 
 
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

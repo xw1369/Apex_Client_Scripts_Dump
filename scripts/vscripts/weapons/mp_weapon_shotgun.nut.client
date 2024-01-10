@@ -23,7 +23,7 @@ void function OnWeaponActivate_weapon_shotgun( entity weapon )
 	UpdateDoubleTapShotgunBoltPairing( weapon )
 
 
-
+		GoldenHorseGreen_OnWeaponActivate( weapon )
 
 }
 
@@ -32,7 +32,7 @@ void function OnWeaponDeactivate_weapon_shotgun( entity weapon )
 	UpdateDoubleTapShotgunBoltPairing( weapon )
 
 
-
+		GoldenHorseGreen_OnWeaponDeactivate( weapon )
 
 }
 

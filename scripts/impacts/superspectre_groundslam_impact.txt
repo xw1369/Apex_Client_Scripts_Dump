@@ -47,7 +47,7 @@ ImpactTable
 		"2" "P_sup_spec_grndpnd"
 		"3" "P_sup_spec_grndpnd"
 		"4" "P_sup_spec_grndpnd"
-		"5" "P_sup_spec_grndpnd"
+		"5" "P_sup_spec_grndpnd" //water_hrz
 		"6" "P_sup_spec_grndpnd"
 		"7" "P_sup_spec_grndpnd"
 		"8" "P_sup_spec_grndpnd"
@@ -99,7 +99,7 @@ ImpactTable
 		//"2" "P_screen_concussion"
 		//"3" "P_screen_concussion"
 		//"4" "P_screen_concussion"
-		//"5" "P_screen_concussion"
+		"5" "P_screen_water"
 		//"6" "P_screen_concussion"
 		//"7" "P_screen_concussion"
 		//"8" "P_screen_concussion"
@@ -150,6 +150,8 @@ ImpactTable
 
 		//"airburst" "SuperSpectre.GroundSlam.Impact"
 		"shieldhit" "TitanShield.Explosive.BulletImpact_3P_vs_3P"
+
+		"5" "SuperSpectre.GroundSlam.Impact"
 	}
 
 	Sound_attacker
@@ -186,6 +188,8 @@ ImpactTable
 
 		//"airburst" "SuperSpectre.GroundSlam.Impact"
 		"shieldhit" "TitanShield.Explosive.BulletImpact_1P_vs_3P"
+
+		"5" "SuperSpectre.GroundSlam.Impact"
 	}
 
 	Sound_victim
@@ -222,6 +226,8 @@ ImpactTable
 
 		//"airburst" "SuperSpectre.GroundSlam.Impact"
 		"shieldhit" "TitanShield.Explosive.BulletImpact_3P_vs_1P"
+
+		"5" "SuperSpectre.GroundSlam.Impact"
 	}
 
 

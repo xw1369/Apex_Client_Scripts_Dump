@@ -46,6 +46,9 @@ const string REMOTE_SERVERCALL_ON_RESELECT_MENU_CLOSE = "ClientToServer_OnCharac
 
 
 
+
+
+
 global function CharacterSelectSkinSelectionIsEnabled
 
 
@@ -95,6 +98,8 @@ global function RestoreCharacterSelectCamera
 global function PanAwayCharacterSelect
 global function FadeInOut
 global function SetCustomReadyUpVoiceLine
+
+global function CharacterSelect_Menu_ShouldOpen
 
 const string CAMERA_ENT_NAME = "target_char_sel_camera_new"
 const string CHARACTER_ENT_NAME = "target_char_sel_pilot_new"
@@ -427,6 +432,15 @@ struct {
 
 
 
+
+
+
+
+
+
+
+
+
 void function CharacterSelectMenu_Init()
 {
 	PrecacheModel( BACKGROUND_GEO_MODEL )
@@ -534,6 +548,51 @@ void function OpenCharacterSelectMenu( bool isBrowseMode = false, bool browseMod
 		func()
 }
 
+bool function CharacterSelect_Menu_ShouldOpen( entity player )
+{
+	if ( !IsValid( player ))
+		return false
+
+	if( !player.IsPlayer() )
+		return false
+
+	if( IsAlive( player ) && player.ContextAction_IsMeleeExecution() )
+		return false
+
+	if( IsInBleedoutOrRevive( player ) )
+		return false
+
+	if( player.IsPhaseShifted() )
+		return false
+
+	if ( !IsWatchingKillReplay() )
+	{
+		
+		
+		array< string > legendsToLockCharSelDuringUlt = [ "#character_newcastle_NAME" ]
+		int playerEHI = ToEHI( player )
+		ItemFlavor legendFlavor = LoadoutSlot_GetItemFlavor( playerEHI, Loadout_Character() )
+		string legendName = ItemFlavor_GetLongName( legendFlavor )
+
+#if DEV
+			printt( "DEV-RYEH: Legend Trying to Open Character Select Menu == ", legendName )
+#endif
+
+		if( legendsToLockCharSelDuringUlt.contains( legendName ) )
+		{
+			entity ultimateWeapon = player.GetOffhandWeapon( OFFHAND_ULTIMATE )
+			if( IsValid( ultimateWeapon ) && ultimateWeapon.GetWeaponPrimaryClipCount() == 0 )
+				return false
+		}
+	}
+
+
+	if( player.ContextAction_IsEmoting() ) 
+		return false
+
+	return true
+}
+
 bool function CharacterSelect_MenuIsOpen()
 {
 	return fileLevel.menuIsOpen
@@ -636,7 +695,8 @@ void function PanAwayCharacterSelect()
 	ScreenFade( GetLocalClientPlayer(), 0, 0, 0, 255, 0.5, 0, FFADE_OUT | FFADE_PURGE )
 	wait 0.5
 
-	fileLevel.characterNodeMover.NonPhysicsRotateTo( fileLevel.characterNodeMover.GetAngles() + <0, 135, 0>, 0.1, 0, 0 )
+	if (fileLevel.characterNodeMover != null)
+		fileLevel.characterNodeMover.NonPhysicsRotateTo( fileLevel.characterNodeMover.GetAngles() + <0, 135, 0>, 0.1, 0, 0 )
 
 	EmitSoundOnEntity( GetLocalClientPlayer(), "UI_Survival_Intro_LegendPanLeft" )
 
@@ -646,6 +706,14 @@ void function PanAwayCharacterSelect()
 
 	
 	NotifyCharacterSelectBeginEnd( false )
+
+
+
+
+
+
+
+
 }
 
 void function Client_MuteChanged()
@@ -1492,6 +1560,11 @@ void function _OpenCharacterSelectMenu( var menu )
 		fileLevel.backgroundRui = CreateFullscreenRui( $"ui/character_select_class_name_plate.rpak", 300 )
 
 	RunUIScript( "CharacterSelectSetRUI")
+
+
+
+
+
 
 	
 	if (fileLevel.mapModeDetailsRui == null)
@@ -2699,7 +2772,7 @@ void function DoBrowseModeCharacterSelectEffects()
 	{
 		wait(0.5)
 		entity player = GetLocalClientPlayer()
-		if ( IsAlive( player ) )
+		if ( IsAlive( player ) && !IsWatchingKillReplay() )
 		{
 			
 			
@@ -3720,7 +3793,18 @@ void function UpdatePlayerModel( ItemFlavor character, ItemFlavor ornull charact
 	CreateNewCharacterModel( CharacterSkin_GetBodyModel( characterSkin ) )
 	CharacterSkin_Apply( fileLevel.characterModel, characterSkin )
 	
-	fileLevel.characterModel.Show()
+
+
+	if ( GetCurrentPlaylistVarBool( "use_custom_mode_intro", false ) && IsRevTakeover() && ShadowArmy_IsPlayerOnShadowArmy(GetLocalClientPlayer()) )
+	{
+		fileLevel.characterModel.Hide()
+	}
+	else
+
+	{
+		fileLevel.characterModel.Show()
+	}
+
 	Signal( fileLevel.signalDummy, "PlayerModelUpdated" )
 
 	
@@ -3769,6 +3853,22 @@ void function UpdatePlayerModel( ItemFlavor character, ItemFlavor ornull charact
 		}
 
 	SetChromaCharacter( character )
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 	
 	if (fileLevel.backgroundRui)
@@ -5053,9 +5153,10 @@ bool function Character_IsCharacterUnlockedForCalevent( ItemFlavor characterItem
 	
 	table < asset, string > activeCharacterUnlocks = {}
 
+	
+	
 
-	activeCharacterUnlocks[$"settings/itemflav/calevent/s18rr/s18_rr_challenges.rpak"] <- "SAID00064207844" 
-
+	
 
 	
 	foreach ( eventAsset, unlockedCharacterGUID in activeCharacterUnlocks )

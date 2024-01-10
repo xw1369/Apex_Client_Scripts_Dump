@@ -804,6 +804,13 @@ void function Sur_SetPlaneCenterEnt( entity ent )
 void function Sur_SetPlaneEnt( entity ent )
 {
 	file.planeEnt = ent
+
+
+
+
+
+
+
 }
 
 
@@ -1039,6 +1046,11 @@ bool function CanWeaponInspect( entity player, int activity )
 
 	return GetCurrentPlaylistVarBool( "enable_weapon_inspect", true )
 }
+
+
+
+
+
 
 
 

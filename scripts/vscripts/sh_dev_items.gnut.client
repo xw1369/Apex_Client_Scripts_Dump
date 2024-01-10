@@ -1,0 +1,210 @@
+#if DEV
+global function DEV_PrintAllGRXRefs
+#endif
+
+const array< string > BASE_ITEMFLAV_TYPES =
+[
+	"calevents",
+	"ranked2Pt0Periods",
+	"entitlements",
+	"characters",
+	"weapons",
+	"meleeWeapons",
+	"loadscreens",
+	"images2D",
+	"musicPacks",
+	"diveTrails",
+	"stickers",
+	"vouchers",
+	"packs",
+	"currencyBundles",
+	"apexCoinAmounts",
+	"pings",
+	"clubLogoElements",
+	"clubSearchTags",
+	"beginnerChallenges",
+	"classes",
+	"battlepassPresaleVouchers",
+	"battlepassPurchasableXP",
+	"boostTypes",
+	"boostEvents",
+	"eventAbilities",
+	"keplerScenarios"
+] 
+
+const array< string > CHARACTER_ITEM_TYPES =
+[
+	"skins",
+	"executions",
+	"emotes",
+	"skydiveEmotes",
+	"introQuips",
+	"killQuips",
+	"gcardStances",
+	"gcardFrames",
+	"gcardBadges",
+	"gcardStatTrackers",
+	"emoteIcons",
+	"nonCombatPets",
+	"mythicBundles"
+] 
+
+const array< string > MAIN_WEAPON_ITEM_TYPES =
+[
+	"skins",
+	"charms"
+] 
+
+const array< string > MELEE_WEAPON_ITEM_TYPES =
+[
+	"skins"
+] 
+
+#if DEV
+void function DEV_PrintAllGRXRefs()
+{
+	array <ItemFlavor> allItemFlavs = GetAllItemFlavors()
+
+	string currentType = "" 
+	string grxDump = ""
+	grxDump += "------- ALL ASSETS -------\n"
+	grxDump += "TYPE , ASSET PATH , GRX REF , LONG NAME , LONG KEY , RARITY , PARENT , FEATURE FLAG\n"
+
+	table< ItemFlavor, string > featureFlagTable = DEV_GetFeatureFlagItemFlavPairsArray()
+
+	foreach ( ItemFlavor flav in allItemFlavs )
+	{
+		
+		if ( ItemFlavor_GetGRXMode( flav ) == eItemFlavorGRXMode.NONE || ItemFlavor_GetGRXMode( flav ) == eItemFlavorGRXMode.OWNERSHIP_TARGET )
+			continue
+
+		string quality = ItemFlavor_HasQuality( flav ) ? DEV_GetEnumStringSafe( "eRarityTier", ItemFlavor_GetQuality( flav ) ) : "NULL"
+
+		asset parentFlav = GetGlobalSettingsAsset( ItemFlavor_GetAsset( flav ), "parentItemFlavor" )
+		string parentName = "NULL"
+		if ( parentFlav != "" && IsValidItemFlavorSettingsAsset( parentFlav ) )
+		{
+			parentName = Localize( ItemFlavor_GetShortName( GetItemFlavorByAsset( parentFlav ) ) )
+		}
+
+		string featureFlag
+
+		if ( flav in featureFlagTable )
+		{
+			featureFlag = featureFlagTable[ flav ]
+		}
+
+		grxDump += Localize( ItemFlavor_GetTypeName( flav ) ) + " , " + DEV_ItemFlavor_GetCleanedAssetPath( flav ) + " , " + ItemFlavor_GetGRXAlias( flav ) + " , " +
+		Localize( ItemFlavor_GetLongName( flav ) )  + " , " + ItemFlavor_GetLongName( flav ) + " , " + quality + " , " + parentName + " , " + featureFlag + "\n"
+	}
+	grxDump += "------- END ASSETS -------\n"
+	DEV_PrintGRXRefsToFile( grxDump )
+}
+
+void function DEV_PrintGRXRefsToFile( string out )
+{
+	const string DEBUG_OUTPUT_PATH = "../../dumps/" 
+	printt( "Dumping GRX refs to depot/r5dev/dumps/grx_refs_dump.txt" )
+	DevTextBufferClear()
+	DevTextBufferWrite( out )
+	DevTextBufferDumpToFile( DEBUG_OUTPUT_PATH + "grx_refs_dump.txt" )
+	DevTextBufferClear()
+}
+
+table< ItemFlavor, string > function DEV_GetFeatureFlagItemFlavPairsArray()
+{
+	table< ItemFlavor, string > flavFlagPairing
+
+	
+	
+	
+	
+	var parentBlock = GetSettingsBlockForAsset( $"settings/base_itemflavors.rpak" )
+
+	foreach ( string arrayFieldName in BASE_ITEMFLAV_TYPES )
+	{
+		var arrField    = GetSettingsBlockArray( parentBlock, arrayFieldName )
+
+		foreach ( var entryBlock in IterateSettingsArray( arrField ) )
+		{
+			asset entryAsset = GetSettingsBlockAsset( entryBlock, "flavor" )
+			if ( entryAsset == $"" )
+				continue
+
+			ItemFlavor flav
+			int guid = GetUniqueIdForSettingsAsset( entryAsset )
+
+			if ( IsValidItemFlavorGUID( guid, eValidation.DONT_ASSERT ) )
+			{
+				flav = GetItemFlavorByGUID( guid )
+			}
+			else
+			{
+				continue
+			}
+
+			string entryFlag = GetSettingsBlockString( entryBlock, "featureFlag" )
+
+			flavFlagPairing[ flav ] <- entryFlag
+		}
+	}
+
+	
+	
+	
+	array<ItemFlavor> characterFlavors = GetAllCharacters()
+	DEV_GetFeatureFlagTableFromFlavorTypeSettingsBlock( flavFlagPairing, characterFlavors, CHARACTER_ITEM_TYPES )
+
+	
+	
+	
+	array<ItemFlavor> weaponFlavors = GetAllWeaponItemFlavors()
+	DEV_GetFeatureFlagTableFromFlavorTypeSettingsBlock( flavFlagPairing, weaponFlavors, MAIN_WEAPON_ITEM_TYPES )
+
+	
+	
+	
+	array<ItemFlavor> meleeWeaponFlavors = GetAllMeleeWeapons()
+	DEV_GetFeatureFlagTableFromFlavorTypeSettingsBlock( flavFlagPairing, meleeWeaponFlavors, MELEE_WEAPON_ITEM_TYPES )
+
+	return flavFlagPairing
+}
+
+void function DEV_GetFeatureFlagTableFromFlavorTypeSettingsBlock( table< ItemFlavor, string > flavFlagPairing, array<ItemFlavor> flavors, array<string> settingsBlockStrings )
+{
+	foreach ( ItemFlavor flav in flavors )
+	{
+		var parentBlock = ItemFlavor_GetSettingsBlock( flav )
+
+		foreach ( string arrayFieldName in settingsBlockStrings )
+		{
+			var arrField    = GetSettingsBlockArray( parentBlock, arrayFieldName )
+
+			foreach ( var entryBlock in IterateSettingsArray( arrField ) )
+			{
+				asset entryAsset = GetSettingsBlockAsset( entryBlock, "flavor" )
+				if ( entryAsset == $"" )
+					continue
+
+				ItemFlavor pairFlav
+				int guid = GetUniqueIdForSettingsAsset( entryAsset )
+
+				if ( IsValidItemFlavorGUID( guid, eValidation.DONT_ASSERT ) )
+				{
+					pairFlav = GetItemFlavorByGUID( guid )
+				}
+				else
+				{
+					continue
+				}
+
+				string entryFlag = GetSettingsBlockString( entryBlock, "featureFlag" )
+
+				flavFlagPairing[ pairFlav ] <- entryFlag
+			}
+		}
+	}
+
+	return
+}
+#endif

@@ -118,11 +118,6 @@ WeaponData
         {
         }
 
-        pas_power_cell
-        {
-            "regen_ammo_refill_rate"	"*1.35"
-        }
-
         survival_finite_ordnance
         {
 

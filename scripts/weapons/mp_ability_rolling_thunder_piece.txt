@@ -17,7 +17,6 @@ WeaponData
 	"uses_indirect_fire"							"1"
 
     "OnWeaponAttemptOffhandSwitch"					"OnWeaponAttemptOffhandSwitch_Never"
-    "OnProjectileCollision"                         "OnProjectileCollision_ability_WreckingBall_Piece"
 
 	SP_BASE
 	{

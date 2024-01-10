@@ -15,7 +15,6 @@ global function Valk_DisableHudColorCorrection
 global function Valk_CreateJetPackRui
 global function Valk_GetJetPackRui
 global function Valk_DestroyJetPackRui
-global function UpdateValkJetpackToggleOrHoldBasedOnInput
 
 
 global function CodeCallback_OnPlayerJetpackStop
@@ -72,7 +71,6 @@ void function MpAbilityValkJets_Init()
 
 
 
-
 		RegisterNetVarBoolChangeCallback( "valkTrackingActive", OnValkTrackingChanged )
 		AddCallback_CreatePlayerPassiveRui( Valk_CreateJetPackRui )
 		AddCallback_DestroyPlayerPassiveRui( Valk_DestroyJetPackRui )
@@ -84,17 +82,6 @@ void function MpAbilityValkJets_Init()
 	PrecacheParticleSystem( VALK_AMB_EXHAUST_FP )
 	PrecacheParticleSystem( VALK_AMB_EXHAUST_3P )
 }
-
-
-
-
-
-
-
-
-
-
-
 
 
 void function ValkTeammateStartTracking( entity valk )
@@ -355,7 +342,7 @@ void function _ValkFlightReveal( entity victim )
 	EndSignal( victim, "ValkFlightReveal" )
 	EndSignal( victim, "OnDestroy" )
 	var rui = RuiCreate( $"ui/recon_overview_scan_target.rpak", clGlobal.topoFullScreen, RUI_DRAW_HUD, 0 )
-	InitHUDRui( rui, true )
+	InitHUDRui( rui )
 
 	EmitSoundOnEntity( GetLocalViewPlayer(), "Valk_Ultimate_AcquireTarget_1P" )
 
@@ -393,14 +380,14 @@ void function _ValkFlightReveal( entity victim )
 		}
 	)
 
-		while( true )
-		{
-			bool scanBlocked = FerroWall_BlockScan( player.EyePosition(), victim.GetWorldSpaceCenter() )
-			RuiSetBool( rui, "isVisible", !scanBlocked )
-			WaitFrame()
-		}
 
 
+
+
+
+
+
+		WaitForever()
 
 }
 
@@ -552,7 +539,7 @@ bool function OnWeaponAttemptOffhandSwitch_ability_valk_jets( entity weapon )
 
 
 	entity primaryMelee = weaponOwner.GetNormalWeapon( WEAPON_INVENTORY_SLOT_PRIMARY_2 )
-	if( IsValid( primaryMelee ) && primaryMelee == lastWpn && primaryMelee.GetWeaponSettingBool( eWeaponVar.is_heirloom ) )
+	if( IsValid( primaryMelee ) && primaryMelee == lastWpn && primaryMelee.GetWeaponSettingBool( eWeaponVar.is_heirloom ) && !primaryMelee.GetWeaponSettingBool( eWeaponVar.is_artifact ) )
 		primaryMelee.AddMod( "using_jets" )
 
 
@@ -574,12 +561,10 @@ bool function OnWeaponAttemptOffhandSwitch_ability_valk_jets( entity weapon )
 	return result == JETPACK_ENGAGE_SUCCEED
 }
 
-
 var function OnWeaponPrimaryAttack_ability_valk_jets( entity weapon, WeaponPrimaryAttackParams attackParams )
 {
 	return 0
 }
-
 
 void function OnWeaponActivate_ability_valk_jets( entity weapon )
 {
@@ -655,20 +640,7 @@ void function OnWeaponDeactivate_ability_valk_jets( entity weapon )
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
 }
-
 
 void function OnPassiveChanged( entity player, int passive, bool didHave, bool nowHas )
 {
@@ -685,11 +657,8 @@ void function OnPassiveChanged( entity player, int passive, bool didHave, bool n
 	if ( nowHas )
 	{
 
-		if ( player == GetLocalClientPlayer() )
-			UpdateValkJetpackToggleOrHoldBasedOnInput()
-
-
-
+			if ( player == GetLocalClientPlayer() )
+				UpdateAbilityToggleOrHoldBasedOnInput()
 
 
 
@@ -697,15 +666,6 @@ void function OnPassiveChanged( entity player, int passive, bool didHave, bool n
 	}
 }
 
-
-void function UpdateValkJetpackToggleOrHoldBasedOnInput()
-{
-	if ( !GetConVarBool( "toggle_on_jump_to_deactivate_changed" ) )
-	{
-		SetConVarBool( "toggle_on_jump_to_deactivate", IsControllerModeActive() ? true : false )
-		SetConVarBool( "toggle_on_jump_to_deactivate_changed", false )
-	}
-}
 
 
 void function CodeCallback_OnPlayerJetpackStop( entity player )
@@ -731,17 +691,6 @@ void function CodeCallback_OnPlayerJetpackStop( entity player )
 
 void function CodeCallback_OnPlayerJetpackStart( entity player )
 {
-
-
-
-
-
-
-
-
-
-
-
 
 
 

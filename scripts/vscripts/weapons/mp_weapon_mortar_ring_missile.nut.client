@@ -125,20 +125,6 @@ void function MpWeapon_Mortar_Ring_Missile_Init()
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 	PrecacheParticleSystem( MORTAR_RING_MISSILE_BURN_FX )
 	PrecacheParticleSystem( MORTAR_RING_MISSILE_PREBURN_FX )
 	PrecacheParticleSystem( MORTAR_RING_MISSILE_PLAYER_BURN_FX )
@@ -201,12 +187,6 @@ void function OnProjectileCollision_ability_mortar_ring_missile( entity projecti
 
 
 }
-
-
-
-
-
-
 
 
 

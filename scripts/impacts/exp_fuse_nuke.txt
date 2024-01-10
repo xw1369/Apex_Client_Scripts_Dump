@@ -44,6 +44,7 @@ ImpactTable
 
 		"1" "Fuse_Mortar_Explode"
 		"2" "Fuse_Mortar_Explode"
+		"5" "Fuse_Mortar_Explode"
 
 		"airburst" "Fuse_Mortar_Explode"
 		"shieldhit" "Fuse_Mortar_Explode"
@@ -78,8 +79,9 @@ ImpactTable
 		"Y" "Fuse_Mortar_Explode"
 		"Z" "Fuse_Mortar_Explode"
 
-		"1" "Fuse_Mortar_Explode"  //lava_flow
-		"2" "Fuse_Mortar_Explode"
+		"1" "Fuse_Mortar_Explode"
+		"2" "Fuse_Mortar_Explode"//lava_flow
+		"5" "Fuse_Mortar_Explode"
 
 		"airburst" "Fuse_Mortar_Explode"
 		"shieldhit" "Fuse_Mortar_Explode"
@@ -116,6 +118,7 @@ ImpactTable
 
 		"1" "Fuse_Mortar_Explode"
 		"2" "Fuse_Mortar_Explode"
+		"5" "Fuse_Mortar_Explode"
 
 		"airburst" "Fuse_Mortar_Explode"
 		"shieldhit" "Fuse_Mortar_Explode"

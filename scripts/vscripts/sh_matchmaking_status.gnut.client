@@ -57,8 +57,20 @@ var s_mmStatusRui = null
 var s_mmRui = null
 void function MatchmakingStatus_AddOverlayToHUD()
 {
-	s_mmStatusRui = CreatePermanentCockpitRui( $"ui/matchmaking_status_hud_wrapper.rpak", 200 )
-	s_mmRui = RuiCreateNested( s_mmStatusRui, "innerElem", $"ui/matchmaking_status.rpak" )
+	if ( s_mmRui == null )
+	{
+		s_mmStatusRui = CreateFullscreenRui( $"ui/matchmaking_status_hud_wrapper.rpak", 200 )
+		s_mmRui       = RuiCreateNested( s_mmStatusRui, "innerElem", $"ui/matchmaking_status.rpak" )
+	}
+}
+
+void function MatchmakingStatus_AddOverlayToFullscreen()
+{
+	if ( s_mmRui == null )
+	{
+		s_mmStatusRui = CreateFullscreenRui( $"ui/matchmaking_status_hud_wrapper.rpak", 200 )
+		s_mmRui       = RuiCreateNested( s_mmStatusRui, "innerElem", $"ui/matchmaking_status.rpak" )
+	}
 }
 
 

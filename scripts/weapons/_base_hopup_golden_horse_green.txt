@@ -1,0 +1,18 @@
+WeaponData
+{
+	"golden_horse_green_slow_cap"      "0.3"
+	"golden_horse_green_dmg_min"            "1.0"
+	"golden_horse_green_dmg_max"            "20.0"
+	"golden_horse_green_slow_min"            "0.1"
+	"golden_horse_green_slow_max"            "0.5"
+	"golden_horse_green_inner_radius"       "400"
+	"golden_horse_green_outer_radius"       "400"
+	"golden_horse_green_delay_sec"          "1.5"
+
+	Mods
+	{
+		hopup_golden_horse_green
+		{
+		}
+	}
+}

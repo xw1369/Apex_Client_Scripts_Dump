@@ -16,6 +16,9 @@ global function PlayWarningFXOnSPTick
 
 
 
+
+
+
 int AI_GENERATED_TICK_WARNING_FX
 int AI_GENERATED_TICK_WARNING_BEAMS_FX
 
@@ -67,6 +70,9 @@ void function SuicideSpectres_Init()
 
 
 
+
+
+
 	Remote_RegisterClientFunction( "PlayWarningFXOnSPTick", "entity" )
 
 
@@ -74,6 +80,36 @@ void function SuicideSpectres_Init()
 		AI_GENERATED_TICK_WARNING_BEAMS_FX = PrecacheParticleSystem( $"P_drone_frag_warn_beams" )
 
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

@@ -89,6 +89,8 @@ ImpactTable
 
 		"airburst" "nova_repulsor_detonate_3p"
 		"shieldhit" "TitanShield.Explosive.BulletImpact_3P_vs_3P"
+
+		"5" "nova_repulsor_detonate_3p"
 	}
 
 	Sound_attacker
@@ -125,6 +127,8 @@ ImpactTable
 
 		"airburst" "nova_repulsor_detonate_3p"
 		"shieldhit" "TitanShield.Explosive.BulletImpact_1P_vs_3P"
+
+		"5" "nova_repulsor_detonate_3p"
 	}
 
 	Sound_victim
@@ -161,6 +165,8 @@ ImpactTable
 
 		"airburst" "nova_repulsor_detonate_3p"
 		"shieldhit" "TitanShield.Explosive.BulletImpact_3P_vs_1P"
+
+		"5" "nova_repulsor_detonate_3p"
 	}
 
 

@@ -42,7 +42,7 @@ ImpactTable
 		"3" "P_test_impact_LIGHTING_DYN" //spiderflesh
 
 		"4" "P_test_impact_LIGHTING_DYN" //"openslot"
-		"5" "P_test_impact_LIGHTING_DYN" //"openslot"
+		"5" "P_test_impact_LIGHTING_DYN" //water_hrz
 		"6" "P_test_impact_LIGHTING_DYN" //"openslot"
 		"7" "P_test_impact_LIGHTING_DYN" //"openslot"
 		"8" "P_test_impact_LIGHTING_DYN" //"openslot"

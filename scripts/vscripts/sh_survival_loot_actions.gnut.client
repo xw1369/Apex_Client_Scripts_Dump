@@ -458,6 +458,11 @@ bool function TryPickupSlingWeapon( int action, entity pickup, entity player, in
 
 
 
+
+
+
+
+
 		var slingPassiveRui = GetSlingPassiveRui()
 		if ( slingPassiveRui != null )
 			RuiSetBool( slingPassiveRui, "hasMainWeapon", true )
@@ -479,6 +484,19 @@ bool function TrySwapSlingWeapon( int action, entity pickup, entity player, int 
 	}
 	else
 	{
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -511,6 +529,15 @@ bool function TrySwapSlingWeapon( int action, entity pickup, entity player, int 
 
 void function ExtendedTrySwapSlingWeapon( entity ent, entity player, ExtendedUseSettings settings )
 {
+
+
+
+
+
+
+
+
+
 
 
 
@@ -949,6 +976,7 @@ bool function GiveMainWeapon_Internal( entity pickup, entity player, bool dropCu
 
 
 
+
 			if ( !dropCurrentWeapon && primaryWeapons.len() > 1 )
 
 				return false
@@ -1092,9 +1120,6 @@ bool function EquipEquipment( entity pickup, entity player, string equipSlot, en
 
 
 
-
-
-
 		if ( newEquip == "helmet_pickup_lv5_sunglasses" )
 		{
 			Heatwave_OnSunglassesPickup(player)
@@ -1148,6 +1173,18 @@ bool function EquipEquipment( entity pickup, entity player, string equipSlot, en
 
 void function ExtendedTrySwapWeapon( entity ent, entity player, ExtendedUseSettings settings )
 {
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

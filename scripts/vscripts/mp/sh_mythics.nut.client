@@ -7,6 +7,7 @@ global function Mythics_SkinHasCustomExecution
 global function Mythics_IsCustomExecutionUnlocked
 global function Mythics_ShouldForceCustomExecution
 global function Mythics_GetChallengeForCharacter
+global function Mythics_IsItemFlavorMythic
 global function Mythics_IsItemFlavorMythicSkin
 global function Mythics_GetSkinTierForCharacter
 global function Mythics_GetItemTierForSkin
@@ -37,8 +38,6 @@ global function Mythics_IsExecutionUsableOnTier1AndTier2
 
 
 
-
-
 struct FileStruct_LifetimeLevel
 {
 	table< int, int > mythicSkinsGUIDToCustomExecutionGUID
@@ -51,13 +50,9 @@ struct FileStruct_LifetimeLevel
 	table< int, array< asset > > charactersGUIDToStoreImages
 	table< int, string > charactersGUIDToSkinBaseName
 	ItemFlavor ornull currentChallenge
-
-
 	table< entity, array< ItemFlavor > > mythicBoostedChallenges
-
 }
 FileStruct_LifetimeLevel& fileLevel
-
 
 global struct Mythic_ChallengeProgress
 {
@@ -65,7 +60,6 @@ global struct Mythic_ChallengeProgress
 	int challengeProgress
 	int statMarker
 }
-
 
 const int CHALLENGE_SORT_ORDINAL = 0 
 const int FINAL_TIER = 3
@@ -253,9 +247,9 @@ ItemFlavor function Mythics_GetCharacterSkinForCustomExecution( ItemFlavor execu
 	Assert( ItemFlavor_GetType( execution ) == eItemType.character_execution )
 	Assert( Mythics_IsCustomExecutionInMythicBundle( execution ) )
 
-	int characterGUID = fileLevel.customExecutionGUIDToMythicSkinsGUID[ execution.guid ]
+	int characterSkinGUID = fileLevel.customExecutionGUIDToMythicSkinsGUID[ execution.guid ]
 
-	return GetItemFlavorByGUID( characterGUID )
+	return GetItemFlavorByGUID( characterSkinGUID )
 }
 
 bool function Mythics_SkinHasCustomSkydivetrail( ItemFlavor skin )
@@ -313,6 +307,11 @@ ItemFlavor function Mythics_GetChallengeForCharacter( ItemFlavor character )
 	Assert( ItemFlavor_GetType( GetItemFlavorByGUID( challengeGUID ) ) == eItemType.challenge )
 
 	return GetItemFlavorByGUID( challengeGUID )
+}
+
+bool function Mythics_IsItemFlavorMythic( ItemFlavor item )
+{
+	return ItemFlavor_GetQuality( item ) == eRarityTier.MYTHIC
 }
 
 bool function Mythics_IsItemFlavorMythicSkin( ItemFlavor item )
@@ -587,11 +586,3 @@ string function Mythics_GetSkinBaseNameForCharacter( ItemFlavor character )
 
 
 
-
-
-
-
-
-
-
-                                  

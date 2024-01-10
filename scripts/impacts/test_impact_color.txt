@@ -42,7 +42,7 @@ ImpactTable
 		"3" "P_test_impact_COLOR" //spiderflesh
 
 		"4" "P_test_impact_COLOR" //"openslot"
-		"5" "P_test_impact_COLOR" //"openslot"
+		"5" "P_test_impact_COLOR" ///water_hrz
 		"6" "P_test_impact_COLOR" //"openslot"
 		"7" "P_test_impact_COLOR" //"openslot"
 		"8" "P_test_impact_COLOR" //"openslot"

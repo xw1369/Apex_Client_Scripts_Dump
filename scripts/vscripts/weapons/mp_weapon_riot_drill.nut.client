@@ -51,6 +51,10 @@ const asset RIOT_DRILL_PLACEMENT_EXIT 			= $"_none_FX_test"
 const asset RIOT_DRILL_BLAST_BEAM_FX 			= $"P_mm_breach_beam"
 const asset RIOT_DRILL_BLAST_BEAM_WARN_FX 		= $"P_mm_breach_beam_warn"
 const asset RIOT_DRILL_AOE_WARNING_01_FX 		= $"P_mm_breach_exit"
+
+
+
+
 const asset RIOT_DRILL_FRONT_FX 				= $"P_mm_breach_enter"
 const asset RIOT_DRILL_SPRAY_TEST_CONE	 		= $"_none_FX_test"
 const asset RIOT_DRILL_SPRAY_TEST_COLUMN 		= $"_none_FX_test"
@@ -149,6 +153,10 @@ void function MpWeaponRiotDrill_Init()
 {
 	PrecacheParticleSystem( RIOT_DRILL_FRONT_FX )
 	PrecacheParticleSystem( RIOT_DRILL_AOE_WARNING_01_FX )
+
+
+
+
 	PrecacheParticleSystem( RIOT_DRILL_SPRAY_TEST_CONE )
 	PrecacheParticleSystem( RIOT_DRILL_SPRAY_TEST_COLUMN )
 	PrecacheParticleSystem( RIOT_DRILL_BLAST_BEAM_FX )
@@ -255,18 +263,12 @@ float function RiotDrill_GetDuration( entity player )
 
 
 
-
-
 	return result
 }
 
 float function RiotDrill_GetRadius( entity player )
 {
 	float result = file.balance_riotDrillRadius
-
-
-
-
 
 
 
@@ -281,12 +283,29 @@ float function RiotDrill_GetLength( entity player )
 
 
 
-
-
-
-
 	return result
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

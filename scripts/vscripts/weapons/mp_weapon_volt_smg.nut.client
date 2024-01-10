@@ -10,14 +10,14 @@ const float ADS_MOD_ZOOM_FRAC_REQUIRED = 0.5
 void function OnWeaponActivate_weapon_volt_smg( entity weapon )
 {
 
-
+		GoldenHorseGreen_OnWeaponActivate( weapon )
 
 }
 
 void function OnWeaponDeactivate_weapon_volt_smg( entity weapon )
 {
 
-
+		GoldenHorseGreen_OnWeaponDeactivate( weapon )
 
 }
 

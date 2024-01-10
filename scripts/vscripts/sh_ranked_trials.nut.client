@@ -1,4 +1,5 @@
 global function Sh_RankedTrials_Init
+global function RankedTrials_IsKillswitchEnabled
 global function RankedTrials_GetTrialToEnterTier
 global function RankedTrials_RegisterAllRankedTrials
 
@@ -7,6 +8,7 @@ global function RankedTrials_GetTrialMatchCount
 global function RankedTrials_GetTrialMaxMatchCount
 global function RankedTrials_GetTrialBonusLPGain
 global function RankedTrials_GetTrialMaxLPLoss
+global function RankedTrials_GetTrialMinLPLoss
 global function RankedTrials_SecondaryTrialRequiresSingleMatchPerformance
 global function RankedTrials_GetSecondaryTrialSingleMatchComboCount
 global function RankedTrials_GetTrialStatGoalByIndex
@@ -24,11 +26,11 @@ global function RankedTrials_GetGamesAllowedInTrialsState
 global function RankedTrials_GetTimesFailedTrial
 global function RankedTrials_GetProgressValueForStatByIndex
 global function RankedTrials_GetTrialState
+global function RankedTrials_PlayerHasIncompleteTrial
 
 
 global function RankedTrials_GetDescription
 global function RankedTrials_GetTrialsCountForTrial
-global function RankedTrials_PlayerHasIncompleteTrial
 global function RankedTrials_NextRankHasTrial
 
 
@@ -80,6 +82,7 @@ const string SETTINGS_KEY_MATCH_COUNT = "matchCount"
 const string SETTINGS_KEY_MATCH_COUNT_MAX = "matchCountMax"
 const string SETTINGS_KEY_BONUS_LP_GAIN = "bonusLPGain"
 const string SETTINGS_KEY_MAX_LP_LOSS = "maxLPLoss"
+const string SETTINGS_KEY_MIN_LP_LOSS = "minLPLoss"
 const string SETTINGS_KEY_PRIMARY_GOAL_VAL = "goalVal" 
 const string SETTINGS_KEY_PRIMARY_STAT_REF = "statRef" 
 const string SETTINGS_KEY_SECONDARY_REQUIRES_SINGLE_MATCH = "singleMatch" 
@@ -143,6 +146,11 @@ void function Sh_RankedTrials_Init()
 		Assert( PERSISTENCE_KEYS.find( PERSISTENCE_KEY_TIMES_FAILED_TRIAL ) == PERSISTENCE_KEYS.len() - 1 )
 		Assert( DEV_CheckPlaylistOverrides() )
 #endif
+}
+
+bool function RankedTrials_IsKillswitchEnabled()
+{
+	return GetConVarBool( CONVAR_KILL_SWITCH )
 }
 
 void function RankedTrials_RegisterAllRankedTrials()
@@ -226,6 +234,19 @@ int function RankedTrials_GetTrialMaxLPLoss( ItemFlavor rankedTrial )
 	int maxLpLossPl   = GetCurrentPlaylistVarInt( format( PLAYLIST_OVERRIDE_FORMAT_STRING, ItemFlavor_GetGUIDString( rankedTrial ), SETTINGS_KEY_MAX_LP_LOSS ), maxLpLoss )
 	Assert( maxLpLossPl > 0 )
 	return ( -1 * abs( maxLpLossPl ) )
+}
+
+int function RankedTrials_GetTrialMinLPLoss( ItemFlavor rankedTrial )
+{
+	
+	Assert( ItemFlavor_GetType( rankedTrial ) == eItemType.ranked_trial )
+
+	var settingsBlock = ItemFlavor_GetSettingsBlock( rankedTrial )
+	int minLpLoss     = GetSettingsBlockInt( settingsBlock, SETTINGS_KEY_MIN_LP_LOSS )
+	Assert( minLpLoss > 0 )
+	int minLpLossPl   = GetCurrentPlaylistVarInt( format( PLAYLIST_OVERRIDE_FORMAT_STRING, ItemFlavor_GetGUIDString( rankedTrial ), SETTINGS_KEY_MIN_LP_LOSS ), minLpLoss )
+	Assert( minLpLossPl > 0 )
+	return ( -1 * abs( minLpLossPl ) )
 }
 
 bool function RankedTrials_SecondaryTrialRequiresSingleMatchPerformance( ItemFlavor rankedTrial )
@@ -479,11 +500,11 @@ int function RankedTrials_GetTrialState( entity player )
 	return state
 }
 
-
 bool function RankedTrials_PlayerHasIncompleteTrial( entity player )
 {
 	return RankedTrials_PlayerHasAssignedTrial( player ) && RankedTrials_GetTrialState( player ) == eRankedTrialState.INCOMPLETE
 }
+
 
 bool function RankedTrials_NextRankHasTrial( SharedRankedDivisionData currentDivision, SharedRankedDivisionData ornull nextDivision )
 {
@@ -512,6 +533,11 @@ int function RankedTrials_GetProgressValueForStatByIndex( entity player, int sta
 	Assert( false )
 	unreachable
 }
+
+
+
+
+
 
 
 

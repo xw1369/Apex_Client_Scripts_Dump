@@ -143,8 +143,34 @@ global struct CupEntry
 	int cupID
 	string squadID
 	int currSquadPosition
+	float positionPercentage
 	int currSquadScore
-	array<CupMatchSummary> matchSummaryData
+	array< CupMatchSummary > matchSummaryData
+	array< int > tierScoreBounds
+}
+
+global struct CupLeaderboardEntry
+{
+	string squadID
+	int squadScore
+	array<CupMatchSummary> matchHistoryData
+	table<string, int> squadCalculatedStatTotals
+}
+
+global struct CupTierRewardData
+{
+	asset		reward
+	int        	quantity
+}
+
+global struct CupTierData
+{
+	int		tierType
+	int		bound
+
+	asset	icon
+
+	array<CupTierRewardData> rewardData
 }
 
 global struct CommunityUserInfo
@@ -266,13 +292,6 @@ global struct GRXGetOfferInfo
 
 
 
-global struct GRXBundleOffer
-{
-	array< array<int> >bundlePrices
-	int purchaseCount
-	string ineligibleReason
-}
-
 global struct GRXScriptInboxMessage
 {
 	array<int> itemIndex
@@ -303,7 +322,6 @@ global struct GRXUserInfo
 	int marketplaceEdition
 
 	bool isOfferRestricted
-	bool hasUpToDateBundleOffers
 }
 
 
@@ -725,6 +743,7 @@ global struct CustomMatch_LobbyPlayer
 	string uid
 	string uidHashed
 	string eaid
+	string firstPartyID
 	string hardware
 	string name
 	string clubTag

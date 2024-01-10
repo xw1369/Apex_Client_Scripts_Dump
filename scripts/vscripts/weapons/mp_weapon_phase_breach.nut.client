@@ -49,6 +49,7 @@ const float PHASE_BREACH_MOVERS_MAX_SPEED_FOR_END_DEFAULT = 12.0
 const bool  PHASE_BREACH_ALLOW_END_ON_OOB = true
 const float PHASE_BREACH_MIN_VIEW_DOT = 0.95
 
+const bool DEBUG_DRAW_TARGETING = false
 const bool DEBUG_DRAW_PLACEMENT_TRACES = false
 const bool DEBUG_DRAW_ENDING_SCORES    = false
 const bool DEBUG_DRAW_PUSHER_MOVEMENT  = false
@@ -459,6 +460,8 @@ var function OnWeaponPrimaryAttackAnimEvent_ability_phase_breach( entity weapon,
 
 
 
+
+
 void function ServerToClient_PhaseBreachPortalCancelled()
 {
 	entity localPlayer = GetLocalViewPlayer()
@@ -469,6 +472,7 @@ void function ServerToClient_PhaseBreachPortalCancelled()
 
 	StopSoundOnEntity( localPlayer, "Ash_PhaseBreach_Enter_1p" )
 }
+
 
 
 
@@ -707,7 +711,7 @@ PhaseBreachTargetInfo function GetPhaseBreachTargetInfo( entity player )
 
 	
 	
-	if ( ! PhaseTunnel_IsPortalExitPointValid( player, info.startPos, player, true, info.startCrouched ) )
+	if ( ! PhaseTunnel_IsPortalExitPointValid( player, info.startPos, player, true, info.startCrouched,DEBUG_DRAW_TARGETING ) )
 	{
 		info.startBlocked = true
 		return info
@@ -1001,7 +1005,7 @@ bool function GenerateBreachPathInfo( entity player, PhaseBreachTargetInfo info,
 {
 	
 	
-	if ( !PhaseTunnel_IsPortalExitPointValid( player, endPos, player, true, false ) )
+	if ( !PhaseTunnel_IsPortalExitPointValid( player, endPos, player, true, false, DEBUG_DRAW_PLACEMENT_TRACES ) )
 		return false
 
 	vector portalDir = Normalize( endPos - info.startPos )

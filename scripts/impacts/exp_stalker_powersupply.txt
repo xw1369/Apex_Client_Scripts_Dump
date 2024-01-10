@@ -40,7 +40,7 @@ ImpactTable
 		"2" "P_impact_exp_FRAG_concrete"
 		"3" "P_impact_exp_FRAG_concrete"
 		"4" "P_impact_exp_FRAG_concrete"
-		"5" "P_impact_exp_FRAG_concrete"
+		"5" "P_impact_exp_FRAG_water"
 		"6" "P_impact_exp_FRAG_concrete"
 		"7" "P_impact_exp_FRAG_concrete"
 		"8" "P_impact_exp_FRAG_concrete"
@@ -93,6 +93,8 @@ ImpactTable
 
 		"airburst" "ai_stalker_nukedestruct_explo_3p"
 		"shieldhit" "TitanShield.Explosive.BulletImpact_3P_vs_3P"
+
+		"5" "ai_stalker_nukedestruct_explo_3p"
 	}
 
 	Sound_attacker
@@ -129,6 +131,8 @@ ImpactTable
 
 		"airburst" "ai_stalker_nukedestruct_explo_3p"
 		"shieldhit" "TitanShield.Explosive.BulletImpact_1P_vs_3P"
+
+		"5" "ai_stalker_nukedestruct_explo_3p"
 	}
 
 	Sound_victim
@@ -165,6 +169,8 @@ ImpactTable
 
 		"airburst" "ai_stalker_nukedestruct_explo_3p"
 		"shieldhit" "TitanShield.Explosive.BulletImpact_3P_vs_1P"
+
+		"5" "ai_stalker_nukedestruct_explo_3p"
 	}
 
 }

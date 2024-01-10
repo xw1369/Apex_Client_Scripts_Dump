@@ -722,8 +722,12 @@ void function ClientCodeCallback_ControllerModeChanged( bool controllerModeEnabl
 	if ( IsValid( player ) )
 		player.Signal( "ControllerModeChanged" )
 
+
+
+
 	if ( PlayerHasPassive( player, ePassives.PAS_VALK ) )
-		UpdateValkJetpackToggleOrHoldBasedOnInput()
+
+		UpdateAbilityToggleOrHoldBasedOnInput()
 }
 
 
@@ -897,7 +901,7 @@ bool function ShouldHideHudForDeadPlayer( entity player )
 
 	if ( IsWatchingKillReplay() )
 	{
-		if ( GetCurrentPlaylistVarBool( "killreplay_hide_hud", false ) )
+		if ( GetCurrentPlaylistVarBool( "killreplay_hide_hud", true ) )
 			return false
 	}
 	else
@@ -917,7 +921,7 @@ bool function ShouldMainHudBeVisible( entity player )
 
 	if ( IsWatchingKillReplay() )
 	{
-		if ( GetCurrentPlaylistVarBool( "killreplay_hide_hud", false ) )
+		if ( GetCurrentPlaylistVarBool( "killreplay_hide_hud", true ) )
 			return false
 	}
 
@@ -1039,7 +1043,7 @@ bool function ShouldPermanentHudBeVisible( entity player )
 	if ( IsViewingSquadSummary() || IsViewingDeathRecap() )
 		return false
 
-	if ( IsWatchingKillReplay() && GetCurrentPlaylistVarBool( "killreplay_hide_hud", false ) )
+	if ( IsWatchingKillReplay() && GetCurrentPlaylistVarBool( "killreplay_hide_hud", true ) )
 		return false
 
 	

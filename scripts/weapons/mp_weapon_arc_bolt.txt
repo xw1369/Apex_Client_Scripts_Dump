@@ -20,7 +20,11 @@ WeaponData
 	fire_mode                           				offhand
 	offhand_cancelled_by_melee							1
 	offhand_interupts_weapon_anims      				0
+                   
+                                                            
+     
 	offhand_active_slot                                 mainHand
+      
 	fast_swap_to			                            1
     fast_swap_from                                      1
 	is_toss_weapon										1

@@ -14,7 +14,7 @@ WeaponData
 	"projectile_drag_coefficient" 					"0.0"
 	"projectile_lifetime" 							"5.0"
 
-	"damage_flags"									"DF_BULLET | DF_NO_SELF_DAMAGE | DF_DISMEMBERMENT"
+	"damage_flags"									"DF_BULLET | DF_NO_SELF_DAMAGE"
 	"damage_type" 									"none"
 
 	"trophy_system_ignores"                         "always"
@@ -27,23 +27,23 @@ WeaponData
 	"holster_type"									""
 
     //Effects
-    "projectile_trail_effect_0_1p" 					"P_spider_web_proj"
-    "projectile_trail_effect_0_3p" 					"P_spider_web_proj"
+    "projectile_trail_effect_0_1p" 					"P_nessie_range_proj"
+    "projectile_trail_effect_0_3p" 					"P_nessie_range_proj"
     "fx_muzzle_flash_view"							"P_spider_web_muzzle_flash"
     "fx_muzzle_flash_world"							"P_spider_web_muzzle_flash"
     "fx_muzzle_flash_attach"						"P_spider_web_muzzle_flash"
-	"impact_effect_table" 							"spider_web"
+	"impact_effect_table" 							"nessie_shot_impact"
 	"projectile_adjust_to_gun_barrel"				"0"
 
 	//Sounds
-	"vortex_impact_sound_1p"						"SpdrJungle_Projectile_Damage_1p"
-	"vortex_impact_sound_3p"						"SpdrJungle_Projectile_Damage_3p"
+	"vortex_impact_sound_1p"						"materia_red_nessie_damage_1P"
+	"vortex_impact_sound_3p"						"materia_red_nessie_damage_3P"
 
 	"looping_sounds"								"0"
 
-	"fire_sound_1_npc"								"SpdrJungle_AttackRanged"
+	"fire_sound_1_npc"								"materia_red_nessie_attack_3P"
 	
-	"projectile_flight_sound"						"SpdrJungle_Projectile_WhizBy"
+	"projectile_flight_sound"						"materia_red_nessie_projectile_3P"
 
     "bolt_hitsize"									"4"
 

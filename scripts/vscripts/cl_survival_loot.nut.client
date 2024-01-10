@@ -50,7 +50,7 @@ const float LOOT_PING_DISTANCE = 500.0
 
 const bool LINE_COLORS = true
 
-const float MAGIC_DEATHBOX_Z_OFFSET = 1.25
+const float MAGIC_DEATHBOX_Z_OFFSET = 0.5
 
 const bool HAS_ITEM_PICKUP_FEEDACK_FX = false
 #if HAS_ITEM_PICKUP_FEEDACK_FX
@@ -410,6 +410,10 @@ void function AttemptCancelHeal( entity player )
 			Remote_ServerCallFunction( "ClientCallback_Sur_CancelHeal" )
 		}
 	}
+
+
+
+
 }
 
 
@@ -950,7 +954,13 @@ void function UpdateUseHintForEntity( entity ent, var rui = null )
 	RuiSetInt( rui, "predictedUseCount", ent.e.predictedUseCount )
 
 	RuiTrackFloat3( rui, "worldPos", ent, RUI_TRACK_ABSORIGIN_FOLLOW )
-	RuiSetFloat( rui, "zOffset", ent.GetBoundingMaxs().z )
+
+	float zOffset = ent.GetBoundingMaxs().z
+
+		if ( TitanSword_WeaponRefIsTitanSword( data.ref ) )
+			zOffset = 10 
+
+	RuiSetFloat( rui, "zOffset", zOffset )
 
 	PerfEnd( PerfIndexClient.UpdateLootRui )
 
@@ -1042,6 +1052,13 @@ void function UpdateLootRuiWithData( entity player, var rui, LootData data, int 
 		RuiSetFloat3( rui, "customLootColor", SrgbToLinear( GetKeyColor( COLORID_HUD_HEAL_COLOR ) / 255.0 ) )
 	}
 
+	if( data.ref == "hopup_golden_horse_green" )
+	{
+		useCustomLootColor = true
+		RuiSetFloat3( rui, "customLootColor", SrgbToLinear( GetKeyColor( COLORID_HUD_LOOT_TIER_GH ) / 255.0 ) )
+	}
+
+
 	else if ( data.lootType == eLootType.COLLECTABLE_NESSIE )
 	{
 		useCustomLootColor = true
@@ -1116,7 +1133,13 @@ void function UpdateLootRuiWithData( entity player, var rui, LootData data, int 
 
 	if ( lootRef.lootData.lootType == eLootType.ARMOR )
 	{
-		RuiSetBool( rui, "isEvolvingArmor", EvolvingArmor_IsEquipmentEvolvingArmor( lootRef.lootData.ref ) )
+		bool isEvo = EvolvingArmor_IsEquipmentEvolvingArmor( lootRef.lootData.ref )
+
+
+
+
+
+		RuiSetBool( rui, "isEvolvingArmor", isEvo )
 	}
 
 	RuiSetString( rui, "usePromptText", asMain.displayString )
@@ -1150,10 +1173,22 @@ void function UpdateLootRuiWithData( entity player, var rui, LootData data, int 
 
 					replacePropertyValue = int( SURVIVAL_GetPlayerShieldHealthFromArmor( player ) / float(SURVIVAL_GetCharacterShieldHealthMaxForArmor( player, asMain.additionalData )) * 125)
 
+
 				RuiSetBool( rui, "isReplaceEvolvingArmor", EvolvingArmor_IsEquipmentEvolvingArmor( asMain.additionalData.ref ) )
 
 				RuiSetInt( rui, "replaceExtraPropertyValue", EvolvingArmor_GetEvolutionProgress( player ) )
 			}
+
+
+
+
+
+
+
+
+
+
+
 			else
 			{
 				RuiSetBool( rui, "isReplaceEvolvingArmor", false )
@@ -1205,7 +1240,11 @@ void function UpdateLootRuiWithData( entity player, var rui, LootData data, int 
 		}
 
 		int shieldPropertyValue = 0
-		if ( EvolvingArmor_IsEquipmentEvolvingArmor( data.ref ) )
+		if ( EvolvingArmor_IsEquipmentEvolvingArmor( data.ref )
+
+
+
+			)
 		{
 			int propertyValue = GetPropSurvivalMainProperty( lootRef.lootProperty )
 			int armorHealthForTier = EvolvingArmor_GetEvolvingArmorHealthForTier( data.tier )
@@ -1231,6 +1270,14 @@ void function UpdateLootRuiWithData( entity player, var rui, LootData data, int 
 		}
 		RuiSetInt( rui, "propertyValue", shieldPropertyValue )
 		RuiSetInt( rui, "extraPropertyValue", lootRef.lootExtraProperty )
+
+
+
+
+
+
+
+
 	}
 
 	if ( data.lootType == eLootType.MAINWEAPON && GetWeaponInfoFileKeyField_GlobalBool( data.baseWeapon, "uses_ammo_pool" ) )
@@ -1343,7 +1390,11 @@ void function UpdateLootRuiWithData( entity player, var rui, LootData data, int 
 			{
 				LootData attachmentData = SURVIVAL_Loot_GetLootDataByRef( attachmentMap[attachmentPoint] )
 				RuiSetImage( rui, "attachImage" + attachmentCount, attachmentData.hudIcon )
-				RuiSetInt( rui, "attachTier" + attachmentCount, attachmentData.tier )
+
+					HopupGoldenHorse_SwapLootTier( rui, attachmentData.ref, attachmentData.tier, "attachTier" + attachmentCount )
+
+
+
 
 				if ( SURVIVAL_IsAttachmentPointLocked( data.ref, attachmentPoint ) )
 					RuiSetInt( rui, "attachTier" + attachmentCount, data.tier )
@@ -1404,6 +1455,7 @@ void function UpdateLootRuiWithData( entity player, var rui, LootData data, int 
 				LootData weaponData = SURVIVAL_Loot_GetLootDataByRef( weapon.GetWeaponClassName() )
 				RuiSetImage( rui, "attachWeapon1Icon", weaponData.hudIcon )
 				RuiSetBool( rui, "hasAttach1", true )
+				RuiSetBool( rui, "hasReplace", true )
 			}
 		}
 
@@ -1604,6 +1656,7 @@ bool function HasWeaponForTag( entity player, int tagId )
 			case eAttachmentTag.SNIPER:
 			case eAttachmentTag.SMG:
 			case eAttachmentTag.LAUNCHER:
+			case eAttachmentTag.MELEE:
 				if ( weaponClassToTag[weaponData.lootTags[0]] == tagId )
 					return true
 				break
@@ -1874,7 +1927,12 @@ void function ShowVerticalLineStruct( VerticalLineStruct lineStruct, entity ent 
 
 #if LINE_COLORS
 		LootData data = SURVIVAL_Loot_GetLootDataByIndex( ent.GetSurvivalInt() )
-		RuiSetInt( lineStruct.rui, "tier", data.tier )
+
+
+			HopupGoldenHorse_SwapLootTier( lineStruct.rui, data.ref, data.tier, "tier" )
+
+
+
 
 		
 		if ( file.greyTierEnabled && ( data.lootType == eLootType.MAINWEAPON ) && !SURVIVAL_Weapon_IsAttachmentLocked( data.ref ) )
@@ -2001,6 +2059,13 @@ void function TrackLootToPing( entity player )
 
 
 
+
+
+
+
+
+
+
 			if ( player.ContextAction_IsInVehicle() )
 				loot = GetSurvivalLootNearbyPos( player.EyePosition(), LOOT_PING_DISTANCE * GetFovScalar( player ), false, false, false, player )
 			else
@@ -2120,7 +2185,7 @@ entity function GetEntityPlayerIsLookingAt( entity player, array<entity> ents, f
 		int index     = item.ent.GetSurvivalInt()
 		LootData data = SURVIVAL_Loot_GetLootDataByIndex( index )
 
-		if ( PlayerHasPassive( GetLocalViewPlayer(), ePassives.PAS_LOBA_EYE_FOR_QUALITY ) && data.tier - 1 >= eRarityTier.EPIC )
+		if ( PlayerHasPassive( GetLocalViewPlayer(), ePassives.PAS_LOBA_EYE_FOR_QUALITY ) && GetEyeForQualityCanSee( data ) )
 		{
 			theEnt = item.ent
 			break

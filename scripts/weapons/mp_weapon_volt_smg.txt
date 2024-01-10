@@ -5,7 +5,7 @@
 #base "_base_laser_sights.txt"
 
                     
-                                          
+#base "_base_hopup_golden_horse_green.txt"
       
 
 WeaponData
@@ -30,7 +30,7 @@ WeaponData
 	"minimap_reveal_distance"						"32000"
 	"leveled_pickup"								"1"
 
-	"damage_flags"									"DF_BULLET | DF_DISMEMBERMENT"
+	"damage_flags"									"DF_BULLET"
 	"damage_leg_scale"                              "0.8"
 
 	"critical_hit"									"1"
@@ -42,7 +42,8 @@ WeaponData
     "OnWeaponActivate"                              "OnWeaponActivate_weapon_volt_smg"
     "OnWeaponDeactivate"                            "OnWeaponDeactivate_weapon_volt_smg"
                     
-                                                          
+	"OnWeaponReload"								"GoldenHorseGreen_OnWeaponReload"
+	"OnWeaponReloadFinished"                        "GoldenHorseGreen_OnWeaponReloadFinished"
       
 
 	// Menu

@@ -154,6 +154,7 @@ void function LiveAPI_RegisterNetworking()
     Remote_RegisterClientFunction( "ServerCallback_LiveAPI_LogNetwork_TwoPlayer",       "int", INT_MIN, eLiveAPI_EventTypes.MAX, "entity", "entity" )
 
     Remote_RegisterClientFunction( "ServerCallback_LiveAPI_LogNetwork_CombatInstance",  "int", INT_MIN, eLiveAPI_EventTypes.MAX, "entity", "entity", "entity", "int", INT_MIN, INT_MAX, "int", INT_MIN, INT_MAX )
+	Remote_RegisterClientFunction( "ServerCallback_LiveAPI_LogNetwork_CombatInstanceUnawarded",  "int", INT_MIN, eLiveAPI_EventTypes.MAX, "entity", "entity", "int", INT_MIN, INT_MAX, "int", INT_MIN, INT_MAX )
     Remote_RegisterClientFunction( "ServerCallback_LiveAPI_LogNetwork_OnePlayerItem",   "int", INT_MIN, eLiveAPI_EventTypes.MAX, "entity", "int", -1, INT_MAX )
 	Remote_RegisterClientFunction( "ServerCallback_LiveAPI_LogNetwork_Int",             "int", INT_MIN, eLiveAPI_EventTypes.MAX, "int", INT_MIN, INT_MAX )
 
@@ -162,6 +163,7 @@ void function LiveAPI_RegisterNetworking()
 	Remote_RegisterClientFunction( "ServerCallback_LiveAPI_LogNetwork_RespawnTeam",     "entity", "int", 1, INT_MAX )
 
     
+	Remote_RegisterClientFunction( "ServerCallback_LiveAPI_LogNetwork_InventoryActionNoEnt", "int", INT_MIN, eLiveAPI_EventTypes.MAX, "entity" , "int", 0, INT_MAX , "int", INT_MIN, INT_MAX  )
 	Remote_RegisterClientFunction( "ServerCallback_LiveAPI_LogNetwork_InventoryAction", "int", INT_MIN, eLiveAPI_EventTypes.MAX, "entity" , "int", 0, INT_MAX , "entity" , "int", INT_MIN, INT_MAX  )
 
 	Remote_RegisterClientFunction( "ServerCallback_LiveAPI_LogNetwork_AmmoChanged", "entity", "int", INT_MIN, INT_MAX, "int", INT_MIN, INT_MAX, "int", INT_MIN, INT_MAX )

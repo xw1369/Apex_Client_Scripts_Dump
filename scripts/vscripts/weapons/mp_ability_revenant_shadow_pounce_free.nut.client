@@ -329,7 +329,7 @@ void function ShadowPounce_LaunchPlayer( entity player, float startTime )
 		return
 
 	vector launchVelocity = ShadowPounce_CalcLaunchVelocity( player, startTime )
-	player.PlayerLaunch( launchVelocity )
+	player.PlayerLaunch( launchVelocity, true )
 
 
 

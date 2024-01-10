@@ -7,8 +7,12 @@ global function EventShop_Init
 global function EventShop_GetCurrentActiveEventShop
 global function EventShop_CurrentActiveEventShopHasDailyChallenges
 global function EventShop_GetCurrentActiveEventShopDailyChallenges
+global function EventShop_CurrentActiveEventShopHasEventChallenges
+global function EventShop_GetCurrentActiveEventShopEventChallenges
+global function EventShop_GetShowEventChallengesInLobby
 global function EventShop_GetEventShopCurrency
 global function EventShop_GetEventShopGRXCurrency
+global function EventShop_HasSweepstakesOffers
 global function EventShop_GetGRXOfferLocation
 global function EventShop_GetEventMainIcon
 global function EventShop_GetLeftCornerHeaderBackground
@@ -22,6 +26,7 @@ global function EventShop_GetRewards
 global function EventShop_GetRadioPlays
 global function EventShop_GetOffers
 global function EventShop_GetOfferData
+global function EventShop_GetOfferByCoreItem
 global function EventShop_GetTutorials
 global function EventShop_GetCurrencyProgressionType
 global function EventShop_GetMainChallenge
@@ -41,6 +46,12 @@ global function EventShop_GeTooltipsColor
 global function EventShop_GetBackgroundDarkeningOpacity
 global function EventShop_GetRightPanelOpacity
 global function EventShop_GetLeftPanelOpacity
+
+
+
+
+
+
 
 
 
@@ -83,6 +94,7 @@ global struct EventShopOfferData
 	ItemFlavor& offer
 	bool isSweepstakesOffer
 	bool isLockedOffer
+	bool isFeaturedOffer
 	asset gridIcon
 }
 
@@ -103,6 +115,7 @@ global struct EventShopData
 	array<EventShopTutorialData> tutorials
 	array<EventShopOfferData> offers
 	array<ItemFlavor> dailyChallenges
+	array<ItemFlavor> eventChallenges
 	ItemFlavor ornull eventCurrency
 	string eventShopButtonText
 }
@@ -228,6 +241,7 @@ void function EventShop_Init()
 				offer.offer = offerFlav
 				offer.isLockedOffer = GetSettingsBlockBool( offerBlock, "isLockedOffer" )
 				offer.isSweepstakesOffer = GetSettingsBlockBool( offerBlock, "isSweepstakesOffer" )
+				offer.isFeaturedOffer = GetSettingsBlockBool( offerBlock, "isFeaturedOffer" )
 				offer.gridIcon = GetSettingsBlockAsset( offerBlock, "offerGridIcon" )
 				eventShopData.offers.append( offer )
 			}
@@ -258,6 +272,19 @@ void function EventShop_Init()
 				Assert( Challenge_GetTimeSpanKind( expect ItemFlavor( challengeFlav ) ) == eChallengeTimeSpanKind.EVENTSHOP_DAILY_CHALLENGE, "Event shop daily challenges must be configured with timespan EVENTSHOP_DAILY_CHALLENGE." )
 
 				eventShopData.dailyChallenges.append( expect ItemFlavor( challengeFlav ) )
+				RegisterChallengeSource( expect ItemFlavor( challengeFlav ), event, 0 )
+			}
+		}
+
+		foreach ( int index, var challengeBlock in IterateSettingsAssetArray( ItemFlavor_GetAsset( event ), "eventChallengeFlavs" ) )
+		{
+			ItemFlavor ornull challengeFlav = RegisterItemFlavorFromSettingsAsset( GetSettingsBlockAsset( challengeBlock, "eventChallengeFlav" ) )
+			Assert( challengeFlav != null, "Bad event challenge in event shop: " + string(ItemFlavor_GetAsset( event )) )
+			if ( challengeFlav != null )
+			{
+				Assert( Challenge_GetTimeSpanKind( expect ItemFlavor( challengeFlav ) ) == eChallengeTimeSpanKind.EVENTSHOP_EVENT_CHALLENGE, "Event shop event challenges must be configured with timespan EVENTSHOP_EVENT_CHALLENGE." )
+
+				eventShopData.eventChallenges.append( expect ItemFlavor( challengeFlav ) )
 				RegisterChallengeSource( expect ItemFlavor( challengeFlav ), event, 0 )
 			}
 		}
@@ -317,6 +344,39 @@ array< ItemFlavor > function EventShop_GetCurrentActiveEventShopDailyChallenges(
 
 
 
+bool function EventShop_CurrentActiveEventShopHasEventChallenges()
+{
+	Assert( IsItemFlavorRegistrationFinished() )
+	ItemFlavor ornull currentShop = EventShop_GetCurrentActiveEventShop()
+	return currentShop != null && fileLevel.eventShopDataMap[ expect ItemFlavor( currentShop ) ].eventChallenges.len() > 0
+}
+
+
+
+array< ItemFlavor > function EventShop_GetCurrentActiveEventShopEventChallenges()
+{
+	Assert( IsItemFlavorRegistrationFinished() )
+
+	ItemFlavor ornull currentEventShop = EventShop_GetCurrentActiveEventShop()
+	array< ItemFlavor > challenges     = []
+	if ( currentEventShop != null )
+	{
+		challenges.extend( fileLevel.eventShopDataMap[ expect ItemFlavor( currentEventShop ) ].eventChallenges )
+	}
+
+	return challenges
+}
+
+
+
+bool function EventShop_GetShowEventChallengesInLobby( ItemFlavor event )
+{
+	Assert( ItemFlavor_GetType( event ) == eItemType.calevent_event_shop )
+	return GetGlobalSettingsBool( ItemFlavor_GetAsset( event ), "showEventChallengesInLobby" )
+}
+
+
+
 ItemFlavor function EventShop_GetEventShopCurrency( ItemFlavor event )
 {
 	Assert( ItemFlavor_GetType( event ) == eItemType.calevent_event_shop )
@@ -328,6 +388,19 @@ ItemFlavor function EventShop_GetEventShopCurrency( ItemFlavor event )
 ItemFlavor function EventShop_GetEventShopGRXCurrency()
 {
 	return GRX_CURRENCIES[GRX_CURRENCY_EVENT]
+}
+
+
+
+bool function EventShop_HasSweepstakesOffers( ItemFlavor event )
+{
+	Assert( ItemFlavor_GetType( event ) == eItemType.calevent_event_shop )
+	foreach ( EventShopOfferData offer in fileLevel.eventShopDataMap[event].offers )
+	{
+		if ( offer.isSweepstakesOffer )
+			return true
+	}
+	return false
 }
 
 
@@ -345,6 +418,14 @@ asset function EventShop_GetEventMainIcon( ItemFlavor event )
 	Assert( ItemFlavor_GetType( event ) == eItemType.calevent_event_shop )
 	return GetGlobalSettingsAsset( ItemFlavor_GetAsset( event ), "eventMainIcon" )
 }
+
+
+
+
+
+
+
+
 
 
 
@@ -432,6 +513,24 @@ EventShopOfferData function EventShop_GetOfferData( ItemFlavor event, int index 
 {
 	Assert( ItemFlavor_GetType( event ) == eItemType.calevent_event_shop )
 	return fileLevel.eventShopDataMap[event].offers[index]
+}
+
+
+
+EventShopOfferData function EventShop_GetOfferByCoreItem( ItemFlavor event, ItemFlavor flavor )
+{
+	Assert( ItemFlavor_GetType( event ) == eItemType.calevent_event_shop )
+
+	foreach ( EventShopOfferData offer in fileLevel.eventShopDataMap[event].offers )
+	{
+		if ( offer.offer == flavor )
+		{
+			return offer
+		}
+	}
+
+	Assert( false, "Attempted to find offer for core item without an event shop offer." )
+	return fileLevel.eventShopDataMap[event].offers[0]
 }
 
 
@@ -711,6 +810,40 @@ float function EventShop_GetLeftPanelOpacity( ItemFlavor event )
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 void function RefreshActiveEventShopIfRequired( int timestamp )
 {
 
@@ -742,9 +875,49 @@ void function RefreshActiveEventShopIfRequired( int timestamp )
 
 	if ( fileLevel.activeEventShop != null )
 	{
+		ItemFlavor eventShopCurrencyFlav = EventShop_GetEventShopCurrency( expect ItemFlavor( fileLevel.activeEventShop ) )
 		fileLevel.eventShopStaleTimestamp = CalEvent_GetFinishUnixTime( expect ItemFlavor( fileLevel.activeEventShop ) )
-		GRX_CURRENCIES[GRX_CURRENCY_EVENT] = EventShop_GetEventShopCurrency( expect ItemFlavor( fileLevel.activeEventShop ) )
-		GRXCurrency_RegisterNewCurrencyAssetInEventSlot( EventShop_GetEventShopCurrency( expect ItemFlavor( fileLevel.activeEventShop ) ) )
+		GRXCurrency_RegisterNewCurrencyAssetInEventSlot( eventShopCurrencyFlav )
+		GRX_SetEventCurrency( ItemFlavor_GetGRXAlias( eventShopCurrencyFlav ) )
 	}
 }
-      
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

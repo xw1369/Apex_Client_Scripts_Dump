@@ -41,7 +41,7 @@ ImpactTable
 		"2" "P_impact_shadow_pounce_lava" //lava_rock_hot
 		"3" "P_impact_shadow_pounce_default"
 		"4" "P_impact_shadow_pounce_default"
-		"5" "P_impact_shadow_pounce_default"
+		"5" "P_impact_exp_med_water" //water_hrz
 		"6" "P_impact_shadow_pounce_default"
 		"7" "P_impact_shadow_pounce_default"
 		"8" "P_impact_shadow_pounce_default"
@@ -56,7 +56,7 @@ ImpactTable
 		"critical_hit" "impact_metal"
 
 	}
-	
+
 	FX // additive decals
 	{
 	//	"C" "P_impact_mrb_rock" //Concrete, rock, porcelain, boulder, gravel, asphalt, brick, concrete_block, plaster

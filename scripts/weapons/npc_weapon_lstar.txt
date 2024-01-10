@@ -27,7 +27,7 @@ WeaponData
 	"projectile_drag_coefficient" 					"0.0"
 	"projectile_lifetime" 							"4.0"
 
-	"damage_flags"									"DF_BULLET | DF_GIB | DF_DISMEMBERMENT"
+	"damage_flags"									"DF_BULLET | DF_GIB"
 
 	"OnWeaponActivate"								"OnWeaponActivate_weapon_lstar"
 	"OnWeaponPrimaryAttack"							"OnWeaponPrimaryAttack_weapon_lstar"

@@ -1140,8 +1140,6 @@ void function Valentines_Add1pVFX_Thread( float duration, int shieldHealAmount, 
 
 
 
-
-
 string function Valentines_S15_GetString( int infoId )
 {
 	string retVal = ""

@@ -620,72 +620,6 @@ void function Entitlements_LevelInit()
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 void function UnlockFuncRegister( ItemFlavor flavor )
 {
 	if ( !ItemFlavor_HasUnlockFunc( flavor ) )
@@ -1014,6 +948,8 @@ int function GetEntitlementForString( string entitlementString )
 	Assert( entitlementString in getconsttable() )
 	return expect int( getconsttable()[ entitlementString ] )
 }
+
+
 
 
 

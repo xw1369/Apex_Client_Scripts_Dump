@@ -39,7 +39,7 @@ ImpactTable
 		"2" "P_launchpad_exp_metal"
 		"3" "P_launchpad_exp_metal"
 		"4" "P_launchpad_exp_metal"
-		"5" "P_launchpad_exp_metal"
+		"5" "P_launchpad_exp_water"
 		"6" "P_launchpad_exp_metal"
 		"7" "P_launchpad_exp_metal"
 		"8" "P_launchpad_exp_metal"
@@ -84,6 +84,8 @@ ImpactTable
 
 		"airburst" "JumpPad_Explo"
 		"shieldhit" "TitanShield.Explosive.BulletImpact_3P_vs_3P"
+
+		"5" "JumpPad_Explo"
 	}
 
 	Sound_attacker
@@ -121,6 +123,8 @@ ImpactTable
 
 		"airburst" "JumpPad_Explo"
 		"shieldhit" "TitanShield.Explosive.BulletImpact_1P_vs_3P"
+
+		"5" "JumpPad_Explo"
 	}
 
 	Sound_victim
@@ -152,6 +156,8 @@ ImpactTable
 		"X"	"TitanBubbleShield.Explosive.BulletImpact_1P_vs_3P"
 		"Y" "JumpPad_Explo"
 		"Z" "JumpPad_Explo"
+
+		"5" "JumpPad_Explo"
 
 		//"splash" "Water.BulletImpact"
 		//"slime_splash" "Water.BulletImpact"

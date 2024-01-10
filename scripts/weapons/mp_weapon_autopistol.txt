@@ -3,7 +3,7 @@
 #base "_base_laser_sights_small.txt"
 
                     
-                                        
+#base "_base_hopup_golden_horse_red.txt"
       
 
 WeaponData

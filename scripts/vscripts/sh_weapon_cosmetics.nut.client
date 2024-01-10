@@ -134,7 +134,7 @@ void function OnItemFlavorRegistered_LootMainWeapon( ItemFlavor weaponFlavor )
 	
 	{
 		array<ItemFlavor> skinList = RegisterReferencedItemFlavorsFromArray( weaponFlavor, "skins", "flavor" )
-		MakeItemFlavorSet( skinList, fileLevel.cosmeticFlavorSortOrdinalMap )
+		MakeItemFlavorSet( skinList, fileLevel.cosmeticFlavorSortOrdinalMap, true )
 		foreach( ItemFlavor skin in skinList )
 		{
 			SetupWeaponSkin( skin )
@@ -181,7 +181,7 @@ void function OnItemFlavorRegistered_LootMainWeapon( ItemFlavor weaponFlavor )
 	
 	{
 		array<ItemFlavor> charmList = RegisterReferencedItemFlavorsFromArray( weaponFlavor, "charms", "flavor" )
-		MakeItemFlavorSet( charmList, fileLevel.cosmeticFlavorSortOrdinalMap )
+		MakeItemFlavorSet( charmList, fileLevel.cosmeticFlavorSortOrdinalMap, true )
 		foreach( ItemFlavor charm in charmList )
 		{
 			SetupWeaponCharm( charm )

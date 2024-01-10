@@ -44,6 +44,8 @@ ImpactTable
 
 		//"airburst" "Char_13_Ultimate_Activate_1"
 		"shieldhit" "Char_13_Ultimate_Activate_1"
+
+		"5" "Char_13_Ultimate_Activate_1"
 	}
 
 	Sound_attacker
@@ -80,6 +82,8 @@ ImpactTable
 
 		//"airburst" "Char_13_Ultimate_Activate_1"
 		"shieldhit" "Char_13_Ultimate_Activate_1"
+
+		"5" "Char_13_Ultimate_Activate_1"
 	}
 
 	Sound_victim
@@ -116,6 +120,8 @@ ImpactTable
 
 		//"airburst" "Char_13_Ultimate_Activate_1"
 		"shieldhit" "Char_13_Ultimate_Activate_1"
+
+		"5" "Char_13_Ultimate_Activate_1"
 	}
 
 

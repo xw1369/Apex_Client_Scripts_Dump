@@ -46,11 +46,15 @@ const float LOCKON_TIMEOUT_DURATION = 4
 
 const asset DEBUFF_WEAPON_EFFECT_1P = $"P_clbr_tac_wpn_overheat_idle"
 const asset AOE_RADIUS_FX = $"P_clbr_tac_imp_aoe"
+const asset AOE_UPGRADE_TIMER_FX = $"P_LU_Ballistic_tac_timer"
 const asset AOE_IMPACT_FX = $"P_clbr_tac_imp_aoe_end"
 const asset AOE_WARNING_FX = $"P_clbr_tac_imp"
 const asset DEBUFF_EXPLOSION = $"P_clbr_tac_wpn_overheat_exp"
 const asset DEBUFF_EXPLOSION_3P = $"P_clbr_tac_wpn_overheat_exp_3p"
 const asset DEBUFF_OVERHEAT_LHAND = $"P_clbr_tac_hand_overheat"
+
+
+
 
 const asset DEBUFF_ZONE_HEART_MODEL = $"mdl/weapons/ballistic_pistol/w_ballistic_bullet.rmdl"
 const asset OVERHEAT_DEBUFF_BODY_FX = $"P_clbr_tac_body_debuff_3p"
@@ -143,6 +147,7 @@ void function MpWeaponDebuffZone_Init()
 	PrecacheParticleSystem( LOCK_ON_MARKER )
 	PrecacheParticleSystem( DEBUFF_WEAPON_EFFECT_1P )
 	PrecacheParticleSystem( AOE_RADIUS_FX )
+	PrecacheParticleSystem( AOE_UPGRADE_TIMER_FX)
 	PrecacheParticleSystem( AOE_IMPACT_FX )
 	PrecacheParticleSystem( AOE_WARNING_FX )
 	PrecacheParticleSystem( DEBUFF_EXPLOSION )
@@ -151,6 +156,9 @@ void function MpWeaponDebuffZone_Init()
 	PrecacheParticleSystem( FX_TACTICAL_RANGE_INDICATOR )
 	PrecacheParticleSystem( OVERHEAT_DEBUFF_BODY_FX )
 	PrecacheParticleSystem( DEBUFF_ZONE_MUZZLE_FLASH_3P )
+
+
+
 
 	RegisterSignal( "EndLockon" )
 	RegisterSignal( "EndMissileHoming" )
@@ -1356,6 +1364,27 @@ void function DebuffZone_OnPlayerOverheat( entity player, entity weapon )
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 void function CreateTargetingRui( entity player )
 {
 	if ( file.targetingRui != null )
@@ -1553,7 +1582,7 @@ void function ServerCallback_CreateOverHeatIconRui( entity target )
 	entity player = GetLocalClientPlayer()
 	var rui = RuiCreate( $"ui/overheat_on_player.rpak", clGlobal.topoFullScreen, RUI_DRAW_HUD, RuiCalculateDistanceSortKey( player.EyePosition(), target.GetOrigin() ) )
 
-	InitHUDRui( rui, true )
+	InitHUDRui( rui )
 
 	RuiTrackFloat3( rui, "pos", target, RUI_TRACK_OVERHEAD_FOLLOW )
 	RuiKeepSortKeyUpdated( rui, true, "pos" )

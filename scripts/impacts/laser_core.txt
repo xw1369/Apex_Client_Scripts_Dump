@@ -100,6 +100,8 @@ ImpactTable
 		"Z" "Default.LaserLoop.BulletImpact_3P_VS_3P"
 
 		"shieldhit" "Default.LaserLoop.BulletImpact_3P_VS_3P"
+
+		"5" "Default.LaserLoop.BulletImpact_3P_VS_3P"
 	}
 
 	Sound_attacker
@@ -136,6 +138,8 @@ ImpactTable
 
 		//"airburst" ""
 		"shieldhit" "Default.LaserLoop.BulletImpact_1P_VS_3P"
+
+		"5" "Default.LaserLoop.BulletImpact_1P_VS_3P"
 	}
 
 	Sound_victim
@@ -172,5 +176,7 @@ ImpactTable
 
 		//"airburst" ""
 		"shieldhit" "Default.LaserLoop.BulletImpact_titan_3P_VS_1P"
+
+		"5" "Default.LaserLoop.BulletImpact_3P_VS_1P"
 	}
 }

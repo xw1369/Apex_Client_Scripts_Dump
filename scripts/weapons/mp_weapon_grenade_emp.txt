@@ -97,7 +97,7 @@ WeaponData
 	"explosion_inner_radius"  						"72"
 	"explosionradius" 								"350"
 
-	"projectile_killreplay_enabled"					"1"
+	"projectile_killreplay_enabled"					"0"
 
 	"damage_shield_scale"                           "1"
 

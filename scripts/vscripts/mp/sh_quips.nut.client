@@ -59,6 +59,10 @@ struct FileStruct_LifetimeLevel
 FileStruct_LifetimeLevel& fileLevel
 
 
+const string ANIM_3P_KEY = "anim3p" 
+const string OVERRIDE_ANIMS_ARRAY_KEY = "overrideAnims"
+const string OVERRIDE_CHARACTER_KEY = "character"
+
 void function ShQuips_LevelInit()
 {
 	FileStruct_LifetimeLevel newFileLevel
@@ -67,7 +71,7 @@ void function ShQuips_LevelInit()
 
 void function RegisterEquippableQuipsForCharacter( ItemFlavor characterClass, array<ItemFlavor> quipList, array<ItemFlavor> characterEmotesList )
 {
-	foreach( int index, ItemFlavor quip in quipList )
+	foreach ( int index, ItemFlavor quip in quipList )
 	{
 		if ( GetGlobalSettingsAsset( ItemFlavor_GetAsset( quip ), "parentItemFlavor" ) == "" )
 		{
@@ -229,6 +233,9 @@ bool function CharacterQuip_IsTheEmpty( ItemFlavor flavor )
 {
 	AssertEmoteIsValid( flavor )
 
+	if ( ItemFlavor_GetType( flavor ) == eItemType.character_emote )
+		return false 
+
 	return ( GetGlobalSettingsBool( ItemFlavor_GetAsset( flavor ), "isTheEmpty" ) )
 }
 
@@ -274,11 +281,26 @@ array<ItemFlavor> function ItemFlavor_GetFavoredQuipArrayForCharacter( ItemFlavo
 }
 
 
-string function CharacterQuip_GetAnim3p( ItemFlavor flavor )
+string function CharacterQuip_GetAnim3p( ItemFlavor quip, ItemFlavor character )
 {
-	AssertEmoteIsValid( flavor )
+	AssertEmoteIsValid( quip )
 
-	return GetGlobalSettingsString( ItemFlavor_GetAsset( flavor ), "anim3p" )
+	if ( ItemFlavor_GetType( quip ) != eItemType.character_emote )
+		return ""
+
+	string anim3p = GetGlobalSettingsString( ItemFlavor_GetAsset( quip ), ANIM_3P_KEY )
+
+	foreach ( var overridePair in IterateSettingsAssetArray( ItemFlavor_GetAsset( quip ), OVERRIDE_ANIMS_ARRAY_KEY ) )
+	{
+		asset overrideCharacter = GetSettingsBlockAsset( overridePair, OVERRIDE_CHARACTER_KEY )
+		if ( IsValidItemFlavorSettingsAsset( overrideCharacter ) && character == GetItemFlavorByAsset( overrideCharacter ) )
+		{
+			anim3p = GetSettingsBlockString( overridePair, ANIM_3P_KEY )
+			break
+		}
+	}
+
+	return anim3p
 }
 
 string function CharacterQuip_GetAnimLoop3p( ItemFlavor flavor )

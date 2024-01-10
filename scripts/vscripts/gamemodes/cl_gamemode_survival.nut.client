@@ -21,7 +21,8 @@ global function ServerCallback_PromptMarkMyLastDeathbox
 
 global function ServerCallback_PromptRespawnThanks
 global function ServerCallback_RefreshInventoryAndWeaponInfo
-global function ServerCallback_RefreshDeathBox
+
+global function ManageDeathboxHighlights
 
 global function ServerCallback_AnnounceDevRespawn
 
@@ -382,6 +383,9 @@ void function ClGamemodeSurvival_Init()
 	Cl_SquadDisplay_Init()
 	Teams_RegisterSignals()
 
+
+
+
 	Bleedout_SetFirstAidStrings( "#SURVIVAL_APPLYING_FIRST_AID", "#SURVIVAL_RECIEVING_FIRST_AID" )
 
 	RegisterSignal( "Sur_EndTrackOffhandWeaponSlot0" )
@@ -471,12 +475,8 @@ void function ClGamemodeSurvival_Init()
 	AddCallback_ItemFlavorLoadoutSlotDidChange_AnyPlayer( Loadout_Character(), OnPlayerLoadoutChanged )
 	AddCallback_OnPlayerConsumableInventoryChanged( UpdateDpadHud )
 
-
-
-
-
-
-
+	RegisterNetVarBoolChangeCallback( "highlightFar", DeathboxHighlightDistChangedCallback )
+	RegisterNetVarIntChangeCallback( "maxLootTier", DeathboxHighlightLootTierDistChangedCallback )
 
 
 	AddCallback_GameStateEnter( eGameState.WaitingForPlayers, Survival_WaitForPlayers )
@@ -1089,7 +1089,7 @@ void function Survival_MinimapPackage_ObjectiveAreaInit( entity ent, var rui )
 		case "craftingZone":
 			RuiSetColorAlpha( rui, "objColor", SrgbToLinear( <255, 255, 255> / 255.0 ), 1 )
 			RuiSetColorAlpha( rui, "objBorderColor", SrgbToLinear( <235, 207, 52> / 255.0 ), 0 )
-			RuiSetAsset( rui, "areaImage", CRAFTING_ZONE_ASSET )
+			RuiSetAsset( rui, "areaImage", Crafting_GetCraftingZoneIcon() )
 			RuiSetBool( rui, "blink", false )
 			break
 
@@ -1954,12 +1954,29 @@ void function EquipmentChanged( entity player, string equipSlot, int new )
 		}
 			if ( data.lootType == eLootType.ARMOR )
 			{
+
+
+
+
+
 				if ( EvolvingArmor_IsEquipmentEvolvingArmor( data.ref ) )
 				{
 					RuiSetBool( file.pilotRui, "evoShieldDoubleDisplayAmount", EvolvingArmor_ExceedsMaxIntLimit( data ) )
 					RuiSetBool( file.pilotRui, "isEvolvingShield", isEvo )
 					RuiTrackInt( file.pilotRui, "evolvingShieldKillCounter", player, RUI_TRACK_SCRIPT_NETWORK_VAR_INT, GetNetworkedVariableIndex( NV_EVOLVING_ARMOR_KILL_COUNT ) )
 				}
+
+
+
+
+
+
+
+
+
+
+
+
 				else
 				{
 					RuiSetBool( file.pilotRui, "isEvolvingShield", false )
@@ -2401,10 +2418,13 @@ void function OpenQuickSwap( entity player )
 
 void function PeriodicHealHint()
 {
-	while ( IsAlive( GetLocalClientPlayer() ) )
+	entity player = GetLocalClientPlayer()
+	player.EndSignal( "OnDeath" )
+
+	while ( true )
 	{
 		wait 30.0
-		UpdateHealHint( GetLocalClientPlayer() )
+		UpdateHealHint( player )
 	}
 }
 
@@ -2828,6 +2848,13 @@ void function Survival_RunCharacterSelection_Thread()
 	CloseCharacterSelectMenu()
 
 	TryStartIntroPodiumSequence()
+
+
+
+
+
+
+
 }
 
 void function TryStartIntroPodiumSequence()
@@ -3063,48 +3090,6 @@ void function ServerCallback_AnnounceCircleClosing()
 	AnnouncementFromClass( GetLocalViewPlayer(), announcement )
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 void function Sur_OnBleedoutStarted( entity victim, float endTime )
 {
 	if ( victim != GetLocalViewPlayer() )
@@ -3139,8 +3124,8 @@ void function Sur_OnBleedoutEnded( entity victim )
 bool function DontCreatePlayerRuisForEnemies( entity ent )
 {
 
-
-
+	if ( ent.GetNetworkedClassName() == "npc_frag_drone" && ent.Minimap_GetCustomState() == eMinimapObject_npc.LOOT_TICK_GH )
+		return true
 
 
 	if ( ent.IsPlayer() || ent.IsNPC() )
@@ -3481,13 +3466,6 @@ void function ServerCallback_MatchEndAnnouncement( bool victory, int winningTeam
 {
 	clGlobal.levelEnt.Signal( "SquadEliminated" )
 
-
-	if ( IsShadowArmyGamemodeCineVersion() )
-	{
-		return
-	}
-
-
 	DeathScreenCreateNonMenuBlackBars()
 	DeathScreenUpdate()
 	entity clientPlayer = GetLocalClientPlayer()
@@ -3733,11 +3711,6 @@ void function OnGamestateResolution()
 
 	if ( IsShowingVictorySequence() )
 		return
-
-
-	if ( IsShadowArmyGamemodeCineVersion() )
-		return
-
 
 	thread ShowVictorySequence()
 }
@@ -4309,7 +4282,11 @@ void function ShowVictorySequence( bool placementMode = false, bool isDevTest = 
 
 
 	
-	ScreenFade( player, 0, 0, 0, 255, 0.4, 2.0, FFADE_OUT | FFADE_PURGE )
+	
+	if ( !IsReplayRoundWinning() )
+	{
+		ScreenFade( player, 0, 0, 0, 255, 0.4, 2.0, FFADE_OUT | FFADE_PURGE )
+	}
 
 	EmitSoundOnEntity( player, "UI_InGame_ChampionMountain_Whoosh" )
 
@@ -4429,7 +4406,7 @@ void function ShowVictorySequence( bool placementMode = false, bool isDevTest = 
 
 		foreach ( int i, SquadSummaryPlayerData data in file.winnerSquadSummaryData.playerData )
 		{
-			if ( i >= maxPlayersToShow )
+			if ( playersOnPodium >= maxPlayersToShow )
 				break
 
 			if ( !EHIHasValidScriptStruct( data.eHandle ) )
@@ -4453,6 +4430,9 @@ void function ShowVictorySequence( bool placementMode = false, bool isDevTest = 
 				continue
 
 			ItemFlavor characterSkin = LoadoutSlot_GetItemFlavor( data.eHandle, Loadout_CharacterSkin( character ) )
+
+			if ( ( ( maxPlayersToShow / squadSize) <= uniqueTeamNumbers.len() ) && !uniqueTeamNumbers.contains( teamOfCurrentPlayer ) )
+				continue
 
 			if ( !uniqueTeamNumbers.contains( teamOfCurrentPlayer ) )
 				uniqueTeamNumbers.append( teamOfCurrentPlayer )
@@ -4959,28 +4939,30 @@ vector function GetVictorySquadFormationPosition( vector mainPosition, vector an
 string function GetVictorySquadFormationActivity( entity characterModel, int eHandle )
 {
 
-		entity playerEnt = GetEntityFromEncodedEHandle( eHandle )
-		bool shouldGetShadowAnim = false
+
+			entity playerEnt = GetEntityFromEncodedEHandle( eHandle )
+			bool shouldGetShadowAnim = false
 
 
 
 
 
 
-			shouldGetShadowAnim = IsShadowRoyaleMode() && IsPlayerShadowZombie( playerEnt )
+				shouldGetShadowAnim = IsShadowRoyaleMode() && IsPlayerShadowZombie( playerEnt )
 
 
-		if ( shouldGetShadowAnim )
-		{
-			bool animExists = characterModel.LookupSequence( "ACT_VICTORY_DANCE" ) != -1
-			if ( animExists )
-				return "ACT_VICTORY_DANCE"
-			else
+			if ( shouldGetShadowAnim )
 			{
-				Assert( characterModel.LookupSequence( "ACT_MP_MENU_LOBBY_SELECT_IDLE" ) != -1, "Unable to find victory idle for " + characterModel )
-				return "ACT_MP_MENU_LOBBY_SELECT_IDLE"
+				bool animExists = characterModel.LookupSequence( "ACT_VICTORY_DANCE" ) != -1
+				if ( animExists )
+					return "ACT_VICTORY_DANCE"
+				else
+				{
+					Assert( characterModel.LookupSequence( "ACT_MP_MENU_LOBBY_SELECT_IDLE" ) != -1, "Unable to find victory idle for " + characterModel )
+					return "ACT_MP_MENU_LOBBY_SELECT_IDLE"
+				}
 			}
-		}
+
 
 
 	return "ACT_MP_MENU_LOBBY_SELECT_IDLE"
@@ -5225,8 +5207,7 @@ void function UICallback_OpenCharacterSelectMenu()
 	if( IsFiringRangeGameMode() && !FiringRange_IsCharacterSwitchingEnabled() )
 		return
 
-	bool inBleedoutOrRevive = IsInBleedoutOrRevive( player )
-	if( inBleedoutOrRevive )
+	if( !CharacterSelect_Menu_ShouldOpen( player ) )
 		return
 
 	if ((( GetGameState() < eGameState.PickLoadout && !IsSurvivalTraining()) || IsCharacterReselectEnabled() ) &&
@@ -5601,21 +5582,39 @@ void function OnSquadMuteChanged()
 	UpdateWaitingForPlayersMuteHint()
 }
 
-
-void function ServerCallback_RefreshDeathBox()
+void function DeathboxHighlightDistChangedCallback( entity box, bool longerHighlightDist )
 {
-	array<entity> boxes = GetAllDeathBoxes()
-	ArrayRemoveInvalid( boxes )
-	foreach ( box in boxes )
-	{
-		ManageHighlightEntity( box )
-
-
-
-
-	}
+	ManageDeathboxHighlights( box )
 }
 
+void function DeathboxHighlightLootTierDistChangedCallback( entity box, int maxLootTier )
+{
+	ManageDeathboxHighlights( box )
+}
+
+void function ManageDeathboxHighlights( entity box )
+{
+	array<entity> itemsInBox = box.GetLinkEntArray()
+
+	bool longerHighlightDist = box.GetNetBool( "highlightFar" )
+	int maxTier = box.GetNetInt( "maxLootTier" )
+
+	string highlight = SURVIVAL_GetHighlightForTier( maxTier, longerHighlightDist )
+
+
+
+
+
+
+
+
+
+	SetSurvivalPropHighlight( box, highlight, false, eHighlightGenericType.NEUTRAL )
+	SetSurvivalPropHighlight( box, highlight, false, eHighlightGenericType.FRIENDLY )
+	SetSurvivalPropHighlight( box, highlight, false, eHighlightGenericType.ENEMY )
+
+	ManageHighlightEntity( box )
+}
 
 const string magAttachmentName = "mag"
 void function ServerCallback_AutoReloadComplete( entity weapon )

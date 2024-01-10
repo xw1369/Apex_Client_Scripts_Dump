@@ -238,6 +238,9 @@ struct
 	float TUNING_VANTAGE_COMPANION_RANGE_BASE
 	float TUNING_VANTAGE_COMPANION_RANGE_MAX
 
+
+
+
 	var vantageTacticalRui
 
 	int   previousCompanionState
@@ -267,6 +270,9 @@ void function VantageCompanion_Init()
 
 	file.TUNING_VANTAGE_COMPANION_RANGE_BASE = GetCurrentPlaylistVarFloat( "vantage_tactical_base_range", VANTAGE_COMPANION_RANGE_BASE )
 	file.TUNING_VANTAGE_COMPANION_RANGE_MAX = GetCurrentPlaylistVarFloat( "vantage_tactical_max_range", VANTAGE_COMPANION_RANGE_MAX )
+
+
+
 
 #if DEV
 	Assert( eCompanionState.COUNT == sCompanionStateStrings.len(), "Must define a string for each state." )
@@ -2035,13 +2041,17 @@ void function VantageCompanion_OnPropScriptCreated( entity echoEnt )
 {
 	if ( echoEnt.GetScriptName() == VANTAGE_COMPANION_SCRIPTNAME )
 	{
+		entity echoOwner = echoEnt.GetOwner()
+		if ( !IsValid( echoOwner) )
+			return
+
 		CompanionData newData
-		file.companionData[echoEnt.GetOwner()] <- newData
+		file.companionData[echoOwner] <- newData
 
 		EchoCompanionData newEchoData
-		file.echoData[echoEnt.GetOwner()] <- newEchoData
+		file.echoData[echoOwner] <- newEchoData
 
-		if ( echoEnt.GetOwner() == GetLocalViewPlayer() )
+		if ( echoOwner == GetLocalViewPlayer() )
 		{
 			thread VantageCompanion_CreateHUDMarker( echoEnt )
 			

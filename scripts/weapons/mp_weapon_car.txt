@@ -3,7 +3,7 @@
 #base "_base_laser_sights.txt"
 
                     
-                                           
+#base "_base_hopup_golden_horse_purple.txt"
       
 
 WeaponData
@@ -35,7 +35,7 @@ WeaponData
 
 	"chroma_color"									"1 .9 .5" //to do
 
-	"damage_flags"									"DF_BULLET | DF_DISMEMBERMENT"
+	"damage_flags"									"DF_BULLET"
 	"damage_leg_scale"                              "0.8"
 
 	"critical_hit"									"1"
@@ -141,11 +141,7 @@ WeaponData
 
     "ammo_min_to_fire"								"1"
 
-                      
     "ammo_clip_size"                                "19"
-     
-                                                        
-      
 
     "ammo_default_total"							"0"
     "ammo_stockpile_max"							"30"
@@ -156,12 +152,12 @@ WeaponData
     "damage_far_distance" 							"1500"
     "damage_very_far_distance"						"3500"
 
-    "damage_near_value"   					        "13"
-    "damage_far_value"						        "13"
-    "damage_very_far_value"					        "13"
-    "damage_near_value_titanarmor"			        "13"
-    "damage_far_value_titanarmor" 			        "13"
-    "damage_very_far_value_titanarmor" 		        "13"
+    "damage_near_value"   					        "12"
+    "damage_far_value"						        "12"
+    "damage_very_far_value"					        "12"
+    "damage_near_value_titanarmor"			        "12"
+    "damage_far_value_titanarmor" 			        "12"
+    "damage_very_far_value_titanarmor" 		        "12"
 
     // View Drift
 
@@ -389,67 +385,35 @@ WeaponData
 		}
 		highcal_mag_l1
 		{
-                      
             "ammo_clip_size"                                "21"
-     
-                                                                
-      
 		}
 		highcal_mag_l2
 		{
-                      
             "ammo_clip_size"                                "23"
-     
-                                                                
-      
 		}
 		highcal_mag_l3
 		{
-                      
             "ammo_clip_size"                                "26"
-     
-                                                                
-      
 		}
         highcal_mag_l4
         {
-                      
             "ammo_clip_size"                                "26"
-     
-                                                                
-      
         }
         bullets_mag_l1
         {
-                      
             "ammo_clip_size"                                "21"
-     
-                                                                
-      
         }
         bullets_mag_l2
         {
-                      
             "ammo_clip_size"                                "23"
-     
-                                                                
-      
         }
 		bullets_mag_l3
 		{
-                      
             "ammo_clip_size"                                "26"
-     
-                                                                
-      
 		}
         bullets_mag_l4
         {
-                      
             "ammo_clip_size"                                "26"
-     
-                                                                
-      
         }
 	}
 

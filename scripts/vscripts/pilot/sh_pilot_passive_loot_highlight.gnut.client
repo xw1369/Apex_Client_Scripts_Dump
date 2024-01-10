@@ -32,7 +32,6 @@ void function ShPassiveLootHighlight_Init()
 
 
 
-
 }
 
 void function RegisterItemHighlight( int passive, int minTier, bool functionref( LootData ) spawnFilter, string functionref( LootData ) lootToHighlightType, float range )
@@ -192,7 +191,7 @@ void function ClientThinkThread( entity player, float range )
 
 string function Ordnance_GetHighlightString( LootData lootData )
 {
-	return OrdnanceItemFilter( lootData ) ? "survival_item_ordinance" : ""
+	return OrdnanceItemFilter( lootData ) ? "survival_item_common_no_los_check" : ""
 }
 
 
@@ -208,14 +207,13 @@ string function HealingItem_GetHighlightString( LootData lootData )
 		if ( lootData.tier == eRarityTier.EPIC )
 			return "survival_item_rare_vision"
 		else if ( lootData.tier == eRarityTier.RARE )
-			return "survival_item_ordinance"
+			return "survival_item_common_no_los_check"
 	}
 	return ""
 }
 
 bool function HealingItemFilter( LootData lootData )
 {
-	printt( "lootData:" + lootData.lootType + ", "  )
 	return lootData.lootType == eLootType.HEALTH && ( lootData.ref == "health_pickup_health_small" || lootData.ref == "health_pickup_health_large" || lootData.ref == "health_pickup_combo_small" || lootData.ref == "health_pickup_combo_large" )
 }
 

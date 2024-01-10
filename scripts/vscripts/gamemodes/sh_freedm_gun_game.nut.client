@@ -106,7 +106,6 @@ void function GunGame_Init()
 
 
 
-
 	
 	Remote_RegisterClientFunction( "ServerCallback_AnnounceScored", "int", 0, 512 )
 	
@@ -115,7 +114,7 @@ void function GunGame_Init()
 	
 	Remote_RegisterClientFunction( "ServerCallback_UpdateWeaponPreviews", "int", 0, 256, "int", 0, 512, "int", -1, 256, "int", 0, 512, "int", -1, 256 )
 	Remote_RegisterClientFunction( "ServerCallback_GunGame_SetSummaryScreen" )
-	Remote_RegisterServerFunction( "ClientCallback_UpdateWeaponPreviewHUD", "entity" )
+	Remote_RegisterServerFunction( "ClientCallback_UpdateWeaponPreviewHUD" )
 	for( int i = 0; i < MAX_TEAMS; ++i )
 		RegisterNetworkedVariable( GUNGAME_SQUAD_WEAPON_INDEX + i, SNDC_GLOBAL, SNVT_INT, -1 )
 
@@ -137,6 +136,8 @@ void function GunGame_Init()
 	AddCallback_GameStateEnter( eGameState.PickLoadout, GunGame_OnPlayerGameStateEntered )
 
 }
+
+
 
 
 
@@ -763,11 +764,8 @@ void function GunGame_OnPlayerGameStateEntered()
 
 void function GunGame_OnSpectateTargetChanged( entity player, entity previousTarget, entity currentTarget )
 {
-	if ( IsValid( currentTarget ) )
-	{
-		Remote_ServerCallFunction( "ClientCallback_UpdateWeaponPreviewHUD", currentTarget )
-		SquadLeader_UpdateAllUnitFramesRui()
-	}
+	Remote_ServerCallFunction( "ClientCallback_UpdateWeaponPreviewHUD" )
+	SquadLeader_UpdateAllUnitFramesRui()
 }
 
 void function ServerCallback_AnnounceWeaponSkip( int lootIndex )

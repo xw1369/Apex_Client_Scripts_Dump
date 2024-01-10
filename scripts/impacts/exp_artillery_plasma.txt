@@ -45,7 +45,7 @@ ImpactTable
 		"2" "P_exp_artillery_plasma_lava" //lava_rock_hot
 		"3" "P_exp_artillery_plasma_metal"
 		"4" "P_exp_artillery_plasma_metal"
-		"5" "P_exp_artillery_plasma_metal"
+		"5" "P_impact_exp_XLG_water"
 		"6" "P_exp_artillery_plasma_metal"
 		"7" "P_exp_artillery_plasma_metal"
 		"8" "P_exp_artillery_plasma_metal"
@@ -108,7 +108,7 @@ ImpactTable
 		"2" "explo_defensivebombardment_impact_concrete_3p_vs_3p" //lava_rock_hot
 //		"3" "openslot"
 //		"4" "openslot"
-//		"5" "openslot"
+		"5" "explo_defensivebombardment_impact_dirt_3p_vs_3p"
 //		"6" "openslot"
 //		"7" "openslot"
 //		"8" "openslot"
@@ -159,7 +159,7 @@ ImpactTable
 		"2" "explo_defensivebombardment_impact_dirt_3p_vs_3p" //lava_rock_hot
 //		"3" "openslot"
 //		"4" "openslot"
-//		"5" "openslot"
+		"5" "explo_defensivebombardment_impact_dirt_3p_vs_3p"
 //		"6" "openslot"
 //		"7" "openslot"
 //		"8" "openslot"
@@ -211,7 +211,7 @@ ImpactTable
 		"2" "explo_defensivebombardment_impact_dirt_3p_vs_3p" //lava_rock_hot
 //		"3" "openslot"
 //		"4" "openslot"
-//		"5" "openslot"
+		"5" "explo_defensivebombardment_impact_dirt_3p_vs_3p"
 //		"6" "openslot"
 //		"7" "openslot"
 //		"8" "openslot"

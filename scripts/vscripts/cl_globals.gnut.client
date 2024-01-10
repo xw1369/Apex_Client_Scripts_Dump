@@ -99,8 +99,6 @@ global struct ClGlobals
 
 	var		empScreenEffect
 
-	table<var, bool> fullscreenRuiSet
-
 	bool callingCardsEnabled = true
 	var[ABSOLUTE_MAX_TEAMS] callingCardRuis
 

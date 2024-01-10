@@ -1,0 +1,14 @@
+WeaponData
+{
+	Mods
+	{
+		hopup_golden_horse_blue
+		{
+			"projectile_trail_effect_0_1p"     				"P_tracer_proj_smg_blueHop_trail"
+            "projectile_trail_effect_0_3p"     				"P_tracer_proj_smg_blueHop_trail"
+            "impact_effect_table" 							"bullet_blueHop"
+
+			"lifesteal_heal_percent"        "0.5"
+		}
+	}
+}

@@ -2,7 +2,6 @@ global function MpAbilityWreckingBall_Init
 global function OnWeaponAttemptOffhandSwitch_ability_WreckingBall
 global function OnWeaponTossReleaseAnimEvent_WeaponWreckingBall
 global function OnWeaponTossPrep_WeaponWreckingBall
-global function OnProjectileCollision_ability_WreckingBall_Piece
 global function OnProjectileCollision_ability_WreckingBall
 
 
@@ -69,6 +68,14 @@ const vector COLOR_SPEEDBOOST_MID 					= <250, 255, 185>
 const vector COLOR_SPEEDBOOST_END 					= <255, 255, 255>
 
 
+
+
+
+
+
+
+
+
 const string SOUND_SPEED_BOOST_ACTIVE_1P 			= "Maggie_Ult_SpeedBoost"
 const string SOUND_SPEED_BOOST_ACTIVE_3P 			= "Maggie_Ult_SpeedBoost_3p"
 const string SOUND_SPEED_BOOST_LOOP_1P				= "Maggie_Ult_SpeedBoost_Loop_1P"
@@ -83,8 +90,14 @@ const string SOUND_WRECKING_BALL_ACTIVE				= "Maggie_Ultimate_Ball_Actve_Loop"
 const string SOUND_WRECKING_BALL_EJECT				= "Maggie_Ultimate_Ball_Sides_Eject"
 
 const bool DEBUG_PROP_COUNT							= false
-const bool DEBUG_EMP_DAMAGE_DESTRUCTION						= false
-const bool DEBUG_BALL_COLLISION_CALLBACK					= false
+const bool DEBUG_EMP_DAMAGE_DESTRUCTION				= false
+const bool DEBUG_BALL_COLLISION_CALLBACK			= false
+
+
+
+
+
+
 
 struct WakeInfo
 {
@@ -146,6 +159,9 @@ struct
 
 
 
+
+
+
 } file
 
 void function MpAbilityWreckingBall_Init()
@@ -167,6 +183,12 @@ void function MpAbilityWreckingBall_Init()
 	PrecacheParticleSystem( WRECKING_BALL_PIECE_LOOP_FX )
 	PrecacheParticleSystem( WRECKING_BALL_PIECE_FLYING_FX )
 	PrecacheParticleSystem( WRECKING_BALL_RADIUS_FX )
+
+
+
+
+
+
 
 	PrecacheModel( WRECKING_BALL_PROJ_WRECKING_BALL )
 	PrecacheModel( WRECKING_BALL_PIECE_MODEL )
@@ -196,8 +218,6 @@ void function MpAbilityWreckingBall_Init()
 
 
 
-
-
 	
 	file.fxOption_pieceHighlight				= GetCurrentPlaylistVarBool( "wrecking_ball_fx_piece_highlight", false )
 	file.fxOption_pieceLoopFX					= GetCurrentPlaylistVarBool( "wrecking_ball_fx_piece_loop_fx", true )
@@ -207,6 +227,9 @@ void function MpAbilityWreckingBall_Init()
 	file.fxOption_playTempSound					= GetCurrentPlaylistVarBool( "wrecking_ball_fx_play_temp_sounds", true )
 
 	file.pingWreckingBallOnCast					= GetCurrentPlaylistVarBool( "wrecking_ball_ping_on_cast", false )
+
+
+
 
 
 
@@ -317,32 +340,6 @@ void function OnProjectileCollision_ability_WreckingBall( entity projectile, vec
 
 
 
-
-
-
-
-
-}
-
-void function OnProjectileCollision_ability_WreckingBall_Piece( entity projectile, vector pos, vector normal, entity hitEnt, int hitbox, bool isCritical, bool isPassthrough )
-{
-	if ( hitEnt.IsPlayer() )
-		return
-
-	if ( hitEnt.IsProjectile() )
-		return
-
-	if ( !LegalOrigin( pos ) )
-		return
-
-	
-	if ( projectile.GrenadeHasIgnited() )
-		return
-
-	projectile.GrenadeIgnite()
-	projectile.SetVelocity( <0,0,0> )
-	projectile.ClearParent()
-	projectile.SetPhysics( MOVETYPE_FLY )
 
 
 
@@ -1569,6 +1566,78 @@ void function OnWreckingBallDeployed( entity projectile, DeployableCollisionPara
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 void function ServerCallback_RT_SpeedupHudForPlayer( int statusEffect )
 {
 	entity player  = GetLocalViewPlayer()
@@ -1617,6 +1686,13 @@ void function WreckingBall_SpeedupHudThread( entity viewPlayer, int fxHandle, in
 	while ( StatusEffect_HasSeverity( viewPlayer, statusEffect ) )
 		WaitFrame()
 }
+
+
+
+
+
+
+
 
 
 

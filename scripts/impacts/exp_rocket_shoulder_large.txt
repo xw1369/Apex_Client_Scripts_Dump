@@ -47,7 +47,7 @@ ImpactTable
 		"2" "P_impact_exp_med_metal"
 		"3" "P_impact_exp_med_metal"
 		"4" "P_impact_exp_med_metal"
-		"5" "P_impact_exp_med_metal"
+		"5" "P_impact_exp_med_water"
 		"6" "P_impact_exp_med_metal"
 		"7" "P_impact_exp_med_metal"
 		"8" "P_impact_exp_med_metal"
@@ -98,6 +98,8 @@ ImpactTable
 
 		"airburst" "Default.Rocket_Explosion_3P_vs_3P"
 		"shieldhit" "TitanShield.Explosive.BulletImpact_3P_vs_3P"
+
+		"5" "Default.Rocket_Explosion_3P_vs_3P"
 	}
 
 	Sound_attacker
@@ -134,6 +136,8 @@ ImpactTable
 
 		"airburst" "Default.Rocket_Explosion_1P_vs_3P"
 		"shieldhit" "TitanShield.Explosive.BulletImpact_1P_vs_3P"
+
+		"5" "Default.Rocket_Explosion_1P_vs_3P"
 	}
 
 	Sound_victim
@@ -170,5 +174,7 @@ ImpactTable
 
 		"airburst" "Default.Rocket_Explosion_3P_vs_1P"
 		"shieldhit" "TitanShield.Explosive.BulletImpact_3P_vs_1P"
+
+		"5" "Default.Rocket_Explosion_3P_vs_1P"
 	}
 }

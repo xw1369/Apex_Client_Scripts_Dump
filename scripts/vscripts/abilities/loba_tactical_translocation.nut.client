@@ -223,19 +223,6 @@ void function TranslocationLifetimeThread( entity owner, entity weapon )
 			printt( "TRANSLOCATION:(" + ownerName + ") Translocation lifetime thread end" )
 #endif
 
-		if ( IsValid( weapon ) )
-		{
-			if ( weapon.w.translocate_isADSForced )
-			{
-
-				if ( InPrediction() )
-
-				{
-					weapon.ClearForcedADS()
-					weapon.w.translocate_isADSForced = false
-				}
-			}
-		}
 		if ( IsValid( owner ) )
 		{
 			if ( haveLockedForToss[0] )
@@ -267,15 +254,6 @@ void function TranslocationLifetimeThread( entity owner, entity weapon )
 			RuiDestroyIfAlive( rui )
 
 	} )
-
-	
-
-	if ( InPrediction() )
-
-	{
-		weapon.w.translocate_isADSForced = true
-		weapon.SetForcedADS()
-	}
 
 	int offhandSlot = weapon.GetOffhandActiveSlot()
 
@@ -349,6 +327,8 @@ void function TranslocationLifetimeThread( entity owner, entity weapon )
 		WaitFrame()
 	}
 }
+
+
 
 
 
@@ -577,12 +557,6 @@ void function TranslocationTossedThread( entity owner, entity weapon )
 #endif
 
 	OnThreadEnd( void function() : ( owner, weapon, fxIds, rumbleHandle, ownerName ) {
-
-
-
-
-
-
 
 
 
@@ -1486,6 +1460,10 @@ entity function GetCurrentTranslocationProjectile( entity owner, entity weapon )
 
 	return null
 }
+
+
+
+
 
 
 

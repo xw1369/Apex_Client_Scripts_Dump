@@ -52,6 +52,7 @@ const string TAKE_OFF_IMPACT_FX_TABLE = "pilot_bodyslam"
 
 
 const string IS_LAUNCHING_MOD = "vantage_is_launching_mod"
+const string IS_LAUNCHING_ONEHAND_MOD = "vantage_is_launching_onehand_mod"
 const string FAILED_LOS_MOD = "vantage_failed_los_mod"
 const string FROM_PERCHED_MOD = "vantage_from_perched_mod"
 
@@ -266,7 +267,7 @@ var function OnWeaponPrimaryAttack_companion_launch( entity weapon, WeaponPrimar
 
 				if ( InPrediction() )
 
-				weapon.AddMod( IS_LAUNCHING_MOD )
+				AddLaunchingMod( player, weapon ) 
 
 			if ( JET_DRIVE_DEBUG_DRAW_FLOW_PRINTS )
 				printt( "--VANTAGE TAC: PRIMATK PRE LAUNCH" )
@@ -288,8 +289,11 @@ var function OnWeaponPrimaryAttack_companion_launch( entity weapon, WeaponPrimar
 				if ( !IsBitFlagSet( mainHandWeapon.GetWeaponTypeFlags(), WPT_ULTIMATE ) )
 					file.cachedLastWeaponName[player] <- mainHandWeapon.GetWeaponClassName()
 
-				
-				mainHandWeapon.FastHolster()
+				if ( !IsBitFlagSet( mainHandWeapon.GetWeaponTypeFlags(), WPT_VIEWHANDS ) )
+				{
+					
+					mainHandWeapon.FastHolster()
+				}
 			}
 
 			
@@ -365,6 +369,16 @@ var function OnWeaponPrimaryAttack_companion_launch( entity weapon, WeaponPrimar
 	}
 
 	return ammoUsed
+}
+
+void function AddLaunchingMod( entity player, entity weapon )
+{
+	
+	string modToAdd = IS_LAUNCHING_MOD
+	if ( IsMeleeWeaponNotFists( player ) )
+		modToAdd = IS_LAUNCHING_ONEHAND_MOD
+
+	weapon.AddMod( modToAdd )
 }
 
 vector function GetInitialDeployPos( entity player )
@@ -529,6 +543,7 @@ void function RemoveAllTacMods( entity weapon, bool instant = true )
 					printt( "--VANTAGE TAC: RemoveAllTacMods" )
 
 		weapon.RemoveMod( IS_LAUNCHING_MOD )
+		weapon.RemoveMod( IS_LAUNCHING_ONEHAND_MOD )
 		weapon.RemoveMod( FAILED_LOS_MOD )
 		if ( instant )
 			weapon.RemoveMod( FROM_PERCHED_MOD )

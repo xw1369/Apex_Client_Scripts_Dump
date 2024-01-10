@@ -31,7 +31,7 @@ WeaponData
 
     // Damage
     "damage_type" 									"bullet"
-    "damage_flags"									"DF_BULLET | DF_KNOCK_BACK | DF_DISMEMBERMENT"
+    "damage_flags"									"DF_BULLET | DF_KNOCK_BACK"
 
 	"allow_headshots"        						"1"
     "headshot_distance" 							"17716"  // 450m

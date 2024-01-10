@@ -76,6 +76,10 @@ global enum eDamageSourceId
 
 
 
+
+
+
+
 	damagedef_loot_drone_explosion
 
 
@@ -112,8 +116,9 @@ global enum eDamageSourceId
 
 
 
-
-
+	mp_weapon_titan_sword
+	mp_weapon_titan_sword_slam
+	melee_titan_sword
 
 
 
@@ -547,6 +552,10 @@ global enum eDamageSourceId
 
 
 
+
+
+
+
 	mp_ability_void_ring
 	mp_weapon_3030
 	mp_weapon_dragon_lmg
@@ -605,33 +614,38 @@ global enum eDamageSourceId
 
 
 
+	golden_horse_green
+
+
+
+
+
+
+
+
+	melee_artifact_sword
+	mp_weapon_artifact_sword_primary
+
+
+
+	melee_crypto_heirloom_rt01
+	mp_weapon_crypto_heirloom_rt01_primary
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 	_count
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 }
 
 void function DamageTypes_Init()
@@ -672,6 +686,12 @@ void function DamageTypes_Init()
 	}
 
 
+		file.damageSourceIDToName[eDamageSourceId.mp_weapon_titan_sword_slam] <- "#WPN_TITAN_SWORD_SHORT"
+		file.damageSourceIDToImage[eDamageSourceId.mp_weapon_titan_sword_slam] <- $"rui/weapon_icons/r5/weapon_goldenhorse_sword"
+		file.damageSourceIDToString[eDamageSourceId.mp_weapon_titan_sword_slam] <- TITAN_SWORD_WEAPON_REF
+
+
+
 		file.damageSourceIDToImage[eDamageSourceId.melee_shadowsquad_hands] <- $"rui/gamemodes/shadow_squad/shadow_icon_small"
 		file.damageSourceIDToImage[eDamageSourceId.melee_shadowroyale_hands] <- $"rui/gamemodes/shadow_squad/shadow_icon_small"
 
@@ -707,8 +727,8 @@ void function DamageTypes_Init()
 			[ eDamageSourceId.spider_melee ] = "#DEATH_SPIDER_MELEE",
 			[ eDamageSourceId.spider_ranged ] = "#DEATH_SPIDER_RANGED",
 
-		[ eDamageSourceId.nessie_hug ] = "#BABY_NESSIE_TITLE",
-		[ eDamageSourceId.nessie_kiss ] = "#BABY_NESSIE_TITLE",
+		[ eDamageSourceId.nessie_hug ] = "#GOLDEN_HORSE_NESSIE_TITLE",
+		[ eDamageSourceId.nessie_kiss ] = "#GOLDEN_HORSE_NESSIE_TITLE",
 		[ eDamageSourceId.super_spectre_melee ] = "#DEATH_SUPER_SPECTRE",
 		[ eDamageSourceId.grunt_melee ] = "#DEATH_GRUNT_MELEE",
 
@@ -859,6 +879,16 @@ void function DamageTypes_Init()
 
 
 
+			[ eDamageSourceId.melee_artifact_sword] = "#DEATH_MELEE_ARTIFACT_SWORD",
+			[ eDamageSourceId.mp_weapon_artifact_sword_primary] = "#DEATH_MELEE_ARTIFACT_SWORD",
+
+
+
+			[ eDamageSourceId.melee_crypto_heirloom_rt01 ] = "#DEATH_MELEE_CRYPTO_HEIRLOOM_RT01",
+			[ eDamageSourceId.mp_weapon_crypto_heirloom_rt01_primary ] = "#DEATH_MELEE_CRYPTO_HEIRLOOM_RT01",
+
+
+
 
 
 
@@ -920,17 +950,7 @@ void function DamageTypes_Init()
 		[ eDamageSourceId.mp_weapon_mobile_hmg ] = "#WPN_MOBILE_HMG",
 
 
-
-
-
-
-
-
-
-
-
-
-
+			[ eDamageSourceId.golden_horse_green ] = "#WPN_HOPUP_GOLDEN_HORSE_GREEN",
 
 
 

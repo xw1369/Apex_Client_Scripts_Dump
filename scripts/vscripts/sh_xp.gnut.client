@@ -238,8 +238,6 @@ int function GetPlayerAccountXPPreviousProgress( EHI playerEHI )
 
 
 
-
-
 int function GetNextAccountLevel( entity player )
 {
 	int currentXP    = GetPlayerAccountXPProgress( ToEHI( player ) )

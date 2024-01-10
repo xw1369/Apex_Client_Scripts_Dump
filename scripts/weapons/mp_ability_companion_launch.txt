@@ -117,6 +117,12 @@ WeaponData
             "activitymodifier3p"    "is_launching"
             "fire_rate"   			"0.5" //This allows the whole attack animation to play, otherwise it gets cut off.
         }
+        vantage_is_launching_onehand_mod
+        {
+            "activitymodifier1p"    "is_launching_onehand"
+            "activitymodifier3p"    "is_launching"
+            "fire_rate"   			"0.5" //This allows the whole attack animation to play, otherwise it gets cut off.
+        }
         vantage_failed_los_mod
         {
             "activitymodifier1p"    "failed_los"

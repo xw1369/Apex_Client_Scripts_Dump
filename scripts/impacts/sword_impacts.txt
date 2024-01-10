@@ -1,0 +1,166 @@
+ImpactTable
+{
+	FX
+	{
+
+		"C" "P_sword_impact_concrete" //Concrete, rock, porcelain, boulder, gravel, asphalt, brick, concrete_block, plaster
+		"D" "P_sword_impact_dirt" //Dirt, slipperyslime, snow, carpet, cardboard, floatingstandable, ceiling_tile, papercup
+		"E" "P_sword_impact_metal" // metal_titan
+
+		"F" "P_sword_impact_metal" //flesh
+		"G" "P_sword_impact_metal" //metalgrate, chainlink, chain
+		"H" "P_sword_impact_metal" //alienflesh
+
+		"J" "P_sword_impact_dirt" //grass
+		"K" "P_sword_impact_mud" //Mud
+		"L" "P_sword_impact_metal" //plastic_barrel, plastic_box, item, rubber, rubbertire, jeeptire, slidingrubbertire, brakingrubbertire, slidingrubbertire_front, slidingrubbertire_rear
+		"M" "P_sword_impact_metal" //Default, metal, metal_box, solidmetal, armorflesh, metal_bouncy, slippery_metal, shellcasing_small, shellcasing_large, metal_barrel, floating_metal_barrel, weapon
+		"N" "P_xo_footstep_slime" //Slime
+		"O" "P_sword_impact_metal" //Foliage
+		"P" "P_sword_impact_metal" //Computer
+
+		"R" "P_sword_impact_metal" //metalpanel, grenade, canister
+		"S" "xo_footstep_water" //water, slime
+		"T" "P_sword_impact_concrete" //tile
+		"U" "P_sword_impact_metal" //glass_breakable
+
+		"V" "P_sword_impact_metal" //Metal Vent
+		"W" "P_sword_impact_metal" //Wood, Wood_lowdensity, Wood_Box, Wood_Crate, Wood_Plank, Wood_Solid, Wood_Furniture, Wood_Panel watermelon
+
+		"X" "P_sword_impact_xo_shield" //xo_shield
+
+		"Y" "P_sword_impact_metal" //glass, brokenglass, glassbottle, pottery
+		"Z" "P_sword_impact_sand"  //sand
+
+		"splash" "xo_footstep_water" //brush water
+		"slime_splash" "P_xo_footstep_slime" //brush slime
+		"airburst" ""
+		"shieldhit" "P_armor_impact"
+		"critical_hit" "xo_damage_exp_1"
+
+		"5" "xo_footstep_water" //water_hrz
+	}
+
+	Sound
+	{
+
+		"C" "titan_sword_impact_concrete_3p_vs_3p"
+		"D" "titan_sword_impact_dirt_3p_vs_3p"
+		"E" "titan_sword_impact_metal_3p_vs_3p"
+
+		"F" "titan_sword_impact_flesh_3p_vs_3p"
+		"G" "titan_sword_impact_metal_3p_vs_3p"
+		"H" "titan_sword_impact_flesh_3p_vs_3p"
+
+		"J" "titan_sword_impact_grass_3p_vs_3p"
+		"K" "titan_sword_impact_water_3p_vs_3p"
+		"L" "titan_sword_impact_plastic_3p_vs_3p"
+		"M" "titan_sword_impact_metal_3p_vs_3p"
+		"N" "titan_sword_impact_mud_3p_vs_3p"
+		"O" "titan_sword_impact_foilage_3p_vs_3p"
+		"P" "titan_sword_impact_metal_3p_vs_3p"
+
+		"R" "titan_sword_impact_metal_3p_vs_3p"
+		"S" "titan_sword_impact_water_3p_vs_3p"
+		"T" "titan_sword_impact_tile_3p_vs_3p"
+		"U" "titan_sword_impact_glass_3p_vs_3p"
+
+		"V" "titan_sword_impact_metal_3p_vs_3p"
+		"W" "titan_sword_impact_wood_3p_vs_3p"
+
+		"Y" "titan_sword_impact_glass_3p_vs_3p"
+		"Z" "titan_sword_impact_sand_3p_vs_3p"
+
+		"splash" "titan_sword_impact_water_3p_vs_3p"
+		"slime_splash" "titan_sword_impact_mud_3p_vs_3p"
+
+		"airburst" ""
+		"shieldhit" "titan_sword_impact_victim_shield_3p_vs_3p"
+
+		"5" "titan_sword_impact_water_3p_vs_3p"
+	}
+
+	Sound_attacker
+	{
+		"C" "titan_sword_impact_concrete_1p_vs_3p"
+		"D" "titan_sword_impact_dirt_1p_vs_3p"
+		"E" "titan_sword_impact_metal_1p_vs_3p"
+
+		"F" "titan_sword_impact_victim_1p_vs_3p"
+		"G" "titan_sword_impact_metal_1p_vs_3p"
+		"H" "titan_sword_impact_flesh_1p_vs_3p"
+
+		"J" "titan_sword_impact_grass_1p_vs_3p"
+		"K" "titan_sword_impact_water_1p_vs_3p"
+		"L" "titan_sword_impact_plastic_1p_vs_3p"
+		"M" "titan_sword_impact_metal_1p_vs_3p"
+		"N" "titan_sword_impact_mud_1p_vs_3p"
+		"O" "titan_sword_impact_foilage_1p_vs_3p"
+		"P" "titan_sword_impact_metal_1p_vs_3p"
+
+		"R" "titan_sword_impact_metal_1p_vs_3p"
+		"S" "titan_sword_impact_water_1p_vs_3p"
+		"T" "titan_sword_impact_tile_1p_vs_3p"
+		"U" "titan_sword_impact_glass_1p_vs_3p"
+
+		"V" "titan_sword_impact_metal_1p_vs_3p"
+		"W" "titan_sword_impact_wood_1p_vs_3p"
+
+		"Y" "titan_sword_impact_glass_1p_vs_3p"
+		"Z" "titan_sword_impact_sand_1p_vs_3p"
+
+		"splash" "titan_sword_impact_water_1p_vs_3p"
+		"slime_splash" "titan_sword_impact_mud_1p_vs_3p"
+
+		"airburst" ""
+
+		"shieldhit" "titan_sword_impact_victim_shield_1p_vs_3p"
+
+		"5" "titan_sword_impact_water_1p_vs_3p"
+	}
+
+	Sound_victim
+	{
+		"C" "titan_sword_impact_titan_3p_vs_3p"
+		"D" "titan_sword_impact_dirt_3p_vs_3p"
+		"E" "titan_sword_impact_metal_3p_vs_3p"
+
+		"F" "titan_sword_impact_victim_3p_vs_3p"
+		"G" "titan_sword_impact_metal_3p_vs_3p"
+		"H" "titan_sword_impact_flesh_3p_vs_3p"
+
+		"J" "titan_sword_impact_grass_3p_vs_3p"
+		"K" "titan_sword_impact_water_3p_vs_3p"
+		"L" "titan_sword_impact_plastic_3p_vs_3p"
+		"M" "titan_sword_impact_metal_3p_vs_3p"
+		"N" "titan_melee_hit_3P"
+		"O" "titan_sword_impact_foilage_3p_vs_3p"
+		"P" "titan_punch_android_impact"
+
+		"R" "titan_sword_impact_armor_3p_vs_3p"
+		"S" "titan_sword_impact_water_3p_vs_3p"
+		"T" "titan_sword_impact_tile_3p_vs_3p"
+		"U" "titan_sword_impact_glass_3p_vs_3p"
+
+		"V" "titan_sword_impact_metal_3p_vs_3p"
+		"W" "titan_sword_impact_wood_3p_vs_3p"
+
+		"Y" "titan_sword_impact_glass_3p_vs_3p"
+		"Z" "titan_sword_impact_sand_3p_vs_3p"
+
+		"splash" "titan_sword_impact_water_3p_vs_3p"
+		"slime_splash" "titan_sword_impact_mud_3p_vs_3p"
+
+		"airburst" ""
+
+		"shieldhit" "titan_sword_impact_victim_shield_3p_vs_3p"
+
+		"5" "titan_sword_impact_water_3p_vs_3p"
+	}
+
+	Sound_victim_from_AI
+	{
+		"F" "titan_sword_impact_3p_vs_1p"
+		"P" "titan_sword_impact_3p_vs_1p"
+	}
+}
