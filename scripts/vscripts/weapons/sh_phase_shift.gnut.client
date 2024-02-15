@@ -58,6 +58,21 @@ const SHIFTER_PRE_END_SOUND_3P_BREACH = "Ash_PhaseBreach_warningtoend_3p"
 const SHIFTER_END_SOUND_1P_BREACH 	  = "Ash_PhaseBreach_End_1p"
 const SHIFTER_END_SOUND_3P_BREACH     = "Ash_PhaseBreach_End_3p"
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 const GATE_PRE_SOUND_1P 			= "Olympus_phaseshift_preactivate_1p"
 const GATE_PRE_SOUND_3P 			= "Olympus_phaseshift_preactivate_3p"
 global const GATE_START_SOUND_1P 	= "Olympus_phaseshift_activate_1p"
@@ -106,7 +121,17 @@ void function CodeCallback_ExitPhaseShift( entity ent )
 
 void function CancelPhaseShift( entity ent )
 {
+
+
+
+
+
+
 	ent.PhaseShiftCancel()
+
+
+
+
 
 
 
@@ -219,6 +244,11 @@ int function PhaseShift( entity ent, float warmupTime, float duration, int shift
 
 				StatusEffect_AddTimed( ent, eStatusEffect.speed_boost, 0.05, duration, 0.25 )
 			break
+
+
+
+
+
 			case PHASETYPE_DASH:
 
 
@@ -262,6 +292,30 @@ int function PhaseShift( entity ent, float warmupTime, float duration, int shift
 
 	unreachable
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -761,6 +815,7 @@ void function ClientPhaseShiftFirstPersonFXThread()
 						StartParticleEffectOnEntityWithPos( ourPlayer, fxIndex, FX_PATTACH_ABSORIGIN, ATTACHMENTID_INVALID, (viewForward2d * 30), ZERO_VECTOR )
 					}
 
+					int  phaseShiftType = ourPlayer.GetPhaseShiftType()
 					if ( ourPlayer.IsTitan() )
 					{
 						EmitSoundOnEntity( ourPlayer, SHIFTER_END_SOUND_1P_TITAN )
@@ -769,6 +824,16 @@ void function ClientPhaseShiftFirstPersonFXThread()
 					{
 						EmitSoundOnEntity( ourPlayer, GATE_END_SOUND_1P )
 					}
+
+
+
+
+
+
+
+
+
+
 					else
 					{
 						EmitSoundOnEntity( ourPlayer, SHIFTER_END_SOUND_1P )
@@ -778,6 +843,10 @@ void function ClientPhaseShiftFirstPersonFXThread()
 					StopSoundOnEntity( ourPlayer, SHIFTER_LOOP_SOUND_1P )
 					StopSoundOnEntity( ourPlayer, SHIFTER_LOOP_SOUND_1P_TITAN )
 					StopSoundOnEntity( ourPlayer, SHIFTER_LOOP_SOUND_1P_BREACH )
+
+
+
+
 				}
 
 				ClientPhaseShift_SCRIPT_HACKS_OFF()
@@ -838,23 +907,37 @@ void function ClientPhaseShiftFirstPersonFXThread()
 				ClientPhaseShift_SCRIPT_HACKS_ON()
 
 				if ( localViewPlayer.IsTitan() )
+				{
 					EmitSoundOnEntity( localViewPlayer, SHIFTER_START_SOUND_1P_TITAN )
-				else if ( localViewPlayer.GetPhaseShiftType() == PHASETYPE_GATE )
-					EmitSoundOnEntity( localViewPlayer, GATE_START_SOUND_1P )
-				else if ( localViewPlayer.GetPhaseShiftType() == PHASETYPE_BREACH )
-					EmitSoundAtPosition( TEAM_ANY, localViewPlayer.GetOrigin(), SHIFTER_START_SOUND_3P_BREACH )
-				else
-					EmitSoundOnEntity( localViewPlayer, SHIFTER_START_SOUND_1P )
-
-
-				if ( localViewPlayer.IsTitan() )
 					EmitSoundOnEntity( localViewPlayer, SHIFTER_LOOP_SOUND_1P_TITAN )
+				}
 				else if ( localViewPlayer.GetPhaseShiftType() == PHASETYPE_GATE )
+				{
+					EmitSoundOnEntity( localViewPlayer, GATE_START_SOUND_1P )
 					EmitSoundOnEntity( localViewPlayer, GATE_LOOP_SOUND_1P )
+				}
 				else if ( localViewPlayer.GetPhaseShiftType() == PHASETYPE_BREACH )
+				{
+					EmitSoundAtPosition( TEAM_ANY, localViewPlayer.GetOrigin(), SHIFTER_START_SOUND_3P_BREACH )
 					EmitSoundOnEntity( localViewPlayer, SHIFTER_LOOP_SOUND_1P_BREACH )
+				}
+
+
+
+
+
+
+
+
+
+
+
+
 				else
+				{
+					EmitSoundOnEntity( localViewPlayer, SHIFTER_START_SOUND_1P )
 					EmitSoundOnEntity( localViewPlayer, SHIFTER_LOOP_SOUND_1P )
+				}
 
 				effectsAreActive = true
 				ourPlayer = localViewPlayer

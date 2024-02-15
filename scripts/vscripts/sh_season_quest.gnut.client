@@ -3,6 +3,7 @@ global function SeasonQuest_RegisterNetworking
 global function SeasonQuest_GetStatusForComicPageIndex
 global function SeasonQuest_GetStatusForMissionIndex
 global function SeasonQuest_AllTreasurePacksHaveBeenCollectedForPlayer
+global function SeasonQuestMission_GetLatestTimeUnlockedMission
 
 global function SeasonQuest_GetActiveSeasonQuest
 global function SeasonQuest_GetGet
@@ -10,6 +11,7 @@ global function SeasonQuest_GetGet
 global function SeasonQuest_GetTreasurePacksLatestPickupTimeForPlayer
 
 global function SeasonQuest_GetComicPagesMaxCount
+global function SeasonQuest_GetDefaultMissionIcon
 global function SeasonQuest_GetComicPageForIndex
 global function SeasonQuest_GetComicPanelDataForIndex
 global function SeasonQuest_GetComicPagesReadByPlayer
@@ -17,6 +19,7 @@ global function SeasonQuest_GetComicPagesUnlockedByPlayer
 
 global function SeasonQuest_GetUnlockTimeForComicIndex
 
+global function SeasonQuest_GetLoreTypeForMissionIndex
 
 global function SeasonQuest_GetMissionsMaxCount
 global function SeasonQuest_GetCompletionRewards
@@ -43,20 +46,31 @@ global function SeasonQuest_GetLastMissionUnlockTime
 global function SeasonQuest_GetLoreSequencePrologue
 global function SeasonQuest_GetLoreSequenceEpilogue
 global function SeasonQuest_GetLoreSequenceStoryChapterDataForMissionIndex
+global function SeasonQuest_GetLoreSequenceStoryChapterHasCommunityVote
+global function SeasonQuest_GetLoreSequenceStoryChapterFirstPlaylistBoolName
+global function SeasonQuest_GetLoreSequenceStoryChapterSecondPlaylistBoolName
+global function SeasonQuest_GetLoreSequenceRadioPlayForMissionIndex
 global function SeasonQuest_GetLoreSequenceStoryChapterNameForMissionIndex
 global function SeasonQuest_GetLoreSequenceQuestItemDataForMissionIndex
 global function SeasonQuest_GetLoreSequenceQuestItemNameForMissionIndex
 global function SeasonQuest_GetQuestItemNameForMissionIndex
 global function SeasonQuest_GetQuestItemDescForMissionIndex
 global function SeasonQuest_GetQuestItemIconForMissionIndex
+global function SeasonQuest_GetQuestItemSecondIconForMissionIndex
 
 global function SeasonQuest_Tab_GetLongDesc
-global function SeasonQuest_Tab_GetCornerImage
+global function SeasonQuest_Tab_GetLeftCornerImage
+global function SeasonQuest_Tab_GetRightCornerImage
 global function SeasonQuest_Tab_GetBasicInfoHeader
+global function SeasonQuest_Tab_GetDeepLink
+global function SeasonQuest_Tab_GetDeepLinkLabel
+global function SeasonQuest_Tab_GetDeepStartTime
+global function SeasonQuest_Tab_GetDeepFinishTime
 global function SeasonQuest_Tab_GetBasicInfoItemText
 global function SeasonQuest_Tab_GetArtifactProgressHeader
 
 global function Comic_GetPreviewImage
+
 
 
 
@@ -141,6 +155,7 @@ const string CC_QuestStartedAcknowledged = "ClientCallback_QuestStartedAcknowled
 const string CC_QuestComicReadAcknowledged = "ClientCallback_QuestComicReadAcknowledged"
 const string CC_QuestComicRewardDisplayAcknowledged = "ClientCallback_QuestComicRewardDisplayAcknowledged"
 const string CC_QuestMissionReadAcknowledged = "ClientCallback_QuestMissionReadAcknowledged"
+const string CC_QueueRadioPlayRewardGranting = "ClientCallback_QueueRadioPlayRewardGranting"
 
 void function SeasonQuest_SharedInit()
 {
@@ -150,7 +165,7 @@ void function SeasonQuest_SharedInit()
 		Remote_RegisterServerFunction( CC_QuestComicReadAcknowledged, "int", INT_MIN, INT_MAX, "int", INT_MIN, INT_MAX )
 		Remote_RegisterServerFunction( CC_QuestComicRewardDisplayAcknowledged, "int", INT_MIN, INT_MAX )
 		Remote_RegisterServerFunction( CC_QuestMissionReadAcknowledged, "int", INT_MIN, INT_MAX, "int", INT_MIN, INT_MAX )
-
+		Remote_RegisterServerFunction( CC_QueueRadioPlayRewardGranting )
 
 
 
@@ -179,6 +194,16 @@ void function OnQuestRegistered( ItemFlavor quest )
 	array<ItemFlavor> missions = RegisterReferencedItemFlavorsFromArray( quest, "missions", "flavor" )
 	file.questMissions[ quest ] <- missions
 
+	foreach( int idx, ItemFlavor mission in missions )
+	{
+
+		string type = SeasonQuest_GetLoreTypeForMissionIndex( quest, idx )
+		if( type == "RadioPlay" )
+		{
+			RegisterItemFlavorFromSettingsAsset( SeasonQuest_GetLoreSequenceRadioPlayForMissionIndex( quest, idx ) )
+		}
+	}
+
 	RegisterItemFlavorFromSettingsAsset( $"settings/itemflav/grx_sentinel/s05_quest_mission_dummy.rpak" )
 	RegisterItemFlavorFromSettingsAsset( $"settings/itemflav/grx_sentinel/s06_quest_comic_dummy.rpak" )
 
@@ -195,6 +220,29 @@ bool function SeasonQuest_AllTreasurePacksHaveBeenCollectedForPlayer( entity pla
 	Assert( ItemFlavor_GetType( quest ) == eItemType.quest )
 	int packCount = SeasonQuest_GetTreasurePacksCountForPlayer( player, quest )
 	return (packCount >= SeasonQuest_GetTreasurePacksMaxCount( quest ))
+}
+
+
+int function SeasonQuestMission_GetLatestTimeUnlockedMission()
+{
+	ItemFlavor ornull quest = SeasonQuest_GetActiveSeasonQuest( GetUnixTimestamp() )
+	if ( quest == null )
+	{
+		return -1
+	}
+	expect ItemFlavor( quest )
+
+	int missionsCount = SeasonQuest_GetMissionsMaxCount( quest )
+	int now = GetUnixTimestamp()
+
+	for( int i = 0; i < missionsCount; i++ )
+	{
+		int unlockTime = SeasonQuest_GetUnlockTimeForMissionIndex( quest, i )
+		if ( now < unlockTime  )
+			return ( i - 1 )
+	}
+
+	return ( missionsCount - 1 )
 }
 
 
@@ -276,6 +324,48 @@ int function SeasonQuest_GetStatusForMissionIndex( entity player, ItemFlavor que
 
 	return eQuestMissionStatus.LAUNCHABLE
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -831,6 +921,11 @@ int function GetPersistentQuestVarInt( entity player, ItemFlavor quest, string v
 
 
 
+
+
+
+
+
 ItemFlavor ornull function SeasonQuest_GetActiveSeasonQuest( int timeNow )
 {
 	ItemFlavor ornull season = GetActiveSeason( timeNow )
@@ -870,11 +965,18 @@ string function SeasonQuest_Tab_GetLongDesc( ItemFlavor quest )
 	return GetSettingsBlockString( settingsBlock, "questTabLongDesc" )
 }
 
-asset function SeasonQuest_Tab_GetCornerImage( ItemFlavor quest )
+asset function SeasonQuest_Tab_GetLeftCornerImage( ItemFlavor quest )
 {
 	Assert( ItemFlavor_GetType( quest ) == eItemType.quest )
 	var settingsBlock = ItemFlavor_GetSettingsBlock( quest )
 	return GetSettingsBlockAsset( settingsBlock, "questTabCornerImage" )
+}
+
+asset function SeasonQuest_Tab_GetRightCornerImage( ItemFlavor quest )
+{
+	Assert( ItemFlavor_GetType( quest ) == eItemType.quest )
+	var settingsBlock = ItemFlavor_GetSettingsBlock( quest )
+	return GetSettingsBlockAsset( settingsBlock, "questTabRightCornerImage" )
 }
 
 string function SeasonQuest_Tab_GetBasicInfoHeader( ItemFlavor quest )
@@ -883,6 +985,45 @@ string function SeasonQuest_Tab_GetBasicInfoHeader( ItemFlavor quest )
 	var settingsBlock = ItemFlavor_GetSettingsBlock( quest )
 	return GetSettingsBlockString( settingsBlock, "questTabBasicInfoHeader" )
 }
+
+string function SeasonQuest_Tab_GetDeepLink( ItemFlavor quest )
+{
+	Assert( ItemFlavor_GetType( quest ) == eItemType.quest )
+	var settingsBlock = ItemFlavor_GetSettingsBlock( quest )
+	return GetSettingsBlockString( settingsBlock, "questTabDeepLink" )
+}
+
+string function SeasonQuest_Tab_GetDeepLinkLabel( ItemFlavor quest )
+{
+	Assert( ItemFlavor_GetType( quest ) == eItemType.quest )
+	var settingsBlock = ItemFlavor_GetSettingsBlock( quest )
+	return GetSettingsBlockString( settingsBlock, "questTabDeepLinkLabel" )
+}
+
+int function SeasonQuest_Tab_GetDeepStartTime( ItemFlavor quest )
+{
+	Assert( ItemFlavor_GetType( quest ) == eItemType.quest )
+	var settingsBlock    = ItemFlavor_GetSettingsBlock( quest )
+	string unlockTimeStr = GetSettingsBlockString( settingsBlock, "deepLinkStartTime" )
+
+	int ornull ut = DateTimeStringToUnixTimestamp( unlockTimeStr )
+	if ( ut != null )
+		return expect int(ut)
+	return INT_MAX
+}
+
+int function SeasonQuest_Tab_GetDeepFinishTime( ItemFlavor quest )
+{
+	Assert( ItemFlavor_GetType( quest ) == eItemType.quest )
+	var settingsBlock    = ItemFlavor_GetSettingsBlock( quest )
+	string unlockTimeStr = GetSettingsBlockString( settingsBlock, "deepLinkFinishTime" )
+
+	int ornull ut = DateTimeStringToUnixTimestamp( unlockTimeStr )
+	if ( ut != null )
+		return expect int(ut)
+	return INT_MAX
+}
+
 string function SeasonQuest_Tab_GetBasicInfoItemText( ItemFlavor quest, int index )
 {
 	Assert( ItemFlavor_GetType( quest ) == eItemType.quest )
@@ -922,6 +1063,13 @@ string function GetRewardSequenceMarketplaceVarForMissions( ItemFlavor quest )
 	return GetSettingsBlockString( settingsBlock, "missionRewardsSequenceMarketplaceVar" )
 }
 
+asset function SeasonQuest_GetDefaultMissionIcon( ItemFlavor quest )
+{
+	Assert( ItemFlavor_GetType( quest ) == eItemType.quest )
+	var settingsBlock = ItemFlavor_GetSettingsBlock( quest )
+	return GetSettingsBlockAsset( settingsBlock, "defaultQuestItemIcon" )
+}
+
 string function GetRewardSequenceMarketplaceVarForComic( ItemFlavor quest )
 {
 	Assert( ItemFlavor_GetType( quest ) == eItemType.quest )
@@ -934,7 +1082,6 @@ int function SeasonQuest_GetComicPagesMaxCount( ItemFlavor quest )
 	Assert( ItemFlavor_GetType( quest ) == eItemType.quest )
 	return file.questComicPages[ quest ].len()
 }
-
 
 int function SeasonQuest_GetMissionsMaxCount( ItemFlavor quest )
 {
@@ -1434,6 +1581,44 @@ asset function Mission_GetLoreSequenceStoryChapterData( ItemFlavor mission )
 	Assert( ItemFlavor_GetType( mission ) == eItemType.quest_mission )
 	return GetGlobalSettingsAsset( ItemFlavor_GetAsset( mission ), "loreSequenceChapterPostSuccessDT" )
 }
+
+asset function Mission_GetSecondLoreSequenceStoryChapterData( ItemFlavor mission )
+{
+	Assert( ItemFlavor_GetType( mission ) == eItemType.quest_mission )
+	return GetGlobalSettingsAsset( ItemFlavor_GetAsset( mission ), "secondLoreSequenceChapterPostSuccessDT" )
+}
+
+bool function Mission_GetLoreSequenceHasCommunityVote( ItemFlavor mission )
+{
+	Assert( ItemFlavor_GetType( mission ) == eItemType.quest_mission )
+	return GetGlobalSettingsBool( ItemFlavor_GetAsset( mission ), "hasCommunityVote" )
+}
+
+string function Mission_GetLoreSequenceFirstPlaylistBoolName( ItemFlavor mission )
+{
+	Assert( ItemFlavor_GetType( mission ) == eItemType.quest_mission )
+	return GetGlobalSettingsString( ItemFlavor_GetAsset( mission ), "firstPlaylistBool" )
+}
+
+string function Mission_GetLoreSequenceSecondPlaylistBoolName( ItemFlavor mission )
+{
+	Assert( ItemFlavor_GetType( mission ) == eItemType.quest_mission )
+	return GetGlobalSettingsString( ItemFlavor_GetAsset( mission ), "secondPlaylistBool" )
+}
+
+asset function Mission_GetLoreSequenceRadioPlay( ItemFlavor mission )
+{
+	Assert( ItemFlavor_GetType( mission ) == eItemType.quest_mission )
+	return GetGlobalSettingsAsset( ItemFlavor_GetAsset( mission ), "radioPlay" )
+}
+
+asset function Mission_GetLoreSequenceSecondRadioPlay( ItemFlavor mission )
+{
+	Assert( ItemFlavor_GetType( mission ) == eItemType.quest_mission )
+	return GetGlobalSettingsAsset( ItemFlavor_GetAsset( mission ), "secondRadioPlay" )
+}
+
+
 string function Mission_GetLoreSequenceStoryChapterName( ItemFlavor mission )
 {
 	Assert( ItemFlavor_GetType( mission ) == eItemType.quest_mission )
@@ -1450,11 +1635,94 @@ string function Mission_GetLoreSequenceQuestItemName( ItemFlavor mission )
 	return GetGlobalSettingsString( ItemFlavor_GetAsset( mission ), "loreSequenceQuestItemName" )
 }
 
+string function Mission_GetLoreType( ItemFlavor mission )
+{
+	Assert( ItemFlavor_GetType( mission ) == eItemType.quest_mission )
+	return GetGlobalSettingsString( ItemFlavor_GetAsset( mission ), "loreType" )
+}
+
+string function Mission_GetSecondLoreType( ItemFlavor mission )
+{
+	Assert( ItemFlavor_GetType( mission ) == eItemType.quest_mission )
+	return GetGlobalSettingsString( ItemFlavor_GetAsset( mission ), "secondLoreType" )
+}
+
+string function SeasonQuest_GetLoreTypeForMissionIndex( ItemFlavor flav, int missionIndex )
+{
+	Assert( ItemFlavor_GetType( flav ) == eItemType.quest )
+
+	bool isEitherOr = SeasonQuest_GetLoreSequenceStoryChapterHasCommunityVote( flav, missionIndex )
+	if( isEitherOr )
+	{
+		string firstPlaylistBoolName = SeasonQuest_GetLoreSequenceStoryChapterFirstPlaylistBoolName( flav, missionIndex )
+		bool firstPlaylistBool = GetCurrentPlaylistVarBool( firstPlaylistBoolName, false )
+
+		if( firstPlaylistBool )
+			return Mission_GetLoreType( file.questMissions[ flav ][missionIndex] )
+		else
+			return Mission_GetSecondLoreType( file.questMissions[ flav ][missionIndex] )
+	}
+
+	return Mission_GetLoreType( file.questMissions[ flav ][missionIndex] )
+}
+
+asset function SeasonQuest_GetLoreSequenceRadioPlayForMissionIndex( ItemFlavor flav, int missionIndex )
+{
+	Assert( ItemFlavor_GetType( flav ) == eItemType.quest )
+
+	bool isEitherOr = SeasonQuest_GetLoreSequenceStoryChapterHasCommunityVote( flav, missionIndex )
+	if( isEitherOr )
+	{
+		string firstPlaylistBoolName = SeasonQuest_GetLoreSequenceStoryChapterFirstPlaylistBoolName( flav, missionIndex )
+		bool firstPlaylistBool = GetCurrentPlaylistVarBool( firstPlaylistBoolName, false )
+
+		if( firstPlaylistBool )
+			return Mission_GetLoreSequenceRadioPlay( file.questMissions[ flav ][missionIndex] )
+		else
+			return Mission_GetLoreSequenceSecondRadioPlay( file.questMissions[ flav ][missionIndex] )
+	}
+
+	return Mission_GetLoreSequenceRadioPlay( file.questMissions[ flav ][missionIndex] )
+}
+
 asset function SeasonQuest_GetLoreSequenceStoryChapterDataForMissionIndex( ItemFlavor flav, int missionIndex )
 {
 	Assert( ItemFlavor_GetType( flav ) == eItemType.quest )
+
+	bool isEitherOr = SeasonQuest_GetLoreSequenceStoryChapterHasCommunityVote( flav, missionIndex )
+	if( isEitherOr )
+	{
+		string firstPlaylistBoolName = SeasonQuest_GetLoreSequenceStoryChapterFirstPlaylistBoolName( flav, missionIndex )
+
+		bool firstPlaylistBool = GetCurrentPlaylistVarBool( firstPlaylistBoolName, false )
+
+		if( firstPlaylistBool )
+			return Mission_GetLoreSequenceStoryChapterData( file.questMissions[ flav ][missionIndex] )
+		else
+			return Mission_GetSecondLoreSequenceStoryChapterData( file.questMissions[ flav ][missionIndex] )
+	}
+
 	return Mission_GetLoreSequenceStoryChapterData( file.questMissions[ flav ][missionIndex] )
 }
+
+bool function SeasonQuest_GetLoreSequenceStoryChapterHasCommunityVote( ItemFlavor flav, int missionIndex )
+{
+	Assert( ItemFlavor_GetType( flav ) == eItemType.quest )
+	return Mission_GetLoreSequenceHasCommunityVote( file.questMissions[ flav ][missionIndex] )
+}
+
+string function SeasonQuest_GetLoreSequenceStoryChapterFirstPlaylistBoolName( ItemFlavor flav, int missionIndex )
+{
+	Assert( ItemFlavor_GetType( flav ) == eItemType.quest )
+	return Mission_GetLoreSequenceFirstPlaylistBoolName( file.questMissions[ flav ][missionIndex] )
+}
+
+string function SeasonQuest_GetLoreSequenceStoryChapterSecondPlaylistBoolName( ItemFlavor flav, int missionIndex )
+{
+	Assert( ItemFlavor_GetType( flav ) == eItemType.quest )
+	return Mission_GetLoreSequenceSecondPlaylistBoolName( file.questMissions[ flav ][missionIndex] )
+}
+
 string function SeasonQuest_GetLoreSequenceStoryChapterNameForMissionIndex( ItemFlavor flav, int missionIndex )
 {
 	Assert( ItemFlavor_GetType( flav ) == eItemType.quest )
@@ -1492,6 +1760,13 @@ string function SeasonQuest_GetQuestItemDescForMissionIndex( ItemFlavor flav, in
 	Assert( ItemFlavor_GetType( flav ) == eItemType.quest )
 	return Mission_GetQuestItemDesc( file.questMissions[ flav ][missionIndex] )
 }
+
+asset function SeasonQuest_GetQuestItemSecondIconForMissionIndex( ItemFlavor flav, int missionIndex )
+{
+	Assert( ItemFlavor_GetType( flav ) == eItemType.quest )
+	return GetGlobalSettingsAsset( ItemFlavor_GetAsset( file.questMissions[ flav ][missionIndex] ), "secondQuestItemIcon" )
+}
+
 asset function SeasonQuest_GetQuestItemIconForMissionIndex( ItemFlavor flav, int missionIndex )
 {
 	Assert( ItemFlavor_GetType( flav ) == eItemType.quest )

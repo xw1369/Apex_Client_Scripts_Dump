@@ -52,7 +52,7 @@ global enum eBeaconScanType
 struct
 {
 
-	table< entity, SurveyBeaconData > surveyBeaconData
+	table< entity, table<int, SurveyBeaconData > > surveyBeaconData
 
 } file
 
@@ -133,7 +133,22 @@ bool function HasSeerBlades( entity player )
 
 void function RegisterSurveyBeaconData( entity player, SurveyBeaconData data )
 {
-	file.surveyBeaconData[ player ] <- data
+	if( !( player in file.surveyBeaconData ) )
+	{
+		table<int, SurveyBeaconData > emptyTable
+		file.surveyBeaconData[player] <- emptyTable
+	}
+	file.surveyBeaconData[ player ][data.scanType] <- data
+}
+
+int function BeaconEntToScanType( entity beacon )
+{
+	string scriptName = beacon.GetScriptName()
+	if( scriptName == NEXT_ZONE_SURVEY_BEACON_SCRIPTNAME )
+		return eBeaconScanType.BEACON_SCAN_CIRCLE
+	if( scriptName == ENEMY_SURVEY_BEACON_SCRIPTNAME )
+		return eBeaconScanType.BEACON_SCAN_ENEMY
+	return eBeaconScanType.DEFAULT
 }
 
 #if DEV
@@ -158,21 +173,26 @@ bool function SurveyBeacon_CanActivate( entity player, entity beacon )
 {
 	if ( !PlayerShouldSeeSurveyBeaconMarkers( player, beacon ) )
 	{
-
 		return false
 	}
 
-	SurveyBeaconData data = file.surveyBeaconData[ player ]
+	int beaconType = BeaconEntToScanType( beacon )
+	table<int, SurveyBeaconData> usableBeacons = file.surveyBeaconData[ player ]
+
 
 #if DEV
 	if( !SurveyBeacon_IgnoreCanUseCheck() )
 #endif
 	{
-		if ( data.canUseFunc != null )
+		if( beaconType in usableBeacons )
 		{
-			if ( !data.canUseFunc( player, beacon ) )
+			SurveyBeaconData data = usableBeacons[beaconType]
+			if ( data.canUseFunc != null )
 			{
-				return false
+				if ( !data.canUseFunc( player, beacon ) )
+				{
+					return false
+				}
 			}
 		}
 	}
@@ -201,16 +221,8 @@ bool function PlayerHasAccessToBeacons( entity player, entity beacon )
 		return false;
 	if( beacon == null )
 		return true;
-	switch( file.surveyBeaconData[player].scanType )
-	{
-		case eBeaconScanType.BEACON_SCAN_CIRCLE:
-			if( !SurveyBeacons_ShouldUseNextZoneSurveyBeaconProp() )
-				return true;
-			return beacon.GetScriptName() == NEXT_ZONE_SURVEY_BEACON_SCRIPTNAME
-		case eBeaconScanType.BEACON_SCAN_ENEMY:
-			return beacon.GetScriptName() == ENEMY_SURVEY_BEACON_SCRIPTNAME
-	}
-	return true;
+	int beaconType =  BeaconEntToScanType( beacon )
+	return beaconType in file.surveyBeaconData[player]
 }
 
 bool function PlayerShouldSeeSurveyBeaconMarkers( entity player, entity beacon )
@@ -273,22 +285,26 @@ string function GetBaseHintTextOverride( entity ent )
 	}
 	else
 	{
-		SurveyBeaconData data = file.surveyBeaconData[ player ]
-		if ( data.canUseFunc != null )
+		int beaconType =  BeaconEntToScanType( ent )
+		if( beaconType in file.surveyBeaconData[player] )
 		{
-			if ( data.canUseFunc( player, ent ) )
+			SurveyBeaconData data = file.surveyBeaconData[ player ][beaconType]
+			if ( data.canUseFunc != null )
 			{
-				if( ent.GetScriptName() == NEXT_ZONE_SURVEY_BEACON_SCRIPTNAME )
-					return "#RING_CONSOLE_HOLD_PROMPT"
+				if ( data.canUseFunc( player, ent ) )
+				{
+					if( ent.GetScriptName() == NEXT_ZONE_SURVEY_BEACON_SCRIPTNAME )
+						return "#RING_CONSOLE_HOLD_PROMPT"
+					else
+						return "#SURVEY_BEACON_HOLD_PROMPT"
+				}
 				else
-					return "#SURVEY_BEACON_HOLD_PROMPT"
-			}
-			else
-			{
-				if( ent.GetScriptName() == NEXT_ZONE_SURVEY_BEACON_SCRIPTNAME )
-					return "#SURVEY_ALREADY_ACTIVE"
-				else
-					return "#SURVEY_ENEMY_ALREADY_ACTIVE"
+				{
+					if( ent.GetScriptName() == NEXT_ZONE_SURVEY_BEACON_SCRIPTNAME )
+						return "#SURVEY_ALREADY_ACTIVE"
+					else
+						return "#SURVEY_ENEMY_ALREADY_ACTIVE"
+				}
 			}
 		}
 	}
@@ -353,6 +369,12 @@ entity function GetTeamSurveyBeaconUser( int team )
 	}
 	return null
 }
+
+
+
+
+
+
 
 
 

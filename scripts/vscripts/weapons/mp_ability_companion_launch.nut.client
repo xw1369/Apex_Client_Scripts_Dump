@@ -82,6 +82,11 @@ const float JET_DRIVE_PATH_DECEL_DIST = 5 * METERS_TO_INCHES
 const float JET_DRIVE_PATH_POINT_PROX = 3 * METERS_TO_INCHES
 
 const vector JET_DRIVE_DOUBLE_JUMP_VEL = < 13 * METERS_TO_INCHES, 0, 10 * METERS_TO_INCHES > 
+const float JET_DRIVE_DOUBLE_JUMP_BACK_VEL_FRAC = 0.5 
+
+const vector JET_DRIVE_DOUBLE_JUMP_VEL_UPGRADE = < 14 * METERS_TO_INCHES, 0, 12 * METERS_TO_INCHES >
+const float JET_DRIVE_DOUBLE_JUMP_BACK_VEL_FRAC_UPGRADE = 0.8
+
 
 global const vector ECHO_INITIAL_DEPLOY_OFFSET = <30, -15, 80>
 
@@ -655,7 +660,7 @@ int function CanLaunchToCompanion( entity player, entity companion )
 	
 	vector startTrace = player.EyePosition()
 	vector endTrace = companion.GetOrigin()
-	TraceResults tr = TraceLine( startTrace, endTrace , [],TRACE_MASK_PLAYERSOLID, TRACE_COLLISION_GROUP_PLAYER )
+	TraceResults tr = TraceLine( startTrace, endTrace , [],TRACE_MASK_PLAYERSOLID, TRACE_COLLISION_GROUP_PLAYER, player )
 	
 	if ( tr.fraction < 1.0 )
 	{
@@ -664,12 +669,12 @@ int function CanLaunchToCompanion( entity player, entity companion )
 		{
 			vector offset = (player.GetViewRight()*METERS_TO_INCHES*0.5)
 			startTrace = player.EyePosition() + offset + (UP_VECTOR*METERS_TO_INCHES*0.5)
-			tr = TraceLine( startTrace, endTrace , [],TRACE_MASK_PLAYERSOLID, TRACE_COLLISION_GROUP_PLAYER )
+			tr = TraceLine( startTrace, endTrace , [],TRACE_MASK_PLAYERSOLID, TRACE_COLLISION_GROUP_PLAYER, player )
 			
 			if ( tr.fraction < 1.0 )
 			{
 				startTrace = player.EyePosition()  - offset + (UP_VECTOR*METERS_TO_INCHES*0.5)
-				tr = TraceLine( startTrace, endTrace , [],TRACE_MASK_PLAYERSOLID, TRACE_COLLISION_GROUP_PLAYER )
+				tr = TraceLine( startTrace, endTrace , [],TRACE_MASK_PLAYERSOLID, TRACE_COLLISION_GROUP_PLAYER, player )
 				
 				if ( tr.fraction < 1.0 )
 				{
@@ -936,6 +941,11 @@ void function PreLaunch_Thread( entity player )
 
 
 
+
+
+
+
+
 void function WaitForGround_Thread( entity player )
 {
 	player.EndSignal( "OnDestroy" )
@@ -981,7 +991,12 @@ void function CodeCallback_OnJetDriveStart( entity player )
 		
 		
 
-		player.EnableJetDriveDoubleJump( JET_DRIVE_DOUBLE_JUMP_VEL, JET_DRIVE_DOUBLE_JUMP_1P, JET_DRIVE_DOUBLE_JUMP_3P )
+
+		if ( PlayerHasPassive( player, ePassives.PAS_TAC_UPGRADE_ONE ) ) 
+			player.EnableJetDriveDoubleJump( JET_DRIVE_DOUBLE_JUMP_VEL_UPGRADE, JET_DRIVE_DOUBLE_JUMP_BACK_VEL_FRAC_UPGRADE, JET_DRIVE_DOUBLE_JUMP_1P, JET_DRIVE_DOUBLE_JUMP_3P )
+		else
+
+			player.EnableJetDriveDoubleJump( JET_DRIVE_DOUBLE_JUMP_VEL, JET_DRIVE_DOUBLE_JUMP_BACK_VEL_FRAC, JET_DRIVE_DOUBLE_JUMP_1P, JET_DRIVE_DOUBLE_JUMP_3P )
 		if ( InPrediction() )
 		{
 			thread JetDriveClientThread( player )

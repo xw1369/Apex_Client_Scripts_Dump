@@ -1,0 +1,152 @@
+global function Stats_IsValidMapForStats
+
+
+
+
+
+
+
+global function Stats_CurrentModeSupportsCustomStats
+global function Stats_CurrentModeIsSurvival
+
+bool function Stats_IsValidMapForStats()
+{
+	if ( IsSurvivalTraining() )
+		return false
+
+	if ( IsFiringRangeGameMode() )
+		return false
+
+	if ( IsLobby() )
+		return false
+
+	return true
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+bool function Stats_CurrentModeSupportsCustomStats()
+{
+	string mode = ""
+
+
+
+
+
+
+
+
+	{
+		mode = GetCurrentPlaylistVarString( "stats_match_type", "survival" )
+	}
+
+	Assert( STATS_MATCH_TYPES.contains( mode ), "Invalid Playlist var stats_match_type " + mode )
+
+	return ( STATS_ALTERNATE_MODE_REFS.contains( mode ) )
+}
+
+bool function Stats_CurrentModeIsSurvival()
+{
+	string mode = ""
+
+
+
+
+
+
+
+
+	{
+		mode = GetCurrentPlaylistVarString( "stats_match_type", "survival" )
+	}
+
+	return mode == "survival" || mode == "duo" || mode == "ranked"
+}

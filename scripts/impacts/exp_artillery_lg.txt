@@ -40,7 +40,7 @@ ImpactTable
 		"2" "P_impact_exp_artillery"
 		"3" "P_impact_exp_artillery"
 		"4" "P_impact_exp_artillery"
-		"5" "P_impact_exp_XLG_water"
+		"5" "P_impact_exp_artillery"
 		"6" "P_impact_exp_artillery"
 		"7" "P_impact_exp_artillery"
 		"8" "P_impact_exp_artillery"

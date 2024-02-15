@@ -1415,6 +1415,9 @@ vector function GetSkydiveSmokeColorForTeam( int team )
 
 
 
+
+
+
 array<LoadoutEntry> function GetAppropriateLoadoutSlotsForItemFlavor( ItemFlavor itemFlav )
 {
 	int itemType = ItemFlavor_GetType( itemFlav )

@@ -32,7 +32,7 @@ global const float DOT_85DEGREE =	0.0871557427477
 global const string WHITESPACE_CHARACTERS = "\r\n\t " 
 
 #if DEV
-global const bool DEV_FORCE_LOAD_ALL_ENTITIES = true
+global const bool DEV_FORCE_LOAD_ALL_ENTITIES = false
 #endif
 
 
@@ -219,6 +219,8 @@ void function ShUtilityAll_Init()
 		
 		
 		
+		PrecacheParticleSystem( $"test_death_box_mdl" )
+
 
 
 }
@@ -880,6 +882,16 @@ bool function WinterExpress_IsModeEnabled()
 }
 
 
+
+bool function IsCurrentModeMixtape()
+{
+	if ( GameRules_GetGameMode() == GAMEMODE_FREEDM || GameRules_GetGameMode() == GAMEMODE_CONTROL )
+		return true
+
+	return false
+}
+
+
 bool function PrestigeBadgeIsAllowed()
 {
 	bool allowBadges    = GetCurrentPlaylistVarBool( "allow_prestige_badges", false )
@@ -1035,6 +1047,16 @@ float function RoundToNearestMultiplier( float value, float multiplier )
 bool function IsBitFlagSet( int bitMask, int flag )
 {
 	return ( bitMask & flag ) != 0
+}
+
+int function SetBitFlag( int bitMask, int flag )
+{
+	return bitMask | flag
+}
+
+int function ClearBitFlag( int bitMask, int flag )
+{
+	return bitMask & ~flag
 }
 
 int function HIWORD( int value )
@@ -2295,8 +2317,11 @@ bool function IsLobbyEvent1Active()
 #endif
 
 
-	if ( GoldenHorse_IsGoldenHorseEventActive() )
+
+	if( IsInnerBeastEventActive() )
+	{
 		return true
+	}
 
 
 	return false
@@ -2318,6 +2343,39 @@ bool function IsLobbyEvent2Active()
 
 	return false
 }
+
+
+bool function IsInnerBeastEventActive()
+{
+	ItemFlavor event = GetItemFlavorByAsset( $"settings/itemflav/calevent/s20ce02/collection.rpak" )
+	if ( CalEvent_IsActive( event, GetUnixTimestamp() ) )
+		return true
+
+	return false
+}
+
+
+
+bool function IsMatchmakingFromMatchAllowed( entity player )
+{
+	bool isAllowed = GetConVarBool( "matchmake_from_match_enabled" )
+	isAllowed = isAllowed && GetCurrentPlaylistVarBool( "matchmake_from_match", false )
+	isAllowed = isAllowed && !Playlist_ShouldBeHiddenForScheduleBlocks( GetCurrentPlaylistName() )
+
+
+
+
+
+
+
+
+
+
+
+
+	return isAllowed
+}
+
 
 
 
@@ -2390,7 +2448,7 @@ bool function FreelanceSystemsAreEnabled()
 
 bool function SpectreShacksAreEnabled()
 {
-	return GetCurrentPlaylistVarBool( "spectre_shacks_enabled", false ) 
+	return GetCurrentPlaylistVarBool( "spectre_shacks_enabled", false )
 }
 
 
@@ -2407,16 +2465,16 @@ float function LerpFloat( float startValue, float endValue, float time )
 }
 
 
+bool function UpgradeCore_IsCorrectGameState()
+{
+	bool isGameStateCorrect =
+			(
+					( !IsFiringRangeGameMode() && ( GetGameState() == eGameState.Playing ) ) ||
+					( IsFiringRangeGameMode() && ( GetGameState() == eGameState.WaitingForPlayers ))
+			)
 
-
-
-
-
-
-
-
-
-
+	return isGameStateCorrect
+}
 
 
 string function RandomHex( int length = 16 )
@@ -2952,6 +3010,12 @@ bool function IsInMyParty( string uid )
 			return true
 	}
 	return false
+}
+
+bool function IsMyPartyMatchmaking()
+{
+	string matchmakingStatus = GetMyMatchmakingStatus()
+	return ( matchmakingStatus != "" )
 }
 
 
@@ -3557,7 +3621,6 @@ void function SetConVarFloatFromPlaylist( string varName, float floatVal )
 	SetConVarFloat( varName, GetCurrentPlaylistVarFloat( varName, floatVal ) )
 }
 
-
 string function GetMergedPlatformIdForPlayer( entity player )
 {
 
@@ -3573,7 +3636,6 @@ string function GetMergedPlatformIdForPlayer( entity player )
 	Assert( platformId != "" )
 	return platformId
 }
-
 
 
 bool function IsUserOnSamePlatform( string hardware )
@@ -3694,10 +3756,10 @@ string function PlatformIDToIconString( int platformID )
 
 
 
-bool function AreClubInvitesEnabled()
-{
-	return GetConVarInt( "clubs_showInvites" ) == eClubInviteDisplayLevel.ENABLED
-}
+
+
+
+
 
 
 
@@ -4157,4 +4219,34 @@ bool function IsInBleedoutOrRevive( entity player )
 
 
 
+
+
+
+float function GetScreenScaleFrac()
+{
+	UISize screenSize = GetScreenSize()
+	float screenSizeXFrac =  screenSize.width / 1920.0
+	float screenSizeYFrac =  screenSize.height / 1080.0
+	return min(screenSizeXFrac, screenSizeYFrac)
+}
+
+
+
+float function GetNearestAspectRatio( int width, int height )
+{
+	float aspectRatio = width / float( height )
+
+	if ( fabs( ASPECT_RATIO_16_BY_10 - aspectRatio ) < 0.1 )
+		return aspectRatio
+	else if ( fabs( ASPECT_RATIO_16_BY_9 - aspectRatio ) < 0.1 )
+		return aspectRatio
+	else if ( fabs( ASPECT_RATIO_21_BY_9 - aspectRatio ) < 0.1 )
+		return aspectRatio 
+	else if ( fabs( (16.0 * 3 / 9.0) - aspectRatio ) < 0.1 )
+		return ASPECT_RATIO_16_BY_9
+	else if ( fabs( (16.0 * 3 / 10.0) - aspectRatio ) < 0.1 )
+		return ASPECT_RATIO_16_BY_10
+
+	return aspectRatio
+}
 

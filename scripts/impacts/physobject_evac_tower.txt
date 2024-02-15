@@ -35,7 +35,7 @@ ImpactTable
 //		"2" "openslot"
 //		"3" "openslot"
 //		"4" "openslot"
-		"5" "P_impact_water_hrz"
+		"5" "P_impact_digital_water_hrz_w_glass"
 //		"6" "openslot"
 //		"7" "openslot"
 //		"8" "openslot"
@@ -86,7 +86,7 @@ ImpactTable
 		"headshot_flesh" "Phys_Imp_Default_flesh"
 		"headshot_mechanical" "Phys_Imp_Default_Metal"
 
-		"5" "Phys_Imp_EvacTower_LootProp_Water"
+		"5" "Phys_Imp_EvacTower_LootProp_Default"
 	}
 
 	Sound_attacker
@@ -127,7 +127,7 @@ ImpactTable
 		"headshot_flesh" "Phys_Imp_Default_flesh"
 		"headshot_mechanical" "Phys_Imp_Default_Metal"
 
-		"5" "Phys_Imp_EvacTower_LootProp_Water"
+		"5" "Phys_Imp_EvacTower_LootProp_Default"
 	}
 
 	Sound_victim
@@ -168,7 +168,7 @@ ImpactTable
 		"headshot_flesh" "Phys_Imp_Default_flesh_3P_vs_1P"
 		"headshot_mechanical" "Phys_Imp_Default_Metal"
 
-		"5" "Phys_Imp_EvacTower_LootProp_Water"
+		"5" "Phys_Imp_EvacTower_LootProp_Default"
 	}
 
 	Sound_victim_from_AI
@@ -208,7 +208,7 @@ ImpactTable
 		"headshot_flesh" "Phys_Imp_Default_Default"
 		"headshot_mechanical" "Phys_Imp_Default_Default"
 
-		"5" "Phys_Imp_EvacTower_LootProp_Water"
+		"5" "Phys_Imp_EvacTower_LootProp_Default"
 	}
 }
 

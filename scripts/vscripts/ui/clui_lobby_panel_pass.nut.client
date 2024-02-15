@@ -44,6 +44,7 @@ global function ClearBattlePassItem
 
 
 
+
 global function Season_GetLongName
 global function Season_GetShortName
 global function Season_GetTimeRemainingText
@@ -91,6 +92,7 @@ struct BattlePassPageData
 
 const float BATTLEPASS_MODEL_ROTATE_SPEED = 15.0
 
+global const string FEATURE_EVENT_BOOSTED_TUTORIAL = "eventboosted"
 
 struct FileStruct_LifetimeLevel
 {
@@ -122,7 +124,6 @@ struct FileStruct_LifetimeLevel
 
 	table signalDummy
 	int   videoChannel = -1
-
 }
 FileStruct_LifetimeLevel& fileLevel
 
@@ -152,6 +153,8 @@ FileStruct_LifetimeLevel& fileLevel
 
 struct
 {
+
+
 
 
 
@@ -235,6 +238,11 @@ void function ShPassPanel_LevelInit()
 
 
 }
+
+
+
+
+
 
 
 
@@ -2942,10 +2950,6 @@ void function OnMouseWheelDown( entity unused )
 
 
 
-
-
-
-
 void function UIToClient_ItemPresentation( SettingsAssetGUID itemFlavorGUID, int level, float scale, bool showLow, var loadscreenPreviewBox, bool shouldPlayAudioPreview, string sceneRefName, bool isNXHH = false, bool isMilestoneEvent = false, bool isBattlepassMilestone = false, bool useMenuZoomOffset = true  )
 {
 	ItemFlavor flav = GetItemFlavorByGUID( itemFlavorGUID )
@@ -2963,7 +2967,22 @@ void function UIToClient_ItemPresentation( SettingsAssetGUID itemFlavorGUID, int
 			fileLevel.sceneRefOrigin += <0, 25, 0>
 
 		if ( itemType == eItemType.character_emote )
+		{
 			scale *= 0.7
+		}
+#if !PC_PROG_NX_UI
+		else if ( itemType == eItemType.emote_icon )
+		{
+			if ( GetNearestAspectRatio( GetScreenSize().width, GetScreenSize().height ) == 1.6 )
+			{
+				fileLevel.sceneRefOrigin += <10, 60, 0>
+			}
+			else
+			{
+				fileLevel.sceneRefOrigin += <12, 60, 0>
+			}
+		}
+#endif
 	}
 	else if ( sceneRefName == "battlepass_center_ref" )
 	{
@@ -2984,7 +3003,7 @@ void function UIToClient_ItemPresentation( SettingsAssetGUID itemFlavorGUID, int
 		
 		
 		if ( itemType == eItemType.emote_icon )
-			fileLevel.sceneRefOrigin += <0, 105, -33> 
+			fileLevel.sceneRefOrigin += <0, 105, -20> 
 	}
 
 	if ( showLow )
@@ -3644,6 +3663,7 @@ void function ShowBattlePassItem_Banner( ItemFlavor item, float scale )
 
 void function ShowBattlePassItem_EmoteIcon( ItemFlavor item, float scale, bool showLow )
 {
+
 	asset EMOTE_ICON_BASE_MODEL = HOLO_SPRAY_BASE 
 
 	vector angles = fileLevel.sceneRefAngles
@@ -3658,6 +3678,7 @@ void function ShowBattlePassItem_EmoteIcon( ItemFlavor item, float scale, bool s
 #endif
 
 	entity model = CreateClientSidePropDynamic( origin, angles, EMOTE_ICON_BASE_MODEL )
+
 	model.MakeSafeForUIScriptHack()
 	model.SetModelScale( scale )
 	model.SetDoDestroyCallback( true )
@@ -4539,6 +4560,42 @@ void function BattlePassLightsOff()
 
 }
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+string function BattlePass_PopulateAboutTitle()
+{
+	return "#BATTLEPASS_BREAKOUT_TITLE"
+}
 
 
 

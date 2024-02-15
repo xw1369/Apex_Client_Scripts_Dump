@@ -43,7 +43,7 @@ ImpactTable
 //		"2" "openslot"
 //		"3" "openslot"
 //		"4" "openslot"
-		"5" "P_impact_water_hrz" //water_hrz
+		"5" "P_impact_digital_water_hrz_w_glass" //water_hrz
 //		"6" "openslot"
 //		"7" "openslot"
 //		"8" "openslot"
@@ -120,7 +120,7 @@ ImpactTable
 		"headshot_flesh" "PulseBlade_SurfaceImpact_Flesh_3P"
 		"headshot_mechanical" "PulseBlade_SurfaceImpact_Metal_3P"
 
-		"5" "PulseBlade_water_SurfaceImpact_3p_vs_3p"
+		"5" "PulseBlade_glass_SurfaceImpact_3p_vs_3p"
 	}
 
 	Sound_attacker
@@ -161,7 +161,7 @@ ImpactTable
 		"headshot_flesh" "PulseBlade_SurfaceImpact_Flesh_3P"
 		"headshot_mechanical" "PulseBlade_SurfaceImpact_Metal_3P"
 
-		"5" "PulseBlade_water_SurfaceImpact_1p_vs_3p"
+		"5" "PulseBlade_glass_SurfaceImpact_1p_vs_3p"
 	}
 
 	Sound_victim
@@ -203,7 +203,7 @@ ImpactTable
 		//"headshot_flesh" "Flesh.BulletImpact_3P_vs_1P"
 		//"headshot_mechanical" "Android.Light.BulletImpact_3P_vs_1P"
 
-		"5" "PulseBlade_water_SurfaceImpact_1p_vs_3p"
+		"5" "PulseBlade_glass_SurfaceImpact_1p_vs_3p"
 
 	}
 

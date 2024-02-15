@@ -1,0 +1,547 @@
+global function PhysicalOvershield_Init
+
+
+
+
+
+
+
+global function PhysicalOvershield_PopulateRui
+global function ServerToClient_PhysicalOvershield_UpdateDamageRUI
+
+const asset SHADOW_FORM_SHADOW_SCREEN_FX = $"p_rev_reborn_FP_ult_screen_base"
+const asset SHADOW_FORM_SHIELD_HIT_FX_1P = $"P_armor_FP_Hit_rev"
+const asset SHADOW_FORM_SHIELD_HIT_FX2_1P = $"P_health_hex_rev_fast"
+
+
+const asset SHADOW_FORM_SHIELD_COLLISION_MODEL = $"mdl/fx/forged_shadows_shield_physX.rmdl"
+const vector SHADOW_FORM_SHIELD_ORIGIN_OFFSET= < 0, 0, -5 >
+const asset SHADOW_FORM_SHIELD_FX_3P = $"P_rev_reborn_shield_colored"
+const asset SHADOW_FORM_SHIELD_ACTIVATION_FX_3P = $"P_rev_reborn_shield_start"
+const string SHADOW_FORM_SHIELD_CHARGED_SOUND_1P = "DeathProtection_Reborn_Shield_Charged_1P"
+const string SHADOW_FORM_SHIELD_CHARGED_SOUND_3P = "DeathProtection_Reborn_Shield_Charged_3P"
+const string SHADOW_FORM_SHIELD_HIT_SOUND_1P = "DeathProtection_Reborn_Shield_Damage_1P"
+const string SHADOW_FORM_SHIELD_HIT_SOUND_3P = "DeathProtection_Reborn_Shield_Damage_3P"
+const asset SHADOW_FORM_SHIELD_HIT_FX_3P = $"P_rev_reborn_shield_dmg"
+
+global enum eOvershieldSourceIndex
+{
+	ZIPLINE_UPGRADE,
+	PHASE_BREACH_UPGRADE,
+	COUNT
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+struct
+{
+
+
+
+
+		int colorCorrection
+		float mitigatedDamageRemaining = 0.0
+		float maxMitigatedDamage
+		bool enableDmgFlash = false
+		int overshieldType
+
+} file
+
+void function PhysicalOvershield_Init()
+{
+
+
+		file.colorCorrection = ColorCorrection_Register( "materials/correction/ability_silence.raw_hdr" )
+		StatusEffect_RegisterEnabledCallback( eStatusEffect.physical_overshield, ShadowForm_StartClient )
+		StatusEffect_RegisterDisabledCallback( eStatusEffect.physical_overshield, ShadowForm_StopClient )
+
+
+	PrecacheParticleSystem( SHADOW_FORM_SHIELD_FX_3P )
+
+	Remote_RegisterClientFunction( "ServerToClient_PhysicalOvershield_UpdateDamageRUI", "float", 0.0, 32000.0, 32, "float", 0.0, 32000.0, 32, "int", 0, eOvershieldSourceIndex.COUNT  )
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+void function ShadowForm_StartClient( entity ent, int statusEffect, bool actuallyChanged )
+{
+	if ( !actuallyChanged && GetLocalViewPlayer() == GetLocalClientPlayer() )
+		return
+
+	if ( ent != GetLocalViewPlayer() )
+		return
+
+	thread ShadowForm_FXThink( ent )
+}
+
+void function ShadowForm_StopClient( entity ent, int statusEffect, bool actuallyChanged )
+{
+	if ( !actuallyChanged && GetLocalViewPlayer() == GetLocalClientPlayer() )
+		return
+
+	if ( ent != GetLocalViewPlayer() )
+		return
+
+	ent.Signal( "ShadowForm_EndShadowScreenFx" )
+}
+
+void function ShadowForm_FXThink( entity player )
+{
+	if( !IsValid( player ) )
+		return
+	entity cockpit = player.GetCockpit()
+	if( !IsValid( cockpit ) )
+		return
+
+	EndSignal( player, "OnDeath", "OnDestroy", "BleedOut_OnStartDying", "ShadowForm_EndShadowScreenFx" )
+
+	int fxHandle = StartParticleEffectOnEntity( cockpit, GetParticleSystemIndex( SHADOW_FORM_SHADOW_SCREEN_FX ), FX_PATTACH_ABSORIGIN_FOLLOW, ATTACHMENTID_INVALID )
+	EffectSetIsWithCockpit( fxHandle, true )
+	vector controlPoint = <1, 1, 1>
+	EffectSetControlPointVector( fxHandle, 1, controlPoint )
+
+	thread ColorCorrection_LerpWeight( file.colorCorrection, 0, 1, 0.25 )
+
+	OnThreadEnd(
+		function() : ( player, fxHandle )
+		{
+			if ( EffectDoesExist( fxHandle ) )
+				EffectStop( fxHandle, true, true )
+
+			thread ColorCorrection_LerpWeight( file.colorCorrection, 1, 0, 1 )
+		}
+	)
+
+	WaitForever()
+}
+
+void function PhysicalOvershield_PopulateRui( entity player, var bottomRui, var mainRui )
+{
+	if( bottomRui != null )
+	{
+		RuiSetFloat( bottomRui, "mitigatedDamageRemaining", file.mitigatedDamageRemaining )
+		RuiSetFloat( bottomRui, "maxMitigatedDamage", file.maxMitigatedDamage )
+		RuiSetBool( bottomRui, "enableDmgFlash", file.enableDmgFlash )
+
+		switch( file.overshieldType )
+		{
+			case eOvershieldSourceIndex.ZIPLINE_UPGRADE:
+				RuiSetString( mainRui, "lockMessage", "#UPGRADE_PATHFINDER_ZIPLINE_SHIELD" )
+				break
+		}
+	}
+}
+
+void function ServerToClient_PhysicalOvershield_UpdateDamageRUI( float curHealth, float maxHealth, int shieldType )
+{
+	entity player = GetLocalViewPlayer()
+
+	if( curHealth < file.mitigatedDamageRemaining )
+		thread DamageTakenFlash( player )
+
+	file.mitigatedDamageRemaining = curHealth
+	file.maxMitigatedDamage = maxHealth
+	file.overshieldType = shieldType
+}
+
+void function DamageTakenFlash( entity player )
+{
+	if( !IsValid( player ) )
+		return
+	entity viewPlayer = GetLocalViewPlayer()
+	if( player != viewPlayer )
+		return
+
+	player.Signal( "EndDamageFlash" )
+	EndSignal( player, "EndDamageFlash" )
+
+	int shieldDamageFx = StartParticleEffectOnEntity( viewPlayer, GetParticleSystemIndex( SHADOW_FORM_SHIELD_HIT_FX_1P ), FX_PATTACH_ABSORIGIN_FOLLOW, ATTACHMENTID_INVALID )
+	EffectSetIsWithCockpit( shieldDamageFx, true )
+	int shieldDamageHexFx = StartParticleEffectOnEntity( viewPlayer, GetParticleSystemIndex( SHADOW_FORM_SHIELD_HIT_FX2_1P ), FX_PATTACH_ABSORIGIN_FOLLOW, ATTACHMENTID_INVALID )
+	EffectSetIsWithCockpit( shieldDamageHexFx, true )
+
+	OnThreadEnd(
+		function() : ( player, shieldDamageFx, shieldDamageHexFx )
+		{
+			if( IsAlive( player ) )
+				file.enableDmgFlash = true
+
+			if( EffectDoesExist( shieldDamageFx ) )
+				EffectStop( shieldDamageFx, true, true )
+
+			if( EffectDoesExist( shieldDamageHexFx ) )
+				EffectStop( shieldDamageHexFx, true, true )
+		}
+	)
+
+	file.enableDmgFlash = false
+
+	wait 0.2
+
+	return
+}
+
+void function ColorCorrection_LerpWeight( int colorCorrection, float startWeight, float endWeight, float lerpTime = 0 )
+{
+	float startTime = Time()
+	float endTime = startTime + lerpTime
+	ColorCorrection_SetExclusive( colorCorrection, true )
+
+	while ( Time() <= endTime )
+	{
+		WaitFrame()
+		float weight = GraphCapped( Time(), startTime, endTime, startWeight, endWeight )
+		ColorCorrection_SetWeight( colorCorrection, weight )
+	}
+
+	ColorCorrection_SetWeight( colorCorrection, endWeight )
+}
+

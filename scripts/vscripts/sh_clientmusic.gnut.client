@@ -443,7 +443,7 @@ void function ClientMusicFRAME()
 	if ( GetConVarInt( "pve_debug" ) != 0 )
 	{
 		string text = GetClientMusicStatusLine()
-		DebugScreenTextWithColor( 0.65, 0.985, GetClientMusicStatusLine(), <128, 128, 168> )
+		DebugDrawScreenTextWithColor( 0.65, 0.985, GetClientMusicStatusLine(), <128, 128, 168> )
 
 		entity player = GetLocalViewPlayer()
 		if ( IsPVEMode() && IsValid( player ) )
@@ -457,7 +457,7 @@ void function ClientMusicFRAME()
 				npcText = format( "Last Spotted: %.0f", delta )
 			}
 			vector color = GraphCappedVector( delta, 0.0, 2.0, <255, 128, 168>, <128, 128, 168> )
-			DebugScreenTextWithColor( 0.05, 0.985, npcText, color )
+			DebugDrawScreenTextWithColor( 0.05, 0.985, npcText, color )
 		}
 
 		string freelanceText
@@ -466,7 +466,7 @@ void function ClientMusicFRAME()
 			int phase = FreelanceMode_GetCurrentPhase()
 			freelanceText = format( "eFreelanceModePhase.%s (#%d) ", GetNameForEnum( eFreelanceModePhase, phase ), phase )
 		}
-		DebugScreenTextWithColor( 0.25, 0.985,
+		DebugDrawScreenTextWithColor( 0.25, 0.985,
 			
 			format( "eGameState.%s (%d)  %s t:%.0f", GetNameForEnum( eGameState, GetGameState() ), GetGameState(), freelanceText, Time() ),
 			<128, 128, 168> )

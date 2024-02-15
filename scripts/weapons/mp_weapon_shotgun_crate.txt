@@ -1,0 +1,60 @@
+#base "mp_weapon_shotgun.txt"
+
+WeaponData
+{
+	"weaponBaseClass"                              "mp_weapon_shotgun"
+
+    "ammo_stockpile_max"					        "96"
+    "ammo_default_total"					        "104"   //for crate weapons, default total should be clip size + stockpile max
+    "ammo_no_remove_from_stockpile"			        "0"
+    "uses_ammo_pool"						        "0"
+
+	"fire_rate"   									"3"
+
+   // "bolt_hitsize"								"0.6"
+   // "bolt_hitsize_grow1_time"						"0.025"
+   // "bolt_hitsize_grow1_size"						"0.8"
+   // "bolt_hitsize_grow2_time"						"0.1"
+   // "bolt_hitsize_grow2_size"						"1.0"
+   // "bolt_hitsize_growfinal_lerptime"				"0.1"
+   // "bolt_hitsize_growfinal_size"					"1.0"
+
+    "kinetic_ammo_to_load"                          "2"
+
+	"damage_near_value"   							"6"
+    "damage_far_value"								"6"
+    "damage_near_value_titanarmor"					"6"
+    "damage_far_value_titanarmor" 					"6"
+
+	//"reload_time" 								"3"
+    //"reload_time_late1"							"1.7"
+    //"reload_time_late2"							"0.5"
+    //"reloadempty_time"							"3.25"
+    //"reloadempty_time_late1"						"2.25"
+    //"reloadempty_time_late2"						"1.25"
+    //"reloadempty_time_late3"						"1.05"
+
+	"viewkick_pitch_base" 							"-0.2"
+    "viewkick_pitch_random"   						"0"
+    "viewkick_pitch_softScale"						"0.3"
+    "viewkick_pitch_hardScale"						"1"
+
+    "viewkick_yaw_base"   							"-0.4"
+    "viewkick_yaw_random" 							"0.2"
+    "viewkick_yaw_softScale"  						"0.38"
+    "viewkick_yaw_hardScale"  						"1.2"
+
+    Mods
+    {
+        crate { }
+
+        hopup_unshielded_dmg
+        {
+            "damage_unshielded_scale"      					"1.2"
+
+            "projectile_trail_effect_0_1p"     				"P_tracer_proj_eva_hammer_point"
+            "projectile_trail_effect_0_3p"     				"P_tracer_proj_eva_hammer_point"
+            "impact_effect_table" 							"hammer_point_bullet"
+        }
+    }
+}

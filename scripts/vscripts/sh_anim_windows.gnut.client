@@ -355,9 +355,9 @@ void function AnimWindow_CreateProp_Start( ScriptAnimWindow window, var settings
 void function AnimWindow_CreateProp_Transition( ScriptAnimWindow window, var settingsBlock )
 {
 	string scriptCallbackKey = GetSettingsBlockString( settingsBlock, "scriptCallbackKey" )
-	asset animSeq         = GetSettingsBlockAsset( settingsBlock, "animSequence" )
-	string attachmentName = GetSettingsBlockString( settingsBlock, "attachPoint" )
-	float scale           = GetSettingsBlockFloat( settingsBlock, "scale" )
+	asset animSeq            = GetSettingsBlockAsset( settingsBlock, "animSequence" )
+	string attachmentName    = GetSettingsBlockString( settingsBlock, "attachPoint" )
+	float scale              = GetSettingsBlockFloat( settingsBlock, "scale" )
 
 	Assert( window.stringID in windowPropMap )
 	entity prop = windowPropMap[window.stringID]
@@ -368,10 +368,36 @@ void function AnimWindow_CreateProp_Transition( ScriptAnimWindow window, var set
 
 	
 	
-
-	if ( scriptCallbackKey == MELEE_SKIN_KEY && window.ent.IsPlayer() )
+	entity parentEnt = window.ent
+	if ( !parentEnt.IsPlayer() )
 	{
-		string meleeSkinName = MeleeSkin_GetSkinNameFromPlayer( window.ent )
+		entity proxyOwner = parentEnt.GetOwner()
+		if ( IsValid( proxyOwner ) && proxyOwner.IsPlayer() )
+		{
+			parentEnt = proxyOwner
+		}
+	}
+	if ( scriptCallbackKey == MELEE_SKIN_KEY )
+	{
+		string meleeSkinName = ""
+		if ( parentEnt.IsPlayer() )
+		{
+			meleeSkinName = MeleeSkin_GetSkinNameFromPlayer( parentEnt )
+			printt( "Execution uses player melee skin: " + meleeSkinName )
+		}
+		else 
+		{
+
+				ItemFlavor ornull meleeSkinFlavor = parentEnt.e.animWindowMeleeSkinItemFlavor
+
+				if ( meleeSkinFlavor != null )
+				{
+					expect ItemFlavor( meleeSkinFlavor )
+					meleeSkinName = MeleeSkin_GetSkinName( meleeSkinFlavor )
+					printt( "Glad card uses melee skin: " + meleeSkinName )
+				}
+
+		}
 		if ( meleeSkinName != "" && meleeSkinName != "default" )
 		{
 			int skindex = prop.GetSkinIndexByName( meleeSkinName )
@@ -1309,7 +1335,7 @@ void function AnimWindow_MirageHoloFX_Thread( entity ent, int attachIndex, float
 	
 	ent.Highlight_ResetFlags()
 	ent.Highlight_SetVisibilityType( HIGHLIGHT_VIS_ALWAYS )
-	Highlight_SetNeutralHighlight( ent, "decoy_prop" )
+	ent.Highlight_SetCurrentContext( GetHighlightId( "decoy_prop" ) )
 	ent.Highlight_SetFadeInTime( 0 )
 	ent.Highlight_StartOn()
 
@@ -1436,10 +1462,9 @@ void function AnimWindow_SetBloodhoundRavenPropSkin( ScriptAnimWindow window, va
 {
 	if ( IsValid( prop ) )
 	{
-
-		entity player = window.ent
-		ItemFlavor character = LoadoutSlot_GetItemFlavor( ToEHI( player ), Loadout_Character() )
-		ItemFlavor skin      = LoadoutSlot_GetItemFlavor( ToEHI( player ), Loadout_CharacterSkin( character ) )
+		entity player            = window.ent
+		ItemFlavor character     = LoadoutSlot_GetItemFlavor( ToEHI( player ), Loadout_Character() )
+		ItemFlavor skin          = LoadoutSlot_GetItemFlavor( ToEHI( player ), Loadout_CharacterSkin( character ) )
 		string characterSkinName = CharacterSkin_GetSkinName( skin )
 
 		
@@ -1479,7 +1504,16 @@ void function AnimWindow_MatchMeleePropSkin( ScriptAnimWindow window, var settin
 		return
 
 	string meleeSkinName = ""
-	
+
+	if ( !parentEnt.IsPlayer() )
+	{
+		entity proxyOwner = parentEnt.GetOwner()
+		if ( IsValid( proxyOwner ) && proxyOwner.IsPlayer() )
+		{
+			parentEnt = proxyOwner
+		}
+	}
+
 	if ( parentEnt.IsPlayer() )
 	{
 		meleeSkinName = MeleeSkin_GetSkinNameFromPlayer( parentEnt )

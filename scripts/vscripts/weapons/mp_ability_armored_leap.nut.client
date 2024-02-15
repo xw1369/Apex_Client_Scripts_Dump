@@ -3982,10 +3982,10 @@ float function GetArmoredLeapDistance( entity player )
 	float result = file.maxDist
 
 
-
-
-
-
+	if( IsValid( player ) && player.HasPassive( ePassives.PAS_ULT_UPGRADE_ONE ) ) 
+	{
+		result *= GetUpgradedArmoredLeapDistance()
+	}
 
 
 	return result
@@ -3996,10 +3996,10 @@ float function GetArmoredLeapAllyDistance( entity player )
 	float result = file.maxDistAlly
 
 
-
-
-
-
+		if( IsValid( player ) && player.HasPassive( ePassives.PAS_ULT_UPGRADE_ONE ) ) 
+		{
+			result *= GetUpgradedArmoredLeapDistance()
+		}
 
 
 	return result
@@ -4010,10 +4010,10 @@ float function GetArmoredLeapHeight( entity player )
 	float result = file.maxHeight
 
 
-
-
-
-
+		if( IsValid( player ) && player.HasPassive( ePassives.PAS_ULT_UPGRADE_ONE ) ) 
+		{
+			result *= GetUpgradedArmoredLeapDistance()
+		}
 
 
 	return result
@@ -4024,10 +4024,10 @@ float function GetArmoredLeapHeightAlly( entity player )
 	float result = file.maxHeightAlly
 
 
-
-
-
-
+		if( IsValid( player ) && player.HasPassive( ePassives.PAS_ULT_UPGRADE_ONE ) ) 
+		{
+			result *= GetUpgradedArmoredLeapDistance()
+		}
 
 
 	return result
@@ -4993,7 +4993,7 @@ bool function ArmoredLeap_IsValidPosition( entity player, vector position, entit
 				if ( DEBUG_DRAW_PUSHER_MOVEMENT )
 				{
 					vector pusherVelAtPoint = pusher.GetAbsVelocityAtPoint(position)
-					DebugScreenText( 0.1,0.6, "Pusher " + pusher + ", speed is " + Length(pusherVelAtPoint) + " , vel is " + pusherVelAtPoint )
+					DebugDrawScreenText( 0.1,0.6, "Pusher " + pusher + ", speed is " + Length(pusherVelAtPoint) + " , vel is " + pusherVelAtPoint )
 				}
 #endif
 
@@ -5002,11 +5002,17 @@ bool function ArmoredLeap_IsValidPosition( entity player, vector position, entit
 		}
 	}
 
-	array<string> triggersToCheck = ["trigger_slip"]
-	triggersToCheck.append( "trigger_out_of_bounds" )
-	triggersToCheck.append( "trigger_no_object_placement" )
-	triggersToCheck.append( "trigger_no_zipline" )
-	triggersToCheck.append( "trigger_no_grapple" )
+	array<string> triggersToCheck =
+		[
+			"trigger_slip",
+			"trigger_out_of_bounds",
+			"trigger_no_object_placement",
+			"trigger_no_zipline",
+			"trigger_no_grapple",
+			"trigger_networked_out_of_bounds",
+			"trigger_networked_no_op",
+			"trigger_networked_block_all_op"
+		]
 
 	foreach ( entity trigger in GetTriggersByClassesInRealms_HullSize(
 		triggersToCheck,
@@ -6493,19 +6499,20 @@ vector function SnakeWall_GetBestDownTracePosition( vector nextValidPos, vector 
 
 
 
+int function GetUpgradedCastleWallExtraHealth()
+{
+	return GetCurrentPlaylistVarInt( "ultimate_armored_leap_upgrade_extra_health", 200 )
+}
 
+float function GetUpgradedCastleWallBarrierExtraDuration()
+{
+	return GetCurrentPlaylistVarFloat( "ultimate_armored_leap_upgrade_extra_barrier_duration", 120 )
+}
 
-
-
-
-
-
-
-
-
-
-
-
+float function GetUpgradedArmoredLeapDistance()
+{
+	return GetCurrentPlaylistVarFloat( "ultimate_armored_leap_upgrade_range_multiplier", 1.2 )
+}
 
 
 
@@ -7007,12 +7014,10 @@ float function CastleWall_GetWallBarrierDuration( entity owner )
 	float result = CASTLE_WALL_BARRIER_DURATION
 
 
-
-
-
-
-
-
+	if( IsValid( owner ) && owner.HasPassive( ePassives.PAS_ULT_UPGRADE_TWO ) ) 
+	{
+		result += GetUpgradedCastleWallBarrierExtraDuration()
+	}
 
 
 	return result
@@ -7664,6 +7669,10 @@ void function TrackCastleWallEnergizedState_Thread( entity ent )
 		}
 	)
 
+	
+	entity owner = ent.GetOwner()
+	if( !IsValid( owner ) )
+		owner = ent.GetLinkEnt()
 	float endTime                    = Time() + CastleWall_GetWallBarrierDuration( ent.GetOwner() ) + file.barrierDelay 
 	while ( Time() < endTime )
 	{
@@ -7784,7 +7793,11 @@ void function DoCastleWallThreatIndicatorAndSound_Thread( entity player, int shi
 	Assert ( IsNewThread(), "Must be threaded off." )
 	player.EndSignal( "OnDestroy" )
 
-	float endTime                    = Time() + CastleWall_GetWallBarrierDuration( ent.GetOwner() )
+	
+	entity owner = ent.GetOwner()
+	if( !IsValid( owner ) )
+		owner = ent.GetLinkEnt()
+	float endTime                    = Time() + CastleWall_GetWallBarrierDuration( owner )
 	vector ornull closestProjection  = GetProjectionForCastleThreat( player, shieldTeam, true )
 	vector ornull farthestProjection = GetProjectionForCastleThreat( player, shieldTeam, false )
 	vector startingPosClose          = ZERO_VECTOR

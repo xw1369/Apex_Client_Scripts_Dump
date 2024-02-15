@@ -21,12 +21,9 @@ global function DEV_DebugHudStatusThread
 global function ShouldOnlyShowMinimap
 global function SetAllHudVisExceptMinimap
 
-
 global function ServerCallback_SetTacticalHudVis
 global function ServerCallback_SetUltimateHudVis
 global function ServerCallback_SetDpadMenuVis
-
-
 
 #if DEV
 global function Dev_SetDefaultHUD
@@ -1030,8 +1027,8 @@ void function DEV_DebugHudStatusThread()
 	{
 		HudVisibilityStatus hudStatus = GetHudStatus( GetLocalViewPlayer() )
 
-		DebugScreenText( 0.90, 0.5, format( "mainHud: %s", hudStatus.mainHud ? "ON" : "OFF" ) )
-		DebugScreenText( 0.90, 0.512, format( "permanentHud: %s", hudStatus.permanentHud ? "ON" : "OFF" ) )
+		DebugDrawScreenText( 0.90, 0.5, format( "mainHud: %s", hudStatus.mainHud ? "ON" : "OFF" ) )
+		DebugDrawScreenText( 0.90, 0.512, format( "permanentHud: %s", hudStatus.permanentHud ? "ON" : "OFF" ) )
 
 		WaitFrame()
 	}
@@ -1210,9 +1207,6 @@ void function Dev_SetDefaultHUD( bool toggle )
 }
 #endif
 
-
-
-
 void function ServerCallback_SetTacticalHudVis( bool toggle )
 {
 	
@@ -1242,4 +1236,3 @@ void function ServerCallback_SetDpadMenuVis( int flags )
 	RuiSetBool( GetDpadMenuRui(), "ordinanceUIEnabled", IsBitFlagSet(flags, 2) ) 
 	RuiSetBool( GetDpadMenuRui(), "gadgetUIEnabled", IsBitFlagSet(flags, 4) ) 
 }
-      

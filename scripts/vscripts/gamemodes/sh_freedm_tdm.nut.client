@@ -60,13 +60,6 @@ void function TDM_Init()
 
 
 
-
-
-
-
-
-
-
 bool function TDM_IsSWATLoadout()
 {
 	return GetCurrentPlaylistVarBool( "tdm_is_swat_loadout", false)

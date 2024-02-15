@@ -28,8 +28,8 @@ void function ShPassiveLootHighlight_Init()
 	RegisterItemHighlight( ePassives.PAS_HEALING_ITEM_HIGHLIGHT, eLootTier.RARE, HealingItemFilter, HealingItem_GetHighlightString, RANGE_CONSUMABLE_HIGHLIGHT )
 
 
-
-
+	RegisterItemHighlight( ePassives.PAS_ULTACCEL_HIGHLIGHT, eLootTier.RARE, UltAccelItemFilter, UltAccel_GetHighlightString, RANGE_CONSUMABLE_HIGHLIGHT )
+	RegisterItemHighlight( ePassives.PAS_OPTIC_HIGHLIGHT, eLootTier.RARE, OpticItemFilter, Optic_GetHighlightString, RANGE_CONSUMABLE_HIGHLIGHT )
 
 
 }
@@ -218,42 +218,42 @@ bool function HealingItemFilter( LootData lootData )
 }
 
 
+string function UltAccel_GetHighlightString( LootData lootData )
+{
+	return UltAccelItemFilter( lootData ) ? "survival_item_rare_vision" : ""
+}
 
+string function SurvivalSlot_GetHighlightString( LootData lootData )
+{
+	return SurvivalSlotItemFilter( lootData ) ?  "survival_item_rare_vision" : ""
+}
 
+string function Optic_GetHighlightString( LootData lootData )
+{
+	if( OpticItemFilter( lootData ) )
+	{
+		if ( lootData.tier - 1 == eRarityTier.LEGENDARY )
+			return "survival_item_legendary_no_los_check"
+		else if ( lootData.tier - 1 == eRarityTier.EPIC )
+			return "survival_item_epic_no_los_check"
+		else
+			return "survival_item_rare_vision"
+	}
+	return ""
+}
 
+bool function UltAccelItemFilter( LootData lootData )
+{
+	return lootData.lootType == eLootType.HEALTH && lootData.ref == "health_pickup_ultimate"
+}
 
+bool function SurvivalSlotItemFilter( LootData lootData )
+{
+	return lootData.lootType == eLootType.GADGET
+}
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+bool function OpticItemFilter( LootData lootData )
+{
+	return lootData.lootType == eLootType.ATTACHMENT && lootData.attachmentStyle == "sight" && lootData.ref != "optic_cq_threat" && ( lootData.tier - 1 ) >= eRarityTier.RARE
+}
       

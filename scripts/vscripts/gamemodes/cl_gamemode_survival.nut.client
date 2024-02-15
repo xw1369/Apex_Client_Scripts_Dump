@@ -694,11 +694,12 @@ void function Cl_Survival_AddClient( entity player )
 
 
 
-
-
-
-
-
+	if( UpgradeCore_IsEnabled() )
+	{
+		RuiSetBool( file.pilotRui, "showProgressBar", true )
+		UpgradeCore_UpdateXpRui( file.pilotRui, player )
+		RunUIScript( "RTKLegendUpgradesArmorCore_UpdateArmorCoreDataModel" )
+	}
 
 
 	SetConVarFloat( "dof_variable_blur", 0.0 )
@@ -742,11 +743,11 @@ void function SURVIVAL_PopulatePlayerInfoRui( entity player, var rui )
 	RuiTrackFloat( rui, "playerTargetHealthFrac", player, RUI_TRACK_HEAL_TARGET )
 	RuiTrackFloat( rui, "playerShieldFrac", player, RUI_TRACK_SHIELD_FRACTION )
 
-		RuiTrackInt( rui, "playerOvershield", player, RUI_TRACK_SCRIPT_NETWORK_VAR_INT, GetNetworkedVariableIndex( TEMPSHIELD_NETVAR ) )
+		RuiTrackInt( rui, "playerOvershield", player, RUI_TRACK_TEMP_SHIELD_INT )
 
 
-
-
+		RuiTrackInt( rui, "playerExtraShield", player, RUI_TRACK_SCRIPT_NETWORK_VAR_INT, GetNetworkedVariableIndex( EXTRA_SHIELDS_NETINT ) )
+		RuiTrackInt( rui, "playerExtraShieldTier", player, RUI_TRACK_SCRIPT_NETWORK_VAR_INT, GetNetworkedVariableIndex( EXTRA_SHIELDS_TIER_NETINT ) )
 
 	RuiTrackFloat( rui, "cameraViewFrac", player, RUI_TRACK_STATUS_EFFECT_SEVERITY, eStatusEffect.camera_view ) 
 	vector shieldFrac = < SURVIVAL_GetArmorShieldCapacity( 0 ) / 100.0,
@@ -1144,6 +1145,20 @@ void function Survival_MinimapPackage_ObjectiveAreaInit( entity ent, var rui )
 			RuiSetBool( rui, "borderBlink", false )
 			break
 
+		case "poispawn_landingcircle_minimap":
+			RuiSetColorAlpha( rui, "objColor", SrgbToLinear( COLOR_CYAN / 255.0 ), 0.12 )
+			RuiSetColorAlpha( rui, "objBorderColor", SrgbToLinear( POISPAWN_LANDINGMARKER_COLOR / 255.0 ), 0.5 )
+			RuiSetBool( rui, "blink", true )
+			RuiSetBool( rui, "borderBlink", true )
+			
+			break
+		case "poispawn_landingcircle_enemy_minimap":
+			RuiSetColorAlpha( rui, "objColor", SrgbToLinear( COLOR_RED / 255.0 ), 0.12 )
+			RuiSetColorAlpha( rui, "objBorderColor", SrgbToLinear( POISPAWN_LANDINGMARKER_ENEMY_COLOR / 255.0 ), 0.5 )
+			RuiSetBool( rui, "blink", true )
+			RuiSetBool( rui, "borderBlink", true )
+			
+			break
 	}
 }
 
@@ -1673,7 +1688,9 @@ void function SetNextCircleDisplayCustom_( NextCircleDisplayCustomData data )
 		return
 
 	var gamestateRui = ClGameState_GetRui()
-	array<var> ruis  = [gamestateRui]
+	var ringWarningRui = ClRingWarning_GetRui()
+
+	array<var> ruis  = [gamestateRui, ringWarningRui]
 	var cameraRui    = GetCameraCircleStatusRui()
 	if ( IsValid( cameraRui ) )
 		ruis.append( cameraRui )
@@ -1955,8 +1972,8 @@ void function EquipmentChanged( entity player, string equipSlot, int new )
 			if ( data.lootType == eLootType.ARMOR )
 			{
 
-
-
+					RuiSetBool( file.pilotRui, "showProgressMeter", !isEvo && UpgradeCore_ArmorTiedToUpgrades() && UpgradeCore_ShowUpgradesUnitframe() )
+					RuiSetInt( file.pilotRui, "armorTierBarOverride", -1 )
 
 
 				if ( EvolvingArmor_IsEquipmentEvolvingArmor( data.ref ) )
@@ -1966,16 +1983,16 @@ void function EquipmentChanged( entity player, string equipSlot, int new )
 					RuiTrackInt( file.pilotRui, "evolvingShieldKillCounter", player, RUI_TRACK_SCRIPT_NETWORK_VAR_INT, GetNetworkedVariableIndex( NV_EVOLVING_ARMOR_KILL_COUNT ) )
 				}
 
-
-
-
-
-
-
-
-
-
-
+				else if( UpgradeCore_IsEquipmentArmorCore( data.ref ) )
+				{
+					RuiSetBool( file.pilotRui, "isEvolvingShield", true )
+					int playerTier = UpgradeCore_GetPlayerArmorTier( player, false )
+					RuiSetInt( file.pilotRui, "armorTierBarOverride", playerTier )
+					if( playerTier > tier && es.unitFrameTierVar != "" )
+					{
+						RuiSetInt( file.pilotRui, es.unitFrameTierVar, playerTier )
+					}
+				}
 
 				else
 				{
@@ -2928,24 +2945,26 @@ void function OnGameStateChanged( int newVal )
 {
 	int gamestate = newVal
 
-	if ( Clubs_AreDisabledByPlaylist() == false && Clubs_AreObituaryTagsEnabledByPlaylist() )
-	{
-		bool shouldRequestAtLoadoutState
 
 
 
 
-		if ( (shouldRequestAtLoadoutState && gamestate == eGameState.PickLoadout) || (!shouldRequestAtLoadoutState && gamestate == eGameState.Playing) )
-		{
-			array<entity> players = GetPlayerArray()
-			int myTeam = GetLocalClientPlayer().GetTeam()
-			foreach ( otherPlayer in players )
-			{
-				if ( otherPlayer.GetTeam() != myTeam )
-					otherPlayer.RequestClubData()
-			}
-		}
-	}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 	var gamestateRui = ClGameState_GetRui()
 	if ( gamestateRui == null )
@@ -3526,17 +3545,19 @@ void function ShowChampionVictoryScreen( int winningTeam )
 		{
 			RuiSetString( rui, "topLineText", "WWWWWWWWWWWWWWWW" )
 		}
-		else if ( GetIsFullClubSquad() == true )
-		{
-			string clubName = ClubGetName();
 
-			if( clubName != CLUB_NAME_EMPTY && clubName != "" )
-			{
-				clubName = Localize( "#GAMEMODE_CLUB_ARE_THE", clubName.toupper() )
-				RuiSetString( rui, "topLineText", clubName )
-				RuiSetString( file.youAreChampionSplashRui, "topLineText", clubName )
-			}
-		}
+
+
+
+
+
+
+
+
+
+
+
+
 	}
 
 	if ( s_championScreenExtraFunc != null )
@@ -4692,6 +4713,8 @@ void function ShowVictorySequence( bool placementMode = false, bool isDevTest = 
 			SwitchDeathScreenTab( eDeathScreenPanel.SQUAD_SUMMARY )
 		}
 
+		TryEnableDeathScreenRequeue()
+
 		
 		wait 1.0
 	}
@@ -5609,11 +5632,39 @@ void function ManageDeathboxHighlights( entity box )
 
 
 
+
+
+
+
+
+
+
+
 	SetSurvivalPropHighlight( box, highlight, false, eHighlightGenericType.NEUTRAL )
 	SetSurvivalPropHighlight( box, highlight, false, eHighlightGenericType.FRIENDLY )
 	SetSurvivalPropHighlight( box, highlight, false, eHighlightGenericType.ENEMY )
 
 	ManageHighlightEntity( box )
+
+	int colorID = COLORID_LOOT_TIER1
+	switch( maxTier - 1 )
+	{
+		case eRarityTier.MYTHIC:
+			colorID = COLORID_LOOT_TIER5
+			break
+
+		case eRarityTier.LEGENDARY:
+			colorID = COLORID_LOOT_TIER4
+			break
+
+		case eRarityTier.EPIC:
+			colorID = COLORID_LOOT_TIER3
+			break
+
+		case eRarityTier.RARE:
+			colorID = COLORID_LOOT_TIER2
+	}
+	box.kv.rendercolor = GetKeyColor( colorID )
 }
 
 const string magAttachmentName = "mag"

@@ -736,6 +736,14 @@ void function Ranked_OnSpectateTargetChanged( entity spectatingPlayer, entity pr
 
 
 
+
+
+
+
+
+
+
+
 void function PopulateRuiWithRankedProvisionalBadgeDetails( var rui, int numMatchesCompleted, int rankScore, int ladderPosition, bool isNested = false, int maxPips = 10, bool useDynamicPips = false, bool isPromotional = false )
 {
 	
@@ -884,7 +892,6 @@ var function CreateNestedRankedRui( var pRui, SharedRankedTierData tier, string 
 		PopulateRuiWithRankedProvisionalBadgeDetails( rui, numMatchesCompleted, score, ladderPosition, true )
 		return rui
 	}
-
 	else if ( RankedTrials_PlayerHasIncompleteTrial( uiPlayer ) )
 	{
 		var rui = RuiCreateNested( pRui, varName, RANKED_PLACEMENT_BADGE )
@@ -896,7 +903,6 @@ var function CreateNestedRankedRui( var pRui, SharedRankedTierData tier, string 
 		PopulateRuiWithRankedProvisionalBadgeDetails( rui, numMatchesCompleted, score, ladderPosition, true, maxMatches, true, true )
 		return rui
 	}
-
 	else
 	{
 		var rui = RuiCreateNested( pRui, varName, tier.iconRuiAsset )
@@ -922,10 +928,7 @@ void function SharedRanked_FillInRuiEmblemText( var rui, SharedRankedDivisionDat
 {
 	
 	entity uiPlayer = GetLocalClientPlayer()
-	bool useProvisionalFix = !Ranked_HasCompletedProvisionalMatches( uiPlayer )
-
-		useProvisionalFix = !Ranked_HasCompletedProvisionalMatches( uiPlayer ) || RankedTrials_PlayerHasIncompleteTrial( uiPlayer )
-
+	bool useProvisionalFix = !Ranked_HasCompletedProvisionalMatches( uiPlayer ) || RankedTrials_PlayerHasIncompleteTrial( uiPlayer )
 
 	if ( useProvisionalFix )
 	{

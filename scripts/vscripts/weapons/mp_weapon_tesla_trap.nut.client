@@ -156,7 +156,8 @@ const float TESLA_TRAP_CONSIDERED_FAR_DIST = 2953
 
 
 const bool TESLA_TRAP_DEBUG_DRAW = false
-const bool TESLA_TRAP_DEBUG_DRAW_PLACEMENT = false
+const bool TESLA_TRAP_DEBUG_DRAW_LINKS = false
+const bool TESLA_TRAP_DEBUG_DRAW_PRE_PLACEMENT = false
 const bool TESLA_TRAP_DEBUG_DRAW_GROUND_CLAMP_PLACEMENT = false
 const bool TESLA_TRAP_DEBUG_DRAW_GROUND_CLEARANCE = false
 const bool TESLA_TRAP_DEBUG_DRAW_POST_INTERSECTION = false
@@ -777,20 +778,20 @@ TeslaTrapPlacementInfo function TeslaTrap_GetPlacementInfo( entity player, entit
 		upResults = downResults
 	}
 
-	if ( TESLA_TRAP_DEBUG_DRAW_PLACEMENT )
+	if ( TESLA_TRAP_DEBUG_DRAW_PRE_PLACEMENT )
 	{
-		DebugDrawBox( fwdResults.endPos, TESLA_TRAP_BOUND_MINS, TESLA_TRAP_BOUND_MAXS, COLOR_GREEN, 1, 1.0 ) 
-		DebugDrawBox( downResults.endPos, TESLA_TRAP_BOUND_MINS, TESLA_TRAP_BOUND_MAXS, COLOR_BLUE, 1, 1.0 ) 
-		DebugDrawLine( eyePos + viewVec * min( TESLA_TRAP_PLACEMENT_RANGE_MIN, maxRange ), fwdResults.endPos, COLOR_GREEN, true, 1.0 ) 
-		DebugDrawLine( fwdResults.endPos, eyePos + viewVec * maxRange, COLOR_RED, true, 1.0 ) 
-		DebugDrawLine( fwdResults.endPos, downResults.endPos, COLOR_BLUE, true, 1.0 ) 
-		DebugDrawBox( upResults.endPos, TESLA_TRAP_BOUND_MINS, TESLA_TRAP_BOUND_MAXS, COLOR_CYAN, 1, 1.0 ) 
-		DebugDrawLine( upStart, upResults.endPos, COLOR_CYAN, true, 1.0 ) 
-		DebugDrawLine( roofTraceStart, roofTraceEnd, COLOR_MAGENTA, true, 1.0 ) 
-		DebugDrawLine( player.GetOrigin(), player.GetOrigin() + (AnglesToForward( angles ) * file.balance_teslaTrapRange), COLOR_GREEN, true, 1.0 ) 
-		DebugDrawLine( eyePos + <0, 0, 8>, eyePos + <0, 0, 8> + (viewVec * file.balance_teslaTrapRange), COLOR_GREEN, true, 1.0 ) 
+		DebugDrawBox( fwdResults.endPos, TESLA_TRAP_BOUND_MINS, TESLA_TRAP_BOUND_MAXS, COLOR_GREEN, 1, 0.1 ) 
+		DebugDrawBox( downResults.endPos, TESLA_TRAP_BOUND_MINS, TESLA_TRAP_BOUND_MAXS, COLOR_BLUE, 1, 0.1 ) 
+		DebugDrawLine( eyePos + viewVec * min( TESLA_TRAP_PLACEMENT_RANGE_MIN, maxRange ), fwdResults.endPos, COLOR_GREEN, true, 0.1 ) 
+		DebugDrawLine( fwdResults.endPos, eyePos + viewVec * maxRange, COLOR_RED, true, 0.1 ) 
+		DebugDrawLine( fwdResults.endPos, downResults.endPos, COLOR_BLUE, true, 0.1 ) 
+		DebugDrawBox( upResults.endPos, TESLA_TRAP_BOUND_MINS, TESLA_TRAP_BOUND_MAXS, COLOR_CYAN, 1, 0.1 ) 
+		DebugDrawLine( upStart, upResults.endPos, COLOR_CYAN, true, 0.1 ) 
+		DebugDrawLine( roofTraceStart, roofTraceEnd, COLOR_MAGENTA, true, 0.1 ) 
+		DebugDrawLine( player.GetOrigin(), player.GetOrigin() + (AnglesToForward( angles ) * file.balance_teslaTrapRange), COLOR_GREEN, true, 0.1 ) 
+		DebugDrawLine( eyePos + <0, 0, 8>, eyePos + <0, 0, 8> + (viewVec * file.balance_teslaTrapRange), COLOR_GREEN, true, 0.1 ) 
 
-		DebugDrawLine( eyePos + <0, 0, 4>, viewTraceResults.endPos + <0, 0, 4>, COLOR_GREEN, true, 1.0 ) 
+		DebugDrawLine( eyePos + <0, 0, 4>, viewTraceResults.endPos + <0, 0, 4>, COLOR_GREEN, true, 0.1 ) 
 	}
 
 	TeslaTrapPlacementInfo placementInfo = TeslaTrap_GetPlacementInfoFromTraceResults( player, proxy, downResults, upResults, viewTraceResults, ignoreEnts, idealPos )
@@ -805,9 +806,9 @@ TeslaTrapPlacementInfo function TeslaTrap_GetPlacementInfo( entity player, entit
 		fallbackPos = fallbackPos - (viewVec * (Length( TESLA_TRAP_BOUND_MINS )))
 		TraceResults downFallbackResults = TraceHull( fallbackPos, fallbackPos - traceOffset, TESLA_TRAP_BOUND_MINS, TESLA_TRAP_BOUND_MAXS, ignoreEnts, TRACE_MASK_SOLID, TRACE_COLLISION_GROUP_NONE )
 
-		if ( TESLA_TRAP_DEBUG_DRAW_PLACEMENT )
+		if ( TESLA_TRAP_DEBUG_DRAW_PRE_PLACEMENT )
 		{
-			DebugDrawBox( downFallbackResults.endPos, TESLA_TRAP_BOUND_MINS, TESLA_TRAP_BOUND_MAXS, COLOR_RED, 1, 1.0 ) 
+			DebugDrawBox( downFallbackResults.endPos, TESLA_TRAP_BOUND_MINS, TESLA_TRAP_BOUND_MAXS, COLOR_RED, 1, 0.1 ) 
 		}
 
 		placementInfo = TeslaTrap_GetPlacementInfoFromTraceResults( player, proxy, downFallbackResults, upResults, viewTraceResults, ignoreEnts, idealPos )
@@ -1145,6 +1146,12 @@ bool function TelsaTrap_AttemptSnapToNeighbor( entity player, vector origin, Tes
 		if ( focalTrap.GetTeam() != team && trap.GetTeam() != team )
 			continue
 
+		if ( TESLA_TRAP_DEBUG_DRAW_LINKS )
+		{
+			DebugDrawSphere( focalTrap.GetOrigin(), 15, COLOR_PINK, false, 0.1 )
+			DebugDrawText( trap.GetOrigin()+<0,0,8>, VM_NAME()+": link trap ", false, 0.1 )
+			DebugDrawSphere( trap.GetOrigin(), 15, COLOR_PURPLE, false, 0.1 )
+		}
 		if ( distSqr <= closestDist )
 		{
 			closestTrap = trap
@@ -2902,6 +2909,10 @@ void function TeslaTrap_PlacementProxy( entity weapon, entity player, asset mode
 
 
 
+
+
+
+
 entity function TeslaTrap_CalculateFocalTrap( entity player, entity trap )
 {
 	TeslaTrapPlayerPlacementData placementData
@@ -2953,6 +2964,10 @@ entity function TeslaTrap_CalculateFocalTrap( entity player, entity trap )
 	
 	if ( filteredTraps.len() == 0 )
 	{
+		if ( TESLA_TRAP_DEBUG_DRAW_PRE_PLACEMENT )
+		{
+			DebugDrawScreenText( 0.5, 0.4, "TeslaTraps: No focal trap" )
+		}
 		entity focalTrap
 		return focalTrap
 	}
@@ -2974,6 +2989,12 @@ entity function TeslaTrap_CalculateFocalTrap( entity player, entity trap )
 		{
 			linkExcluded++
 		}
+	}
+
+	if ( TESLA_TRAP_DEBUG_DRAW_PRE_PLACEMENT )
+	{
+		if ( IsValid( focalTrap ) )
+			DebugDrawSphere( focalTrap.GetOrigin(), 15, COLOR_PINK, false, 0.1 )
 	}
 
 	
@@ -4359,8 +4380,8 @@ bool function TeslaTrap_CanLink( entity trap, vector trapPos, vector trapUp, ent
 	if ( trap.GetLinkEntArray().len() >= TESLA_TRAP_LINK_COUNT_MAX )
 		return false
 
-	if ( placementInfo.deployLinkState != eDeployLinkFlags.DLF_NONE )
-		return placementInfo.deployLinkState == eDeployLinkFlags.DLF_CAN_LINK
+	if ( placementInfo.deployLinkState == eDeployLinkFlags.DLF_FAIL )
+		return false
 
 	
 	entity otherParent = otherTrap.GetParent()
@@ -4433,10 +4454,10 @@ int function TeslaTrap_GetLinkLOSBeamCount( vector mainOrigin, vector mainUp, ve
 		vector endOffset     = otherOrigin + (otherUp * (TESLA_TRAP_LINK_HEIGHT * i))
 		TraceResults results = TraceLineHighDetail( startOffset, endOffset, ignoreEnts, TESLA_TRAP_TRACE_MASK, TRACE_COLLISION_GROUP_BLOCK_WEAPONS )
 
-		if ( TESLA_TRAP_DEBUG_DRAW )
+		if ( TESLA_TRAP_DEBUG_DRAW_LINKS )
 		{
-			DebugDrawLine( results.endPos, endOffset, COLOR_RED, true, 20.0 )
-			DebugDrawLine( startOffset, results.endPos, COLOR_GREEN, true, 20.0 )
+			DebugDrawLine( results.endPos, endOffset, COLOR_RED, true, 0.1 )
+			DebugDrawLine( startOffset, results.endPos, COLOR_GREEN, true, 0.1 )
 		}
 
 		

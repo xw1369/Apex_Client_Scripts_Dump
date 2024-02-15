@@ -13,15 +13,15 @@ global function GetMineRadius
 
 
 const float SHIELD_MINE_ARMING_TIME = 3
-const float SHIELD_MINE_LIFETIME = 60
+const float SHIELD_MINE_LIFETIME = 45
 const float SHIELD_MINE_DAMAGE_DEBOUNCE_TIME = 1.0
 const float SHIELD_MINE_DAMAGE = 10
-const float SHIELD_MINE_HEALTH = 250
+const float SHIELD_MINE_HEALTH = 200
 const float SHIELD_MINE_LINE_COUNT = 7
 const int SHIELD_MINE_MAX_NUM_PER_PLAYER = 14
 global const string SHIELD_MINE_PROP_SCRIPTNAME = "conduit_shield_mine"
 global const float SHIELD_MINE_RANGE = 200
-const float SHIELD_MINE_MIN_SEPARATION = SHIELD_MINE_RANGE /2
+const float SHIELD_MINE_MIN_SEPARATION = SHIELD_MINE_RANGE * 0.90
 const float SHIELD_MINE_MIN_SEPARATION_SQR = SHIELD_MINE_MIN_SEPARATION * SHIELD_MINE_MIN_SEPARATION
 global const float SHIELD_MINE_AIR_TRAVEL_TIME = 1.25
 global const string SHIELD_MINES_THREAT_PROP_TARGETNAME = "shield_mines_threat"
@@ -169,10 +169,10 @@ float function GetMineRadius( entity owner )
 	float result = SHIELD_MINE_RANGE
 
 
-
-
-
-
+	if( PlayerHasPassive( owner, ePassives.PAS_ULT_UPGRADE_TWO ) ) 
+	{
+		result *= 1.1
+	}
 
 
 	return result
@@ -192,12 +192,12 @@ array<vector> function GenerateMineLocations( entity weapon, vector airBurstLoca
 	int endIndex = 6
 
 
-
-
-
-
-
-
+		entity owner = weapon.GetOwner()
+		if( PlayerHasPassive( owner, ePassives.PAS_ULT_UPGRADE_ONE ) )
+		{
+			radiusMultiple = [-4.0, -3.0, -2, -1, 4.0, 3, 2, 1, 0 ]
+			endIndex = 8
+		}
 
 
 	if ( projectileID != -1 )
@@ -334,6 +334,19 @@ void function OnProjectileCollision_ability_shield_mines_line( entity projectile
 
 	projectile.Destroy()
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

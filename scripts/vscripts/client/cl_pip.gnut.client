@@ -17,7 +17,6 @@ Assert( PIP_INVALID == -1 )
 
 const int PIP_NUM_TOTAL = PIP_NUM_SNAPSHOTS
 
-
 enum ePIPSlotStatus
 {
 	AVAILABLE,
@@ -38,6 +37,13 @@ global struct PIPSlotState
 	bool   hasColorCorrectionAssigned = false
 }
 
+struct CapturedStillPIPInfo
+{
+	string 	name
+	string 	characterRef
+	int		handle
+}
+
 struct
 {
 	
@@ -45,6 +51,7 @@ struct
 
 	bool                isCaptureInProgress = false
 	array<PIPSlotState> captureQueue
+	array<CapturedStillPIPInfo> capturedStillPIPs
 
 	int freeTotalSlotCount = 0
 	int freeMovingSlotCount = 0
@@ -52,6 +59,123 @@ struct
 	table signalDummy
 } file
 
+bool function IsStillPIPCaptureCached( string name )
+{
+	foreach( CapturedStillPIPInfo info in file.capturedStillPIPs )
+	{
+		if ( info.name == name )
+		{
+			if ( GladCardCache_IsGladCardCachedByHandle( info.handle ) )
+			{
+				if ( GladCardCache_Debugging_IsEnabled() )
+				{
+					printf( "#CAPTURE_STREAMS %s() - Cache ready - name: %s; handle: %d; characterRef: %s", FUNC_NAME(), info.name, info.handle, info.characterRef )
+				}
+				return true
+			}
+			else if ( GladCardCache_Debugging_IsEnabled() )
+			{
+				printf( "#CAPTURE_STREAMS %s() - Cache not ready - name: %s; handle: %d; characterRef: %s", FUNC_NAME(), info.name, info.handle, info.characterRef )
+				return false
+			}
+		}
+	}
+	if ( GladCardCache_Debugging_IsEnabled() )
+	{
+		printf( "#CAPTURE_STREAMS %s() - No cache entry - name: " + name, FUNC_NAME() )
+	}
+
+	return false
+}
+
+int function GetCapturedStillPIPCacheHandle( string name )
+{
+	Assert( IsStillPIPCaptureCached( name ), "#CAPTURE_STREAMS Failed to find existing capture stream for name: " + name + "" )
+
+	foreach( CapturedStillPIPInfo info in file.capturedStillPIPs )
+	{
+		if ( info.name == name )
+		{
+			if ( GladCardCache_Debugging_IsEnabled() )
+			{
+				printf( "#CAPTURE_STREAMS %s() Found - name: %s; handle: %d; characterRef: %s", FUNC_NAME(), info.name, info.handle, info.characterRef )
+			}
+
+			return info.handle
+		}
+	}
+
+	return -1
+}
+
+string ornull function GetCapturedStillPIPCacheCharacterName( string name )
+{
+	foreach( CapturedStillPIPInfo info in file.capturedStillPIPs )
+	{
+		if ( info.name == name )
+		{
+			if ( GladCardCache_Debugging_IsEnabled() )
+			{
+				printf( "#CAPTURE_STREAMS %s() Found - name: %s; handle: %d; characterRef: %s", FUNC_NAME(), info.name, info.handle, info.characterRef )
+			}
+
+			return info.characterRef
+		}
+	}
+
+	return null
+}
+
+void function StoreCapturedStillPIPCacheHandle( string name, int handle, string ornull characterRef = null )
+{
+	Assert( !IsStillPIPCaptureCached( name ), "#CAPTURE_STREAMS Unexpectedly found existing capture stream for name: " + name + "" )
+
+	CapturedStillPIPInfo info
+	info.name = name
+	info.handle = handle
+	info.characterRef = characterRef != null ? expect string( characterRef ) : "";
+
+	file.capturedStillPIPs.append( info )
+
+	if ( GladCardCache_Debugging_IsEnabled() )
+	{
+		printf( "#CAPTURE_STREAMS %s() - name: %s; handle: %d; characterRef: %s", FUNC_NAME(), info.name, info.handle, info.characterRef )
+	}
+}
+
+void function RemoveCapturedStillPIPCacheHandle( string name, string reason )
+{
+	foreach( int index, CapturedStillPIPInfo info in file.capturedStillPIPs )
+	{
+		if ( info.name == name )
+		{
+			if ( GladCardCache_Debugging_IsEnabled() )
+			{
+				printf( "#CAPTURE_STREAMS %s() - name: %s; handle: %d; characterRef: %s; reason: %s", FUNC_NAME(), info.name, info.handle, info.characterRef, reason )
+			}
+
+			if ( GladCardCache_IsEnabled() )
+			{
+				GladCardCache_ClearCachedGladCard_ByHandle( info.handle )
+			}
+			file.capturedStillPIPs.remove( index )
+			break
+		}
+	}
+	
+	
+	
+}
+
+void function RemoveAllCapturedStillPIPCacheHandles()
+{
+	if ( GladCardCache_Debugging_IsEnabled() )
+	{
+		printf( "#CAPTURE_STREAMS  %s()", FUNC_NAME() )
+	}
+
+	file.capturedStillPIPs.clear()
+}
 
 void function ClPip_LevelInit()
 {
@@ -70,8 +194,37 @@ void function ClPip_LevelInit()
 		if ( slotState.isUsableForMoving )
 			file.freeMovingSlotCount++
 	}
+
+	AddCallback_GameStateEnter( eGameState.Prematch, OnPrematch )
+	AddCallback_GameStateEnter( eGameState.Postmatch, OnPostMatch )
 }
 
+void function OnPrematch()
+{
+	if( GladCardCache_IsEnabled() )
+	{
+		if ( GladCardCache_Debugging_IsEnabled() )
+		{
+			printf( "#CAPTURE_STREAMS %s() - Pre-rendering PIP still captures of gladcards for all players in the match", FUNC_NAME() )
+		}
+
+		
+	}
+}
+
+void function OnPostMatch()
+{
+	if( GladCardCache_IsEnabled() )
+	{
+		if ( GladCardCache_Debugging_IsEnabled() )
+		{
+			printf( "#CAPTURE_STREAMS %s() -Clearing cache of PIP still captures of gladcards ", FUNC_NAME() )
+		}
+
+		GladCardCache_ClearCache()
+		RemoveAllCapturedStillPIPCacheHandles()
+	}
+}
 
 void function WaitForFreePIP( bool mustBeMoving )
 {
@@ -109,8 +262,7 @@ PIPSlotState function BeginMovingPIP( entity camera, int colorCorrectionLayer = 
 	unreachable
 }
 
-
-void function CaptureStillPIPThenEndMovingPIPThread( PIPSlotState movingSlotState, PIPSlotState ornull[1] outArray_stillSlotState, string ornull cacheName = null, bool allowWaitForStillSlot = false )
+void function CaptureStillPIPThenEndMovingPIPThread( PIPSlotState movingSlotState, PIPSlotState ornull[1] outArray_stillSlotState, string ornull cacheName = null, string ornull characterRef = null, bool allowWaitForStillSlot = false )
 {
 	Assert( movingSlotState.slotIndex != -1 ) 
 	Assert( movingSlotState.isUsableForMoving ) 
@@ -190,14 +342,41 @@ void function CaptureStillPIPThenEndMovingPIPThread( PIPSlotState movingSlotStat
 	stillSlotState.associatedProcessingSlotStateOrNull = movingSlotState
 	movingSlotState.associatedProcessingSlotStateOrNull = stillSlotState
 
-	
-	movingSlotState.camera.QueueMonitorSnapshot( stillSlotState.slotIndex )
+	bool canCache = GladCardCache_IsEnabled() && cacheName != null
+	bool streaming = false
+	if ( canCache )
+	{
+		if ( IsStillPIPCaptureCached( expect string( cacheName ) ) )
+		{
+			string ornull cachedCharacterName = GetCapturedStillPIPCacheCharacterName( expect string( cacheName ) )
+			if ( cachedCharacterName != null && expect string( cachedCharacterName ) != expect string( characterRef ) )
+			{
+				RemoveCapturedStillPIPCacheHandle( expect string( cacheName ), "character changed" )
+			}
+			else
+			{
+				GladCardCache_StreamInGladCard( GetCapturedStillPIPCacheHandle( expect string( cacheName ) ), stillSlotState.slotIndex )
+				streaming = true
+				WaitSignal( stillSlotState, "PIPSnapshotCaptured" )
+			}
+		}
+	}
 
-	if ( cacheName != null )
-		movingSlotState.camera.SetMonitorSnapshotCacheName( expect string( cacheName ) )
+	if ( !streaming )
+	{
+		
+		movingSlotState.camera.QueueMonitorSnapshot( stillSlotState.slotIndex )
 
-	WaitSignal( stillSlotState, "PIPSnapshotCaptured" )
-	
+		if ( canCache )
+		{
+			movingSlotState.camera.SetMonitorSnapshotCacheName( expect string( cacheName ) )
+			StoreCapturedStillPIPCacheHandle( expect string( cacheName ), movingSlotState.camera.GetMonitorSnapShotHandle(), characterRef  )
+		}
+
+		WaitSignal( stillSlotState, "PIPSnapshotCaptured" )
+		
+	}
+
 
 	Assert( stillSlotState.status == ePIPSlotStatus.STILL ) 
 	Assert( movingSlotState.status == ePIPSlotStatus.MOVING ) 

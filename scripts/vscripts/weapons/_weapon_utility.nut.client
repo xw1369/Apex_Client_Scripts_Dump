@@ -179,6 +179,7 @@ global function DisplayCenterDotRui
 
 global function IsTurretWeapon
 global function IsHMGWeapon
+global function IsMeleeWeapon
 
 
 global function GetInfiniteAmmo
@@ -541,6 +542,10 @@ void function WeaponUtility_Init()
 	PrecacheParticleSystem( FX_EMP_REBOOT_SPARKS )
 
 	PrecacheImpactEffectTable( CLUSTER_ROCKET_FX_TABLE )
+
+
+
+
 
 
 
@@ -1918,6 +1923,7 @@ bool function EntityCanHaveStickyEnts( entity stickyEnt, entity ent )
 	
 	
 	
+	
 	string stickyThrowableName = stickyEntWeaponClassName == "" ? stickyEntScriptName : stickyEntWeaponClassName
 	int stickyValue = GetThrowableEntStickinessToEntity( stickyThrowableName, entScriptName )
 	if (  stickyValue != ITEM_NOT_FOUND_STICKINESS )
@@ -1931,6 +1937,10 @@ bool function EntityCanHaveStickyEnts( entity stickyEnt, entity ent )
 		return true
 
 	
+	if ( entClassname == "prop_death_box" && IsEntParentedToObjectOfScriptname( ent, HOVER_VEHICLE_SCRIPTNAME ) )
+		return false
+
+	
 	
 	if ( entScriptName == WRECKING_BALL_BALL_SCRIPT_NAME )
 		return true
@@ -1938,10 +1948,8 @@ bool function EntityCanHaveStickyEnts( entity stickyEnt, entity ent )
 	if ( stickyEntScriptName == RIOT_DRILL_SCRIPT_NAME )
 		return true
 
-
-		if ( stickyEntWeaponClassName == "mp_ability_debuff_zone" && DebuffZone_GetAllowableStickyEnts( ent ) )
-			return true
-
+	if ( stickyEntWeaponClassName == "mp_ability_debuff_zone" && DebuffZone_GetAllowableStickyEnts( ent ) )
+		return true
 
 
 		if( IsForgedShadowsShield( ent ) )
@@ -2010,6 +2018,19 @@ int function GetThrowableEntStickinessToEntity( string stickyThrowableName, stri
 		return file.throwableItemStickinessTable[ stickyThrowableName ][ entScriptName ]
 
 	return ITEM_NOT_FOUND_STICKINESS
+}
+
+bool function IsEntParentedToObjectOfScriptname( entity ent, string scriptname )
+{
+	entity parentEnt = ent.GetParent()
+	while ( IsValid( parentEnt ) )
+	{
+		if ( parentEnt.GetScriptName() == scriptname )
+			return true
+
+		parentEnt = parentEnt.GetParent()
+	}
+	return false
 }
 
 #if DEV
@@ -4960,11 +4981,6 @@ void function PlayDelayedShellEject( entity weapon, float time, int count = 1, b
 
 
 
-
-
-
-
-
 void function UICallback_UpdateLaserSightColor()
 {
 	Remote_ServerCallFunction( "ClientCallback_UpdateLaserSightColor" )
@@ -6232,6 +6248,14 @@ bool function IsHMGWeapon( entity weapon )
 	return ( GetWeaponInfoFileKeyField_GlobalInt_WithDefault( weapon.GetWeaponClassName(), "is_hmg_weapon" , 0 ) == 1 )
 }
 
+bool function IsMeleeWeapon( entity weapon )
+{
+	if( !IsValid( weapon ) || !weapon.IsWeaponX() )
+		return false
+
+	return ( GetWeaponInfoFileKeyField_GlobalInt_WithDefault( weapon.GetWeaponClassName(), "is_Melee_Weapon" , 0 ) == 1 )
+}
+
 bool function IsWeaponSemiAuto( entity weapon )
 {
 	return weapon.GetWeaponSettingBool( eWeaponVar.is_semi_auto )
@@ -6372,6 +6396,9 @@ void function KineticLoaderChokeFunctionality_ServerThink( entity player, entity
 }
 void function KineticLoaderFunctionality_ServerThink( entity player, entity weapon )
 {
+
+
+
 
 
 
@@ -6764,9 +6791,6 @@ bool function GetInfiniteAmmo( entity weapon )
 {
 	return weapon.GetInfiniteAmmoState() != INFINITEAMMO_NONE
 }
-
-
-
 
 
 

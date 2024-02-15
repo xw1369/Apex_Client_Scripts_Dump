@@ -9,6 +9,10 @@ WeaponData
     "shortprintname"							    "#WPN_MOZAM_SNIPER"
     "description" 								    "#WPN_MOZAM_SNIPER_DESC"
 
+               
+                                                    
+                     
+
     "fire_rate"   									"0.9"
 
     "blast_pattern"									""

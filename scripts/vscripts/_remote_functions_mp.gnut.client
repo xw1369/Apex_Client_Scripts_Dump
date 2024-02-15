@@ -11,6 +11,9 @@ global function GetNV_FreefallIsFromPlane
 
 
 
+
+
+
 void function RemoteFunctions_Init_Begin()
 {
 	Remote_BeginRegisteringFunctions()
@@ -288,14 +291,12 @@ void function RemoteFunctions_Init_Begin()
 			SeasonQuest_RegisterNetworking()
 			RespawnBeacons_RegisterNetworking()
 
-
 			if ( IsEventFinale() )
 			{
 				Remote_RegisterClientFunction( "ServerCallback_SetUltimateHudVis", "bool" )
 				Remote_RegisterClientFunction( "ServerCallback_SetTacticalHudVis", "bool" )
 				Remote_RegisterClientFunction( "ServerCallback_SetDpadMenuVis", "int", 0, 8 )
 			}
-
 
 
 
@@ -436,6 +437,9 @@ void function RemoteFunctions_Init_Begin()
 
 
 
+
+			Remote_RegisterUIFunction( "ServerCallback_MilestoneEvent_MilestoneRewardCeremonyIsDue" )
+			Remote_RegisterUIFunction( "ServerCallback_MilestoneEvent_TryDisplayMilestoneRewardCeremonyForAutoOpenPacks" )
 
 
 			if ( IsPrivateMatchLobby() || IsPrivateMatch() )
@@ -606,6 +610,10 @@ void function RemoteFunctions_Init_Begin()
 
 
 
+
+
+
+
 			EvacShip_RegisterNetworking()
 
 
@@ -723,7 +731,7 @@ void function RemoteFunctions_Init_Begin()
 	Remote_RegisterClientFunction( "ServerCallback_ClearDroneTrailFXType", "entity", "int", 0, INT_MAX )
 	Remote_RegisterClientFunction( "ServerCallback_StopLootRollerFX", "int", 0, INT_MAX )
 	Remote_RegisterClientFunction( "ServerCallback_AdDroneSetBillboardVFX", "entity", "int", 0, INT_MAX )
-	Remote_RegisterClientFunction( "ServerCallback_AdDroneKillBillboardVFX", "entity" )
+	Remote_RegisterClientFunction( "ServerCallback_DestroyDroneScreenRUIs", "entity" )
 
 
 
@@ -750,6 +758,10 @@ void function RemoteFunctions_Init_Begin()
 
 
 
+		CrowdNoiseMeter_RegisterNetworking()
+
+
+
 
 
 
@@ -759,6 +771,11 @@ void function RemoteFunctions_Init_Begin()
 
 	Remote_RegisterClientFunction( "ServerCallback_ScoreEventNoEnt", "int", -1, INT_MAX, "int", 0, 1 << eEventDisplayType.len() - 1, "float", 0.0, FLT_MAX, 32 )
 	Remote_RegisterClientFunction( "ServerCallback_ScoreEvent", "int", -1, INT_MAX, "int", 0, 1 << eEventDisplayType.len() - 1, "entity", "float", 0.0, FLT_MAX, 32 )
+
+	Remote_RegisterClientFunction( "ServerCallback_ScoreEventSquadWipe", "int", -1, INT_MAX, "int", 0, 1 << eEventDisplayType.len() - 1, "entity", "int", 0, INT_MAX )
+	Remote_RegisterClientFunction( "ServerCallback_ScoreEventWithXpOverride", "int", -1, INT_MAX, "int", 0, 1 << eEventDisplayType.len() - 1, "float", 0.0, FLT_MAX, 32, "int", 0, INT_MAX, "bool" )
+	Remote_RegisterClientFunction( "ServerCallback_ScoreEventWithXpOverrideAndEntity", "int", -1, INT_MAX, "int", 0, 1 << eEventDisplayType.len() - 1, "float", 0.0, FLT_MAX, 32, "int", 0, INT_MAX, "bool", "entity" )
+
 
 	Remote_RegisterClientFunction( "ServerCallback_PlayConversation", "int", 0, INT_MAX )
 	Remote_RegisterClientFunction( "ServerCallback_PlaySquadConversation", "int", 0, INT_MAX, "int", INT_MIN, INT_MAX, "int", INT_MIN, INT_MAX, "int", INT_MIN, INT_MAX, "int", INT_MIN, INT_MAX ) 
@@ -857,11 +874,13 @@ void function RemoteFunctions_Init_Begin()
 	Remote_RegisterServerFunction( "ClientCallback_SetSeasonalHubButtonClickedSeason" )
 	Remote_RegisterServerFunction( "ClientCallback_MarkCurrencyExpirationPopupAsSeen", "int", INT_MIN, INT_MAX  )
 
-	Remote_RegisterServerFunction( "ClientCallback_SetClubIsMember", "bool" )
-	Remote_RegisterServerFunction( "ClientCallback_SetClubTimelineViewedTime", "int", INT_MIN, INT_MAX )
-	Remote_RegisterServerFunction( "ClientCallback_SetClubChatViewedTime", "int", INT_MIN, INT_MAX )
-	Remote_RegisterServerFunction( "ClientCallback_SetClubAnnouncementViewedTime", "int", INT_MIN, INT_MAX )
-	Remote_RegisterServerFunction( "ClientCallback_SetClubIsPendingApproval", "bool" )
+
+
+
+
+
+
+
 
 	Remote_RegisterServerFunction( "ClientCallback_MarkBattlePassPopupAsSeen", "int", 0, INT_MAX )
 	Remote_RegisterServerFunction( "ClientCallback_MarkBattlePassMilestoneAsSeen", "int", 0, INT_MAX )
@@ -948,9 +967,11 @@ void function RemoteFunctions_Init_Begin()
 
 
 
-	Remote_RegisterUIFunction( CLUBCMD_REPORT_PLACEMENT_ADDPLAYER, "int", 0, INT_MAX )
 
-	Remote_RegisterUIFunction( CLUBCMD_UPDATE_LAST_MATCH_TIME )
+
+
+
+
 
 	Remote_RegisterClientFunction( "ServerCallback_SetWeaponPreviewState", "bool" )
 
@@ -987,6 +1008,14 @@ void function RemoteFunctions_Init_Begin()
 
 
 
+	if ( !IsLobby() )
+	{
+		ClSquadRequeue_RegisterNetworkFunctions()
+		SvSquadRequeue_RegisterNetworkFunctions()
+	}
+
+
+
 		
 		if ( !IsLobby() )
 		{
@@ -1015,9 +1044,12 @@ void function RemoteFunctions_Init_Begin()
 			} )
 
 
+	Remote_RegisterUIFunction( "ServerCallback_GamemodeSelectorInitialize" )
+	Remote_RegisterServerFunction( "ClientCallback_GamemodeSelectorDismiss", "int", INT_MIN, INT_MAX )
 
 
-
+	Remote_RegisterServerFunction( "ClientCallback_RequestPlayerLastRank" )
+	Remote_RegisterClientFunction( "ServerCallback_NotifyPlayerLastRank", "int", INT_MIN, INT_MAX )
 	
 	s_callbackRegistrationIsClosed = true
 	ExecuteSetupCallbacks()
@@ -1058,6 +1090,22 @@ bool function GetNV_FreefallIsFromPlane( entity player )
 {
 	return player.GetPlayerNetBool( "freefallIsFromPlane" )
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

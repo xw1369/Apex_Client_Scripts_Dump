@@ -27,6 +27,11 @@ global float GAS_CLOUD_RADIUS_LARGE		= 375.0
 global float GAS_CLOUD_RADIUS_MEDIUM 	= 282.0
 global float GAS_CLOUD_RADIUS_SMALL 	= 128.0
 
+
+const float GAS_CLOUD_RADIUS_MULTIPLIER_UPGRADE = 1.2
+const float GAS_ENEMY_HIGHLIGHT_TIME_UPGRADE = 5.0
+
+
 global const string POISON_SMOKESCREEN_SCRIPTNAME = "poison_smokescreen"
 
 const float GAS_CLOUD_DOF_FAR_INNER = 32.0
@@ -1271,12 +1276,12 @@ void function GasCloud_StopVisualEffect( entity ent, int statusEffect, bool actu
 void function GasCloud_StopVisualEffect_Thread( entity ent, int statusEffect, bool actuallyChanged )
 {
 
-
-
-
-
-
-
+		
+		
+		if( PlayerHasPassive( GetLocalViewPlayer(), ePassives.PAS_GAS_HIGHLIGHT ) )
+		{
+			Wait( GAS_ENEMY_HIGHLIGHT_TIME_UPGRADE )
+		}
 
 
 	ManageHighlightEntity( ent )

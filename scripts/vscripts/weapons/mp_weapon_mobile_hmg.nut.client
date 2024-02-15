@@ -36,6 +36,9 @@ const string TURRET_WINDDOWN_1P = "weapon_sheilaturret_mobile_winddown_1p"
 const string TURRET_WINDDOWN_3P = "weapon_sheilaturret_winddown_3P"
 const string TURRET_RELOAD_3P = "weapon_sheilaturret_reload_generic_comp_3p"
 const string TURRET_RELOAD_RAMPART_3P = "weapon_sheilaturret_reload_rampart_comp_3p"
+
+const string TURRET_RELOAD_RAMPART_UPGRADE_3P = "weapon_sheilaturret_reload_generic_comp_3p"
+
 const string TURRET_RELOAD = "weapon_sheilaturret_reload_rampart_null"
 const string TURRET_FIRED_LAST_SHOT_1P = "weapon_sheilaturret_lastshot_1p"
 const string TURRET_FIRED_LAST_SHOT_3P = "weapon_sheilaturret_lastshot_3p"
@@ -144,6 +147,9 @@ void function OnWeaponDeactivate_weapon_mobile_hmg( entity weapon )
 	StopSoundOnEntity( weapon, TURRET_WINDDOWN_1P )
 	StopSoundOnEntity( weapon, TURRET_RELOAD_3P )
 	StopSoundOnEntity( weapon, TURRET_RELOAD_RAMPART_3P )
+
+		StopSoundOnEntity( weapon, TURRET_RELOAD_RAMPART_UPGRADE_3P )
+
 
 	entity weaponOwner = weapon.GetOwner()
 
@@ -293,6 +299,17 @@ var function OnWeaponPrimaryAttack_weapon_mobile_hmg( entity weapon, WeaponPrima
 
 void function OnWeaponReload_weapon_mobile_hmg( entity weapon, int milestoneIndex )
 {
+
+
+
+
+
+
+
+
+
+
+
 
 
 

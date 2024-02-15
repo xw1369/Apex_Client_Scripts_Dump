@@ -149,9 +149,29 @@ global struct CupEntry
 	array< int > tierScoreBounds
 }
 
+global struct CupPlayerMMRBucket
+{
+	int cupID
+	int bucket
+}
+
+global struct UserFullCupData
+{
+	array< CupEntry > enteredCups
+	array< CupPlayerMMRBucket > cupPlayerMMRData
+}
+
+global struct CupPlayerInfo
+{
+	string playerUID
+	string hardware
+	string name
+}
+
 global struct CupLeaderboardEntry
 {
 	string squadID
+	array<CupPlayerInfo> squadInfo
 	int squadScore
 	array<CupMatchSummary> matchHistoryData
 	table<string, int> squadCalculatedStatTotals
@@ -178,6 +198,7 @@ global struct CommunityUserInfo
 	string hardware
 	string uid
 	string name
+	string tag
 	string kills
 	int wins
 	int matches
@@ -185,7 +206,6 @@ global struct CommunityUserInfo
 	int banSeconds
 	int eliteStreak
 	int rankScore
-	int rankedBankedDays
 	string rankedPeriodName
 	int rankedLadderPos
 	int lastCharIdx
@@ -208,7 +228,7 @@ global struct PartyMember
 	bool ready
 	bool present
 	string eaid
-	string clubTag
+	string tag
 	int boostCount
 	string unspoofedHardware
 	string unspoofedUID
@@ -545,6 +565,14 @@ global struct OpticAppearanceOverride
 	array<string>	uiDataNames
 }
 
+
+global struct ArtifactViewmodelData
+{
+	int bladeGUID
+	int powerSourceGUID
+}
+
+
 global struct ConsumableInventoryItem
 {
 	int slot
@@ -746,7 +774,7 @@ global struct CustomMatch_LobbyPlayer
 	string firstPartyID
 	string hardware
 	string name
-	string clubTag
+	string tag
 	bool isAdmin = false
 	int team = 1
 	int flags = 0
@@ -783,7 +811,7 @@ global struct CustomMatch_MatchPlayer
 	string uid
 	string hardware
 	string name
-	string clubTag
+	string tag
 	string character
 	int status
 	int kills
@@ -1020,6 +1048,17 @@ global struct UMData
 	string triggerId
 	string triggerName
 	array<UMAction> actions
+}
+
+
+
+global struct ChallengeDebugDataStruct 
+{
+	int guid
+	int category
+	bool complete
+	string ref
+	string debugInfo
 }
 
 

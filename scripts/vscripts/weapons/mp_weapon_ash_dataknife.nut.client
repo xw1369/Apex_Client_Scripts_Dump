@@ -21,7 +21,7 @@ global function DeathboxNetwork_UntrackBoxTargets
 global function DeathboxNetwork_UntrackIfTracking
 
 
-
+global function DeathboxNetwork_ServerToClient_TrackTargetOverTime
 
 
 global function DeathboxNetwork_ServerToClient_ForceUsable  
@@ -110,7 +110,7 @@ void function MpWeaponAshDataknife_Init()
 		Remote_RegisterServerFunction( FUNCNAME_PingDeathboxFromMap, "typed_entity", "prop_death_box" )
 		Remote_RegisterClientFunction( FUNCNAME_DevForceUsable )
 
-
+		Remote_RegisterClientFunction( "DeathboxNetwork_ServerToClient_TrackTargetOverTime", "entity", "int", 0, ABSOLUTE_MAX_TEAMS )
 
 
 
@@ -722,98 +722,98 @@ bool function PlayerIsLinkedToDeathbox( entity player, entity deathbox )
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+void function DeathboxNetwork_ServerToClient_TrackTargetOverTime( entity deathbox, int targetTeam )
+{
+	thread DeathboxNetwork_ServerToClient_TrackTargetOverTime_Thread( deathbox, targetTeam )
+}
+
+void function DeathboxNetwork_ServerToClient_TrackTargetOverTime_Thread( entity deathbox, int targetTeam )
+{
+	entity player = GetLocalViewPlayer()
+	array<entity> targetArray = GetPlayerArrayOfTeam_Alive( targetTeam )
+
+	float scanDuration = 60.0
+	float endTime = Time() + scanDuration
+	float fadeStartTime = Time() + 2.0
+	float fadeEndTime = Time() + 2.5
+
+	array<var> fullMapRuis
+	array<var> minimapRuis
+	array<entity> entsForTracking
+
+	OnThreadEnd(
+		function() : ( fullMapRuis, minimapRuis )
+		{
+			foreach( var ruiToDestroy in fullMapRuis )
+			{
+				Fullmap_RemoveRui( ruiToDestroy )
+				RuiDestroyIfAlive( ruiToDestroy )
+			}
+
+			foreach( var ruiToDestroy in minimapRuis)
+			{
+				Minimap_CommonCleanup( ruiToDestroy )
+			}
+		}
+	)
+
+	if( IsValid( deathbox ) )
+	{
+		vector pulseOrigin = deathbox.GetOrigin()
+		FullMap_PlayCryptoPulseSequence( pulseOrigin, true, 60.0 )
+	}
+
+	while ( Time() < endTime ) 
+	{
+		foreach( var ruiToDestroy in fullMapRuis )
+		{
+			Fullmap_RemoveRui( ruiToDestroy )
+			RuiDestroyIfAlive( ruiToDestroy )
+		}
+
+		foreach( var ruiToDestroy in minimapRuis)
+		{
+			Minimap_CommonCleanup( ruiToDestroy )
+		}
+		fullMapRuis.clear()
+		minimapRuis.clear()
+
+		foreach( entity enemy in targetArray )
+		{
+			if ( !IsValid( enemy ) )
+				continue
+
+
+
+
+
+			
+			var fRui = FullMap_AddEnemyLocation( enemy )
+			fullMapRuis.append( fRui )
+
+			
+			var mRui = Minimap_AddEnemyToMinimap( enemy )
+			minimapRuis.append( mRui )
+		}
+
+		Wait( 2.0 )
+
+		float curTime = Time()
+
+		foreach( var rui in fullMapRuis )
+		{
+			RuiSetGameTime( rui, "fadeOutEndTime", curTime + .5 )
+		}
+
+		foreach( var rui in minimapRuis)
+		{
+			RuiSetGameTime( rui, "fadeStartTime", curTime )
+			RuiSetGameTime( rui, "fadeEndTime", curTime + .5 )
+		}
+
+		Wait( 1.0 )
+	}
+}
 
 
 void function DeathboxNetwork_ServerToClient_ForceUsable()

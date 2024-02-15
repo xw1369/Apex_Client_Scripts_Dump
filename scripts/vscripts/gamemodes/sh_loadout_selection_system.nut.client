@@ -29,6 +29,7 @@ global function LoadoutSelection_Init
 
 
 global function LoadoutSelection_RegisterNetworking
+global function LoadoutSelection_GetWeaponLootTierForMenu
 
 
 
@@ -128,7 +129,8 @@ const asset TDM_SWAT_ROTATIONS_DATATABLE = $"datatable/gamemode_tdm_swat_loadout
 const asset TDM_SWAT_LOADOUTS_DATATABLE = $"datatable/gamemode_tdm_swat_selectable_loadouts.rpak"
 
 
-global const string NETVAR_LOADOUT_CURRENT_ROTATION_INDEX_NAME = "loadoutCurrentRotationIndex"
+global const string NETVAR_LOADOUT_CURRENT_MANUAL_ROTATION_INDEX_NAME = "manualLoadoutCurrentRotationIndex" 
+global const string NETVAR_TIME_SINCE_EVENT_STARTED_NAME = "timeSinceEventStarted" 
 
 const array<string> LOADOUTSELECTION_WEAPON_SET_STRINGS_FOR_TIER = [ WEAPON_LOCKEDSET_SUFFIX_WHITESET, WEAPON_LOCKEDSET_SUFFIX_WHITESET, WEAPON_LOCKEDSET_SUFFIX_BLUESET, WEAPON_LOCKEDSET_SUFFIX_PURPLESET, WEAPON_LOCKEDSET_SUFFIX_GOLD ]
 
@@ -236,7 +238,6 @@ struct {
 
 
 
-		int matchStartTime
 		asset rotationsDatatable = LOADOUTSELECTION_ROTATIONS_DATATABLE
 		asset loadoutsDatatable = LOADOUTSELECTION_LOADOUTS_DATATABLE
 		table<int, LoadoutSelectionCategory > loadoutSlotIndexToCategoryDataTable
@@ -284,7 +285,7 @@ void function LoadoutSelection_Init()
 
 		LoadoutSelection_RegisterLoadoutData()
 		LoadoutSelection_RegisterLoadoutDistribution()
-		file.matchStartTime = GetUnixTimestamp()
+
 
 
 
@@ -374,7 +375,8 @@ void function LoadoutSelection_RegisterNetworking()
 	Remote_RegisterServerFunction( "ClientCallback_LoadoutSelection_OnLoadoutSelectMenuLoadoutSelected", "int", 0, LOADOUTSELECTION_MAX_TOTAL_LOADOUT_SLOTS + 1 )
 	Remote_RegisterServerFunction( "ClientCallback_LoadoutSelection_SetOpticPreference", "int", 0, LOADOUTSELECTION_MAX_TOTAL_LOADOUT_SLOTS + 1, "int", 0, 2, "int", 0, LOADOUTSELECTION_MAX_SCOPE_INDEX + 1 )
 
-	RegisterNetworkedVariable( NETVAR_LOADOUT_CURRENT_ROTATION_INDEX_NAME, SNDC_GLOBAL, SNVT_INT, 0)
+	RegisterNetworkedVariable( NETVAR_LOADOUT_CURRENT_MANUAL_ROTATION_INDEX_NAME, SNDC_GLOBAL, SNVT_INT, 0)
+	RegisterNetworkedVariable( NETVAR_TIME_SINCE_EVENT_STARTED_NAME, SNDC_GLOBAL, SNVT_BIG_INT, 0)
 }
 
 
@@ -1029,7 +1031,7 @@ LoadoutSelectionLoadoutContents function LoadoutSelection_GenerateLoadoutByLoado
 {
 	Assert( loadoutIndex in file.loadoutSlotIndexToCategoryDataTable, "Running LoadoutSelection_GenerateLoadoutByLoadoutSlot and " + loadoutIndex + " is not a key for the file.loadoutSlotIndexToCategoryDataTable table" )
 	LoadoutSelectionCategory loadoutCategory = file.loadoutSlotIndexToCategoryDataTable[ loadoutIndex ]
-	loadoutCategory.activeLoadoutName        = LoadoutSelection_GetActiveLoadoutForCategory( loadoutCategory )
+	loadoutCategory.activeLoadoutName = LoadoutSelection_GetActiveLoadoutForCategory( loadoutCategory )
 
 	LoadoutSelectionLoadoutContents loadout
 	loadout = loadoutCategory.loadoutContentsByNameTable[ loadoutCategory.activeLoadoutName ]
@@ -1175,10 +1177,9 @@ string function LoadoutSelection_GetWeaponRefByIndex( int loadoutIndex, int weap
 
 
 
-int function LoadoutSelection_GetWeaponLootTierForMenu( string weaponRef )
+int function LoadoutSelection_GetWeaponLootTierForMenu( LootData data )
 {
-	LootData data = SURVIVAL_Loot_GetLootDataByRef( weaponRef )
-	bool isLockedSet = data.baseMods.contains( "crate" ) || SURVIVAL_Weapon_IsAttachmentLocked( weaponRef )
+	bool isLockedSet = data.baseMods.contains( "crate" ) || SURVIVAL_Weapon_IsAttachmentLocked( data.ref ) || data.baseMods.contains( "hopup_april_fools_light" ) || data.baseMods.contains( "hopup_april_fools_heavy" ) || data.baseMods.contains( "hopup_april_fools_sniper" ) || data.baseMods.contains( "hopup_april_fools_energy" )
 	return isLockedSet ? data.tier : 0
 }
 
@@ -1272,6 +1273,26 @@ int function LoadoutSelection_GetSelectedLoadoutSlotIndex_CL_UI()
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 void function LoadoutSelection_RepopulateLoadouts()
 {
 	file.areLoadoutsPopulated = false
@@ -1305,12 +1326,15 @@ string function LoadoutSelection_GetActiveLoadoutForCategory( LoadoutSelectionCa
 
 	if ( loadoutRotation == eLoadoutSelectionRotationStyle.MANUAL )
 	{
-		int indexToUse = GetGlobalNetInt( NETVAR_LOADOUT_CURRENT_ROTATION_INDEX_NAME )
+		int indexToUse = GetGlobalNetInt( NETVAR_LOADOUT_CURRENT_MANUAL_ROTATION_INDEX_NAME )
 		while (indexToUse >= loadoutCategory.loadoutContentNames.len())
 			indexToUse -= loadoutCategory.loadoutContentNames.len()
 
 		if ( indexToUse < 0 )
 			indexToUse = 0
+
+		if ( LoadoutSelection_ShouldAvoidDuplicateWeaponsInLoadoutRotation() )
+			indexToUse = LoadoutSelection_GetLoadoutForCategoryWithoutDupeWeapons( indexToUse, loadoutCategory )
 
 #if DEV
 			printt( "LOADOUT SELECTION: loadout rotation is set to manual, using loadout index: " + indexToUse + " for category: " + loadoutCategory.loadoutSlot )
@@ -1327,7 +1351,7 @@ string function LoadoutSelection_GetActiveLoadoutForCategory( LoadoutSelectionCa
 		rotationIndex = loadoutCategory.loadoutContentNames.len() - 1
 
 		
-		if ( loadoutCategory.loadoutContentNames.len() > 1 )
+		if ( loadoutCategory.loadoutContentNames.len() > 1 && LoadoutSelection_ShouldAvoidDuplicateWeaponsInLoadoutRotation() )
 			rotationIndex = LoadoutSelection_GetLoadoutForCategoryWithoutDupeWeapons( rotationIndex, loadoutCategory )
 
 #if DEV
@@ -1338,14 +1362,7 @@ string function LoadoutSelection_GetActiveLoadoutForCategory( LoadoutSelectionCa
 	}
 
 	
-	string unixTimeEventStartString = GetCurrentPlaylistVarString( "loadoutselection_rotation_start", "2021-07-21 10:00:00 -08:00" )
-	int unixTimeNow = file.matchStartTime
-
-	int ornull unixTimeEventStart = DateTimeStringToUnixTimestamp( unixTimeEventStartString )
-	Assert( unixTimeEventStart != null, format( "Bad format in playlist for setting 'loadoutselection_rotation_start': '%s'", unixTimeEventStartString ) )
-	expect int( unixTimeEventStart )
-
-	int unixTimeSinceEventStarted = ( unixTimeNow - unixTimeEventStart )
+	int unixTimeSinceEventStarted = GetGlobalNetInt( NETVAR_TIME_SINCE_EVENT_STARTED_NAME )
 	int hourQuartersSinceEventStarted = int( floor( unixTimeSinceEventStarted / ( SECONDS_PER_HOUR * 0.25 ) ) )
 	int hoursSinceEventStarted = int( floor( unixTimeSinceEventStarted / SECONDS_PER_HOUR ) )
 	int daysSinceEventStarted =  int( floor( unixTimeSinceEventStarted / SECONDS_PER_DAY ) )
@@ -1381,6 +1398,8 @@ string function LoadoutSelection_GetActiveLoadoutForCategory( LoadoutSelectionCa
 
 	return loadoutCategory.loadoutContentNames[ rotationIndex ]
 }
+
+
 
 
 int function LoadoutSelection_GetLoadoutForCategoryWithoutDupeWeapons( int startingRotationIndex, LoadoutSelectionCategory loadoutCategory )
@@ -1468,7 +1487,6 @@ int function LoadoutSelection_GetLoadoutForCategoryWithoutDupeWeapons( int start
 	
 	return rotationIndex
 }
-
 
 
 
@@ -1985,7 +2003,7 @@ void function LoadoutSelection_BindWeaponButton_Thread( entity player, var eleme
 					if ( SURVIVAL_Loot_IsRefValid( item.ref ) )
 					{
 						LootData data = SURVIVAL_Loot_GetLootDataByRef( item.ref )
-						int lootTier = LoadoutSelection_GetWeaponLootTierForMenu( item.ref )
+						int lootTier = LoadoutSelection_GetWeaponLootTierForMenu( data )
 						LoadoutSelection_AttemptToSetValueInRuiIntTable( "lootTier", ruiIntNameToIntTable, lootTier )
 
 						if ( data.lootType == eLootType.MAINWEAPON )
@@ -2328,7 +2346,10 @@ int function LoadoutSelection_GetWeaponLootTeir( int loadoutIndex, int weaponInd
 	}
 
 	if ( SURVIVAL_Loot_IsRefValid( item.ref ) )
-		lootTier = LoadoutSelection_GetWeaponLootTierForMenu( item.ref )
+	{
+		LootData data = SURVIVAL_Loot_GetLootDataByRef( item.ref )
+		lootTier = LoadoutSelection_GetWeaponLootTierForMenu( data )
+	}
 
 	return lootTier
 }
@@ -2379,7 +2400,7 @@ void function UICallback_LoadoutSelection_BindWeaponElement( var element, int se
 	if ( SURVIVAL_Loot_IsRefValid( item.ref ) )
 	{
 		LootData data = SURVIVAL_Loot_GetLootDataByRef( item.ref )
-		int lootTier = LoadoutSelection_GetWeaponLootTierForMenu( item.ref )
+		int lootTier = LoadoutSelection_GetWeaponLootTierForMenu( data )
 		RuiSetInt( rui, "lootTier", lootTier )
 		if ( data.lootType == eLootType.MAINWEAPON )
 		{

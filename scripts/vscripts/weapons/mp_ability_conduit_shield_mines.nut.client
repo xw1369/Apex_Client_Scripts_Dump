@@ -184,7 +184,13 @@ var function OnWeaponPrimaryAttack_ability_shield_mines( entity weapon, WeaponPr
 	}
 	else if ( attackParams.burstIndex == 1 )
 	{
-		impactPos = file.cachedImpactPos[weaponOwner]
+		if ( weaponOwner in file.cachedImpactPos )
+			impactPos = file.cachedImpactPos[weaponOwner]
+		else
+		{
+			ReportNonFatalErrorMsg( "Conduit Ult - somehow firing the second projectile without a cached impact position from the first one." )
+			impactPos = GetFinalImpactPos( weapon, weaponOwner )
+		}
 	}
 
 	TraceResults trUp = TraceLine( impactPos, impactPos + <0,0,SHIELD_MINE_AIRBURST_HEIGHT>, [ weaponOwner ], TRACE_MASK_GRENADE, TRACE_COLLISION_GROUP_PROJECTILE )
@@ -383,8 +389,8 @@ void function WeaponArcPreviewThread_Client( entity owner, entity weapon )
 	array<int> sideMarkerHandles
 	int maxMarkers = 6
 
-
-
+	if( PlayerHasPassive( owner, ePassives.PAS_ULT_UPGRADE_ONE ) )
+		maxMarkers = 8
 
 	for (int i=0; i<maxMarkers; ++i )
 	{
@@ -730,10 +736,10 @@ vector function GetFinalImpactPos( entity weapon, entity player, bool DEBUG_DRAW
 }
 
 
-
-
-
-
+float function GetShieldMineUpgradedRangeScaler()
+{
+	return GetCurrentPlaylistVarFloat( "upgrade_shield_min_range_scaler", 1.15 )
+}
 
 
 float function GetShieldMineMaxRange( entity player )
@@ -741,10 +747,10 @@ float function GetShieldMineMaxRange( entity player )
 	float result = SHIELD_MINE_MAX_ATTACK_RANGE
 
 
-
-
-
-
+	if( PlayerHasPassive( player, ePassives.PAS_ULT_UPGRADE_ONE ) )
+	{
+		result *= GetShieldMineUpgradedRangeScaler()
+	}
 
 
 	return result

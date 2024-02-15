@@ -1591,7 +1591,6 @@ ItemFlavor function DEV_BattlePass( EHI playerEHI = EHI_null )
 
 
 
-
 int function GetPlayerBattlePassPurchasableLevels( EHI playerEHI, ItemFlavor pass )
 {
 	int currentLevel      = GetPlayerBattlePassLevel( FromEHI( playerEHI ), pass, false )

@@ -39,7 +39,7 @@ ImpactTable
 		"2" "xo_footstep_concrete"
 		"3" "xo_footstep_concrete"
 		"4" "xo_footstep_concrete"
-		"5" "P_impact_exp_med_water" //water_hrz
+		"5" "xo_footstep_metal" //water_hrz
 		"6" "xo_footstep_concrete"
 		"7" "xo_footstep_concrete"
 		"8" "xo_footstep_concrete"

@@ -319,42 +319,42 @@ WeaponData
            
 
                             
-                                           
-         
-                                         
-                                         
-                                         
-                                        
-                                         
-         
-                                                        
-         
+        upgrade_core_tac_cooldown_reduction
+        {
+            "ammo_clip_size"   	    "300"
+            "ammo_default_total"    "300"
+            "ammo_stockpile_max"    "300"
+            "ammo_min_to_fire"	    "150"
+            "ammo_per_shot"         "150"
+        }
+        upgrade_core_fuse_pas_free_grenade_on_ult_charge
+        {
 
-         
-                                       
-         
+        }
+        upgrade_core_ordnance_highlight
+        {
 
-         
+        }
 
-                                                  
-         
+        upgrade_core_fuse_pas_double_explosive_evo
+        {
 
-         
+        }
 
-                                            
-         
+        upgrade_core_fuse_pas_only_arc_stars
+        {
 
-         
+        }
 
-                                                     
-         
+        upgrade_core_fuse_pas_reduce_explosive_damage
+        {
 
-         
+        }
 
-                                                       
-         
+        upgrade_core_fuse_pas_explosive_dmg_speed_boost
+        {
 
-         
+        }
               
 	}
 

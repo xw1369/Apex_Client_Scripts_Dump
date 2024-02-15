@@ -10,6 +10,7 @@ global function WeaponSkin_GetSkinName
 global function WeaponSkin_GetCamoIndex
 global function WeaponSkin_GetHackyRUISchemeIdentifier
 global function WeaponSkin_DoesReactToKills
+global function WeaponSkin_ShouldDisplayVideoOnInspect
 global function WeaponSkin_GetReactToKillsLevelCount
 global function WeaponSkin_GetReactToKillsDataForLevel
 global function WeaponSkin_GetSortOrdinal
@@ -590,6 +591,12 @@ bool function WeaponSkin_DoesReactToKills( ItemFlavor flavor )
 	return GetGlobalSettingsBool( ItemFlavor_GetAsset( flavor ), "featureReactsToKills" )
 }
 
+bool function WeaponSkin_ShouldDisplayVideoOnInspect( ItemFlavor flavor )
+{
+	Assert( ItemFlavor_GetType( flavor ) == eItemType.weapon_skin )
+
+	return GetGlobalSettingsBool( ItemFlavor_GetAsset( flavor ), "forceVideoInspect" )
+}
 
 int function WeaponSkin_GetReactToKillsLevelCount( ItemFlavor flavor )
 {

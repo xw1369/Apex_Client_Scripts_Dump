@@ -318,6 +318,11 @@ void function ClientCodeCallback_HUDThink()
 		PerfStart( PerfIndexClient.HUDThink_6 )
 		SmartAmmo_LockedOntoWarningHUD_Update()
 		PerfEnd( PerfIndexClient.HUDThink_6 )
+
+
+		PerfStart( PerfIndexClient.HUDThink_7 )
+		ClRingWarning_Update()
+		PerfEnd( PerfIndexClient.HUDThink_7 )
 	}
 
 	PerfEnd( PerfIndexClient.HUDThink )
@@ -580,13 +585,13 @@ void function ClientCodeCallback_PlayerDidDamage( PlayerDidDamageParams params )
 	else if ( isOvershieldShot )
 	{
 
-
-
-
-
-
-
-
+		if( GetPlayerExtraShields( victim ) > 0 )
+		{
+			vector armorColor = GetFXRarityColorForTier( GetPlayerExtraShieldsTier( victim ) )
+			PlayShieldHitEffect( params, armorColor )
+			showCrosshairHitIndicator = true
+		}
+		else
 
 		{
 			PlayShieldHitEffect( params, TEMPSHIELD_COLOR )
@@ -1783,8 +1788,6 @@ string function GetPlayerDeathSound1P()
 void function PlayLocal1PDeathSound()
 {
 	var soundHandle = EmitSoundOnEntity( GetLocalClientPlayer(), GetPlayerDeathSound1P() )
-	SetPlayThroughPOVTransitions( soundHandle )
-	SetPlayThroughKillReplay( soundHandle ) 
 }
 
 

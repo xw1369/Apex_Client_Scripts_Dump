@@ -235,19 +235,19 @@ WeaponData
 	Mods
 	{
 
-                      
-                 
-   
-                                                  
-   
+		                    
+		upgrade_ult_one
+		{
+			"projectile_launch_speed"               "*1.15"
+		}
 
-                 
-   
-                                   
-                                            
-                                          
-                                        
-   
+		upgrade_ult_two
+		{
+			"ammo_clip_size"				    			"120"
+            "ammo_stockpile_max"							"120"
+            "ammo_min_to_fire"								"60"
+            "ammo_per_shot"									"60"
+		}
         
 	}
 

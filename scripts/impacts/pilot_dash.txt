@@ -39,7 +39,7 @@ ImpactTable
 		"2" "P_pilot_dash_imp_lava_nodecal" //lava_rock_hot
 		"3" "P_pilot_dash_imp_dust" //unused
 		"4" "P_pilot_dash_imp_dust" //unused
-		"5" "P_pilot_dash_imp_water" //unused
+		"5" "P_pilot_dash_imp_dust" //unused
 		"6" "P_pilot_dash_imp_dust" //unused
 		"7" "P_pilot_dash_imp_dust" //unused
 		"8" "P_pilot_dash_imp_dust" //unused

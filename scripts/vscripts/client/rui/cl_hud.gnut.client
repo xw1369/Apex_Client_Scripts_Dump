@@ -3,6 +3,11 @@ global function DamageFlyout
 
 global function ServerCallback_ScoreEvent
 global function ServerCallback_ScoreEventNoEnt
+
+global function ServerCallback_ScoreEventSquadWipe
+global function ServerCallback_ScoreEventWithXpOverride
+global function ServerCallback_ScoreEventWithXpOverrideAndEntity
+
 global function ScoreEvents_SetEnabled
 global function AddGenericQueueMessage
 global function AddScoreEventMessage
@@ -185,7 +190,9 @@ void function QueueMessageThink()
 		if ( GetScoreMessageRuiAssetForMode() != $"" )
 			ruiAsset = GetScoreMessageRuiAssetForMode()
 		else if ( messageData.messageScale > 1.0 )
+		{
 			ruiAsset = $"ui/centerevent_info.rpak"
+		}
 		else
 			ruiAsset = $"ui/pickup_info.rpak"
 
@@ -300,12 +307,12 @@ void function DamageFlyout( float damageAmount, vector damagePosition, entity vi
 	bool isStructure 	  = false
 	bool isShadowForm	  = false
 
-
-
-
-
-
-
+	bool isExtraShieldShot = false
+	if( isOvershieldShot && GetPlayerExtraShields( victim ) > 0  )
+	{
+		isExtraShieldShot = true
+		isOvershieldShot = false
+	}
 
 
 	int sortKey = (file.lastSortKey++) % 100
@@ -317,7 +324,7 @@ void function DamageFlyout( float damageAmount, vector damagePosition, entity vi
 	float shieldFrac = -1.0
 	if ( isShieldShot || isShieldBreak || isOvershieldShot || hitType == eHitType.ARMOR
 
-
+		|| isExtraShieldShot
 
 		)
 	{
@@ -327,7 +334,11 @@ void function DamageFlyout( float damageAmount, vector damagePosition, entity vi
 			shieldIcon = shieldData.hudIcon
 			shieldLevel = shieldData.tier
 
-
+			if( UpgradeCore_IsEquipmentArmorCore( shieldData.ref ) )
+			{
+				shieldIcon = $"rui/hud/loot/loot_armor_upgrade"
+				shieldLevel = UpgradeCore_GetPlayerArmorTier( victim, false )
+			}
 
 		}
 
@@ -480,15 +491,15 @@ void function DamageFlyout( float damageAmount, vector damagePosition, entity vi
 			RuiSetImage( rui, "shieldStatusIcon", $"" )
 
 
-
-
-
-
-
-
-
-
-
+		if( isExtraShieldShot )
+		{
+			vector armorColor = GetFXRarityColorForTier( GetPlayerExtraShieldsTier( victim ) ) / 255.0
+			RuiSetColorAlpha( rui, "shieldBorderColor", armorColor, 1.0 )
+		}
+		else
+		{
+			RuiSetColorAlpha( rui, "shieldBorderColor", <0.0,0.0,0.0>, 0.0 )
+		}
 
 
 
@@ -578,15 +589,15 @@ void function DamageFlyout( float damageAmount, vector damagePosition, entity vi
 		RuiSetBool( stackingRui, "isStructure", isStructure )
 
 
-
-
-
-
-
-
-
-
-
+		if( isExtraShieldShot )
+		{
+			vector armorColor = GetFXRarityColorForTier( GetPlayerExtraShieldsTier( victim ) ) / 255.0
+			RuiSetColorAlpha( stackingRui, "shieldBorderColor", armorColor, 1.0 )
+		}
+		else
+		{
+			RuiSetColorAlpha( stackingRui, "shieldBorderColor", <0.0,0.0,0.0>, 0.0 )
+		}
 
 
 
@@ -737,6 +748,91 @@ int function GetArmorLevelFromDamageFlags( int damageFlags )
 	return 0
 }
 
+
+void function ServerCallback_ScoreEventSquadWipe( int scoreEventId, int displayType, entity associatedEntity, int killAssistBitFlag )
+{
+	if ( !file.scoreEventsEnabled )
+		return
+
+	ScoreEvent scoreEvent = ScoreEvent_FromId( scoreEventId )
+	string eventText = ScoreEvent_GetSplashText( scoreEvent )
+
+	entity player = GetLocalClientPlayer()
+
+	eventText = GetFormattedEventText( scoreEvent, 0, associatedEntity, 0, 0 )
+
+	if( scoreEvent.xpValue > 0 )
+	{
+		string imageStr = scoreEvent.isTeamXp ? "%$rui/hud/common/squad_trios%" : "%$rui/hud/common/squad_solo%"
+		eventText += "`0 + " + scoreEvent.xpValue + " " + imageStr
+	}
+	if( ScoreEvent_GetEventName( scoreEvent ) == "Sur_SquadWipe" && IsValid( associatedEntity ) )
+	{
+		eventText += "\n ( "
+		array<entity> teammates = GetPlayerArrayOfTeam( associatedEntity.GetTeam() )
+		bool shouldAddComma = false
+		for( int i=0; i < teammates.len(); i++ )
+		{
+			if( teammates[i] != associatedEntity && !IsAlive( teammates[i] ) )
+				continue
+			if( shouldAddComma )
+			{
+				eventText += ", "
+			}
+			else
+			{
+				shouldAddComma = true
+			}
+			entity teammate = teammates[i]
+			bool isKillingPlayer = ( killAssistBitFlag & ( 1 << i ) ) > 0
+			if( isKillingPlayer )
+				eventText += "%$rui/hud/gamestate/player_kills_icon% `1"
+			else
+			{
+				bool isAssistingPlayer = ( killAssistBitFlag & ( 1 << ( i + teammates.len() ) ) ) > 0
+				if( isAssistingPlayer )
+				{
+					eventText += "%$rui/hud/gamestate/assist_count_icon2%"
+				}
+			}
+			eventText += GetDisplayablePlayerNameFromEHI( ToEHI( teammate ) ) + "`0"
+		}
+		eventText += " ) "
+	}
+
+
+	MessageData messageData
+	messageData.scoreEventId = ScoreEvent_GetEventId( scoreEvent )
+	messageData.scoreEventValue = 0
+	messageData.messageText = eventText
+	messageData.messageScale = 1.51
+
+	if ( !IsBitFlagSet( displayType, eEventDisplayType.BIG ) )
+		return
+
+	file.pendingEventQueue.append( messageData )
+
+	if ( file.eventQueueActive )
+		return
+
+	thread QueueMessageThink()
+}
+
+void function ServerCallback_ScoreEventWithXpOverride( int scoreEventId, int displayType, float valueA, int xpOverride, bool isTeam )
+{
+	ScoreEvent scoreEvent = ScoreEvent_FromId( scoreEventId )
+	ScoreEvent_SetXpValue( scoreEvent, xpOverride, isTeam )
+	ServerCallback_ScoreEvent( scoreEventId, displayType, null, valueA )
+}
+
+void function ServerCallback_ScoreEventWithXpOverrideAndEntity( int scoreEventId, int displayType, float valueA, int xpOverride, bool isTeam, entity associatedEntity )
+{
+	ScoreEvent scoreEvent = ScoreEvent_FromId( scoreEventId )
+	ScoreEvent_SetXpValue( scoreEvent, xpOverride, isTeam )
+	ServerCallback_ScoreEvent( scoreEventId, displayType, associatedEntity, valueA )
+}
+
+
 void function ServerCallback_ScoreEventNoEnt( int scoreEventId, int displayType, float valueA )
 {
 	ServerCallback_ScoreEvent( scoreEventId, displayType, null, valueA )
@@ -765,6 +861,41 @@ void function AddScoreEventMessage( ScoreEvent scoreEvent, entity associatedEnti
 	entity player = GetLocalClientPlayer()
 
 	eventText = GetFormattedEventText( scoreEvent, pointValue, associatedEntity, earnedValue, ownedValue )
+
+
+	if( UpgradeCore_UsePersonalObituaryNotifications() )
+	{
+		if( scoreEvent.xpValue > 0 )
+		{
+			string imageStr = scoreEvent.isTeamXp ? "%$rui/hud/common/squad_trios%" : "%$rui/hud/common/squad_solo%"
+			eventText += "`0 + " + scoreEvent.xpValue + " " + imageStr
+		}
+		if( ScoreEvent_GetEventName( scoreEvent ) == "Sur_DownedPilot" )
+		{
+			eventText += "\n" + Localize( "#SCORE_EVENT_SUR_DOWNED_PILOT_DAMAGE_INFLICTED", earnedValue )
+		}
+		else if( ScoreEvent_GetEventName( scoreEvent ) == "Sur_SquadWipe" && IsValid( associatedEntity ) )
+		{
+			int bitFlag = int( earnedValue )
+			eventText += "\n ( "
+			array<entity> teammates = GetPlayerArrayOfTeam( associatedEntity.GetTeam() )
+			for( int i=0; i < teammates.len(); i++ )
+			{
+				if( i > 0 )
+				{
+					eventText += ", "
+				}
+				entity teammate = teammates[i]
+				bool isKillingPlayer = ( bitFlag & ( 1 << i ) ) > 0
+				if( isKillingPlayer )
+					eventText += "`1"
+				eventText += GetDisplayablePlayerNameFromEHI( ToEHI( teammate ) ) + "`0"
+			}
+			eventText += " ) "
+		}
+	}
+
+
 
 	MessageData messageData
 	messageData.scoreEventId = ScoreEvent_GetEventId( scoreEvent )

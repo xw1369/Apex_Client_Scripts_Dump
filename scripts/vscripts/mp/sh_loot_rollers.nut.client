@@ -2,6 +2,10 @@ global function ShLootRollers_Init
 global function IsLootRoller
 
 
+
+
+
+
 global function ClientCodeCallback_OnLootRollerTierChanged
 global function ServerCallback_StopLootRollerFX
 
@@ -14,6 +18,9 @@ global const asset LOOT_ROLLER_EYE_FX				 	= $"P_loot_ball_flash_CP"
 global const int NUM_LOOT_ROLLER_FX_ATTACH_POINTS 		= 12
 global const string FX_ATTACH_ROOT_NAME 				= "fx_glow_"
 global const asset FX_LOOT_ROLLER_EXPLOSION			= $"P_ball_tick_exp_CP"
+
+global const string LOOT_ROLLER_SCRIPTNAME = "LootRoller"
+global const string PARTY_BALL_SCRIPTNAME = "partyball_rotator"
 
 
 struct LootRollerClientData
@@ -47,11 +54,11 @@ void function ShLootRollers_Init()
 
 
 
-		AddCreateCallback( "prop_lootroller", LootRollerSpawned )
+		AddCreateCallback( "prop_lootroller", ShLootRoller_Spawned )
 
 }
 
-void function LootRollerSpawned( entity ent )
+void function ShLootRoller_Spawned( entity ent )
 {
 	if ( ent.GetModelName().tolower() != LOOT_ROLLER_MODEL.tolower() )
 		return

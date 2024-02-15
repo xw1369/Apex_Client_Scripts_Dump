@@ -53,7 +53,7 @@ const asset DEBUFF_EXPLOSION = $"P_clbr_tac_wpn_overheat_exp"
 const asset DEBUFF_EXPLOSION_3P = $"P_clbr_tac_wpn_overheat_exp_3p"
 const asset DEBUFF_OVERHEAT_LHAND = $"P_clbr_tac_hand_overheat"
 
-
+const asset AOE_ENDING_FX_UPGRADE = $"P_LU_Ballistic_tac_timer"
 
 
 const asset DEBUFF_ZONE_HEART_MODEL = $"mdl/weapons/ballistic_pistol/w_ballistic_bullet.rmdl"
@@ -71,6 +71,10 @@ const float SHAKE_AMPLITUDE = 2.0
 const float SHAKE_FREQUENCY = 10.0
 const float SHAKE_DURATION = 0.2
 const vector SHAKE_DIRECTION = < 0.0, 0.0, 1.0 >
+
+
+const string PROJECTILE_UPGRADED_TRIGGERED_AOE_SOUND = "Ballistic_Tac_Upgraded_AOE_Start_3P"
+const string PROJECTILE_UPGRADED_TRIGGERED_AOE_SOUND_ENEMY = "Ballistic_Tac_Upgraded_AOE_Start_3P_Enemy"
 
 const string PROJECTILE_WAITING_TO_TRIGGER_SOUND = "Ballistic_Tac_AOE_Electricity_3P"
 const string PROJECTILE_TRIGGERED_AOE_SOUND = "Ballistic_Tac_AOE_Start_3P"
@@ -157,7 +161,7 @@ void function MpWeaponDebuffZone_Init()
 	PrecacheParticleSystem( OVERHEAT_DEBUFF_BODY_FX )
 	PrecacheParticleSystem( DEBUFF_ZONE_MUZZLE_FLASH_3P )
 
-
+	PrecacheParticleSystem( AOE_ENDING_FX_UPGRADE )
 
 
 	RegisterSignal( "EndLockon" )
@@ -203,54 +207,20 @@ void function MpWeaponDebuffZone_Init()
 }
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-float function GetHomingSpeed( entity player )
+float function GetUpgradedAOETimeout()
 {
-	float result = file.homingSpeed
-
-
-
-
-
-
-	return result
+	return GetCurrentPlaylistVarFloat( "ballistic_tact_upgraded_aoe_timeout", 15.0 )
 }
 
-float function GetNoTargetSpeed( entity player )
-{
-	float result = file.noTargetSpeed
-
-
-
-
-
-
-	return result
-}
 
 float function GetAOETimeout( entity player )
 {
 	float result = file.aoeTimeout
 
-
-
-
-
+		if( PlayerHasPassive( player, ePassives.PAS_TAC_UPGRADE_TWO ) ) 
+		{
+			result = GetUpgradedAOETimeout()
+		}
 
 	return result
 }
@@ -354,7 +324,7 @@ void function DebuffZone_FireMissileLogic( entity weapon, WeaponPrimaryAttackPar
 {
 	entity owner = weapon.GetWeaponOwner()
 	bool isHoming = owner.GetPlayerNetBool( BALLISTIC_HAS_LOCKON_TARGET_NETVAR )
-	float missileSpeed = isHoming ? GetHomingSpeed( owner ) :  GetNoTargetSpeed( owner )
+	float missileSpeed = isHoming ? file.homingSpeed :  file.noTargetSpeed
 
 	WeaponFireMissileParams fireMissileParams
 	fireMissileParams.pos = attackParams.pos
@@ -525,6 +495,20 @@ void function DebuffZone_OnPlayerOverheat( entity player, entity weapon )
 
 	weapon.PlayWeaponEffect( DEBUFF_EXPLOSION, $"", "muzzle_flash" )
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

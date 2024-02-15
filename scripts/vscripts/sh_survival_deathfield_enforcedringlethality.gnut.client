@@ -1,0 +1,709 @@
+
+
+global function Sh_DeathField_EnforcedRingLethality_Init
+
+global function Deathfield_EnforcedRingLethality_Enabled
+global function Deathfield_EnforcedRingLethality_FirstTimeThreshold
+global function Deathfield_EnforcedRingLethality_SecondTimeThreshold
+global function Deathfield_EnforcedRingLethality_LethalityEffectDuration
+global function Deathfield_EnforcedRingLethality_LowerIconEnabled
+
+global function SimplifiedRingLethality_Enabled
+global function SimplifiedRingLethality_RingoutTime
+global function SimplifiedRingLethality_Ringout_WarningTime
+global function SimplifiedRingLethality_ResetTime
+global function SimplifiedRingLethality_ShouldShowWarning
+
+
+
+
+
+
+
+const string DEATHFIELD_RING_LETHALITY_1P_ACTIVATION_SOUND = "ui_revshellseeker_aggressor_targetlock_1p"
+const string SIMPLIFIEDRINGLETHALITY_SOUND_RINGOUT 			= "Boundary_Warning_Loop"
+const string SIMPLIFIEDRINGLETHALITY_SOUND_RINGOUT_WARNING 	= "Survival_Circle_Ringout_Warning_Stinger"
+
+global const float DEATHFIELD_RING_LETHALITY_STATUS_DURATION = 45 
+global const float DEATHFIELD_RING_LETHALITY_WARNING_DURATION = 90 
+
+const int ID_INVALID = -1
+
+struct PlayerDeathfieldTracker
+{
+	bool playerInDeathField
+	float timeInDeathField_All
+	float timeInDeathfield_Continuous
+	float lastTimeInField
+	float timeExitedField
+	int damageSustainedFromRing
+
+	
+	float timeInRing_Continuous
+	table< int, bool > soundIsPlaying 
+}
+
+enum eRingLethality_StatusEffectType
+{
+	WARNING,
+	LETHAL,
+	COUNT_
+}
+
+enum eRingLethality_SoundTypes
+{
+	RINGOUT,
+	RINGOUT_WARNING,
+	LETHAL,
+	COUNT_
+}
+
+struct sRingLethality_StatusIDs
+{
+	int statusID_Warning = ID_INVALID
+	int statusID_Lethal = ID_INVALID
+}
+
+struct
+{
+
+
+
+
+} file
+
+void function Sh_DeathField_EnforcedRingLethality_Init()
+{
+
+
+
+
+
+
+
+
+}
+
+bool function Deathfield_EnforcedRingLethality_Enabled()
+{
+	return GetCurrentPlaylistVarBool( "deathfield_enforced_ring_lethality_enabled", true )
+}
+
+bool function Deathfield_EnforcedRingLethality_TrackByTotalRingDamage()
+{
+	return GetCurrentPlaylistVarBool( "deathfield_enforced_ring_lethality_trackby_totalringdamage", false )
+}
+
+int function Deathfield_EnforcedRingLethality_First_DamageThreshold()
+{
+	return GetCurrentPlaylistVarInt( "deathfield_enforced_ring_lethality_first_damage_threshold", 200 )
+}
+
+int function Deathfield_EnforcedRingLethality_Second_DamageThreshold()
+{
+	return GetCurrentPlaylistVarInt( "deathfield_enforced_ring_lethality_second_damage_threshold", 500 )
+}
+
+float function Deathfield_EnforcedRingLethality_DamagePercent()
+{
+	return GetCurrentPlaylistVarFloat( "deathfield_enforced_ring_lethality_damage_percent", 0.5 )
+}
+
+float function Deathfield_EnforcedRingLethality_FirstTimeThreshold()
+{
+	return SimplifiedRingLethality_Enabled() ? 0.0 : GetCurrentPlaylistVarFloat( "deathfield_enforced_ring_lethality_first_threshold", 120.0 )
+}
+
+float function Deathfield_EnforcedRingLethality_SecondTimeThreshold()
+{
+	return SimplifiedRingLethality_Enabled() ? SimplifiedRingLethality_RingoutTime() : GetCurrentPlaylistVarFloat( "deathfield_enforced_ring_lethality_second_threshold", 90.0 )
+}
+
+float function Deathfield_EnforcedRingLethality_LethalityEffectDuration()
+{
+	return GetCurrentPlaylistVarFloat( "deathfield_enforced_ring_lethality_effect_duration", 45.0 )
+}
+
+bool function Deathfield_EnforcedRingLethality_LowerIconEnabled()
+{
+	return GetCurrentPlaylistVarBool( "deathfield_enforced_ring_lethality_lower_icon_enabled", false )	
+}
+
+
+
+bool function SimplifiedRingLethality_Enabled()
+{
+	
+	return GetCurrentPlaylistVarBool( "simplifiedringlethality_enabled", true )
+}
+
+float function SimplifiedRingLethality_RingoutTime()
+{
+	
+	return GetCurrentPlaylistVarFloat( "simplifiedringlethality_ringouttime", 240 ) 
+}
+
+float function SimplifiedRingLethality_Ringout_WarningTime()
+{
+	
+	return GetCurrentPlaylistVarFloat( "simplifiedringlethality_warningtime", 180.0 ) 
+}
+
+float function SimplifiedRingLethality_ResetTime()
+{
+	
+	return GetCurrentPlaylistVarFloat( "simplifiedringlethality_resettime", 45.0 )
+}
+
+bool function SimplifiedRingLethality_ShouldSkipRound1()
+{
+	
+	return GetCurrentPlaylistVarBool( "simplifiedringlethality_shouldskipround1", false ) 
+}
+
+bool function SimplifiedRingLethality_ShouldShowWarning( entity player )
+{
+	if ( !IsValid( player ) )
+		return false
+
+	bool simplifiedLethality = SimplifiedRingLethality_Enabled()
+	bool shouldWarn = false
+	if ( simplifiedLethality )
+	{
+		float ringOutTime = SimplifiedRingLethality_RingoutTime()
+		float warningTime = SimplifiedRingLethality_Ringout_WarningTime()
+		shouldWarn = StatusEffect_GetTimeRemaining( player, eStatusEffect.ring_lethality_warning ) <= ( ringOutTime - warningTime )
+	}
+	else
+	{
+		shouldWarn = true
+	}
+
+	return shouldWarn
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

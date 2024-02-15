@@ -1756,8 +1756,8 @@ float function GetValkUltMaxHeight( entity player )
 	float result = GetCurrentPlaylistVarFloat( "valk_ult_up_distance", SKYWARD_MAX_HEIGHT )
 
 
-
-
+	if( IsValid( player ) && player.HasPassive( ePassives.PAS_ULT_UPGRADE_TWO ) ) 
+		result *= GetCurrentPlaylistVarFloat( "valk_ult_up_distance_upgraded_multiplier", 1.15 )
 
 
 	return result

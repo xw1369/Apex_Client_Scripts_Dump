@@ -83,7 +83,7 @@ const string REVIVE_SHIELD_SIGNAL_END_HUD_METER			= "ReviveShield_EndHUDMeter"
 const string REVIVE_SHIELD_SIGNAL_AUTO_REVIVE_END		= "OnPassiveAxiom_AutoReviveEnd"
 
 
-
+global function ReviveShield_GetUpgradedReviveExtraHealth
 
 
 struct
@@ -176,15 +176,15 @@ void function MpWeaponReviveShield_Init()
 }
 
 
+float function ReviveShield_GetUpgradeCoreHealthMultiplier()
+{
+	return GetCurrentPlaylistVarFloat( "passive_revive_shield_health_upgrade_multiplier", 1.25 )
+}
 
-
-
-
-
-
-
-
-
+float function ReviveShield_GetUpgradedReviveExtraHealth()
+{
+	return GetCurrentPlaylistVarFloat( "passive_revive_shield_upgrade_extra_revive_health", 30 )
+}
 
 
 
@@ -210,7 +210,7 @@ int function ReviveShield_GetMaxShieldHealthFromTier( int tier, entity player )
 	}
 
 
-
+	
 
 
 
@@ -1212,6 +1212,15 @@ void function CL_PassiveAxiom_KDShieldChargeRUI_Thread( entity player )
 
 	RuiTrackFloat( rui, "bleedoutEndTime", player, RUI_TRACK_SCRIPT_NETWORK_VAR, GetNetworkedVariableIndex( "bleedoutEndTime" ) )
 	RuiTrackFloat( rui, "reviveEndTime", player, RUI_TRACK_SCRIPT_NETWORK_VAR, GetNetworkedVariableIndex( "reviveEndTime" ) )
+
+
+	
+	if ( UpgradeCore_ArmorTiedToUpgrades() )
+	{
+		RuiSetFloat( rui, "startXPos", 400.0 )
+		RuiSetFloat( rui, "elementXpos", 400.0 )
+	}
+
 
 	while ( IsValid( rui ) )
 	{

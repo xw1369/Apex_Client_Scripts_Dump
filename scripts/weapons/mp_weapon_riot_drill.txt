@@ -249,14 +249,18 @@ WeaponData
          
            
 
-                         
-                    
-      
-                                         
-                                            
-                                            
-      
-
+	                        
+	    upgrade_tac_one
+	    {
+			"ammo_clip_size"            "220"
+			"ammo_default_total"        "220"
+			"ammo_stockpile_max"        "220"
+	    }
+	    upgrade_tac_two
+        {
+			"impact_effect_table"       "mm_breach_projectile_large"
+			"bounce_effect_table"       "mm_breach_projectile_large"
+        }
            
 	}
 

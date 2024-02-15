@@ -30,7 +30,7 @@ global function GetBlackMarketUseItemRefs
 global function ServerToClient_UpdateBlackMarketUseCount
 global function BlackMarket_OnDeathBoxMenuOpened
 
-
+global function ServerToClient_NotifyBlackMarketSatelliteScan
 
 
 
@@ -131,7 +131,7 @@ void function LobaUltimateBlackMarket_LevelInit()
 		)
 
 
-
+			Remote_RegisterClientFunction( "ServerToClient_NotifyBlackMarketSatelliteScan", "int", 0, 100 )
 
 
 		Remote_RegisterServerFunction( BLACK_MARKET_OPEN_CMD, "typed_entity", "prop_loot_grabber" )
@@ -357,6 +357,30 @@ PlacementInfo function GetPlacementInfo( entity player )
 		info.failReason = "#PLAYER_DEPLOY_FAIL_HINT_TOO_STEEP"
 	}
 
+
+	if ( GetCurrentPlaylistVarBool("loba_ultimate_respects_oob", true) )
+	{
+		array<string> triggersToCheck =
+		[
+			"trigger_out_of_bounds",
+			"trigger_no_object_placement",
+			"trigger_networked_out_of_bounds",
+			"trigger_networked_no_op",
+			"trigger_networked_block_all_op"
+		]
+
+		foreach ( entity trigger in GetTriggersByClassesInRealms_HullSize(
+			triggersToCheck,
+			info.origin, info.origin,
+			player.GetRealms(), TRACE_MASK_PLAYERSOLID,
+			BLACK_MARKET_BOUND_MINS, BLACK_MARKET_BOUND_MAXS ) )
+		{
+			info.success = false
+			info.failReason = "#PLAYER_DEPLOY_FAIL_HINT_OBSTRUCTED"
+			break
+		}
+	}
+
 	if ( info.success )
 	{
 		if ( IsOriginInvalidForPlacingPermanentOnto( info.origin, player ) )
@@ -517,8 +541,6 @@ void function PlacementProxyThread( entity weapon, entity player )
 		WaitFrame()
 	}
 }
-
-
 
 
 
@@ -999,6 +1021,12 @@ void function BlackMarketRumbleOnReadyThread( entity ent )
 
 
 
+
+
+
+
+
+
 void function ServerToClient_UpdateBlackMarketUseCount( EncodedEHandle blackMarketEEH, EncodedEHandle userEEH, int useCount, int lootRefIdx, int lootRefCount, int maxUseCount )
 {
 	LootData lootFlav = SURVIVAL_Loot_GetLootDataByIndex( lootRefIdx )
@@ -1282,55 +1310,55 @@ bool function CanUseBlackMarket( entity player, entity ent, int useFlags )
 
 
 
+void function ServerToClient_NotifyBlackMarketSatelliteScan( int team )
+{
+	thread NotifyBlackMarketSatelliteScan_Thread( team )
+}
+
+void function NotifyBlackMarketSatelliteScan_Thread( int team )
+{
+	float scanDuration = 30
+	float endTime = Time() + scanDuration
+	float timeToStartFade = Time() + ( scanDuration/2 ) 
+	float timeToEndFade = endTime
+
+	array<var> fullMapRuis
+	array<var> minimapRuis
+
+	array<entity> enemies = GetPlayerArrayOfTeam( team )
+	foreach( entity enemy in enemies )
+	{
 
 
 
 
 
+		
+		var fRui = FullMap_AddEnemyLocation( enemy )
+		fullMapRuis.append( fRui )
 
+		
+		var mRui = Minimap_AddEnemyToMinimap( enemy )
+		minimapRuis.append( mRui )
+		RuiSetGameTime( mRui, "fadeStartTime", timeToStartFade )
+		RuiSetGameTime( mRui, "fadeEndTime", timeToEndFade )
+	}
 
+	AddPlayerHint( 10, .1, $"rui/hud/ultimate_icons/ultimate_loba", "Enemies Scanned from Black Market, %&toggle_map% to View"  )
 
+	Wait( scanDuration )
 
+	foreach( var ruiToDestroy in fullMapRuis )
+	{
+		Fullmap_RemoveRui( ruiToDestroy )
+		RuiDestroyIfAlive( ruiToDestroy )
+	}
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+	foreach( var ruiToDestroy in minimapRuis)
+	{
+		Minimap_CommonCleanup( ruiToDestroy )
+	}
+}
 
 
 
@@ -1505,10 +1533,10 @@ void function PROTO_PulseMinimapRui( entity ent, var rui, string argName )
 
 
 
-
-
-
-
+float function UpgradedBlackMarketRangeMultiplier()
+{
+	return GetCurrentPlaylistVarFloat( "loba_ultimate_upgraded_range_multiplier", 1.25 )
+}
 
 
 
@@ -1518,10 +1546,10 @@ float function GetBlackMarketNearbyLootRadius( entity owner = null )
 
 
 
-
-
-
-
+	if( PlayerHasPassive( owner, ePassives.PAS_ULT_UPGRADE_TWO ) ) 
+	{
+		result *= UpgradedBlackMarketRangeMultiplier()
+	}
 
 
 
@@ -1539,15 +1567,12 @@ int function GetBlackMarketUseLimit( entity blackMarket, entity player )
 
 
 
-
-
-
-
-
-
-
-
-
+		if( !IsValid( blackMarket ) )
+			return result
+		if( player.HasPassive( ePassives.PAS_ULT_UPGRADE_ONE ) && player.HasPassive( ePassives.PAS_LOBA_EYE_FOR_QUALITY ) ) 
+		{
+			result += 1
+		}
 
 
 

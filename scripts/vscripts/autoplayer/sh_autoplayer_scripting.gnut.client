@@ -8,6 +8,7 @@ global function AutoPlayer_GetAmmoPoolTypeByLootTableIndex
 global function AutoPlayer_GetLootRef
 global function AutoPlayer_IsDoorClosed
 global function AutoPlayer_GetLootbinDetails
+global function AutoPlayer_IsPointOutOfBounds
 
 string function AutoPlayer_GetPlayerInventory( entity player )
 {
@@ -173,4 +174,18 @@ string function AutoPlayer_GetLootbinDetails( entity ent )
 		items += "0"
 
 	return items
+}
+
+bool function AutoPlayer_IsPointOutOfBounds( vector position ,  entity player )
+{
+	foreach ( entity trigger in GetTriggersByClassesInRealms_HullSize(
+		["trigger_slip", "trigger_out_of_bounds", "trigger_networked_out_of_bounds"],
+		position, position,
+		player.GetRealms(), TRACE_MASK_PLAYERSOLID,
+		player.GetPlayerMins(), player.GetPlayerMaxs() ) )
+	{
+		return true
+	}
+	return false
+
 }

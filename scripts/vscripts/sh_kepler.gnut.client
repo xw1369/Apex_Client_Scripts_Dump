@@ -1,0 +1,337 @@
+
+
+
+
+
+global function Sh_Kepler_Init
+global function Kepler_IsPlayerInVariant
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+global enum eKeplerScenario
+{
+	APEX_TAB_ORDERING,
+
+	COUNT
+}
+
+table<int, string> keplerActiveScenarios = {
+	[eKeplerScenario.APEX_TAB_ORDERING] = "apex-tab-ordering"
+}
+
+struct KeplerScenarioData
+{
+	ItemFlavor& flavor
+	string scenarioKey
+	array<string> variants
+}
+
+struct FileStruct_Kepler
+{
+	table<string, KeplerScenarioData> loadedScenarios
+	bool isInitialized = false
+
+
+
+
+}
+
+FileStruct_Kepler& file
+
+
+void function InitializeScenarioData( asset scenarioAsset, ItemFlavor flavor )
+{
+	var settingsBlock = GetSettingsBlockForAsset( scenarioAsset )
+
+	KeplerScenarioData scenario
+	scenario.scenarioKey = GetSettingsBlockString( settingsBlock, "scenarioKey" )
+	scenario.flavor = flavor
+
+	var variantArray = GetSettingsBlockArray( settingsBlock, "variants" )
+	foreach ( var variant in IterateSettingsArray( variantArray ) )
+	{
+		scenario.variants.append( GetSettingsBlockString( variant, "variantName" ) )
+	}
+
+	file.loadedScenarios[scenario.scenarioKey] <- scenario
+}
+
+void function Sh_Kepler_Init()
+{
+	if ( !GetConVarBool( "kepler_isEnabled" ) )
+	{
+		return
+	}
+
+	AddCallback_RegisterRootItemFlavors( void function()
+	{
+		foreach ( asset scenario in GetBaseItemFlavorsFromArray( "keplerScenarios" ) )
+		{
+			ItemFlavor ornull flavor = RegisterItemFlavorFromSettingsAsset( scenario )
+			InitializeScenarioData( scenario, expect ItemFlavor( flavor ) )
+		}
+
+		file.isInitialized = true
+		printf( "Kepler initialized with %d scenarios", file.loadedScenarios.len() )
+	} )
+
+
+
+
+}
+
+bool function AllowCheckForVariant( int scenario, string variantName )
+{
+	Assert( scenario >= 0 && scenario < eKeplerScenario.COUNT, "Checking variant for invalid Kepler scenario, are you using eKeplerScenario?" )
+	Assert( variantName != "", "Checking for empty Kepler variant name" )
+
+	if ( !GetConVarBool( "kepler_isEnabled" ) )
+	{
+		return false
+	}
+
+	Assert( file.isInitialized, "Attempting to check Kepler variants before Kepler has been initialized" )
+
+	if ( !( scenario in keplerActiveScenarios ) )
+	{
+		Assert( false, "Attempting to look up a Kepler scenario that has not been defined as active" );
+		return false
+	}
+
+	return true
+}
+
+
+
+
+bool function Kepler_IsPlayerInVariant( int scenario, string variantName )
+{
+	if ( !AllowCheckForVariant( scenario, variantName ) )
+	{
+		return false
+	}
+
+#if DEV
+	string variantOverride = GetConVarString( "kepler_forceVariant" )
+	if ( variantOverride != "" )
+	{
+		return variantOverride == variantName
+	}
+#endif
+
+	string scenarioKey = keplerActiveScenarios[scenario]
+	return Kepler_IsPlayerInVariant_Internal( scenarioKey, variantName )
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                    

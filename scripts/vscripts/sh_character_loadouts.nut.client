@@ -1,4 +1,9 @@
 global function CharacterLoadouts_Init
+
+global function CharacterLoadouts_GetDefaultWeaponLoadoutArray
+global function CharacterLoadouts_GetDefaultConsumableLoadoutArray
+global function CharacterLoadouts_GetDefaultEquipmentLoadoutArray
+
 global function CharacterLoadouts_GetWeaponLoadoutArray
 global function CharacterLoadouts_GetConsumableLoadoutArray
 global function CharacterLoadouts_GetEquipmentLoadoutArray
@@ -92,11 +97,11 @@ void function SetDefaultLoadouts()
 			"armor_pickup_lv1_evolving helmet_pickup_lv1 incapshield_pickup_lv1" )
 
 
-
-
-
-
-
+			if( UpgradeCore_ArmorTiedToUpgrades() )
+			{
+				defaultequipmentLoadoutPlaylist = GetCurrentPlaylistVarString ( "default_loadout_equipment",
+					"armor_core_pickup_lv1 helmet_pickup_lv1 incapshield_pickup_lv1" )
+			}
 
 
 		file.weaponLoadoutDefault = GetTrimmedSplitString( defaultweaponLoadoutsPlaylist, " " )
@@ -874,7 +879,20 @@ bool function ShouldShrinkWeaponIcon( string weaponRef )
 }
 
 
+array<string> function CharacterLoadouts_GetDefaultWeaponLoadoutArray()
+{
+	return file.weaponLoadoutDefault
+}
 
+array<string> function CharacterLoadouts_GetDefaultConsumableLoadoutArray()
+{
+	return file.consumableLoadoutDefault
+}
+
+array<string> function CharacterLoadouts_GetDefaultEquipmentLoadoutArray()
+{
+	return file.equipmentLoadoutDefault
+}
 
 array<string> function CharacterLoadouts_GetWeaponLoadoutArray( ItemFlavor character )
 {

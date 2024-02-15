@@ -1034,7 +1034,7 @@ bool function VerifyAirdropPoint( vector baseOrigin, float yaw, bool isCarePacka
 	
 	array< int > realmsToTest = IsValid( realmEnt ) ? realmEnt.GetRealms() : [ eRealms.DEFAULT ]
 	foreach ( entity trigger in GetTriggersByClassesInRealms_HullSize(
-		["trigger_slip", "trigger_out_of_bounds"],
+		["trigger_slip", "trigger_out_of_bounds", "trigger_networked_out_of_bounds"],
 		baseOrigin, baseOrigin,
 		realmsToTest, TRACE_MASK_PLAYERSOLID,
 		< -1, -1, -1 >, < 1, 1, 1 > ) )
@@ -1173,6 +1173,22 @@ array<entity> function GetAirDropTraceIgnoreEntArray()
 {
 	return file.airdropTraceIgnoreEntArray
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

@@ -708,7 +708,7 @@ var function FullMap_AddHuntPreyLocation( entity enemy )
 	RuiSetFloat3( rui, "objColor", GetKeyColor( COLORID_HUD_INDICATOR_ARROW ) * ( 1.0 / 255.0 ) )
 	RuiSetFloat( rui, "objectSize", 10.0 )
 	RuiSetBool( rui, "doAnnounceEffect", true )
-	RuiSetImage( rui, "iconImage", $"rui/hud/minimap/compass_icon_player" )
+	RuiSetImage( rui, "iconImage", $"rui/hud/minimap/compass_icon_hunt_prey" )
 
 	Fullmap_AddRui( rui )
 	return rui
@@ -997,7 +997,13 @@ void function AddInWorldMinimapObjectInternal( entity ent, var screen, asset rui
 		RuiSetFloat3( rui, "smokeColor", smokeColor )
 		RuiTrackFloat3( rui, "objectAngles", ent, RUI_TRACK_CAMANGLES_FOLLOW )
 
-		RuiSetString( rui, "playerName", viewerIsSpectator ? ent.GetPlayerNameWithClanTag() : "" )
+		string playerName
+
+			playerName = ent.GetPlayerNameWithClanTag()
+
+
+
+		RuiSetString( rui, "playerName", viewerIsSpectator ? playerName : "" )
 
 		
 		if ( isFriendlyAlly )
@@ -1254,7 +1260,12 @@ void function UpdateMap_THREAD()
 
 				if ( showNameTag )
 				{
-					string name = ent.GetPlayerNameWithClanTag()
+					string name
+
+						name = ent.GetPlayerNameWithClanTag()
+
+
+
 					if ( IsPrivateMatch() )
 					{
 						bool showTeamNames = GetConVarBool( "hud_setting_showTeamNamesOnMap" ) == true
@@ -1865,7 +1876,7 @@ bool function Fullmap_HandleKeyInput( int key )
 				vector worldPos = FullMap_ConvertNormalizedPosToWorldPos( FullMap_GetMapNormalizedAimCoordinate() )
 				if ( !attemptedDoublePing )
 				{
-
+					Ping_ClearMapWaypoint( GetLocalClientPlayer() )
 					Ping_SetMapWaypoint( GetLocalClientPlayer(), worldPos )
 				}
 				else

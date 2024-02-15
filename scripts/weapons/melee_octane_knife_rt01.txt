@@ -1,0 +1,33 @@
+                    
+#base "melee_pilot_emptyhanded.txt"
+
+WeaponData
+{
+
+	// General
+	"printname"   									"Melee"
+	"shortprintname"								"Melee"
+	"description" 									"Description needed"
+	"longdesc"										"Description needed"
+
+	"menu_icon"										"rui/hud/common/melee_icon"
+	"hud_icon"										"rui/hud/common/melee_icon"
+
+	// Models
+	"viewmodel"   									"mdl/weapons/octane_knife/ptpov_octane_knife.rmdl"
+	"playermodel" 									"mdl/weapons/octane_knife/w_octane_knife.rmdl"
+	"holstermodel"									"mdl/Props/octane_heirloom_holster/octane_heirloom_holster.rmdl"
+
+	"OnWeaponActivate"								"OnWeaponActivate_melee_octane_knife_rt01"
+    "OnWeaponDeactivate"							"OnWeaponDeactivate_melee_octane_knife_rt01"
+
+	"is_heirloom"								"1"
+	
+    // FX - Impacts
+	"impact_effect_table" 							"melee_knife"
+
+	// Animation
+	"activitymodifier3P"							"knife"
+
+}
+      

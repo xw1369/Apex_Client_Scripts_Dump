@@ -1,6 +1,7 @@
 global function ClientCodeCallback_GameTimescaleChanged
 global function ServerCallback_PreKillReplaySounds
 global function ClKillReplayFX_Init
+global function ClKillReplayFX_StopPreRespawnDuck
 
 struct {
 	var killreplayVictimTagRUI = null
@@ -104,11 +105,20 @@ void function ClKillReplayFX_ReplayEnd()
 	}
 }
 
-void function ClKillReplayFX_PlayerRespawned( entity player, int oldLifeState, int newLifeState )
+void function ClKillReplayFX_StopPreRespawnDuck()
 {
-	if ( player == GetLocalClientPlayer() && newLifeState == LIFE_ALIVE && file.killreplayEndUntilRespawnSound != null )
+	if ( file.killreplayEndUntilRespawnSound != null )
 	{
 		StopSound( file.killreplayEndUntilRespawnSound )
+		file.killreplayEndUntilRespawnSound = null
+	}
+}
+
+void function ClKillReplayFX_PlayerRespawned( entity player, int oldLifeState, int newLifeState )
+{
+	if ( player == GetLocalClientPlayer() && newLifeState == LIFE_ALIVE )
+	{
+		ClKillReplayFX_StopPreRespawnDuck()
 	}
 }
 

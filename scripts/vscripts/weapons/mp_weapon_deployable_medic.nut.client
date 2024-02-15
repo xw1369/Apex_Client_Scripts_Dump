@@ -32,9 +32,9 @@ const float DEPLOYABLE_MEDIC_HEAL_RADIUS = 256.0
 const int DEPLOYABLE_MEDIC_HEAL_AMOUNT = 9999 
 const float DEPLOYABLE_MEDIC_MAX_LIFETIME = 20
 
+const float DEPLOYABLE_MEDIC_HEAL_PER_SEC = 7
 
 
-const float DEPLOYABLE_MEDIC_HEAL_PER_SEC = 8
 
 const ROPE_LENGTH = DEPLOYABLE_MEDIC_HEAL_RADIUS + 50
 const ROPE_NODE_COUNT = 10
@@ -181,10 +181,10 @@ float function GetDeployableMedicHealRate( entity player )
 {
 	float result = DEPLOYABLE_MEDIC_HEAL_PER_SEC
 
-
-
-
-
+	if ( PlayerHasPassive( player, ePassives.PAS_TAC_UPGRADE_ONE ) ) 
+	{
+		result += 2.0
+	}
 
 	return result
 }
@@ -315,19 +315,19 @@ void function OnWeaponTossPrep_weapon_deployable_medic( entity weapon, WeaponTos
 }
 
 
+void function DeployableMedic_CheckForTossHold( entity weapon )
+{
+	weapon.EndSignal( "OnDestroy" )
+	if( weapon.HasMod( "upgrade_tac_one" ) )
+		weapon.RemoveMod( "upgrade_tac_one" )
 
+	entity owner = weapon.GetOwner()
+	if( !PlayerHasPassive( owner, ePassives.PAS_TAC_UPGRADE_ONE ) )
+		return
 
-
-
-
-
-
-
-
-
-
-
-
+	Wait( .5 )
+	weapon.AddMod( "upgrade_tac_one" )
+}
 
 
 

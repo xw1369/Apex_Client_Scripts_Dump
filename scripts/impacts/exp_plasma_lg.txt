@@ -90,7 +90,7 @@ ImpactTable
 		"2" "P_impact_exp_med_dirt_grnd"
 		"3" "P_impact_exp_med_concrete_grnd"
 		"4" "P_impact_exp_med_concrete_grnd"
-		"5" "P_impact_exp_med_water"
+		"5" "P_impact_digital_water_hrz_w_glass"
 		"6" "P_impact_exp_med_concrete_grnd"
 		"7" "P_impact_exp_med_concrete_grnd"
 		"8" "P_impact_exp_med_concrete_grnd"

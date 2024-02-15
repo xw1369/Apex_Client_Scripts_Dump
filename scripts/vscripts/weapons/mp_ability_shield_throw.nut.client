@@ -49,7 +49,8 @@ const MOBILE_SHIELD_DRONE_HEALTH					= 150
 const MOBILE_SHIELD_WALL_HEALTH 					= 500	
 const float MOBILE_SHIELD_SPEED						= 160	
 
-
+const int MOBILE_SHIELD_WALL_HEALTH_UPGRADED		= 750
+const float MOBILE_SHIELD_SPEED_UPGRADED			= 250
 
 
 const vector MOBILE_SHIELD_FX_COLOR 				= < 40, 210, 255 >
@@ -97,7 +98,7 @@ struct
 	float mobileShieldDuration		= SHIELD_THROW_DURATION
 	float mobileShieldSpeed			= MOBILE_SHIELD_SPEED
 
-
+	float mobileShieldSpeedUpgraded = MOBILE_SHIELD_SPEED_UPGRADED
 
 
 
@@ -159,7 +160,7 @@ void function MpAbilityShieldThrow_Init()
 
 	file.mobileShieldSpeed			= GetCurrentPlaylistVarFloat( "newcastle_mobile_shield_speed", MOBILE_SHIELD_SPEED )
 
-
+	file.mobileShieldSpeedUpgraded	= GetCurrentPlaylistVarFloat( "newcastle_mobile_shield_speed_upgraded", MOBILE_SHIELD_SPEED_UPGRADED )
 
 }
 
@@ -1207,11 +1208,6 @@ void function OnDeployableShieldPlanted( entity projectile )
 
 
 
-
-
-
-
-
 void function CodeCallback_ScriptMoverTraversalStopped( entity ent, bool isBlocked )
 {
 	if ( ent.GetScriptName() != SHIELD_THROW_SCRIPTNAME )
@@ -1230,18 +1226,6 @@ void function CodeCallback_ScriptMoverTraversalStopped( entity ent, bool isBlock
 
 
 }
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

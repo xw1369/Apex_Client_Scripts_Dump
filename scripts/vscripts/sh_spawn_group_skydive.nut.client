@@ -14,7 +14,6 @@ global function SpawnGroupSkydive_SetCallback_GetSquadSpawnDelay
 
 
 
-global function SpawnSquadSkyDive_GetRemainingRespawnsForPlayer
 global function SpawnSquadSkyDive_GetRemainingRespawnsForAllPlayersInSquad
 global function SpawnGroupSkydive_ShouldTeamHavePoolOfRespawns
 
@@ -108,28 +107,11 @@ int function SpawnSquadSkyDive_GetRemainingRespawnsForAllPlayersInSquad( int tea
 
 	foreach ( teammate in teammates )
 	{
-		teamRespawnsCount += SpawnSquadSkyDive_GetRemainingRespawnsForPlayer( teammate )
+		teamRespawnsCount += GetRemainingRespawnsForPlayer( teammate )
 	}
 
 	return teamRespawnsCount
 }
-
-
-int function SpawnSquadSkyDive_GetRemainingRespawnsForPlayer( entity player )
-{
-	if ( !IsValid( player ) )
-		return 0
-
-	return player.GetPlayerNetInt( "respawnsRemaining" )
-}
-
-
-
-
-
-
-
-
 
 
 

@@ -14,7 +14,7 @@ global const string CAUSTIC_DIRTY_BOMB_WEAPON_CLASS_NAME = "mp_weapon_dirty_bomb
 const asset DIRTY_BOMB_CANISTER_MODEL = $"mdl/props/caustic_gas_tank/caustic_gas_tank.rmdl"
 
 
-
+const asset DIRTY_BOMB_CANISTER_MODEL_BIG = $"mdl/props/caustic_gas_tank/caustic_gas_tank_big.rmdl"
 
 
 const asset DIRTY_BOMB_CANISTER_EXP_FX = $"P_meteor_trap_EXP"
@@ -108,13 +108,18 @@ void function DirtyBombPrecache()
 	PrecacheModel( DIRTY_BOMB_CANISTER_MODEL )
 
 
-
+		PrecacheModel( DIRTY_BOMB_CANISTER_MODEL_BIG )
 
 
 
         RegisterSignal( "DirtyBomb_StopPlacementProxy" )
 
 }
+
+
+
+
+
 
 
 

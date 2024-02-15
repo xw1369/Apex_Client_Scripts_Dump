@@ -119,6 +119,7 @@ global function Control_GetDefaultWeaponTier
 global function Control_SetHomeBaseBadPlacesForMRBForAlliance
 global function Control_GetBestSpawnLocationForAlliance
 global function Control_GetRespawnChoiceFromSpawnWaypoint
+global function Control_GetValidSpawnWaypointCount
 
 global const float CONTROL_MESSAGE_DURATION = 5.0
 const float CONTROL_MESSAGE_DURATION_LONG = 11.0
@@ -322,8 +323,6 @@ global const int CONTROL_TEAMSCORE_LOCKOUTBROKEN = 50
 
 
 
-
-
 const int CONTROL_VICTORY_FLAGS_UNKNOWN = 0
 const int CONTROL_VICTORY_FLAGS_SCORE = ( 1 << 1 )
 const int CONTROL_VICTORY_FLAGS_LOCKOUT = ( 1 << 2 )
@@ -333,6 +332,8 @@ const int CONTROL_TEAMSCORE_PER_POINT = 1
 const float CONTROL_LOCKOUT_EVENT_DURATION = 90.0
 
 const int CONTROL_MRB_ISMRBAIRDROP_BITFIELD = 1
+
+const float TIME_BETWEEN_CONTROL_ZONES_CROWD_NOISE_UPDATES = 1.0
 
 
 
@@ -1070,6 +1071,15 @@ void function Control_Init()
 		if ( Control_GetIsMRBTimedEventEnabled() )
 			Waypoints_RegisterCustomType( WAYPOINT_CONTROL_MRB, InstanceWPControlMRB)
 
+
+
+
+
+
+
+			thread Control_CLUpdateCrowdNoiseMeterThread()
+
+
 }
 
 
@@ -1467,10 +1477,6 @@ float function Control_GetMRBAirdropDelay()
 {
 	return GetCurrentPlaylistVarFloat("control_mrb_event_airdrop_delay", CONTROL_DEFAULT_MRB_AIRDROP_DELAY )
 }
-
-
-
-
 
 
 
@@ -4912,46 +4918,6 @@ void function Control_PingObjectiveFromObjID( int objID )
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 void function Control_OnGamestateEnterPlaying_Client()
 {
 	entity player = GetLocalViewPlayer()
@@ -5126,13 +5092,13 @@ void function Control_InstanceObjectivePing_Thread( entity wp )
 	entity viewPlayer = GetLocalViewPlayer()
 	if ( !IsValid( viewPlayer ) )
 	{
-		Warning( "%s(): no view-player.", FUNC_NAME() )
+		Warning( "CONTROL: %s(): no view-player.", FUNC_NAME() )
 		return
 	}
 
 #if DEV
 		if ( viewPlayer.GetTeamMemberIndex() < 0 )
-			Warning( "%s(): team member index was invalid.", FUNC_NAME() )
+			Warning( "CONTROL: %s(): team member index was invalid.", FUNC_NAME() )
 #endif
 
 	while ( IsValid( viewPlayer ) && viewPlayer.GetTeamMemberIndex() < 0 )
@@ -5241,7 +5207,7 @@ void function ManageObjectiveVFX_Client_Thread( entity wp )
 		return
 
 #if DEV
-		printt( "CONTROL: Setting up flare on objective " + scriptParent + " with flag ent " + objectiveFlag )
+		printt( "CONTROL: Setting up flare on objective ", scriptParent, " with flag ent ", objectiveFlag )
 #endif
 
 	int flareFX
@@ -5802,7 +5768,7 @@ void function Control_ObjectiveScoreTracker_UpdateAnnouncement( entity wp,
 		}
 		else
 		{
-			Warning( "Control_ObjectiveScoreTracker_UpdateAnnouncement - No current announcement!" )
+			Warning( "CONTROL: Control_ObjectiveScoreTracker_UpdateAnnouncement - No current announcement!" )
 			return
 		}
 
@@ -6043,8 +6009,6 @@ void function Control_LockoutInfoOverride_Thread( entity wp, TimedEventLocalClie
 {
 	Assert( IsNewThread(), "Must be threaded off" )
 
-	EndSignal( wp, "OnDestroy" )
-
 	file.isLockout = true
 	string originalName = data.eventName
 
@@ -6052,6 +6016,8 @@ void function Control_LockoutInfoOverride_Thread( entity wp, TimedEventLocalClie
 	{
 		WaitFrame()
 	}
+
+	EndSignal( wp, "OnDestroy" )
 
 	float eventEndTime = wp.GetWaypointGametime( TIMEDEVENT_WAYPOINT_EVENT_END_TIME )
 	int majorityTeam = wp.GetWaypointInt( 5 )
@@ -6077,22 +6043,19 @@ void function Control_LockoutInfoOverride_Thread( entity wp, TimedEventLocalClie
 			{
 				entity localPlayer = GetLocalViewPlayer()
 
-				if ( IsValid( localPlayer ) )
-				{
-					int yourTeamIndex = AllianceProximity_GetAllianceFromTeam( localPlayer.GetTeam() )
-					string subText =  yourTeamIndex == majorityTeam ? Localize( "#CONTROL_LOCKOUT_ENEMY_CAPTURED_OBJ" ) : Localize( "#CONTROL_LOCKOUT_FRIENDLY_CAPTURED_OBJ" )
-					Control_ObjectiveScoreTracker_PushAnnouncement( null,
-						false,
-						Localize( "#CONTROL_LOCKOUT_ABORTED" ),
-						GamemodeUtility_IsPlayerOnTeamObserver( localClientPlayer )? "": subText,
-						CONTROL_MESSAGE_DURATION_LONG,
-						CONTROL_MESSAGE_DURATION_LONG,
-						false,
-						false,
-						GamemodeUtility_GetColorVectorForCaptureObjectiveState( eGamemodeUtilityCaptureObjectiveColorState.NEUTRAL ) )
+				int yourTeamIndex = IsValid( localPlayer ) ? AllianceProximity_GetAllianceFromTeam( localPlayer.GetTeam() ) : 0
+				string subText =  yourTeamIndex == majorityTeam ? Localize( "#CONTROL_LOCKOUT_ENEMY_CAPTURED_OBJ" ) : Localize( "#CONTROL_LOCKOUT_FRIENDLY_CAPTURED_OBJ" )
+				Control_ObjectiveScoreTracker_PushAnnouncement( null,
+					false,
+					Localize( "#CONTROL_LOCKOUT_ABORTED" ),
+					GamemodeUtility_IsPlayerOnTeamObserver( localClientPlayer )? "": subText,
+					CONTROL_MESSAGE_DURATION_LONG,
+					CONTROL_MESSAGE_DURATION_LONG,
+					false,
+					false,
+					GamemodeUtility_GetColorVectorForCaptureObjectiveState( eGamemodeUtilityCaptureObjectiveColorState.NEUTRAL ) )
 
-					EmitUISound( CONTROL_SFX_LOCKOUT_ABORT )
-				}
+				EmitUISound( CONTROL_SFX_LOCKOUT_ABORT )
 			}
 		}
 	)
@@ -6431,31 +6394,85 @@ bool function Control_Client_IsOnObjective( entity wp, entity player )
 string function Control_GetObjectiveNameFromObjectiveID_Localized( int objectiveID )
 {
 	string objectiveName = CONTROL_OBJECTIVE_DEFAULT_NAME
-	bool didGetValidObjectiveName = false
 	switch ( objectiveID )
 	{
 		case eControlWaypointTypeIndex.OBJECTIVE_A:
 			objectiveName = "#CONTROL_OBJECTIVE_A"
-			didGetValidObjectiveName = true
 			break
 		case eControlWaypointTypeIndex.OBJECTIVE_B:
 			objectiveName = "#CONTROL_OBJECTIVE_B"
-			didGetValidObjectiveName = true
 			break
 		case eControlWaypointTypeIndex.OBJECTIVE_C:
 			objectiveName = "#CONTROL_OBJECTIVE_C"
-			didGetValidObjectiveName = true
 			break
 		default:
-			Warning("Running Control_GetObjectiveNameFromObjectiveID_Localized function with an invalid objectiveID: %i", objectiveID )
-			break
+			Warning("CONTROL: Running Control_GetObjectiveNameFromObjectiveID_Localized function with an invalid objectiveID: %i", objectiveID )
+			return objectiveName
 	}
-
-	if ( !didGetValidObjectiveName )
-		return objectiveName
 
 	return Localize( objectiveName )
 }
+
+
+
+
+void function Control_CLUpdateCrowdNoiseMeterThread()
+{
+	Assert( IsNewThread(), "Must be threaded off" )
+
+	bool prevShouldTriggerCrowdOneShot = false
+	while ( GetGameState() < eGameState.WinnerDetermined )
+	{
+		wait TIME_BETWEEN_CONTROL_ZONES_CROWD_NOISE_UPDATES
+
+		entity localViewPlayer = GetLocalViewPlayer()
+		if ( !IsValid( localViewPlayer ) || localViewPlayer.IsBot() )
+			continue
+
+		int localPlayerAlliance = AllianceProximity_GetAllianceFromTeam( localViewPlayer.GetTeam() )
+		bool shouldTriggerCrowdOneShot = false
+		foreach ( wp in file.waypointList )
+		{
+			int cpOwner = wp.GetWaypointInt( CONTROL_INT_OBJ_ALLIANCE_OWNER )
+			int cpAllianceAPlayerCount = wp.GetWaypointInt( INT_ALLIANCE_A_PLAYERSONOBJ )
+			int cpAllianceBPlayerCount = wp.GetWaypointInt( INT_ALLIANCE_B_PLAYERSONOBJ )
+			int cpCapturingAlliance = wp.GetWaypointInt( INT_CAPTURING_ALLIANCE )
+
+			if ( cpAllianceAPlayerCount == cpAllianceBPlayerCount )
+			{
+				
+				if ( cpAllianceAPlayerCount != 0 )
+				{
+					shouldTriggerCrowdOneShot = true
+				}
+			}
+			else if ( cpOwner == ALLIANCE_NONE )
+			{
+				
+				if ( cpCapturingAlliance == localPlayerAlliance )
+				{
+					shouldTriggerCrowdOneShot = true
+				}
+			}
+			else if ( cpOwner != cpCapturingAlliance )
+			{
+				
+				if( cpCapturingAlliance == localPlayerAlliance )
+				{
+					shouldTriggerCrowdOneShot = true
+				}
+			}
+		}
+
+		if ( shouldTriggerCrowdOneShot != prevShouldTriggerCrowdOneShot )
+		{
+			
+			prevShouldTriggerCrowdOneShot = shouldTriggerCrowdOneShot
+			ToggleCrowdSoundOnEntity( localViewPlayer, eCrowdSound.CAPTURE_START, prevShouldTriggerCrowdOneShot )
+		}
+	}
+}
+
 
 
 
@@ -6489,7 +6506,7 @@ string function Control_GetObjectiveNameFromObjectiveID( int objectiveID )
 			objectiveName = CONTROL_OBJECTIVE_C_NAME
 			break
 		default:
-			Warning("Running Control_GetObjectiveNameFromObjectiveID function with an invalid objectiveID: %i", objectiveID )
+			Warning("CONTROL: Running Control_GetObjectiveNameFromObjectiveID function with an invalid objectiveID: %i", objectiveID )
 			break
 	}
 
@@ -9414,7 +9431,7 @@ bool function Control_IsValidRespawnChoice( int respawnChoice )
 void function UICallback_Control_SpawnButtonClicked( int respawnChoice )
 {
 	if ( !Control_IsValidRespawnChoice( respawnChoice ) )
-		printt( "CONTROL: UICallback_Control_SpawnButtonClicked called with an invalid waypointTypeIndex: " + respawnChoice )
+		printt( "CONTROL: UICallback_Control_SpawnButtonClicked called with an invalid waypointTypeIndex: ", respawnChoice )
 
 	Control_PrintSpawningDebug( GetLocalClientPlayer(), respawnChoice, null, false, "UICallback_Control_SpawnButtonClicked Sending spawn request" )
 	Control_SendRespawnChoiceToServer( respawnChoice )
@@ -9583,7 +9600,7 @@ void function Control_SendRespawnChoiceToServer( int respawnChoice )
 	if ( localPlayer != localViewPlayer )
 	{
 		if ( CONTROL_PLAYER_SPAWN_DEBUG_PRINTS )
-			printt( "CONTROL: Control_SendRespawnChoiceToServer breaking out because localPlayer: " +  localPlayer + " is not the same as localViewPlayer: " + localViewPlayer )
+			printt( "CONTROL: Control_SendRespawnChoiceToServer breaking out because localPlayer: ",  localPlayer, " is not the same as localViewPlayer: ", localViewPlayer )
 
 		return
 	}
@@ -10189,7 +10206,7 @@ void function ProcessSpawnMenu( entity player )
 							}
 							break
 						default:
-							printt( "Control: Unexpected waypoint type: " + waypointTypeIndex + " in ProcessSpawnMenu switch statement" )
+							printt( "Control: Unexpected waypoint type: ", waypointTypeIndex, " in ProcessSpawnMenu switch statement" )
 							break
 					}
 				}
@@ -13464,8 +13481,6 @@ float function Control_GetEXPPercentToNextTier( entity player )
 
 
 
-
-
 bool function Control_IsActiveWeaponUnHolstered( entity player )
 {
 	if ( !IsValid( player ) )
@@ -15698,7 +15713,7 @@ int function Control_GetMRBPlacementStateFromHomeBasePositionChecks( int current
 				if ( CONTROL_DETAILED_DEBUG )
 				{
 					string debugHomeBaseString = isEnemyHomebase ? "Enemy" : "Friendly"
-					printt( "CONTROL: MRB Event, MRB Deployment failing because of proximity to " + debugHomeBaseString + " Homebase, Base Pos: " + position )
+					printt( "CONTROL: MRB Event, MRB Deployment failing because of proximity to ", debugHomeBaseString, " Homebase, Base Pos: ", position )
 				}
 #endif
 			break
@@ -15866,7 +15881,7 @@ void function Control_PrintSpawningDebug( entity player, int respawnChoice, enti
 	if ( didFunctionHaveEntToSpawnOn )
 		entToSpawnOnString = IsValid( entityToSpawnOn ) ? string( entityToSpawnOn ) : "EntityToSpawnOnInvalid"
 
-	printt( "CONTROL: " + message + " for player: " + playerEntString + " respawnChoice: " + respawnChoiceString + " entityToSpawnOn: " + entToSpawnOnString )
+	printt( "CONTROL: ", message, " for player: ", playerEntString, " respawnChoice: ", respawnChoiceString, " entityToSpawnOn: ", entToSpawnOnString )
 }
 
 

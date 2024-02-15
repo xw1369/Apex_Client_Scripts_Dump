@@ -209,7 +209,7 @@ global enum eLootType
 
 
 
-
+		EVO_CACHE
 
 
 
@@ -411,11 +411,11 @@ void function SURVIVAL_Loot_All_InitShared()
 
 	string disabledRefs = GetCurrentPlaylistVarString( "survival_disabled_loot", " " )
 
-
-
-
-
-
+	if( UpgradeCore_ArmorTiedToUpgrades() )
+	{
+		string upgradeDisabledRefs = GetCurrentPlaylistVarString( "upgrade_core_survival_disabled_loot", " armor_pickup_lv0 armor_pickup_lv0_evolving armor_pickup_lv1 armor_pickup_lv1_evolving armor_pickup_lv2 armor_pickup_lv2_evolving armor_pickup_lv3 armor_pickup_lv3_evolving armor_pickup_lv4_exec_armor armor_pickup_lv4_all_fast" )
+		disabledRefs += upgradeDisabledRefs
+	}
 
 
 	file.disabledRefs.extend( split( disabledRefs, WHITESPACE_CHARACTERS ) )
@@ -869,8 +869,8 @@ int function SURVIVAL_Loot_GetLootTypeFromString( string lootTypeString )
 			return eLootType.CANDY_PICKUP
 
 
-
-
+		case "evo_pickup":
+			return eLootType.EVO_CACHE
 
 
 

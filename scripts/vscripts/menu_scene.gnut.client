@@ -1225,17 +1225,17 @@ void function UpdateRefCoords( MenuSceneConfig cfg, MenuSceneState state, bool i
 
 void function HighlightSubject( MenuSceneHighlightConfig cfg, entity subject )
 {
+	int contextId = HIGHLIGHT_CLIENT_ONLY_INDEX + eHighlightContextClientOnly.MENU_SCENE
+	HighlightContext_SetRadius( contextId, cfg.radius )
+	HighlightContext_SetParam( contextId, 0, cfg.color )
+	HighlightContext_SetParam( contextId, 1, <cfg.intensityScalar, 1, 0> )
+
 	
 	foreach ( entity ent in GetEntityAndImmediateChildren( subject ) )
 	{
 		ent.Highlight_ResetFlags()
 		ent.Highlight_SetVisibilityType( HIGHLIGHT_VIS_ALWAYS )
-		int contextId = HIGHLIGHT_CLIENT_ONLY_INDEX + eHighlightContextClientOnly.MENU_SCENE
 		ent.Highlight_SetCurrentContext( contextId )
-		ent.Highlight_SetFunctions( contextId, HIGHLIGHT_FILL_MENU_MODEL_REVEAL, true, HIGHLIGHT_OUTLINE_MENU_MODEL_REVEAL, cfg.radius, false )
-		ent.Highlight_SetParam( contextId, 0, cfg.color )
-		ent.Highlight_SetParam( contextId, 1, <cfg.intensityScalar, 1, 0> )
-
 		ent.Highlight_SetFadeInTime( cfg.fadeInTime )
 		ent.Highlight_SetFadeOutTime( cfg.fadeOutTime )
 		ent.Highlight_StartOn()

@@ -33,6 +33,7 @@ global struct EHIScriptStruct
 	bool isPlayer = false
 	bool isConnected = false
 	string name = ""
+	string tag = ""
 	int  team = TEAM_INVALID
 	int  teamMemberIndex
 	int platformID = -1

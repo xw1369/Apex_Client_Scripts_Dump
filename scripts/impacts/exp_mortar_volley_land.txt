@@ -41,7 +41,7 @@ ImpactTable
 		"2" "P_impact_proj_med_lava" //lava_rock_hot
 		"3" "P_impact_proj_med_default"
 		"4" "P_impact_proj_med_default"
-		"5" "P_impact_exp_med_water"
+		"5" "P_impact_proj_med_default"
 		"6" "P_impact_proj_med_default"
 		"7" "P_impact_proj_med_default"
 		"8" "P_impact_proj_med_default"
@@ -107,7 +107,7 @@ ImpactTable
 		"2" "Fuse_Mortar_Impact_Concrete" //lava_rock_hot
 //		"3" "openslot"
 //		"4" "openslot"
-		"5" "Fuse_Mortar_Impact_Water"
+		"5" "Explo_MGL_Impact_3P"
 //		"6" "openslot"
 //		"7" "openslot"
 //		"8" "openslot"
@@ -156,7 +156,7 @@ ImpactTable
 		"2" "Fuse_Mortar_Impact_Concrete" //lava_rock_hot
 //		"3" "openslot"
 //		"4" "openslot"
-		"5" "Fuse_Mortar_Impact_Water"
+		"5" "Explo_MGL_Impact_3P"
 //		"6" "openslot"
 //		"7" "openslot"
 //		"8" "openslot"
@@ -205,7 +205,7 @@ ImpactTable
 		"2" "bangalore_ultimate_rocket_impact_concrete" //lava_rock_hot
 //		"3" "openslot"
 //		"4" "openslot"
-		"5" "bangalore_ultimate_rocket_impact_water"
+		"5" "Explo_MGL_Impact_3P"
 //		"6" "openslot"
 //		"7" "openslot"
 //		"8" "openslot"

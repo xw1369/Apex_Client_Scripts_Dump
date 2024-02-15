@@ -39,10 +39,10 @@ const int MAX_BACKUP_CANDIDATE_SPOTS = 2
 const bool TRANSLOCATION_DO_VERIFICATION = true 
 const bool TRANSLOCATION_ADDITIONAL_DEBUG = false
 
+const float RUI_MAX_RANGE = 67.0                 
+const float RUI_MAX_RANGE_UPGRADED_AMOUNT = 10.0 
 
 
-
-const float RUI_MAX_RANGE = 72.0
 
 
 const bool FORCE_TELEPORT_FAIL = false
@@ -72,10 +72,10 @@ enum eLobaCrosshairStage
 
 
 
-
-
-
-
+struct
+{
+	array<entity> canceledTeleports
+}file
 
 
 
@@ -96,7 +96,7 @@ void function LobaTacticalTranslocation_LevelInit()
 		Remote_RegisterClientFunction( "ServerToClient_Translocation_TeleportFailed", "entity" )
 
 
-
+			Remote_RegisterServerFunction( "ClientToServer_Translocation_Cancel" )
 
 
 		RegisterSignal( "Translocation_Deactivate" )
@@ -116,7 +116,7 @@ void function LobaTacticalTranslocation_LevelInit()
 		StatusEffect_RegisterDisabledCallback( eStatusEffect.translocation_visual_effect, StopVisualEffect )
 
 
-
+			RegisterConCommandTriggeredCallback( "+scriptCommand5", CancelTeleport )
 
 
 }
@@ -186,7 +186,7 @@ void function OnWeaponDeactivate_ability_translocation( entity weapon )
 #endif
 
 
-
+	if( !file.canceledTeleports.contains( weapon.GetOwner() ) )
 
 		Signal( weapon, "Translocation_Deactivate" )
 }
@@ -209,10 +209,10 @@ void function TranslocationLifetimeThread( entity owner, entity weapon )
 		RuiSetFloat( rui, "estimatedMaxDist", GetLobaTacticalEstimatedMaxDistance( owner ) )
 
 
-
-
-
-
+			if( owner.HasPassive( ePassives.PAS_TAC_UPGRADE_TWO ) ) 
+			{
+				RuiSetString( rui, "locString", "%&attack% Drop %scriptCommand5% Cancel" )
+			}
 
 
 
@@ -413,8 +413,6 @@ var function OnWeaponTossReleaseAnimEvent_ability_translocation( entity weapon, 
 
 
 
-
-
 	entity projectile = ThrowDeployable( weapon, attackParams, 1, OnProjectilePlanted, null, null )
 	if ( IsValid( projectile ) )
 	{
@@ -490,12 +488,12 @@ bool function OnWeaponRedirectProjectile_ability_translocation( entity weapon, W
 	attackParams.barrelIndex = 0
 
 
-
+	if( !PlayerHasPassive( owner, ePassives.PAS_TAC_UPGRADE_THREE ) ) 
 
 	weapon.AddMod( "redirect_mod" )
 	entity projectile = ThrowDeployable( weapon, attackParams, 1, OnProjectilePlanted, null, null )
 
-
+	if( !PlayerHasPassive( owner, ePassives.PAS_TAC_UPGRADE_THREE ) ) 
 
 	weapon.RemoveMod( "redirect_mod" )
 
@@ -807,10 +805,6 @@ void function TranslocationTossedThread( entity owner, entity weapon )
 
 
 
-
-
-
-
 void function OnProjectilePlanted( entity projectile, DeployableCollisionParams collisionParams )
 {
 	entity owner = projectile.GetOwner()
@@ -822,14 +816,14 @@ void function OnProjectilePlanted( entity projectile, DeployableCollisionParams 
 		return
 
 
+	if( file.canceledTeleports.contains( owner ) )
+	{
 
 
 
-
-
-
-
-
+		thread CleanupCanceledTeleport( owner )
+		return
+	}
 
 
 
@@ -852,12 +846,12 @@ void function OnProjectilePlanted( entity projectile, DeployableCollisionParams 
 
 
 
-
-
-
-
-
-
+void function CleanupCanceledTeleport( entity player )
+{
+	wait( .1 )
+	if( file.canceledTeleports.contains( player ) )
+		file.canceledTeleports.fastremovebyvalue( player )
+}
 
 
 
@@ -904,8 +898,6 @@ void function ServerToClient_Translocation_TeleportFailed( entity weapon )
 	impactRumbleObj.scale = 0.0
 	weapon.w.translocate_impactRumbleObj = null
 }
-
-
 
 
 
@@ -1465,22 +1457,22 @@ entity function GetCurrentTranslocationProjectile( entity owner, entity weapon )
 
 
 
+void function CancelTeleport( entity player )
+{
+	entity offhandWeapon = player.GetOffhandWeapon( OFFHAND_TACTICAL )
+	if( !IsValid( offhandWeapon ) )
+		return
+	if( !IsValid( GetCurrentTranslocationProjectile( player, offhandWeapon ) ) )
+		return
 
+	if( !file.canceledTeleports.contains( player ) )
+		file.canceledTeleports.append( player )
 
+	if( !PlayerHasPassive( player, ePassives.PAS_TAC_UPGRADE_TWO ) ) 
+		return
 
-
-
-
-
-
-
-
-
-
-
-
-
-
+	Remote_ServerCallFunction( "ClientToServer_Translocation_Cancel" )
+}
 
 
 void function StopVisualEffect( entity player, int statusEffect, bool actuallyChanged )
@@ -1498,11 +1490,11 @@ float function GetLobaTacticalEstimatedMaxDistance( entity owner )
 {
 	float result = RUI_MAX_RANGE
 
-
-
-
-
-
+	if ( UpgradeCore_IsEnabled() && PlayerHasPassive( owner, ePassives.PAS_TAC_UPGRADE_ONE ) )
+	{
+		result += RUI_MAX_RANGE_UPGRADED_AMOUNT
+		return GetCurrentPlaylistVarFloat( "loba_tactical_upgraded_estimated_max_distance", result )
+	}
 
 	return GetCurrentPlaylistVarFloat( "loba_tactical_estimated_max_distance", result )
 }

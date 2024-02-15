@@ -22,7 +22,7 @@ global function AutoPlayer_GetSuddenDeathGameState
 
 
 
-
+global function AutoPlayer_UpgradeCoreXPChanged
 
 
 struct
@@ -73,10 +73,10 @@ void function AutoPlayer_Init()
 
 
 
-
-
-
-
+	if( UpgradeCore_IsEnabled() )
+	{
+		RegisterNetVarIntChangeCallback( UPGRADE_CORE_XP_NETINT, AutoPlayer_UpgradeCoreXPChanged )
+	}
 
 
 
@@ -465,32 +465,32 @@ int function AutoPlayer_GetSuddenDeathGameState()
 }
 
 
+void function AutoPlayer_UpgradeCoreXPChanged( entity player, int newXP )
+{
+	if ( player.IsBot() == false || AutoPlayer_IsAutoPlayer( player ) == false )
+		return
+
+
+		entity localPlayer = GetLocalViewPlayer()
+		if ( !IsValid( localPlayer ) || !IsValid( player ) || player != localPlayer )
+			return
+
+
+	int unspentUpgradePoints = UpgradeCore_GetUnspentUpgradePoints( player )
+
+	if ( unspentUpgradePoints > 0 )
+	{
+		array< int > upgradeChoices = UpgradeCore_GetCurrentLevelChoices( player )
+		if ( upgradeChoices.len() == 0 )
+			return
+
+		int selection = upgradeChoices.getrandom()
 
 
 
 
+			UpgradeCore_SelectOption( selection )
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+	}
+}
 

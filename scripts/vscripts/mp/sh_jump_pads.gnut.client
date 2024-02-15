@@ -8,7 +8,7 @@ global function ServerCallback_HideJumpPadHint
 global function JumpPad_GiveDoubleJump
 global const string JUMP_PAD_SCRIPTNAME = "octane_jump_pad"
 
-
+global const string JUMP_PAD_UPGRADE_TARGETNAME = "jump_pad_upgrade"
 
 
 
@@ -61,16 +61,16 @@ global array<string> INVALID_GRAVITY_CANNON_PLACEABLES
 
 
 
+struct
+{
+	array<entity> jumpPads
+}file
 
-
-
-
-
-
-
-
-
-
+const asset DOUBLE_JUMP_REDIRECT_TRAIL_3P = $"P_LU_Octane_trail"
+const asset DOUBLE_JUMP_FX = $"P_LU_Octane_doubleJump"
+const string UPGRADED_LAUNCHPLAYER_1P = "JumpPad_Upgraded_LaunchPlayer_1P"
+const string UPGRADED_LAUNCHPLAYER_3P = "JumpPad_Upgraded_LaunchPlayer_3P"
+const string JUMP_PAD_DESTRUCTION_UPGRADED = "jump_pad_upgrade_destruction"
 
 
 
@@ -99,7 +99,7 @@ void function Sh_JumpPad_Init()
 
 	PrecacheScriptString( JUMP_PAD_SCRIPTNAME )
 
-
+		PrecacheScriptString( JUMP_PAD_UPGRADE_TARGETNAME )
 
 
 	PrecacheModel( JUMP_PAD_MODEL )
@@ -121,9 +121,9 @@ void function Sh_JumpPad_Init()
 	PrecacheParticleSystem( JUMP_PAD_LAUNCH_FX )
 
 
-
-
-
+		PrecacheParticleSystem( DOUBLE_JUMP_REDIRECT_TRAIL_3P )
+		PrecacheParticleSystem( DOUBLE_JUMP_FX )
+		PrecacheImpactEffectTable( JUMP_PAD_DESTRUCTION_UPGRADED )
 
 
 
@@ -142,8 +142,8 @@ string function JumpPad_GetLaunchSFX_1p( entity trigger )
 	entity jumppad = trigger.GetOwner()
 	string result = "JumpPad_LaunchPlayer_1p"
 
-
-
+		if ( IsValid( jumppad ) && jumppad.GetTargetName() == JUMP_PAD_UPGRADE_TARGETNAME )
+			result = UPGRADED_LAUNCHPLAYER_1P
 
 	return result
 }
@@ -153,11 +153,20 @@ string function JumpPad_GetLaunchSFX_3p( entity trigger )
 	entity jumppad = trigger.GetOwner()
 	string result = "JumpPad_LaunchPlayer_3p"
 
-
-
+		if ( IsValid( jumppad ) && jumppad.GetTargetName() == JUMP_PAD_UPGRADE_TARGETNAME )
+			result = UPGRADED_LAUNCHPLAYER_3P
 
 	return result
 }
+
+
+
+
+
+
+
+
+
 
 
 
@@ -865,6 +874,25 @@ void function JumpPad_GiveDoubleJump( entity player )
 	{
 
 
+			
+			
+			ArrayRemoveInvalid( file.jumpPads )
+			float maxDistSqr = 100 * 100
+			entity closestPad = null
+			float closestDistSqr = maxDistSqr
+			vector playerPos = player.GetOrigin()
+			foreach( pad in file.jumpPads )
+			{
+				float distToPlayerSqr = DistanceSqr( playerPos, pad.GetOrigin() )
+				if( distToPlayerSqr > closestDistSqr )
+					continue
+				closestDistSqr = distToPlayerSqr
+				closestPad = pad
+			}
+			entity trailFx = null
+			if( IsValid( closestPad ) && closestPad.GetSkin() == closestPad.GetSkinIndexByName( "UPGRADED" ) ) 
+			{
+				GivePlayerSettingsMods( player, [ "enable_doublejump_aircontrol" ] )
 
 
 
@@ -873,27 +901,8 @@ void function JumpPad_GiveDoubleJump( entity player )
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+			}
+			else
 
 				GivePlayerSettingsMods( player, [ "enable_doublejump" ] )
 
@@ -904,9 +913,9 @@ void function JumpPad_GiveDoubleJump( entity player )
 
 		OnThreadEnd(
 
+			function() : ( player, trailFx )
 
 
-			function() : ( player )
 
 			{
 				if ( IsValid( player ) )
@@ -920,14 +929,17 @@ void function JumpPad_GiveDoubleJump( entity player )
 
 
 
+						if( player.GetPlayerSettingsMods().contains( "enable_doublejump_aircontrol" ) ) 
+						{
+							TakePlayerSettingsMods( player, [ "enable_doublejump_aircontrol" ] )
 
 
 
 
 
 
-
-
+						}
+						else
 
 							TakePlayerSettingsMods( player, [ "enable_doublejump" ] )
 
@@ -969,8 +981,8 @@ void function OnJumpPadCreated( entity trigger )
 	trigger.SetClientEnterCallback( JumpPad_OnTouchTrigger_Client )
 
 
-
-
+	
+	file.jumpPads.append( trigger.GetOwner() )
 
 }
 

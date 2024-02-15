@@ -32,6 +32,5 @@ WeaponData
 	"deployfirst_time"								"2.3"
 
 	// Animation
-	"ignore_3p_activity_mod_during_consumable"      "1"
 	"activitymodifier3P"							"batons"
 }

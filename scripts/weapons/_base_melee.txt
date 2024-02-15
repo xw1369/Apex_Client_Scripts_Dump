@@ -23,6 +23,8 @@ WeaponData
 	// Animation
 	"activitymodifier3P"							"unarmed"
 
+	"is_Melee_Weapon"                                 "1"
+
 	Mods
 	{
 		proto_door_kick

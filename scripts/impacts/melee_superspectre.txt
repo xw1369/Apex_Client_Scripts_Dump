@@ -37,7 +37,7 @@ ImpactTable
 //		"2" "openslot"
 //		"3" "openslot"
 //		"4" "openslot"
-		"5" "xo_footstep_water"
+		"5" "P_melee_metal_lg" 
 //		"6" "openslot"
 //		"7" "openslot"
 //		"8" "openslot"

@@ -20,7 +20,7 @@ const float ULTIMATE_DECOY_DURATION = 5.0
 const float BAMBOOZLE_DURATION = 3.5
 
 
-
+const int UPGRADE_MIRAGE_TACTICAL_DECOY_MAX = 2
 
 global const vector HOLOPILOT_ANGLE_SEGMENT = <0, 60, 0>
 global function Decoy_Init
@@ -295,13 +295,13 @@ var function OnWeaponPrimaryAttack_holopilot( entity weapon, WeaponPrimaryAttack
 }
 
 
+int function GetMaxAllowedTacticalDecoys( entity player )
+{
+	if( player.HasPassive( ePassives.PAS_TAC_UPGRADE_ONE ) ) 
+		return GetCurrentPlaylistVarInt( "upgrade_mirage_tactical_decoy_max", UPGRADE_MIRAGE_TACTICAL_DECOY_MAX )
 
-
-
-
-
-
-
+	return 1
+}
 
 
 

@@ -29,6 +29,9 @@ global function CharacterClass_GetCharacterRoleImage
 
 
 
+
+
+
 global function CharacterClass_GetGalleryRoleBackground
 global function SortByRoleAndMenuIndex
 global function CharacterClass_GetCharacterPerkDescription
@@ -715,6 +718,14 @@ asset function CharacterClass_GetGalleryPortrait( ItemFlavor flavor )
 
 	return GetGlobalSettingsAsset( ItemFlavor_GetAsset( flavor ), "galleryPortrait" )
 }
+
+
+
+
+
+
+
+
 
 
 asset function CharacterClass_GetGalleryPortraitBackground( ItemFlavor flavor )

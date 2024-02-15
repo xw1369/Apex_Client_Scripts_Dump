@@ -39,7 +39,7 @@ ImpactTable
 		"2" "P_launchpad_exp_metal"
 		"3" "P_launchpad_exp_metal"
 		"4" "P_launchpad_exp_metal"
-		"5" "P_launchpad_exp_water"
+		"5" "P_launchpad_exp_metal"
 		"6" "P_launchpad_exp_metal"
 		"7" "P_launchpad_exp_metal"
 		"8" "P_launchpad_exp_metal"

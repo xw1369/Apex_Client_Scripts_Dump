@@ -4,6 +4,11 @@ global function Odl_SmokeTestInit
 global function Odl_ClientSmokeTestCallback
 global function Odl_ClientEndCurrentTest
 global function Odl_ClientAddSpawnPoint
+global function Odl_ClientValidateAllSkins
+
+
+
+
 
 
 #if DEV
@@ -23,6 +28,10 @@ global function OdslKillTest
 
 
 
+
+
+
+global function Odl_ValidateAllSkins
 
 global struct ODLTestingParams
 {
@@ -482,13 +491,91 @@ void function Odl_ClientAddSpawnPoint(vector pos, vector angle)
 
 #endif
 
+void function Odl_ValidateAllSkins_Thread()
+{
+	entity e = CreatePropDynamic( $"mdl/props/nessie/nessie_april_fools.rmdl", <0, 0, 0>, <0, 0, 0> )
+	string lastBodyModel = ""
+
+	foreach( ItemFlavor character in Loadout_Character().validItemFlavorList )
+	{
+		foreach( ItemFlavor skin in Loadout_CharacterSkin( character ).validItemFlavorList )
+		{
+			int odlHandle = ODL_FindAsset(ODL_SKINS, CharacterSkin_GetBodyModel( skin ))
+			if (odlHandle == -1)
+				continue
+
+			if ( lastBodyModel == string( CharacterSkin_GetBodyModel( skin ) ) )
+				continue
+
+			lastBodyModel = string( CharacterSkin_GetBodyModel( skin ) )
+
+			e.SetModel( CharacterSkin_GetBodyModel( skin ) )
+
+			while(!ODL_IsLoaded( ODL_SKINS, odlHandle ))
+			{
+				WaitFrame()
+			}
+		}
+	}
+}
+
+void function Odl_ValidateAllSkins()
+{
+	thread Odl_ValidateAllSkins_Thread()
+}
+
+
+void function Odl_ClientValidateAllSkins()
+{
+	thread function ():() {
+		waitthread Odl_ValidateAllSkins_Thread()
+		Remote_ServerCallFunction( "Odl_ServerClientFinishedValidatingAllSkins" )
+	}()
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 void function Odl_SmokeTestInit()
 {
 	RegisterSignal("KillOdlStressTest")
 	RegisterSignal("KillOdlReSelector")
+	RegisterSignal("OdlValidationTestFinished")
 	Remote_RegisterClientFunction( "Odl_ClientSmokeTestCallback", "int", 0, 255 )
 	Remote_RegisterClientFunction( "Odl_ClientEndCurrentTest" )
 	Remote_RegisterClientFunction( "Odl_ClientAddSpawnPoint", "vector", -FLT_MAX, FLT_MAX, 32, "vector", -FLT_MAX, FLT_MAX, 32 )
+	Remote_RegisterClientFunction( "Odl_ClientValidateAllSkins" )
+
+	Remote_RegisterServerFunction( "Odl_ServerClientFinishedValidatingAllSkins" )
 
 #if DEV
 

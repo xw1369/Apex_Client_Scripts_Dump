@@ -1186,7 +1186,7 @@ array<string> function AutoPlayer_GetNeededAmmoTypes( entity player )
 void function AutoPlayer_RespawnIfChoosing( entity player )
 {
 
-		if ( IsValid( player ) && player.GetPlayerNetBool( "control_IsPlayerOnSpawnSelectScreen" ) )
+		if ( IsValid( player ) && player.GetPlayerNetBool( "control_IsPlayerOnSpawnSelectScreen" ) && Control_GetValidSpawnWaypointCount() > 0 )
 		{
 			int alliance = AllianceProximity_GetAllianceFromTeam( player.GetTeam() )
 			entity bestSpawnForBot = Control_GetBestSpawnLocationForAlliance( alliance )

@@ -392,8 +392,7 @@ void function Consumable_Init()
 	file.modNameToConsumableType[ "phoenix_kit" ] <-        eConsumableType.COMBO_FULL
 	file.modNameToConsumableType[ "ultimate_battery" ] <-    eConsumableType.ULTIMATE
 
-
-
+	file.modNameToConsumableType[ "ultimate_battery_fast" ] <-    eConsumableType.ULTIMATE
 
 
 
@@ -423,7 +422,7 @@ void function Consumable_Init()
 
 
 
-
+		AddCallback_OnPassiveChanged( ePassives.PAS_ULT_UPGRADE_ONE, UpgradedUltAccel_PassiveToggle )
 
 }
 
@@ -438,38 +437,38 @@ void function Consumable_Init()
 
 
 
+void function UpgradedUltAccel_PassiveToggle( entity player, int pas, bool didHave, bool nowHas )
+{
+
+		if ( !InPrediction() )
+			return
 
 
+	if ( PlayerHasPassive( player, ePassives.PAS_BATTERY_POWERED ) )
+	{
+		if ( nowHas )
+		{
+			entity weapon = player.GetOffhandWeapon( OFFHAND_SLOT_FOR_CONSUMABLES )
+			{
+				if( weapon.HasMod( "ultimate_battery" ) )
+				{
+					weapon.RemoveMod( "ultimate_battery" )
+					weapon.AddMod( "ultimate_battery_fast" )
+				}
+			}
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+		}
+		if ( didHave )
+		{
+			entity weapon = player.GetOffhandWeapon( OFFHAND_SLOT_FOR_CONSUMABLES )
+			if( weapon.HasMod( "ultimate_battery_fast" ) )
+			{
+				weapon.RemoveMod( "ultimate_battery_fast" )
+				weapon.AddMod( "ultimate_battery" )
+			}
+		}
+	}
+}
 
 
 
@@ -651,10 +650,6 @@ void function OnWeaponActivate_Consumable( entity weapon )
 
 
 
-
-
-
-
 		
 		
 		if ( weapon.GetOwner() != GetLocalClientPlayer() && GetLocalViewPlayer() == weapon.GetOwner() )		
@@ -668,16 +663,11 @@ void function OnWeaponActivate_Consumable( entity weapon )
 			return
 
 
-
-
-
-
-
-
-
-
-
-
+		if( file.clientPlayerNextMod == "ultimate_battery" )
+		{
+			if( PlayerHasPassive( weaponOwner, ePassives.PAS_BATTERY_POWERED ) && PlayerHasPassive( weaponOwner, ePassives.PAS_ULT_UPGRADE_ONE ) )
+				file.clientPlayerNextMod = "ultimate_battery_fast"
+		}
 
 		modName = file.clientPlayerNextMod
 		printt( format( "[CONSUMABlE] Activating consumable (%s)", modName ) )
@@ -694,7 +684,7 @@ void function OnWeaponActivate_Consumable( entity weapon )
 
 		file.healCompletedSuccessfully = false
 
-		if ( !IsSpectator( GetLocalClientPlayer() ) && !IsWatchingKillReplay() )
+		if ( !IsWatchingReplay() )
 		{
 			if ( CharacterSelect_MenuIsOpen() )
 				CloseCharacterSelectMenu()
@@ -1447,14 +1437,10 @@ void function AddModAndFireWeapon_Thread( entity player, string modName )
 	if ( player.IsBot() )
 		return
 
-
-
-
-
-
-
-
-
+	if( modName == "ultimate_battery" &&  PlayerHasPassive( player, ePassives.PAS_BATTERY_POWERED ) && PlayerHasPassive( player, ePassives.PAS_ULT_UPGRADE_ONE ) )
+	{
+		modName = "ultimate_battery_fast"
+	}
 
 	int consumableType  = file.modNameToConsumableType[ modName ]
 	if ( !Consumable_CanUseConsumable( player, consumableType, true ) )
@@ -1804,12 +1790,12 @@ string function GetCanUseResultString( int consumableUseActionResult )
 		case eUseConsumableResult.DENY_NO_SHIELDS:
 		{
 
+				if( UpgradeCore_IsEnabled() )
+					return "#DENY_NO_SHIELD_CORE"
+				else
+					return "#DENY_NO_SHIELDS"
 
 
-
-
-
-				return "#DENY_NO_SHIELDS"
 
 		}
 
@@ -1840,10 +1826,6 @@ void function ServerToClient_DoUltAccelScreenFx()
 {
 	Consumable_DoUltAccelScreenFx( GetLocalViewPlayer() )
 }
-
-
-
-
 
 
 
@@ -2678,16 +2660,12 @@ string function GetConsumableModOnWeapon( entity weapon )
 				return mod
 			}
 
-
-
-
-
-
-
-
-
-
-
+			else if( mod == "ultimate_battery_fast" && info.modName == "ultimate_battery" )
+			{
+				entity weaponOwner = weapon.GetOwner()
+				if ( PlayerHasPassive( weaponOwner, ePassives.PAS_BATTERY_POWERED ) && PlayerHasPassive( weaponOwner, ePassives.PAS_ULT_UPGRADE_ONE ) )
+					return mod
+			}
 
 
 		}

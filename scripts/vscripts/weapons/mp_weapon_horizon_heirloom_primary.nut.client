@@ -1,4 +1,3 @@
-
 global function MpWeaponHorizonHeirloomPrimary_Init
 global function OnWeaponActivate_weapon_horizon_heirloom_primary
 global function OnWeaponDeactivate_weapon_horizon_heirloom_primary
@@ -193,4 +192,3 @@ void function StopPermanentVFX1P( entity weapon )
 	weapon.StopWeaponEffect( HORIZON_WEAPON_BASE_FX_1P, $"" )
 	weapon.StopWeaponEffect( HORIZON_WEAPON_LIGHT_FX_1P, $"" )
 }
-                         

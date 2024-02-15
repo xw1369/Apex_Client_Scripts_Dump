@@ -45,6 +45,10 @@ global const asset CHARACTER_BASE_EFFECT = $"P_menu_char_base_rarity"
 
 
 
+
+
+
+
 const array<asset> STORE_BACKGROUND_FX_TIERS = 
 [
 	$"P_store_BG_bundle_T1",
@@ -579,13 +583,13 @@ void function ShowModelInfo()
 		if( md != null )
 		{
 			expect MenuModelData( md )
-			DebugScreenText( 0.1, 0.1, "Model Name: " + md.model.GetModelName() )
-			DebugScreenText( 0.1, 0.125, "Activity: " +  md.bodyAnim )
-			DebugScreenText( 0.1, 0.15, "Sequence: " + md.model.GetCurrentSequenceName() )
+			DebugDrawScreenText( 0.1, 0.1, "Model Name: " + md.model.GetModelName() )
+			DebugDrawScreenText( 0.1, 0.125, "Activity: " +  md.bodyAnim )
+			DebugDrawScreenText( 0.1, 0.15, "Sequence: " + md.model.GetCurrentSequenceName() )
 		}
 		else
 		{
-			DebugScreenTextWithColor( 0.25, 0.25, format( "No active Model!" ), <255, 0, 0> )
+			DebugDrawScreenTextWithColor( 0.25, 0.25, format( "No active Model!" ), <255, 0, 0> )
 		}
 
 		WaitFrame()
@@ -3131,6 +3135,37 @@ void function UpdateMeleeInspectDisplay( ItemFlavor item )
 	asset animSeq = MeleeSkin_GetMenuAnimSeq( item )
 	if ( animSeq != $"" )
 		model.Anim_Play( animSeq )
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 }
 
 void function UpdateStoreItemDisplay_WeaponCharm( ItemFlavor item )
@@ -3728,6 +3763,10 @@ void function UpdateStoreItemDisplay_MeleeSkin( ItemFlavor item )
 	asset animSeq = MeleeSkin_GetMenuAnimSeq( item )
 	if ( animSeq != $"" )
 		model.Anim_Play( animSeq )
+
+
+
+
 }
 
 void function UpdateStoreItemDisplay_ApexCoins( ItemFlavor item )
@@ -5404,6 +5443,11 @@ void function UIToClient_PROTO_UpdateClientWithLocalClientUID( string localClien
 
 void function FlashMenuModel( entity model, int flashType, vector flashColor, bool includeChildren = true, bool depthDiscard = false )
 {
+	if ( !IsValid( model ) )
+		return
+
+	WaitForOdlModelLoad( model, true )
+
 	WaitFrame() 
 
 	
@@ -5428,13 +5472,14 @@ void function FlashMenuModel( entity model, int flashType, vector flashColor, bo
 		outline = HIGHLIGHT_OUTLINE_MENU_MODEL_REVEAL_DEPTH_DISCARD
 	}
 
+	int contextId = HIGHLIGHT_CLIENT_ONLY_INDEX +  eHighlightContextClientOnly.FLASH_MENU_MODEL
+	HighlightContext_SetRadius( contextId, fd.outlineRadius )
+	HighlightContext_SetParam( contextId, 0, flashColor )
+	HighlightContext_SetParam( contextId, 1, <fd.fillIntensityScalar, fd.outlineIntensityScalar, 0> )
+
 	model.Highlight_ResetFlags()
 	model.Highlight_SetVisibilityType( HIGHLIGHT_VIS_ALWAYS )
-	int contextId = HIGHLIGHT_CLIENT_ONLY_INDEX +  eHighlightContextClientOnly.FLASH_MENU_MODEL
 	model.Highlight_SetCurrentContext( contextId )
-	model.Highlight_SetFunctions( contextId, fill, true, outline, fd.outlineRadius, false )
-	model.Highlight_SetParam( contextId, 0, flashColor )
-	model.Highlight_SetParam( contextId, 1, <fd.fillIntensityScalar, fd.outlineIntensityScalar, 0> )
 	model.Highlight_SetFadeInTime( fd.fadeInTime )
 	model.Highlight_SetFadeOutTime( fd.fadeOutTime )
 	model.Highlight_StartOn()
@@ -5455,9 +5500,6 @@ void function FlashMenuModel( entity model, int flashType, vector flashColor, bo
 			childEnt.Highlight_SetVisibilityType( HIGHLIGHT_VIS_ALWAYS )
 			contextId = HIGHLIGHT_CLIENT_ONLY_INDEX +  eHighlightContextClientOnly.FLASH_MENU_MODEL
 			childEnt.Highlight_SetCurrentContext( contextId )
-			childEnt.Highlight_SetFunctions( contextId, fill, true, outline, fd.outlineRadius, false )
-			childEnt.Highlight_SetParam( contextId, 0, flashColor )
-			childEnt.Highlight_SetParam( contextId, 1, <fd.fillIntensityScalar, fd.outlineIntensityScalar, 0> )
 			childEnt.Highlight_SetFadeInTime( fd.fadeInTime )
 			childEnt.Highlight_SetFadeOutTime( fd.fadeOutTime )
 			childEnt.Highlight_StartOn()

@@ -67,7 +67,7 @@ void function Perk_EnemyBeaconScan_Init()
 		}
 
 
-
+			AddCallback_OnPassiveChanged( ePassives.PAS_UPGRADE_BEACON_SCAN, OnPassiveChangedBeaconScanUpgrade )
 
 
 
@@ -94,13 +94,13 @@ void function Perk_EnemyBeaconScan_Init()
 
 
 
-
-
-
-
-
-
-
+void function OnPassiveChangedBeaconScanUpgrade( entity player, int passive, bool didHave, bool nowHas )
+{
+	if( nowHas )
+	{
+		Perks_AddPerk( player, ePerkIndex.BEACON_ENEMY_SCAN )
+	}
+}
 
 
 

@@ -1063,7 +1063,32 @@ void function FreeDM_SetAudioEvent( int event, string eventString )
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 const int FramesToWait = 60 
+
+
 
 
 
@@ -1868,7 +1893,13 @@ void function Client_OnWinnerDetermined( )
 			return
 		}
 		int squadIndex = Squads_GetSquadUIIndex( winningTeam )
-		SetVictoryScreenTeamName( Localize( Squads_GetSquadNameLong( squadIndex ) ) )
+
+		entity localPlayer = GetLocalViewPlayer()
+		if( IsValid( localPlayer ) && winningTeam != localPlayer.GetTeam() ) 
+		{
+			SetVictoryScreenTeamName( Localize( Squads_GetSquadNameLong( squadIndex ) ) )
+		}
+
 	}
 }
 
@@ -2184,6 +2215,10 @@ void function ServerCallback_FreeDM_ChampionSounds( int winningTeamOrAlliance )
 
 		endMusic = EmitSoundOnEntity_NoTimeScale( localPlayer, file.audioEvents[eFreeDMAudioEvents.Loss_Music] )
 	}
+
+
+		CrowdNoiseMeter_PlayGameEndSound( localPlayer, isWinner )
+
 
 
 		SetPlayThroughKillReplay( endMusic )

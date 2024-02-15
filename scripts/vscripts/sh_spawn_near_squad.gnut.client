@@ -1,5 +1,4 @@
 global function ShSpawnNearSquad_Init
-global function RespawnNearSquad_GetRemainingRespawnsForPlayer
 
 
 const int CIRCLE_STAGE_TO_STOP_RESPAWNS = 5
@@ -295,18 +294,6 @@ void function EntitiesDidLoad()
 
 
 
-
-
-
-int function RespawnNearSquad_GetRemainingRespawnsForPlayer( entity player )
-{
-	int numRespawnsForMode = GetStartingRespawnCount() 
-	if ( numRespawnsForMode == -1 )
-		return -1
-
-	return player.GetPlayerNetInt( "respawnsRemaining" )
-
-}
 
 
 

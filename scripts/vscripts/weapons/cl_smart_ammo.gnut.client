@@ -224,27 +224,27 @@ void function SmartAmmo_LockedOntoWarningHUD_Update()
 
 
 
+		else if ( StatusEffect_HasSeverity( player, eStatusEffect.physical_overshield ) )
+		{
+			RuiSetString( file.lockon_hud, "lockMessage", "#UPGRADE_PATHFINDER_ZIPLINE_SHIELD" )
 
+			RuiSetBool( file.lockon_hud, "isVisible", true )
+			RuiSetBool( file.lockon_hud, "northLock", false )
+			RuiSetBool( file.lockon_hud, "southLock", false )
+			RuiSetBool( file.lockon_hud, "westLock", false )
+			RuiSetBool( file.lockon_hud, "eastLock", false )
+			RuiSetImage( file.lockon_hud, "characterIcon", $"" )
+			RuiSetFloat3( file.lockon_hud, "borderColor", < 1.0, 0.0, 0.0 > )
 
+			RuiSetImage( file.lockon_hud, "additionalInfo1Icon", $"rui/hud/character_abilities/rampart_shield_hit_indicator_full" )
+			RuiSetFloat3( file.lockon_hud, "additionalInfo1IconColor", < 1.0, 0.0, 0.0 > )
 
+			if( file.lockon_hud_bottom_nested == null )
+				file.lockon_hud_bottom_nested = RuiCreateNested( file.lockon_hud, "bottomUiHandle", $"ui/shadow_form_time_bar.rpak" )
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+			hasBottomUiHandle = true
+			PhysicalOvershield_PopulateRui( player, file.lockon_hud_bottom_nested, file.lockon_hud )
+		}
 
 
 		else if ( StatusEffect_HasSeverity( player, eStatusEffect.lockon_detected ) )
@@ -304,7 +304,7 @@ void function SmartAmmo_LockedOntoWarningHUD_Update()
 		}
 
 
-
+		
 
 
 
@@ -727,7 +727,6 @@ void function SmartAmmo_LockedOntoWarningHUD_Update()
 
 
 
-
 		 else if ( IsPlayerBeingTargetedByBallistic( player ) )
 		 {
 			 RuiSetString( file.lockon_hud, "lockMessage", "#TURRET_TARGETING" )
@@ -792,7 +791,6 @@ void function SmartAmmo_LockedOntoWarningHUD_Update()
 
 
 
-
 		else if ( StatusEffect_HasSeverity( player, eStatusEffect.rev_shell_targeted ) )
 		{
 			 RuiSetString( file.lockon_hud, "lockMessage", "#REV_SHELL_LOCKON" )
@@ -805,28 +803,6 @@ void function SmartAmmo_LockedOntoWarningHUD_Update()
 			 RuiSetFloat3( file.lockon_hud, "borderColor", <1, 0, 0> )
 			 RuiSetBool( file.lockon_hud, "showProgress", false )
 		}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

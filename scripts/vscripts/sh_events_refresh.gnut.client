@@ -1,4 +1,3 @@
-
 global function EventRefresh_SharedInit
 
 
@@ -46,4 +45,3 @@ void function EventRefresh_SharedInit()
 
 
 
-                          

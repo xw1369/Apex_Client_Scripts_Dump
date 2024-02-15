@@ -10,9 +10,9 @@ global function PassiveMedic_Init
 global function ServerToClient_DisplayCancelReviveHintForPlayer
 global function ServerToClient_RemoveCancelReviveHintForPlayer
 
-
-
-
+global function ServerToClient_NumSelfRevivesUsed
+global function ServerToClient_DisplaySelfResRuiForPlayer
+global function ServerToClient_RemoveDisplaySelfResRuiForlayer
 
 
 
@@ -58,7 +58,7 @@ struct
 
 
 
-
+	var selfResRui
 
 
 } file
@@ -69,9 +69,9 @@ void function PassiveMedic_Init()
 	Remote_RegisterClientFunction( "ServerToClient_DisplayCancelReviveHintForPlayer" )
 	Remote_RegisterClientFunction( "ServerToClient_RemoveCancelReviveHintForPlayer" )
 
-
-
-
+	Remote_RegisterClientFunction( "ServerToClient_NumSelfRevivesUsed", "entity", "int", 0, INT_MAX )
+	Remote_RegisterClientFunction( "ServerToClient_DisplaySelfResRuiForPlayer", "entity" )
+	Remote_RegisterClientFunction( "ServerToClient_RemoveDisplaySelfResRuiForlayer", "entity" )
 
 
 	RegisterSignal( "OnPassiveMedicReviveEnd" )
@@ -111,10 +111,22 @@ void function PassiveMedic_Init()
 
 
 
-
+		RegisterSignal( "PassiveMedic_DestroySelfResRUI" )
 
 
 }
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -739,67 +751,67 @@ bool function IsEntLifelineReviveTarget( entity ent )
 }
 
 
+void function ServerToClient_NumSelfRevivesUsed( entity medic, int numSelfRevives )
+{
+	if( medic != GetLocalClientPlayer() )
+		return
+
+	if( !IsValid( medic ) )
+		return
+
+	medic.p.numSelfRevivesUsed = numSelfRevives
+}
 
 
 
 
+void function ServerToClient_DisplaySelfResRuiForPlayer( entity player )
+{
+	if ( player != GetLocalViewPlayer() )
+		return
 
+	thread PassiveMedic_UpdateSelfResRUI( player )
+}
 
+void function ServerToClient_RemoveDisplaySelfResRuiForlayer( entity player )
+{
+	if ( player != GetLocalViewPlayer() )
+		return
 
+	player.Signal( "PassiveMedic_DestroySelfResRUI" )
+}
 
+void function PassiveMedic_UpdateSelfResRUI( entity player )
+{
+	player.EndSignal( "PassiveMedic_DestroySelfResRUI" )
+	player.EndSignal( "OnDestroy" )
+	player.EndSignal( "OnDeath" )
 
+	
+	if ( file.selfResRui == null )
+	{
+		file.selfResRui = CreateFullscreenRui( $"ui/upgrade_self_revive.rpak", HUD_Z_BASE ) 
+		RuiTrackFloat( file.selfResRui, "bleedoutEndTime", player, RUI_TRACK_SCRIPT_NETWORK_VAR, GetNetworkedVariableIndex( "bleedoutEndTime" ) )
+		RuiTrackFloat( file.selfResRui, "reviveEndTime", player, RUI_TRACK_SCRIPT_NETWORK_VAR, GetNetworkedVariableIndex( "reviveEndTime" ) )
+	}
 
+	OnThreadEnd(
+		function() : ( player )
+		{
+			RuiDestroyIfAlive( file.selfResRui )
+		}
+	)
 
+	bool isVisible = true
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+	while( IsValid( player ) )
+	{
+		if( player.p.numSelfRevivesUsed > 0 )
+			return
+		wait 1
+	}
+	
+}
 
 
 

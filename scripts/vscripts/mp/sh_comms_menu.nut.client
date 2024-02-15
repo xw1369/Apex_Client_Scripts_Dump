@@ -111,7 +111,7 @@ global enum eChatPage
 
 
 
-
+	UPGRADE_CORE,
 
 
 
@@ -250,11 +250,11 @@ void function ChatMenuButton_Down( entity player )
 	}
 
 
-
-
-
-
-
+	if( UpgradeCore_IsEnabled() && UpgradeCore_GetUnspentUpgradePoints( player ) > 0 )
+	{
+		UpgradeSelectionMenu_Open()
+		return
+	}
 
 
 	int chatPage = eChatPage.DEFAULT
@@ -507,6 +507,8 @@ enum eOptionType
 
 
 
+	UPGRADE_CORE,
+
 
 
 
@@ -561,6 +563,16 @@ CommsMenuOptionData function MakeOption_WeaponInspect()
 	op.optionType = eOptionType.WEAPON_INSPECT
 	return op
 }
+
+
+
+
+
+
+
+
+
+
 
 CommsMenuOptionData function MakeOption_Quip( ItemFlavor quip, int index )
 {
@@ -642,16 +654,6 @@ CommsMenuOptionData function MakeOption_CraftItem( int itemIndex )
 
 
 
-
-
-
-
-
-
-
-
-
-
 array<CommsMenuOptionData> function BuildMenuOptions( int chatPage )
 {
 	array<CommsMenuOptionData> results
@@ -677,6 +679,24 @@ array<CommsMenuOptionData> function BuildMenuOptions( int chatPage )
 			}
 
 			ItemFlavor character = LoadoutSlot_GetItemFlavor( playerEHI, Loadout_Character() )
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 			ItemFlavor ornull emptyQuip
 			int quipsInWheel
 			for ( int i = 0; i < MAX_QUIPS_EQUIPPED; i++ )
@@ -948,30 +968,20 @@ array<CommsMenuOptionData> function BuildMenuOptions( int chatPage )
 					if( data.category == "banner" )
 					{
 
-
-
-
-
-
+						if ( Crafting_IsDispenserCraftingEnabled() && ( GetRespawnStyle() == eRespawnStyle.RESPAWN_CHAMBERS ) && ( GetCurrentPlaylistVarBool( "has_auto_banners", false ) == false ) )
+						{
+							results.append( MakeOption_CraftItem( counter ) )
+						}
+						else
 
 						{
-							if ( ( Perk_CanBuyBanners( player ) || Perks_DoesPlayerHavePerk( player, ePerkIndex.BANNER_CRAFTING ) ) && ( GetRespawnStyle() == eRespawnStyle.RESPAWN_CHAMBERS ) )
+							if ( ( Perk_CanBuyBanners( player ) || Perks_DoesPlayerHavePerk( player, ePerkIndex.BANNER_CRAFTING ) ) && ( GetRespawnStyle() == eRespawnStyle.RESPAWN_CHAMBERS )  && ( GetCurrentPlaylistVarBool( "has_auto_banners", false ) == false ) )
 							{
 								results.append( MakeOption_CraftItem( counter ) )
 							}
 						}
 					}
 					else
-
-
-
-
-
-
-
-
-
-
 
 					results.append( MakeOption_CraftItem( counter ) )
 					counter++
@@ -980,18 +990,6 @@ array<CommsMenuOptionData> function BuildMenuOptions( int chatPage )
 			break
 		}
 		
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -1066,6 +1064,9 @@ string[2] function GetPromptsForMenuOption( int index )
 		case eOptionType.COMMSACTION:
 			promptTexts[0] = GetMenuOptionTextForCommsAction( op.commsAction )
 			break
+
+
+
 
 		case eOptionType.QUIP:
 		case eOptionType.SKYDIVE_EMOTE:
@@ -1154,15 +1155,15 @@ string[2] function GetPromptsForMenuOption( int index )
 				{
 					promptTexts[0] = Localize( "#BANNER" )
 
-
-
-
-
-
-
-
-
-
+					if ( Crafting_IsDispenserCraftingEnabled() && !DoesTeammateHaveBannerCraftingPerk( player ))
+					{
+						promptTexts[1] = Localize( "#DISPENSER_BANNER_NOSUPPORT_DESC" )
+					}
+					else if ( Crafting_IsDispenserCraftingEnabled() && !Perk_CanBuyBanners( player ))
+					{
+						promptTexts[1] = Localize( "#DISPENSER_BANNER_NOBANNER_DESC" )
+					}
+					else
 
 					{
 						promptTexts[1] = Localize( "#REPLICATER_CRAFT_BANNER_DESCRIPTION" )
@@ -1173,13 +1174,6 @@ string[2] function GetPromptsForMenuOption( int index )
 					promptTexts[0] = "Future Care Packages"
 					promptTexts[1] = "Reveals the drop locations of the next available round of care packages on the map"
 				}
-
-
-
-
-
-
-
 
 				else
 				{
@@ -1202,12 +1196,6 @@ string[2] function GetPromptsForMenuOption( int index )
 			}
 			break
 		}
-
-
-
-
-
-
 
 
 
@@ -1287,6 +1275,9 @@ var function GetRuiForMenuOption( var mainRui, int index )
 
 	switch ( op.optionType )
 	{
+
+
+
 		case eOptionType.QUIP:
 			ItemFlavor data = expect ItemFlavor( op.emote )
 			return CreateNestedRuiForQuip( mainRui, "iconHandle" + index, data )
@@ -1296,10 +1287,10 @@ var function GetRuiForMenuOption( var mainRui, int index )
 			
 			asset craftingAsset = $"ui/comms_menu_icon_crafting.rpak"
 
-
-
-
-
+				if ( Crafting_IsDispenserCraftingEnabled() )
+				{
+					craftingAsset = $"ui/crafting_dispensers.rpak"
+				}
 
 			return RuiCreateNested( mainRui, "iconHandle" + index, craftingAsset )
 
@@ -1308,11 +1299,6 @@ var function GetRuiForMenuOption( var mainRui, int index )
 			
 			asset weaponAsset = $"ui/comms_menu_icon_weapon_inspect.rpak"
 			return RuiCreateNested( mainRui, "iconHandle" + index, weaponAsset )
-
-
-
-
-
 
 
 
@@ -1338,6 +1324,9 @@ asset function GetIconForMenuOption( int index )
 	{
 		case eOptionType.COMMSACTION:
 			return GetDefaultIconForCommsAction( op.commsAction )
+
+
+
 
 		case eOptionType.SKYDIVE_EMOTE:
 			ItemFlavor data = expect ItemFlavor( op.emote )
@@ -1389,13 +1378,6 @@ asset function GetIconForMenuOption( int index )
 		{
 			return $"rui/weapon_icons/r5/weapon_inspect"
 		}
-
-
-
-
-
-
-
 
 
 
@@ -1673,21 +1655,24 @@ void function SetRuiOptionsForChatPage( var rui, int chatPage )
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+				nextPageText  = "#INVENTORY_USE"
+				showNextPageText = true
+				if ( Crafting_IsDispenserCraftingEnabled() )
+				{
+					entity player = GetLocalViewPlayer()
+					if ( Crafting_DispenserFreeSupportBanner() && ( Perks_GetRoleForPlayer( player ) == eCharacterClassRole.SUPPORT ) )
+					{
+						RuiSetString( file.menuRui, "lowerHeader", Localize("#DISPENSER_SUPPORT_BANNER_LOWER_DESC") )
+					}
+					else if ( Crafting_DispenserSupportMRB() && ( Perks_GetRoleForPlayer( player ) == eCharacterClassRole.SUPPORT ) )
+					{
+						RuiSetString( file.menuRui, "lowerHeader", Localize("#DISPENSER_SUPPORT_BANNER_MRB_LOWER_DESC") )
+					}
+					else
+					{
+						RuiSetString( file.menuRui, "lowerHeader", Localize("#DISPENSER_LOWER_DESC") )
+					}
+				}
 
 
 			
@@ -1705,15 +1690,6 @@ void function SetRuiOptionsForChatPage( var rui, int chatPage )
 			break
 
 			
-
-
-
-
-
-
-
-
-
 
 
 
@@ -1855,20 +1831,11 @@ void function ShowCommsMenu( int chatPage )
 			Crafting_PopulateItemRuiAtIndex( nestedRui, index )
 
 
-
-
+			if ( Crafting_IsDispenserCraftingEnabled() )
+				RuiSetBool( rui, "isCrafting2pt0", true )
 
 		}
 		
-
-
-
-
-
-
-
-
-
 
 
 
@@ -2480,6 +2447,15 @@ bool function MakeCommMenuSelection( int choice, int wheelInputType )
 			return true
 		}
 
+
+
+
+
+
+
+
+
+
 		case eOptionType.QUIP:
 		{
 			HandleQuipPick( expect ItemFlavor( op.emote ), op.healType )
@@ -2560,14 +2536,6 @@ bool function MakeCommMenuSelection( int choice, int wheelInputType )
 				EmitSoundOnEntity( GetLocalViewPlayer(), WHEEL_SOUND_ON_DENIED_CRAFTING )
 			return retVal
 		}
-
-
-
-
-
-
-
-
 
 
 
@@ -2916,8 +2884,8 @@ bool function CommsMenu_CanUseMenu( entity player, int menuType = eChatPage.DEFA
 
 
 
-
-
+	if( UpgradeSelectionMenu_IsActive() )
+		return false
 
 
 	if ( GetGameState() > eGameState.Resolution )

@@ -106,13 +106,13 @@ global struct CareerStats
 	StatTemplate& modes_weaponcategory_dooms
 
 
+		StatTemplate& modes_weapon_headshots
+		StatTemplate& modes_weapon_kills
 
-
-
-
-
-
-
+		StatTemplate& weapon_damage_done_all_modes
+		StatTemplate& weapon_dooms_all_modes
+		StatTemplate& weapon_kills_all_modes
+		StatTemplate& weapon_headshots_all_modes
 
 
 	StatTemplate& all_modes_games_played
@@ -236,6 +236,9 @@ global struct CareerStats
 	StatTemplate& character_placements_win_flawless_1
 	StatTemplate& character_placements_win_flawless_2
 	StatTemplate& character_placements_win_with_5_headshots
+	StatTemplate& character_ring_closings_survived
+	StatTemplate& character_looted_legendary_item
+	StatTemplate& character_thanks
 
 	StatTemplate& character_won_last_game
 	StatTemplate& character_hot_streaks
@@ -268,6 +271,7 @@ global struct CareerStats
 	StatTemplate& crafting_items_crafted
 	StatTemplate& crafting_materials_collected
 	StatTemplate& crafting_harvester_used_any_mode 
+	StatTemplate& crafting_items_crafted_any_mode
 	
 	StatTemplate& times_jumpmaster
 	StatTemplate& times_jumpmaster_post_fix 
@@ -356,6 +360,7 @@ global struct CareerStats
 	StatTemplate& fuse_grenade_distance_thrown
 	StatTemplate& fuse_cluster_bomb_hits
 	StatTemplate& fuse_motherlode_enemies_captured
+	StatTemplate& fuse_grenade_barrage_thrown
 
 	
 	StatTemplate& valk_distance_travelled_passive
@@ -392,12 +397,10 @@ global struct CareerStats
 		StatTemplate& conduit_ult_damage
 
 
-
-		StatTemplate& ballistic_passive_sling_kills
-		StatTemplate& ballistic_tactical_enemies_overheated
-		StatTemplate& ballistic_ultimate_damage
-		StatTemplate& ballistic_tactical_enemies_hit
-
+	StatTemplate& ballistic_passive_sling_kills
+	StatTemplate& ballistic_tactical_enemies_overheated
+	StatTemplate& ballistic_ultimate_damage
+	StatTemplate& ballistic_tactical_enemies_hit
 
 	StatTemplate& catalyst_doors_barricaded
 	StatTemplate& catalyst_spikes_damage
@@ -435,7 +438,7 @@ global struct CareerStats
 
 
 
-
+		StatTemplate& legend_upgrades_selected
 
 
 	
@@ -487,6 +490,20 @@ global struct CareerStats
 	StatTemplate& survival_time_seconds
 
 	
+	StatTemplate& rankedperiod_games_played_base
+	StatTemplate& rankedperiod_placements_win_base
+	StatTemplate& rankedperiod_placements_top_5_base
+	StatTemplate& rankedperiod_placements_top_10_base
+	StatTemplate& rankedperiod_damage_done_base
+	StatTemplate& rankedperiod_kills_base
+	StatTemplate& rankedperiod_deaths_base
+	StatTemplate& rankedperiod_kills_max_single_game_base
+	StatTemplate& rankedperiod_dooms_base
+	StatTemplate& rankedperiod_assists_base
+	StatTemplate& rankedperiod_win_streak_longest_base
+	StatTemplate& rankedperiod_revived_ally_base
+	StatTemplate& rankedperiod_times_respawned_ally_base
+
 	StatTemplate& rankedperiod_games_played
 	StatTemplate& rankedperiod_placements_win
 	StatTemplate& rankedperiod_placements_top_5
@@ -505,6 +522,7 @@ global struct CareerStats
 	StatTemplate& rankedperiod_gained_rank_score_only
 	StatTemplate& rankedperiod_badge_award_level
 
+	StatTemplate& rankedperiod_character_damage_done_max_single_game_base
 	StatTemplate& rankedperiod_character_damage_done_max_single_game
 
 	
@@ -725,16 +743,13 @@ global struct CareerStats
 	
 	StatTemplate& s13_flash_01_buffet_points
 
-
-		StatTemplate& s17_eventrefactor_currency 
-
+	StatTemplate& s17_eventrefactor_currency 
 
 	
 	
-
-		StatTemplate& s19aw_event_currency_total
-		StatTemplate& s19aw_revives_any_mode
-
+	
+	StatTemplate& s19aw_event_currency_total
+	StatTemplate& s19aw_revives_any_mode
 
 
 		StatTemplate& s19gh_event_currency_total
@@ -765,7 +780,24 @@ global struct CareerStats
 
 	
 
+		StatTemplate& s20ce01_hidden_wins_mixtape
+		StatTemplate& s20ce01_hidden_legend_upgrades
+		StatTemplate& s20ce01_hidden_combined
 
+		StatTemplate& s20ce01_gifting_campaign_total_count
+
+		StatTemplate& s20ce01_buffet_points
+
+
+	
+
+		StatTemplate& s20ce02_collect_hunt
+		StatTemplate& s20ce02_survive_hunt
+		StatTemplate& s20ce02_complete_hunt
+
+		StatTemplate& s20ce02_hidden_combined
+
+		StatTemplate& s20ce02_buffet_points
 
 
 
@@ -835,7 +867,9 @@ global struct CareerStats
 
 		StatTemplate& graduated_bot_queue
 
-}
+
+	table< int, StatTemplate > meta_challenge_stats
+} 
 
 global CareerStats CAREER_STATS
 
@@ -870,6 +904,10 @@ global const array<string> STATS_ALTERNATE_MODE_REFS = [
 	"swat",
 	"aprilfools_s16",
 	"shadowarmy",
+
+
+
+
 
 
 
@@ -918,6 +956,10 @@ global const array<string> STATS_MATCH_TYPES = [
 
 
 
+
+
+
+
 	
 	""
 ]
@@ -927,6 +969,7 @@ global const array<string> STATS_MATCH_TYPES = [
 global const int MODE_SPECIFIC = -1 
 global enum eChallengeGameMode
 {
+	INVALID = -1,
 	ANY,
 	BATTLE_ROYALE,
 	ARENAS,
@@ -956,6 +999,10 @@ global enum eChallengeGameMode
 	EXPIRED, 
 	APRILFOOLS_S16,
 	SHADOWARMY,
+
+
+
+
 
 
 
@@ -995,6 +1042,10 @@ global const table<int, string> GAME_MODE_TO_STAT_REF_MAP =
 	[eChallengeGameMode.SWAT] = "swat",
 	[eChallengeGameMode.APRILFOOLS_S16] = "aprilfools_s16",
 	[eChallengeGameMode.SHADOWARMY] = "shadowarmy",
+
+
+
+
 
 
 

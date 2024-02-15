@@ -65,7 +65,7 @@ const array< asset > FERRO_WALL_BASE_WATER_FX_C_ARRAY = [ FERRO_WALL_BASE_WATER_
 const array< array< asset > > FERRO_WALL_BASE_WATER_FX_TYPE_ARRAY = [ FERRO_WALL_BASE_WATER_FX_A_ARRAY, FERRO_WALL_BASE_WATER_FX_B_ARRAY, FERRO_WALL_BASE_WATER_FX_C_ARRAY ]
 
 const asset FERRO_WALL_DARKEYE_VIGNETTE_FX = $"P_ferro_wall_veil_1p"
-const asset FERRO_WALL_DEBUG_SPHERE_VISION_LIMIT_FX = $"debug_sphere_invert"
+const asset FERRO_WALL_DEBUG_SPHERE_VISION_LIMIT_FX = $"P_ferro_wall_veil_dark_sphere"
 const asset FERRO_WALL_DARK_ZONE_SHROUD_FX = $"P_ferro_wall_veil_3p_enemy"
 
 const asset FERRO_WALL_BASE_FX_A = $"P_ferro_wall_base"
@@ -155,7 +155,7 @@ const float FERRO_WALL_WIDTH_SQR 		= FERRO_WALL_WIDTH * FERRO_WALL_WIDTH
 
 const float FERRO_WALL_PILLAR_DURATION = 25.0
 
-
+const float UPGRADE_FERRO_WALL_PILLAR_DURATION = 30.0
 
 const float FERRO_WALL_PILLAR_DELAY_BEFORE_SCALING = 1.2
 const float FERRO_WALL_PILLAR_DELAY_FORWARD = 0.05
@@ -164,7 +164,7 @@ const float FERRO_WALL_PILLAR_SCALE_TIME = 0.6
 const float FERRO_WALL_PILLAR_DESCALE_TIME = 0.85
 const int FERRO_WALL_NUM_PILLARS_FORWARD = 24
 
-
+const float UPGRADE_FERRO_WALL_NUM_PILLARS_FORWARD = 30.0
 
 const int FERRO_WALL_NUM_PILLARS_HORIZONTAL_PER_SIDE = 8
 const float FERRO_WALL_PILLAR_HEALTH = 125
@@ -412,26 +412,26 @@ void function MpWeaponFerroWall_Init()
 }
 
 
+float function GetUpgradedWallDuration()
+{
+	return GetCurrentPlaylistVarFloat( "catalyst_ult_upgraded_duration", UPGRADE_FERRO_WALL_PILLAR_DURATION )
+}
 
-
-
-
-
-
-
-
-
+int function GetUpgradedWallLength()
+{
+	return GetCurrentPlaylistVarInt( "catalyst_ult_upgraded_length", UPGRADE_FERRO_WALL_NUM_PILLARS_FORWARD )
+}
 
 
 float function GetWallDuration( entity player )
 {
 	float result = file.duration
 
-
-
-
-
-
+		if( PlayerHasPassive( player, ePassives.PAS_ULT_UPGRADE_TWO ) ) 
+		{
+			result = GetUpgradedWallDuration()
+			file.soundMoverDestroyIfNotStartedTime = UPGRADE_FERRO_WALL_PILLAR_DURATION * 2
+		}
 
 	return result
 }
@@ -440,10 +440,10 @@ int function GetWallLength( entity player )
 {
 	int result = file.numSegments
 
-
-
-
-
+		if( PlayerHasPassive( player, ePassives.PAS_ULT_UPGRADE_THREE ) ) 
+		{
+			result = GetUpgradedWallLength()
+		}
 
 	return result
 }
@@ -1932,25 +1932,26 @@ void function FerroWallDarkVision_UpdatePlayerScreenVFX_Thread( entity player, i
 	EffectSetIsWithCockpit( file.darkVisionFXID, true )
 
 	
+	
 	if ( StatusEffect_HasSeverity( player, eStatusEffect.ferro_darkvision ) )
 	{
 		int debuglimitFXID = GetParticleSystemIndex( FERRO_WALL_DEBUG_SPHERE_VISION_LIMIT_FX )
 		if ( !PlayerHasPassive( player, ePassives.PAS_LOCKDOWN ) )
 		{
 			file.darkVisionLimit1FX = StartParticleEffectOnEntity( player, debuglimitFXID, FX_PATTACH_POINT_FOLLOW, player.GetCockpit().LookupAttachment( "CAMERA" ) )
-			EffectSetControlPointVector( file.darkVisionLimit1FX, 2, <50, 50, 50> )
-
-			file.darkVisionLimit2FX = StartParticleEffectOnEntity( player, debuglimitFXID, FX_PATTACH_POINT_FOLLOW, player.GetCockpit().LookupAttachment( "CAMERA" ) )
-			EffectSetControlPointVector( file.darkVisionLimit2FX, 2, <50, 50, 50> )
-
-			file.darkVisionLimit3FX = StartParticleEffectOnEntity( player, debuglimitFXID, FX_PATTACH_POINT_FOLLOW, player.GetCockpit().LookupAttachment( "CAMERA" ) )
-			EffectSetControlPointVector( file.darkVisionLimit3FX, 2, <5, 5, 5> )
+			EffectSetControlPointVector( file.darkVisionLimit1FX, 2, <0, 0, 0> )
+	
+	
+	
+	
+	
+	
 		}
-		else 
-		{
-			file.darkVisionLimit0FX = StartParticleEffectOnEntity( player, debuglimitFXID, FX_PATTACH_POINT_FOLLOW, player.GetCockpit().LookupAttachment( "CAMERA" ) )
-			EffectSetControlPointVector( file.darkVisionLimit0FX, 2, <5, 5, 5> )
-		}
+	
+	
+	
+	
+	
 	}
 
 
@@ -2075,9 +2076,10 @@ void function FerroWallDarkVision_FadePlayerScreenVFX_Thread( entity player, flo
 		{
 			EffectSetControlPointVector( darkVisionLimit0FX, 1, < FERRO_WALL_DARKVISION_DISTANCE, 0, file.flashlightFXAlpha > )
 		}
+		
 		if(EffectDoesExist( darkVisionLimit1FX ))
 		{
-			EffectSetControlPointVector( darkVisionLimit1FX, 1, < FERRO_WALL_DARKVISION_DISTANCE, 0, file.flashlightFXAlpha > )
+			EffectSetControlPointVector( darkVisionLimit1FX, 1, < FERRO_WALL_DARKVISION_DISTANCE, 0, file.flashlightFXAlpha * 4.0 > )
 		}
 		if(EffectDoesExist( darkVisionLimit2FX ))
 		{

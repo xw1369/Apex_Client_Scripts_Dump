@@ -51,6 +51,10 @@ const float WRECKING_BALL_DESTORY_DEVICE_RANGE 		= 100
 const float WRECKING_BALL_DAMAGE_DEVICE_RANGE 		= 100
 
 
+const float RETRIGGER_DELAY = 2.0
+
+
+
 const asset WRECKING_BALL_PROJ_WRECKING_BALL 		= $"mdl/props/madmaggie_ultimate_ball_static/madmaggie_ultimate_ball_static.rmdl"
 const asset WRECKING_BALL_ANIM_MODEL 				= $"mdl/props/madmaggie_ultimate_ball/madmaggie_ultimate_ball.rmdl"
 const asset WRECKING_BALL_PIECE_MODEL				= $"mdl/props/madmaggie_ultimate_mine/madmaggie_ultimate_mine.rmdl" 
@@ -68,11 +72,11 @@ const vector COLOR_SPEEDBOOST_MID 					= <250, 255, 185>
 const vector COLOR_SPEEDBOOST_END 					= <255, 255, 255>
 
 
-
-
-
-
-
+const asset WRECKING_BALL_FIRE_FX_UPGRADE					= $"P_mm_roll_ball_hld_thermite"
+const asset WRECKING_BALL_FINAL_EXPLODE_FX_UPGRADE			= $"P_mm_ball_exp_default_thermite"
+const asset WRECKING_BALL_GROUND_IMPACT_SMALL_FX_UPGRADE	= $"P_mm_ball_bounce_default_thermite"
+const asset WRECKING_BALL_PIECE_LOOP_FX_UPGRADE				= $"P_mm_roll_pcs_hld_thermite"
+const asset WRECKING_BALL_RADIUS_FX_UPGRADE					= $"P_mm_roll_ball_st_thermite"
 
 
 
@@ -93,9 +97,9 @@ const bool DEBUG_PROP_COUNT							= false
 const bool DEBUG_EMP_DAMAGE_DESTRUCTION				= false
 const bool DEBUG_BALL_COLLISION_CALLBACK			= false
 
-
-
-
+const string SOUND_WRECKING_BALL_UPGRADE_IGNITE		= "Maggie_Ult_Ball_Upgraded_Ignite"
+const string SOUND_WRECKING_BALL_UPGRADE_FINAL		= "Maggie_Ult_Ball_Upgraded_Explode"
+const string SOUND_WRECKING_BALL_UPGRADE_ACTIVE		= "Maggie_Ultimate_Ball_Upgraded_Active_Loop"
 
 
 
@@ -137,9 +141,9 @@ struct
 	float balance_wreckingBallPuntPower
 	float balance_wreckingBallPuntPowerAlly
 
-
-
-
+	float balance_wreckingBallUpgradeScanDist
+	float balance_wreckingBallFireChargeTime
+	int fireFxId
 
 
 	
@@ -150,6 +154,10 @@ struct
 	bool fxOption_playTempSound
 
 	bool pingWreckingBallOnCast
+
+
+
+
 
 
 
@@ -184,11 +192,11 @@ void function MpAbilityWreckingBall_Init()
 	PrecacheParticleSystem( WRECKING_BALL_PIECE_FLYING_FX )
 	PrecacheParticleSystem( WRECKING_BALL_RADIUS_FX )
 
-
-
-
-
-
+		PrecacheParticleSystem( WRECKING_BALL_FIRE_FX_UPGRADE )
+		PrecacheParticleSystem( WRECKING_BALL_FINAL_EXPLODE_FX_UPGRADE )
+		PrecacheParticleSystem( WRECKING_BALL_GROUND_IMPACT_SMALL_FX_UPGRADE )
+		PrecacheParticleSystem( WRECKING_BALL_PIECE_LOOP_FX_UPGRADE )
+		PrecacheParticleSystem( WRECKING_BALL_RADIUS_FX_UPGRADE )
 
 	PrecacheModel( WRECKING_BALL_PROJ_WRECKING_BALL )
 	PrecacheModel( WRECKING_BALL_PIECE_MODEL )
@@ -213,9 +221,9 @@ void function MpAbilityWreckingBall_Init()
 	file.balance_wreckingBallPuntPower 			= GetCurrentPlaylistVarFloat( "wrecking_ball_punt_power_override", WRECKING_BALL_PUNT_POWER )
 	file.balance_wreckingBallPuntPowerAlly 		= GetCurrentPlaylistVarFloat( "wrecking_ball_punt_power_ally_override", WRECKING_BALL_PUNT_POWER_ALLY )
 
-
-
-
+	file.balance_wreckingBallUpgradeScanDist = GetCurrentPlaylistVarFloat( "wrecking_ball_upgrade_scan_range", 400.0 )
+	file.balance_wreckingBallFireChargeTime = GetCurrentPlaylistVarFloat( "wrecking_ball_upgrade_fire_charge_time", 1.0 )
+	file.fireFxId = GetParticleSystemIndex( WRECKING_BALL_FIRE_FX_UPGRADE )
 
 
 	
@@ -287,6 +295,15 @@ var function OnWeaponTossReleaseAnimEvent_WeaponWreckingBall( entity weapon, Wea
 	if ( ballProjectile )
 	{
 		PlayerUsedOffhand( player, weapon, true, ballProjectile )
+
+
+
+
+
+
+
+
+
 
 
 
@@ -406,6 +423,138 @@ void function OnWreckingBallDeployed( entity projectile, DeployableCollisionPara
 
 
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

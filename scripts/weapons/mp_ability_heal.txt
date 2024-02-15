@@ -124,20 +124,20 @@ WeaponData
         }
 
                             
-                                                     
-         
+        upgrade_core_octane_tac_self_damage_reduction
+        {
 
-         
+        }
 
-                                          
-         
-                               
-         
+        upgrade_core_tac_duration_increase
+        {
+			"charge_time" 									"8.0"
+        }
 
-                                                          
-         
+        upgrade_core_octane_pas_explosive_damage_reduction
+        {
 
-         
+        }
 
               
 	}

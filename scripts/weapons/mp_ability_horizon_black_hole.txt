@@ -64,6 +64,9 @@ WeaponData
 	"dof_nearDepthStart"							"0.0"
 	"dof_nearDepthEnd"								"0.0"
 
+	"offhand_include_primary_activity_mods"         "0"
+
+
 
 	//Grenade Arc
 	"grenade_arc_indicator_show_from_hip"			"1"
@@ -279,13 +282,13 @@ WeaponData
 			"regen_ammo_refill_rate"    "*1.25"
 		}
 
-                      
-                                                
-         
-                                    
-                                    
-                                    
-         
+		                    
+		upgrade_ult_one //upgrade_horizon_ult_cooldown
+        {
+        	"ammo_clip_size"      "180"
+        	"ammo_min_to_fire"    "180"
+        	"ammo_per_shot"	      "180"
+        }
               
 
 		burn_card_weapon_mod

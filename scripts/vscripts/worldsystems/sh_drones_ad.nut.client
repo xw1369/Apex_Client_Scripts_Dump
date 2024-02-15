@@ -1,10 +1,11 @@
+global function ShAdDrones_Init
 global function ShAdDrones_EntitiesDidLoad
 
 
 global function AdDrones_SetAdDroneTrailFX
 global function AdDrones_SetAdDroneTrailFXType
+global function AdDrones_PlayBillboardVFXOnAdDrone_Thread
 global function ServerCallback_AdDroneSetBillboardVFX
-global function ServerCallback_AdDroneKillBillboardVFX
 
 
 
@@ -71,14 +72,26 @@ struct
 {
 	array< asset > availableAdDroneBillboardVFX
 
-		table< entity, int > projectorModelToBillboardVFXTable
 
 
 
 
+
+
+		table< EHI, int > projectorEHIToBillboardIndexTable
 
 
 } file
+
+void function ShAdDrones_Init()
+{
+	file.availableAdDroneBillboardVFX = [ AD_DRONE_BILLBOARD_1, AD_DRONE_BILLBOARD_2, AD_DRONE_BILLBOARD_3, AD_DRONE_BILLBOARD_4, AD_DRONE_BILLBOARD_5, AD_DRONE_BILLBOARD_6, AD_DRONE_BILLBOARD_7, AD_DRONE_BILLBOARD_8 ]
+
+	foreach ( particleSystem in file.availableAdDroneBillboardVFX )
+	{
+		PrecacheParticleSystem( particleSystem )
+	}
+}
 
 void function ShAdDrones_EntitiesDidLoad()
 {
@@ -91,17 +104,20 @@ void function ShAdDrones_EntitiesDidLoad()
 	PrecacheParticleSystem( AD_DRONE_FX_FALL_EXPLOSION )
 	PrecacheParticleSystem( AD_DRONE_FX_TRAIL_FALL )
 
-	file.availableAdDroneBillboardVFX = [ AD_DRONE_BILLBOARD_1, AD_DRONE_BILLBOARD_2, AD_DRONE_BILLBOARD_3, AD_DRONE_BILLBOARD_4, AD_DRONE_BILLBOARD_5, AD_DRONE_BILLBOARD_6, AD_DRONE_BILLBOARD_7, AD_DRONE_BILLBOARD_8 ]
 
-	foreach ( particleSystem in file.availableAdDroneBillboardVFX )
-	{
-		PrecacheParticleSystem( particleSystem )
-	}
 
 
 
 
 }
+
+
+
+
+
+
+
+
 
 
 
@@ -172,7 +188,7 @@ void function ShAdDrones_EntitiesDidLoad()
 
 void function ServerCallback_AdDroneSetBillboardVFX( entity projectorEnt, int billboardToDisplay )
 {
-	printf( "AdDrone: ServerCallback_AdDroneSetBillboardVFX" )
+	printt( "AdDrone: ServerCallback_AdDroneSetBillboardVFX" )
 
 	if ( !IsValid( projectorEnt ) )
 		return
@@ -180,25 +196,58 @@ void function ServerCallback_AdDroneSetBillboardVFX( entity projectorEnt, int bi
 	if ( billboardToDisplay < 0 || billboardToDisplay >= file.availableAdDroneBillboardVFX.len() )
 		return
 
-	AdDroneSetBillboardVFX( projectorEnt, billboardToDisplay )
+	file.projectorEHIToBillboardIndexTable[ ToEHI( projectorEnt ) ] <- billboardToDisplay
+	thread AdDrones_PlayBillboardVFXOnAdDrone_Thread( projectorEnt )
 }
 
-void function AdDroneSetBillboardVFX( entity projectorEnt, int billboardToDisplay )
+
+
+
+
+void function AdDrones_PlayBillboardVFXOnAdDrone_Thread( entity projectorEnt )
 {
+#if DEV
+		Assert( IsNewThread(), "Must be threaded off" )
+#endif
+
+	if ( !IsValid( projectorEnt ) )
+		return
+
+	EHI projectorEHI = ToEHI( projectorEnt )
+	if ( !( projectorEHI in file.projectorEHIToBillboardIndexTable ) )
+		return
+
+	if ( IsValid( clGlobal.levelEnt ) )
+		EndSignal( clGlobal.levelEnt, "OnDestroy" )
+
+	entity localPlayer = GetLocalClientPlayer()
+
+	if ( !IsValid( localPlayer ) )
+		return
+
+	
+	projectorEnt.Signal( "StopAdDroneVFX" )
+
+	EndSignal( localPlayer, "OnDestroy" )
+	EndSignal( projectorEnt, "StopAdDroneVFX" )
+
+
+	int billboardToDisplay = file.projectorEHIToBillboardIndexTable[ projectorEHI ]
 	int fxId = GetParticleSystemIndex( file.availableAdDroneBillboardVFX[ billboardToDisplay ] )
 	int billboardFXHandle = StartParticleEffectOnEntity( projectorEnt, fxId, FX_PATTACH_ABSORIGIN_FOLLOW, ATTACHMENTID_INVALID )
-	file.projectorModelToBillboardVFXTable[ projectorEnt ] <- billboardFXHandle
+
+	OnThreadEnd(
+		function() : ( billboardFXHandle )
+		{
+			if ( EffectDoesExist( billboardFXHandle ) )
+				EffectStop( billboardFXHandle, false, true )
+		}
+	)
+
+	WaitForever()
 }
 
-void function ServerCallback_AdDroneKillBillboardVFX( entity projectorEnt )
-{
-	if ( projectorEnt in file.projectorModelToBillboardVFXTable )
-	{
-		int fxHandle = file.projectorModelToBillboardVFXTable[ projectorEnt ]
-		if ( EffectDoesExist( fxHandle ) )
-			EffectStop( fxHandle, false, true )
-	}
-}
+
 
 void function AdDrones_SetAdDroneTrailFX( DroneClientData droneData )
 {
@@ -211,9 +260,11 @@ void function AdDrones_SetAdDroneTrailFX( DroneClientData droneData )
 	droneData.trailFXHandle = trailFXHandle
 }
 
+
+
 void function AdDrones_SetAdDroneTrailFXType( entity droneEnt, int trailType )
 {
-	printf( "LootDroneClientDebug: AdDrones_SetAdDroneTrailFXType" )
+	printt( "AdDrone: AdDrones_SetAdDroneTrailFXType" )
 	if ( !ShDrones_IsValidDrone( droneEnt ) )
 		return
 
@@ -256,9 +307,6 @@ void function AdDrones_SetAdDroneTrailFXType( entity droneEnt, int trailType )
 			clientData.trailFXHandle = trailFXHandle
 	}
 }
-
-
-
 
 
 

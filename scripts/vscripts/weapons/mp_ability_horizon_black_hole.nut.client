@@ -71,7 +71,7 @@ const string BLACKHOLE_SOUND_PHASE_2 = "Nova_Ultimate_BlackHole_Phase2"
 const string BLACKHOLE_SOUND_PHASE_3 = "Nova_Ultimate_BlackHole_Phase3"
 const string BLACKHOLE_SOUND_PHASE_4 = "Nova_Ultimate_BlackHole_Phase4"
 
-
+const string BLACKHOLE_SOUND_PHASE_1_UPGRADE = "Nova_Ultimate_BlackHole_Phase1_QuickPull"
 
 
 
@@ -89,7 +89,7 @@ const bool BLACKHOLE_DEBUG_VORTEX = false
 
 const float BLACKHOLE_TROPHY_HEALTH_AMOUNT = 175
 
-
+const float BLACKHOLE_TROPHY_HEALTH_AMOUNT_UPGRADED = 90
 
 const float BLACKHOLE_TUNING_RADIUS = 400
 const int BLACKHOLE_TUNING_ABOVE_HEIGHT = 200
@@ -119,8 +119,8 @@ const float BLACKHOLE_TUNING_TAKE_EXPLOSIVE_DAMAGE_MULTIPLIER = 1.5
 
 const float BLACKHOLE_TUNING_ACTIVATION_TIME = 1.75
 
-
-
+const float BLACKHOLE_TUNING_ACTIVATION_TIME_UPGRADED = 0.9
+const float BLACKHOLE_TUNING_DESTROY_REFUND = 0.25
 
 const float BLACKHOLE_TUNING_PULL_ACTIVATION_FX_LEAD_TIME = 1.0
 const float BLACKHOLE_TUNING_START_FX_STOP_OFFSET = 0.0
@@ -187,28 +187,28 @@ void function MpWeaponBlackHole_Init()
 }
 
 
+float function GetUpgradedActivationTime()
+{
+	return GetCurrentPlaylistVarFloat( "horizon_upgraded_blackhole_activation_time", BLACKHOLE_TUNING_ACTIVATION_TIME_UPGRADED )
+}
 
+float function GetUpgradedTrophyHealth()
+{
+	return GetCurrentPlaylistVarFloat( "horizon_upgraded_blackhole_health", BLACKHOLE_TROPHY_HEALTH_AMOUNT_UPGRADED )
+}
 
-
-
-
-
-
-
-
-
-
-
-
-
+float function GetUpgradedTrophyDestroyRefund()
+{
+	return GetCurrentPlaylistVarFloat( "horizon_upgraded_blackhole_destroy_refund", BLACKHOLE_TUNING_DESTROY_REFUND )
+}
 
 
 float function GetActivationTime( entity player )
 {
 	float result = BLACKHOLE_TUNING_ACTIVATION_TIME
 
-
-
+		if( PlayerHasPassive( player, ePassives.PAS_ULT_UPGRADE_TWO ) ) 
+			result = GetUpgradedActivationTime()
 
 	return result
 }
@@ -217,8 +217,8 @@ string function GetActivationSFX( entity player )
 {
 	string result = BLACKHOLE_SOUND_PHASE_1
 
-
-
+		if( PlayerHasPassive( player, ePassives.PAS_ULT_UPGRADE_TWO ) ) 
+			result = BLACKHOLE_SOUND_PHASE_1_UPGRADE
 
 	return result
 }
@@ -227,8 +227,8 @@ float function GetTrophyHealth( entity player )
 {
 	float result = BLACKHOLE_TROPHY_HEALTH_AMOUNT
 
-
-
+		if( PlayerHasPassive( player, ePassives.PAS_ULT_UPGRADE_TWO ) ) 
+			result = GetUpgradedTrophyHealth()
 
 	return result
 }

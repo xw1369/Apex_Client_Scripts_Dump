@@ -262,10 +262,8 @@ global enum eTrackingVisionNetworkedPOITypes
 
 
 
-
 	PLAYER_ABILITY_BALLISTIC_DEBUFF_ZONE,
 	PLAYER_ABILITY_BALLISTIC_PORTABLE_AUTO_LOADER,
-
 
 
 	PLAYER_ABILITY_REVENANT_POUNCE_START,
@@ -422,10 +420,8 @@ int function TrackingVision_GetPriorityForPOIType( int poiEventID )
 		case eTrackingVisionNetworkedPOITypes.PLAYER_ABILITY_CATALYST_SPIKES:
 		case eTrackingVisionNetworkedPOITypes.PLAYER_ABILITY_CATALYST_DARK_VEIL_START:
 		case eTrackingVisionNetworkedPOITypes.PLAYER_ABILITY_CATALYST_DARK_VEIL_END:
-
 		case eTrackingVisionNetworkedPOITypes.PLAYER_ABILITY_BALLISTIC_DEBUFF_ZONE:
 		case eTrackingVisionNetworkedPOITypes.PLAYER_ABILITY_BALLISTIC_PORTABLE_AUTO_LOADER:
-
 		case eTrackingVisionNetworkedPOITypes.PLAYER_ABILITY_ASH_PORTAL_ENTER:
 		case eTrackingVisionNetworkedPOITypes.PLAYER_ABILITY_ASH_PORTAL_EXIT:
 
@@ -678,10 +674,8 @@ vector function TrackingVision_GetOffsetForPOI( int poiEventID )
 		case eTrackingVisionNetworkedPOITypes.PLAYER_ABILITY_CATALYST_SPIKES:
 		case eTrackingVisionNetworkedPOITypes.PLAYER_ABILITY_CATALYST_DARK_VEIL_START:
 		case eTrackingVisionNetworkedPOITypes.PLAYER_ABILITY_CATALYST_DARK_VEIL_END:
-
 		case eTrackingVisionNetworkedPOITypes.PLAYER_ABILITY_BALLISTIC_DEBUFF_ZONE:
 		case eTrackingVisionNetworkedPOITypes.PLAYER_ABILITY_BALLISTIC_PORTABLE_AUTO_LOADER:
-
 
 		case eTrackingVisionNetworkedPOITypes.PLAYER_ABILITY_REVENANT_POUNCE_START:
 		case eTrackingVisionNetworkedPOITypes.PLAYER_ABILITY_REVENANT_POUNCE_LAND:

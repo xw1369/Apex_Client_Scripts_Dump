@@ -40,7 +40,7 @@ ImpactTable
 		"2" "P_ts_impact_default"
 		"3" "P_ts_impact_default"
 		"4" "P_ts_impact_default"
-		"5" "P_ts_impact_water" //water_hrz
+		"5" "P_ts_impact_default" //water_hrz
 		"6" "P_ts_impact_default"
 		"7" "P_ts_impact_default"
 		"8" "P_ts_impact_default"

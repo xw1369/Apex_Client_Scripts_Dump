@@ -488,7 +488,7 @@ void function AbilitySilence_UpdatePlayerScreenColorCorrection( entity player, i
 		ColorCorrection_SetWeight( colorCorrection, normalizedTime )
 
 		if ( SILENCE_DEBUG_STATUSEFFECT )
-			DebugScreenText( 0.427, 0.69, "ColorCorrection Weight: " + normalizedTime )
+			DebugDrawScreenText( 0.427, 0.69, "ColorCorrection Weight: " + normalizedTime )
 
 		WaitFrame()
 	}
@@ -546,7 +546,7 @@ void function AbilitySilence_ScreenEffectThread( entity viewPlayer, int fxHandle
 		float CP1Value = timeRemaining / Silence_GetEffectDuration()
 
 		if ( SILENCE_DEBUG_STATUSEFFECT )
-			DebugScreenText( 0.47, 0.68, "CP1 Value: " + CP1Value )
+			DebugDrawScreenText( 0.47, 0.68, "CP1 Value: " + CP1Value )
 
 		if ( !EffectDoesExist( fxHandle ) )
 			break

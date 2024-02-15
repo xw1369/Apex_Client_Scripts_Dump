@@ -145,30 +145,30 @@ void function MpSpaceElevator_Init()
 }
 
 
+int function GetUpgradedSpaceElevatorHeight()
+{
+	return GetCurrentPlaylistVarInt( "horizon_lift_upgraded_height", 600 )
+}
 
+float function GetUpgradedSpaceElevatorCombineDistance()
+{
+	return GetCurrentPlaylistVarFloat( "horizon_lift_upgraded_combine_dist", 100 )
+}
 
-
-
-
-
-
-
-
-
-
-
-
-
+float function GetUpgradedSpaceElevatorLifetime()
+{
+	return GetCurrentPlaylistVarFloat( "horizon_lift_upgraded_lifetime", 5 )
+}
 
 
 int function GetSpaceElevatorHeight( entity player )
 {
 	int result = SPACEELEVATOR_TUNING_HEIGHT
 
-
-
-
-
+		if( PlayerHasPassive( player, ePassives.PAS_TAC_UPGRADE_ONE ) ) 
+		{
+			result = GetUpgradedSpaceElevatorHeight()
+		}
 
 
 
@@ -184,10 +184,10 @@ float function GetSpaceElevatorLifetime( entity player )
 {
 	float result = SPACEELEVATOR_TUNING_LIFETIME
 
-
-
-
-
+		if( PlayerHasPassive( player, ePassives.PAS_TAC_UPGRADE_ONE ) ) 
+		{
+			result = GetUpgradedSpaceElevatorLifetime()
+		}
 
 
 

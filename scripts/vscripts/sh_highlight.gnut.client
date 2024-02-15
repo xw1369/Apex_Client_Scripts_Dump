@@ -1,7 +1,7 @@
 global function Highlight_Init
 
 global function GetHighlightContextForEnt
-global function Highlight_SetPureObserverHighlight
+global function Highlight_SetPureObserverHighlightParam
 
 
 global function GetHighlightId
@@ -1726,6 +1726,94 @@ void function Highlight_RegisterClientOnlyHighlights()
 		)
 }
 
+void function Highlight_ResetColorBlindHighlight()
+{
+	int contextId = HIGHLIGHT_INVALID_ID
+
+		contextId = HighlightContext_GetId( "survival_item_gh_no_los_check" )
+		HighlightContext_SetRadius( contextId, GetSurvivalPropRadius( COLORID_HUD_LOOT_TIER_GH, 2.0 ) )
+		HighlightContext_SetParam( contextId, 0, GetSurvivalPropColor( COLORID_HUD_LOOT_TIER_GH ) )
+
+
+	contextId = HighlightContext_GetId( "survival_item_heirloom_no_los_check" )
+	HighlightContext_SetRadius( contextId, GetSurvivalPropRadius( COLORID_LOOT_TIER5, 2.0 ) )
+	HighlightContext_SetParam( contextId, 0, GetSurvivalPropColor( COLORID_LOOT_TIER5 ) )
+
+	contextId = HighlightContext_GetId( "survival_item_legendary_no_los_check" )
+	HighlightContext_SetRadius( contextId, GetSurvivalPropRadius( COLORID_LOOT_TIER4, 2.0 ) )
+	HighlightContext_SetParam( contextId, 0, GetSurvivalPropColor( COLORID_LOOT_TIER4 ) )
+
+	contextId = HighlightContext_GetId( "survival_item_epic_no_los_check" )
+	HighlightContext_SetRadius( contextId, GetSurvivalPropRadius( COLORID_LOOT_TIER3, 2.0 ) )
+	HighlightContext_SetParam( contextId, 0, GetSurvivalPropColor( COLORID_LOOT_TIER3 ) )
+
+
+		contextId = HighlightContext_GetId( "survival_item_rare_no_los_check" )
+		HighlightContext_SetRadius( contextId, GetSurvivalPropRadius( COLORID_LOOT_TIER2, 2.0 ) )
+		HighlightContext_SetParam( contextId, 0, GetSurvivalPropColor( COLORID_LOOT_TIER2 ) )
+
+
+
+		contextId = HighlightContext_GetId( "survival_item_common_no_los_check" )
+		HighlightContext_SetRadius( contextId, GetSurvivalPropRadius( COLORID_LOOT_TIER1, 2.0 ) )
+		HighlightContext_SetParam( contextId, 0, GetSurvivalPropColor( COLORID_LOOT_TIER1 ) )
+
+		contextId = HighlightContext_GetId( "survival_item_rare_vision" )
+		HighlightContext_SetRadius( contextId, GetSurvivalPropRadius( COLORID_LOOT_TIER2, 2.0 ) )
+		HighlightContext_SetParam( contextId, 0, GetSurvivalPropColor( COLORID_LOOT_TIER2 ) )
+
+
+	contextId = HighlightContext_GetId( "survival_item_common" )
+	HighlightContext_SetRadius( contextId, GetSurvivalPropRadius( COLORID_LOOT_TIER1, 1.0 ) )
+	HighlightContext_SetParam( contextId, 0, GetSurvivalPropColor( COLORID_LOOT_TIER1 ) )
+
+	contextId = HighlightContext_GetId( "survival_item_rare" )
+	HighlightContext_SetRadius( contextId, GetSurvivalPropRadius( COLORID_LOOT_TIER2, 1.0 ) )
+	HighlightContext_SetParam( contextId, 0, GetSurvivalPropColor( COLORID_LOOT_TIER2 ) )
+
+	contextId = HighlightContext_GetId( "survival_item_epic" )
+	HighlightContext_SetRadius( contextId, GetSurvivalPropRadius( COLORID_LOOT_TIER3, 1.0 ) )
+	HighlightContext_SetParam( contextId, 0, GetSurvivalPropColor( COLORID_LOOT_TIER3 ) )
+
+	contextId = HighlightContext_GetId( "survival_item_legendary" )
+	HighlightContext_SetRadius( contextId, GetSurvivalPropRadius( COLORID_LOOT_TIER4, 1.0 ) )
+	HighlightContext_SetParam( contextId, 0, GetSurvivalPropColor( COLORID_LOOT_TIER4 ) )
+
+	contextId = HighlightContext_GetId( "survival_item_heirloom" )
+	HighlightContext_SetRadius( contextId, GetSurvivalPropRadius( COLORID_LOOT_TIER5, 1.0 ) )
+	HighlightContext_SetParam( contextId, 0, GetSurvivalPropColor( COLORID_LOOT_TIER5 ) )
+
+
+		contextId = HighlightContext_GetId( "survival_item_gh" )
+		HighlightContext_SetRadius( contextId, GetSurvivalPropRadius( COLORID_HUD_LOOT_TIER_GH, 1.0 ) )
+		HighlightContext_SetParam( contextId, 0, GetSurvivalPropColor( COLORID_HUD_LOOT_TIER_GH ) )
+
+		contextId = HighlightContext_GetId( "survival_item_gh_longerHighlightDist" )
+		HighlightContext_SetRadius( contextId, GetSurvivalPropRadius( COLORID_HUD_LOOT_TIER_GH, 1.0 ) )
+		HighlightContext_SetParam( contextId, 0, GetSurvivalPropColor( COLORID_HUD_LOOT_TIER_GH ) )
+
+
+	contextId = HighlightContext_GetId( "survival_item_common_longerHighlightDist" )
+	HighlightContext_SetRadius( contextId, GetSurvivalPropRadius( COLORID_LOOT_TIER1, 1.0 ) )
+	HighlightContext_SetParam( contextId, 0, GetSurvivalPropColor( COLORID_LOOT_TIER1 ) )
+
+	contextId = HighlightContext_GetId( "survival_item_rare_longerHighlightDist" )
+	HighlightContext_SetRadius( contextId, GetSurvivalPropRadius( COLORID_LOOT_TIER2, 1.0 ) )
+	HighlightContext_SetParam( contextId, 0, GetSurvivalPropColor( COLORID_LOOT_TIER2 ) )
+
+	contextId = HighlightContext_GetId( "survival_item_epic_longerHighlightDist" )
+	HighlightContext_SetRadius( contextId, GetSurvivalPropRadius( COLORID_LOOT_TIER3, 1.0 ) )
+	HighlightContext_SetParam( contextId, 0, GetSurvivalPropColor( COLORID_LOOT_TIER3 ) )
+
+	contextId = HighlightContext_GetId( "survival_item_legendary_longerHighlightDist" )
+	HighlightContext_SetRadius( contextId, GetSurvivalPropRadius( COLORID_LOOT_TIER4, 1.0 ) )
+	HighlightContext_SetParam( contextId, 0, GetSurvivalPropColor( COLORID_LOOT_TIER4 ) )
+
+	contextId = HighlightContext_GetId( "survival_item_heirloom_longerHighlightDist" )
+	HighlightContext_SetRadius( contextId, GetSurvivalPropRadius( COLORID_LOOT_TIER5, 1.0 ) )
+	HighlightContext_SetParam( contextId, 0, GetSurvivalPropColor( COLORID_LOOT_TIER5 ) )
+}
+
 
 
 void function Highlight_BeginRegisteringHighlights()
@@ -1816,7 +1904,7 @@ void function Highlight_SetOwnedHighlight( entity ent, string assetName )
 }
 
 
-void function Highlight_SetPureObserverHighlight( entity ent, string assetName )
+void function Highlight_SetPureObserverHighlightParam( entity ent )
 {
 	if ( ent.IsPlayer() )
 	{
@@ -1825,7 +1913,8 @@ void function Highlight_SetPureObserverHighlight( entity ent, string assetName )
 			param = AllianceProximity_GetAllianceColorFromTeam( ent.GetTeam() )
 		else
 			param = GetSkydiveSmokeColorForTeam( ent.GetTeam() ) / 255.0
-		ent.Highlight_SetParam( GetHighlightId( assetName ), 0, param )
+
+		ent.Highlight_OverrideParam( 0, param )
 	}
 }
 
@@ -1965,17 +2054,11 @@ void function OnSettingsUpdated()
 {
 	if ( GetConVarInt( "colorblind_mode" ) != file.colorblindMode )
 	{
+		Highlight_ResetColorBlindHighlight()
 		array<entity> loot = GetSurvivalLootNearbyPlayer( GetLocalClientPlayer(), 65536.0, false, false, false )
 		foreach ( ent in loot )
 		{
-			ManageHighlightEntity( ent )
 			ApplyEquipmentColorAndFXOverrides( ent )
-		}
-
-		array<entity> deathbox = GetAllDeathBoxes()
-		foreach ( ent in deathbox )
-		{
-			ManageHighlightEntity( ent )
 		}
 	}
 
@@ -2042,11 +2125,11 @@ void function ClHighlight_UpdateHighlightFlags( entity ent, int contextId, int t
 
 	if ( ent.GetNetworkedClassName() == "prop_survival" )
 	{
-		ent.Highlight_SetParam( contextId, 1, <GetHighlightFillAlphaForLoot( ent ), 0, 0> )
+		ent.Highlight_OverrideParam( 1, <GetHighlightFillAlphaForLoot( ent ), 0, 0> )
 	}
 	else if (ent.GetNetworkedClassName() == "prop_death_box" )
 	{
-		ent.Highlight_SetParam( contextId, 1, <GetHighlightFillAlphaForDeathBox( ent ), 0, 0> )
+		ent.Highlight_OverrideParam( 1, <GetHighlightFillAlphaForDeathBox( ent ), 0, 0> )
 	}
 
 	int drawFuncId = HighlightContext_GetDrawFunc( contextId )
@@ -2277,7 +2360,7 @@ void function SonarViewModelHighlight( entity viewModelEntity, vector highlightC
 {
 	viewModelEntity.Highlight_SetVisibilityType( HIGHLIGHT_VIS_ALWAYS )
 	viewModelEntity.Highlight_SetCurrentContext( HIGHLIGHT_CLIENT_ONLY_INDEX +  eHighlightContextClientOnly.SONAR_VIEW_MODEL )
-	viewModelEntity.Highlight_SetParam( HIGHLIGHT_CLIENT_ONLY_INDEX +  eHighlightContextClientOnly.SONAR_VIEW_MODEL, 0, highlightColor )
+	viewModelEntity.Highlight_OverrideParam( 0, highlightColor )
 	viewModelEntity.Highlight_SetFadeInTime( 0.25 )
 	viewModelEntity.Highlight_SetFadeOutTime( 0.25 )
 	viewModelEntity.Highlight_SetFlag( HIGHLIGHT_FLAG_CHECK_OFTEN, true )
@@ -2292,7 +2375,7 @@ void function SonarViewModelClearHighlight( entity viewModelEntity )
 void function SonarPlayerCloneHighlight( entity ent, vector highlightColor = HIGHLIGHT_COLOR_BLOODHOUND )
 {
 	ent.Highlight_SetCurrentContext( HIGHLIGHT_CLIENT_ONLY_INDEX +  eHighlightContextClientOnly.SONAR_PLAYER_CLONE )
-	ent.Highlight_SetParam( HIGHLIGHT_CLIENT_ONLY_INDEX +  eHighlightContextClientOnly.SONAR_PLAYER_CLONE, 0, highlightColor )
+	ent.Highlight_OverrideParam( 0, highlightColor )
 	ent.Highlight_SetVisibilityType( HIGHLIGHT_VIS_ALWAYS )
 	ent.Highlight_SetFadeInTime( 0.15 )
 	ent.Highlight_SetFadeOutTime( 0.15 )
@@ -2453,7 +2536,7 @@ HighlightContextResult  function GetHighlightContextForEnt( entity viewPlayer, e
 		else if ( viewTeam == TEAM_SPECTATOR )
 		{
 			entity observerTarget = viewPlayer.GetObserverTarget()
-			if ( IsValid(observerTarget) && ShouldCausticGasHighlight( observerTarget, ent ) )
+			if ( IsValid( observerTarget ) && observerTarget.IsPlayer() && ShouldCausticGasHighlight( observerTarget, ent ) )
 			{
 				result.contextId = GetHighlightId( "caustic_gas_threat" )
 				return result
@@ -2461,6 +2544,7 @@ HighlightContextResult  function GetHighlightContextForEnt( entity viewPlayer, e
 			if ( Highlight_ShouldObserverHighlight( viewPlayer, ent ) )
 			{
 				result.contextId = GetHighlightId( "pure_observer_highlight" )
+				Highlight_SetPureObserverHighlightParam( ent )
 				return result
 			}
 		}
@@ -2496,6 +2580,22 @@ HighlightContextResult  function GetHighlightContextForEnt( entity viewPlayer, e
 				result.contextId =  ent.Highlight_GetGenericHighlightContext( eHighlightGenericType.FRIENDLY )
 				return result
 			}
+
+			if( !viewTarget.IsPlayer() )
+			{
+				if( Highlight_ShouldObserverHighlight( viewPlayer, ent ) )
+				{
+					result.contextId = GetHighlightId( "pure_observer_highlight" )
+					Highlight_SetPureObserverHighlightParam( ent )
+				}
+				else
+				{
+					result.genericType = eHighlightGenericType.NEUTRAL
+					result.contextId =  ent.Highlight_GetGenericHighlightContext( eHighlightGenericType.NEUTRAL )
+				}
+				return result
+			}
+
 
 
 
@@ -2585,6 +2685,7 @@ HighlightContextResult  function GetHighlightContextForEnt( entity viewPlayer, e
 			if ( Highlight_ShouldObserverHighlight( viewPlayer, ent ) )
 			{
 				result.contextId = GetHighlightId( "pure_observer_highlight" )
+				Highlight_SetPureObserverHighlightParam( ent )
 				return result
 			}
 			else if ( entTeam != TEAM_UNASSIGNED )
@@ -2651,7 +2752,7 @@ var function ReconScan_ShowHudForTarget( entity player, entity enemy, bool pinTo
 	RuiSetBool( rui, "useShadowFormFrame", isShadowForm )
 
 	RuiTrackFloat( rui, "shieldFrac", refEntity, RUI_TRACK_SHIELD_FRACTION )
-	RuiTrackInt( rui, "overshield", refEntity, RUI_TRACK_SCRIPT_NETWORK_VAR_INT, GetNetworkedVariableIndex( TEMPSHIELD_NETVAR ) )
+	RuiTrackInt( rui, "overshield", refEntity, RUI_TRACK_TEMP_SHIELD_INT )
 	RuiTrackFloat( rui, "healthFrac", refEntity, RUI_TRACK_HEALTH )
 	RuiTrackFloat3( rui, "pos", enemy, RUI_TRACK_OVERHEAD_FOLLOW )
 

@@ -731,6 +731,9 @@ void function GunGame_Init()
 
 
 
+
+
+
 void function ServerCallback_AnnounceScored( int lootIndex )
 {
 	Assert( SURVIVAL_Loot_IsLootIndexValid( lootIndex ) )
@@ -872,6 +875,9 @@ void function GunGame_OnSelectedWeaponChanged( entity selectedWeapon )
 	switch( weaponName )
 	{
 		case SNIPERULT_WEAPON_NAME:
+
+
+
 		case MOUNTED_TURRET_WEAPON_NAME:
 		case MOBILE_HMG_WEAPON_NAME:
 		case MOUNTED_TURRET_PLACEABLE_WEAPON_NAME:
@@ -910,7 +916,8 @@ void function DisplayGunGameScore_thread()
 
 	while( GetGameState() < eGameState.WinnerDetermined )
 	{
-		foreach ( entity player in GetPlayerArray() )
+		array < entity > allPlayersArray = GetPlayerArray()
+		foreach ( entity player in allPlayersArray )
 		{
 			if ( !IsValid( player ) )
 				continue

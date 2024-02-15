@@ -150,50 +150,50 @@ WeaponData
          
            
 
-                         
-                                      
-      
+	                        
+	    upgrade_core_valk_pas_air_control
+	    {
 
-      
+	    }
 
-                                              
-      
+	    upgrade_core_valk_pas_decrease_fuel_usage
+	    {
 
-      
+	    }
 
-                                               
-      
+	    upgrade_core_valk_pas_cleanse_slow_effects
+	    {
 
-      
+	    }
 
-                                        
-      
-                                                                           
-                                           
-                                         
-                                       
-                                           
-      
+	    upgrade_core_tac_cooldown_reduction
+	    {
+			"ammo_clip_size"   	        300 // this number should be divisible by 12
+            "ammo_default_total"        300
+            "ammo_min_to_fire"	        25
+            "ammo_per_shot"		        25
+            "ammo_stockpile_max"        300
+	    }
 
-                                              
-      
-                                                                        
-                                        
-                                        
-                                          
-                                          
-      
+	    upgrade_core_valk_tac_increase_missiles_1
+	    {
+			"ammo_clip_size"   		    450 // this number should be divisible by 15
+            "ammo_default_total"	    450
+            "ammo_stockpile_max"	    450
+            "regen_ammo_refill_rate"    15
+            "burst_fire_count"          15
+	    }
 
-                                             
-        
-                                                                                   
-                                           
-                                           
-                                  
-                                
-                                          
-                                          
-        
+	   upgrade_core_valk_tac_increase_missiles_2
+       {
+       	   "ammo_clip_size"   	        375 // this number should be divisible by 15
+           "ammo_default_total"	        375
+           "ammo_stockpile_max"	        375
+           "ammo_min_to_fire"			25
+           "ammo_per_shot"				25
+           "regen_ammo_refill_rate"     15
+           "burst_fire_count"           15
+       }
            
 	}
 

@@ -39,7 +39,7 @@ ImpactTable
 		"2" "xo_dodge_trail_concrete"
 		"3" "xo_dodge_trail_concrete"
 		"4" "xo_dodge_trail_concrete"
-		"5" "P_impact_exp_med_water" //water_hrz
+		"5" "xo_dodge_trail_metal" //water_hrz
 		"6" "xo_dodge_trail_concrete"
 		"7" "xo_dodge_trail_concrete"
 		"8" "xo_dodge_trail_concrete"

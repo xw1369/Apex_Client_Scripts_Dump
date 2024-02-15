@@ -77,7 +77,7 @@ WeaponData
     //"bolt_hitsize_growfinal_size"					"0.1"
 
     "bolt_gravity_enabled"							"1"
-    "projectile_gravity_scale"						"1"
+    "projectile_gravity_scale"						"1.05"
     "projectile_drag_coefficient"                   "0.0"
     "bolt_zero_distance"                            "1378.0"    //35m
 
@@ -88,7 +88,7 @@ WeaponData
     "pass_through_depth"							"0"
     "pass_through_damage_preserved_scale"			"1"
 
-    "projectile_launch_speed"						"22000"
+    "projectile_launch_speed"						"20000"
 
     "tracer_effect"   								"P_wpn_tracer_pulse"
     "impact_effect_table" 							"pulse_bullet"

@@ -119,7 +119,9 @@ void function UpdateHitMarkerPos( var rui, vector damagePos, entity target )
 	while ( Time() < endTime )
 	{
 		
-		RuiSetFloat3( rui, "pos", offset + target.GetOrigin() )
+		if( IsValid( target ) )
+			RuiSetFloat3( rui, "pos", offset + target.GetOrigin() )
+
 		WaitFrame()
 	}
 }

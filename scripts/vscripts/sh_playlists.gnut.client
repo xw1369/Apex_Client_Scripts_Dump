@@ -46,6 +46,7 @@ global function GetBinkFromBinkMap
 
 
 
+
 #if DEV
 global function PrintPlaylists
 #endif
@@ -113,6 +114,8 @@ global const table<string, asset> GAMEMODE_IMAGE_MAP = {
 	panel_canyon_land_mu2_airdrop = $"rui/menu/gamemode/playlist_bg_kc_mu2_airdrop",
 	duos_airdrop = $"rui/menu/gamemode/duos_v2",
 	trios_airdrop = $"rui/menu/gamemode/trios",
+
+	panel_thunderdome = $"rui/menu/gamemode/playlist_bg_thunderdome",
 
 
 
@@ -211,13 +214,13 @@ global const table<string, asset> GAMEMODE_IMAGE_MAP = {
 		heatwave_storm_point = $"rui/menu/gamemode/playlist_bg_heatwave_storm_point",
 		heatwave_divided_moon = $"rui/menu/gamemode/playlist_bg_heatwave_divided_moon",
 
-
-		s17_chronicle = $"rui/menu/gamemode/playlist_bg_s17_chronicle",
-
+	s17_chronicle = $"rui/menu/gamemode/playlist_bg_s17_chronicle",
 
 		strikeout_divided_moon = $"rui/menu/gamemode/playlist_bg_strikeout_divided_moon",
 		strikeout_olympus_mu2 = $"rui/menu/gamemode/playlist_bg_strikeout_olympus_mu2",
 		strikeout_storm_point_mu2 = $"rui/menu/gamemode/playlist_bg_strikeout_storm_point_mu2",
+		strikeout_canyonlands_hu = $"rui/menu/gamemode/playlist_bg_strikeout_kings_canyon",
+		strikeout_desertlands_hu = $"rui/menu/gamemode/playlist_bg_strikeout_worlds_edge",
 
 
 		shadow_army = $"rui/menu/gamemode/playlist_bg_shadowarmy"
@@ -228,6 +231,11 @@ global const table<string, asset> GAMEMODE_IMAGE_MAP = {
 		trios_event_locked = $"rui/menu/gamemode/playlist_bg_trios_event_locked",
 		play_apex_panel_locked = $"rui/menu/gamemode/playlist_bg_play_apex_panel_locked",
 		mixtape_locked = $"rui/menu/gamemode/playlist_bg_mixtape_event_locked",
+
+
+
+		trios_bounty_hunt = $"rui/menu/gamemode/playlist_bg_thehunt_trios",
+		duos_bounty_hunt = $"rui/menu/gamemode/playlist_bg_thehunt_duos",
 
 }
 
@@ -293,6 +301,8 @@ global const table<string, asset> GAMEMODE_THUMBNAIL_IMAGE_MAP = {
 	panel_canyon_land_mu2_airdrop = $"rui/menu/gamemode/playlist_bg_kc_mu2_airdrop",
 	duos_airdrop = $"rui/menu/gamemode/playlist_bg_sq_duos",
 	trios_airdrop = $"rui/menu/gamemode/playlist_bg_sq_trios",
+
+	panel_thunderdome = $"rui/menu/gamemode/playlist_bg_sq_thunderdome",
 
 
 
@@ -394,20 +404,25 @@ global const table<string, asset> GAMEMODE_THUMBNAIL_IMAGE_MAP = {
 		heatwave_divided_moon = $"rui/menu/gamemode/playlist_bg_sq_heatwave_divided_moon",
 
 
-
-		s17_chronicle = $"rui/menu/gamemode/playlist_bg_sq_s17_chronicle",
-
+	s17_chronicle = $"rui/menu/gamemode/playlist_bg_sq_s17_chronicle",
 
 
 		strikeout_divided_moon = $"rui/menu/gamemode/playlist_bg_sq_strikeout_divided_moon",
 		strikeout_olympus_mu2 = $"rui/menu/gamemode/playlist_bg_sq_strikeout_olympus_mu2",
 		strikeout_storm_point_mu2 = $"rui/menu/gamemode/playlist_bg_sq_strikeout_storm_point_mu2",
+		strikeout_canyonlands_hu = $"rui/menu/gamemode/playlist_bg_sq_strikeout_kings_canyon",
+		strikeout_desertlands_hu = $"rui/menu/gamemode/playlist_bg_sq_strikeout_worlds_edge",
 
 
 
 		shadow_army = $"rui/menu/gamemode/playlist_bg_sq_shadowarmy",
 		shadow_army_cine = $"rui/menu/gamemode/playlist_bg_sq_shadowarmy_cine",
 		event_locked = $"rui/menu/gamemode/playlist_bg_sq_event_locked",
+
+
+
+		trios_bounty_hunt = $"rui/menu/gamemode/playlist_bg_sq_thehunt_trios",
+		duos_bounty_hunt = $"rui/menu/gamemode/playlist_bg_sq_thehunt_duos",
 
 }
 
@@ -1128,6 +1143,10 @@ const table<string, asset> GAMEMODE_EMBLEM_MAP = {
 
 		emblem_golden_horse = $"rui/gamemodes/golden_horse/golden_horse_mode_icon",
 
+
+
+		emblem_bounty_hunt = $"rui/hud/gametype_icons/ltm/hunt_ltm_logo_colorized",
+
 }
 
 
@@ -1181,6 +1200,27 @@ string function GetPlaylistRotationGroup()
 #endif
 	return rotationGroup
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

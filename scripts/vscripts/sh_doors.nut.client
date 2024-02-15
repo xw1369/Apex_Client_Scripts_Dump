@@ -651,6 +651,14 @@ bool function DoorsAreEnabled()
 
 
 
+
+
+
+
+
+
+
+
 void function OnSomePropCreated( entity prop )
 {
 	if ( prop.GetScriptName() == "survival_door_sliding" )

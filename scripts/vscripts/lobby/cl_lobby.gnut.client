@@ -1,8 +1,17 @@
 global function Lobby_AddLocalPlayer
 global function AddCallback_OnPlayerAddedToLobby
 global function Lobby_SetBannerSkin
+global function ToggleHighlightOnRadioPlayProp
 #if DEV
 global function DEV_SetLobbyBannerSkin
+#endif
+
+const asset MARVIN_MDL = $"mdl/robots/marvin/marvin_base_v2.rmdl"
+const asset MARVIN_TRAY_MDL = $"mdl/props/marvin_tray/marvin_tray.rmdl"
+#if DEV
+global function MarvinTriggerAnimThread
+global function DEV_PlayMarvinAnim
+global function SetupRadioPlayProp
 #endif
 
 global function Lobby_OnReadyFX
@@ -15,10 +24,7 @@ const int LOBBY_BANNER_LTM_SKIN_INDEX = 2
 const int LOBBY_EVENT1_SKIN_OFFSET = 3
 const int LOBBY_EVENT2_SKIN_OFFSET = 6
 
-const asset GH_READY_UP_RING_EFFECT = $"P_env_lobby_s19_readyup_ring"
-const asset GH_READY_UP_YELLOW_EFFECT = $"P_env_lobby_s19_readyup_yellow"
-
-const float READY_UP_FX_COOLDOWN = 5.0
+const asset CAMERA_FLASH_READY_UP_EFFECT = $"P_lobby_s20_cameraflash"
 
 struct
 {
@@ -30,10 +36,19 @@ struct
 		bool overrideLobbyBanner = false
 #endif
 
+	entity marvin
+	bool specificAnimPlaying = false
+	float specificAnimCooldown = 0
+	entity cameraEffectEnt
+
+	array< entity > radioPlayProps
 
 	float readyUpCooldown = 0
-	array< entity > ringEffects
-	array< entity > lightEffects
+	float readyUpCooldownTime = 15.0
+
+	bool registeredForPartyMemberCallback = false
+	bool radioPlayPropsSetup = false
+
 } file
 
 void function Lobby_AddLocalPlayer()
@@ -47,6 +62,8 @@ void function Lobby_AddLocalPlayer()
 	SetStandardAbilityBindingsForPilot( player )
 	RefreshPresentationType()
 
+	RegisterSignal("MarvinKillIdleThread")
+
 
 	
 	
@@ -57,9 +74,21 @@ void function Lobby_AddLocalPlayer()
 	foreach ( func in file.onPlayerAddedToLobbyCallbacks )
 		func( player )
 
+	if ( !file.registeredForPartyMemberCallback )
+	{
+		AddCallback_OnClientPartyMemberAdded( OnPartyMemberAdded )
+		file.registeredForPartyMemberCallback = true
+	}
+
 	CacheLobbyBannerEnt()
 	SetupEventProps()
 	SetupEventBase()
+
+	PrecacheModel( MARVIN_MDL )
+	PrecacheModel( MARVIN_TRAY_MDL )
+
+	SetupMarvin()
+	SetupRadioPlayProp()
 
 	RunUIScript( "MaybeSendPINSettingsEvent" )
 }
@@ -76,49 +105,65 @@ void function CacheLobbyBannerEnt()
 	file.lobbyBanners = GetEntArrayByScriptName( "lobby_banner" )
 	file.lobbyBases = GetEntArrayByScriptName( "lobby_base" )
 
+	PrecacheParticleSystem( CAMERA_FLASH_READY_UP_EFFECT )
+
+	array<entity> camereEffectEnts = GetEntArrayByScriptName( "readyup_effect" )
+
+	if ( camereEffectEnts.len() == 1 )
+		file.cameraEffectEnt = camereEffectEnts[0]
+
 	if ( IsLobbyEvent1Active() )
 	{
-		PrecacheParticleSystem( GH_READY_UP_RING_EFFECT )
-		PrecacheParticleSystem( GH_READY_UP_YELLOW_EFFECT )
-		file.ringEffects = GetEntArrayByScriptName( "event_ring_effect" )
-		file.lightEffects = GetEntArrayByScriptName( "event_light_effect" )
+		file.readyUpCooldownTime = 60
 	}
 
-	if ( IsLobbyEvent2Active() )
-	{
+	
 
-	}
+
+
+
 }
 
 void function Lobby_OnReadyFX( bool isReady )
 {
+	if ( !isReady )
+		return
+
+	float now = ClientTime()
+
+	if ( file.readyUpCooldown != 0 && now < (file.readyUpCooldown + file.readyUpCooldownTime))
+		return
+
+	file.readyUpCooldown = now
+
 	if ( IsLobbyEvent1Active() )
 	{
-		if ( !isReady )
-			return
-
-		float now = ClientTime()
-
-		if ( now < (file.readyUpCooldown + READY_UP_FX_COOLDOWN))
-			return
-
-		file.readyUpCooldown = now
-
 		thread Event1ReadyFX()
 	}
 	else if ( IsLobbyEvent2Active()  )
 	{
-
+		
 	}
+	else
+	{
+		thread NonEventLobbyReadyUp()
+	}
+}
+
+void function NonEventLobbyReadyUp()
+{
+	if ( !IsValid(file.cameraEffectEnt) )
+		return
+
+	StartParticleEffectInWorld( GetParticleSystemIndex ( CAMERA_FLASH_READY_UP_EFFECT ) , file.cameraEffectEnt.GetOrigin(),  file.cameraEffectEnt.GetAngles() )
+
+	thread MarvinTriggerAnimThread( "mrvn_lobby_s20_idle_surprised" )
 }
 
 void function Event1ReadyFX()
 {
-	foreach ( ringEffect in file.ringEffects )
-		StartParticleEffectInWorld( GetParticleSystemIndex ( GH_READY_UP_RING_EFFECT ) , ringEffect.GetOrigin(),  ringEffect.GetAngles() )
-
-	foreach ( lightEffect in file.lightEffects )
-		StartParticleEffectInWorld( GetParticleSystemIndex ( GH_READY_UP_YELLOW_EFFECT ) , lightEffect.GetOrigin(),  lightEffect.GetAngles() )
+	if ( RandomFloat( 1.0 ) <= 0.1 )
+		thread MarvinTriggerAnimThread( "mrvn_lobby_s20_prowler", true )
 }
 
 void function Lobby_SetBannerSkin( string playlist )
@@ -256,5 +301,144 @@ void function SetupEvent2Props()
 
 
 
+}
 
+void function SetupMarvin( vector origin = <-92, 686.679016, -0.625>, vector angles = <0,-90,0> )
+{
+	array<entity> lobbyMarvins = GetEntArrayByScriptName("LobbyMarvin")
+	if ( lobbyMarvins.len() > 0  )
+		return
+
+
+	if ( IsEventLobbyActive() )
+		origin += EVENT_LOBBY_OFFSET
+
+	file.marvin = CreateClientSidePropDynamic( origin, angles, MARVIN_MDL )
+	file.marvin.SetScriptName( "LobbyMarvin" )
+	thread MarvinIdleThread()
+}
+
+void function MarvinIdleThread()
+{
+	Signal( file.marvin, "MarvinKillIdleThread" )
+	EndSignal( file.marvin, "MarvinKillIdleThread" )
+	EndSignal( file.marvin, "OnDestroy" )
+
+	file.specificAnimPlaying = false
+	bool animChanged = true
+
+	while( true )
+	{
+		float dice = RandomFloat( 1.0 )
+
+		if ( dice >= 0.8 )
+		{
+			file.marvin.Anim_Play( "mrvn_lobby_s20_idle_twitch" )
+			wait file.marvin.GetSequenceDuration( "mrvn_lobby_s20_idle_twitch" )
+			animChanged = true
+		}
+
+		if ( animChanged )
+			file.marvin.Anim_Play( "mrvn_lobby_s20_idle" )
+
+		animChanged = false
+
+		wait file.marvin.GetSequenceDuration( "mrvn_lobby_s20_idle" )
+	}
+}
+
+void function MarvinTriggerAnimThread( string anim, bool requireReEnter = false )
+{
+	if ( file.specificAnimPlaying )
+		return
+
+	Signal( file.marvin, "MarvinKillIdleThread" )
+
+	file.specificAnimPlaying = true
+	file.marvin.Anim_Play( anim )
+	wait file.marvin.GetSequenceDuration( anim )
+
+	if ( requireReEnter )
+	{
+		wait 15.0
+		file.marvin.Anim_Play( "mrvn_lobby_s20_enter" )
+		wait file.marvin.GetSequenceDuration( "mrvn_lobby_s20_enter" )
+	}
+
+	thread MarvinIdleThread()
+}
+
+#if DEV
+void function DEV_PlayMarvinAnim( string anim, bool stopAnim = true )
+{
+	array<entity> lobbyMarvins = GetEntArrayByScriptName("LobbyMarvin")
+	if ( lobbyMarvins.len() != 1 )
+		return
+
+	if ( stopAnim )
+		lobbyMarvins[0].Anim_Stop()
+
+	lobbyMarvins[0].Anim_Play( anim )
+}
+#endif
+
+void function OnPartyMemberAdded()
+{
+	thread MarvinTriggerAnimThread( "mrvn_lobby_s20_idle_wave" )
+}
+
+void function SetupRadioPlayProp()
+{
+	if ( file.radioPlayPropsSetup )
+		return
+
+ 	int latestMissionIndex = SeasonQuestMission_GetLatestTimeUnlockedMission()
+	array< string > scriptNames = [ "branthium", "octane_heirloom", "forge_medallion", "battery", "gauntlet" ]
+
+	if ( latestMissionIndex == -1 )
+		return
+
+	if ( latestMissionIndex >= scriptNames.len() )
+		return
+
+	string propScriptName = scriptNames[latestMissionIndex]
+
+	file.radioPlayProps = GetEntArrayByScriptName( propScriptName )
+	scriptNames.fastremove( latestMissionIndex )
+
+
+	foreach ( string scriptName in scriptNames )
+	{
+		array<entity> entsToDelete = GetEntArrayByScriptName( scriptName )
+		foreach ( ent in entsToDelete )
+			ent.Destroy()
+
+		array<entity> cardEntsToDelete = GetEntArrayByScriptName( scriptName +  "_card" )
+		foreach ( ent in cardEntsToDelete )
+			ent.Destroy()
+	}
+
+	array<entity> cardEnts = GetEntArrayByScriptName( propScriptName +  "_card" )
+	foreach ( ent in cardEnts )
+	{
+		ent.SetModelScale( 0.5 )
+		ent.SetOrigin( ent.GetOrigin() + <-5.1, 0.6, 22.74> )
+	}
+
+	file.radioPlayPropsSetup = true
+
+}
+
+void function ToggleHighlightOnRadioPlayProp( bool focus )
+{
+	if ( focus )
+	{
+		foreach ( radioPlayProp in file.radioPlayProps )
+			SonarViewModelHighlight( radioPlayProp, HIGHLIGHT_COLOR_FRIENDLY )
+	}
+	else
+	{
+		foreach ( radioPlayProp in file.radioPlayProps )
+			SonarViewModelClearHighlight ( radioPlayProp )
+	}
 }

@@ -582,8 +582,6 @@ void function ShadowForm_Start( entity player, entity weapon )
 
 
 
-
-
 	while( StatusEffect_HasSeverity( player, eStatusEffect.shadow_form ) )
 	{
 
@@ -595,6 +593,8 @@ void function ShadowForm_Start( entity player, entity weapon )
 		WaitFrame()
 	}
 }
+
+
 
 
 

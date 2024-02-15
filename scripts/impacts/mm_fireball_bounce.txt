@@ -36,7 +36,7 @@ ImpactTable
         "2" "P_mm_ball_bounce_lava_thermite" //lava_rock_hot
 		"3" "P_mm_ball_bounce_default_thermite"
 		"4" "P_mm_ball_bounce_default_thermite"
-		"5" "P_mm_ball_bounce_water_thermite"
+		"5" "P_mm_ball_bounce_default_thermite"
 		"6" "P_mm_ball_bounce_default_thermite"
 		"7" "P_mm_ball_bounce_default_thermite"
 		"8" "P_mm_ball_bounce_default_thermite"

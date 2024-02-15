@@ -18,6 +18,7 @@ global function SetUnitFrameCustomTreatment
 global function SetUnitFrameCustomColor
 global function SetUnitFrameShadowFormState
 global function SetUnitFrameOvershieldChargingState
+global function SetUnitFrameConsumableData
 global function ClearUnitFrameCustomColor
 
 global function SetUnitFrameDataFromOwner
@@ -123,6 +124,8 @@ void function OnPlayerClassChanged( entity player )
 
 	bool characterChanged = true
 
+	bool playerIsSpectator = player.GetPlayerSettings() == SPECTATOR_SETTINGS
+
 	if ( characterRef != "" )
 	{
 		if ( !( player in file.characterRefTable ) )
@@ -131,14 +134,14 @@ void function OnPlayerClassChanged( entity player )
 		{
 			if ( file.characterRefTable[player] == characterRef )
 				characterChanged = false
-			else
+			else if ( ! playerIsSpectator ) 
 				file.characterRefTable[player] = characterRef
 		}
 	}
 
 	if ( characterChanged )
 	{
-		if ( PlayerHasUnitFrame( player ) && player.GetPlayerSettings() != SPECTATOR_SETTINGS )
+		if ( PlayerHasUnitFrame( player ) && !playerIsSpectator )
 		{
 			SetUnitFrameOwner( GetUnitFrame( player ), player, GetLocalViewPlayer() )
 		}
@@ -485,11 +488,12 @@ void function CreateTeamUnitFrame( entity player )
 	SquadLeader_UpdateUnitFrameRui(  player, rui )
 
 
-
-
-
-
-
+	if( UpgradeCore_IsEnabled() )
+	{
+		RuiSetBool( rui, "showProgressMeter",  UpgradeCore_ArmorTiedToUpgrades() && UpgradeCore_ShowUpgradesUnitframe() )
+		RuiSetBool( rui, "showProgressBar", true )
+		UpgradeCore_UpdateTeammatesXp( player, player.GetPlayerNetInt( UPGRADE_CORE_XP_NETINT ) )
+	}
 
 }
 
@@ -594,10 +598,30 @@ void function SetUnitFrameDataFromOwner( var rui, entity ent, entity localPlayer
 			RuiTrackFloat( rui, "cameraViewFracLocal", localPlayer, RUI_TRACK_STATUS_EFFECT_SEVERITY, eStatusEffect.camera_view )
 
 	RuiSetBool( rui, "disconnected", !ent.IsConnectionActive() )
-	RuiSetImage( rui, "healTypeIcon", $"" )
+
+	SetUnitFrameConsumableData(rui, ent)
+
 #if MEMBER_COLORS
 		RuiTrackInt( rui, "teamMemberIndex", ent, RUI_TRACK_PLAYER_TEAM_MEMBER_INDEX )
 #endif
+
+	LootData data = EquipmentSlot_GetEquippedLootDataForSlot( ent, "armor" )
+	bool isEvolving = data.lootType == eLootType.ARMOR && EvolvingArmor_IsEquipmentEvolvingArmor( data.ref )
+	RuiSetBool( rui, "isEvolvingShield", isEvolving )
+
+
+		if( UpgradeCore_IsEnabled() )
+		{
+		   RuiSetBool( rui, "showProgressMeter",  UpgradeCore_ArmorTiedToUpgrades() && UpgradeCore_ShowUpgradesUnitframe() )
+		   RuiSetBool( rui, "showProgressBar", true )
+		   UpgradeCore_UpdateXpRui( rui, ent )
+		}
+		else
+		{
+			RuiSetBool( rui, "showProgressBar", false )
+			RuiSetBool( rui, "showProgressMeter",  false )
+		}
+
 
 
 	RuiTrackBool( rui, "isDriving", ent, RUI_TRACK_PLAYER_IS_DRIVING_HOVER_VEHICLE )
@@ -619,13 +643,13 @@ void function SetUnitFrameDataFromOwner( var rui, entity ent, entity localPlayer
 	RuiSetBool( rui, "showBleedoutTimer", showBleedoutTimer )
 
 
-		RuiTrackInt( rui, "overshield", ent, RUI_TRACK_SCRIPT_NETWORK_VAR_INT, GetNetworkedVariableIndex( TEMPSHIELD_NETVAR ) )
+		RuiTrackInt( rui, "overshield", ent, RUI_TRACK_TEMP_SHIELD_INT )
 
 
 
-
-
-
+		RuiTrackInt( rui, "playerExtraShield", ent, RUI_TRACK_SCRIPT_NETWORK_VAR_INT, GetNetworkedVariableIndex( EXTRA_SHIELDS_NETINT ) )
+		RuiTrackInt( rui, "playerExtraShieldTier", ent, RUI_TRACK_SCRIPT_NETWORK_VAR_INT, GetNetworkedVariableIndex( EXTRA_SHIELDS_TIER_NETINT ) )
+		RuiSetInt( rui, "armorShieldCapacity", ent.GetShieldHealthMax() )
 
 
 	int observerMode = 0
@@ -692,19 +716,35 @@ void function SetUnitFrameDataFromRAS( var rui, entity ent, bool forceUpdate = f
 	RuiTrackInt( rui, "squadID", ent, RUI_TRACK_SQUADID )
 }
 
-
-void function OnInUseHealingKitTypeChanged( entity player, int kitType )
+void function SetUnitFrameConsumableData( var rui, entity ent, int ornull kitType = null)
 {
 	asset hudIcon = $""
+	float startTime = 0.0
 	float endTime = 0.0
+	float duration = 0.0
 
-	entity weapon = player.GetOffhandWeapon( OFFHAND_SLOT_FOR_CONSUMABLES )
+	if ( kitType == null )
+	{
+		kitType = ent.GetPlayerNetInt( "healingKitTypeCurrentlyBeingUsed" )
+	}
+	expect int (kitType)
+
+	entity weapon = ent.GetOffhandWeapon( OFFHAND_SLOT_FOR_CONSUMABLES )
 	if( IsValid( weapon ) )
 	{
 		float raiseTime       = weapon.GetWeaponSettingFloat( eWeaponVar.raise_time )
 		float chargeTime      = weapon.GetWeaponSettingFloat( eWeaponVar.charge_time )
-		endTime = Time() + raiseTime + chargeTime
+		duration = raiseTime + chargeTime
+		endTime = Time() + duration
 	}
+
+	float netEndTime = ent.GetPlayerNetTime( "healingKitEndTime" )
+	if ( netEndTime > 0.01 )
+	{
+		endTime = min(netEndTime, endTime)
+		startTime = endTime - duration
+	}
+
 	if ( kitType != -1 )
 	{
 		if ( WeaponDrivenConsumablesEnabled() )
@@ -721,14 +761,41 @@ void function OnInUseHealingKitTypeChanged( entity player, int kitType )
 		}
 	}
 
+	RuiSetImage( rui, "healTypeIcon", hudIcon )
+	RuiSetFloat( rui, "consumableStartTime", startTime )
+	RuiSetFloat( rui, "consumableEndTime", endTime )
+	RuiSetBool( rui, "consumablePanelVisible", hudIcon != $"" && endTime > 0 )
+}
+
+void function OnInUseHealingKitTypeChanged( entity player, int kitType )
+{
 	foreach ( framePlayer, frame in file.teamUnitFrames )
 	{
 		if ( framePlayer != player )
 			continue
-		RuiSetImage( frame.rui, "healTypeIcon", hudIcon )
-		RuiSetFloat( frame.rui, "consumableEndTime", endTime )
-		RuiSetBool( frame.rui, "consumablePanelVisible", hudIcon != $"" )
+
+		SetUnitFrameConsumableData(frame.rui, framePlayer, kitType)
+
 		break
+	}
+
+	if (Fullmap_IsVisible())
+	{
+		array<var> mapUnitFrames = GetUnitFramesRui()
+
+		for ( int i = 1; i < mapUnitFrames.len(); i++ )
+		{
+			var frame = mapUnitFrames[i]
+			int slotIndex     = i - 1
+			entity framePlayer = UnitFrame_GetOwnerByIndex( slotIndex )
+
+			if ( framePlayer != player || ! IsValid( framePlayer ) )
+				continue
+
+			SetUnitFrameConsumableData(frame, framePlayer, kitType)
+
+			break
+		}
 	}
 }
 
@@ -1175,6 +1242,9 @@ void function UnitFrames_ToggleTeamName()
 		else
 			team = player.GetTeam() - TEAM_IMC
 
+		if ( !IsValid( player ) || player.GetTeam() == TEAM_SPECTATOR )
+			return
+
 		teamIcon = Teams_GetTeamIcon( team )
 		teamName = Teams_GetTeamName( team )
 		show = UnitFrames_ShouldShowTeamName()
@@ -1190,7 +1260,10 @@ void function UnitFrames_ToggleTeamName()
 		RuiSetImage( rui, "teamNameIcon", teamIcon )
 		RuiSetBool( rui, "shouldShowTeamName", true )
 
-		RuiSetColorAlpha( rui, "teamColor", Teams_GetTeamColor( player.GetTeam() ), 1.0 )
+		if( IsSurvivalMode() )
+			RuiSetColorAlpha( rui, "teamColor", <244,244,244>/255, 1.0 )
+		else
+			RuiSetColorAlpha( rui, "teamColor", Teams_GetTeamColor( player.GetTeam() ), 1.0 )
 	}
 	else
 	{

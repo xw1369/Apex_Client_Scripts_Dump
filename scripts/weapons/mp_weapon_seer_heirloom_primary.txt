@@ -34,7 +34,6 @@ WeaponData
 	"deployfirst_time"								"2.0333"
 
 	// Animation
-	"ignore_3p_activity_mod_during_consumable"      "1"
 	"activitymodifier3P"							"fist_blades"
 
 	// Bob - Hip

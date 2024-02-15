@@ -264,28 +264,28 @@ WeaponData
 
 		}
 
-                      
+		                    
 
-                                     
-   
-                                
-                                
-                                
-                                
-                                
-   
+		upgrade_core_tac_cooldown_reduction
+		{
+			"ammo_clip_size"        "350"
+			"ammo_default_total"    "350"
+			"ammo_min_to_fire"      "350"
+			"ammo_per_shot"         "350"
+			"ammo_stockpile_max"    "350"
+		}
 
-                 
-   
-                                              
-                                                      
-                                                            
-                                                                        
-                                                                     
-                                                                          
-                                                 
-                                                                 
-   
+		upgrade_tac_one
+		{
+			"grenade_arc_indicator_show_from_hip"			"1"
+            "grenade_arc_indicator_bounce_count"			"1"
+            "grenade_arc_indicator_ignore_base_velocity"	"1"
+            "grenade_arc_indicator_effect"					"P_arc_light_blue_bounce"
+            "grenade_arc_indicator_effect_first"			"P_arc_light_blue"
+            "grenade_arc_impact_indicator_effect"			"P_arc_light_blue_end"
+            "projectile_gravity_scale"						"1.0"
+            "projectile_launch_speed"                       "500"
+		}
 
         
 	}

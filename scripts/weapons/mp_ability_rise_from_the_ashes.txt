@@ -102,13 +102,13 @@ WeaponData
               
 
                             
-                       
-         
-                                           
-                                       
-                                       
-                                     
-         
+        upgrade_ult_one
+        {
+            "ammo_clip_size"   								"90"
+        	"ammo_default_total"							"0"
+        	"ammo_min_to_fire"								"90"
+        	"ammo_per_shot"									"90"
+        }
               
     }
 }

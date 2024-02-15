@@ -28,7 +28,11 @@ global function Perk_SupportBin_ServerToClient_DisplayOpenedSupportBoxPrompt
 
 
 
-global const string LOOT_BIN_SUPPORT_SKIN = "SecretLoot"
+
+global const string LOOT_BIN_SUPPORT_SKIN = "Blue_Turbo"
+
+
+
 global const string LOOT_BIN_DEFAULT_SKIN = "(default)"
 
 global const float SURVIVAL_ASSISTANCE_COOLDOWN_DURATION = 10.0
@@ -301,20 +305,20 @@ int function SupportBin_HeatShieldAssistanceMax()
 }
 
 
+bool function SupportBin_RotatingLoot_Refill_SecretLoot()
+{
+	return ( GetCurrentPlaylistVarBool("supportbin_dispenses_rotatingloot_only_secret_compartment", false ) )
+}
 
+bool function SupportBin_RotatingLoot_Refill_MainLoot()
+{
+	return ( GetCurrentPlaylistVarBool("supportbin_dispenses_rotatingloot_only_secret_compartment", true ) )
+}
 
-
-
-
-
-
-
-
-
-
-
-
-
+bool function SupportBin_RotatingLoot_MainLoot_AllowGearSpawns()
+{
+	return ( GetCurrentPlaylistVarBool("supportbin_dispenses_rotatingloot_main_compartment_spawns_gear", true ) )
+}
 
 
 bool function SupportBin_AllowArmorLootInBins()
@@ -1687,7 +1691,6 @@ void function Perk_SupportBin_RuiThinkThread( var rui, entity ent )
 	RuiSetFloat( rui, "minAlphaDist", 1500 )
 	RuiSetFloat( rui, "maxAlphaDist", 2000 )
 }
-
 
 
 

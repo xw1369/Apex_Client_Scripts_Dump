@@ -44,7 +44,7 @@ ImpactTable
 		"2" "P_human_jetwash_dirt" //lava_rock_hot
 		"3" "P_human_jetwash_dirt"
 		"4" "P_human_jetwash_dirt"
-		"5" "P_hmn_land_impact_water"
+		"5" "P_human_jetwash_metal"
 		"6" "P_human_jetwash_dirt"
 		"7" "P_human_jetwash_dirt"
 		"8" "P_human_jetwash_dirt"

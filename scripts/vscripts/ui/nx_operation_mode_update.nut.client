@@ -126,6 +126,9 @@ bool isNxSwitchingMode = false
 
 
 
+
+
+
 void function ClientCodeCallback_OperationModeChanged()
 {
 	if( Survival_IsInventoryOpen() )

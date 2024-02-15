@@ -347,7 +347,7 @@ void function Obituary( entity attacker, string attackerClass, entity victim, in
 
 bool function ShouldShowRankBadges ( entity attacker, bool isDownShot )
 {
-	if ( GetCurrentPlaylistVarBool ( "Ranked_ShowRank" , false ) == false )
+	if ( Ranked_ShouldShowRankedBadge() == false )
 	{
 		return false
 	}

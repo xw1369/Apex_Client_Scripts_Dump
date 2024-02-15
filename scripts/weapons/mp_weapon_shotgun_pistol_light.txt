@@ -9,6 +9,10 @@ WeaponData
     "shortprintname"							    "#WPN_MOZAM_LIGHT"
     "description" 								    "#WPN_MOZAM_LIGHT_DESC"
 
+               
+                                                    
+                     
+
     "projectiles_per_shot"							"1"
     "ammo_clip_size"   								"36"
 

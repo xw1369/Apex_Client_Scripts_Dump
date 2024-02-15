@@ -1,6 +1,7 @@
 #base "_base_assault_rifle.txt"
 #base "_base_mags_light.txt"
 #base "_base_barrels_medium.txt"
+#base "_base_hopup_paintball.txt"
 
                     
 #base "_base_hopup_golden_horse_purple.txt"
@@ -232,6 +233,15 @@ WeaponData
 	"viewmodel_ads_rui_bottomleft_attachment"	"RUI_BL_CROSSHAIR_R301"
 	"viewmodel_ads_centerpoint_attachment"      "ADS_CENTER_SIGHT_R301"
 
+    // Hipfire Spread
+    "spread_stand_hip"								"3.0" //"2.5"
+    "spread_stand_hip_run"							"6.6" //"5.5"
+    "spread_stand_hip_sprint"                       "8.4" //"7.0"
+    "spread_crouch_hip"   							"2.4" //"2.0"
+    "spread_air_hip"  								"8.4" //"7.0"
+
+	"spread_moving_decay_rate" 						"30"
+
 	Mods
 	{
         // single shot
@@ -268,28 +278,6 @@ WeaponData
 			"low_ammo_sound_name_5"                         "R101_LowAmmo_Shot5"
 			"low_ammo_sound_name_6"                         "R101_LowAmmo_Shot6"
 		}
-
-        gold_paintball
-        {
-           "impact_effect_table" 				"bullet_pb_Random"
-
-           "projectile_trail_effect_0_1p" 		"P_tracer_projectile_pb"
-           "projectile_trail_effect_0_3p" 		"P_tracer_projectile_pb"
-
-           "reload_time"						"*0.75"
-           "reload_time_late1"					"*0.75"
-           "reload_time_late2"					"*0.75"
-           "reload_time_late3"					"*0.75"
-           "reload_time_late4"					"*0.75"
-           "reload_time_late5"					"*0.75"
-           "reloadempty_time"					"*0.75"
-           "reloadempty_time_late1"			"*0.75"
-           "reloadempty_time_late2"			"*0.75"
-           "reloadempty_time_late3"			"*0.75"
-           "reloadempty_time_late4"			"*0.75"
-           "reloadempty_time_late5"			"*0.75"
-        }
-
 
                       
         hopup_highcal_rounds

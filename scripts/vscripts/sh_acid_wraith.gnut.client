@@ -3,7 +3,6 @@
 
 
 
-
 global function AcidWraith_SharedInit
 
 global function AcidWraith_IsAcidWraithEventActive
@@ -61,8 +60,6 @@ int function AcidWraith_GetEventCurrencyLifetimeTotal( entity player )
 
 	return 0
 }
-
-
 
 
 

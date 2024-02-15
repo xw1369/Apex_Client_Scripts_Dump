@@ -47,7 +47,7 @@ ImpactTable
 		"2" "P_plasma_exp_MD"
 		"3" "P_plasma_exp_MD"
 		"4" "P_plasma_exp_MD"
-		"5" "P_impact_exp_med_water"
+		"5" "P_impact_exp_med_metal" //digi water
 		"6" "P_plasma_exp_MD"
 		"7" "P_plasma_exp_MD"
 		"8" "P_plasma_exp_MD"

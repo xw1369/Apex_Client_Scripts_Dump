@@ -43,7 +43,8 @@ global enum eDeathScreenPanel
 	SPECTATE,
 	DEATH_RECAP,
 	SCOREBOARD,
-	SQUAD_SUMMARY
+	SQUAD_SUMMARY,
+	SQUAD
 }
 
 global struct Cylinder
@@ -152,6 +153,9 @@ global const GAMEMODE_BANNERBOMB = "bannerbomb"
 
 
 
+global const GAMEMODE_THE_HUNT_20 = "the_hunt_20"
+
+
 global const GAMEMODE_ARMED_AND_DANGEROUS = "armed_and_dangerous"
 
 
@@ -163,7 +167,7 @@ global const EVENT_ABILITIES = "event_abilities"
 
 
 
-
+global const GAMEMODE_QUICK_MATCH = "quick_match"
 
 
 global const string PLAYLIST_TRAINING = "survival_training"
@@ -494,6 +498,7 @@ global enum PerfIndexClient
 	HUDThink_4,
 	HUDThink_5,
 	HUDThink_6,
+	HUDThink_7,
 
 	GameStatePlaying,
 
@@ -1057,7 +1062,7 @@ global enum eHitType
 	SHADOW,
 	OVERSHIELD,
 
-
+	EXTRA_SHIELD,
 
 }
 
@@ -1149,6 +1154,12 @@ global enum eCommsAction
 	PING_EQUIPMENT_ARMOR_2_EVO,
 	PING_EQUIPMENT_ARMOR_3_EVO,
 	PING_EQUIPMENT_ARMOR_5_EVO,
+
+	PING_EQUIPMENT_SHIELD_CORE_1,
+	PING_EQUIPMENT_SHIELD_CORE_2,
+	PING_EQUIPMENT_SHIELD_CORE_3,
+	PING_EQUIPMENT_SHIELD_CORE_5,
+
 	PING_EQUIPMENT_HELMET_1,
 	PING_EQUIPMENT_HELMET_2,
 	PING_EQUIPMENT_HELMET_3,
@@ -1253,15 +1264,17 @@ global enum eCommsAction
 
 
 
+		PING_ITEM_THE_HUNT
+		PING_AREA_THE_HUNT_HUNTER
+		PING_AREA_THE_HUNT_PREY
 
 
 
-
-
-
-
-
-
+		PING_ITEM_XP_CACHE
+		PING_ITEM_XP_CACHE_FULL
+		PING_XP_LEVEL_UP_ARMOR,
+		PING_XP_LEVEL_UP_ABILITY,
+		PING_UPGRADE_STATION,
 
 
 		PING_COLLECTIBLE_NESSIE,
@@ -1493,10 +1506,11 @@ global enum eCommsAction
 	REPLY_CRAFTING_NEXT_HARVESTER_OR_WORKBENCH,
 	REPLY_CRAFTING_PING_ALL_WORKBENCHES,
 
-
-
-
-
+		PING_REPLICATOR_NOONE_USED,
+		PING_REPLICATOR_ALL_USED,
+		PING_REPLICATOR_PLAYER_USED,
+		PING_REPLICATOR_TEAMMATE_USED,
+		PING_REPLICATOR_DISPENSER_INCOMING,
 
 
 	
@@ -1547,6 +1561,9 @@ global enum eCommsAction
 	INVENTORY_NEED_FIRST_WEAPON,
 	INVENTORY_NEED_ANOTHER_WEAPON,
 	INVENTORY_NEED_ARMOR,
+
+	INVENTORY_NEED_SHIELD_CORE,
+
 	INVENTORY_NEED_HELMET,
 	INVENTORY_NEED_BACKPACK,
 
@@ -1763,6 +1780,12 @@ global enum eCommsAction
 	FLAVOR_EQUIPMENT_ARMOR_2_EVO,
 	FLAVOR_EQUIPMENT_ARMOR_3_EVO,
 	FLAVOR_EQUIPMENT_ARMOR_4_EVO,
+
+	FLAVOR_EQUIPMENT_SHIELD_CORE_1,
+	FLAVOR_EQUIPMENT_SHIELD_CORE_2,
+	FLAVOR_EQUIPMENT_SHIELD_CORE_3,
+	FLAVOR_EQUIPMENT_SHIELD_CORE_5,
+
 	FLAVOR_EQUIPMENT_HELMET_1,
 	FLAVOR_EQUIPMENT_HELMET_2,
 	FLAVOR_EQUIPMENT_HELMET_3,
@@ -1927,10 +1950,11 @@ global enum eCommsAction
 		PING_WEAPON_DRAGON_RAMPARTSPECIAL,
 		PING_WEAPON_PROWLER_RAMPARTSPECIAL,
 		PING_WEAPON_FLATLINE_RAMPARTSPECIAL,
+		PING_WEAPON_CAR_RAMPARTSPECIAL,
 
 
 
-		PING_WEAPON_MOZAMBIQUE_OLNESSIE,
+
 
 
 
@@ -2012,6 +2036,7 @@ global enum eCommsAction
 
 
 
+		PING_RAMPART_TT_VENDING,
 
 
 
@@ -2025,6 +2050,9 @@ global enum eCommsAction
 
 
 
+
+
+		PING_ENEMY_POI,
 
 	_count
 }
@@ -2093,6 +2121,7 @@ global enum eTooltipStyle
 	MINI_PROMO_APEX_PACK,
 	CUSTOM_MATCHES,
 	STORE_CONFIRM,
+	BOOSTED,
 }
 
 global struct LootTooltipData
@@ -2127,6 +2156,18 @@ global struct CustomMatchTooltipData
 global struct StoreToolTipData
 {
 	vector tooltipAltDescColor
+}
+
+global enum eBoostedToolTipState
+{
+	LOCKED,
+	UNLOCKED,
+	COMPLETED
+}
+
+global struct BoostedToolTipData
+{
+	int state
 }
 
 global struct CurrencyToolTipData
@@ -2174,6 +2215,8 @@ global struct ToolTipData
 	StoreToolTipData & storeTooltipData
 
 	CurrencyToolTipData & currencyToolTipData
+
+	BoostedToolTipData & boostedToolTipData
 }
 
 
@@ -2297,6 +2340,8 @@ global enum eFRSettingType
 
 	COUNT_
 }
+
+global const int FR_RANDOM_SHIELD_SETTING = 10
 
 global enum eDummie_Selector_Movements
 {
@@ -2637,7 +2682,6 @@ global const float PLAYER_STANDING_SPRINT_SPEED = 260
 
 global const int MAX_ACTIVITY_MODE_FOR_BOTS = 5
 
-
 global const string XPROG_PERSISTENCE_MERGED_PLAT_STRUCT_NAME = "xMergedPlat"
 global const table< int, string > HARDWARE_TO_MERGED_PLATFORM = 
 {
@@ -2648,8 +2692,6 @@ global const table< int, string > HARDWARE_TO_MERGED_PLATFORM =
 	[HARDWARE_XBOXONE] = "xb",
 	[HARDWARE_XB5] = "xb"
 }
-
-
 
 
 
@@ -2727,10 +2769,30 @@ global enum eRuiArgType
 
 
 global const string POISPAWN_PLACEDCENTER_SCRIPTNAME = "poispawn_placedcenter"
+global const vector POISPAWN_LANDINGMARKER_COLOR = < 19, 255, 190 >
+global const vector POISPAWN_LANDINGMARKER_ENEMY_COLOR = < 255, 19, 19 >
+global const int TEAM_MMR_BOT_PAIRING_OVERRIDE = -1		
+
+
+global const int MAX_GAMEMODE_SELECTOR = 10
 
 
 
+global struct DeathFieldData
+{
+	vector center = <0, 0, 0>
+	vector nextCenter = <0, 0, 0>
 
+	float currentRadius = 40000.0
+	float startRadius = 40000.0
+	float endRadius = 40000.0
+	float startTime = 10.0
+	float endTime = 30.0
+
+	int codeIndex = 0
+	float percentDamagePerTick = 0.2
+	bool s_deathFieldSynchronized = false
+}
 
 
 

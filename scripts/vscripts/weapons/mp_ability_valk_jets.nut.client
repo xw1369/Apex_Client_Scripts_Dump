@@ -571,7 +571,7 @@ void function OnWeaponActivate_ability_valk_jets( entity weapon )
 	entity owner = weapon.GetWeaponOwner()
 
 	owner.SetActivateJetpack( true )
-
+	owner.Signal("JumpPadStart") 
 
 
 		if ( GetLocalViewPlayer() != owner )

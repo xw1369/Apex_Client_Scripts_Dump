@@ -36,7 +36,7 @@ ImpactTable
 		"2" "impact_dirt_OS"
 		"3" "impact_concrete_OS"
 		"4" "impact_concrete_OS"
-		"5" "impact_water_OS"
+		"5" "impact_concrete_OS"
 		"6" "impact_concrete_OS"
 		"7" "impact_concrete_OS"
 		"8" "impact_concrete_OS"

@@ -36,7 +36,7 @@ ImpactTable
 		"2" "impact_dirt_40mm"
 		"3" "impact_concrete_40mm"
 		"4" "impact_concrete_40mm"
-		"5" "impact_water_40mm"
+		"5" "impact_metal_40mm"
 		"6" "impact_concrete_40mm"
 		"7" "impact_concrete_40mm"
 		"8" "impact_concrete_40mm"

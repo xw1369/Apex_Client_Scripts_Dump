@@ -268,18 +268,18 @@ WeaponData
             "ammo_default_total"							"600"
         }
 
-                         
-                                
-         
-                                                   
-         
+	                        
+        upgrade_trap_throw_range
+        {
+	        "projectile_launch_speed"						"800" //600
+        }
 
-                             
-         
-                                              
-                                                    
-                                                
-         
+        upgrade_trap_handling
+        {
+            "toss_time"										"0.55" //0.75
+            "toss_overhead_time"							"0.55" //0.75
+            "lower_time"  									"0.05" //0.15
+        }
            
 
                             

@@ -39,7 +39,7 @@ ImpactTable
 		"2" "xo_landing_concrete"
 		"3" "xo_landing_concrete"
 		"4" "xo_landing_concrete"
-		"5" "xo_landing_water" //water_hrz
+		"5" "xo_landing_metal" //water_hrz
 		"6" "xo_landing_concrete"
 		"7" "xo_landing_concrete"
 		"8" "xo_landing_concrete"

@@ -20,7 +20,10 @@ global function GeneratePlayersInViewInfo
 
 global const string HEARTBEAT_SENSOR_WEAPON_NAME = "mp_ability_heartbeat_sensor"
 
-global const float HEARTBEAT_SENSOR_NATURAL_RANGE = 50 / INCHES_TO_METERS 
+global const float HEARTBEAT_SENSOR_NATURAL_RANGE = 50
+
+global const float HEARTBEAT_SENSOR_NATURAL_RANGE_UPGRADE = 75
+
 global const float HEARTBEAT_SENSOR_INITIAL_ACTIVATION_DELAY_DEFAULT = 0.4
 global const float HEARTBEAT_SENSOR_PING_INTERVAL_MIN = 0.4
 global const float HEARTBEAT_SENSOR_PING_INTERVAL_MAX = 1.65 
@@ -104,7 +107,6 @@ struct
 	var heartbeatSensorRui
 	float heartbeatSensorRange
 	float heartbeatSensorRangeSqr
-	float sonicBlastRange
 } file
 
 
@@ -117,9 +119,9 @@ void function PassiveHeartbeatSensor_Init()
 	RegisterSignal( "EndHeartbeatSensorUI" ) 
 	RegisterSignal( "DeactivateHeartbeatSensor" )
 
-	file.heartbeatSensorRange = GetHeartbeatSensorRange()
+	file.heartbeatSensorRange = HEARTBEAT_SENSOR_NATURAL_RANGE / INCHES_TO_METERS
 	file.heartbeatSensorRangeSqr = pow( file.heartbeatSensorRange, 2 )
-	file.sonicBlastRange = GetSonicBlastRange()
+
 
 
 
@@ -138,8 +140,9 @@ void function PassiveHeartbeatSensor_Init()
 	file.lastCommsTimeEither = -100.0
 
 	file.lastCommsLocation = ZERO_VECTOR
-	file.commsResetRange = file.sonicBlastRange * 0.75 
-	file.commsEnemyRemovalRange = file.sonicBlastRange * 1.35 
+	float baseSonicBlastRange = HEARTBEAT_SENSOR_NATURAL_RANGE / INCHES_TO_METERS + SONIC_BLAST_RANGE_EXTENSION
+	file.commsResetRange = baseSonicBlastRange * 0.75 
+	file.commsEnemyRemovalRange = baseSonicBlastRange * 1.35 
 
 
 	PrecacheParticleSystem( FX_HEARTBEAT_SENSOR_EYEGLOW_FRIEND )
@@ -256,12 +259,6 @@ void function PlayerZoomInCallback( entity player )
 			thread TurretHeartbeatSensor_Thread( player )
 		}
 	}
-
-
-
-
-
-
 
 
 
@@ -466,6 +463,24 @@ void function HeartbeatSensorTogglePressed( entity player )
 		Remote_ServerCallFunction( "ClientCallback_ToggleHeartbeatSensor" )
 	}
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -956,7 +971,7 @@ void function ShowHeartbeatSensorRange_Thread( entity player )
 		int fxId          		 = ( inWeaponCombat || showRangeDebounce ) ? GetParticleSystemIndex( FX_HEARTBEAT_SENSOR_SONAR_PULSE_NO_INTRO ) : GetParticleSystemIndex( FX_HEARTBEAT_SENSOR_SONAR_PULSE )
 
 		int pulseVFX      = StartParticleEffectOnEntity( player, fxId, FX_PATTACH_ABSORIGIN_FOLLOW, ATTACHMENTID_INVALID )
-		float adjustedRange = GetHeartbeatSensor_Range_Base( player )
+		float adjustedRange = GetHeartbeatSensorRange( player )
 		EffectSetControlPointVector( pulseVFX, 1, <adjustedRange, 0, 0> )
 
 		file.lastHeartbeatSensorActivationTime = activationTime
@@ -976,7 +991,7 @@ void function ShowHeartbeatSensorRange_Thread( entity player )
 					StopSoundOnEntity( player, HEARTBEAT_SENSOR_ACTIVE_SOUND_1P )
 				}
 
-				Minimap_SetVisiblityCone( false, GetHeartbeatSensor_Range_Base( player ), $"rui/hud/minimap/minimap_seer_tac_cone", GetKeyColor( COLORID_HUD_SEER_DEFAULT ) )
+				Minimap_SetVisiblityCone( false, GetHeartbeatSensorRange( player ), $"rui/hud/minimap/minimap_seer_tac_cone", GetKeyColor( COLORID_HUD_SEER_DEFAULT ) )
 			}
 		)
 
@@ -1053,8 +1068,8 @@ void function ManageVictims_Thread( entity player )
 #if DEV
 			if ( HEARTBEAT_SENSOR_DEBUG_VERBOSE )
 			{
-				DebugDrawSphere( player.EyePosition(), GetHeartbeatSensor_Range_Base( player ), COLOR_RED, true, 0.1 )
-				DebugDrawCylinder( player.EyePosition(), < -90, 0, 0 >, GetHeartbeatSensor_Range_Base( player ), 750, COLOR_RED, true, 0.1 )
+				DebugDrawSphere( player.EyePosition(), GetHeartbeatSensorRange( player ), COLOR_RED, true, 0.1 )
+				DebugDrawCylinder( player.EyePosition(), < -90, 0, 0 >, GetHeartbeatSensorRange( player ), 750, COLOR_RED, true, 0.1 )
 			}
 #endif
 		float viewportFOV = GetCurrentPlayerFOV( player )
@@ -1071,7 +1086,7 @@ void function ManageVictims_Thread( entity player )
 			}
 #endif
 
-		array<PlayersInViewInfo> victimsInfo = player.GetPlayersInViewInfoArray( true, true, watchRange, viewportFOV, MAX_HEARTBEAT_SENSOR_TARGETS, false, GetHeartbeatSensor_Range_Base( player ) )
+		array<PlayersInViewInfo> victimsInfo = player.GetPlayersInViewInfoArray( true, true, watchRange, viewportFOV, MAX_HEARTBEAT_SENSOR_TARGETS, false, GetHeartbeatSensorRange( player ) )
 		array<entity> victimsReturned
 
 		float minDot = deg_cos( viewportFOV )
@@ -1360,7 +1375,7 @@ void function UpdateDataForHeartseekerRadarWaveformRadial( entity player, entity
 	if ( inTacRange )
 	{
 		vector startPos 		  = player.GetAttachmentOrigin( player.LookupAttachment( "CHESTFOCUS" ) ) + ( player.GetViewVector() * SONIC_BLAST_IN_FRONT_START_DISTANCE )
-		vector blastVector        = startPos + (player.GetViewVector() * file.sonicBlastRange )
+		vector blastVector        = startPos + (player.GetViewVector() * GetSonicBlastRange( player ) )
 		vector blastVecNormalized = Normalize( blastVector - player.GetWorldSpaceCenter() )
 		isLocked = ShouldBlastHitVictim( startPos, blastVector, blastVecNormalized, victim, player.GetTeam() )
 	}
@@ -1458,7 +1473,7 @@ void function CL_HeartSeekerRUIThread( entity player, entity weapon )
 
 	RuiSetFloat( file.heartbeatSensorRui, "weaponFireDelay", weaponFireDelay )
 	RuiSetFloat( file.heartbeatSensorRui, "offset", offset )
-	RuiSetFloat( file.heartbeatSensorRui, "heartbeatSensorNaturalRange", GetHeartbeatSensor_Range_Base( player ) )
+	RuiSetFloat( file.heartbeatSensorRui, "heartbeatSensorNaturalRange", GetHeartbeatSensorRange( player ) )
 	RuiSetFloat2( file.heartbeatSensorRui, "screenSize", <screenSize.width, screenSize.height, 0> )
 
 	RuiTrackGameTime( file.heartbeatSensorRui, "lastFireTime", weapon, RUI_TRACK_WEAPON_LAST_PRIMARY_ATTACK_TIME )
@@ -1616,22 +1631,9 @@ float function GetHeartbeatSensorUISizeForWeapon( entity player, entity weapon, 
 }
 
 
-float function GetHeartbeatSensorRange()
+float function GetHeartbeatSensorRange( entity player )
 {
-	return GetCurrentPlaylistVarFloat( "seer_passive_range", HEARTBEAT_SENSOR_NATURAL_RANGE )
-}
-
-
-
-
-
-
-
-
-
-float function GetHeartbeatSensor_Range_Base( entity player )
-{
-	float result = file.heartbeatSensorRange
+	float result = GetCurrentPlaylistVarFloat( "seer_passive_range", HEARTBEAT_SENSOR_NATURAL_RANGE ) / INCHES_TO_METERS
 
 	if( !IsValid( player ) )
 		return result
@@ -1640,10 +1642,10 @@ float function GetHeartbeatSensor_Range_Base( entity player )
 		return result
 
 
-
-
-
-
+		if( PlayerHasPassive( player, ePassives.PAS_PAS_UPGRADE_ONE ) ) 
+		{
+			result = GetCurrentPlaylistVarFloat( "seer_passive_extended_range_upgraded", HEARTBEAT_SENSOR_NATURAL_RANGE_UPGRADE ) / INCHES_TO_METERS
+		}
 
 
 	return result
@@ -1660,10 +1662,10 @@ float function GetHeartbeatSensor_Range_Sqr( entity player )
 		return result
 
 
-
-
-
-
+		if( PlayerHasPassive( player, ePassives.PAS_PAS_UPGRADE_ONE ) ) 
+		{
+			result = pow( GetHeartbeatSensorRange( player ), 2 )
+		}
 
 
 	return result

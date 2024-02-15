@@ -47,7 +47,7 @@ ImpactTable
 		"2" "P_ferro_tac_exp_SM"
 		"3" "P_ferro_tac_exp_SM"
 		"4" "P_ferro_tac_exp_SM"
-		"5" "P_impact_exp_med_water"
+		"5" "P_ferro_tac_exp_SM"
 		"6" "P_ferro_tac_exp_SM"
 		"7" "P_ferro_tac_exp_SM"
 		"8" "P_ferro_tac_exp_SM"

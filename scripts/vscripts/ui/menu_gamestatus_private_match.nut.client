@@ -518,7 +518,10 @@ PlayerData function PrivateMatch_ExtractPlayerData( entity player )
 	ItemFlavor character = LoadoutSlot_WaitForItemFlavor( ToEHI( player ), Loadout_Character() )
 	pData.characterPortrait = CharacterClass_GetGalleryPortrait( character )
 	pData.killCount = player.GetPlayerNetInt( "kills" )
-	pData.playerName = player.GetPlayerNameWithClanTag()
+
+		pData.playerName = player.GetPlayerNameWithClanTag()
+
+
 
 	return pData
 }

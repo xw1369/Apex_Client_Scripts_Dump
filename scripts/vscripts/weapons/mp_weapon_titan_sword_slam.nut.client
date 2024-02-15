@@ -382,6 +382,15 @@ void function Slam_Thread( entity player, entity weapon )
 
 
 
+
+
+
+
+
+
+
+
+
 	wait 0.4 
 
 
@@ -414,6 +423,10 @@ void function ClearSlamState( entity player, entity weapon, bool doLandAnim )
 		return
 
 	player.PlayerMelee_EndAttack()
+
+
+
+
 
 
 

@@ -50,7 +50,7 @@ ImpactTable
 		"2" "P_impact_exp_XLG_sand"
 		"3" "P_impact_exp_XLG_sand"
 		"4" "P_impact_exp_XLG_sand"
-		"5" "P_impact_exp_XLG_water"
+		"5" "P_impact_exp_XLG_metal" //digi water
 		"6" "P_impact_exp_XLG_sand"
 		"7" "P_impact_exp_XLG_sand"
 		"8" "P_impact_exp_XLG_sand"

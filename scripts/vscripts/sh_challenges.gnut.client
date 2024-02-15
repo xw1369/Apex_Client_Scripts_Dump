@@ -7,6 +7,7 @@ global function Challenge_GetTierCount
 global function Challenge_LastTierIsInfinite
 global function Challenge_GetCurrentTier
 global function Challenge_IsComplete
+global function Challenge_IsAllComplete
 global function Challenge_GetTimeSpanKind
 global function Challenge_IsBoostEnabled
 global function Challenge_GetGoalVal
@@ -35,8 +36,13 @@ global function IsChallengeValidAsFavorite
 global function Challenge_GetTierDataBlock
 global function Challenge_GetPostGamePersistenceIndex
 global function GetPlayerChallengesState
-#if DEV
 global function Challenge_GetCharacterItemFlavors
+global function GetAssignedChallengesByTimeSpan
+global function Challenge_IsMetaChallenge
+global function MetaChallenge_GetStatRef
+global function MetaChallenge_GetParentFlav
+global function MetaChallenge_GetGoalVal
+#if DEV
 global function PrintChallengePersistence
 #endif
 
@@ -57,6 +63,13 @@ global function IsFavoriteChallenge
 
 #if DEV
 global function DEV_DumpFavoritePersistenceData
+#endif
+
+
+#if DEV
+global function DEV_RequestCompleteChallengeTier
+global function DEV_GetAssignedChallengeData
+global function DEV_GetChallengeTimeSpans
 #endif
 
 
@@ -141,6 +154,10 @@ global function DEV_PrintAllChallenges
 
 
 
+
+
+
+
 enum eChallengeCategory
 {
 	EVENT_00,
@@ -154,6 +171,7 @@ enum eChallengeCategory
 	BEGINNER,
 	DAILY,
 	TOP_WEEKLY,
+	REWARD_CAMPAIGN,
 	EVENTSHOP_DAILY_CHALLENGE,
 	EVENTSHOP_EVENT_CHALLENGE,
 	FAVORITES,
@@ -218,6 +236,7 @@ global enum eChallengeTimeSpanKind
 	EVENT_SPECIAL,
 	EVENT_SPECIAL_2,
 	EVENT_HIDDEN, 
+	REWARD_CAMPAIGN,
 	MYTHIC,
 	FAVORITE, 
 }
@@ -325,7 +344,8 @@ const int NUM_FAVORITE_CHALLENGES = NUM_DAILY_CHALLENGES
 const int NUM_WEEKLY_CHALLENGES_MAX = 11
 const int NUM_CHALLENGE_WEEKS_MAX = 13
 const int NUM_CHALLENGE_BUFFER_FOR_EVENTS = 32 
-const int NUM_CHALLENGES_MAX = (NUM_WEEKLY_CHALLENGES_MAX * NUM_CHALLENGE_WEEKS_MAX) + NUM_DAILY_CHALLENGES + NUM_CHALLENGE_BUFFER_FOR_EVENTS
+const int NUM_REWARD_CAMPAIGN_CHALLENGES_BUFFER = 50 
+const int NUM_CHALLENGES_MAX = (NUM_WEEKLY_CHALLENGES_MAX * NUM_CHALLENGE_WEEKS_MAX) + NUM_DAILY_CHALLENGES + NUM_CHALLENGE_BUFFER_FOR_EVENTS + NUM_REWARD_CAMPAIGN_CHALLENGES_BUFFER
 const int NUM_POST_GAME_CHALLENGES_MAX = 32
 
 
@@ -381,6 +401,7 @@ struct FileStruct_LifetimeLevel
 	array<ItemFlavor> currentStories
 	array<ItemFlavor> currentEvents
 	array<ItemFlavor> currentEventShops
+	array<ItemFlavor> currentRewardCampaigns
 
 
 
@@ -456,10 +477,12 @@ void function ShChallenges_LevelInit_PreStats()
 		Remote_RegisterClientFunction( "ServerToClient_AssignedChallengesDidChange_FromEventsRefresh" )
 		Remote_RegisterClientFunction( "ServerToClient_ChallengeDataDidChange", "bool" )
 
-		Remote_RegisterServerFunction( "ClientCallback_Challenge_ReRoll", "int", INT_MIN, INT_MAX, "int", 0, eChallengeGameMode.len() )
+		Remote_RegisterServerFunction( "ClientCallback_Challenge_ReRoll", "int", INT_MIN, INT_MAX )
 
 		Remote_RegisterServerFunction( "ClientCallback_MarkStoryPrologueCompleted", "int", 0, INT_MAX )
 		Remote_RegisterServerFunction( "ClientCallback_SetStoryAboutActiveChapterSeen", "int", 0, INT_MAX )
+
+		Remote_RegisterServerFunction( "DEV_ClientCallback_RequestCompleteChallengeTierByGUID", "int", 0, INT_MAX )
 
 
 
@@ -543,14 +566,19 @@ void function ShChallenges_LevelInit_PostStats()
 	fileLevel.currentStories = GetActiveStoryEventArray( timestamp )
 	fileLevel.currentEvents  = GetActiveBuffetEventArray( timestamp )
 
+	ItemFlavor ornull activeEventShop = EventShop_GetCurrentActiveEventShop()
+	if( activeEventShop != null )
+	{
+		expect ItemFlavor( activeEventShop )
+		fileLevel.currentEventShops = [ activeEventShop ]
+	}
 
-		ItemFlavor ornull activeEventShop = EventShop_GetCurrentActiveEventShop()
-		if( activeEventShop != null )
-		{
-			expect ItemFlavor( activeEventShop )
-			fileLevel.currentEventShops = [ activeEventShop ]
-		}
-
+	ItemFlavor ornull activeRewardCampaign = RewardCampaign_GetActiveRewardCampaign()
+	if( activeRewardCampaign != null )
+	{
+		expect ItemFlavor( activeRewardCampaign )
+		fileLevel.currentRewardCampaigns = [ activeRewardCampaign ]
+	}
 
 	if ( fileLevel.currentStories.len() == 0 )
 	{
@@ -1079,6 +1107,16 @@ void function ServerToClient_ChallengeDataDidChange( bool didEventChallengesRefr
 
 
 
+
+
+
+
+
+
+
+
+
+
 void function UpdateMinimapChallengeRui( array<var> ruiArray )
 {
 	if ( !IsConnected() )
@@ -1109,6 +1147,10 @@ void function UpdateMinimapChallengeRui( array<var> ruiArray )
 	}
 
 	array<ItemFlavor> challenges = GetChallengesByCategory( player, challengeCategory, currentEvent )
+	if ( IsRewardCampaignChallengeCategory( challengeCategory ) )
+	{
+		challenges = RewardCampaign_GetCurrentTempUnlockChallenges( player )
+	}
 
 	if ( IsEventCategory( challengeCategory ) )
 	{
@@ -1229,6 +1271,10 @@ array<ItemFlavor> function GetChallengesByCategory( entity player, int challenge
 				challenges = GetAssignedChallengesByTimeSpan( player, eChallengeTimeSpanKind.EVENTSHOP_EVENT_CHALLENGE )
 				break
 
+			case eChallengeCategory.REWARD_CAMPAIGN:
+				challenges = GetAssignedChallengesByTimeSpan( player, eChallengeTimeSpanKind.REWARD_CAMPAIGN )
+				break
+
 				unreachable
 		}
 	}
@@ -1257,10 +1303,10 @@ array<ItemFlavor> function GetWeeklyChallengesSortedByProgress( entity player )
 			if ( Challenge_IsComplete( player, challengeFlav ) )
 				continue
 
-			if ( CurrentModeSupportsCustomStats() && !Challenge_IsEitherOr( challengeFlav ) && Challenge_GetGameMode( challengeFlav ) == eChallengeGameMode.BATTLE_ROYALE )
+			if ( Stats_CurrentModeSupportsCustomStats() && !Challenge_IsEitherOr( challengeFlav ) && Challenge_GetGameMode( challengeFlav ) == eChallengeGameMode.BATTLE_ROYALE )
 				continue
 
-			if ( !CurrentModeSupportsCustomStats() && !Challenge_IsEitherOr( challengeFlav ) && !Challenge_CanBeCompletedInBR( challengeFlav ) )
+			if ( !Stats_CurrentModeSupportsCustomStats() && !Challenge_IsEitherOr( challengeFlav ) && !Challenge_CanBeCompletedInBR( challengeFlav ) )
 				continue
 
 			int currentTier = player.GetPersistentVarAsInt( "challenges[" + cs.persistenceIdx + "].currentTier" )
@@ -1280,7 +1326,7 @@ array<ItemFlavor> function GetWeeklyChallengesSortedByProgress( entity player )
 
 			float progressFrac = float(current - marker) / float(goalVal)
 
-			if ( Challenge_IsEitherOr( challengeFlav ) && CurrentModeSupportsCustomStats() )
+			if ( Challenge_IsEitherOr( challengeFlav ) && Stats_CurrentModeSupportsCustomStats() )
 			{
 				bool getAlt = true
 				int markerAlt  = player.GetPersistentVarAsInt( "challenges[" + cs.persistenceIdx + "].statMarkerAlt" )
@@ -1537,6 +1583,71 @@ bool function IsChallengeValidAsFavorite( entity player, ItemFlavor challengeFla
 
 
 #if DEV
+array<string> function DEV_GetChallengeTimeSpans()
+{
+	array<string> timeSpans = []
+	foreach ( string key, int timeSpan in eChallengeTimeSpanKind )
+		timeSpans.append( key )
+
+	return timeSpans
+}
+#endif
+
+#if DEV
+array<ChallengeDebugDataStruct> function DEV_GetAssignedChallengeData( int timeSpan )
+{
+	entity lcPlayer = GetLocalClientPlayer()
+	array<ItemFlavor> allChallenges = []
+	if ( timeSpan == eChallengeTimeSpanKind.FAVORITE )
+	{
+		allChallenges = GetFavoriteChallenges( lcPlayer )
+	}
+	else if ( timeSpan != eChallengeTimeSpanKind.SEASON_WEEKLY )
+	{
+		allChallenges = GetAssignedChallengesByTimeSpan( lcPlayer, timeSpan )
+	}
+	else
+	{
+		ItemFlavor ornull activeBattlePass = fileLevel.currentSeason.battlePassOrNull
+		Assert( activeBattlePass != null )
+		expect ItemFlavor( activeBattlePass )
+
+		int numWeeks = GetNumBattlePassChallengesWeeks( activeBattlePass )
+		array< ItemFlavor > weeklyChallenges = []
+		for ( int week = 1; week <= numWeeks; week++ )
+			weeklyChallenges.extend( GetBattlePassChallenges( activeBattlePass, eChallengeTimeSpanKind.SEASON_WEEKLY, week ) )
+
+		foreach ( challenge in weeklyChallenges )
+		{
+			if ( Challenge_IsAssigned( lcPlayer, challenge ) )
+				allChallenges.append( challenge )
+		}
+	}
+
+	array<ChallengeDebugDataStruct> challengeDebugData = []
+	foreach ( challenge in allChallenges )
+	{
+		ChallengeDebugDataStruct challengeData
+		challengeData.guid 	   = challenge.guid
+		challengeData.category = Challenge_GetTimeSpanKind( challenge )
+		challengeData.ref      = ItemFlavor_GetHumanReadableRefForPIN_Slow( challenge )
+		
+		int goal            = Challenge_GetGoalVal( challenge, 0 )
+		int progress        = Challenge_GetProgressValue( lcPlayer, challenge, 0 )
+		array<string> stats = Challenge_GetStatRefs( challenge, 0 )
+		challengeData.debugInfo = format( "Progress: %d / %d | Stat: %s",
+											progress,
+											goal,
+											stats[0] )
+		challengeData.complete = ( goal == progress )
+		challengeDebugData.append( challengeData )
+	}
+
+	return challengeDebugData
+}
+#endif
+
+#if DEV
 void function DEV_DumpFavoritePersistenceData()
 {
 	entity player = GetLocalClientPlayer()
@@ -1631,6 +1742,15 @@ array<int> function GetChallengeCategoryIDArray( bool hideStories = false )
 		}
 	}
 
+	ChallengeCollection ornull activeCollection = ChallengeCollection_GetActiveCollection()
+	if ( activeCollection != null )
+	{
+		expect ChallengeCollection( activeCollection )
+		if ( ChallengeCollection_HasChallenges( activeCollection ) )
+		{
+			categoryIDtoStringArray.append( eChallengeCategory.REWARD_CAMPAIGN )
+		}
+	}
 
 	
 	if( !hideStories )
@@ -1675,6 +1795,7 @@ void function UpdateChallengeCategorySelection( var rui, bool longName = false, 
 
 
 		RuiSetBool( rui, "isObserver", GetLocalClientPlayer().IsObserver() && GetLocalClientPlayer().GetTeam() == TEAM_SPECTATOR )
+
 
 
 
@@ -1894,7 +2015,7 @@ string function GetCategoryStringFromType( int categoryID, bool longName = false
 		switch( categoryID )
 		{
 			case eChallengeCategory.BEGINNER:
-				return "#CATEGORY_BEGINNER"+appendStr
+				return "#CATEGORY_BEGINNER" + appendStr
 				break
 
 			case eChallengeCategory.DAILY:
@@ -1915,6 +2036,10 @@ string function GetCategoryStringFromType( int categoryID, bool longName = false
 
 			case eChallengeCategory.EVENTSHOP_EVENT_CHALLENGE:
 				return "#CATEGORY_REWARD_SHOP_EVENT" + appendStr
+				break
+
+			case eChallengeCategory.REWARD_CAMPAIGN:
+				return "#UNLOCK_LEGENDS" + appendStr
 				break
 		}
 	}
@@ -1938,6 +2063,42 @@ void function SetSeasonColors( var rui )
 		RuiSetFloat3( rui, "seasonColor", Season_GetTabBGSelectedCol( season ) )
 	}
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -4014,6 +4175,60 @@ bool function Challenge_IsChallengesStateInititated( entity player )
 
 
 
+
+
+
+
+
+
+
+
+
+
+#if DEV
+void function DEV_RequestCompleteChallengeTier( int guid )
+{
+	Remote_ServerCallFunction( "DEV_ClientCallback_RequestCompleteChallengeTierByGUID", guid )
+}
+#endif
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 #if DEV
 void function PrintChallengePersistence( entity player )
 {
@@ -4583,7 +4798,7 @@ void function UpdateChallengeRowsRui( entity player, array<ItemFlavor> challenge
 			array<int> progression = Challenge_EitherOr_GetProgressValues( player, challenge )
 			array<int> goals = Challenge_EitherOr_GetGoalVals( challenge )
 
-			bool playerIsPlayingBR = CurrentModeIsSurvival()
+			bool playerIsPlayingBR = Stats_CurrentModeIsSurvival()
 			int challengeIndexToUse = 0
 			foreach( int idx, int data in gameModes)
 			{
@@ -4655,6 +4870,48 @@ void function UpdateChallengeRowsRui( entity player, array<ItemFlavor> challenge
 		}
 	}
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -4926,6 +5183,23 @@ void function UpdateChallengeBoxHeaderBPProgress( entity player, var rui )
 		}
 	}
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -5679,6 +5953,22 @@ array<ChallengeRewardDisplayData> function GetChallengeRewardDisplayData( ItemFl
 
 	return displayData
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -6812,6 +7102,21 @@ bool function Challenge_IsComplete( entity player, ItemFlavor flavor )
 
 
 
+bool function Challenge_IsAllComplete( entity player, array< ItemFlavor > challengeFlavs )
+{
+	foreach ( ItemFlavor challenge in challengeFlavs )
+	{
+		if ( !Challenge_IsComplete( player, challenge ) )
+		{
+			return false
+		}
+	}
+
+	return true
+}
+
+
+
 
 int function Challenge_GetTierCount( ItemFlavor flavor )
 {
@@ -6896,6 +7201,11 @@ int function Challenge_GetGoalVal( ItemFlavor flavor, int tier, bool getAlt = fa
 {
 	Assert( ItemFlavor_GetType( flavor ) == eItemType.challenge )
 	Assert( tier >= 0 && tier < Challenge_GetTierCount( flavor ) )
+
+	if ( Challenge_IsMetaChallenge( flavor ) )
+	{
+		return MetaChallenge_GetGoalVal( flavor )
+	}
 
 	if ( fileLevel.hasPlaylistChallengeOverrides )
 	{
@@ -7018,6 +7328,23 @@ bool function Challenge_LastTierIsInfinite( ItemFlavor flavor )
 
 	return GetGlobalSettingsBool( ItemFlavor_GetAsset( flavor ), "lastTierIsInfinite" )
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -7183,6 +7510,16 @@ int function Challenge_GetPostGamePersistenceIndex( entity player, int challenge
 array<string> function Challenge_GetStatRefs( ItemFlavor flavor, int tier, bool getAlt = false )
 {
 	array<string> statRefs  = []
+
+	if ( Challenge_IsMetaChallenge( flavor ) )
+	{
+		string metaChallengeStatRef = format( "stats.%s", MetaChallenge_GetStatRef( flavor ) )
+		if ( metaChallengeStatRef != "" )
+		{
+			statRefs.append( metaChallengeStatRef )
+			return statRefs 
+		}
+	}
 
 	if ( ItemFlavor_ChallengesHaveMetaData() )
 	{
@@ -7460,6 +7797,11 @@ bool function IsStoryCategory( int challengeCategory )
 	return false
 }
 
+bool function IsRewardCampaignChallengeCategory( int challengeCategory )
+{
+	return challengeCategory == eChallengeCategory.REWARD_CAMPAIGN
+}
+
 bool function IsEventShopChallengeCategory( int challengeCategory )
 {
 	return challengeCategory == eChallengeCategory.EVENTSHOP_DAILY_CHALLENGE || challengeCategory == eChallengeCategory.EVENTSHOP_EVENT_CHALLENGE
@@ -7613,3 +7955,78 @@ void function SpecialEventChallengeToolTipSetup( var button, ItemFlavor challeng
 	
 	
 }
+
+
+bool function Challenge_IsMetaChallenge( ItemFlavor challengeFlav )
+{
+	asset challengeAsset = ItemFlavor_GetAsset( challengeFlav )
+	return GetGlobalSettingsBool( challengeAsset, "isMetaChallenge" )
+}
+
+
+
+string function MetaChallenge_GetStatRef( ItemFlavor challengeFlav )
+{
+	if ( Challenge_IsMetaChallenge( challengeFlav ) )
+	{
+		ItemFlavor parentFlav = MetaChallenge_GetParentFlav( challengeFlav )
+		string statRef = format( "metaChallenge_%s", ItemFlavor_GetGUIDString( parentFlav ) )
+		return statRef
+
+	}
+	Assert( false, format( "%s is not a metachallenge!", ItemFlavor_GetGUIDString( challengeFlav ) ) )
+	return ""
+}
+
+
+
+ItemFlavor function MetaChallenge_GetParentFlav( ItemFlavor challengeFlav )
+{
+	asset challengeAsset = ItemFlavor_GetAsset( challengeFlav )
+	string parentType = GetGlobalSettingsString( challengeAsset, "typeOfMetaChallenge" )
+	asset parentAsset
+	switch ( parentType )
+	{
+		case "CHALLENGE_SET":
+			parentAsset = GetGlobalSettingsAsset( challengeAsset, "challengeSet" )
+			break
+		case "CHALLENGE_COLLECTION":
+			parentAsset = GetGlobalSettingsAsset( challengeAsset, "challengeCollection" )
+			break
+		case "REWARD_CAMPAIGN":
+			parentAsset = GetGlobalSettingsAsset( challengeAsset, "rewardCampaign" )
+			break
+		default:
+			Assert( false, "Invalid parent type for meta challenge!" )
+	}
+
+	Assert( parentAsset != $"", format( "The parent challengeSet, challengeCollection, or rewardCampaign was not set for metaChallenge %s", ItemFlavor_GetGUIDString( challengeFlav ) ) ) 
+	ItemFlavor parentFlav = GetItemFlavorByAsset( parentAsset )
+	return parentFlav
+}
+
+
+
+int function MetaChallenge_GetGoalVal( ItemFlavor challengeFlav )
+{
+	Assert ( Challenge_IsMetaChallenge( challengeFlav ) )
+	ItemFlavor parentFlav = MetaChallenge_GetParentFlav( challengeFlav )
+
+	switch ( ItemFlavor_GetType( parentFlav ) )
+	{
+		case eItemType.calevent_challenge_set:
+			ChallengeSet set = ChallengeSet_GetByGUID( parentFlav.guid )
+			return set.challenges.len()
+		case eItemType.calevent_challenge_collection:
+			ChallengeCollection col = ChallengeCollection_GetByGUID( parentFlav.guid )
+			return col.challengeSets.len()
+		case eItemType.calevent_reward_campaign:
+			int numChallenges = RewardCampaign_GetChildChallenges( parentFlav ).len()
+			return numChallenges
+	}
+	Assert( false, format( "Invalid meta challenge goal for %i", challengeFlav.guid ) )
+
+	var tierData = Challenge_GetTierDataBlock( challengeFlav, 0 )
+	return GetSettingsBlockInt( tierData, "goalVal" )
+}
+

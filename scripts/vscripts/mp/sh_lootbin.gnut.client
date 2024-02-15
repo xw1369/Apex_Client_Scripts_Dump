@@ -77,9 +77,9 @@ global function CL_LootBinOpening
 
 
 
+global const string SUPPORT_LOOT_BIN_SKIN_NAME = "Blue_Turbo"
 
 
-global const string SUPPORT_LOOT_BIN_SKIN_NAME = "SecretLoot"
 
 
 

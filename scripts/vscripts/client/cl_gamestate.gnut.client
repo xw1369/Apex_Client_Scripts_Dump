@@ -79,7 +79,8 @@ global enum sbflag
 
 struct
 {
-	var  gamestateRui
+	var  gamestateRui = null
+	var  gamestateWaitingNestedRui = null
 	bool gameStateRuiCreated = false
 	var  letterBoxRui = null
 	bool thirtySecondWarningDone = false
@@ -178,7 +179,7 @@ void function CreateScoreRUI()
 	asset hudArtAsset = GetWaitingGameStateArtHud()
 	if ( hudArtAsset != $"" )
 	{
-		var nestedRui = RuiCreateNested( rui, "waitingHUDHandle", hudArtAsset )
+		file.gamestateWaitingNestedRui = RuiCreateNested( rui, "waitingHUDHandle", hudArtAsset )
 
 		
 		RuiSetFloat( rui, "waitingMessageScale", 0.65 )
@@ -209,6 +210,12 @@ asset function GetWaitingGameStateArtHud()
 {
 	asset hudArtAsset = $""
 	string mapName = GetMapName()
+
+		if( IsBattleRushGamemode() )
+		{
+			return $"ui/waiting_after_battle_rush.rpak"
+		}
+
 
 	switch( mapName )
 	{
@@ -310,7 +317,7 @@ void function UpdateCommonScoreRuiTracking( var rui, entity player )
 		if ( Crafting_IsEnabled() )
 		{
 
-
+			if ( !Crafting_IsDispenserCraftingEnabled() )
 
 			{
 				RuiTrackInt( ClGameState_GetRui(), "craftingMaterials", player, RUI_TRACK_SCRIPT_NETWORK_VAR_INT, GetNetworkedVariableIndex( "craftingMaterials" ) )
@@ -713,6 +720,10 @@ void function ClGameState_Changed( entity playerEnt, int newVal )
 			break
 
 		case eGameState.WaitingForPlayers:
+
+			if( file.gamestateWaitingNestedRui != null )
+				RuiSetGameTime( file.gamestateWaitingNestedRui, "startTime", Time() )
+
 			ClearCrosshairPriority( crosshairPriorityLevel.POSTMATCH )
 			break
 
@@ -830,6 +841,10 @@ void function ClGameState_Changed( entity playerEnt, int newVal )
 			break
 
 		case eGameState.Postmatch:
+
+				if ( IsMatchmakingFromMatchAllowed( player ) )
+					RunUIScript( "MatchRequeueLeaveMatchPoll" )
+
 			break
 	}
 

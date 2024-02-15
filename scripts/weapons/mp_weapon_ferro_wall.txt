@@ -308,12 +308,12 @@ WeaponData
               
 
                             
-                                           
-         
-                                       
-                                       
-                                       
-         
+        upgrade_core_ult_cooldown_reduction
+        {
+            "ammo_clip_size"      "120"
+            "ammo_min_to_fire"    "120"
+            "ammo_per_shot"       "120"
+        }
               
 	}
 

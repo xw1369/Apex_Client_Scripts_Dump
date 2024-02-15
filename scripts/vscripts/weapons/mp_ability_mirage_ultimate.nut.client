@@ -96,12 +96,12 @@ void function OnWeaponChargeEnd_ability_mirage_ultimate( entity weapon )
 		return
 
 
+		int curAmmo = weapon.GetWeaponPrimaryClipCount()
+		int maxAmmo = weapon.GetWeaponPrimaryClipCountMax()
+
+		weapon.SetWeaponPrimaryClipCount( maxint( 0, curAmmo - weapon.GetAmmoPerShot() ) )
 
 
-
-
-
-		weapon.SetWeaponPrimaryClipCount( 0 )
 
 	if ( ShouldDoKaleidoscopeUltimate() )
 	{
@@ -182,19 +182,19 @@ void function OnWeaponChargeEnd_ability_mirage_ultimate( entity weapon )
 float function GetMirageCloakDuration( entity player, float duration )
 {
 
-
-
-
-
+		if( PlayerHasPassive( player, ePassives.PAS_MIRAGE ) && PlayerHasPassive( player, ePassives.PAS_ULT_UPGRADE_ONE ) )
+		{
+			duration += GetMirageUpgradedCloakDuration()
+		}
 
 	return duration
 }
 
 
-
-
-
-
+float function GetMirageUpgradedCloakDuration()
+{
+	return GetCurrentPlaylistVarFloat( "upgrade_mirage_extra_cloak_duration", 1.0 )
+}
 
 
 bool function OnWeaponChargeBegin_ability_mirage_ultimate( entity weapon )
@@ -222,10 +222,10 @@ int function MirageUltimate_GetMaxKaleidoscopeDecoys( entity player )
 {
 	int maxDecoys = MIRAGE_ULT_MAX_DECOYS
 
-
-
-
-
+		if( player.HasPassive( ePassives.PAS_ULT_UPGRADE_TWO ) )
+		{
+			maxDecoys += 1
+		}
 
 	return maxDecoys
 }

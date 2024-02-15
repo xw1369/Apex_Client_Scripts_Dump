@@ -3,6 +3,7 @@
 #base "_base_stocks_tactical.txt"
 #base "_base_projectile_ricochet.txt"
 #base "_base_barrels_large.txt"
+#base "_base_hopup_paintball.txt"
 
                     
 #base "_base_hopup_golden_horse_purple.txt"
@@ -463,14 +464,6 @@ WeaponData
         //    "spread_max_kick_crouch_hip"  					"2.0"
         //    "spread_max_kick_air_hip" 						"4.0"
 	    //}
-
-        purple_paintball
-        {
-           "impact_effect_table" 				"bullet_pb_Random"
-
-           "projectile_trail_effect_0_1p" 		"P_tracer_projectile_pb"
-           "projectile_trail_effect_0_3p" 		"P_tracer_projectile_pb"
-        }
 
 		optic_cq_hcog_classic
 		{

@@ -138,6 +138,10 @@ void function Sh_InitToolTips()
 	style = eTooltipStyle.STORE_CONFIRM
 	file.tooltipInfos[ style ].ruiAsset = $"ui/cannot_afford_tooltip.rpak"
 	file.tooltipInfos[ style ].hasActionText = true
+
+	style = eTooltipStyle.BOOSTED
+	file.tooltipInfos[ style ].ruiAsset = $"ui/boosted_tooltip.rpak"
+	file.tooltipInfos[ style ].hasActionText = true
 }
 
 
@@ -444,6 +448,7 @@ void function UpdateToolTipElement( var toolTipElement, var focusElement )
 	if ( dt.tooltipStyle == eTooltipStyle.STORE_CONFIRM )
 	{
 		RuiSetFloat3( rui, "descTextAltColor", dt.storeTooltipData.tooltipAltDescColor )
+		RuiSetInt( rui, "rarity", dt.rarity )
 	}
 
 	if ( dt.tooltipStyle == eTooltipStyle.CURRENCY )
@@ -451,6 +456,10 @@ void function UpdateToolTipElement( var toolTipElement, var focusElement )
 		RuiSetBool( rui, "premiumCurrencyIsNegative", dt.currencyToolTipData.premiumCurrencyIsNegative )
 	}
 
+	if ( dt.tooltipStyle == eTooltipStyle.BOOSTED )
+	{
+		RuiSetInt( rui, "state", dt.boostedToolTipData.state )
+	}
 }
 
 void function AddCallback_OnUpdateTooltip( int style, void functionref(int style, ToolTipData) func )

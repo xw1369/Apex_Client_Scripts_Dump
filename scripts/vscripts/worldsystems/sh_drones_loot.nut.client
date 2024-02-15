@@ -37,6 +37,7 @@ global const float LOOT_DRONE_MIN_FALL_DIST_TO_SURFACE = 32.0
 global const float LOOT_DRONE_RAND_TOSS_MIN = 700.0
 global const float LOOT_DRONE_RAND_TOSS_MAX = 700.0
 
+global const string LOOT_DRONE_SCRIPTNAME = "LootDrone"
 global const string LOOT_DRONE_MODEL_SCRIPTNAME = "LootDroneModel"
 global const string LOOT_DRONE_MOVER_SCRIPTNAME = "LootDroneMover"
 global const string LOOT_DRONE_ROTATOR_SCRIPTNAME = "LootDroneRotator"

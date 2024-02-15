@@ -49,7 +49,6 @@ global function GetTotalXPToReachAccountLevel
 
 
 
-
 global const asset PLAYER_LEVELUP_FX = $"P_levelup_screen"
 
 
@@ -105,16 +104,6 @@ global enum eXPType
 
 	CHALLENGE_REWARD = 24,
 	_count_,
-}
-
-global enum eEventXPStyle
-{
-	DEFAULT,
-	GLOBAL_2X,
-	WIN_TOP5_2X,
-	FRIENDS_2X,
-
-	_count_
 }
 
 global struct RewardData
@@ -488,25 +477,6 @@ array<RewardData> function GetRewardsFromDataTable( var dataTable, int levelInde
 
 	return rewards
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

@@ -88,9 +88,9 @@ const string DRONE_RECALL_CRYPTO_3P = "Char_11_TacticalA_A"
 
 global const float EMP_RANGE = 1181.1
 
-
-
-
+global const float EMP_RANGE_UPGRADE_MULTIPLIER = 1.25
+const float UPGRADE_DRONE_EXIT_SPEED_DURATION = 5.0
+const float UPGRADE_DRONE_EXIT_SPEED_INCREASE = 0.15
 
 global const float MAX_FLIGHT_RANGE = 7913 
 const float WARNING_RANGE = 5906 
@@ -363,30 +363,8 @@ bool function OnWeaponAttemptOffhandSwitch_ability_crypto_drone( entity weapon )
 
 
 
-	thread ListenForDroneDestruction( player, weapon )
 	Holospray_DisableForTime( player, 2.0 )
 	return true
-}
-
-
-void function ListenForDroneDestruction( entity player, entity weapon )
-{
-	if( !StatusEffect_HasSeverity( player, eStatusEffect.crypto_has_camera ) )
-		return
-
-	if( !IsValid( player.p.cryptoActiveCamera ) )
-		return
-
-	player.EndSignal( "Crypto_Immediate_Camera_Access_Confirmed" )
-	player.EndSignal( "OnDestroy" )
-
-	player.p.cryptoActiveCamera.WaitSignal( "OnDestroy" )
-
-	if( !IsValid( player ) )
-		return
-	entity offhand = player.GetSelectedOffhand( OFFHAND_RIGHT )
-	if( offhand == weapon )
-		player.CancelOffhandWeapon( weapon.GetInventoryIndex() )
 }
 
 var function OnWeaponToss_ability_crypto_drone( entity weapon, WeaponPrimaryAttackParams attackParams )
@@ -473,12 +451,13 @@ float function Drone_GetDeployableCameraThrowPower( entity player )
 {
 	float throwPower = DEPLOYABLE_CAMERA_THROW_POWER
 
-
-
+	if( IsValid( player ) && player.HasPassive( ePassives.PAS_TAC_UPGRADE_TWO ) ) 
+		throwPower *= 1.5
 
 
 	return throwPower
 }
+
 
 
 
@@ -757,7 +736,12 @@ void function PlayScreenTransition( entity player, entity weapon, bool playFastT
 		}
 	)
 
-	float endTime = playFastTransition ? 1.4 + Time() : 1.75 + Time()
+
+		float endTime = playFastTransition ? 1.2 + Time() : 1.2 + Time()
+
+
+
+
 
 		bool needsButtonHeldDown = !playFastTransition
 
@@ -1020,6 +1004,15 @@ void function CryptoDrone_WeaponInputThink( entity player, entity weapon )
 			weapon.RemoveMod( "crypto_drone_access" )
 	}
 }
+
+
+
+
+
+
+
+
+
 
 
 
@@ -3738,8 +3731,8 @@ bool function AutoReloadWhileInCryptoDroneCameraView()
 float function GetNeurolinkRange( entity player )
 {
 
-
-
+	if( IsValid( player ) && player.HasPassive( ePassives.PAS_PAS_UPGRADE_ONE ) ) 
+		file.neurolinkRange = GetCurrentPlaylistVarFloat( "crypto_neurolink_range", EMP_RANGE ) * EMP_RANGE_UPGRADE_MULTIPLIER
 
 	return file.neurolinkRange
 }

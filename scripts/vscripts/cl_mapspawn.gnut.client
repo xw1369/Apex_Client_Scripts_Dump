@@ -22,7 +22,6 @@ global function GetVirtualScreenSize
 global function GetCurrentVirtualScreenSize
 global function GetScaledVirtualScreenSize
 global function UpdateFullscreenTopology
-global function GetNearestAspectRatio
 
 global function CreateFullscreenTopology
 
@@ -38,25 +37,6 @@ UISize function GetVirtualScreenSize( int width, int height )
 	virtualScreenSize.height = aspectRatio < ASPECT_RATIO_16_BY_9 ? int( 1920 / aspectRatio ) : 1080
 
 	return virtualScreenSize
-}
-
-
-float function GetNearestAspectRatio( int width, int height )
-{
-	float aspectRatio = width / float( height )
-
-	if ( fabs( ASPECT_RATIO_16_BY_10 - aspectRatio ) < 0.1 )
-		return aspectRatio
-	else if ( fabs( ASPECT_RATIO_16_BY_9 - aspectRatio ) < 0.1 )
-		return aspectRatio
-	else if ( fabs( ASPECT_RATIO_21_BY_9 - aspectRatio ) < 0.1 )
-		return aspectRatio 
-	else if ( fabs( (16.0 * 3 / 9.0) - aspectRatio ) < 0.1 )
-		return ASPECT_RATIO_16_BY_9
-	else if ( fabs( (16.0 * 3 / 10.0) - aspectRatio ) < 0.1 )
-		return ASPECT_RATIO_16_BY_10
-
-	return aspectRatio
 }
 
 

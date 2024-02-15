@@ -88,7 +88,7 @@ ImpactTable
 		"2" "impact_dirt"
 		"3" "impact_concrete"
 		"4" "impact_concrete"
-		"5" "P_impact_water_hrz" //water_hrz
+		"5" "P_impact_digital_water_hrz_w_glass" //water_hrz
 		"6" "impact_concrete"
 		"7" "impact_concrete"
 		"8" "impact_concrete"

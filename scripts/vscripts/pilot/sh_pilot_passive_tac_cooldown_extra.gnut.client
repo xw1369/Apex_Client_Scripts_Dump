@@ -1,0 +1,31 @@
+global function ShPassiveTacCooldownExtra_Init
+
+global const string TAC_COOLDOWN_REDUCTION_MOD = "upgrade_core_tac_cooldown_reduction"
+const string TAC_COOLDOWN_REDUCTION_EXTRA_MOD = "upgrade_core_tac_cooldown_reduction_extra"
+
+
+void function ShPassiveTacCooldownExtra_Init()
+{
+	AddCallback_OnPassiveChanged( ePassives.PAS_TAC_COOLDOWN_REDUCTION_EXTRA, TacCooldownExtra_OnPassiveChanged )
+}
+
+void function TacCooldownExtra_OnPassiveChanged( entity player, int passive, bool didHave, bool nowHas )
+{
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+}

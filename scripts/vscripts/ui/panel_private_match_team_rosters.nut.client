@@ -254,7 +254,11 @@ void function RosterButton_Init( var button, entity player = null, bool force = 
 		string playerName = ""
 		if ( player != null )
 		{
-			playerName = player.GetPlayerNameWithClanTag()
+
+				playerName = player.GetPlayerNameWithClanTag()
+
+
+
 		}
 
 		HudElem_SetRuiArg( button, "buttonText", playerName )
@@ -418,7 +422,14 @@ void function StartMouseDrag( var button, RosterButtonData rosterButtonData )
 	if ( !IsValid( rosterButtonData.player ) )
 		return
 
-	HudElem_SetRuiArg( elem, "buttonText", rosterButtonData.player.GetPlayerNameWithClanTag() )
+	string playerName
+
+		playerName = rosterButtonData.player.GetPlayerNameWithClanTag()
+
+
+
+
+	HudElem_SetRuiArg( elem, "buttonText", playerName )
 	Hud_Show( elem )
 
 	OnThreadEnd(

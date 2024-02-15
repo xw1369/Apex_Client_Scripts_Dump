@@ -1117,13 +1117,11 @@ void function TrackingVisionCreatePOIBlueprint( entity waypoint, int poiEventID,
 			waypoint.WaypointSetCheckDist( TRACKING_VISION_DRAW_DIST_MAX )
 			break
 
-
 		case eTrackingVisionNetworkedPOITypes.PLAYER_ABILITY_BALLISTIC_DEBUFF_ZONE:
 		case eTrackingVisionNetworkedPOITypes.PLAYER_ABILITY_BALLISTIC_PORTABLE_AUTO_LOADER:
 			waypoint.WaypointAddFlag( WPF_VISBILITY_LOS | WPF_VISIBILITY_SONAR )
 			waypoint.WaypointSetCheckDist( TRACKING_VISION_DRAW_DIST_MAX )
 			break
-
 
 
 		case eTrackingVisionNetworkedPOITypes.PLAYER_ABILITY_REVENANT_POUNCE_START:
@@ -1858,7 +1856,6 @@ void function TrackingVision_GetDrawInfo( entity waypoint, TrackingVisionDrawInf
 			drawInfo.displayText = "#WPN_FERRO_WALL"
 			break
 
-
 		case eTrackingVisionNetworkedPOITypes.PLAYER_ABILITY_BALLISTIC_DEBUFF_ZONE:
 			drawInfo.drawSize = eTrackingPOIDrawSize.NORMAL
 			drawInfo.icon = $"rui/hud/poi_icons/poi_ballistic_tactical"
@@ -1870,8 +1867,6 @@ void function TrackingVision_GetDrawInfo( entity waypoint, TrackingVisionDrawInf
 			drawInfo.icon = $"rui/hud/poi_icons/poi_ballistic_ultimate"
 			drawInfo.displayText = "#WPN_AUTO_LOADER"
 			break
-
-
 
 		case eTrackingVisionNetworkedPOITypes.PLAYER_ABILITY_REVENANT_POUNCE_START:
 			drawInfo.drawSize = eTrackingPOIDrawSize.NORMAL
@@ -2084,10 +2079,8 @@ int function GetPingTypeFromPOIType( entity waypoint )
 		case eTrackingVisionNetworkedPOITypes.PLAYER_ABILITY_CATALYST_SPIKES:
 		case eTrackingVisionNetworkedPOITypes.PLAYER_ABILITY_CATALYST_DARK_VEIL_START:
 		case eTrackingVisionNetworkedPOITypes.PLAYER_ABILITY_CATALYST_DARK_VEIL_END:
-
 		case eTrackingVisionNetworkedPOITypes.PLAYER_ABILITY_BALLISTIC_DEBUFF_ZONE:
 		case eTrackingVisionNetworkedPOITypes.PLAYER_ABILITY_BALLISTIC_PORTABLE_AUTO_LOADER:
-
 
 		case eTrackingVisionNetworkedPOITypes.PLAYER_ABILITY_CONDUIT_TACTICAL:
 		case eTrackingVisionNetworkedPOITypes.PLAYER_ABILITY_CONDUIT_ULTIMATE_DAMAGE:

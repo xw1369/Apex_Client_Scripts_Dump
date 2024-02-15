@@ -58,15 +58,15 @@ WeaponData
 	"cooldown_type"                                 "ammo_instant"
 	"ammo_display"									"count"
                         
-                                                         
-                                                         
-                                                         
-                                                         
+        "ammo_clip_size"                            "150"
+        "ammo_stockpile_max"                        "150"
+        "ammo_min_to_fire"                          "150"
+        "ammo_per_shot"                             "150"
          
-        "ammo_clip_size"                            "120"
-        "ammo_stockpile_max"                        "120"
-        "ammo_min_to_fire"                          "120"
-        "ammo_per_shot"                             "120"
+                                                         
+                                                         
+                                                         
+                                                         
           
 	"ammo_default_total"							"0"
 	"ammo_drains_to_empty_on_fire"					"0"
@@ -250,43 +250,43 @@ WeaponData
 		    }
            
 
-                         
-                            
-         
-                                       
-                                       
-                                       
-         
-                            
-         
-                                       
-                                       
-                                       
-         
-                            
-         
-                                       
-                                       
-                                       
-         
-                            
-         
-                                       
-                                       
-                                       
-         
-                            
-         
-                                       
-                                       
-                                       
-         
-                            
-         
-                                      
-                                      
-                                      
-         
+	                        
+        cooldown_reduction_1
+        {
+            "ammo_clip_size"      "140"
+            "ammo_min_to_fire"    "140"
+            "ammo_per_shot"       "140"
+        }
+        cooldown_reduction_2
+        {
+            "ammo_clip_size"      "130"
+            "ammo_min_to_fire"    "130"
+            "ammo_per_shot"       "130"
+        }
+        cooldown_reduction_3
+        {
+            "ammo_clip_size"      "120"
+            "ammo_min_to_fire"    "120"
+            "ammo_per_shot"       "120"
+        }
+        cooldown_reduction_4
+        {
+            "ammo_clip_size"      "110"
+            "ammo_min_to_fire"    "110"
+            "ammo_per_shot"       "110"
+        }
+        cooldown_reduction_5
+        {
+            "ammo_clip_size"      "100"
+            "ammo_min_to_fire"    "100"
+            "ammo_per_shot"       "100"
+        }
+        cooldown_reduction_6
+        {
+            "ammo_clip_size"      "90"
+            "ammo_min_to_fire"    "90"
+            "ammo_per_shot"       "90"
+        }
            
 	}
 

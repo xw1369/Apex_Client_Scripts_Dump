@@ -206,33 +206,28 @@ WeaponData
         }
 
                             
-                                           
-         
-                                                           
-         
+        upgrade_core_tac_cooldown_reduction
+        {
+            "regen_ammo_refill_rate"                    "6"
+        }
 
-                                
-         
-                                                           
-         
+        upgrade_dome_throw_range
+        {
+            "projectile_launch_pitch_offset"            "4"
+        }
 
-                             
-         
-                                          
-                                            
-                                            
-                                           
-                                         
-         
+        upgrade_dome_duration
+        {
+            "fire_duration"									"16.0"
+        }
 
-                          
-         
-                                         
-                                            
-                                            
-                                           
-                                         
-         
+        upgrade_dome_small
+        {
+            "ammo_clip_size"            "112.5"
+            "ammo_default_total"        "112.5"
+            "ammo_min_to_fire"          "112.5"
+            "ammo_per_shot"             "112.5"
+        }
               
 	}
 

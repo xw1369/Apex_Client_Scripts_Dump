@@ -159,8 +159,8 @@ global enum eMinimapObject_prop_script
 
 
 
-
-
+		UPGRADE_CORE_BIN,
+		BOUNTY_BIN,
 
 
 

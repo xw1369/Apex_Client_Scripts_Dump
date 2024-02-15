@@ -12,8 +12,14 @@ const float AUTO_LOADER_DURATION = 30.0
 const float AUTOLOADER_RANGE = 256.0
 const vector AUTOLOADER_START_EFFECT_COLOR = <134, 182, 255>
 const float AUTOLOADER_START_EFFECT_SIZE = 768.0
-const float	MAX_DISTANCE = 512.0 * 512.0
+
 const float AUTOLOADER_SPEEDBOOST_SEVERITY = 0.075
+
+
+const float MAX_DISTANCE = 3620 * 3620
+
+
+
 
 const float ADDITIONAL_TIME = 5.0
 
@@ -103,20 +109,20 @@ bool function DoesPlayerHaveAutoLoaderBuff( entity player )
 }
 
 
-
-
-
-
+float function GetUpgradedTempestRangeMultiplier()
+{
+	return GetCurrentPlaylistVarFloat( "tempest_range_upgraded_multiplier", 50.0 )
+}
 
 
 float function GetAutoLoaderVFXRange( entity player )
 {
 	float result = AUTOLOADER_RANGE
 
-
-
-
-
+		if( PlayerHasPassive( player, ePassives.PAS_ULT_UPGRADE_ONE ) ) 
+		{
+			result *= GetUpgradedTempestRangeMultiplier()
+		}
 
 	return result
 }
@@ -125,10 +131,10 @@ float function GetAutoLoaderRange( entity player )
 {
 	float result = MAX_DISTANCE
 
-
-
-
-
+		if( PlayerHasPassive( player, ePassives.PAS_ULT_UPGRADE_ONE ) ) 
+		{
+			result *= GetUpgradedTempestRangeMultiplier()
+		}
 
 	return result
 }
@@ -160,17 +166,6 @@ var function OnWeaponTossReleaseAnimEvent_ability_portable_auto_loader( entity w
 	int ammoReq = weapon.GetAmmoPerShot()
 	return ammoReq
 }
-
-
-
-
-
-
-
-
-
-
-
 
 
 

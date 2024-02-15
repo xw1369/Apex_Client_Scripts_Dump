@@ -416,7 +416,7 @@ bool function CanSelfRevive( entity player )
 			return true
 
 
-
+		if ( Bleedout_CanSelfResFromUpgrade( player ) && IsSurvivalMode() && player.p.numSelfRevivesUsed == 0 )
 
 		return true
 	}
@@ -528,7 +528,10 @@ void function BleedoutScreenFX_Start( entity woundedPlayer, float startTime, flo
 			currentLerpTime = Time()
 			currentLerpTime = min( currentLerpTime, lerpTime )
 
-			float lerpPercent = 1 - ((endTime - currentLerpTime) / Bleedout_GetBleedoutTime( woundedPlayer ))
+			float bleedoutTime = Bleedout_GetBleedoutTime( woundedPlayer )
+			float lerpPercent = 1
+			if ( bleedoutTime > 0 )
+				lerpPercent = 1 - ((endTime - currentLerpTime) / bleedoutTime )
 			float finalLerpPercent = lerpPercent * lerpPercent * lerpPercent
 
 			file.bleedoutFXAlpha = LerpFloat( BLEEDOUTFX_ALPHA_START, BLEEDOUTFX_ALPHA_END, finalLerpPercent )

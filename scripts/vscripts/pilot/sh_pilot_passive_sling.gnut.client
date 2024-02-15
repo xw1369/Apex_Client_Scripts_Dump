@@ -109,9 +109,6 @@ bool function CanPlayerEquipWeaponRefToSling( entity player, string ref, bool do
 
 
 
-		if( data.lootTags.contains( WEAPON_LOCKEDSET_MOD_WHITESET ) && !ModeUsesLoadoutWeapons() )
-			return false
-
 
 	return true
 }
@@ -130,8 +127,8 @@ bool function ModeUsesLoadoutWeapons()
 		return true
 
 
-
-
+	if ( GetCurrentPlaylistVarBool( "is_gamemode_battle_rush", false ))
+		return true
 
 
 
@@ -176,101 +173,6 @@ void function PassiveSling_OnPassiveChanged( entity player, int passive, bool di
 
 	}
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

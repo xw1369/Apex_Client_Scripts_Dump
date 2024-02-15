@@ -21,7 +21,6 @@ global function Conduit_GetArrayOfPossibleAllies
 
 
 
-
 global function GetConduitShieldRui
 
 
@@ -33,14 +32,14 @@ const float ARC_FLASH_MIN_RANGE_SQR = ARC_FLASH_MIN_RANGE * ARC_FLASH_MIN_RANGE
 global const float ARC_FLASH_MAX_RANGE = 50 * METERS_TO_INCHES
 const float LOS_MAX_TIME_MISSING = 0.5
 
-const float ARC_FLASH_REGEN_DURATION = 8
+const float ARC_FLASH_REGEN_DURATION = 9
 const float ARC_FLASH_REGEN_SEVERITY = 1.0
 const float ARC_FLASH_TEMPSHIELD_DURATION = 20.0
 const float ARC_FLASH_TEMPSHIELD_SEVERITY = 0.5
 const float ARC_FLASH_REGEN_INTERVAL = 0.2
-const int ARC_FLASH_REGEN_SHIELD_PER_FRAME = 4
+const int ARC_FLASH_REGEN_SHIELD_PER_FRAME = 3
 const float ARC_FLASH_REGEN_DAMAGE_DELAY = 1.0
-const float ARC_FLASH_REGEN_SELF_MULTIPLIER = 0.5
+const float ARC_FLASH_REGEN_SELF_MULTIPLIER = 0.67
 const int ARC_FLASH_DECAY_RATE = 2
 const float ARC_FLASH_DECAY_SEVERITY = 0.1
 global const int MAX_TEMPSHIELD = 125
@@ -88,7 +87,6 @@ const asset DEBUG_SPHERE_ADD_EDGE_FX = $"debug_sphere_add_edge"
 
 
 global const string CONDUIT_ARC_FLASH_BEST_TARGET_NETVAR = "conduit_arc_flash_bestTarget"
-global const string TEMPSHIELD_NETVAR = "tempshields"
 global const string TEMPSHIELD_ACTIVE_NETVAR = "tempshields_active"
 
 const bool ARC_FLASH_DEBUG = false
@@ -164,7 +162,6 @@ void function MpAbilityConduitArcFlash_Init()
 	RegisterSignal( "RefreshTempshield" )
 
 	RegisterNetworkedVariable( CONDUIT_ARC_FLASH_BEST_TARGET_NETVAR, SNDC_PLAYER_EXCLUSIVE, SNVT_ENTITY )
-	RegisterNetworkedVariable( TEMPSHIELD_NETVAR, SNDC_PLAYER_GLOBAL, SNVT_UNSIGNED_INT, 0 )
 	RegisterNetworkedVariable( TEMPSHIELD_ACTIVE_NETVAR, SNDC_PLAYER_GLOBAL, SNVT_BOOL, false )
 
 
@@ -184,10 +181,10 @@ void function MpAbilityConduitArcFlash_Init()
 }
 
 
-
-
-
-
+float function GetArcFlashUpgradedRangeScaler()
+{
+	return GetCurrentPlaylistVarFloat( "upgrade_arc_flash_range_scaler", 1.2 ) 
+}
 
 
 float function GetArcFlashRange( entity player )
@@ -195,20 +192,20 @@ float function GetArcFlashRange( entity player )
 	float result = ARC_FLASH_MAX_RANGE
 
 
-
-
-
-
+	if( PlayerHasPassive( player, ePassives.PAS_TAC_UPGRADE_ONE ) ) 
+	{
+		result *= GetArcFlashUpgradedRangeScaler()
+	}
 
 
 	return result
 }
 
 
-
-
-
-
+float function TempshieldRegen_GetExtraChargeRegenScaler()
+{
+	return GetCurrentPlaylistVarFloat( "upgrade_arc_flash_exta_charge_regen_scaler", .5 ) 
+}
 
 
 float function GetArcFlashDuration( entity player, int state )
@@ -220,10 +217,10 @@ float function GetArcFlashDuration( entity player, int state )
 		case eArcFlashState.CHARGE:
 			result = ARC_FLASH_REGEN_DURATION
 
-
-
-
-
+			if( PlayerHasPassive( player, ePassives.PAS_TAC_UPGRADE_TWO ) ) 
+			{
+				result *= TempshieldRegen_GetExtraChargeRegenScaler()
+			}
 
 			break
 		case eArcFlashState.ACTIVE:
@@ -291,6 +288,7 @@ void function OnWeaponActivate_ability_conduit_arc_flash( entity weapon )
 
 void function OnWeaponDeactivate_ability_conduit_arc_flash( entity weapon )
 {
+
 
 
 
@@ -569,7 +567,7 @@ float function ScoreTarget( entity player, entity target )
 	score += coneScore
 	scoreDebugString += "-coneScore: " + coneScore + "\n"
 
-	int overshieldAmt = target.GetPlayerNetInt( TEMPSHIELD_NETVAR )
+	int overshieldAmt = target.GetTempshieldHealth()
 	scoreDebugString = "Total: " + score + "\n" + scoreDebugString + "\nOvershield: " + overshieldAmt
 
 	if( ARC_FLASH_DEBUG )
@@ -580,15 +578,7 @@ float function ScoreTarget( entity player, entity target )
 	return score
 }
 
-int function GetPlayerTempshieldAmt( entity player )
-{
-	if ( !IsValid( player ) )
-		return 0
 
-	Assert( player.IsPlayer() )
-
-	return player.GetPlayerNetInt( TEMPSHIELD_NETVAR )
-}
 
 
 
@@ -1324,7 +1314,7 @@ void function DebugScreenInfo( entity player, array<entity> allyList, entity bes
 
 	text += "\nBestTarget:" + bestTarget
 
-	DebugScreenTextWithColor( 0.7, 0.8, text, color )
+	DebugDrawScreenTextWithColor( 0.7, 0.8, text, color )
 }
 
 void function DebugDrawLockOns( entity player, array<entity> allyList, entity bestTarget )

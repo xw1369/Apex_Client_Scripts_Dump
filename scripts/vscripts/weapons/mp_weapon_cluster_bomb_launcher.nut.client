@@ -27,7 +27,7 @@ const string CLUSTER_BOMB_WEAPON = "mp_weapon_cluster_bomb"
 const int CLUSTER_BOMB_WEAPON_SLOT = OFFHAND_EQUIPMENT
 const float CLUSTER_BOMB_FIRST_LAUNCH_OFFSET = 3.0
 
-
+const float CLUST_BOMB_FOLLOW_UP_SPEED_BOOST_DURATION = 1.0
 
 
 
@@ -46,11 +46,11 @@ struct ClusterBurstData
 }
 
 
-
-
-
-
-
+struct FollowUpStatusEffectIndexes
+{
+	int speedBoostID
+	int followUpVisualsID
+}
 
 
 struct
@@ -137,6 +137,8 @@ void function OnProjectileCollision_weapon_cluster_bomb_launcher( entity project
 
 
 }
+
+
 
 
 

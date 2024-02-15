@@ -19,8 +19,8 @@ const float BANGALORE_SMOKE_MIN_EXPLODE_DIST_SQR = 512 * 512
 const float BANGALORE_SMOKE_DISPERSAL_TIME = 3.0
 const float BANGALORE_TACTICAL_AGAIN_TIME = 4.0
 
-
-
+const float UPGRADE_BANGALORE_SMOKE_HP_REGEN_RATE_PER_SEC = 3.0
+const float UPGRADE_BANGALORE_SMOKE_HP_REGEN_DELAY = 2.0
 
 
 const bool BANGALORE_SMOKE_EXPLOSIONS = true
@@ -248,8 +248,8 @@ float function Bangalore_GetSmokeDuration( entity player )
 	float duration = BANGALORE_SMOKE_DURATION
 
 
-
-
+		if( PlayerHasPassive( player, ePassives.PAS_TAC_UPGRADE_TWO ) ) 
+			duration += 3
 
 
 	return duration

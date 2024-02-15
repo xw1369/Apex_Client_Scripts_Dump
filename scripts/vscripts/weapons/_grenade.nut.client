@@ -261,6 +261,35 @@ int function Grenade_OnWeaponToss( entity weapon, WeaponPrimaryAttackParams atta
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 	return weapon.GetWeaponSettingInt( eWeaponVar.ammo_per_shot )
 }
 

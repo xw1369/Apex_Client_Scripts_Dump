@@ -126,7 +126,7 @@ WeaponData
 	"toss_pullout_time"								"0.4"
 	//"toss_time"									"0.2"
 	//"toss_overhead_time"							"0.2"
-	"projectile_launch_speed"						"600"
+	"projectile_launch_speed"						"650"
 
 
 	"grenade_bounce_vel_frac_shallow"				"0.5"
@@ -309,10 +309,10 @@ WeaponData
         }
 
                             
-                                
-             
-                                                                      
-             
+        extended_throw_range
+        {
+            "projectile_launch_speed"                       "1000"
+        }
               
 	}
 

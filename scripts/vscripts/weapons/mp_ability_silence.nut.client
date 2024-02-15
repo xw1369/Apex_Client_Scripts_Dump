@@ -51,9 +51,7 @@ void function MpAbilitySilence_Init()
 	PrecacheParticleSystem( FX_SILENCE_SMOKE )
 	PrecacheParticleSystem( FX_SILENCE_SMOKE_CENTER )
 
-
-		RegisterSignal( "hasBeenSilenced" )
-
+	RegisterSignal( "hasBeenSilenced" )
 
 	file.effectDuration = GetCurrentPlaylistVarFloat( "revenant_silence_effect_duration", 15.0 )
 
@@ -159,7 +157,6 @@ void function OnProjectileCollision_ability_silence( entity projectile, vector p
 
 	projectile.GrenadeExplode( normal )
 }
-
 
 
 

@@ -127,14 +127,14 @@ WeaponData
         }
 
                             
-                       
-         
-                                        
-                                        
-                                       
-                                     
-                                        
-         
+        upgrade_tac_one
+        {
+	        "ammo_clip_size"   								"20"
+	        "ammo_default_total"							"20"
+	        "ammo_min_to_fire"								"20"
+	        "ammo_per_shot"									"20"
+	        "ammo_stockpile_max"							"20"
+        }
               
     }
 }

@@ -301,12 +301,16 @@ WeaponData
 	"viewmodel_ads_rui_bottomleft_attachment"		"RUI_BL_CROSSHAIR_R301"
 	"viewmodel_ads_centerpoint_attachment"      	"ADS_CENTER_SIGHT_R301"
 
+	"r_trig_custom_str"								"1"
+	"r_trig_custom_mode"							"2"
+
 
 	Mods
 	{
         fully_heated
         {
-             "burst_fire_delay"		        "0.18"
+             "burst_fire_delay"		                        "0.18"
+             "r_trig_custom_mode"							"1"
         }
 
 		//altfire

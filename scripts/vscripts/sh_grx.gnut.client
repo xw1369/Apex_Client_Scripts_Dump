@@ -120,7 +120,19 @@ global function DEV_IsValidGRXRef
 
 
 
+
+
+
+
+
+
+
+
+
+
+
 global function GRXPack_GetTickSoundAlias
+
 
 
 
@@ -204,6 +216,7 @@ global function DEV_GRX_ForcePackResults
 
 
 
+
 global function UIToClient_GRXInventoryCleanStateChange
 global function ClientCodeCallback_GRXPackOpened
 
@@ -223,14 +236,20 @@ global function ClientCodeCallback_GRXPackOpened
 
 
 
+
+
+global const int S20_ANNIVERSARY_GIFTING_CAMPAIGN_ITEM_COUNT = 12
+global const int S20_ANNIVERSARY_GIFTING_CAMPAIGN_GOAL = 6
+
+
+
+
+
+
 global const int MAX_REWARDS_PER_REWARD_SEQ_CALL = 255
 
 const int QUEUED_REWARDS_MAX_COUNT = 12
 const int QUEUED_REWARDS_MAX_ITEMS_COUNT = 1
-
-
-
-
 
 
 
@@ -256,6 +275,61 @@ global enum eItemFlavorGRXMode
 	CURRENCY = GRX_ITEMFLAVORMODE_CURRENCY,
 	OWNERSHIP_TARGET = -1337,
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -533,6 +607,7 @@ struct PlayerGRXScriptState
 
 
 
+
 		bool isInventoryReady
 		bool isInventoryValidated = false
 		bool hasInventoryEverBeenClean = false
@@ -611,6 +686,11 @@ struct FileStruct_LifetimeLevel
 		PlayerGRXScriptState localGRXState
 
 		ItemFlavorBag ornull mostRecentPackOpeningResultsOrNull = null
+
+
+
+
+
 
 
 
@@ -720,6 +800,13 @@ void function ShGRX_LevelInit()
 
 		Remote_RegisterServerFunction( "UICallback_AutoOpenMilestonePacks" )
 		Remote_RegisterServerFunction( "ClientCallback_acknowledge_reward", "int", 0, QUEUED_REWARDS_MAX_COUNT, "int", INT_MIN, INT_MAX )
+		Remote_RegisterServerFunction( "ClientCallback_SetOfferRefreshSuppressed", "bool" )
+
+	
+
+		Remote_RegisterServerFunction( "ClientCallback_UpdateGiftingCampaignCount", "int", INT_MIN, INT_MAX, "int", 0, INT_MAX, "bool" )
+
+
 
 
 
@@ -1181,12 +1268,10 @@ bool function IsItemOwnedByPlayerInternal( ItemFlavor flav, entity player = null
 	if ( ItemFlavor_HasUnlockFunc( flav ) && grxMode == GRX_ITEMFLAVORMODE_NONE )
 		return ItemFlavor_PassesUnlockFunc( flav, player )
 
-
-		if( ItemFlavor_HasExclusiveFunc( flav ) )
-		{
-			return ItemFlavor_PassesExclusiveFunc( flav, player )
-		}
-
+	if( ItemFlavor_HasExclusiveFunc( flav ) )
+	{
+		return ItemFlavor_PassesExclusiveFunc( flav, player )
+	}
 
 	if ( grxMode == GRX_ITEMFLAVORMODE_NONE )
 		return true
@@ -1892,6 +1977,71 @@ bool function IsItemOwnedByPlayerInternal( ItemFlavor flav, entity player = null
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 ItemFlavorBag function GRX_GetMostRecentPackOpeningResults()
 {
 	Assert( fileLevel.mostRecentPackOpeningResultsOrNull != null, "Tried to call GRX_GetMostRecentPackOpeningResults with no pack opening results available for use" )
@@ -1900,6 +2050,47 @@ ItemFlavorBag function GRX_GetMostRecentPackOpeningResults()
 	fileLevel.mostRecentPackOpeningResultsOrNull = null
 	return bag
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -4420,6 +4611,61 @@ void function UIToClient_GRXInventoryCleanStateChange( bool isClean, int marketp
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 #if DEV
 
 
@@ -4437,6 +4683,271 @@ void function UIToClient_GRXInventoryCleanStateChange( bool isClean, int marketp
 
 
 #endif
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -5616,6 +6127,18 @@ array<ItemFlavor> function GRX_GetStickerPacksWithRewards()
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
 bool function GRX_IsOfferRestricted( entity player = null )
 {
 
@@ -5903,6 +6426,14 @@ bool function GRX_IsItemCoveredByOfferRestrictions( ItemFlavor flav )
 
 
 #endif
+
+
+
+
+
+
+
+
 
 
 

@@ -44,7 +44,7 @@ ImpactTable
 		"2" "P_mrb_jetwash_generic" //lava_rock_hot
 		"3" "P_mrb_jetwash_dirt"
 		"4" "P_mrb_jetwash_dirt"
-		"5" "P_mrb_jetwash_water"
+		"5" "P_mrb_jetwash_dirt"
 		"6" "P_mrb_jetwash_dirt"
 		"7" "P_mrb_jetwash_dirt"
 		"8" "P_mrb_jetwash_dirt"

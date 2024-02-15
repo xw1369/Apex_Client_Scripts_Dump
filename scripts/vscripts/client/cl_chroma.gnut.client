@@ -644,7 +644,7 @@ void function Chroma_LootPickupEffects( LootData lootData )
 		case eLootType.CANDY_PICKUP:
 
 
-
+		case eLootType.EVO_CACHE:
 
 
 

@@ -1,4 +1,5 @@
 global function PhaseDriver_Init
+global function PhaseDriver_IsPhaseDriverEnabled
 
 
 
@@ -522,3 +523,8 @@ void function PhaseDriverCooldown()
 
 
 
+
+bool function PhaseDriver_IsPhaseDriverEnabled()
+{
+	return HasEntWithScriptName( PHASEDRIVER_PANEL_SCRIPTNAME )
+}

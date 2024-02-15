@@ -136,9 +136,7 @@ void function MpWeaponMountedTurretPlaceable_Init()
 
 	Remote_RegisterServerFunction( "ClientCallback_TryPickupMountedTurret", "typed_entity", "turret" )
 
-
-		RegisterSignal( "EnterMountedTurret" )
-
+	RegisterSignal( "EnterMountedTurret" )
 
 
 
@@ -345,6 +343,7 @@ bool function OnWeaponAttemptOffhandSwitch_weapon_mounted_turret_placeable( enti
 {
 	return true
 }
+
 
 
 

@@ -42,7 +42,7 @@ ImpactTable
 		"2" "P_hmn_footstep_lava" //lava_rock_hot
 //		"3" "openslot"
 //		"4" "openslot"
-		"5" "P_impact_water_hrz" //water_hrz
+		"5" "P_impact_digital_water_hrz_w_glass" //water_hrz
 //		"6" "openslot"
 //		"7" "openslot"
 //		"8" "openslot"
@@ -96,7 +96,7 @@ Sound
 
 		"airburst" "grenade_impacthard"
 		"shieldhit" "grenade_impacthard"
-		"5" "physics_watersplash"
+		"5" "weapon_sentryfragdrone_bounce"
 	}
 
 	Sound_attacker
@@ -134,7 +134,7 @@ Sound
 		"airburst" "grenade_impacthard"
 		"shieldhit" "grenade_impacthard"
 
-		"5" "physics_watersplash"
+		"5" "weapon_sentryfragdrone_bounce"
 	}
 
 	Sound_victim
@@ -172,7 +172,7 @@ Sound
 		"airburst" "weapon_sentryfragdrone_bounce"
 		"shieldhit" "weapon_sentryfragdrone_bounce"
 
-		"5" "physics_watersplash"
+		"5" "weapon_sentryfragdrone_bounce"
 	}
 
 }

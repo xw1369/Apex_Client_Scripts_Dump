@@ -12,14 +12,18 @@ global function MapMetrics_RegisterNetworking
 
 
 
+
+
+
 global function MapMetrics_ClientTakeScreenshot
-global function MapMetrics_ClientInit
+global function MapMetrics_ClientBeginMapMetrics
 global function MapMetrics_ClientEndMapMetrics
 global function MapMetrics_ClientRecordDataPoint
 const bool MAPMETRICS_DEBUG = false
 
 
 const int FPS_THRESHOLD_DEFAULT_VALUE = 55
+
 
 
 
@@ -62,13 +66,13 @@ struct
 
 
 
+
 		array<int> bandwidthInArray
 		array<int> bandwidthOutArray
 		string metricsFileName
 		string metricsDataBuffer
 		array<string> metricsDataCategories
 		bool metricsOutputRSON
-		bool adaptiveScalingOn
 
 		bool oldDvsEnable
 		bool oldPerfMetricsDrawingEnabled
@@ -95,43 +99,17 @@ void function MapMetrics_Init()
 
 void function MapMetrics_RegisterNetworking()
 {
-	if( GetCurrentPlaylistName().find( "map_metrics" ) < 0 )
+	if ( GetCurrentPlaylistName().find( "map_metrics" ) < 0 )
 		return
 
 	Remote_RegisterClientFunction( "MapMetrics_ClientTakeScreenshot", "entity", "vector", -MAX_MAP_BOUNDS, MAX_MAP_BOUNDS, 32, "vector", -200.0, 200.0, 32 )
-	Remote_RegisterClientFunction( "MapMetrics_ClientInit", "int", 0, INT_MAX )
+	Remote_RegisterClientFunction( "MapMetrics_ClientBeginMapMetrics", "int", 0, INT_MAX )
 	Remote_RegisterClientFunction( "MapMetrics_ClientEndMapMetrics" )
 	Remote_RegisterClientFunction( "MapMetrics_ClientRecordDataPoint", "entity", "vector", -32000.0, 32000.0, 32, "vector", -200.0, 200.0, 32, "int", -100, 100 )
-	Remote_RegisterServerFunction( "MapMetrics_OnClientRecordMetricsData", "int", 0, 500 )
+
+	Remote_RegisterServerFunction( "MapMetrics_OnClientRecordMetricsData", "int", 0, 600 )
 	Remote_RegisterServerFunction( "MapMetrics_OnClientTakeScreenshot" )
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -538,7 +516,6 @@ void function MapMetrics_ClientEndMapMetrics()
 
 	file.metricsDataBuffer = ""
 	file.metricsFileName = ""
-	file.adaptiveScalingOn = false
 	file.fpsThreshold = 0
 
 	
@@ -547,10 +524,10 @@ void function MapMetrics_ClientEndMapMetrics()
 	SetConVarInt( "perf_metrics", file.oldPerfMetrics )
 	SetConVarInt( "fps_max", file.oldFpsMax )
 	SetConVarInt( "not_focus_sleep", file.oldNotFocusSleep )
-	if( HasConVar( "mat_vsyncMode" ) )
+	if ( HasConVar( "mat_vsyncMode" ) )
 		SetConVarInt( "mat_vsyncMode", file.oldVsyncMode )
 
-	if(file.exitOnCompletion)
+	if ( file.exitOnCompletion )
 	{
 #if MAPMETRICS_DEBUG
 			printt( "MAP METRICS: exiting game client" )
@@ -559,14 +536,14 @@ void function MapMetrics_ClientEndMapMetrics()
 	}
 }
 
-void function MapMetrics_ClientInit( int gridSize )
+void function MapMetrics_ClientBeginMapMetrics( int gridSize )
 {
 	string buildVersion = GetGameVersion()
 
 	file.exitOnCompletion = GetCurrentPlaylistVarBool( "map_metrics_exit_on_completion", false ) || Dev_CommandLineHasParm( "-mapmetricsexitoncompletion" )
 	file.metricsOutputRSON = GetCurrentPlaylistVarBool( "map_metrics_output_rson", false ) || Dev_CommandLineHasParm( "-mapmetricsrson" )
 	file.fpsThreshold = GetCurrentPlaylistVarInt( "map_metrics_fps_threshold", FPS_THRESHOLD_DEFAULT_VALUE )
-	file.adaptiveScalingOn = GetCurrentPlaylistVarBool( "map_metrics_adaptive_scaling", false )
+	bool adaptiveScalingOn = GetCurrentPlaylistVarBool( "map_metrics_adaptive_scaling", false )
 
 	array<string> metricsLabels = [ METRICS_FPS, METRICS_MEMORY, METRICS_VIEWPORT_SCALE, METRICS_NET_IN, METRICS_NET_OUT ]
 	for ( int i = 0; i < GetPerfDataLabelCount(); i++ )
@@ -582,16 +559,16 @@ void function MapMetrics_ClientInit( int gridSize )
 	file.oldPerfMetrics = GetConVarInt( "perf_metrics" )
 	file.oldFpsMax = GetConVarInt( "fps_max" )
 	file.oldNotFocusSleep = GetConVarInt( "not_focus_sleep" )
-	if( HasConVar( "mat_vsyncMode" ) )
+	if ( HasConVar( "mat_vsyncMode" ) )
 		file.oldVsyncMode = GetConVarInt( "mat_vsyncMode" )
 
 	
-	SetConVarBool( "dvs_enable", file.adaptiveScalingOn )
+	SetConVarBool( "dvs_enable", adaptiveScalingOn )
 	SetConVarBool( "perf_metrics_drawing_enabled", false )
 	SetConVarInt( "perf_metrics", 3 )
 	SetConVarInt( "fps_max", 0 )
 	SetConVarInt( "not_focus_sleep", 0 )
-	if( HasConVar( "mat_vsyncMode" ) )
+	if ( HasConVar( "mat_vsyncMode" ) )
 		SetConVarInt( "mat_vsyncMode", 0 )
 }
 
@@ -607,7 +584,7 @@ void function WaitForFPSToSettle()
 	wait FRAME_TIME_MIN_WAIT
 
 	array<float> frameTimeBuffer
-	for( int i = 0; i < FRAME_TIME_BUFFER_SIZE; i++ )
+	for ( int i = 0; i < FRAME_TIME_BUFFER_SIZE; i++ )
 	{
 		frameTimeBuffer.append( RenderFrameTime() )
 		WaitFrame()
@@ -617,7 +594,7 @@ void function WaitForFPSToSettle()
 	{
 		float variance = CalculateFloatArrayVarianceWithGivenPercentile( frameTimeBuffer, 1.0 )
 		float stdev = sqrt( variance )
-		if( stdev < FRAME_TIME_STDEV_TOLERANCE )
+		if ( stdev < FRAME_TIME_STDEV_TOLERANCE )
 			break
 
 		frameTimeBuffer.fastremove( 0 )
@@ -657,10 +634,10 @@ void function MapMetrics_ClientRecordDataPoint_Thread( entity player, vector pos
 	}
 
 	string zoneName = "#NOT_IN_NAMED_ZONE"
-	if( zoneId != -1 )
+	if ( zoneId != -1 )
 		zoneName = GetZoneNameForZoneId( zoneId )
 
-	if( zoneName == "" )
+	if ( zoneName == "" )
 		zoneName = "#NOT_IN_NAMED_ZONE"
 
 	table<string, float> metricsData
@@ -711,61 +688,6 @@ void function RecordNetworkBandwidth()
 	file.bandwidthInArray.clear()
 	file.bandwidthOutArray.clear()
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

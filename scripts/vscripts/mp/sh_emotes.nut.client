@@ -673,7 +673,7 @@ void function PodiumScreenPerformEmote_Thread( entity characterModel, ItemFlavor
 		mover.SetAngles( mover.GetAngles() + <0,45,0> )
 	}
 
-	waitthread ModelPerformEmote( characterModel, emote, mover )
+	waitthread ModelPerformEmote( characterModel, emote, mover, true, false, playerEHI )
 
 	file.characterPodiumModelIsEmoting[ characterModel ] <- false
 
@@ -1136,7 +1136,7 @@ bool function IsPlayerTooCloseToWall( entity player )
 }
 
 
-void function ModelPerformEmote( entity model, ItemFlavor item, entity mover, bool oneShot = true, bool autoFlourish = false )
+void function ModelPerformEmote( entity model, ItemFlavor item, entity mover, bool oneShot = true, bool autoFlourish = false, EHI modelPlayerEHI = EHI_null )
 {
 	EndSignal( model, "OnDestroy" )
 	EndSignal( mover, "OnDestroy" )
@@ -1163,10 +1163,13 @@ void function ModelPerformEmote( entity model, ItemFlavor item, entity mover, bo
 
 	EHI lcPlayer 			= LocalClientEHI()
 	bool isLocalPlayerModel = ( GetPodiumScreenCharacterModelForEHI( lcPlayer ) == model )
-	ItemFlavor character    = LoadoutSlot_GetItemFlavor( lcPlayer, Loadout_Character() )
+	ItemFlavor character    = isLocalPlayerModel || modelPlayerEHI == EHI_null ? LoadoutSlot_GetItemFlavor( lcPlayer, Loadout_Character() ) : LoadoutSlot_GetItemFlavor( modelPlayerEHI, Loadout_Character() )
 
 	string anim3p     = CharacterQuip_GetAnim3p( item, character )
 	string loopAnim3p = CharacterQuip_GetAnimLoop3p( item )
+
+	Assert( model.LookupSequence( anim3p ) != -1, "Victory sequence " + anim3p + "doesn't exist on model " + model.GetModelName() +
+	"Likely an issue with grabbing the wrong sequence from CharacterQuip_GetAnim3p" )
 
 	bool usesLoop = loopAnim3p != ""
 
@@ -1236,10 +1239,6 @@ void function ModelPerformEmote( entity model, ItemFlavor item, entity mover, bo
 		}
 	}
 }
-
-
-
-
 
 
 

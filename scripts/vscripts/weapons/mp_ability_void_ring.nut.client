@@ -1714,6 +1714,15 @@ void function OnVoidRingPlanted( entity projectile, DeployableCollisionParams co
 
 
 
+
+
+
+
+
+
+
+
+
 void function ShowVoidRingRadius( entity weapon )
 {
 	EndSignal( weapon, "VoidRing_EndPreview" )

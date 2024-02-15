@@ -111,28 +111,28 @@ void function OnItemFlavorRegistered_Character( ItemFlavor character )
 	}
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+	
+	{
+		array<ItemFlavor> upgrades = []
+		foreach ( var passiveBlock in IterateSettingsAssetArray( ItemFlavor_GetAsset( character ), "extraPassives" ) )
+		{
+			asset settingsAsset = GetSettingsBlockAsset( passiveBlock, "flavor" )
+			if ( settingsAsset != $"" )
+			{
+				ItemFlavor ornull ability = RegisterItemFlavorFromSettingsAsset( settingsAsset )
+				if ( ability != null )
+				{
+					expect ItemFlavor(ability)
+					Assert( CharacterAbility_GetWeaponClassname( ability ) == "" )
+					Assert( CharacterAbility_GetPassiveIndex( ability ) != ePassives.INVALID )  
+					upgrades.append( ability )
+					abilityList.append( ability )
+				}
+			}
+		}
+		Assert( upgrades.len() == 0 || upgrades.len() >= UPGRADE_CORE_NUM_EXPECTED_UPGRADES )
+		UpgradeCore_RegisterUpgradesForCharacter( character, upgrades )
+	}
 
 
 	foreach ( ItemFlavor ability in abilityList )

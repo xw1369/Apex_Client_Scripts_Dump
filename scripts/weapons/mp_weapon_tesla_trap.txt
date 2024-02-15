@@ -51,6 +51,7 @@ WeaponData
 	"offhand_hybrid_block_switch_if_empty"          "1"
 	"offhand_hybrid_switch_on_lower"				"1"
 	"offhand_allow_swap_to_on_zipline"              "0"
+	"offhand_include_primary_activity_mods"         "0"
 
 	// Effects
 	"bounce_effect_table"							"deployable_cover_bounce_table"
@@ -275,17 +276,17 @@ WeaponData
          
            
 
-                      
-                 
-         
-                                  
-                                     
-                                    
-                                    
-                                  
-                                     
-                                    
-         
+		                    
+		upgrade_tac_one
+        {
+			"ammo_clip_size"   								"48"
+		    "ammo_default_total"							"48"
+		    "ammo_display"									"count"
+		    "ammo_min_to_fire"								"12"
+		    "ammo_per_shot"									"12"
+		    "ammo_stockpile_max"							"12"
+			"regen_ammo_refill_rate"						"1"
+        }
         
 
         interception_pylon_super_charge

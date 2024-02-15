@@ -58,6 +58,7 @@ global function ItemFlavor_HasQuality
 global function ItemFlavor_GetQuality
 global function ItemFlavor_GetQualityColor
 global function ItemFlavor_GetQualityName
+global function ItemFlavor_IsThematic
 global function ItemQuality_GetBattlePassQualityName
 global function ItemFlavor_IsCurrency
 global function ItemFlavor_IsBattlepass
@@ -76,6 +77,7 @@ global function ItemFlavorBag_GetSingleOutputItemFlavor_Assert
 global function ItemFlavorBag_GetMeleeSkinItem
 global function ItemFlavorBag_GetMythicSkinItem
 global function ItemFlavorBag_ToQuantityMap
+global function ItemFlavorBag_HasSameContents
 
 global function DEV_DescribeItemFlavorBag
 
@@ -172,6 +174,10 @@ global enum eItemType
 	calevent_event_shop
 	calevent_apex_cup
 	calevent_boost_event
+	calevent_temp_unlock
+	calevent_challenge_collection
+	calevent_challenge_set
+	calevent_reward_campaign
 	_CALEVENT_RANGE_END
 
 	
@@ -259,18 +265,14 @@ global enum eItemType
 	club_search_tag
 
 
+	kepler_scenario
 
 
-
-	
 	mythic_bundle 
 	lore
 	ranked_2pt0_period
 	boost_type
-
-
-		ranked_trial
-
+	ranked_trial
 
 	COUNT
 }
@@ -973,12 +975,6 @@ string function ItemFlavor_GetLongDescription( ItemFlavor flavor )
 
 	string localizationKey = GetGlobalSettingsString( ItemFlavor_GetAsset( flavor ), "localizationKey_DESCRIPTION_LONG" )
 
-
-	
-	if( localizationKey == "#GEAR_SURVEY_LONGDESC" && S16_PathfinderSkirmisherPassiveActive() )
-		localizationKey =  "#GEAR_SURVEY_LONGDESC_NEW"
-
-
 #if DEV
 		if ( localizationKey != "" && localizationKey.slice( 0, 1 ) != "#" )
 			localizationKey = format( "%s !UNLOCALIZED!", localizationKey )
@@ -994,12 +990,6 @@ string function ItemFlavor_GetShortDescription( ItemFlavor flavor )
 	Assert( IsItemFlavorStructValid( flavor.guid, eValidation.ASSERT ) )
 
 	string localizationKey = GetGlobalSettingsString( ItemFlavor_GetAsset( flavor ), "localizationKey_DESCRIPTION_SHORT" )
-
-
-	
-	if( localizationKey == "#GEAR_SURVEY_DESC" && S16_PathfinderSkirmisherPassiveActive() )
-		localizationKey =  "#GEAR_SURVEY_DESC_NEW"
-
 
 #if DEV
 		if ( localizationKey != "" && localizationKey.slice( 0, 1 ) != "#" )
@@ -1130,20 +1120,34 @@ int function ItemFlavor_GetAccountPackType( ItemFlavor pack )
 	Assert( IsItemFlavorStructValid( pack.guid, eValidation.ASSERT ) )
 	Assert( ItemFlavor_GetType( pack ) == eItemType.account_pack )
 
-	if ( GetGlobalSettingsString( ItemFlavor_GetAsset( pack ), "packType" ) == "EVENT_PACK" )
-		return eAccountPackType.EVENT
-	else if ( GetGlobalSettingsString( ItemFlavor_GetAsset( pack ), "packType" ) == "EVENT_THEMATIC_PACK" )
-		return eAccountPackType.EVENT_THEMATIC
-	else if ( GetGlobalSettingsString( ItemFlavor_GetAsset( pack ), "packType" ) == "THEMATIC_PACK" )
-		return eAccountPackType.THEMATIC
-	else if ( GetGlobalSettingsString( ItemFlavor_GetAsset( pack ), "packType" ) == "MYTHIC_PACK" )
-		return eAccountPackType.MYTHIC
-	else if ( GetGlobalSettingsString( ItemFlavor_GetAsset( pack ), "packType" ) == "SIRNGE_PACK" )
-		return eAccountPackType.SIRNGE
+	asset itemAsset = ItemFlavor_GetAsset( pack )
+	string settingsString = GetGlobalSettingsString( itemAsset, "packType" )
+	int accountPackType
 
-	return eAccountPackType.APEX 
+	switch ( settingsString )
+	{
+		case "EVENT_PACK":
+			accountPackType = eAccountPackType.EVENT
+			break
+		case "EVENT_THEMATIC_PACK":
+			accountPackType = eAccountPackType.EVENT_THEMATIC
+			break
+		case "THEMATIC_PACK":
+			accountPackType = eAccountPackType.THEMATIC
+			break
+		case "MYTHIC_PACK":
+			accountPackType = eAccountPackType.MYTHIC
+			break
+		case "SIRNGE_PACK":
+			accountPackType = eAccountPackType.SIRNGE
+			break
+		default:
+			accountPackType = eAccountPackType.APEX 
+			break
+	}
+
+	return accountPackType
 }
-
 
 int function GetPlaylistAvailabilityByRef( array< string > refs )
 {
@@ -1332,6 +1336,16 @@ string function ItemFlavor_GetQualityName( ItemFlavor flavor )
 	return ItemQuality_GetQualityName( ItemFlavor_GetQuality( flavor ) )
 }
 
+bool function ItemFlavor_IsThematic( ItemFlavor flavor )
+{
+	Assert( IsItemFlavorStructValid( flavor.guid, eValidation.ASSERT ) )
+
+	if ( ItemFlavor_GetType( flavor ) != eItemType.account_pack )
+		return false
+
+	var packType = ItemFlavor_GetAccountPackType( flavor )
+	return packType == eAccountPackType.THEMATIC || packType == eAccountPackType.EVENT_THEMATIC
+}
 
 bool function ItemFlavor_IsCurrency( ItemFlavor flavor )
 {
@@ -1906,6 +1920,31 @@ table<ItemFlavor, int> function ItemFlavorBag_ToQuantityMap( ItemFlavorBag bag )
 	foreach ( int idx, ItemFlavor flav in bag.flavors )
 		out[flav] <- bag.quantities[idx]
 	return out
+}
+
+
+
+bool function ItemFlavorBag_HasSameContents( ItemFlavorBag first, ItemFlavorBag second )
+{
+	if ( first.flavors.len() != second.flavors.len() )
+	{
+		return false
+	}
+
+	for ( int i = 0; i < first.flavors.len(); ++i )
+	{
+		if ( first.flavors[i] != second.flavors[i] )
+		{
+			return false
+		}
+
+		if ( first.quantities[i] != second.quantities[i] )
+		{
+			return false
+		}
+	}
+
+	return true
 }
 
 

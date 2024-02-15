@@ -132,7 +132,7 @@ WeaponData
 
 	viewkick_spring                     "pistol"
 
-
+	"offhand_include_primary_activity_mods"         "0"
 //
 // Script hookups
 //
@@ -155,7 +155,6 @@ WeaponData
 
 		}
 
-                     
 		s17cr_p1_cooldown_mod
         {
             "regen_ammo_refill_rate"    "0"
@@ -165,18 +164,17 @@ WeaponData
         {
             "regen_ammo_refill_rate"    "60"
         }
-      
 
                     
-                                         
-   
+		upgrade_core_loba_ult_black_market_scan
+		{
 
-   
+		}
 
-                                        
-         
+        upgrade_core_loba_ult_extra_item
+        {
 
-         
+        }
       
 	}
 }

@@ -182,14 +182,14 @@ WeaponData
               
 
                             
-                                        
-         
-                                                                 
-                                                                 
-                                                                 
-                                                                 
-                                            
-         
+        upgrade_reduced_grapple_cooldown
+        {
+            "ammo_clip_size"                                "200"
+            "ammo_min_to_fire"                              "200"
+            "ammo_per_shot"                                 "200"
+            "ammo_stockpile_max"                            "200"
+            "ammo_default_total"							"200"
+        }
               
 	}
 }

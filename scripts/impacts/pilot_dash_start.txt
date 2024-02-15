@@ -42,7 +42,7 @@ ImpactTable
 		"2" "P_hmn_land_impact_lava" //lava_rock_hot
 		"3" "P_pilot_dash_start_concrete"
 		"4" "P_pilot_dash_start_concrete"
-		"5" "P_impact_exp_med_water"
+		"5" "P_pilot_dash_start_metal"
 		"6" "P_pilot_dash_start_concrete"
 		"7" "P_pilot_dash_start_concrete"
 		"8" "P_pilot_dash_start_concrete"

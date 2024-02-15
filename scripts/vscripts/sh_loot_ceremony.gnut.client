@@ -1856,7 +1856,15 @@ void function ShowRewardBasedOnItemType( int itemType, ItemFlavor item, vector a
 			break
 
 		case eItemType.weapon_skin:
-			thread ShowRewards_WeaponSkin( item, attachOrigin, attachAngles, rarity, displayIndex, attachment )
+			asset video = WeaponSkin_GetVideo( item )
+			if ( video != $"" && WeaponSkin_ShouldDisplayVideoOnInspect( item ) )
+			{
+				thread ShowBattlePassItem_WeaponSkinVideo( item, attachOrigin, attachAngles, rarity, displayIndex, video )
+			}
+			else
+			{
+				thread ShowRewards_WeaponSkin( item, attachOrigin, attachAngles, rarity, displayIndex, attachment )
+			}
 			break
 
 		case eItemType.weapon_charm:
@@ -2950,6 +2958,44 @@ void function ShowRewards_Deathbox( ItemFlavor item, vector origin, vector angle
 
 
 
+const float RUI_WEAPON_VIDEO_WIDTH = 800.0
+const float RUI_WEAPON_VIDEO_HEIGHT = 450.0
+const float RUI_WEAPON_VIDEO_Z_OFFSET = 30
+
+void function ShowBattlePassItem_WeaponSkinVideo( ItemFlavor item, vector origin, vector angles, int rarity, int displayIndex, asset video )
+{
+	EndSignal( level, "EndSetPresentationType" )
+	EndSignal( fileLevel.signalDummy, "LootCeremonyExit" )
+	EndSignal( fileLevel.signalDummy, "LootCeremonyAnimSeqStart" )
+
+	
+	vector placardOrigin = origin + <0, 0, RUI_WEAPON_VIDEO_Z_OFFSET>
+	float width          = RUI_WEAPON_VIDEO_WIDTH / 16.0
+	float height         = RUI_WEAPON_VIDEO_HEIGHT / 16.0
+	vector placardAngles = VectorToAngles( AnglesToForward( angles ) * -1 )
+
+	var topo = CreateRUITopology_Worldspace( placardOrigin, placardAngles, width, height )
+	var rui  = RuiCreate( $"ui/finisher_video.rpak", topo, RUI_DRAW_VIEW_MODEL, 0 )
+
+	int videoChannel = ReserveVideoChannel()
+	RuiSetInt( rui, "channel", videoChannel )
+	StartVideoOnChannel( videoChannel, video, true, 0.0 )
+
+	OnThreadEnd(
+		function() : ( rui, topo, videoChannel )
+		{
+			RuiDestroyIfAlive( rui )
+			RuiTopology_Destroy( topo )
+			ReleaseVideoChannel( videoChannel )
+		}
+	)
+
+	if ( IsSpecialItemPresentationModeActive() )
+		SpecialItemPresentationView_RUI( item, rarity, rui )
+	else
+		InspectMenuFunctionality_RUI( item, displayIndex, rarity, rui )
+}
+
 
 
 const float RUI_SKYDIVE_EMOTE_WIDTH = 800.0
@@ -3890,6 +3936,12 @@ array<LoadoutEntry> function EquipButton_GetItemLoadoutEntries( ItemFlavor item,
 			case eItemType.voucher:
 				break
 
+		case eItemType.account_currency:
+			break
+		case eItemType.account_pack:
+			break
+		case eItemType.weapon_charm:
+			break
 
 		
 		case eItemType.character:
@@ -5701,6 +5753,22 @@ bool function IsSpecialItemPresentationModeActive()
 {
 	return fileLevel.specialItemPresentationModeActive
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

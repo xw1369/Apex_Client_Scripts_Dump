@@ -694,6 +694,244 @@ globalize_all_functions
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 #if DEV
 void function DEV_script_ranked_debug ( string message,int indent = 0 )
 {
@@ -738,7 +976,7 @@ void function PrintRankLadderPointsBreakdown ( RankLadderPointsBreakdown data , 
 	DEV_script_ranked_debug ( "killsUnique: " + data.killsUnique, indent)
 	DEV_script_ranked_debug ( "assistUnique: " + data.assistUnique, indent)
 	DEV_script_ranked_debug ( "participationUnique: " + data.participationUnique, indent)
-
+	DEV_script_ranked_debug ( "totalUniqueSquadKills: " + data.totalUniqueSquadKills, indent)
 	DEV_script_ranked_debug ( "placement: " + data.placement, indent)
 	DEV_script_ranked_debug ( "placementScore: " + data.placementScore, indent)
 
@@ -758,6 +996,17 @@ void function PrintRankLadderPointsBreakdown ( RankLadderPointsBreakdown data , 
 	DEV_script_ranked_debug ( "penaltyPointsForAbandoning: " + data.penaltyPointsForAbandoning, indent)
 	DEV_script_ranked_debug ( "demotionProtectionAdjustment: " + data.demotionProtectionAdjustment, indent)
 	DEV_script_ranked_debug ( "lossProtectionAdjustment: " + data.lossProtectionAdjustment, indent)
+
+
+	DEV_script_ranked_debug ( "entryCost: " + data.entryCost, indent)
+	DEV_script_ranked_debug ( "totalUniqueSquadKills: " + data.totalUniqueSquadKills, indent)
+	DEV_script_ranked_debug ( "top5Streak: " + data.top5Streak, indent)
+	DEV_script_ranked_debug ( "top5StreakBonusValue: " + data.top5StreakBonusValue, indent)
+	DEV_script_ranked_debug ( "highSkillKill: " + data.highSkillKill, indent)
+	DEV_script_ranked_debug ( "highSkillKillBonusValue: " + data.highSkillKillBonusValue, indent)
+	DEV_script_ranked_debug ( "killValueModifierByPlacement: " + data.killValueModifierByPlacement, indent)
+	DEV_script_ranked_debug ( "demoCrewBonus: " + data.demoCrewBonus, indent)
+
 
 	DEV_script_ranked_debug ( "currentLP: " + data.startingLP, indent)
 	DEV_script_ranked_debug ( "netLP: " + data.netLP, indent)

@@ -1,5 +1,6 @@
 #base "_base_handgun.txt"
 #base "_base_shotgun_bolts.txt"
+#base "_base_hopup_paintball.txt"
 
                     
 #base "_base_hopup_golden_horse_red.txt"
@@ -302,109 +303,78 @@ WeaponData
 	{
         crate	    {}
 
-        blue_paintball
-        {
-          "impact_effect_table" 				"bullet_pb_Random"
-
-          "projectile_trail_effect_0_1p" 		"P_tracer_projectile_pb"
-          "projectile_trail_effect_0_3p" 		"P_tracer_projectile_pb"
-
-          "reload_time"						"*0.75"
-          "reload_time_late1"					"*0.75"
-          "reload_time_late2"					"*0.75"
-          "reload_time_late3"					"*0.75"
-          "reload_time_late4"					"*0.75"
-          "reload_time_late5"					"*0.75"
-          "reloadempty_time"					"*0.75"
-          "reloadempty_time_late1"			"*0.75"
-          "reloadempty_time_late2"			"*0.75"
-          "reloadempty_time_late3"			"*0.75"
-          "reloadempty_time_late4"			"*0.75"
-          "reloadempty_time_late5"			"*0.75"
-        }
-
-		gold_paintball
-        {
-          "impact_effect_table" 				"bullet_pb_Random"
-
-          "projectile_trail_effect_0_1p" 		"P_tracer_projectile_pb"
-          "projectile_trail_effect_0_3p" 		"P_tracer_projectile_pb"
-
-          "reload_time"						"*0.75"
-          "reload_time_late1"					"*0.75"
-          "reload_time_late2"					"*0.75"
-          "reload_time_late3"					"*0.75"
-          "reload_time_late4"					"*0.75"
-          "reload_time_late5"					"*0.75"
-          "reloadempty_time"					"*0.75"
-          "reloadempty_time_late1"			"*0.75"
-          "reloadempty_time_late2"			"*0.75"
-          "reloadempty_time_late3"			"*0.75"
-          "reloadempty_time_late4"			"*0.75"
-          "reloadempty_time_late5"			"*0.75"
-        }
+                                
+                                                                   
+                            
+                             
+                             
+      
 
                                 
 
-		hopup_april_fools
-		{
+                   
+   
 
-			"printname"  								    "#NESSIE_GUN_TITLE"
-			"shortprintname"							    "#NESSIE_GUN_TITLE"
-			"description" 								    "#NESSIE_GUN_DESC"
+                                               
+                                                 
+                                               
 
-			"ammo_clip_size"   								"2"
+                 
+                                                            
+                             
 
-			"damage_near_value"   							"0"
-	        "damage_far_value"								"0"
-	        "damage_very_far_value"							"0"
-	        "damage_near_value_titanarmor"					"0"
-	        "damage_far_value_titanarmor" 					"0"
-	        "damage_very_far_value_titanarmor" 				"0"
+                                 
 
-			"fire_rate"   									"1.6"
+                                   
+                                      
+                                          
+                                               
+                                               
+                                                   
 
-			"reload_time"						"*1.2"
-	        "reload_time_late1"				    "*1.2"
-	        "reload_time_late2"				    "*1.2"
-	        "reload_time_late3"				    "*1.2"
-	        "reload_time_late4"				    "*1.2"
-	        "reload_time_late5"				    "*1.2"
-	        "reloadempty_time"				    "*1.2"
-	        "reloadempty_time_late1"			"*1.2"
-	        "reloadempty_time_late2"			"*1.2"
-	        "reloadempty_time_late3"			"*1.2"
-	        "reloadempty_time_late4"			"*1.2"
-	        "reloadempty_time_late5"			"*1.2"
+                               
 
-			"fire_sound_1_player_1p"						"weapon_AFLTMpistol_fire_1p"
-			"fire_sound_1_player_3p"						"weapon_AFLTMpistol_fire_3p"
+                            
+                                          
+                                          
+                                          
+                                          
+                                          
+                                         
+                                          
+                                          
+                                          
+                                          
+                                          
 
-			"low_ammo_sound_name_1"							"AFLTMPistol_LowAmmo_Shot1"
-			"low_ammo_sound_name_2"							"AFLTMPistol_LowAmmo_Shot2"
+                                                             
+                                                             
 
-			"projectilemodel" 							    "mdl/dev/empty_model.rmdl"
-			//"projectilemodel" 								"mdl/props/nessie/nessie.rmdl"
+                                                            
+                                                            
 
-			//"projectile_trail_effect_0_1p" 					"wpn_grenade_frag_softball_trail"
-			//"projectile_trail_effect_0_3p" 					"wpn_grenade_frag_softball_trail"
-			"projectile_trail_effect_0_1p"					"smkScrn_trail_CH_trail"
-			"projectile_trail_effect_0_3p"					"smkScrn_trail_CH_trail"
+                                                          
+                                                             
 
-			//"impact_effect_table" 		                "melee_human"
-			//"impact_effect_table" 				        "bullet_pb_Random"
+                                                                          
+                                                                          
+                                                              
+                                                              
 
-			"bounce_effect_table"							"bounce_small_nosound_nowhizby"
-			"impact_effect_table"							"default_nosound_nowhizby"
+                                                          
+                                                         
 
-			"projectile_launch_speed"						"800"
-            "projectile_launch_pitch_offset"                "9.5"
-            "projectile_gravity_scale"                      "0.6"
-			"projectile_first_person_offset_fraction"		"1"
-			"projectile_inherit_owner_velocity_scale"		"1.5"
+                                                              
+                                                         
 
-            "projectile_lifetime"                           "8.5"  // Spider should be dead by then
-		}
+                                       
+                                                                 
+                                                                 
+                                                 
+                                                   
+
+                                                                                                   
+   
 
       
 

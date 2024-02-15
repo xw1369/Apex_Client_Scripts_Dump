@@ -43,7 +43,7 @@ ImpactTable
 		"2" "P_impact_lava" //lava_rock_hot
 		"3" "impact_spiderflesh" //spiderflesh
 //		"4" "openslot"
-		"5" "P_impact_water_hrz"
+		"5" "P_impact_digital_water_hrz_w_glass"
 //		"6" "openslot"
 //		"7" "openslot"
 //		"8" "openslot"
@@ -97,7 +97,7 @@ ImpactTable
 		"2" "P_impact_gen_far" //lava_rock_hot
 		"3" "P_impact_gen_far" //spiderflesh		"3" "impact_alienflesh" //spiderflesh
 //		"4" "openslot"
-		"5" "P_impact_water_hrz"
+		"5" "P_impact_digital_water_hrz_w_glass"
 //		"6" "openslot"
 //		"7" "openslot"
 //		"8" "openslot"
@@ -177,7 +177,7 @@ ImpactTable
 		"headshot_flesh" "Flesh.BulletImpact_3P_vs_3P"
 		"headshot_mechanical" "Android.Light.BulletImpact_3P_vs_3P"
 
-		"5" "Water.BulletImpact_3P_vs_3P"
+		"5" "Glass.BulletImpact_3P_vs_3P"
 	}
 
 	Sound_attacker
@@ -218,7 +218,7 @@ ImpactTable
 		"headshot_flesh" "Flesh.BulletImpact_1P_vs_3P"
 		"headshot_mechanical" "Android.Light.BulletImpact_1P_vs_3P"
 
-		"5" "Water.BulletImpact_1P_vs_3P"
+		"5" "Glass.BulletImpact_1P_vs_3P"
 	}
 
 	Sound_victim
@@ -251,7 +251,7 @@ ImpactTable
 
 		"1" "Mud.BulletImpact_3P_vs_1P"  // lava_flow
 		"2" "Default.BulletImpact_3P_vs_1P" //
-		"5" "Water.BulletImpact_3P_vs_1P"
+		"5" "Glass.BulletImpact_3P_vs_1P"
 
 		"splash" "Water.BulletImpact"
 		"slime_splash" "Water.BulletImpact"

@@ -1780,37 +1780,6 @@ SkyDiveTrailPackage function GetSkyDiveTrailPackageForPlayerWithOverrides( entit
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 void function CL_AttemptDropEmote( entity player )
 {
 	printt( "CLIENT EMOTE" )
@@ -2624,12 +2593,24 @@ void function CodeCallback_PlayerSkydiveAnticipateBegin( entity player )
 
 
 
+
+
+
+
+
+
+
+
 	
 
 }
 
 void function CodeCallback_PlayerSkydiveAnticipateEnd( entity player )
 {
+
+
+
+
 
 
 

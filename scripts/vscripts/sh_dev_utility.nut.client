@@ -181,7 +181,7 @@ entity function ge( int ornull index = null )
 
 
 
-vector function EyeTraceVec( entity player = null )
+vector function EyeTraceVec( entity player = null, bool debugDraws = false, int traceMask = 0, int traceGroup = 0, float debugDrawTime = 120 )
 {
 	if ( player == null )
 		player = gp()[0]
@@ -190,7 +190,14 @@ vector function EyeTraceVec( entity player = null )
 	vector traceDir   = player.GetViewVector()
 	vector traceEnd   = traceStart + (traceDir * 50000)
 
-	TraceResults results = TraceLine( traceStart, traceEnd, player )
+	TraceResults results = TraceLine( traceStart, traceEnd, player, traceMask, traceGroup )
+
+#if DEV
+		if( debugDraws )
+		{
+			DrawStar( results.endPos, 16,debugDrawTime, true )
+		}
+#endif
 
 	return results.endPos
 }
@@ -1136,6 +1143,29 @@ void function DEV_DrawBoundingBox()
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 array<entity> function DEV_PrintChildren( entity ent )
 {
 	array<entity> children = []
@@ -1272,6 +1302,30 @@ void function DEV_FreeCamBasedOnSun( vector toSunDir, entity target, float horzD
 
 	ply.ClientCommand( format( "set fov %f", fov ) )
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

@@ -188,11 +188,12 @@ grenade_use_mask_ability                            "1"
 	"ammo_drains_to_empty_on_fire"					"0"
 
 	"ammo_clip_size"   								"400"
-	"ammo_default_total"							"400"
-	"ammo_display"									"bar"
-	"ammo_min_to_fire"								"400"
-	"ammo_per_shot"									"400"
-	"ammo_stockpile_max"							"400"
+    "ammo_default_total"							"400"
+    "ammo_display"									"bar"
+    "ammo_min_to_fire"								"400"
+    "ammo_per_shot"									"400"
+    "ammo_stockpile_max"							"400"
+
 	"ammo_no_remove_from_clip"						"0"
 	"regen_ammo_refill_rate"						"10"
 	"regen_ammo_refill_start_delay"					"0.0"
@@ -268,15 +269,15 @@ grenade_use_mask_ability                            "1"
          
            
 
-                         
-                                               
-             
-                                             
-                                             
-                                             
-                                             
-                                             
-             
+	                        
+            upgrade_core_tac_cooldown_reduction
+            {
+                "ammo_stockpile_max"    "*0.75"
+                "ammo_clip_size"        "*0.75"
+                "ammo_default_total"    "*0.75"
+                "ammo_per_shot"         "*0.75"
+                "ammo_min_to_fire"      "*0.75"
+            }
               
 	}
 

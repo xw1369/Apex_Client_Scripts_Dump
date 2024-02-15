@@ -46,7 +46,7 @@ ImpactTable
 		"2" "P_impact_lava" //lava_rock_hot
 		"3" "impact_spiderflesh" //spiderflesh
 		"4" "P_impact_ferrofluid"
-		"5" "P_impact_water_hrz"
+		"5" "P_impact_digital_water_hrz_w_glass"
 //		"6" "openslot"
 //		"7" "openslot"
 //		"8" "openslot"
@@ -123,7 +123,7 @@ ImpactTable
 		"2" "Concrete.BulletImpact_3P_vs_3P" //lava_rock_hot
 		"3" "AlienFlesh.BulletImpact_3P_vs_3P" // spiderflesh
 		"4" "Mud.BulletImpact_3P_vs_3P" //ferrofluid
-//		"5" "Water.BulletImpact_3P_vs_3P"
+//		"5" "Glass.BulletImpact_3P_vs_3P"
 //		"6" "openslot"
 //		"7" "openslot"
 //		"8" "openslot"
@@ -175,7 +175,7 @@ ImpactTable
 		"2" "Concrete.BulletImpact_1P_vs_3P" //lava_rock_hot
 		"3" "AlienFlesh.BulletImpact_1P_vs_3P" // spiderflesh
 		"4" "Mud.BulletImpact_1P_vs_3P" //ferrofluid
-		"5" "Water.BulletImpact_1P_vs_3P"
+		"5" "Glass.BulletImpact_1P_vs_3P"
 //		"6" "openslot"
 //		"7" "openslot"
 //		"8" "openslot"
@@ -226,7 +226,7 @@ ImpactTable
 		"2" "Default.BulletImpact_3P_vs_1P" // lava_rock
 		"3" "AlienFlesh.BulletImpact_3P_vs_1P" // spiderflesh
 		"4" "Mud.BulletImpact_3P_vs_1P"  // ferrofluid
-		"5" "Water.BulletImpact_3P_vs_1P"
+		"5" "Glass.BulletImpact_3P_vs_1P"
 
 		"splash" "Water.BulletImpact"
 		"slime_splash" "Water.BulletImpact"

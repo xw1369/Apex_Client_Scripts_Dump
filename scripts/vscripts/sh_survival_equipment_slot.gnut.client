@@ -44,7 +44,7 @@ global function GetAttachmentPointName
 
 
 
-
+global function EquippedItemLootIndexChange
 
 
 
@@ -274,6 +274,11 @@ void function SURVIVAL_EquipmentSlot_InitShared()
 
 	e = RegisterEquipslot( "armor", eEquipmentSlotType.ARMOR )
 	e.title = "#SURVIVAL_ARMOR"
+
+	if( UpgradeCore_ArmorTiedToUpgrades() )
+		e.emptyCommsAction = eCommsAction.INVENTORY_NEED_SHIELD_CORE
+	else
+
 	e.emptyCommsAction = eCommsAction.INVENTORY_NEED_ARMOR
 
 	e.filledCommsActionFunc = FilledCommsAction_Equipment
@@ -290,6 +295,13 @@ void function SURVIVAL_EquipmentSlot_InitShared()
 
 
 
+
+
+		if ( GetCurrentPlaylistVarBool( "passive_upgrade_core_enabled", true ) && GetCurrentPlaylistVarBool( "passive_upgrade_armor_tied_to_upgrades", true ) )
+		{
+			e.title = "#SURVIVAL_PICKUP_ARMOR_CORE"
+			e.emptyImage = $"rui/hud/loot/loot_upgrade_core_none"
+		}
 
 
 	e = RegisterEquipslot( "incapshield", eEquipmentSlotType.INCAPSHIELD )
@@ -528,26 +540,24 @@ void function SURVIVAL_EquipmentSlot_InitShared()
 
 
 
+	e = RegisterEquipslot( SLING_EQUIPMENT_SLOT_NAME, eEquipmentSlotType.SLING_WEAPON )
+	e.title = "#PAS_WEAPON_SLING"
+	e.emptyCommsAction = !GetCurrentPlaylistVarBool( "disable_empty_slot_ping", false ) ?
+							eCommsAction.INVENTORY_NEED_FIRST_WEAPON :
+							eCommsAction.BLANK
+	e.filledCommsActionFunc = FilledCommsAction_Weapon
+	e.emptyImage = $""
+	e.trackingNetInt = "equipedItemLootIndex_Sling"
 
-		e = RegisterEquipslot( SLING_EQUIPMENT_SLOT_NAME, eEquipmentSlotType.SLING_WEAPON )
-		e.title = "#PAS_WEAPON_SLING"
-		e.emptyCommsAction = !GetCurrentPlaylistVarBool( "disable_empty_slot_ping", false ) ?
-								eCommsAction.INVENTORY_NEED_FIRST_WEAPON :
-								eCommsAction.BLANK
-		e.filledCommsActionFunc = FilledCommsAction_Weapon
-		e.emptyImage = $""
-		e.trackingNetInt = "equipedItemLootIndex_Sling"
-
-			e.trackingVisionPickupPOI = eTrackingVisionNetworkedPOITypes.PLAYER_LOOT_PICKUP_WEAPON
-			e.trackingVisionExchangePOI = eTrackingVisionNetworkedPOITypes.PLAYER_LOOT_EXCHANGE_WEAPON
-			e.trackingVisionDropPOI = eTrackingVisionNetworkedPOITypes.PLAYER_LOOT_DROP_WEAPON
-			e.getEquippedRefFunc = GetEquippedRefBasedOnTrackingNetInt
-
+		e.trackingVisionPickupPOI = eTrackingVisionNetworkedPOITypes.PLAYER_LOOT_PICKUP_WEAPON
+		e.trackingVisionExchangePOI = eTrackingVisionNetworkedPOITypes.PLAYER_LOOT_EXCHANGE_WEAPON
+		e.trackingVisionDropPOI = eTrackingVisionNetworkedPOITypes.PLAYER_LOOT_DROP_WEAPON
+		e.getEquippedRefFunc = GetEquippedRefBasedOnTrackingNetInt
 
 
 
-		e.passiveRequired = ePassives.PAS_WEAPON_SLING
 
+	e.passiveRequired = ePassives.PAS_WEAPON_SLING
 
 
 		EquipmentSlots_RegisterNetworkTrackingInts()
@@ -938,10 +948,10 @@ int function FilledCommsAction_Equipment( string equipmentSlotRef, string itemRe
 	}
 
 
-
-
-
-
+		if( UpgradeCore_IsEquipmentArmorCore( itemRef ) )
+		{
+			commsAction = eCommsAction.PING_XP_LEVEL_UP_ARMOR
+		}
 
 
 
@@ -959,12 +969,8 @@ int function FilledCommsAction_Weapon( string equipmentSlotRef, string itemRef, 
 	LootData lootData = SURVIVAL_Loot_GetLootDataByRef( itemRef )
 	string ammotype = lootData.ammoType
 	
-
 	int weaponSlot = equipmentSlotRef == SLING_EQUIPMENT_SLOT_NAME ? WEAPON_INVENTORY_SLOT_PRIMARY_4 : Survival_GetEquipmentSlotDataByRef( equipmentSlotRef ).weaponSlot
 	entity weapon = GetLocalClientPlayer().GetNormalWeapon( weaponSlot )
-
-
-
 	string weaponClassName = weapon.GetWeaponClassName()
 	if ( weaponClassName == itemRef )
 	{
@@ -1198,10 +1204,8 @@ LootData function EquipmentSlot_GetEquippedLootDataForSlot( entity player, strin
 
 int function EquipmentSlot_GetWeaponSlotForEquipmentSlot( string equipmentSlot )
 {
-
-		if( equipmentSlot == SLING_EQUIPMENT_SLOT_NAME )
-			return SLING_WEAPON_SLOT
-
+	if( equipmentSlot == SLING_EQUIPMENT_SLOT_NAME )
+		return SLING_WEAPON_SLOT
 
 	EquipmentSlot es       = Survival_GetEquipmentSlotDataByRef( equipmentSlot )
 	EquipmentSlot esWeapon = Survival_GetEquipmentSlotDataByRef( es.attachmentWeaponSlot )
@@ -1489,14 +1493,14 @@ void function SetUnitFrameHudImageIfValid( string imageVarName, string tierVarNa
 				RuiSetBool( rui, "isEvolvingShield", isEvolving )
 			}
 
-
-
-
-
-
-
-
-
+			else if( UpgradeCore_IsEquipmentArmorCore( lootRef ) )
+			{
+				lootTier = UpgradeCore_GetPlayerArmorTier( player, false )
+				RuiSetBool( rui, "isEvolvingShield", true )
+				int armorForTier = EvolvingArmor_GetEvolvingArmorHealthForTier( lootTier )
+				RuiSetInt( rui, "armorShieldCapacity", armorForTier )
+				RuiSetInt( rui, tierVarName, lootTier )
+			}
 
 			else
 			{

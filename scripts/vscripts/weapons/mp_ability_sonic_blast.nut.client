@@ -34,8 +34,8 @@ global function ServerToClient_SpawnedSonicBlast
 global function ShouldBlastHitVictim
 global const float SONIC_BLAST_RADIUS = 200.0
 global const float SONIC_BLAST_IN_FRONT_START_DISTANCE = 20.0
-const float SONIC_BLAST_RANGE_EXTENSION = 10.0 / INCHES_TO_METERS
-const float SONAR_DURATION = 2.50
+global const float SONIC_BLAST_RANGE_EXTENSION = 10.0 / INCHES_TO_METERS
+const float SONAR_DURATION = 2.5
 const float SILENCE_DURATION = 8.0
 const float SLOW_DURATION = 0.5 
 
@@ -110,7 +110,7 @@ void function MpAbilitySonicBlast_Init()
 	PrecacheScriptString( SONIC_BLAST_THREAT_TARGETNAME )
 	PrecacheScriptString( SONIC_BLAST_MOVER_SCRIPTNAME )
 
-	file.sonicBlastRange = GetSonicBlastRange()
+	file.sonicBlastRange = HEARTBEAT_SENSOR_NATURAL_RANGE / INCHES_TO_METERS + SONIC_BLAST_RANGE_EXTENSION
 	file.sonicBlastRangeSqr = pow( file.sonicBlastRange, 2 )
 	file.sonicBlastRadius = GetSonicBlastRadius()
 	file.sonicBlastRadiusSqr = pow( file.sonicBlastRadius, 2 )
@@ -902,6 +902,11 @@ bool function ShouldBlastHitVictim( vector startPos, vector blastVector, vector 
 	{
 		vector blastToPlayer = Normalize( victim.GetWorldSpaceCenter() - startPos )
 
+		if( IsTrainingDummie( victim ) && !victim.IsEntAlive() ) 
+		{
+			return false
+		}
+
 		
 		if ( DotProduct( blastVecNormalized, blastToPlayer ) > 0.0 )
 		{
@@ -1271,15 +1276,15 @@ int function GetSonicBlastDamage()
 }
 
 
+float function GetSonicBlast_Duration_Extension()
+{
+	return GetCurrentPlaylistVarFloat( "sonicblast_scan_duration_upgraded_extension", 1.5 )
+}
 
-
-
-
-
-
-
-
-
+float function GetSonicBlast_Silence_Extension()
+{
+	return GetCurrentPlaylistVarFloat( "sonicblast_silence_duration_upgraded_extension", 2.0 )
+}
 
 
 float function GetSonicBlast_Scan_Duration_Base( entity player )
@@ -1293,10 +1298,10 @@ float function GetSonicBlast_Scan_Duration_Base( entity player )
 		return result
 
 
-
-
-
-
+		if( PlayerHasPassive( player, ePassives.PAS_TAC_UPGRADE_ONE ) ) 
+		{
+			result += GetSonicBlast_Duration_Extension()
+		}
 
 
 	return result
@@ -1313,10 +1318,10 @@ float function GetSonicBlast_Silence_Duration_Base( entity player )
 		return result
 
 
-
-
-
-
+		if( PlayerHasPassive( player, ePassives.PAS_TAC_UPGRADE_TWO ) ) 
+		{
+			result += GetSonicBlast_Silence_Extension()
+		}
 
 
 	return result
@@ -1334,8 +1339,13 @@ bool function GetSonicBlastInterrupts()
 }
 
 
-float function GetSonicBlastRange()
+float function GetSonicBlastRange( entity player )
 {
-	return GetHeartbeatSensorRange() + SONIC_BLAST_RANGE_EXTENSION
+
+	
+	if( PlayerHasPassive( player, ePassives.PAS_PAS_UPGRADE_ONE ) ) 
+		return GetCurrentPlaylistVarFloat( "seer_passive_extended_range_upgraded", HEARTBEAT_SENSOR_NATURAL_RANGE_UPGRADE ) / INCHES_TO_METERS
+
+	return GetHeartbeatSensorRange( player ) + SONIC_BLAST_RANGE_EXTENSION
 }
 

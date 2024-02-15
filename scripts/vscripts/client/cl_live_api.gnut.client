@@ -7,7 +7,6 @@ global function ServerCallback_LiveAPI_LogNetwork_OnePlayer
 global function ServerCallback_LiveAPI_LogNetwork_OnePlayerAndEnt
 global function ServerCallback_LiveAPI_LogNetwork_TwoPlayer
 global function ServerCallback_LiveAPI_LogNetwork_CombatInstance
-global function ServerCallback_LiveAPI_LogNetwork_CombatInstanceUnawarded
 global function ServerCallback_LiveAPI_LogNetwork_OnePlayerItem
 global function ServerCallback_LiveAPI_LogNetwork_Int
 global function ServerCallback_LiveAPI_LogNetwork_InventoryAction
@@ -17,6 +16,7 @@ global function ServerCallback_LiveAPI_LogNetwork_RespawnTeam
 global function ServerCallback_LiveAPI_LogNetwork_ArenasBuyMenu
 global function ServerCallback_LiveAPI_LogNetwork_MatchSetup
 global function ServerCallback_LiveAPI_LogNetwork_PlayerIntStatChanged
+global function ServerCallback_LiveAPI_LogNetwork_UpgradeCoreEvent
 
 
 global function LiveAPI_GetWeaponNameFromDamageSourceID
@@ -79,14 +79,115 @@ string function LiveAPI_GetItemNameFromEntity( entity itemEntity )
 	return "Unrecognised item (Unsupported Entity Type)"
 }
 
-
-
-
-
 var function GetDatacenterInfo( string datacenterName )
 {
-		return { name = datacenterName }
+	return { name = datacenterName }
 }
+
+string function GetWeaponModsString( entity itemEntity )
+{
+	int curIndex = 0
+	string modList = ""
+	array< string > allMods = itemEntity.GetMods()
+	foreach ( mod in allMods )
+	{
+		curIndex++
+		if ( SURVIVAL_Loot_IsRefValid( mod ) )
+		{
+			LootData lootData = SURVIVAL_Loot_GetLootDataByRef( mod )
+			bool hasQuality = lootData.tier > MIN_LOOT_TIER
+			string qualityName = "Level " + string( lootData.tier )
+
+			modList = modList + Localize( lootData.pickupString )
+
+			if ( hasQuality )
+				modList = modList + " (" + qualityName + ")"
+
+			if ( allMods.len() != curIndex )
+				modList = modList + ", "
+		}
+	}
+
+	return modList
+}
+
+array<var> function CreateLoadoutObject( array<string> loadoutInfo )
+{
+	array<var> retVal;
+	foreach( entry in loadoutInfo)
+	{
+		
+		printt("CreateLoadoutObject: ", entry)
+		array<string> tokens = GetTrimmedSplitString( entry, ":" )
+		string ref = tokens[0]
+		int num = tokens.len() > 1 ? int( tokens[1] ) : 1
+		retVal.append(
+			{
+				item = LiveAPI_GetItemNameFromRef( ref ),
+				quantity = num
+			}
+		)
+	}
+
+	return retVal
+}
+
+var function GetDefaultLoadoutInfo()
+{
+	array<var> items
+	
+	
+	items.extend( CreateLoadoutObject( CharacterLoadouts_GetDefaultConsumableLoadoutArray() ) )
+	items.extend( CreateLoadoutObject( CharacterLoadouts_GetDefaultEquipmentLoadoutArray() ) )
+
+	return {
+		weapons = CreateLoadoutObject( CharacterLoadouts_GetDefaultWeaponLoadoutArray() ),
+		equipment = items
+	}
+}
+
+array<var> function GetCurrentWeaponsForPlayer( entity player )
+{
+	array<var> weaponData
+	foreach ( entry in SURVIVAL_GetPrimaryWeaponsIncludingSling( player ) )
+	{
+		LootData weaponName = SURVIVAL_Loot_GetLootDataByRef( entry.GetWeaponClassName() )
+		weaponData.append({
+			quantity = 1,
+			item = weaponName,
+			extraData = GetWeaponModsString( entry )
+		})
+	}
+
+	return weaponData
+}
+
+array<var> function GetCurrentInventoryForPlayer( entity player )
+{
+	array<var> inventoryData
+	foreach ( entry in player.ConsumableInventory_Get() )
+	{
+		LootData lData = SURVIVAL_Loot_GetLootDataByIndex( entry.type )
+		inventoryData.append({
+			quantity = entry.count,
+			item = LiveAPI_GetItemNameFromRef( lData.ref ),
+		})
+	}
+
+	return inventoryData
+}
+
+var function GetLoadoutInfoForPlayer( entity player )
+{
+	return {
+		weapons = GetCurrentWeaponsForPlayer( player ),
+		equipment = GetCurrentInventoryForPlayer( player )
+	}
+}
+
+
+
+
 
 void function ServerCallback_LiveAPI_LogNetwork_MatchSetup( )
 {
@@ -96,9 +197,12 @@ void function ServerCallback_LiveAPI_LogNetwork_MatchSetup( )
 
 	bool aimAssist = GetConVarBool( CUSTOM_AIM_ASSIST_CONVAR_NAME )
 	bool anonymousMode = GetConVarBool( CUSTOM_ANONYMOUS_MODE_CONVAR_NAME )
+
+	var loadoutInfo = GetDefaultLoadoutInfo()
+
 	LiveAPI_WriteLogUsingCustomFieldNames( eLiveAPI_EventTypes.matchSetup,
-		[ GetMapName(),	Localize( playlistName ),	Localize( playlistDesc ),	GetDatacenterInfo( datacenterName ), 	aimAssist, 		GetServerDebugId(),	anonymousMode  ],
-		[ "map", 		"playlistName",				"playlistDesc", 			"datacenter", 							"aimAssistOn", 	"serverId", 		"anonymousMode" ]
+		[ GetMapName(),	Localize( playlistName ),	Localize( playlistDesc ),	GetDatacenterInfo( datacenterName ), 	aimAssist, 		GetServerDebugId(),	anonymousMode,   loadoutInfo  ],
+		[ "map", 		"playlistName",				"playlistDesc", 			"datacenter", 							"aimAssistOn", 	"serverId", 		"anonymousMode", "startingLoadout" ]
 	)
 }
 
@@ -177,13 +281,7 @@ void function ServerCallback_LiveAPI_LogNetwork_TwoPlayer( int eventIndex, entit
 	LiveAPI_WriteLogUsingCustomFieldNames( eventIndex, data, fieldNames )
 }
 
-void function ServerCallback_LiveAPI_LogNetwork_CombatInstanceUnawarded( int eventIndex, entity attacker, entity victim, int damageSourceId, int damageInflicted )
-{
-	
-	ServerCallback_LiveAPI_LogNetwork_CombatInstance( eventIndex, attacker, victim, null, damageSourceId, damageInflicted )
-}
-
-void function ServerCallback_LiveAPI_LogNetwork_CombatInstance( int eventIndex, entity attacker, entity victim, entity awardedTo, int damageSourceId, int damageInflicted )
+void function ServerCallback_LiveAPI_LogNetwork_CombatInstance( int eventIndex, entity attacker, entity victim, int damageSourceId, int damageInflicted )
 {
 	if ( ( !IsValid( attacker ) && LiveAPI_GetPlayerIdentity( attacker ) != "World" ) || !IsValid( victim ) )
 		return
@@ -193,15 +291,6 @@ void function ServerCallback_LiveAPI_LogNetwork_CombatInstance( int eventIndex, 
 
     array< var > data = [ LiveAPI_GetPlayerIdentityTable( attacker ), LiveAPI_GetPlayerIdentityTable( victim ) ]
 	array< string > fieldNames = [ "attacker" , "victim" ]
-
-	if( eventIndex == eLiveAPI_EventTypes.playerKilled )
-	{
-		if ( IsValid( awardedTo ) && awardedTo.IsPlayer() )
-			data.append( LiveAPI_GetPlayerIdentityTable( awardedTo ) )
-		else
-			data.append( {} )
-		fieldNames.append( "awardedTo" )
-	}
 
 	if ( damageSourceId > 0 )
 	{
@@ -268,26 +357,7 @@ void function ServerCallback_LiveAPI_LogNetwork_InventoryAction( int eventIndex,
     string modList = ""
 	if ( IsValid( itemEntity ) && itemEntity.IsWeaponX() )
 	{
-		int curIndex = 0
-		array< string > allMods = itemEntity.GetMods()
-		foreach ( mod in allMods )
-		{
-			curIndex++
-			if ( SURVIVAL_Loot_IsRefValid( mod ) )
-			{
-				LootData lootData = SURVIVAL_Loot_GetLootDataByRef( mod )
-				bool hasQuality = lootData.tier > MIN_LOOT_TIER
-				string qualityName = "Level " + string( lootData.tier )
-
-				modList = modList + Localize( lootData.pickupString )
-
-				if ( hasQuality )
-					modList = modList + " (" + qualityName + ")"
-
-				if ( allMods.len() != curIndex )
-					modList = modList + ", "
-			}
-		}
+		modList = GetWeaponModsString( itemEntity )
 	}
 
 	string itemName;
@@ -314,6 +384,31 @@ void function ServerCallback_LiveAPI_LogNetwork_InventoryAction( int eventIndex,
 			[ LiveAPI_GetPlayerIdentityTable( player ),	itemName,	quantity ],
 			[ "player", 								"item",		"quantity" ]
 		)
+	}
+}
+
+void function ServerCallback_LiveAPI_LogNetwork_UpgradeCoreEvent( entity player, int type, int index )
+{
+	switch ( type )
+	{
+		case eLiveAPI_EventTypes.playerUpgradeTierChanged:
+			LiveAPI_WriteLogUsingCustomFieldNames( type,
+				[ LiveAPI_GetPlayerIdentityTable( player ),	index   ],
+				[ "player", 								"level" ]
+			)
+			break
+		case eLiveAPI_EventTypes.legendUpgradeSelected:
+			
+			string name = UpgradeCore_GetUpgradeTitleString( player, index )
+			string desc = UpgradeCore_GetUpgradeDescString( player, index )
+			int level = ( index / UPGRADE_CORE_NUM_EXPECTED_UPGRADES_PER_LEVEL ) + 1
+			LiveAPI_WriteLogUsingCustomFieldNames( type,
+				[ LiveAPI_GetPlayerIdentityTable( player ), name         , desc,			level   ],
+				[ "player"  							  , "upgradeName", "upgradeDesc",     "level" ]
+			)
+			break
+		default:
+			Warning("[LiveAPI] Received invalid upgrade core event")
 	}
 }
 
@@ -368,14 +463,18 @@ void function ServerCallback_LiveAPI_LogNetwork_RespawnTeam( entity player, int 
 			foreach ( teammate in playersOnTeam )
 			{
 				if( teammate.GetTeamMemberIndex() == i )
+				{
 					playerListStr += LiveAPI_GetPlayerIdentity( teammate )
+				}
 			}
 		}
 	}
 
+	
+	
 	LiveAPI_WriteLogUsingCustomFieldNames( eLiveAPI_EventTypes.playerRespawnTeam,
 		[ LiveAPI_GetPlayerIdentityTable( player ), playerListStr ],
-		[ "player", 								"respawned" ]
+		[ "player", 								"respawned"   ]
 	)
 }
 

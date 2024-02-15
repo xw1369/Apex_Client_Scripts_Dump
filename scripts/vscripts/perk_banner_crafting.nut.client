@@ -21,7 +21,7 @@ global function DoesTeammateHaveBannerCraftingPerk
 global const string EXPIRED_BANNER_RECOVERY_NETVAR 		= "hasExpiredBannerPerk"
 global const string DEATH_BOX_BANNER_EXPIRED_NETVAR 	= "DeathBoxBannerExpired"
 global const string CRAFTED_BANNER_REF = "expired_banners"
-const string CRAFTED_BANNER_MODEL_NAME = "mdl/props/ultimate_accelerant/ultimate_accelerant_banner_crafting.rmdl"
+global const string CRAFTED_BANNER_MODEL_NAME = "mdl/props/ultimate_accelerant/ultimate_accelerant_banner_crafting.rmdl"
 
 const bool ALLOW_EXPIRED_BANNERS_ONLY = false
 
@@ -562,11 +562,11 @@ bool function Perk_CanExpiredBannerBeRecovered( entity player )
 void function ServerCallback_Perk_ShowPlayerCraftingBannerGuidance()
 {
 
-
-
-
-
-
+	if ( Crafting_IsDispenserCraftingEnabled() )
+	{
+		AddPlayerHint( 10.0, 1.0, $"", "#DISPENSERS_EXPIRED_BANNER_HINT" )
+	}
+	else
 
 
 	AddPlayerHint( 10.0, 1.0, $"", "#CRAFT_EXPIRED_BANNER_HINT" )

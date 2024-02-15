@@ -1,6 +1,7 @@
 #base "_base_smg.txt"
 #base "_base_mags_heavy.txt"
 #base "_base_laser_sights.txt"
+#base "_base_hopup_paintball.txt"
 
                     
 #base "_base_hopup_golden_horse_purple.txt"
@@ -87,7 +88,7 @@ WeaponData
     "pass_through_depth"							"0"
     "pass_through_damage_preserved_scale"			"1"
 
-    "projectile_launch_speed"						"18500"
+    "projectile_launch_speed"						"18000"
 
 	"sound_dryfire"									"assault_rifle_dryfire"
 	"sound_pickup"									"wpn_pickup_SMG_1P"
@@ -249,13 +250,13 @@ WeaponData
     "viewmodel_jolt_side"                            "0 0.05 0"
 
 
-	"viewkick_pitch_base" 							"1.0"
-    "viewkick_pitch_random"   						"1.0"
+	"viewkick_pitch_base" 							"1.1"
+    "viewkick_pitch_random"   						"1.2"
     "viewkick_pitch_softScale"						"3.525"
     "viewkick_pitch_hardScale"						"0.39"
 
     "viewkick_yaw_base"   							"1.0"
-    "viewkick_yaw_random" 							"1.0"
+    "viewkick_yaw_random" 							"1.2"
     "viewkick_yaw_random_innerexclude"				"0.05"   //0
     "viewkick_yaw_softScale"  						"1.525"  //.65
     "viewkick_yaw_hardScale"  						"0.37"

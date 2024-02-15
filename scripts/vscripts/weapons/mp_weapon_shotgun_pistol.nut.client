@@ -23,16 +23,20 @@ global function OnProjectileCollision_weapon_shotgun_pistol
 
 
 
+
+
+
+
 var function OnWeaponPrimaryAttack_weapon_shotgun_pistol( entity weapon, WeaponPrimaryAttackParams attackParams )
 {
 
-		if ( weapon.HasMod( WEAPON_LOCKEDSET_MOD_APRILFOOLS ) )
-		{
 
 
 
-			return weapon.GetWeaponSettingInt( eWeaponVar.ammo_per_shot )
-		}
+
+
+
+
 
 	bool playerFired = true
 	return Fire_ShotgunPistol( weapon, attackParams, playerFired )
@@ -63,6 +67,25 @@ int function Fire_ShotgunPistol( entity weapon, WeaponPrimaryAttackParams attack
 
 	float speedScale  = 1.0
 	bool ignoreSpread = true
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 	weapon.FireWeapon_Default( attackParams.pos, attackParams.dir, speedScale, patternScale, ignoreSpread )
 

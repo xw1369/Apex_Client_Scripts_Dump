@@ -779,6 +779,11 @@ asset function GetIndicatorModel( entity grenade )
 		return GRENADE_INDICATOR_GENERIC
 
 
+
+	if ( grenade.GetScriptName() == ARCBOLT_THREAT_INDICATOR_SCRIPTNAME )
+		return GRENADE_INDICATOR_GENERIC
+
+
 	if ( grenade.GetTargetName() == SPIKE_STRIP_CORE_SPIKE_NAME )
 		return GRENADE_INDICATOR_GENERIC
 

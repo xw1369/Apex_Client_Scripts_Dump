@@ -1,0 +1,71 @@
+global function StatsRegister_MetaChallenges
+
+void function StatsRegister_MetaChallenges()
+{
+	array<ItemFlavor> challenges = GetAllMetaChallenges()
+	foreach( ItemFlavor challenge in challenges )
+	{
+		CAREER_STATS.meta_challenge_stats[ ItemFlavor_GetGUID( challenge ) ] <- RegisterMetaChallengeStatref( challenge )
+	}
+}
+
+array< ItemFlavor > function GetAllMetaChallenges()
+{
+	array<ItemFlavor> challenges
+	array<ItemFlavor> activeRewardCampaigns = RewardCampaign_GetRegisteredEvents( )
+
+	foreach ( ItemFlavor rewardCampaignFlav in activeRewardCampaigns )
+	{
+		challenges.append( RewardCampaign_GetMetaChallenge( rewardCampaignFlav ) )
+	}
+
+	table< int, ChallengeCollection > challengeCollections = ChallengeCollection_GetRegisteredCollections()
+
+	foreach ( ChallengeCollection challengeCollection in challengeCollections )
+	{
+		array<ItemFlavor> metaChallenges = ChallengeCollection_GetAllMainChallenges( challengeCollection )
+
+		challenges.extend( metaChallenges )
+	}
+
+	return challenges
+}
+
+StatTemplate function RegisterMetaChallengeStatref( ItemFlavor challengeFlav )
+{
+	string metaChallengeStatRef = MetaChallenge_GetStatRef( challengeFlav )
+	return RegisterExpensiveCalculatedStat_Int(null, metaChallengeStatRef, DELAY_WRITE_BACK_UNTIL_MATCH_END, CreateMetaChallengeStatCalc( challengeFlav ), [], eChallengeGameMode.NON_MODE)
+}
+
+int functionref( entity, array< StatEntry >, int ) function GetChallengeCalcFunc( ItemFlavor challengeFlav )
+{
+	Assert( Challenge_IsMetaChallenge( challengeFlav ) )
+	ItemFlavor parentFlav = MetaChallenge_GetParentFlav( challengeFlav )
+	return ( int function ( entity player, array< StatEntry > sourceEntries, int when ) : ( challengeFlav, parentFlav ) {
+
+		switch ( ItemFlavor_GetType( parentFlav ) )
+		{
+			case eItemType.calevent_challenge_collection:
+				int ccolProgress = ChallengeCollection_GetProgress( player, ChallengeCollection_GetByGUID( ItemFlavor_GetGUID( parentFlav ) ) )
+				return ccolProgress
+			case eItemType.calevent_challenge_set:
+				int csetProgress = ChallengeSet_GetProgress( player, ChallengeSet_GetByGUID( ItemFlavor_GetGUID( parentFlav ) ) )
+				return csetProgress
+			case eItemType.calevent_reward_campaign:
+				int rcProgress = RewardCampaign_GetProgress( player, parentFlav )
+				return rcProgress
+			default:
+				return 0
+		}
+		return 0
+	} )
+}
+
+StatCalcFuncInfo functionref( StatEntry, array<StatTemplate> ) function CreateMetaChallengeStatCalc( ItemFlavor challengeFlav )
+{
+	return ( StatCalcFuncInfo function( StatEntry calcEntry, array< StatTemplate > sourceTemplates ) : ( challengeFlav ) {
+		StatCalcFuncInfo info
+		info.calcFunc_Int = GetChallengeCalcFunc( challengeFlav )
+		return info
+	} )
+}

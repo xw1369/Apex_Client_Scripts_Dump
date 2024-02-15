@@ -1,8 +1,17 @@
 global function WaveSpawningOnSquad_Init
 
 
+
+
+
 void function WaveSpawningOnSquad_Init()
 {
+
+
+
+
+
+
 	if ( GetRespawnStyle() != eRespawnStyle.WAVE_SPAWN_ON_SQUAD )
 		return
 
@@ -238,4 +247,6 @@ void function WaveSpawningOnSquad_Init()
 
 
 
-                                        
+
+
+

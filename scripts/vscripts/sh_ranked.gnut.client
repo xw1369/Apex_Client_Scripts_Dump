@@ -9,10 +9,11 @@ global function GetPrevSeasonPeakPlayerRankScore
 global function IsRankedInSeason
 global function GetRankedPersistenceData
 global function GetRankedGameData
+global function Ranked_ShouldShowRankedBadge
+global function Ranked_ShouldShowPreRankedBadge
 global function Ranked_GetRankedLevelRequirement
 global function Ranked_GetTiers
 global function Ranked_GetCostForEntry
-
 
 
 global function Ranked_GetRankedDivisionDataForTier
@@ -41,13 +42,7 @@ global function SharedRanked_CompareDivision
 global function SharedRanked_GetEmblemDisplayModeFromEmblemText
 global function SharedRanked_GetNumPlayerOnLaddersOverridePlaylistVar
 global function Ranked_PlayerDeservesRewardsInPeriod
-
-
 global function Ranked_GetXProgMergedPersistenceData
-
-
-
-
 
 global function Ranked_GetCurrentActiveRankedPeriod
 global function Ranked_GetAllRanked2Pt0Periods
@@ -104,11 +99,10 @@ global function Ranked_GetTierOfThresholdForRankedPartyDifferences
 
 
 
+global function Ranked_IsRankedV2FirstSplit
+global function Ranked_IsRankedV2SecondSplit
 
-
-
-
-global const int SHARED_RANKED_LEVEL_REQUIREMENT = (50 - 1) 
+global const int SHARED_RANKED_LEVEL_REQUIREMENT = (20 - 1) 
 
 global const int SHARED_RANKED_NUM_ABANDON_FORGIVENESS_GAMES = 3
 global const int RANKED_RESET_DIVISION_COUNT = 6 
@@ -131,9 +125,11 @@ global const string RANKED_SEASON_15_GUIDSTRING = "SAID00102643758"
 global const string RANKED_SEASON_16_GUIDSTRING = "SAID02005235415" 
 
 global const string RANKED_2PT0_PERIOD_17_GUIDSTRING = "SAID01711148254" 
-
 global const string RANKED_2PT0_PERIOD_19_GUIDSTRING = "SAID01234567890" 
 
+global const int RANKED_2PT0_NON_SPLIT = 0
+global const int RANKED_2PT0_SPLIT1 = 1
+global const int RANKED_2PT0_SPLIT2 = 2
 
 global const asset RANKED_PLACEMENT_BADGE = $"ui/ranked_badge_placement.rpak"
 global const asset RANKED_PLACEMENT_ICON = $"ui_image/rui/menu/ranked/rank_emblem_placement.rpak"
@@ -143,13 +139,31 @@ global const string RANKED_LAST_INITIALIZED_PERIOD_GUID_VAR_NAME = "lastInitiali
 global const string RANKED_CURRENT_SCORE_PERSISTENCE_VAR_NAME = "currentRankedScore"
 global const string RANKED_PROVISIONAL_MATCH_COUNT_PERSISTENCE_VAR_NAME = "rankedProvisionalMatchesCompleted"
 global const string RANKED_PROVISIONAL_MATCH_HAS_PROGRESSED_OUT_PERSISTENCE_VAR_NAME = "rankedHasProgressedOutOfProvisional"
-global const string RANKED_SHOW_RANKED_SUMMARY_PERSISTENCE_VAR_NAME = "showRankedSummary"
+global const string RANKED_PROVISIONAL_MATCH_CONVAR_KILL_SWITCH = "ranked_disable_placement_matches"
 
+global const string RANKED_TOP_5_STREAK_PERSISTENCE_VAR_NAME = "rankedTop5StreakCount"
+global const string RANKED_PROVISONAL_MATCH_RESULTS = "rankedProvisionalMatchScores"
+global const string RANKED_PROVISONAL_MATCH_RESULTS_FORMAT_STRINGS = RANKED_PROVISONAL_MATCH_RESULTS + "[%s]"
+
+global const string RANKED_SHOW_RANKED_SUMMARY_PERSISTENCE_VAR_NAME = "showRankedSummary"
 const array< string > XPROG_MERGED_PLATFORM_PERSISTENCE_FIELDS = [
 	RANKED_CURRENT_SCORE_PERSISTENCE_VAR_NAME,
 	RANKED_PROVISIONAL_MATCH_COUNT_PERSISTENCE_VAR_NAME,
 	RANKED_PROVISIONAL_MATCH_HAS_PROGRESSED_OUT_PERSISTENCE_VAR_NAME,
 	RANKED_SHOW_RANKED_SUMMARY_PERSISTENCE_VAR_NAME,
+
+	RANKED_TOP_5_STREAK_PERSISTENCE_VAR_NAME,
+	RANKED_PROVISONAL_MATCH_RESULTS + "[0]",
+	RANKED_PROVISONAL_MATCH_RESULTS + "[1]",
+	RANKED_PROVISONAL_MATCH_RESULTS + "[2]",
+	RANKED_PROVISONAL_MATCH_RESULTS + "[3]",
+	RANKED_PROVISONAL_MATCH_RESULTS + "[4]",
+	RANKED_PROVISONAL_MATCH_RESULTS + "[5]",
+	RANKED_PROVISONAL_MATCH_RESULTS + "[6]",
+	RANKED_PROVISONAL_MATCH_RESULTS + "[7]",
+	RANKED_PROVISONAL_MATCH_RESULTS + "[8]",
+	RANKED_PROVISONAL_MATCH_RESULTS + "[9]",
+
 ]
 
 global const string XPROG_PERSISTENCE_RANKED_STRUCT_NAME = "xProgRanked"
@@ -170,6 +184,8 @@ global enum emblemDisplayMode
 	DISPLAY_LADDER_POSITION,
 	NONE,
 }
+
+
 
 
 
@@ -327,6 +343,13 @@ struct RankedResetStruct
 
 
 
+
+
+
+
+
+
+
 struct
 {
 	bool                                               initialized = false
@@ -377,9 +400,7 @@ void function Sh_Ranked_Init()
 	}
 
 
-
-			Sh_RankedTrials_Init() 
-
+		Sh_RankedTrials_Init() 
 
 
 
@@ -423,9 +444,7 @@ void function Sh_Ranked_ItemRegistrationInit()
 
 
 	AddCallback_RegisterRootItemFlavors( RegisterRanked2Pt0Periods )
-
-		AddCallback_OnPreAllItemFlavorsRegistered( RankedTrials_RegisterAllRankedTrials )
-
+	AddCallback_OnPreAllItemFlavorsRegistered( RankedTrials_RegisterAllRankedTrials )
 
 	
 	if ( !file.itemRegistrationInitialized ) 
@@ -479,13 +498,7 @@ void function OnRankedPeriodRegistered( ItemFlavor rp )
 		{
 			tier.glowImage			   = GetSettingsBlockAsset( tierBlock, "glowImage" )
 			tier.isTopEnd			   = GetSettingsBlockBool( tierBlock, "isTopEnd" )
-
-
-
-
-
 			tier.promotionalMetallicImage = GetSettingsBlockAsset( tierBlock, "promotionalMetallicImage" )
-
 		}
 		tier.levelUpRuiAsset       = GetSettingsBlockStringAsAsset( tierBlock, "levelUpRuiAsset" )
 		tier.iconRuiAsset          = GetSettingsBlockStringAsAsset( tierBlock, "iconRuiAsset" )
@@ -532,10 +545,6 @@ void function OnRankedPeriodRegistered( ItemFlavor rp )
 	{
 		SharedRankedTierData data = tierData[i]
 		tierData[i].isTopEnd = GetPlaylistVarBool( "defaults", "ranked_tier_isTopEnd_" + i, tierData[i].isTopEnd )
-
-
-
-
 	}
 
 	divisionData.sort( SharedRanked_CompareDivision )
@@ -562,16 +571,9 @@ void function OnRankedPeriodRegistered( ItemFlavor rp )
 		ladderOnlyTier.bgImage               = GetSettingsBlockAsset( tierBlock, "bgImage" )
 		if ( ItemFlavor_GetType( rp ) == eItemType.ranked_2pt0_period )
 		{
-
 			ladderOnlyTier.isTopEnd				 = GetSettingsBlockBool( tierBlock, "isTopEnd" )
-
-
-
 			ladderOnlyTier.glowImage			 = GetSettingsBlockAsset( tierBlock, "glowImage" )
-
-
 			ladderOnlyTier.promotionalMetallicImage = GetSettingsBlockAsset( tierBlock, "promotionalMetallicImage" )
-
 		}
 		ladderOnlyTier.levelUpRuiAsset       = GetSettingsBlockStringAsAsset( tierBlock, "levelUpRuiAsset" )
 		ladderOnlyTier.iconRuiAsset          = GetSettingsBlockStringAsAsset( tierBlock, "iconRuiAsset" )
@@ -1044,12 +1046,10 @@ SharedRankedDivisionData ornull function GetNextRankedDivisionFromScore( int sco
 }
 
 
-int function Ranked_GetCostForEntry()
-{
-	return GetCurrentPlaylistVarInt ( "Ranked_EnryCost_Override" , abs ( Ranked_GetPointsForPlacement ( 0  ) ))
-}
-
-
+	int function Ranked_GetCostForEntry ( SharedRankedDivisionData currentRank )
+	{
+		return GetCurrentPlaylistVarInt ( "Ranked_EnryCost_Override_" + currentRank.index , abs ( currentRank.divisionEntryCost ))
+	}
 
 
 
@@ -1718,6 +1718,14 @@ bool function Ranked_HasPlayerWaitedTooLongAfterBannerWasPickedUp( entity player
 
 
 
+
+
+
+
+
+
+
+
 int function Ranked_GetXProgMergedPersistenceData( entity player, string persistenceField )
 {
 	Assert( XPROG_MERGED_PLATFORM_PERSISTENCE_FIELDS.contains( persistenceField ) )
@@ -1731,7 +1739,6 @@ int function Ranked_GetXProgMergedPersistenceData( entity player, string persist
 	return SafeGetPersistentVarAsInt( player, persistenceKey )
 
 }
-
 
 
 
@@ -1762,13 +1769,11 @@ int function GetRankedPersistenceData( entity player, string persistenceField )
 			if ( !(RANKED_2PT0_PERSISTENCE_FIELDS.contains( persistenceField )) )
 				return 0
 
-
 			if ( XPROG_MERGED_PLATFORM_PERSISTENCE_FIELDS.contains( persistenceField ) )
 			{
 				return Ranked_GetXProgMergedPersistenceData( player, persistenceField )
 			}
 			else
-
 			{
 
 
@@ -1863,7 +1868,6 @@ array< SharedRankedDivisionData > function Ranked_GetRankedDivisionDataForTier( 
 
 	return data
 }
-
 
 
 
@@ -2532,8 +2536,25 @@ SharedRankedDivisionData function Ranked_GetNewDivisionForNewSeasonOrSplitReset(
 	return newDivData
 }
 
+int function Ranked_GetRankedV2SplitStatus( ItemFlavor rankPeriodItemFlav )
+{
+	if ( ItemFlavor_GetType( rankPeriodItemFlav ) == eItemType.ranked_2pt0_period )
+	{
+		var settingsBlock = ItemFlavor_GetSettingsBlock( rankPeriodItemFlav )
+		return ( GetSettingsBlockString( settingsBlock, "rankv2split" ) ).tointeger()
+	}
+	return RANKED_2PT0_NON_SPLIT
+}
 
+bool function Ranked_IsRankedV2FirstSplit( ItemFlavor rankPeriodItemFlav )
+{
+	return Ranked_GetRankedV2SplitStatus( rankPeriodItemFlav ) == RANKED_2PT0_SPLIT1
+}
 
+bool function Ranked_IsRankedV2SecondSplit( ItemFlavor rankPeriodItemFlav )
+{
+	return Ranked_GetRankedV2SplitStatus( rankPeriodItemFlav ) == RANKED_2PT0_SPLIT2
+}
 
 
 
@@ -2901,96 +2922,16 @@ SharedRankedDivisionData function Ranked_GetNewDivisionForNewSeasonOrSplitReset(
 
 
 
+bool function Ranked_ShouldShowRankedBadge ()
+{
+	return GetCurrentPlaylistVarBool ( "Ranked_ShowRank" , true )
+}
 
+bool function Ranked_ShouldShowPreRankedBadge ()
+{
+	if  ( Ranked_ShouldShowRankedBadge () && GetCurrentPlaylistVarBool ( "ranked_show_prevrank" , false ) )
+		return true
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+	return false
+}
 

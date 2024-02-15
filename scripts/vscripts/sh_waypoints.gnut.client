@@ -112,6 +112,7 @@ global function GetPingedEntForLocWaypoint
 
 
 
+
 global function Waypoint_GetQuantityForWaypoint
 
 
@@ -2614,6 +2615,16 @@ void function InstanceLocationPing_Thread( entity wp )
 			break
 
 
+
+		case ePingType.UPGRADE_STATION:
+			if( IsValid( pingedEnt ) )
+			{
+				entity pingedParent = pingedEnt.GetParent()
+				thread UpgradeCore_HarvesterPinged( pingedParent == null ? pingedEnt : pingedParent, wp )
+			}
+			break
+
+
 	}
 
 	if ( IsValid( owner ) && owner.IsPlayer() )
@@ -4028,6 +4039,7 @@ array<entity> function Waypoints_GetActiveLootPings()
 
 
 
+
 entity function Waypoint_GetLootPingDibsPlayer( entity wp )
 {
 	int wpType = wp.GetWaypointType()
@@ -4048,6 +4060,13 @@ bool function PlayerIsPingMuted( entity player )
 
 bool function WaypointOwnerIsMuted( entity wp )
 {
+	
+	int pingType = Waypoint_GetPingTypeForWaypoint( wp )
+	if (pingType == ePingType.RESPAWN_BANNER || pingType == ePingType.BLEEDOUT)
+	{
+		return false
+	}
+
 	entity owner = wp.GetOwner()
 
 	if ( IsValid( owner ) )
@@ -4065,6 +4084,23 @@ void function TogglePlayerWaypointMute( entity player )
 
 	file.mutedPlayers[ player ] = !file.mutedPlayers[ player ]
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

@@ -9,6 +9,8 @@ global function RegisterNetVarFloatChangeCallback
 global function RegisterNetVarTimeChangeCallback
 global function RegisterNetVarEntityChangeCallback
 
+
+
 global function ExecuteNetBufferedCallbacks
 global function ClientCodeCallback_IsNetworkReady
 
@@ -48,18 +50,6 @@ bool function ClientCodeCallback_IsNetworkReady()
 	return IsNetVarCallbackAvailable()
 }
 
-bool function IsNetVarCallbackAvailable()
-{
-	if( !level.clientScriptInitialized ) 
-		return false
-
-	entity localPlayer = GetLocalClientPlayer()
-	if( !IsValid( localPlayer ) ) 
-		return false
-
-	return true
-}
-
 void function ExecuteNetBufferedCallbacks()
 {
 	foreach ( BufferedCallback buffered in file._bufferedCallbacks )
@@ -92,6 +82,20 @@ void function ExecuteNetBufferedCallbacks()
 	}
 
 	file._bufferedCallbacks = []
+}
+
+
+
+bool function IsNetVarCallbackAvailable()
+{
+	if( !level.clientScriptInitialized ) 
+		return false
+
+	entity localPlayer = GetLocalClientPlayer()
+	if( !IsValid( localPlayer ) ) 
+		return false
+
+	return true
 }
 
 void function RegisterBufferedCallback(	string varName, entity player, var newValue, int callbackType )

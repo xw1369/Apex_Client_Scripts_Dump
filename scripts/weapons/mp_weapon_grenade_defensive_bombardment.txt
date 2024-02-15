@@ -102,13 +102,13 @@ WeaponData
 	"drops_on_death"                                "1"
 
                     
+	"ammo_clip_size"   								"210"
+	"ammo_min_to_fire"								"210"
+	"ammo_per_shot"									"210"
+     
                                  
                                 
                               
-     
-	"ammo_clip_size"   								"180"
-	"ammo_min_to_fire"								"180"
-	"ammo_per_shot"									"180"
       
 
     "ammo_default_total"							"0"
@@ -244,13 +244,13 @@ WeaponData
 
 	Mods
 	{
-                      
-                                        
-      
-                                   
-                                   
-                                   
-      
+		                    
+    	upgrade_core_ult_cooldown_reduction
+    	{
+    		"ammo_clip_size"        "180"
+    		"ammo_min_to_fire"      "180"
+    		"ammo_per_shot"         "180"
+    	}
            
 
 		burn_card_weapon_mod

@@ -361,10 +361,11 @@ global enum ePingType
 		PING_MATERIALS,
 		CRAFTING_GENERIC,
 
-
-
-
-
+			PING_REPLICATOR_NOONE_USED,
+			PING_REPLICATOR_ALL_USED,
+			PING_REPLICATOR_PLAYER_USED,
+			PING_REPLICATOR_TEAMMATE_USED,
+			PING_REPLICATOR_DISPENSER_INCOMING,
 
 
 
@@ -540,8 +541,9 @@ global enum ePingType
 
 
 
-
-
+		THE_HUNT_ITEM,
+		THE_HUNT_AREA_HUNTER,
+		THE_HUNT_AREA_PREY,
 
 
 	TOXIC_GAS,
@@ -555,7 +557,7 @@ global enum ePingType
 
 
 
-
+		RAMPART_TT_VENDING,
 
 
 
@@ -567,6 +569,7 @@ global enum ePingType
 
 
 
+		UPGRADE_STATION,
 
 
 
@@ -576,6 +579,9 @@ global enum ePingType
 
 
 
+
+
+		ENEMY_POI,
 
 
 	_count
@@ -1060,6 +1066,11 @@ bool function IsPingDibsEnabledForPlayer( entity player )
 
 	return true
 }
+
+
+
+
+
 
 
 
@@ -1790,6 +1801,8 @@ bool function PingIsAllowed( entity player )
 		return false
 	if ( !IsPingEnabledForPlayer( player ) )
 		return false
+	if ( Crafting_IsPlayerCrafting() )
+		return false
 
 	return true
 }
@@ -1839,6 +1852,12 @@ void function OnPingDown( entity player )
 	if ( HasPendingPing() )
 		ClearPendingPing()
 	Assert( !HasPendingPing() )
+
+
+
+
+
+
 
 	
 	entity spottedEnemy = null
@@ -2006,15 +2025,29 @@ void function OnPingDown( entity player )
 
 
 
+	if( canDoStandardPings )
+	{
+		DeathBoxPingInfo pingInfo = DeathBoxInsight_GetCurrentPingInfo()
+		if( IsValid( pingInfo.deathbox ) && IsValid( pingInfo.loot ) )
+		{
+			DoPlayerDefaultPingForLootEntity( player, pingInfo.loot, pingInfo.deathbox )
+			canDoStandardPings = false
+		}
+	}
 
-
-
-
-
-
-
-
-
+	if( canDoStandardPings )
+	{
+		entity pingEnt = UpgradeCore_GetHighlightedHarvester()
+		if( IsValid( pingEnt ) )
+		{
+			int pingType = ePingType.UPGRADE_STATION
+			int ticketId = GetNewTicketID()
+			vector pingPos = pingEnt.GetOrigin() + <0,0, EVO_HARVESTER_ICON_UP_OFFSET>
+			PingCommandExecuteUsePrompt( pingType, pingPos + <0,0,-72>, pingEnt, ticketId )
+			DoLocalPingConfirm( pingPos, pingType, pingEnt, true )
+			canDoStandardPings = false
+		}
+	}
 
 
 	
@@ -2349,9 +2382,13 @@ array<int> function GetReplyOptionsForWaypoint( entity player, entity wp )
 
 
 
+					case ePingType.THE_HUNT_AREA_HUNTER:
+						results.append( ePingReply.JOIN )
+						break
 
-
-
+					case ePingType.THE_HUNT_AREA_PREY:
+						results.append( ePingReply.JOIN )
+						break
 
 					default:
 						results.append( ePingReply.OWNER_CANCEL )
@@ -2624,6 +2661,12 @@ void function OnPingUp( entity player )
 		if ( CommsMenu_HasValidSelection() )
 			return
 	}
+
+
+		
+		if ( Crafting_IsDispenserCraftingEnabled() && Crafting_IsPlayerCrafting() )
+			return
+
 
 	bool doMakeMenuCloseSound = true
 	bool doDebounceLookStick  = false
@@ -4001,34 +4044,34 @@ PingCommandParams function GetPingParamsForHitEnt( entity hitEnt, entity player,
 			else if ( hitEntScriptName == WORKBENCH_CLUSTER_SCRIPTNAME )
 			{
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+				if ( Crafting_IsDispenserCraftingEnabled() )
+				{
+					int notifyType = Dispensers_GetReplicatorStateForPlayer( player, processedHitEnt )
+					switch( notifyType )
+					{
+						case eCrafting_Dispenser_StateType.NO_ONE_HAS_USED:
+							result.hitEnt = processedHitEnt
+							result.pingType = ePingType.PING_REPLICATOR_NOONE_USED
+							return result
+						case eCrafting_Dispenser_StateType.ALL_USED:
+							result.hitEnt = processedHitEnt
+							result.pingType = ePingType.PING_REPLICATOR_ALL_USED
+							return result
+						case eCrafting_Dispenser_StateType.PLAYER_HAS_USED:
+							result.hitEnt = processedHitEnt
+							result.pingType = ePingType.PING_REPLICATOR_PLAYER_USED
+							return result
+						case eCrafting_Dispenser_StateType.TEAMMATE_HAS_USED:
+							result.hitEnt = processedHitEnt
+							result.pingType = ePingType.PING_REPLICATOR_TEAMMATE_USED
+							return result
+						default:
+							result.hitEnt = processedHitEnt
+							result.pingType = ePingType.PING_REPLICATOR
+							return result
+					}
+				}
+				else
 
 				{
 					result.hitEnt = processedHitEnt
@@ -4038,9 +4081,20 @@ PingCommandParams function GetPingParamsForHitEnt( entity hitEnt, entity player,
 			}
 			else if ( hitEntScriptName == WORKBENCH_CLUSTER_AIRDROPPED_SCRIPTNAME )
 			{
-				result.hitEnt = processedHitEnt
-				result.pingType = ePingType.PING_REPLICATOR_INCOMING
-				return result
+
+				if ( Crafting_IsDispenserCraftingEnabled() )
+				{
+					result.hitEnt = processedHitEnt
+					result.pingType = ePingType.PING_REPLICATOR_DISPENSER_INCOMING
+					return result
+				}
+				else
+
+				{
+					result.hitEnt = processedHitEnt
+					result.pingType = ePingType.PING_REPLICATOR_INCOMING
+					return result
+				}
 			}
 
 
@@ -4054,14 +4108,14 @@ PingCommandParams function GetPingParamsForHitEnt( entity hitEnt, entity player,
 
 
 
-
-
-
-
-
-
-
-
+		{
+			if ( hitEntScriptName == UPGRADE_CORE_CONSOLE_SCRIPT_NAME )
+			{
+				result.hitEnt = processedHitEnt
+				result.pingType = ePingType.UPGRADE_STATION
+				return result
+			}
+		}
 
 
 	
@@ -4201,15 +4255,15 @@ PingCommandParams function GetPingParamsForHitEnt( entity hitEnt, entity player,
 
 
 
-
-
-
-
-
-
-
-
-
+		{
+			entity huntDataPad = GetHitEntForTargetName( hitEntData, HUNT_DATAPAD_TARGETNAME )
+			if ( IsValid( huntDataPad ) )
+			{
+				result.hitEnt = huntDataPad
+				result.pingType = ePingType.THE_HUNT_ITEM
+				return result
+			}
+		}
 
 
 
@@ -5424,7 +5478,10 @@ int function GetCommsActionForPing( entity pingingPlayer, int pingType, entity p
 
 
 		case ePingType.LOOT:
-			return GetPingLootCommsAction( pingedEnt )
+			if ( IsValid( pingedEnt ) )
+				return GetPingLootCommsAction( pingedEnt )
+			else
+				return eCommsAction.PING_WE_GO
 
 		case ePingType.MAP_WAYPOINT:
 
@@ -5725,17 +5782,20 @@ int function GetCommsActionForPing( entity pingingPlayer, int pingType, entity p
 
 
 
+		case ePingType.PING_REPLICATOR_NOONE_USED:
+			return eCommsAction.PING_REPLICATOR_NOONE_USED
 
+		case ePingType.PING_REPLICATOR_ALL_USED:
+			return eCommsAction.PING_REPLICATOR_ALL_USED
 
+		case ePingType.PING_REPLICATOR_PLAYER_USED:
+			return eCommsAction.PING_REPLICATOR_PLAYER_USED
 
+		case ePingType.PING_REPLICATOR_TEAMMATE_USED:
+			return eCommsAction.PING_REPLICATOR_TEAMMATE_USED
 
-
-
-
-
-
-
-
+		case ePingType.PING_REPLICATOR_DISPENSER_INCOMING:
+			return eCommsAction.PING_REPLICATOR_DISPENSER_INCOMING
 
 
 		case ePingType.VOID_RING:
@@ -5934,6 +5994,25 @@ int function GetCommsActionForPing( entity pingingPlayer, int pingType, entity p
 
 
 
+		case ePingType.THE_HUNT_AREA_PREY:
+			return eCommsAction.PING_AREA_THE_HUNT_PREY
+		case ePingType.THE_HUNT_AREA_HUNTER:
+			return eCommsAction.PING_AREA_THE_HUNT_HUNTER
+
+
+
+		case ePingType.RAMPART_TT_VENDING:
+			return eCommsAction.PING_RAMPART_TT_VENDING
+
+
+
+
+
+
+
+
+		case ePingType.UPGRADE_STATION:
+			return eCommsAction.PING_UPGRADE_STATION
 
 
 
@@ -5950,20 +6029,8 @@ int function GetCommsActionForPing( entity pingingPlayer, int pingType, entity p
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+		case ePingType.ENEMY_POI:
+			return eCommsAction.PING_ENEMY_POI
 
 	}
 
@@ -6136,8 +6203,8 @@ asset function Ping_IconForPing_Hud( entity player, int pingType, entity pingedE
 		case ePingType.PING_REPLICATOR:
 		{
 
-
-
+				if ( Crafting_IsDispenserCraftingEnabled() )
+					return $"rui/hud/ping/icon_ping_crafting_2"
 
 
 			return $"rui/hud/ping/icon_ping_crafting"
@@ -6214,10 +6281,11 @@ asset function Ping_IconForPing_Bigmap( entity player, int pingType, entity ping
 
 
 
-
-
-
-
+		case ePingType.PING_REPLICATOR_NOONE_USED:
+		case ePingType.PING_REPLICATOR_ALL_USED:
+		case ePingType.PING_REPLICATOR_PLAYER_USED:
+		case ePingType.PING_REPLICATOR_TEAMMATE_USED:
+		case ePingType.PING_REPLICATOR_DISPENSER_INCOMING:
 
 		case ePingType.CRAFTING_GENERIC:
 		case ePingType.PING_MATERIALS:
@@ -6519,7 +6587,6 @@ void function OnPingCreatedByAnyPlayer_VocalizeNewPing( entity pingingPlayer, in
 		LootData data = SURVIVAL_Loot_GetLootDataByRef( lootRef )
 		itemIndex = data.index
 	}
-
 
 
 	HandleBroadcastCommsAction( pingingPlayer, commsAction, pingedEnt, pingLoc, eCommsFlags.NONE, itemIndex, commsActionCount, secondaryCommsAction, wayPoint.GetWaypointGametime( 1 ) )
@@ -7547,6 +7614,123 @@ void function UpdateOnscreenPromptHintAfterDelay( float delay, string commandRef
 	UpdateOnscreenPromptFunctions( commandRef )
 	ShowNextOnscreenPromptFunctionHint( commandRef )
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 #if DEV

@@ -357,60 +357,60 @@ WeaponData
         }
 
                             
-                            
-         
-                                         
-                                         
-                                         
-         
-                            
-         
-                                         
-                                         
-                                         
-         
-                            
-         
-                                         
-                                         
-                                         
-         
-                            
-         
-                                         
-                                         
-                                         
-         
-                            
-         
-                                         
-                                         
-                                         
-         
-                            
-         
-                                        
-                                        
-                                        
-         
-                            
-         
-                                        
-                                        
-                                        
-         
-                            
-         
-                                        
-                                        
-                                        
-         
-                       
-         
-                                         
-                                         
-                                          
-         
+        cooldown_reduction_1
+        {
+            "ammo_clip_size"        "165"
+            "ammo_min_to_fire"      "165"
+            "ammo_per_shot"         "165"
+        }
+        cooldown_reduction_2
+        {
+            "ammo_clip_size"        "150"
+            "ammo_min_to_fire"      "150"
+            "ammo_per_shot"         "150"
+        }
+        cooldown_reduction_3
+        {
+            "ammo_clip_size"        "135"
+            "ammo_min_to_fire"      "135"
+            "ammo_per_shot"         "135"
+        }
+        cooldown_reduction_4
+        {
+            "ammo_clip_size"        "120"
+            "ammo_min_to_fire"      "120"
+            "ammo_per_shot"         "120"
+        }
+        cooldown_reduction_5
+        {
+            "ammo_clip_size"        "105"
+            "ammo_min_to_fire"      "105"
+            "ammo_per_shot"         "105"
+        }
+        cooldown_reduction_6
+        {
+            "ammo_clip_size"        "90"
+            "ammo_min_to_fire"      "90"
+            "ammo_per_shot"         "90"
+        }
+        cooldown_reduction_7
+        {
+            "ammo_clip_size"        "75"
+            "ammo_min_to_fire"      "75"
+            "ammo_per_shot"         "75"
+        }
+        cooldown_reduction_8
+        {
+            "ammo_clip_size"        "60"
+            "ammo_min_to_fire"      "60"
+            "ammo_per_shot"         "60"
+        }
+        upgrade_ult_one
+        {
+            "ammo_per_shot"         "*.5"
+            "ammo_min_to_fire"      "*.5"
+            "zipline_distance_max"  "4000"
+        }
               
 	}
 }

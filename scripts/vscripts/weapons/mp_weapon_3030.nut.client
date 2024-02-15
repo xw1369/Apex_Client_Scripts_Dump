@@ -6,6 +6,8 @@ global function OnWeaponChargeLevelIncreased_weapon_3030
 global function OnWeaponChargeEnd_weapon_3030
 global function OnWeaponPrimaryAttack_weapon_3030
 global function OnProjectileCollision_weapon_3030
+global function OnWeaponReload_weapon_3030
+global function OnWeaponReadyToFire_weapon_3030
 
 global function OnClientAnimEvent_weapon_3030
 
@@ -20,6 +22,7 @@ const string HAMMER_OPEN_CL_ANIM_EVENT = "weapon_3030_open_hammer"
 const float HAMMER_CLOSE_LERP_TIME = 0.0
 const float HAMMER_OPEN_LERP_TIME = 0.0
 
+const int SEGMENTED_SPEED_RELOAD_COUNT = 3
 
 struct
 {
@@ -229,4 +232,28 @@ void function OnProjectileCollision_weapon_3030( entity projectile, vector pos, 
 
 
 
+}
+
+void function OnWeaponReload_weapon_3030( entity weapon, int milestoneIndex )
+{
+	int reloadCount = weapon.GetScriptInt0( )
+
+	if ( reloadCount >= SEGMENTED_SPEED_RELOAD_COUNT )
+	{
+		weapon.AddMod ("segmented_speed_load")
+	}
+
+	weapon.SetScriptInt0( reloadCount + 1 )
+}
+
+void function OnWeaponReadyToFire_weapon_3030( entity weapon )
+{
+	if ( weapon.HasMod( "segmented_speed_load" ) )
+	{
+		if ( !weapon.IsReloading() )
+		{
+			weapon.RemoveMod( "segmented_speed_load" )
+			weapon.SetScriptInt0( 0 )
+		}
+	}
 }

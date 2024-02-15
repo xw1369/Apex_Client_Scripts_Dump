@@ -3,9 +3,14 @@ global function Sh_RespawnBeacon_Init
 global function RespawnBeacons_RegisterNetworking
 
 global function GetRespawnStyle
+global function GetRemainingRespawnsForPlayer
 global function IsRespawnBeacon
 global function RespawnChamberOnUse
 global function GetStartingRespawnCount
+global function ShouldRestoreKittedWeapons
+
+
+
 
 
 
@@ -545,7 +550,7 @@ bool function ShouldRestoreKittedWeapons()
 	bool isKittedWeaponsGameMode = false
 
 
-
+		isKittedWeaponsGameMode = GetCurrentPlaylistVarBool( "is_gamemode_battle_rush", false )
 
 
 
@@ -633,6 +638,74 @@ void function AddBeaconEntToRespawnBeaconsArray( entity beacon )
 	if ( IsValid( beacon ) )
 		file.allStations.append( beacon )
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1991,6 +2064,8 @@ void function DisplayRuiForRespawnChamber_Internal( var rui, asset icon, float s
 
 
 
+
+
 array< entity > function GetPlayersToRespawn( int team )
 {
 	array<entity> playersToSpawn
@@ -2064,6 +2139,20 @@ int function GetRespawnStyle()
 	Assert( respawnStyleFound, "Playlist Respawn Style '" + playlistRespawnStyle + "' is not a specified enumerator." )
 
 	return respawnStyle
+}
+
+const int INFINITE_RESPAWNS = -1
+int function GetRemainingRespawnsForPlayer( entity player )
+{
+	int numRespawnsForMode = GetStartingRespawnCount() 
+	if ( numRespawnsForMode == INFINITE_RESPAWNS )
+		return INFINITE_RESPAWNS
+
+	if ( !IsValid( player ) )
+		return 0
+
+	return player.GetPlayerNetInt( "respawnsRemaining" )
+
 }
 
 
@@ -2152,9 +2241,6 @@ void function ServerCallback_RespawnDNAHint()
 
 
 }
-
-
-
 
 
 

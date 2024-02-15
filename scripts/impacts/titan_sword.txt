@@ -37,7 +37,7 @@ ImpactTable
 //		"2" "openslot"
 //		"3" "openslot"
 //		"4" "openslot"
-		"5" "xo_footstep_water" //water_hrz
+		"5" "P_xo_sword_melee_metal" //water_hrz
 //		"6" "openslot"
 //		"7" "openslot"
 //		"8" "openslot"

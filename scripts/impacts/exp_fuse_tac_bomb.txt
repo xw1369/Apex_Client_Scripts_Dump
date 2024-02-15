@@ -42,7 +42,7 @@ ImpactTable
 		"2" "P_hmn_land_impact_lava" //lava_rock_hot
 		"3" "P_hmn_bslam_concrete"
 		"4" "P_hmn_bslam_concrete"
-		"5" "P_fuse_tac_impact_water"
+		"5" "P_hmn_bslam_concrete"
 		"6" "P_hmn_bslam_concrete"
 		"7" "P_hmn_bslam_concrete"
 		"8" "P_hmn_bslam_concrete"
@@ -94,7 +94,7 @@ ImpactTable
 		"airburst" "Fuse_Tac_Bomb_Impact_Concrete_3P"
 		"shieldhit" "Fuse_Tac_Bomb_Impact_Concrete_3P"
 
-		"5" "Fuse_Tac_Bomb_Impact_Water_3P"
+		"5" "Fuse_Tac_Bomb_Impact_Concrete_3P"
 	}
 
 	Sound_attacker
@@ -128,7 +128,7 @@ ImpactTable
 
 		"1" "Fuse_Tac_Bomb_Impact_Mud_3P"  //lava_flow
 		"2" "Fuse_Tac_Bomb_Impact_Concrete_3P"
-		"5" "Fuse_Tac_Bomb_Impact_Water_3P"
+		"5" "Fuse_Tac_Bomb_Impact_Concrete_3P"
 
 		//"splash" "Fuse_Tac_Bomb_Impact_Water_3P"
 		//"slime_splash" "Fuse_Tac_Bomb_Impact_Mud_3P"
@@ -168,7 +168,7 @@ ImpactTable
 
 		"1" "Fuse_Tac_Bomb_Impact_Mud_3P"
 		"2" "Fuse_Tac_Bomb_Impact_Concrete_3P"
-		"5" "Fuse_Tac_Bomb_Impact_Water_3P"
+		"5" "Fuse_Tac_Bomb_Impact_Concrete_3P"
 
 		//"splash" "Fuse_Tac_Bomb_Impact_Water_3P"
 		//"slime_splash" "Fuse_Tac_Bomb_Impact_Mud_3P"

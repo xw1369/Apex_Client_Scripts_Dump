@@ -255,11 +255,11 @@ WeaponData
          
            
 
-                        
-                                                           
-         
-                                    
-         
+	                       
+        upgrade_tac_one // upgrade_catalyst_tac_throw_range
+        {
+		"projectile_launch_speed"   "1200"
+        }
               
 
         survival_finite_ordnance

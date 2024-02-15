@@ -89,10 +89,10 @@ array< int > fanAdjustments =
 	-6,
 	6
 
-
-
-
-
+	,
+	-7,
+	7,
+	-8
 
 ]
 
@@ -296,7 +296,7 @@ void function ValkTacShowTargetLocsThread( entity owner, entity weapon )
 	{
 		targetLocs = GetValkTacTargets( weapon, owner )
 
-		for ( int i = 0; i < targetLocs.len(); i++ )
+		for ( int i = 0; i < targetLocs.len() && i < vfxRefs.len(); i++ )
 		{
 			WeaponMissileMultipleTargetData res = targetLocs[i]
 			normalAngle = VectorToAngles( res.normal )
@@ -316,12 +316,12 @@ array<WeaponMissileMultipleTargetData> function GetValkTacTargets( entity weapon
 	int sideSteps = SIDE_STEPS
 
 
-
-
-
-
-
-
+		if( owner.HasPassive( ePassives.PAS_EXTRA_SWARM_MISSILE ) )
+		{
+			
+			forwardSteps = 3
+			sideSteps = 3
+		}
 
 
 	array<WeaponMissileMultipleTargetData> targetLocs = weapon.GetWeaponMissileMultipleTargets( attackPos, attackDir, owner, forwardSteps, sideSteps, STEP_FORWARD, STEP_SIDE, STEP_HEIGHT, INITIAL_DELAY, IN_ROW_DELAY, ROW_TO_ROW_DELAY, MAX_ATTACK_RANGE, MIN_ATTACK_RANGE )

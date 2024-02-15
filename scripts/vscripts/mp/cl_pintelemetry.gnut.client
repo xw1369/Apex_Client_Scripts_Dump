@@ -46,6 +46,11 @@ global function PIN_NET_TraceRouteResult
 
 
 
+
+
+
+
+
 global enum ePINPromoMessageStatus
 {
 	CLICK,
@@ -135,6 +140,19 @@ void function PIN_Init()
 		Waypoints_RegisterCustomType( "PIN", OnPINWaypointCreated )
 
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -988,6 +1006,7 @@ void function OnPINWaypointCreated( entity wp )
 
 
 
+
 void function PIN_UltimateReadyPing( entity player, string pingType, bool isUltinInventory )
 {
 	AddPINTelemetryEvent( "tag",
@@ -1013,6 +1032,55 @@ void function PIN_NET_TraceRouteResult(entity player, table result)
 {
 	AddPINTelemetryEvent("trace_route_result", PIN_StandardHeader(), result)
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

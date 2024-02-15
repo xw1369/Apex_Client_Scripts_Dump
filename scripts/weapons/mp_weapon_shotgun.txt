@@ -3,6 +3,7 @@
 #base "_base_optics_cq_threat.txt"
 #base "_base_shotgun_bolts.txt"
 #base "_base_stocks_tactical.txt"
+#base "_base_hopup_paintball.txt"
 
                     
 #base "_base_hopup_golden_horse_green.txt"
@@ -138,16 +139,16 @@ WeaponData
 	// Spread
 
 	// NOTE for projectile shotguns, set this to the size of the spread pattern at the intended engagement range
-	"spread_stand_hip"								"1.3"
-	"spread_stand_hip_run"							"1.3"
-	"spread_stand_hip_sprint"                       "1.3"
-	"spread_crouch_hip"   							"1.3"
-	"spread_air_hip"  								"1.3"
-	"spread_stand_ads"								"1.3"
-	"spread_crouch_ads"   							"1.3"
-	"spread_air_ads"  								"1.3"
-	"spread_wallrunning"  							"1.3"
-	"spread_wallhanging"  							"1.3"
+	"spread_stand_hip"								"1.5"
+	"spread_stand_hip_run"							"1.5"
+	"spread_stand_hip_sprint"                       "1.5"
+	"spread_crouch_hip"   							"1.5"
+	"spread_air_hip"  								"1.5"
+	"spread_stand_ads"								"1.5"
+	"spread_crouch_ads"   							"1.5"
+	"spread_air_ads"  								"1.5"
+	"spread_wallrunning"  							"1.5"
+	"spread_wallhanging"  							"1.5"
 
 	"spread_decay_rate"   							"500"
 	"spread_decay_delay"  							"0"
@@ -305,48 +306,6 @@ WeaponData
                                            
    
       
-
-		purple_paintball
-        {
-           "impact_effect_table" 				"bullet_pb_Random"
-
-           "projectile_trail_effect_0_1p" 		"P_tracer_projectile_pb"
-           "projectile_trail_effect_0_3p" 		"P_tracer_projectile_pb"
-
-           "reload_time"						"*0.75"
-           "reload_time_late1"					"*0.75"
-           "reload_time_late2"					"*0.75"
-           "reload_time_late3"					"*0.75"
-           "reload_time_late4"					"*0.75"
-           "reload_time_late5"					"*0.75"
-           "reloadempty_time"					"*0.75"
-           "reloadempty_time_late1"			"*0.75"
-           "reloadempty_time_late2"			"*0.75"
-           "reloadempty_time_late3"			"*0.75"
-           "reloadempty_time_late4"			"*0.75"
-           "reloadempty_time_late5"			"*0.75"
-        }
-
-		gold_paintball
-        {
-           "impact_effect_table" 				"bullet_pb_Random"
-
-           "projectile_trail_effect_0_1p" 		"P_tracer_projectile_pb"
-           "projectile_trail_effect_0_3p" 		"P_tracer_projectile_pb"
-
-           "reload_time"						"*0.75"
-           "reload_time_late1"					"*0.75"
-           "reload_time_late2"					"*0.75"
-           "reload_time_late3"					"*0.75"
-           "reload_time_late4"					"*0.75"
-           "reload_time_late5"					"*0.75"
-           "reloadempty_time"					"*0.75"
-           "reloadempty_time_late1"			"*0.75"
-           "reloadempty_time_late2"			"*0.75"
-           "reloadempty_time_late3"			"*0.75"
-           "reloadempty_time_late4"			"*0.75"
-           "reloadempty_time_late5"			"*0.75"
-        }
 
                   
         hopup_double_tap

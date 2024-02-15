@@ -40,7 +40,7 @@ ImpactTable
 		"2" "P_sup_spec_land_metal"
 		"3" "P_sup_spec_land_metal"
 		"4" "P_sup_spec_land_metal"
-		"5" "P_sup_spec_land_water" //water_hrz
+		"5" "P_sup_spec_land_metal" //water_hrz
 		"6" "P_sup_spec_land_metal"
 		"7" "P_sup_spec_land_metal"
 		"8" "P_sup_spec_land_metal"

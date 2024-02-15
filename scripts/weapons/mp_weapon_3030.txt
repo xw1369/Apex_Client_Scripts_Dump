@@ -1,5 +1,6 @@
 #base "_base_marksman_weapon.txt"
 #base "_base_mags_heavy.txt"
+#base "_base_hopup_paintball.txt"
                   
                             
       
@@ -51,6 +52,8 @@
     "OnWeaponPrimaryAttack"                     "OnWeaponPrimaryAttack_weapon_3030"
     "OnClientAnimEvent"                         "OnClientAnimEvent_weapon_3030"
     "OnProjectileCollision"                     "OnProjectileCollision_weapon_3030"
+    "OnWeaponReload"                            "OnWeaponReload_weapon_3030"
+    "OnWeaponReadyToFire"                       "OnWeaponReadyToFire_weapon_3030"
 
 	/////////////////////////////////
 	//Charging
@@ -109,12 +112,12 @@
 
 	// Damage
 	//
-     "damage_near_value"   					"42"
-     "damage_far_value"						"42"
-     "damage_very_far_value"				"42"
-     "damage_near_value_titanarmor"			"42"
-     "damage_far_value_titanarmor" 			"42"
-     "damage_very_far_value_titanarmor" 	"42"
+     "damage_near_value"   					"39"
+     "damage_far_value"						"39"
+     "damage_very_far_value"				"39"
+     "damage_near_value_titanarmor"			"39"
+     "damage_far_value_titanarmor" 			"39"
+     "damage_very_far_value_titanarmor" 	"39"
      "damage_leg_scale"                     "0.85"
 
 
@@ -164,7 +167,7 @@
 
 	//segmented - from mastiff
 	"reload_is_segmented"                           "1"
-    "ammo_size_segmented_reload"					"2"
+    "ammo_size_segmented_reload"					"1"
 	"reload_time" 									".33"
     "reloadempty_time"								".75"
     "reloadsegment_time_loop"						".40"
@@ -344,7 +347,7 @@
 
 		hopup_headshot_dmg
 	    {
-	       "damage_headshot_scale"			    "2.1"
+	       "damage_headshot_scale"			    "2.0"
 	       "projectile_trail_effect_0_1p"       "P_tracer_proj_sniper_piercer"
 	       "projectile_trail_effect_0_3p"       "P_tracer_proj_sniper_piercer"
 
@@ -355,6 +358,11 @@
 
 		hopup_shatter_rounds
 		{
+		}
+
+		segmented_speed_load
+		{
+			"reloadsegment_time_loop" 									"*0.8"
 		}
 
 		shatter_rounds_hipfire
@@ -409,63 +417,21 @@
            "rui_crosshair_index"							"1"
         }
 
-        purple_paintball
+        highcal_mag_l1
         {
-           "impact_effect_table" 				"bullet_pb_Random"
-
-           "projectile_trail_effect_0_1p" 		"P_tracer_projectile_pb"
-           "projectile_trail_effect_0_3p" 		"P_tracer_projectile_pb"
-
-           "reload_time"						"*0.75"
-           "reload_time_late1"					"*0.75"
-           "reload_time_late2"					"*0.75"
-           "reload_time_late3"					"*0.75"
-           "reload_time_late4"					"*0.75"
-           "reload_time_late5"					"*0.75"
-           "reloadempty_time"					"*0.75"
-           "reloadempty_time_late1"			"*0.75"
-           "reloadempty_time_late2"			"*0.75"
-           "reloadempty_time_late3"			"*0.75"
-           "reloadempty_time_late4"			"*0.75"
-           "reloadempty_time_late5"			"*0.75"
-        }
-
-        gold_paintball
-        {
-           "impact_effect_table" 				"bullet_pb_Random"
-
-           "projectile_trail_effect_0_1p" 		"P_tracer_projectile_pb"
-           "projectile_trail_effect_0_3p" 		"P_tracer_projectile_pb"
-
-           "reload_time"						"*0.75"
-           "reload_time_late1"					"*0.75"
-           "reload_time_late2"					"*0.75"
-           "reload_time_late3"					"*0.75"
-           "reload_time_late4"					"*0.75"
-           "reload_time_late5"					"*0.75"
-           "reloadempty_time"					"*0.75"
-           "reloadempty_time_late1"			"*0.75"
-           "reloadempty_time_late2"			"*0.75"
-           "reloadempty_time_late3"			"*0.75"
-           "reloadempty_time_late4"			"*0.75"
-           "reloadempty_time_late5"			"*0.75"
-        }
-
-        highca l_mag_l1
-        {
-            "ammo_clip_size" 				"8"
+            "ammo_clip_size" 				"7"
         }
         highcal_mag_l2
         {
-            "ammo_clip_size" 				"10"
+            "ammo_clip_size" 				"8"
         }
         highcal_mag_l3
         {
-            "ammo_clip_size" 				"12"
+            "ammo_clip_size" 				"10"
         }
         highcal_mag_l4
         {
-            "ammo_clip_size"   				"12"
+            "ammo_clip_size"   				"10"
         }
 		"stock_sniper_l1"
         {
@@ -487,11 +453,11 @@
             "viewdrift_ads_speed_pitch"   	                "*0.9"
             "viewdrift_ads_speed_yaw" 		                "*0.9"
 
-            "reload_time" 									"*0.95"
-            "reloadempty_time"								"*0.95"
-            "reloadsegment_time_loop"						"*0.95"
-            "reloadsegment_time_end"						"*0.95"
-            "reloadsegmentempty_time_end"					"*0.95"
+            "reload_time" 									"*0.967"
+            "reloadempty_time"								"*0.967"
+            "reloadsegment_time_loop"						"*0.967"
+            "reloadsegment_time_end"						"*0.967"
+            "reloadsegmentempty_time_end"					"*0.967"
         }
         "stock_sniper_l2"
         {
@@ -513,11 +479,11 @@
             "viewdrift_ads_speed_pitch"   	                "*0.8"
             "viewdrift_ads_speed_yaw" 		                "*0.8"
 
-           "reload_time" 									"*0.875"
-           "reloadempty_time"								"*0.875"
-           "reloadsegment_time_loop"						"*0.875"
-           "reloadsegment_time_end"						    "*0.875"
-           "reloadsegmentempty_time_end"					"*0.875"
+           "reload_time" 									"*0.933"
+           "reloadempty_time"								"*0.933"
+           "reloadsegment_time_loop"						"*0.933"
+           "reloadsegment_time_end"						    "*0.933"
+           "reloadsegmentempty_time_end"					"*0.933"
         }
         "stock_sniper_l3"
         {
@@ -539,11 +505,11 @@
             "viewdrift_ads_speed_pitch"   	                "*0.75"
             "viewdrift_ads_speed_yaw" 		                "*0.75"
 
-           "reload_time" 									"*0.80"
-           "reloadempty_time"								"*0.80"
-           "reloadsegment_time_loop"						"*0.80"
-           "reloadsegment_time_end"						    "*0.80"
-           "reloadsegmentempty_time_end"					"*0.80"
+           "reload_time" 									"*0.9"
+           "reloadempty_time"								"*0.9"
+           "reloadsegment_time_loop"						"*0.9"
+           "reloadsegment_time_end"						    "*0.9"
+           "reloadsegmentempty_time_end"					"*0.9"
         }
 
         optic_cq_hcog_classic

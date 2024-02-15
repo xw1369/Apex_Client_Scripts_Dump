@@ -6,10 +6,48 @@
 global function ClCommonStoryEvents_Init
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 struct
 {
 
+
+
+
+
+
+
+
+
+
+		array < vector > blockBalloonCreationOrigins
+
 } file
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -62,6 +100,22 @@ void function ClCommonStoryEvents_Init()
 
 
 
+
+void function ParseBalloonPlaylist()
+{
+	int numBalloonBlock = GetCurrentPlaylistVarInt( "balloon_block_count", 0 )
+
+	for ( int index = 0; index < numBalloonBlock; index++ )
+	{
+		string playlistName = "balloon_block_count_" + index
+		vector balloonBlockOrigin = StringToVector( GetCurrentPlaylistVarString( playlistName, "0 0 0" ) )
+		file.blockBalloonCreationOrigins.append( balloonBlockOrigin )
+	}
+
+}
+
+
+
 void function EntitiesDidLoad()
 {
 
@@ -69,6 +123,50 @@ void function EntitiesDidLoad()
 		{
 			SurvivalCommentary_SetHost( eSurvivalHostType.NOC )
 		}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 }
 
@@ -118,5 +216,89 @@ void function OnPlayerDisconnected( entity player )
 {
 	StopUISoundByName( "NightMaps_Intro_Static" )
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
       

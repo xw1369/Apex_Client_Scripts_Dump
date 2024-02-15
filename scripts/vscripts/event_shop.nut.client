@@ -1,5 +1,4 @@
 
-
 global function EventShop_Init
 
 
@@ -46,6 +45,11 @@ global function EventShop_GeTooltipsColor
 global function EventShop_GetBackgroundDarkeningOpacity
 global function EventShop_GetRightPanelOpacity
 global function EventShop_GetLeftPanelOpacity
+global function EventShop_GetCurrencyRewardSequence
+global function EventShop_GetTotalCurrencyPersistenceVar
+global function EventShop_GetTotalCurrencyStat
+global function EventShop_IsEventShopActive
+global function EventShop_GetCurrentEventCurrencyLifetimeTotal
 
 
 
@@ -135,6 +139,8 @@ struct FileStruct_LifetimeLevel
 
 	int eventShopStaleTimestamp
 	ItemFlavor ornull activeEventShop
+
+	int currentMaxEventCurrencyInOneGrant
 }
 
 
@@ -293,7 +299,103 @@ void function EventShop_Init()
 
 		fileLevel.eventShopDataMap[event] <- eventShopData
 	} )
+
+
+
+
+
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -509,9 +611,15 @@ array<EventShopOfferData> function EventShop_GetOffers( ItemFlavor event )
 
 
 
-EventShopOfferData function EventShop_GetOfferData( ItemFlavor event, int index )
+EventShopOfferData ornull function EventShop_GetOfferData( ItemFlavor event, int index )
 {
 	Assert( ItemFlavor_GetType( event ) == eItemType.calevent_event_shop )
+
+	if ( index >= fileLevel.eventShopDataMap[event].offers.len() )
+	{
+		return null
+	}
+
 	return fileLevel.eventShopDataMap[event].offers[index]
 }
 
@@ -757,6 +865,80 @@ float function EventShop_GetLeftPanelOpacity( ItemFlavor event )
 
 
 
+string function EventShop_GetCurrencyRewardSequence( ItemFlavor event )
+{
+	Assert( ItemFlavor_GetType( event ) == eItemType.calevent_event_shop )
+	return GetGlobalSettingsString( ItemFlavor_GetAsset( event ), "eventShopCurrencyRewardSequence" )
+}
+
+
+
+string function EventShop_GetTotalCurrencyPersistenceVar( ItemFlavor event )
+{
+	Assert( ItemFlavor_GetType( event ) == eItemType.calevent_event_shop )
+	return GetGlobalSettingsString( ItemFlavor_GetAsset( event ), "eventShopTotalCurrencyPersistenceVar" )
+}
+
+
+
+string function EventShop_GetTotalCurrencyStat( ItemFlavor event )
+{
+	Assert( ItemFlavor_GetType( event ) == eItemType.calevent_event_shop )
+	return GetGlobalSettingsString( ItemFlavor_GetAsset( event ), "eventShopTotalCurrencyStat" )
+}
+
+
+
+bool function EventShop_IsEventShopActive()
+{
+	ItemFlavor ornull eventFlav = EventShop_GetCurrentActiveEventShop()
+	if ( eventFlav == null )
+	{
+		return false
+	}
+	expect ItemFlavor( eventFlav )
+
+	return CalEvent_IsActive( eventFlav, GetUnixTimestamp() )
+}
+
+
+
+int function EventShop_GetCurrentEventCurrencyLifetimeTotal( entity player )
+{
+	ItemFlavor ornull eventFlav = EventShop_GetCurrentActiveEventShop()
+	if ( eventFlav == null )
+	{
+		return 0
+	}
+	expect ItemFlavor( eventFlav )
+	string statRef = EventShop_GetTotalCurrencyStat( eventFlav )
+	StatEntry entry = GetStatEntryByRef( statRef )
+
+	if ( EventShop_IsEventShopActive() )
+	{
+		return GetStat_Int( player, entry , eStatGetWhen.CURRENT )
+	}
+
+	return 0
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -879,9 +1061,11 @@ void function RefreshActiveEventShopIfRequired( int timestamp )
 		fileLevel.eventShopStaleTimestamp = CalEvent_GetFinishUnixTime( expect ItemFlavor( fileLevel.activeEventShop ) )
 		GRXCurrency_RegisterNewCurrencyAssetInEventSlot( eventShopCurrencyFlav )
 		GRX_SetEventCurrency( ItemFlavor_GetGRXAlias( eventShopCurrencyFlav ) )
+
+
+
 	}
 }
-
 
 
 

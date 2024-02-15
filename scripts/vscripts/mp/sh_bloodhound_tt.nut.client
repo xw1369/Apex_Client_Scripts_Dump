@@ -23,6 +23,7 @@ global function Bloodhound_TT_RegisterNetworking
 global function GetBloodTTRewardPanelForLoot
 global function IsBloodhoundTTEnabled
 
+global const string HATCH_MDL_SCRIPTNAME = "prowler_hatch_model"
 
 
 
@@ -241,6 +242,8 @@ void function ClBloodhound_TT_Init()
 
 	AddCreateCallback( "prop_dynamic", OnCreate_PropDynamic )
 	AddDestroyCallback( "prop_dynamic", OnDestroy_PropDynamic )
+
+	PrecacheScriptString( HATCH_MDL_SCRIPTNAME )
 }
 
 
@@ -248,6 +251,8 @@ void function Bloodhound_TT_RegisterNetworking()
 {
 	Remote_RegisterClientFunction( "SCB_BloodTT_SetCustomSpeakerIdx", "int", 0, NUM_TOTAL_DIALOGUE_QUEUES )
 }
+
+
 
 
 

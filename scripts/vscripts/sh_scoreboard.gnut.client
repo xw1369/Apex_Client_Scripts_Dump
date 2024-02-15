@@ -257,6 +257,9 @@ bool function TPPromptIsActive()
 
 bool function ShouldShowScoreboard()
 {
+	entity player = GetLocalClientPlayer()
+
+
 	if ( GetGameState() == eGameState.WinnerDetermined || GetGameState() > eGameState.Epilogue )
 		return false
 	else if ( IsViewingSquadSummary() || IsViewingDeathRecap() )
@@ -271,6 +274,13 @@ bool function ShouldShowScoreboard()
 
 	else if ( !FiringRange_IsCharacterSwitchingEnabled() )
 		return false
+
+	else if ( Control_IsModeEnabled() && IsValid( player ) )
+	{
+		if( !IsAlive( player ) )
+			return false
+	}
+
 
 	return file.wantsToShowScoreboard
 }

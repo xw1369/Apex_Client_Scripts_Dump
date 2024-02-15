@@ -87,6 +87,9 @@ const float ECHO_ORDER_LEDGE_CHECK_UP = 2.5 * METERS_TO_INCHES
 const float ECHO_ORDER_LEDGE_CHECK_BACK = 1 * METERS_TO_INCHES
 const float ECHO_ORDER_MIN_HEIGHT = 6 * METERS_TO_INCHES
 
+const int ECHO_ORDER_TRACE_COL_MASK = TRACE_MASK_PLAYERSOLID
+const int ECHO_ORDER_TRACE_COL_GRP = TRACE_COLLISION_GROUP_PLAYER_MOVEMENT
+
 const vector VANTAGE_COMPANION_BOUND_MINS = <-10, -10, -10>
 const vector VANTAGE_COMPANION_BOUND_MAXS = <10, 10, 15>
 
@@ -133,9 +136,8 @@ const string VANTAGE_COMPANION_ENT_NETVAR = "vantage_companion_ent"
 
 
 #if DEV
-
-
-
+global function DEV_VantageCompanion_SetDebugDraw
+global function DEV_VantageCompanion_SetOrderDebugDraw
 
 bool VANTAGE_COMPANION_DEBUG_DRAW = false
 bool VANTAGE_COMPANION_ORDER_DEBUG_DRAW = false
@@ -143,6 +145,7 @@ bool VANTAGE_COMPANION_FOLLOW_DEBUG_DRAW = false
 bool VANTAGE_COMPANION_VORTEX_DEBUG_DRAW = false
 bool VANTAGE_COMPANION_LAUNCH_DEBUG_DRAW = false
 #endif
+
 global enum eCompanionState
 {
 	UNKNOWN,
@@ -238,7 +241,7 @@ struct
 	float TUNING_VANTAGE_COMPANION_RANGE_BASE
 	float TUNING_VANTAGE_COMPANION_RANGE_MAX
 
-
+	float TUNING_VANTAGE_COMPANION_UPGRADED_RANGE
 
 
 	var vantageTacticalRui
@@ -271,7 +274,7 @@ void function VantageCompanion_Init()
 	file.TUNING_VANTAGE_COMPANION_RANGE_BASE = GetCurrentPlaylistVarFloat( "vantage_tactical_base_range", VANTAGE_COMPANION_RANGE_BASE )
 	file.TUNING_VANTAGE_COMPANION_RANGE_MAX = GetCurrentPlaylistVarFloat( "vantage_tactical_max_range", VANTAGE_COMPANION_RANGE_MAX )
 
-
+	file.TUNING_VANTAGE_COMPANION_UPGRADED_RANGE = GetCurrentPlaylistVarFloat( "vantage_tactical_upgraded_range_bonus", 10 * METERS_TO_INCHES )
 
 
 #if DEV
@@ -299,10 +302,10 @@ float function VantageCompanion_GetRangeBase( entity owner )
 {
 	float result = file.TUNING_VANTAGE_COMPANION_RANGE_BASE
 
-
-
-
-
+	if( PlayerHasPassive( owner, ePassives.PAS_TAC_UPGRADE_TWO ) )
+	{
+		result += file.TUNING_VANTAGE_COMPANION_UPGRADED_RANGE
+	}
 
 
 	return result
@@ -313,10 +316,10 @@ float function VantageCompanion_GetRangeMax( entity owner )
 	float result = file.TUNING_VANTAGE_COMPANION_RANGE_MAX
 
 
-
-
-
-
+	if( PlayerHasPassive( owner, ePassives.PAS_TAC_UPGRADE_TWO ) )
+	{
+		result += file.TUNING_VANTAGE_COMPANION_UPGRADED_RANGE
+	}
 
 
 	return result
@@ -327,10 +330,10 @@ float function VantageCompanion_GetSpeed( entity owner )
 	float result = VANTAGE_COMPANION_BASE_SPEED
 
 
-
-
-
-
+		if( PlayerHasPassive( owner, ePassives.PAS_TAC_UPGRADE_TWO ) )
+		{
+			result *= 1.15
+		}
 
 
 	return result
@@ -357,7 +360,19 @@ OrderPosData function FindEchoOrderPos( entity player )
 	vector playerViewVector  = player.GetPlayerOrNPCViewVector()
 	vector endTraceInitial   = startTraceInitial + playerViewVector * VantageCompanion_GetRangeBase( player )
 
-	TraceResults trInitial = TraceLine( startTraceInitial, endTraceInitial, [ player ], TRACE_MASK_PLAYERSOLID , TRACE_COLLISION_GROUP_PLAYER_MOVEMENT )
+	TraceResults trInitial = TraceLine( startTraceInitial, endTraceInitial, [ player ], TRACE_MASK_PLAYERSOLID , ECHO_ORDER_TRACE_COL_GRP, player )
+
+#if DEV
+	if ( VANTAGE_COMPANION_ORDER_DEBUG_DRAW )
+	{
+		DebugDrawLine( startTraceInitial, endTraceInitial, COLOR_YELLOW, false, 5.0 )
+		DebugDrawLine( startTraceInitial, trInitial.endPos, COLOR_GREEN, false, 5.0 )
+		DebugDrawSphere( trInitial.endPos, 3, COLOR_GREEN, false, 5.0 )
+
+		string text = VM_NAME()
+		DebugDrawText( trInitial.endPos - <0,0,15> , text, true, 5.0 )
+	}
+#endif
 
 #if DEV
 		devTraces++
@@ -373,8 +388,7 @@ OrderPosData function FindEchoOrderPos( entity player )
 		float boundsAdj = fabs(VANTAGE_COMPANION_BOUND_MAXS.z)*1.5
 		vector startHullTrace = trInitial.endPos + (trInitial.surfaceNormal * boundsAdj) + (playerViewVector * -boundsAdj)
 
-		TraceResults trHull = TraceHull( startHullTrace, trInitial.endPos, VANTAGE_COMPANION_BOUND_MINS*1.5, VANTAGE_COMPANION_BOUND_MAXS*1.5, [ player ], TRACE_MASK_PLAYERSOLID , TRACE_COLLISION_GROUP_PLAYER_MOVEMENT )
-
+		TraceResults trHull = TraceHull( startHullTrace, trInitial.endPos, VANTAGE_COMPANION_BOUND_MINS*1.5, VANTAGE_COMPANION_BOUND_MAXS*1.5, [ player ], TRACE_MASK_PLAYERSOLID , ECHO_ORDER_TRACE_COL_GRP, UP_VECTOR, player )
 #if DEV
 			devTraces++
 
@@ -394,7 +408,7 @@ OrderPosData function FindEchoOrderPos( entity player )
 				}
 #endif
 			
-			TraceResults trInitialHullRedo = TraceHull( startTraceInitial, endTraceInitial, VANTAGE_COMPANION_BOUND_MINS*1.5, VANTAGE_COMPANION_BOUND_MAXS*1.5, [ player ], TRACE_MASK_PLAYERSOLID , TRACE_COLLISION_GROUP_PLAYER_MOVEMENT )
+			TraceResults trInitialHullRedo = TraceHull( startTraceInitial, endTraceInitial, VANTAGE_COMPANION_BOUND_MINS*1.5, VANTAGE_COMPANION_BOUND_MAXS*1.5, [ player ], ECHO_ORDER_TRACE_COL_MASK , ECHO_ORDER_TRACE_COL_GRP, UP_VECTOR, player )
 #if DEV
 				devTraces++
 #endif
@@ -404,7 +418,7 @@ OrderPosData function FindEchoOrderPos( entity player )
 			{
 				startHullTrace = trInitialHullRedo.endPos + (trInitialHullRedo.surfaceNormal * boundsAdj) + (playerViewVector * -boundsAdj)
 
-				trHull = TraceHull( startHullTrace, trInitialHullRedo.endPos, VANTAGE_COMPANION_BOUND_MINS * 1.5, VANTAGE_COMPANION_BOUND_MAXS * 1.5, [ player ], TRACE_MASK_PLAYERSOLID, TRACE_COLLISION_GROUP_PLAYER_MOVEMENT )
+				trHull = TraceHull( startHullTrace, trInitialHullRedo.endPos, VANTAGE_COMPANION_BOUND_MINS * 1.5, VANTAGE_COMPANION_BOUND_MAXS * 1.5, [ player ], ECHO_ORDER_TRACE_COL_MASK, ECHO_ORDER_TRACE_COL_GRP, UP_VECTOR, player )
 
 #if DEV
 					devTraces++
@@ -446,7 +460,7 @@ OrderPosData function FindEchoOrderPos( entity player )
 			
 			vector traceUpStart = trInitial.endPos + (trInitial.surfaceNormal * ECHO_ORDER_LEDGE_CHECK_BACK / 2.0)
 			vector traceUpEnd = traceUpStart + (UP_VECTOR * ECHO_ORDER_LEDGE_CHECK_UP )
-			TraceResults trUp = TraceLine( traceUpStart, traceUpEnd, [ player ], TRACE_MASK_PLAYERSOLID , TRACE_COLLISION_GROUP_PLAYER_MOVEMENT )
+			TraceResults trUp = TraceLine( traceUpStart, traceUpEnd, [ player ], ECHO_ORDER_TRACE_COL_MASK , ECHO_ORDER_TRACE_COL_GRP, player )
 
 #if DEV
 				devTraces++
@@ -464,7 +478,7 @@ OrderPosData function FindEchoOrderPos( entity player )
 				
 				vector traceBackStart = trUp.endPos
 				vector traceBackEnd = traceBackStart - (flatNormal * ECHO_ORDER_LEDGE_CHECK_BACK * 1.5 )
-				TraceResults trBack = TraceLine( traceBackStart, traceBackEnd, [ player ], TRACE_MASK_PLAYERSOLID , TRACE_COLLISION_GROUP_PLAYER_MOVEMENT )
+				TraceResults trBack = TraceLine( traceBackStart, traceBackEnd, [ player ], ECHO_ORDER_TRACE_COL_MASK , ECHO_ORDER_TRACE_COL_GRP, player )
 
 #if DEV
 					devTraces++
@@ -481,7 +495,7 @@ OrderPosData function FindEchoOrderPos( entity player )
 					vector ledgeEndTrace = ledgeStartTrace - (UP_VECTOR * ECHO_ORDER_LEDGE_CHECK_UP * 2)
 
 					
-					TraceResults trLedge = TraceHull( ledgeStartTrace, ledgeEndTrace, VANTAGE_COMPANION_BOUND_MINS, VANTAGE_COMPANION_BOUND_MAXS, [ player ], TRACE_MASK_PLAYERSOLID, TRACE_COLLISION_GROUP_PLAYER_MOVEMENT)
+					TraceResults trLedge = TraceHull( ledgeStartTrace, ledgeEndTrace, VANTAGE_COMPANION_BOUND_MINS, VANTAGE_COMPANION_BOUND_MAXS, [ player ], ECHO_ORDER_TRACE_COL_MASK, ECHO_ORDER_TRACE_COL_GRP, UP_VECTOR, player )
 
 #if DEV
 						devTraces++
@@ -794,30 +808,6 @@ int function VantageCompanion_GetPlayerLaunchState( entity player )
 	return ePlayerLaunchState.NONE
 }
 
-vector function AdjustCompanionPosForHeightSingle( vector proposedCompanionPos )
-{
-	vector adjustedPos = proposedCompanionPos
-
-	vector endTracePoint    = proposedCompanionPos + UP_VECTOR * ECHO_ORDER_MIN_HEIGHT
-
-	TraceResults trHullUp = TraceHull( adjustedPos , endTracePoint , VANTAGE_COMPANION_BOUND_MINS, VANTAGE_COMPANION_BOUND_MAXS, [  ], TRACE_MASK_PLAYERSOLID , TRACE_COLLISION_GROUP_PLAYER_MOVEMENT )
-
-	adjustedPos = trHullUp.endPos + ( UP_VECTOR * VANTAGE_COMPANION_FINAL_HEIGHT_OFFSET )
-
-#if DEV
-		if ( VANTAGE_COMPANION_ORDER_DEBUG_DRAW )
-		{
-			float drawTime = 5.0
-			vector drawColor = (trHullUp.fraction >= 1.0) ? COLOR_LIGHT_GREEN : COLOR_ORANGE
-
-			
-			DebugDrawMark( adjustedPos, 5, COLOR_LIGHT_GREEN, false, drawTime )
-			DebugDrawBox( adjustedPos, VANTAGE_COMPANION_BOUND_MINS, VANTAGE_COMPANION_BOUND_MAXS, drawColor, 1, drawTime )
-		}
-#endif
-
-	return adjustedPos
-}
 
 vector function AdjustCompanionPosForHeight( vector proposedCompanionPos , entity player )
 {
@@ -827,14 +817,14 @@ vector function AdjustCompanionPosForHeight( vector proposedCompanionPos , entit
 
 	
 	vector endTracePoint    = proposedCompanionPos - UP_VECTOR * ECHO_ORDER_MIN_HEIGHT
-	TraceResults trHullDown = TraceHull( proposedCompanionPos, endTracePoint, VANTAGE_COMPANION_BOUND_MINS, VANTAGE_COMPANION_BOUND_MAXS, [ player ], TRACE_MASK_PLAYERSOLID , TRACE_COLLISION_GROUP_PLAYER_MOVEMENT )
+	TraceResults trHullDown = TraceHull( proposedCompanionPos, endTracePoint, VANTAGE_COMPANION_BOUND_MINS, VANTAGE_COMPANION_BOUND_MAXS, [ player ], ECHO_ORDER_TRACE_COL_MASK , ECHO_ORDER_TRACE_COL_GRP, UP_VECTOR, player )
 	TraceResults trHullUp
 	if ( trHullDown.fraction < 1.0 )
 	{
 		traceDownHit = true
 
 		
-		trHullUp = TraceHull( trHullDown.endPos, trHullDown.endPos + UP_VECTOR * ECHO_ORDER_MIN_HEIGHT, VANTAGE_COMPANION_BOUND_MINS, VANTAGE_COMPANION_BOUND_MAXS, [ player ], TRACE_MASK_PLAYERSOLID , TRACE_COLLISION_GROUP_PLAYER_MOVEMENT )
+		trHullUp = TraceHull( trHullDown.endPos, trHullDown.endPos + UP_VECTOR * ECHO_ORDER_MIN_HEIGHT, VANTAGE_COMPANION_BOUND_MINS, VANTAGE_COMPANION_BOUND_MAXS, [ player ], ECHO_ORDER_TRACE_COL_MASK , ECHO_ORDER_TRACE_COL_GRP, UP_VECTOR, player )
 
 		
 		
@@ -880,7 +870,9 @@ void function TestCompanionSendPoint_Thread( entity player, entity echoEnt )
 
 	while (true)
 	{
-		TraceResults tr = TraceLine( player.EyePosition(), player.EyePosition() + player.GetPlayerOrNPCViewVector() * (VantageCompanion_GetRangeBase( player ) - 15) , [ player, echoEnt ], TRACE_MASK_PLAYERSOLID , TRACE_COLLISION_GROUP_PLAYER_MOVEMENT )
+		vector traceStart = player.EyePosition()
+		vector traceEnd = player.EyePosition() + player.GetPlayerOrNPCViewVector() * (VantageCompanion_GetRangeBase( player ) - 15)
+		TraceResults tr = TraceLine( traceStart, traceEnd , [ player, echoEnt ], ECHO_ORDER_TRACE_COL_MASK , ECHO_ORDER_TRACE_COL_GRP, player )
 
 		int pointInRange = tr.fraction < 1.0 ? 1 : 0
 
@@ -942,7 +934,7 @@ void function DebugDrawCompanion( entity echoEnt )
 {
 	if ( IsValid( echoEnt ) )
 	{
-		DebugDrawBox( echoEnt.GetOrigin(), VANTAGE_COMPANION_BOUND_MINS, VANTAGE_COMPANION_BOUND_MAXS, <255,150,0>, 0.25, 2*UPDATE_RATE )
+		DebugDrawBox( echoEnt.GetOrigin(), VANTAGE_COMPANION_BOUND_MINS, VANTAGE_COMPANION_BOUND_MAXS, <255,150,0>, 50, 2*UPDATE_RATE )
 
 		DebugDrawSphere( echoEnt.GetOrigin(), 4, <0, 100, 255>, false, 2*UPDATE_RATE )
 	}
@@ -1879,13 +1871,17 @@ vector function Launch_CalcLaunchToPos( entity player, entity echoEnt )
 
 
 
+#if DEV
+void function DEV_VantageCompanion_SetDebugDraw( bool enabled )
+{
+	VANTAGE_COMPANION_DEBUG_DRAW = enabled
+}
 
-
-
-
-
-
-
+void function DEV_VantageCompanion_SetOrderDebugDraw( bool enabled )
+{
+	VANTAGE_COMPANION_ORDER_DEBUG_DRAW = enabled
+}
+#endif
 
 
 
@@ -2160,7 +2156,7 @@ void function VantageCompanion_CreateHUDMarker( entity echoEnt )
 					text += "\nCompanion state: " + sCompanionStateStrings[companionState]
 					text += "\nLaunch state: " + sPlayerLaunchStateStrings[playerLaunchState]
 
-					DebugScreenTextWithColor( 0.7, 0.7, text, color )
+					DebugDrawScreenTextWithColor( 0.7, 0.7, text, color )
 				}
 #endif
 
@@ -2227,7 +2223,7 @@ void function UpdateLocLineFX( entity echoEnt, int lineHandle, int endHandle )
 	const float TRACE_DIST = 10000
 	vector startTrace = echoEnt.GetOrigin()
 	vector endTrace = echoEnt.GetOrigin() - UP_VECTOR*TRACE_DIST
-	TraceResults tr = TraceLine( startTrace, endTrace , [],TRACE_MASK_PLAYERSOLID_BRUSHONLY, TRACE_COLLISION_GROUP_NONE )
+	TraceResults tr = TraceLine( startTrace, endTrace , [],TRACE_MASK_PLAYERSOLID_BRUSHONLY, TRACE_COLLISION_GROUP_NONE, echoEnt)
 
 	float endTime = Distance( startTrace, tr.endPos )
 

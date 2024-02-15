@@ -196,8 +196,8 @@ void function ShQuickchat_Init()
 		var dt = GetDataTable( LOOT_DATATABLE )
 		int numRows = GetDataTableRowCount( dt )
 
-		Remote_RegisterClientFunction( "ServerToClient_BroadcastCommsActionToTeam", "entity", "int", 0, eCommsAction._count, "int", 0, (1 << eCommsFlags._flagCount), "int", -1, INT_MAX,"int", 0, eCommsAction._count, "entity", "vector", -32000.0, 32000.0, 32, "int", -1, numRows )
-		Remote_RegisterClientFunction( "ServerToClient_BroadcastSubjectlessCommsActionToTeam", "entity", "int", 0, eCommsAction._count, "int", 0, (1 << eCommsFlags._flagCount), "int", -1, INT_MAX,"int", 0, eCommsAction._count, "vector", -32000.0, 32000.0, 32, "int", -1, numRows )
+		Remote_RegisterClientFunction( "ServerToClient_BroadcastCommsActionToTeam", "entity", "int", 0, eCommsAction._count, "int", 0, (1 << eCommsFlags._flagCount), "int", -1, INT_MAX,"int", 0, eCommsAction._count, "entity", "vector", -32000.0, 32000.0, 32, "int", -1, numRows, "int", 0, INVALID_SOUND_SELECTOR )
+		Remote_RegisterClientFunction( "ServerToClient_BroadcastSubjectlessCommsActionToTeam", "entity", "int", 0, eCommsAction._count, "int", 0, (1 << eCommsFlags._flagCount), "int", -1, INT_MAX,"int", 0, eCommsAction._count, "vector", -32000.0, 32000.0, 32, "int", -1, numRows, "int", 0, INVALID_SOUND_SELECTOR )
 		Remote_RegisterClientFunction( "ServerCallback_BroadcastPlayerKicked", "int", 1, 129,  "bool" )
 
 
@@ -672,7 +672,19 @@ string function GetSubjectLootTierForCommsAction( entity subjectEnt, string item
 		return string( tier )
 	}
 
-	tier = SURVIVAL_Loot_GetLootDataByIndex( subjectEnt.GetSurvivalInt() ).tier
+	LootData data = SURVIVAL_Loot_GetLootDataByIndex( subjectEnt.GetSurvivalInt() )
+	tier = data.tier
+
+
+	
+	
+	
+	if( UpgradeCore_IsEquipmentArmorCore( data.ref ) && tier == 5 )
+	{
+		tier = 4
+	}
+
+
 	return string( tier )
 }
 
@@ -920,20 +932,20 @@ string function GetNameForCommsAction( int commsAction )
 
 
 
-void function ServerToClient_BroadcastSubjectlessCommsActionToTeam( entity player, int commsAction, int commsFlags, int subjectCount, int secondaryCommsAction, vector subjectPos, int itemIndex )
+void function ServerToClient_BroadcastSubjectlessCommsActionToTeam( entity player, int commsAction, int commsFlags, int subjectCount, int secondaryCommsAction, vector subjectPos, int itemIndex, int selector )
 {
-	ServerToClient_BroadcastCommsActionToTeam( player, commsAction, commsFlags, subjectCount, secondaryCommsAction, null, subjectPos, itemIndex )
+	ServerToClient_BroadcastCommsActionToTeam( player, commsAction, commsFlags, subjectCount, secondaryCommsAction, null, subjectPos, itemIndex, selector )
 }
 
-void function ServerToClient_BroadcastCommsActionToTeam( entity player, int commsAction, int commsFlags, int subjectCount, int secondaryCommsAction, entity subjectEnt, vector subjectPos, int itemIndex )
+void function ServerToClient_BroadcastCommsActionToTeam( entity player, int commsAction, int commsFlags, int subjectCount, int secondaryCommsAction, entity subjectEnt, vector subjectPos, int itemIndex, int selector )
 {
-	HandleBroadcastCommsAction( player, commsAction, subjectEnt, subjectPos, commsFlags, itemIndex, subjectCount, secondaryCommsAction, 0.0 )
+	HandleBroadcastCommsAction( player, commsAction, subjectEnt, subjectPos, commsFlags, itemIndex, subjectCount, secondaryCommsAction, 0.0, selector )
 }
 
 
 
 
-void function HandleBroadcastCommsAction( entity player, int commsAction, entity subjectEnt, vector subjectPos, int commsFlags, int itemIndex, int subjectCount, int secondaryCommsAction, float creationTime = 0.0  )
+void function HandleBroadcastCommsAction( entity player, int commsAction, entity subjectEnt, vector subjectPos, int commsFlags, int itemIndex, int subjectCount, int secondaryCommsAction, float creationTime = 0.0, int selector = INVALID_SOUND_SELECTOR  )
 {
 	if ( !file.quickchatInitialized )
 		return
@@ -1047,7 +1059,11 @@ void function HandleBroadcastCommsAction( entity player, int commsAction, entity
 		}
 		else
 		{
-			PlaySoundForCommsAction( player, subjectEnt, act, opt,  secondaryCommsAction > 0 ? GetNameForCommsAction( secondaryCommsAction ) : "")
+			
+			if ( !IsValid( subjectEnt ) || subjectEnt.GetModelName() != CRAFTED_BANNER_MODEL_NAME || GetEntityFromEncodedEHandle( subjectEnt.GetSurvivalProperty() ).GetTeam() == player.GetTeam() )
+			{
+				PlaySoundForCommsAction( player, subjectEnt, act, opt,  secondaryCommsAction > 0 ? GetNameForCommsAction( secondaryCommsAction ) : "", selector)
+			}
 		}
 	}
 
@@ -1109,7 +1125,7 @@ void function HandleBroadcastCommsAction( entity player, int commsAction, entity
 				commsAction == eCommsAction.PING_VANTAGE_ENEMY_SPOTTED_4 ||
 				commsAction == eCommsAction.PING_VANTAGE_ENEMY_SPOTTED_5
 
-
+				|| commsAction == eCommsAction.PING_XP_LEVEL_UP_ABILITY
 
 			)
 		{
@@ -1155,6 +1171,22 @@ void function HandleBroadcastCommsAction( entity player, int commsAction, entity
 				}
 				else
 
+
+			if( commsAction == eCommsAction.PING_XP_LEVEL_UP_ARMOR )
+			{
+				array< int > currentAndTargetEvo = UpgradeCore_GetXpRequiredForNextLevel( player )
+				int curXp = player.GetPlayerNetInt( UPGRADE_CORE_XP_NETINT )
+				int evoRequired = 0
+				if( currentAndTargetEvo.len() >= 2 )
+				{
+					evoRequired = currentAndTargetEvo[1] - curXp
+				}
+
+
+				locText = Localize( chatText, playerName, evoRequired, subjectTier, countText, elapseTime)
+			}
+			else
+
 					locText = Localize( chatText, playerName, Localize( subjectName ), subjectTier, countText, elapseTime)
 
 
@@ -1184,7 +1216,7 @@ void function HandleBroadcastCommsAction( entity player, int commsAction, entity
 
 
 
-void function PlaySoundForCommsAction( entity player, entity subjectEnt, CommsAction act, CommsOptions opt, string flavorEventOverride = "" )
+void function PlaySoundForCommsAction( entity player, entity subjectEnt, CommsAction act, CommsOptions opt, string flavorEventOverride = "", int selector = INVALID_SOUND_SELECTOR )
 {
 	if ( PlayerIsPingMuted( player ) )
 		return
@@ -1216,7 +1248,7 @@ void function PlaySoundForCommsAction( entity player, entity subjectEnt, CommsAc
 
 		
 		
-		var soundHandle = EmitSoundOnEntity( player, sound )
+		var soundHandle = EmitSoundOnEntityWithSelector( player, sound, selector )
 
 		if ( opt.pauseQueue )
 			thread SuspendMainDialogueQueueForDurationOfSound( player, soundHandle )
@@ -1651,6 +1683,18 @@ void function AddCallback_OnQuickchatEvent( int index, void functionref(entity, 
 	Assert( !file.onQuickchatCallbacks[ index ].contains( func ) )
 	file.onQuickchatCallbacks[ index ].append( func )
 }
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

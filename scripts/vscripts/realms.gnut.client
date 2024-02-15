@@ -29,6 +29,7 @@ global function CL_RealmsInit
 
 
 
+
 global const int REALM_COUNT = 64
 global enum eRealms
 {
@@ -87,6 +88,11 @@ struct
 
 
 
+
+
+
+
+
 void function CL_RealmsInit()
 {
 	SharedInit()
@@ -111,6 +117,9 @@ void function EntitiesDidLoad()
 
 
 }
+
+
+
 
 
 

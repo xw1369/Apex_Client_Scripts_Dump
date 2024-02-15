@@ -90,9 +90,9 @@ WeaponData
 	projectile_launch_pitch_offset              	4.5
 	grenade_angle_dependant_throw_max_speed_angle	30.8
                      
+	projectile_launch_speed                     	1815
+      
                                                   
-	     
-	projectile_launch_speed                     	1870
        
 	grenade_angle_dependant_throw_min_speed_angle	50.1
 	grenade_angle_dependant_throw_min_speed			1390
@@ -265,7 +265,6 @@ WeaponData
 			grenade_view_launch_offset					"0.0 0.0 0.0"
 		}
 
-                     
 		s17cr_p0_cooldown_mod
         {
         	"regen_ammo_refill_rate"    "15.00"
@@ -276,52 +275,51 @@ WeaponData
         {
         	"regen_ammo_refill_rate"    "15.00"
         }
-      
 
                     
-                                        
-   
+		upgrade_core_loba_pas_backpack_upgrade
+		{
 
-   
+		}
 
-                                  
-   
+		upgrade_core_loba_pas_extra_ammo
+		{
 
-   
+		}
 
-                              
-         
+        upgrade_core_squadwipe
+        {
 
-         
+        }
 
-                                     
-   
-                                              
-                                              
-                                              
-                                              
-   
+		upgrade_core_tac_cooldown_reduction
+		{
+		    "ammo_clip_size"                      20
+		    "ammo_per_shot"                       20
+		    "ammo_min_to_fire"                    20
+		    "ammo_default_total"                  20
+		}
 
-                                           
-   
-                                              
-                                              
-                                              
-                                              
-   
+		upgrade_core_tac_cooldown_reduction_extra
+		{
+		    "ammo_clip_size"                      15
+		    "ammo_per_shot"                       15
+		    "ammo_min_to_fire"                    15
+		    "ammo_default_total"                  15
+		}
 
-                 
-   
-                                                                   
-                                                                    
-                                                                   
-   
+		upgrade_tac_one
+		{
+		    "projectile_launch_speed"                     	   1930 //1800
+		    "grenade_angle_dependant_throw_max_speed_angle"    60   //30.8
+		    "projectile_launch_pitch_offset"                   10   //4.5
+		}
 
-                            
-   
-                                                                              
-                                                                                       
-   
+		upgrade_core_stealth_trail
+		{
+			"projectile_trail_effect_0_1p"                "P_warp_proj_default_notrail"
+        	"projectile_trail_effect_0_3p"                "P_warp_proj_default_3P_notrail"
+		}
       
 	}
 }

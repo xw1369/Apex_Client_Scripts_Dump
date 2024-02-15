@@ -1,5 +1,3 @@
-
-
 global function MeleeHorizonHeirloom_Init
 
 global function OnWeaponActivate_melee_horizon_heirloom
@@ -64,5 +62,3 @@ void function OnWeaponDeactivate_melee_horizon_heirloom( entity weapon )
 
 
 }
-
-                         

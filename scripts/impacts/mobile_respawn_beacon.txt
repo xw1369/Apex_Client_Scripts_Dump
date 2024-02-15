@@ -41,7 +41,7 @@ ImpactTable
 		"2" "P_impact_proj_med_lava" //lava_rock_hot
 		"3" "P_impact_proj_med_default"
 		"4" "P_impact_proj_med_default"
-		"5" "P_impact_exp_med_water"
+		"5" "P_impact_proj_med_default"
 		"6" "P_impact_proj_med_default"
 		"7" "P_impact_proj_med_default"
 		"8" "P_impact_proj_med_default"

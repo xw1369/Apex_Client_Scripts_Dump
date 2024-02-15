@@ -251,15 +251,15 @@ WeaponData
 
         }
                     
-                                           
-         
+        upgrade_core_newcastle_ult_hp_bonus
+        {
 
-         
+        }
 
-                                                           
-         
+        upgrade_core_newcastle_ult_energized_duration_bonus
+        {
 
-         
+        }
       
 	}
 }

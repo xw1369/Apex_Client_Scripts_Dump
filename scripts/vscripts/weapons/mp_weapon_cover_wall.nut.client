@@ -20,11 +20,11 @@ global function IsAmpedWallEnt
 
 
 
+global function ServerToClient_CoverWallUpgrade_StartFastReload
+global function ServerToClient_CoverWallUpgrade_EndFastReload
 
-
-
-
-
+int COCKPIT_FAST_RELOAD_SCREEN_FX
+const asset FAST_RELOAD_UPGRADE_1P_SCREEN_FX = $"P_clbr_ulti_screen"
 
 
 
@@ -155,6 +155,9 @@ void function MpWeaponCoverWall_Init()
 
 
 
+		RegisterSignal( "FastReloadsUpgradeEnd" )
+		Remote_RegisterClientFunction( "ServerToClient_CoverWallUpgrade_StartFastReload" )
+		Remote_RegisterClientFunction( "ServerToClient_CoverWallUpgrade_EndFastReload" )
 
 
 
@@ -162,10 +165,7 @@ void function MpWeaponCoverWall_Init()
 
 
 
-
-
-
-
+			COCKPIT_FAST_RELOAD_SCREEN_FX = PrecacheParticleSystem( FAST_RELOAD_UPGRADE_1P_SCREEN_FX )
 
 
 
@@ -183,8 +183,20 @@ float function GetRampartAmpedShieldHealth()
 }
 
 
+float function GetRampartUpgradedShieldHealth()
+{
+	return GetCurrentPlaylistVarFloat( "upgrade_core_shield_health_multiplier", 1.25 )
+}
 
+float function GetRampartUpgradedBaseHealth()
+{
+	return GetCurrentPlaylistVarFloat( "upgrade_core_shield_health_multiplier", 1.25 )
+}
 
+float function GetRampartUpgradedWallDamageResilienceMultiplier()
+{
+	return GetCurrentPlaylistVarFloat( "upgrade_core_explosive_damage_multiplier", .5 )
+}
 
 
 
@@ -289,64 +301,52 @@ float function GetRampartAmpedShieldHealth()
 
 
 
+void function ServerToClient_CoverWallUpgrade_StartFastReload()
+{
+	entity viewPlayer = GetLocalViewPlayer()
+	if( viewPlayer != GetLocalClientPlayer() )
+		return
 
+	thread FastReload_1PFX_Thread( viewPlayer )
+}
 
+void function ServerToClient_CoverWallUpgrade_EndFastReload()
+{
+	entity viewPlayer = GetLocalViewPlayer()
+	if( viewPlayer != GetLocalClientPlayer() )
+		return
 
+	viewPlayer.Signal( "FastReloadsUpgradeEnd" )
+}
 
+void function FastReload_1PFX_Thread( entity player )
+{
+	player.EndSignal( "OnDeath", "OnDestroy", "BleedOut_OnStartDying", "FastReloadsUpgradeEnd" )
 
+	int fxHandle
+	fxHandle = StartParticleEffectOnEntityWithPos( player, COCKPIT_FAST_RELOAD_SCREEN_FX, FX_PATTACH_ABSORIGIN_FOLLOW, ATTACHMENTID_INVALID, player.EyePosition(), <0, 0, 0> )
+	EffectSetIsWithCockpit( fxHandle, true )
+	EffectSetControlPointVector( fxHandle, 1, <255, 255, 255> )
+	EffectSetControlPointVector( fxHandle, 3, <0.8,0.8,0.8> )
 
+	OnThreadEnd(
+		function() : ( fxHandle )
+		{
+			if ( EffectDoesExist( fxHandle ) )
+				EffectStop( fxHandle, false, true )
+		}
+	)
 
+	for ( ;; )
+	{
+		if ( !EffectDoesExist( fxHandle ) )
+			break
 
+		EffectSetControlPointVector( fxHandle, 1, <1.0, 999, 0> )
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+		WaitFrame()
+	}
+}
 
 
 
@@ -406,8 +406,8 @@ bool function CanReclaimWall( entity baseWall )
 		return false
 
 
-
-
+	if ( IsValid( baseWall.GetOwner() ) && baseWall.GetOwner().HasPassive( ePassives.PAS_PAS_UPGRADE_ONE ) ) 
+		return true
 
 
 	if ( !IsValid( ampedWall) )
@@ -550,12 +550,6 @@ void function PlaceWallWithoutHolstering( entity player )
 		weapon.SetWeaponPrimaryClipCount( weapon.GetWeaponPrimaryClipCount() - expect int ( OnWeaponPrimaryAttack_weapon_cover_wall( weapon, dummy ) ) )
 	}
 }
-
-
-
-
-
-
 
 
 

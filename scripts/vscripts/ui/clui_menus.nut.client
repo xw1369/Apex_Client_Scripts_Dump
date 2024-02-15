@@ -480,7 +480,11 @@ string function LocalizeAndShortenNumber_Float( float number, int maxDisplayInte
 			while ( deciVal % 10 == 0 ) 
 				deciVal = deciVal / 10
 
-			decimalString = string( deciVal )
+			int numLeadingZeros = decimalString.len() - string( int( decimalString ) ).len()
+			decimalString = ""
+			for ( int i = 0; i < numLeadingZeros; i++ )
+				decimalString += "0"
+			decimalString += string( deciVal )
 		}
 	}
 
@@ -568,6 +572,7 @@ void function DEV_UnitTestShortenNumber()
 	}
 
 	table< array< float >, string > floatTestCases = {
+		[[ 1.049, 3, 2 ]]			= "1.05",
 		[[ 1000.5999, 5, 3 ]]       = "1,000.6",
 		[[ 1000.5999, 5, 2 ]]       = "1,000.6",
 		[[ 1000.999, 5, 3 ]]        = "1,000.999",

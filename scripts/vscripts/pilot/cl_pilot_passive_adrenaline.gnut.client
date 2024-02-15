@@ -59,6 +59,12 @@ void function PassiveAdrenaline_StartVisualEffect( entity ent, int statusEffect,
 	}
 
 
+		if ( viewPlayer.HasPassive( ePassives.PAS_FUSE ) )
+		{
+			soundName =  CONDUIT_ADRENALINE_SOUND_START
+		}
+
+
 	EmitSoundOnEntity( viewPlayer, soundName )
 
 	CreatePassiveAdrenalineRUI(adrenalineRui )

@@ -5,19 +5,9 @@ global function Sh_ArenaDeathField_Init
 
 
 
-
-
-
-
-
-
 global function TeamShouldSeeBeaconMarker
 
 global function GetRingTuningOverrideVar
-
-
-
-
 
 
 
@@ -132,10 +122,6 @@ global function SURVIVAL_GetCurrentRoundString
 global function SURVIVAL_IsFinalDeathFieldStage
 global function Survival_GetNumDeathfieldStages
 
-
-
-
-
 global function AddCallback_OnSurvivalDeathFieldStageChanged
 global function RemoveCallback_OnSurvivalDeathFieldStageChanged
 
@@ -158,13 +144,6 @@ table < float, string > distanceToSound =
 const asset DEATHFIELD_EFFECT = $"P_ring_FP_hit_01"
 const string COLOR_CORRECTION = "materials/correction/outside_ring.raw_hdr"
 const asset OBSERVER_DEATHFIELD_EFFECT = $"P_Observer_outside_heat_1p"
-
-
-
-
-
-
-
 
 const string DESIGNER_PLACED_CIRCLE_END_SCRIPT_NAME = "circle_end_location_override"
 const string DESIGNER_PLACED_CIRCLE_END_RADIUS_NAME = "selection_radius"
@@ -195,6 +174,7 @@ global enum ePathfinderNotifications
 	ALREADY_ACTIVE
 }
 
+const int ID_INVALID = -1
 const float START_WAIT_TIME = 5.0
 global const float MARGIN_WAIT_TIME = 5.0
 const asset SURVEY_BEACON_MODEL = $"mdl/props/pathfinder_beacon_radar/pathfinder_beacon_radar_animated.rmdl"
@@ -203,34 +183,6 @@ const asset NEXT_ZONE_SURVEY_BEACON_MODEL = $"mdl/communication/terminal_usable_
 #if DEV
 const string DUMMY_ZONE_WP_NAME = "dev_dummy_circle"
 #endif
-
-
-
-
-
-
-
-
-
-
-
-
-
-global struct DeathFieldData
-{
-	vector center = <0, 0, 0>
-	vector nextCenter = <0, 0, 0>
-
-	float currentRadius = 40000.0
-	float startRadius = 40000.0
-	float endRadius = 40000.0
-	float startTime = 10.0
-	float endTime = 30.0
-
-	int codeIndex = 0
-	float percentDamagePerTick = 0.2
-	bool s_deathFieldSynchronized = false
-}
 
 global struct DeathFieldStageData
 {
@@ -270,10 +222,6 @@ global struct DeathFieldStageData
 
 struct
 {
-
-
-
-
 
 
 
@@ -409,10 +357,10 @@ void function Sh_ArenaDeathField_Init()
 
 
 
-
-
-
-
+		if( Deathfield_EnforcedRingLethality_Enabled() )
+		{
+			Sh_DeathField_EnforcedRingLethality_Init()
+		}
 
 
 	InitDeathFieldDataAndStageData()
@@ -432,20 +380,6 @@ void function Sh_ArenaDeathField_Init()
 #if DEV
 			Waypoints_RegisterCustomType( DUMMY_ZONE_WP_NAME, DEV_OnDummyCircleWpInstanced )
 #endif
-
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
 
 		SurveyBeacon_AddSurveyBeaconMinimapPackage()
 
@@ -594,14 +528,14 @@ DeathFieldStageData function CreateDeathFieldStageData( int index, bool allowMis
 	DeathFieldStageData data
 	data.circleDeviation = GetRingTuningOverrideVar( "deathfield_circleDeviation_" + index, 1.0 )
 
-	if( index < file.deathFieldStagesOverrideRadius.len() )
+	if ( index < file.deathFieldStagesOverrideRadius.len() )
 		data.endRadius = file.deathFieldStagesOverrideRadius[ index ]
 	else
 		data.endRadius = GetRingTuningOverrideVar( "deathfield_radius_" + index, allowMissingDefaults ? 20000.0 : -1.0 )
 
-	if( index < file.deathFieldStagesOverrideMinimapZoom.len() )
+	if ( index < file.deathFieldStagesOverrideMinimapZoom.len() )
 		data.minimapZoomScale = file.deathFieldStagesOverrideMinimapZoom[ index ]
-	else if( data.endRadius <= 600 )
+	else if ( data.endRadius <= 600 )
 		data.minimapZoomScale = 0.1
 	else if ( data.endRadius <= 1000 )
 		data.minimapZoomScale = 0.7
@@ -3477,266 +3411,6 @@ bool function TeamShouldSeeBeaconMarker( int team, entity beacon )
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 void function SURVIVAL_AddCallback_OnDeathFieldStartShrink( void functionref( DeathFieldStageData ) callbackFunc )
 {
 	Assert( !file.ClientCallbacks_OnDeathFieldStartShrink.contains( callbackFunc ), "Already added " + string( callbackFunc ) + " with SURVIVAL_AddCallback_OnDeathFieldStartShrink" )
@@ -3782,7 +3456,7 @@ void function OnPropScriptCreated( entity prop )
 
 		entity owner = prop.GetOwner()
 		entity localPlayer = GetLocalViewPlayer()
-		if( IsValid( owner ) && owner.GetTeam() == localPlayer.GetTeam() )
+		if ( IsValid( owner ) && owner.GetTeam() == localPlayer.GetTeam() )
 		{
 			string playerName  = localPlayer == owner ? Localize( "#OBITUARY_YOU" ) : owner.GetPlayerName()
 			Obituary_Print_Localized( Localize( "#PLAYER_REVEALED_NEXT_RING", playerName ) )
@@ -4156,7 +3830,7 @@ void function SurveyBeaon_ClassChanged( entity player )
 void function OnViewPlayerChanged( entity viewPlayer )
 {
 	entity localClientPlayer = GetLocalClientPlayer()
-	if( GameRules_GetGameMode() == SURVIVAL && localClientPlayer && localClientPlayer.GetTeam() == TEAM_SPECTATOR )
+	if ( GameRules_GetGameMode() == SURVIVAL && localClientPlayer && localClientPlayer.GetTeam() == TEAM_SPECTATOR )
 	{
 		RuiSetBool( ClGameState_GetRui(), "hideDeathFieldWarning", ( localClientPlayer.GetObserverMode() == OBS_MODE_ROAMING ) )
 	}
@@ -4437,15 +4111,15 @@ bool function Cl_SURVIVAL_PosInSafeZone( vector position )
 
 bool function HasActiveSurveyZone( entity player )
 {
-	if( !IsValid( player ) )
+	if ( !IsValid( player ) )
 		return false
 	foreach ( surveyZone in file.surveyMinimapEnts )
 	{
 		entity owner = surveyZone.GetOwner()
 
-		if( IsValid(owner) && owner.GetTeam() == player.GetTeam() ) 
+		if ( IsValid(owner) && owner.GetTeam() == player.GetTeam() ) 
 		{
-			if( !player.HasPassive( ePassives.PAS_PATHFINDER ) ) 
+			if ( !player.HasPassive( ePassives.PAS_PATHFINDER ) ) 
 			{
 				return true
 			}
@@ -4564,7 +4238,7 @@ void function TrackDeathfieldDistance_Internal( entity cockpit, entity player )
 				EffectStop( file.fieldEffectHandle, true, false )
 			}
 
-			if( file.trackingObserverDeathfield && player.GetTeam() == TEAM_SPECTATOR )
+			if ( file.trackingObserverDeathfield && player.GetTeam() == TEAM_SPECTATOR )
 			{
 				file.trackingObserverDeathfield = false
 			}

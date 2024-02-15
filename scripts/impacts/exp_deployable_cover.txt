@@ -45,7 +45,7 @@ ImpactTable
 		"2" "P_impact_exp_smll_metal"
 		"3" "P_impact_exp_smll_metal"
 		"4" "P_impact_exp_smll_metal"
-		"5" "P_impact_exp_smll_water"
+		"5" "P_impact_exp_smll_metal"
 		"6" "P_impact_exp_smll_metal"
 		"7" "P_impact_exp_smll_metal"
 		"8" "P_impact_exp_smll_metal"

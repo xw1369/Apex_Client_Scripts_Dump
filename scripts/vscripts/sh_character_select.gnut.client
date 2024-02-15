@@ -154,16 +154,17 @@ global function IsCharacterReselectEnabled
 
 
 
-global function ServerToClient_SetClubPartyBool
-global function GetIsFullClubSquad
-global function RecordActiveClubName
 
 
 
 
-const string FUNCNAME_CLUB_SETCLUBSQUADBOOL_SV = "ClientToServer_SetClubSquadBool"
-const string FUNCNAME_CLUB_SETCLUBSQUADBOOL_CL = "ServerToClient_SetClubPartyBool"
-global const string CLUB_NAME_EMPTY = "?Club!Name?"
+
+
+
+
+
+
+
 
 #if DEV
 global function Dev_CharacterSelectClearCamera
@@ -272,6 +273,11 @@ struct FileLevelStruct
 
 		var								 scrollingBGRui
 
+
+
+		var								 upgradeTreeRTK
+
+
 		var                              countdownRui
 		var								 jipRui
 		array<var>                       ruiPlayerBarRuis
@@ -350,11 +356,16 @@ struct {
 		array< void functionref(var) > Callbacks_CustomizeBackgroundRui
 		array< void functionref(ItemFlavor, entity, entity, entity, var) > Callbacks_OnCharacterModelChanged
 		array< void functionref( entity, entity, entity, entity, entity ) > Callbacks_CustomUpdateLights
-		bool isFullClubSquad = false
-		string clubName = CLUB_NAME_EMPTY
-		string championClubName = CLUB_NAME_EMPTY
+
+
+
+
+
 
 } file
+
+
+
 
 
 
@@ -483,11 +494,13 @@ void function CharacterSelectMenu_Init()
 		fileLevel.colorCorrection = ColorCorrection_Register( COLOR_CORRECTION )
 
 
-	
 
-		
-		Remote_RegisterServerFunction( FUNCNAME_CLUB_SETCLUBSQUADBOOL_SV )
-		Remote_RegisterClientFunction( FUNCNAME_CLUB_SETCLUBSQUADBOOL_CL, "bool" )
+
+
+
+
+
+
 
 }
 
@@ -565,7 +578,7 @@ bool function CharacterSelect_Menu_ShouldOpen( entity player )
 	if( player.IsPhaseShifted() )
 		return false
 
-	if ( !IsWatchingKillReplay() )
+	if ( !IsWatchingReplay() )
 	{
 		
 		
@@ -708,12 +721,14 @@ void function PanAwayCharacterSelect()
 	NotifyCharacterSelectBeginEnd( false )
 
 
+	if (IsBattleRushGamemode())
+	{
+		BattleRush_StopCharSelectMusic()
+		BattleRush_ServerCallback_PlayJumpMusic()
+	}
 
 
-
-
-
-
+	fileLevel.characterModel.Hide()
 }
 
 void function Client_MuteChanged()
@@ -781,14 +796,16 @@ void function DoAllSquadsCardsPresentation( string endTime )
 	foreach( func in file.Callbacks_OnCharacterMenuClosed )
 		func()
 
-	
-	Remote_ServerCallFunction( FUNCNAME_CLUB_SETCLUBSQUADBOOL_SV )
 
-	
-	if ( file.isFullClubSquad )
-	{
-		RecordActiveClubName()
-	}
+
+
+
+
+
+
+
+
+
 
 	FadeInOut(0.5, 0.5, 0.5)
 	bool shouldHideCharacterSelectRoom = GetCurrentPlaylistVarBool( "survival_hide_character_select_room", false )
@@ -901,13 +918,14 @@ void function DoSquadCardsPresentation( string endTime, bool showTitleFrame )
 	foreach( func in file.Callbacks_OnCharacterMenuClosed )
 		func()
 
-	
-	Remote_ServerCallFunction( FUNCNAME_CLUB_SETCLUBSQUADBOOL_SV )
 
-	if ( file.isFullClubSquad )
-	{
-		RecordActiveClubName()
-	}
+
+
+
+
+
+
+
 
 	bool shouldHideCharacterSelectRoom = GetCurrentPlaylistVarBool( "survival_hide_character_select_room", false )
 
@@ -986,14 +1004,26 @@ void function DoSquadCardsPresentation( string endTime, bool showTitleFrame )
 	}
 	else
 	{
-		if ( file.clubName != "" && file.clubName != CLUB_NAME_EMPTY )
-			RuiSetString( borderRui, "headerText", file.clubName )
+		string headerText
+		switch (true)
+		{
 
-		else if (IsValentinesS15())
-			RuiSetString( borderRui, "headerText", "#SQUAD_HEADER_YOUR_SQUAD_DATE_NIGHT" )
 
-		else
-			RuiSetString( borderRui, "headerText", "#SQUAD_HEADER_YOUR_SQUAD" )
+
+
+
+
+
+			case IsValentinesS15():
+				headerText = "#SQUAD_HEADER_YOUR_SQUAD_DATE_NIGHT"
+				break
+
+
+			default:
+				headerText = "#SQUAD_HEADER_YOUR_SQUAD"
+		}
+
+		RuiSetString( borderRui, "headerText", headerText )
 	}
 
 
@@ -1285,11 +1315,12 @@ void function DoChampionSquadCardsPresentation( string endTime )
 	else
 		Chroma_SetBaseLayer( CHROMALOOP_SMOKE, CHROMATRANS_BLEND, {[0.0] = <0, 0, 0>, [1.0] = <.5, .5, .5>}, 2.0 ) 
 
-	
-	if ( me == championEHI && file.isFullClubSquad )
-		file.championClubName = file.clubName
-	else
-		file.championClubName = CLUB_NAME_EMPTY
+
+
+
+
+
+
 
 
 
@@ -1315,8 +1346,10 @@ void function DoChampionSquadCardsPresentation( string endTime )
 
 	if ( IsSoloMode() )
 		topHeader = "#GLADIATOR_CARD_INTRO_CHAMPION_SOLO"
-	else if ( file.championClubName != CLUB_NAME_EMPTY )
-		topHeader = file.championClubName
+
+
+
+
 
 
 
@@ -1562,8 +1595,9 @@ void function _OpenCharacterSelectMenu( var menu )
 	RunUIScript( "CharacterSelectSetRUI")
 
 
-
-
+	fileLevel.upgradeTreeRTK = Hud_GetChild( menu, "LobbyLegendSkillPerkInfo" )
+	ItemFlavor defaultCharacter = LoadoutSlot_GetItemFlavor( LocalClientEHI(), Loadout_Character() )
+	RunUIScript( "ClientToUI_UpdateHighlightedCharacter", ItemFlavor_GetGUIDString( defaultCharacter ) )
 
 
 	
@@ -1899,12 +1933,7 @@ void function UpdateMenuButtons()
 	int buttonGap = 6
 	int buttonWidth = 77
 
-	UISize screenSize = GetScreenSize()
-
-	float screenSizeXFrac =  screenSize.width / 1920.0
-	float screenSizeYFrac =  screenSize.height / 1080.0
-
-	float scaleFrac = min(screenSizeXFrac, screenSizeYFrac)
+	float scaleFrac = GetScreenScaleFrac()
 
 	int assaultLegendsAmount = GetCharactersByRole( orderedCharacters, eCharacterClassRole.OFFENSE ).len()
 	int skirmisherLegendsAmount = GetCharactersByRole( orderedCharacters, eCharacterClassRole.SKIRMISHER ).len()
@@ -2771,13 +2800,12 @@ void function DoBrowseModeCharacterSelectEffects()
 	thread function() : ()
 	{
 		wait(0.5)
-		entity player = GetLocalClientPlayer()
-		if ( IsAlive( player ) && !IsWatchingKillReplay() )
+		if ( IsLocalPlayerAlive_NonReplay() )
 		{
 			
 			
 			
-			PlayClientDialogueOnEntity( GetAnyAliasIdForName( "bc_returnFromRespawn" ), eDialogueFlags.EMIT_FROM_FIXED_POSITION, player )
+			PlayClientDialogueOnEntity( GetAnyAliasIdForName( "bc_returnFromRespawn" ), eDialogueFlags.EMIT_FROM_FIXED_POSITION, GetLocalClientPlayer() )
 		}
 	}()
 }
@@ -3392,9 +3420,21 @@ void function UpdateButtonStates()
 			bool isJumpmaster = IsPlayerJumpMaster( player )
 
 			if ( !(i in fileLevel.connectedPlayerNames) )
-				fileLevel.connectedPlayerNames[ i ] <- player.GetPlayerNameWithClanTag()
+			{
+
+					fileLevel.connectedPlayerNames[ i ] <- player.GetPlayerNameWithClanTag()
+
+
+
+			}
 			else
-				fileLevel.connectedPlayerNames[ i ] = player.GetPlayerNameWithClanTag()
+			{
+
+					fileLevel.connectedPlayerNames[ i ] = player.GetPlayerNameWithClanTag()
+
+
+
+			}
 
 			if ( player.GetPlayerNetBool( CHARACTER_SELECT_NETVAR_HAS_LOCKED_IN_CHARACTER ) && LoadoutSlot_IsReady( playerEHI, characterSlot ) )
 			{
@@ -3407,7 +3447,13 @@ void function UpdateButtonStates()
 
 				RuiSetBool( playerRui, "lockedCharacter", true )
 				RuiSetString( playerRui, "characterName", ItemFlavor_GetLongName( character ) )
-				RuiSetString( playerRui, "playerName", player.GetPlayerNameWithClanTag() )
+
+
+					RuiSetString( playerRui, "playerName", player.GetPlayerNameWithClanTag() )
+
+
+
+
 				RuiTrackInt( playerRui, "micStatus", player, RUI_TRACK_MIC_STATUS )
 				RuiSetImage( playerRui, "lockedPortraitImage", lockedPortrait )
 				RuiSetImage( playerRui, "lockedClassIcon", lockedClassIcon )
@@ -3420,7 +3466,11 @@ void function UpdateButtonStates()
 				
 				RuiSetBool( playerRui, "lockedCharacter", false )
 				RuiSetString( playerRui, "characterName", "" )
-				RuiSetString( playerRui, "playerName", player.GetPlayerNameWithClanTag() )
+
+					RuiSetString( playerRui, "playerName", player.GetPlayerNameWithClanTag() )
+
+
+
 				RuiTrackInt( playerRui, "micStatus", player, RUI_TRACK_MIC_STATUS )
 				RuiSetImage( playerRui, "lockedPortraitImage", $"" )
 				RuiSetImage( playerRui, "lockedClassIcon", $"" )
@@ -3856,18 +3906,19 @@ void function UpdatePlayerModel( ItemFlavor character, ItemFlavor ornull charact
 
 
 
+	RunUIScript( "ClientToUI_UpdateHighlightedCharacter", ItemFlavor_GetGUIDString( character ) )
 
+	
+	bool showUpgradeTree = UpgradeCore_ShowUpgradeTree_CharacterSelect()
+	if ( fileLevel.upgradeTreeRTK )
+	{
+		Hud_SetVisible( fileLevel.upgradeTreeRTK, showUpgradeTree )
+	}
 
-
-
-
-
-
-
-
-
-
-
+	if (fileLevel.backgroundRui)
+	{
+		RuiSetBool ( fileLevel.backgroundRui, "hidden", showUpgradeTree )
+	}
 
 
 	
@@ -3897,6 +3948,9 @@ void function UpdatePlayerModel( ItemFlavor character, ItemFlavor ornull charact
 		RuiSetString( fileLevel.scrollingBGRui, "nameString", Localize( ItemFlavor_GetLongName( character ) ) )
 		RuiSetString( fileLevel.scrollingBGRui, "footnoteString", Localize( ItemFlavor_GetShortDescription( character ) ) )
 		RuiSetFloat( fileLevel.scrollingBGRui, "startTime", Time() )
+
+		UISize screenSize = GetScreenSize()
+		RuiSetBool( fileLevel.scrollingBGRui, "is16x10", GetNearestAspectRatio( screenSize.width, screenSize.height ) == 1.6 )
 
 	}
 
@@ -4058,7 +4112,7 @@ void function DebugMenuThink()
 		debugString += "\n" + format( "Desired Character: %s", desiredCharacter )
 		debugString += "\n" + format( "Desired Menu State: %s", DEV_GetEnumStringSafe( "eNewCharacterSelectMenuState", fileLevel.desiredMenuState ) )
 
-		DebugScreenText( 0.05, 0.5, debugString )
+		DebugDrawScreenText( 0.05, 0.5, debugString )
 
 		WaitFrame()
 	}
@@ -4099,40 +4153,45 @@ void function DebugMenuThink()
 
 
 
-void function ServerToClient_SetClubPartyBool( bool isClubSquad )
-{
-	if ( !IsConnected() )
-		return
 
 
 
 
 
 
-	file.isFullClubSquad = isClubSquad
-}
 
 
-bool function GetIsFullClubSquad()
-{
-	return file.isFullClubSquad
-}
 
 
-void function RecordActiveClubName()
-{
-	string clubName = CLUB_NAME_EMPTY
 
-	if (  ClubIsValid() )
-		clubName = ClubGetHeader().name
 
-	printf( "ClubSquadPresentationDebug: %s(): Client says the club name is %s", FUNC_NAME(), clubName )
-	if ( clubName != "" )
-	{
-		file.clubName = clubName
-		Clubs_SetMyStoredClubName( clubName )
-	}
-}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -5149,24 +5208,5 @@ CharacterLists function PopulateCharacterListStruct()
 
 bool function Character_IsCharacterUnlockedForCalevent( ItemFlavor characterItemFlavor )
 {
-	
-	
-	table < asset, string > activeCharacterUnlocks = {}
-
-	
-	
-
-	
-
-	
-	foreach ( eventAsset, unlockedCharacterGUID in activeCharacterUnlocks )
-	{
-		bool isEventActive = CalEvent_IsActive( GetItemFlavorByAsset( eventAsset ), GetUnixTimestamp() )
-		bool isCharacterMatch = ItemFlavor_GetGUIDString( characterItemFlavor ) == unlockedCharacterGUID
-
-		if ( isEventActive && isCharacterMatch )
-			return true
-	}
-
-	return false
+	return TempUnlock_IsCharacterUnlocked( characterItemFlavor )
 }

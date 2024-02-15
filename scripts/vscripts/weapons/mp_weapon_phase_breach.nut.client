@@ -10,7 +10,7 @@ global function OnWeaponAttemptOffhandSwitch_weapon_phase_breach
 
 global function ServerToClient_PhaseBreachPortalCancelled
 
-
+    global function ServerToClient_NotifyAshCooldownReduction
 
 
 
@@ -34,7 +34,7 @@ const float PHASE_BREACH_SPEED = 1200.0
 const float PHASE_BREACH_TRAVEL_TIME_MIN = 0.3
 const float PHASE_BREACH_TRAVEL_TIME_MAX = 1.8
 
-
+const float PHASE_BREACH_TRAVEL_TIME_MAX_UPGRADED = 1.4
 
 const float PHASE_BREACH_PORTAL_LIFETIME = 15.0
 
@@ -46,7 +46,11 @@ const float PHASE_BREACH_MAX_ANGLE_FOR_FULL_DIST_DEFAULT = 45.0
 const bool  PHASE_BREACH_ALLOW_START_ON_MOVERS_DEFAULT = true
 const bool  PHASE_BREACH_ALLOW_END_ON_MOVERS_DEFAULT = true
 const float PHASE_BREACH_MOVERS_MAX_SPEED_FOR_END_DEFAULT = 12.0
-const bool  PHASE_BREACH_ALLOW_END_ON_OOB = true
+
+const bool  PHASE_BREACH_ALLOW_END_ON_OOB = false
+
+
+
 const float PHASE_BREACH_MIN_VIEW_DOT = 0.95
 
 const bool DEBUG_DRAW_TARGETING = false
@@ -127,33 +131,36 @@ void function MpWeaponPhaseBreach_Init()
 
 
 	if ( PHASE_BREACH_ALLOW_END_ON_OOB == false )
+	{
 		file.invalidTriggerEndingTypes.append( "trigger_out_of_bounds" )
+		file.invalidTriggerEndingTypes.append( "trigger_networked_out_of_bounds" )
+	}
 
 	Remote_RegisterClientFunction( FUNC_BREACH_FAILED )
 
-
+		Remote_RegisterClientFunction( "ServerToClient_NotifyAshCooldownReduction" )
 
 
 	file.breachPersistsWhenAshDies = GetCurrentPlaylistVarBool( "ash_ult_persists_past_ash_death", true )
 }
 
 
+float function GetUpgradedMaxPhaseTravelTime()
+{
+	return GetCurrentPlaylistVarFloat( "ash_upgraded_max_phase_travel_time", PHASE_BREACH_TRAVEL_TIME_MAX_UPGRADED )
+}
 
+float function GetMaxPhaseTravelTime( entity player )
+{
+	float result = PHASE_BREACH_TRAVEL_TIME_MAX
 
+		if( PlayerHasPassive( player, ePassives.PAS_ULT_UPGRADE_ONE ) ) 
+		{
+			result = GetUpgradedMaxPhaseTravelTime()
+		}
 
-
-
-
-
-
-
-
-
-
-
-
-
-
+	return result
+}
 
 
 void function OnWeaponActivate_weapon_phase_breach( entity weapon )
@@ -474,15 +481,15 @@ void function ServerToClient_PhaseBreachPortalCancelled()
 }
 
 
-
-
-
-
-
-
-
-
-
+void function ServerToClient_NotifyAshCooldownReduction()
+{
+	entity localViewPlayer = GetLocalViewPlayer()
+	if ( IsValid( localViewPlayer ) && PlayerHasPassive( localViewPlayer, ePassives.PAS_ULT_UPGRADE_TWO ) )
+	{
+		string hintStr = "#PHASE_BREACH_COOLDOWN_REDUCED"
+		AddPlayerHint( 2.5, 0.25, $"rui/hud/ultimate_icons/ultimate_ash", hintStr )
+	}
+}
 
 
 
@@ -902,7 +909,7 @@ bool function IsBreachPositionValid( entity player, vector position, entity trac
 			if ( DEBUG_DRAW_PUSHER_MOVEMENT )
 			{
 				vector pusherVelAtPoint = pusher.GetAbsVelocityAtPoint(position)
-				DebugScreenText( 0.1,0.6, "Pusher " + pusher + ", speed is " + Length(pusherVelAtPoint) + " , vel is " + pusherVelAtPoint )
+				DebugDrawScreenText( 0.1,0.6, "Pusher " + pusher + ", speed is " + Length(pusherVelAtPoint) + " , vel is " + pusherVelAtPoint )
 			}
 
 			if ( LengthSqr(pusher.GetAbsVelocityAtPoint(position)) > file.maxEndingMoverSpeedSqr )	

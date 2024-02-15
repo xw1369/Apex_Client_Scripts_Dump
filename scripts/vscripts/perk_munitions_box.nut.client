@@ -1,8 +1,8 @@
 const string MUNITIONS_BOX_SCRIPT_NAME = "assault_perk_loot_bin"
 
+global const string MUNITIONS_BOX_LOOT_BIN_SKIN_NAME = "MunitionsBox_Turbo"
 
 
-global const string MUNITIONS_BOX_LOOT_BIN_SKIN_NAME = "MunitionsBox"
 
 
 const int HOP_UP_DROP_CHANCE = 20
@@ -232,6 +232,42 @@ void function OnMunitionsBoxSpawned( entity ent )
 
 	Perks_AddMinimapEntityForPerk( ePerkIndex.MUNITIONS_BOX, ent )
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

@@ -39,7 +39,7 @@ ImpactTable
 		"2" "P_pilot_sword_solo_imp_lava" //lava_rock_hot
 		"3" "P_pilot_sword_solo_imp_dirt"
 		"4" "P_pilot_sword_solo_imp_dirt"
-		"5" "P_pilot_sword_solo_imp_water" //water_hrz
+		"5" "P_pilot_sword_solo_imp_default" //water_hrz
 		"6" "P_pilot_sword_solo_imp_dirt"
 		"7" "P_pilot_sword_solo_imp_dirt"
 		"8" "P_pilot_sword_solo_imp_dirt"

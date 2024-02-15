@@ -51,12 +51,6 @@ void function OnWeaponActivate_weapon_artifact_sword_primary( entity weapon )
 
 
 
-
-
-
-
-
-
 	if ( meleeSkinName == "heirloom" )
 	{
 		

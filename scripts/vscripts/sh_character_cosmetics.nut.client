@@ -23,6 +23,8 @@ global function CharacterClass_GetDefaultSkin
 global function CharacterSkin_GetCharacterFlavor
 global function CharacterSkin_GetBodyModel
 global function CharacterSkin_GetArmsModel
+global function CharacterSkin_GetLoadingBodyModel
+global function CharacterSkin_GetLoadingArmsModel
 global function CharacterSkin_GetSkinName
 global function CharacterSkin_GetCamoIndex
 global function CharacterSkin_GetSortOrdinal
@@ -51,7 +53,7 @@ global function CharacterIntroQuip_GetSortOrdinal
 
 global function CharacterSkin_Apply
 global function CharacterSkin_WaitForAndApplyFromLoadout
-
+global function CharacterSkin_GetPakFile
 
 
 

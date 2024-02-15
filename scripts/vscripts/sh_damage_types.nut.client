@@ -80,6 +80,10 @@ global enum eDamageSourceId
 
 
 
+
+
+
+
 	damagedef_loot_drone_explosion
 
 
@@ -218,10 +222,8 @@ global enum eDamageSourceId
 	melee_ash_heirloom
 	mp_weapon_ash_heirloom
 
-
 	melee_horizon_heirloom
 	mp_weapon_horizon_heirloom_primary
-
 
 
 	melee_revenant_scythe_rt01
@@ -275,7 +277,6 @@ global enum eDamageSourceId
 
 
 
-
 	mp_ability_debuff_zone
 	mp_ability_debuff_zone_aoe
 	overheat_explosion
@@ -312,10 +313,6 @@ global enum eDamageSourceId
 
 
 	mp_ability_conduit_shield_mines
-
-
-
-
 
 
 
@@ -504,7 +501,7 @@ global enum eDamageSourceId
 
 
 	mp_weapon_stun_mine
-	mp_weapon_cluster_bomb
+	mp_weapon_cluster_bomb_launcher
 
 	mp_weapon_mortar_ring
 	mp_ability_horizon_black_hole
@@ -633,8 +630,8 @@ global enum eDamageSourceId
 
 
 
-
-
+	melee_octane_knife_rt01
+	mp_weapon_octane_knife_rt01_primary
 
 
 
@@ -863,10 +860,8 @@ void function DamageTypes_Init()
 		[ eDamageSourceId.melee_ash_heirloom ] = "#DEATH_MELEE_ASH_HEIRLOOM",
 		[ eDamageSourceId.mp_weapon_ash_heirloom] = "#DEATH_MELEE_ASH_HEIRLOOM",
 
-
-			[ eDamageSourceId.melee_horizon_heirloom ] = "#DEATH_MELEE_HORIZON_HEIRLOOM",
-			[ eDamageSourceId.mp_weapon_horizon_heirloom_primary] = "#DEATH_MELEE_HORIZON_HEIRLOOM",
-
+		[ eDamageSourceId.melee_horizon_heirloom ] = "#DEATH_MELEE_HORIZON_HEIRLOOM",
+		[ eDamageSourceId.mp_weapon_horizon_heirloom_primary] = "#DEATH_MELEE_HORIZON_HEIRLOOM",
 
 
 			[ eDamageSourceId.melee_revenant_scythe_rt01 ] = "#DEATH_MELEE_REVENANT_SCYTHE_RT01",
@@ -889,6 +884,11 @@ void function DamageTypes_Init()
 
 
 
+			[ eDamageSourceId.melee_octane_knife_rt01 ] = "#DEATH_MELEE_OCTANE_KNIFE_RT01",
+			[ eDamageSourceId.mp_weapon_octane_knife_rt01_primary ] = "#DEATH_MELEE_OCTANE_KNIFE_RT01",
+
+
+
 
 
 
@@ -897,7 +897,7 @@ void function DamageTypes_Init()
 		[ eDamageSourceId.mp_weapon_rampart_wrench_primary ] = "#DEATH_MELEE_RAMPART_WRENCH",
 
 		[ eDamageSourceId.mp_weapon_stun_mine ] = "#WPN_TACTICAL_STUN_MINES",
-		[ eDamageSourceId.mp_weapon_cluster_bomb ] = "#WPN_CLUSTER_BOMB",
+		[ eDamageSourceId.mp_weapon_cluster_bomb_launcher ] = "#WPN_CLUSTER_BOMB",
 		[ eDamageSourceId.mp_weapon_mortar_ring ] = "#WPN_MORTAR_RING",
 
 		[ eDamageSourceId.mp_ability_armored_leap ] = "#WPN_ARMORED_LEAP",
@@ -906,11 +906,9 @@ void function DamageTypes_Init()
 		[ eDamageSourceId.mp_weapon_ferro_wall ] = "#WPN_FERRO_WALL",
 		[ eDamageSourceId.mp_ability_spike_strip ] = "#WPN_SPIKES",
 
-
-			[ eDamageSourceId.mp_ability_debuff_zone ] = "#WPN_DEBUFF_ZONE",
-			[ eDamageSourceId.mp_ability_debuff_zone_aoe ] = "#WPN_DEBUFF_ZONE",
-			[ eDamageSourceId.overheat_explosion ] = "#WPN_DEBUFF_ZONE_OVERHEAT",
-
+		[ eDamageSourceId.mp_ability_debuff_zone ] = "#WPN_DEBUFF_ZONE",
+		[ eDamageSourceId.mp_ability_debuff_zone_aoe ] = "#WPN_DEBUFF_ZONE",
+		[ eDamageSourceId.overheat_explosion ] = "#WPN_DEBUFF_ZONE_OVERHEAT",
 
 
 			[ eDamageSourceId.mp_ability_conduit_shield_mines ] = "#ABL_CONDUIT_ULTIMATE",
@@ -951,11 +949,6 @@ void function DamageTypes_Init()
 
 
 			[ eDamageSourceId.golden_horse_green ] = "#WPN_HOPUP_GOLDEN_HORSE_GREEN",
-
-
-
-
-
 
 
 

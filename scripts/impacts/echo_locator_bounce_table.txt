@@ -43,7 +43,7 @@ ImpactTable
 		"2" "P_hmn_footstep_lava" //lava_rock_hot
 //		"3" "openslot"
 //		"4" "openslot"
-		"5" "P_impact_water_hrz"
+		"5" "P_impact_digital_water_hrz_w_glass"
 //		"6" "openslot"
 //		"7" "openslot"
 //		"8" "openslot"
@@ -105,7 +105,7 @@ ImpactTable
 		"headshot_flesh" "Seer_Heart_SurfaceImpact_Flesh_3P"
 		"headshot_mechanical" "Seer_Heart_SurfaceImpact_Metal_3P"
 
-		"5" "Phys_Imp_BubbleShieldDisc_Water"
+		"5" "Seer_Heart_SurfaceImpact_Concrete_3P"
 	}
 
 	Sound_attacker
@@ -151,7 +151,7 @@ ImpactTable
 		"headshot_flesh" "Seer_Heart_SurfaceImpact_Flesh_3P"
 		"headshot_mechanical" "Seer_Heart_SurfaceImpact_Metal_3P"
 
-		"5" "Phys_Imp_BubbleShieldDisc_Water"
+		"5" "Seer_Heart_SurfaceImpact_Concrete_3P"
 	}
 
 	Sound_victim
@@ -198,7 +198,7 @@ ImpactTable
 		//"headshot_flesh" "Flesh.BulletImpact_3P_vs_1P"
 		//"headshot_mechanical" "Android.Light.BulletImpact_3P_vs_1P"
 
-		"5" "Phys_Imp_BubbleShieldDisc_Water"
+		"5" "Seer_Heart_SurfaceImpact_Concrete_3P"
 	}
 
 	Sound_victim_from_AI

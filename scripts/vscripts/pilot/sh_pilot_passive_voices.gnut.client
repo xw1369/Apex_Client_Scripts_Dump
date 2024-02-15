@@ -477,19 +477,19 @@ void function PassiveVoices_PlayRandomDescriptorFromCategory( entity player, int
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
+entity function TeamPassiveVoices_GetTeammateWithPassive( entity player )
+{
+	array<entity> teammates = GetPlayerArrayOfTeam( player.GetTeam() )
+	bool hasTeamPassive = false
+	foreach( teammate in teammates )
+	{
+		if( teammate.HasPassive( ePassives.PAS_TEAM_VOICES ) )
+		{
+			return teammate
+		}
+	}
+	return null
+}
 
 
 

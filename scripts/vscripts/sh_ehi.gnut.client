@@ -90,6 +90,9 @@ global function GetCachedObsfuscatedNameByName
 
 
 
+global function UIToClient_UpdateLocalPlayerTag
+
+
 
 
 
@@ -628,6 +631,7 @@ void function ShEHI_OnPlayerCreated( entity ent )
 	ehiss.isPlayer = true
 	ehiss.isConnected = true
 	ehiss.name = ent.GetPlayerName()
+	ehiss.tag  = ent.GetPlayerTag()
 	ehiss.team = ent.GetTeam()
 	ehiss.teamMemberIndex = ent.GetTeamMemberIndex()
 	ehiss.platformID = GetHardwareFromName( ent.GetHardwareName() )
@@ -656,6 +660,7 @@ void function ShEHI_OnPlayerCreated( entity ent )
 			ehiss.isLocalClientPlayer,
 			ehiss.isConnected,
 			ehiss.name,
+			ehiss.tag,
 			ehiss.team,
 			ehiss.teamMemberIndex,
 			pID
@@ -665,6 +670,8 @@ void function ShEHI_OnPlayerCreated( entity ent )
 	
 	
 }
+
+
 
 
 
@@ -717,6 +724,7 @@ void function ShEHI_OnPlayerChangedTeam( entity player, int oldTeam, int newTeam
 			player.e.ehiss.isLocalClientPlayer,
 			player.e.ehiss.isConnected,
 			player.e.ehiss.name,
+			player.e.ehiss.tag,
 			player.e.ehiss.team,
 			player.e.ehiss.teamMemberIndex,
 			pID
@@ -746,6 +754,7 @@ void function ShEHI_OnPlayerDisconnected( entity player )
 			player.e.ehiss.isLocalClientPlayer,
 			player.e.ehiss.isConnected,
 			player.e.ehiss.name,
+			player.e.ehiss.tag,
 			player.e.ehiss.team,
 			player.e.ehiss.teamMemberIndex,
 			pID
@@ -778,6 +787,7 @@ void function UIToClient_UIVMJustStarted()
 			ehiss.isLocalClientPlayer,
 			ehiss.isConnected,
 			ehiss.name,
+			ehiss.tag,
 			ehiss.team,
 			ehiss.teamMemberIndex,
 			pID
@@ -826,10 +836,34 @@ string function GetCachedObsfuscatedNameByName( string playerName )
 
 
 
+void function UIToClient_UpdateLocalPlayerTag( string tag )
+{
+	EHI playerEHI = LocalClientEHI()
+	if ( playerEHI != EHI_null )
+	{
+		if ( tag != "" )
+		{
+			GetEHIScriptStruct( playerEHI ).tag = tag
+		}
+		else
+		{
+			GetEHIScriptStruct( playerEHI ).tag = ""
+		}
+	}
+}
+
+
 
 string function GetKillerNameFromEHI( EHI playerEHI )
 {
-	string clubTag = GetPlayerClubTag( playerEHI )
+	string playerTag = ""
+
+
+		playerTag = GetPlayerTag( playerEHI )
+
+
+
+
 
 	string playerName = EHI_GetName( playerEHI )
 	if ( (ShouldPlayerNameBeAnonymized( playerEHI ) || !DisplayKillerName()) && playerEHI != LocalClientEHI() && EHI_GetTeam( playerEHI ) != EHI_GetTeam( LocalClientEHI() ) )
@@ -843,7 +877,7 @@ string function GetKillerNameFromEHI( EHI playerEHI )
 		return GetObsfuscatedName( playerEHI )
 	}
 
-	return clubTag + " " + playerName
+	return ( playerTag == "" )? playerName : playerTag + " " + playerName
 }
 
 
@@ -860,7 +894,13 @@ string function GetDisplayablePlayerName( entity player )
 
 string function GetDisplayablePlayerNameFromEHI( EHI playerEHI )
 {
-	string clubTag = GetPlayerClubTag( playerEHI )
+	string playerTag = ""
+
+		playerTag = GetPlayerTag( playerEHI )
+
+
+
+
 
 	string playerName = EHI_GetName( playerEHI )
 	bool isSetToObsfuscatedName = ( ShouldPlayerNameBeAnonymized( playerEHI ) || !DisplayObituaryName() )
@@ -891,47 +931,70 @@ string function GetDisplayablePlayerNameFromEHI( EHI playerEHI )
 		return GetObsfuscatedName( playerEHI )
 	}
 
-	return clubTag + " " + playerName
+	return ( playerTag == "" )? playerName : playerTag + " " + playerName
 }
 
 
 
 
-string function GetPlayerClubTag( EHI playerEHI )
+string function GetPlayerTag( EHI playerEHI )
 {
-	if ( Clubs_AreObituaryTagsEnabledByPlaylist() == false )
+	if ( GetCurrentPlaylistVarBool( "PlayerTagsInObituaryEnabled", true ) == false )
 	{
-		printf( "ClubDataDebug: No Club Tag (Disabled by Playlist)" )
+		printf( "No Player Tag (Disabled by Playlist)" )
 		return ""
 	}
 
-	string clubTag = ""
-	entity player = FromEHI( playerEHI )
-	if( !IsValid( player ) )
-	{
-		if ( GetEHIScriptStruct(playerEHI ).clubTag  != "" )
-			clubTag = "[" + GetEHIScriptStruct(playerEHI ).clubTag + "]"
-		return clubTag
-	}
+	Assert( playerEHI != EHI_null )
 
-#if DEV
-	if ( player.IsBot() )
-	{
-		clubTag = ""
-		return clubTag
-	}
-#endif
+	string playerTag = GetEHIScriptStruct( playerEHI ).tag
 
-	clubTag = player.GetClubTag()
-	if ( GetEHIScriptStruct(playerEHI ).clubTag == "" && clubTag != "")
-		GetEHIScriptStruct(playerEHI ).clubTag = clubTag
+	if( playerTag != "" )
+		playerTag = "[" + playerTag + "]"
 
-	if(clubTag != "")
-		clubTag = "[" + clubTag + "]"
-
-	
-	return clubTag
+	return playerTag
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

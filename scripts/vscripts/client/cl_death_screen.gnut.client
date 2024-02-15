@@ -8,6 +8,7 @@ global function ShowDeathScreen
 global function EnableDeathScreenTab
 global function SwitchDeathScreenTab
 global function SetDeathScreenTabTitle
+global function TryEnableDeathScreenRequeue
 global function DeathScreenUpdate
 global function DeathScreenCreateNonMenuBlackBars
 global function UpdateBlackBarRui
@@ -37,8 +38,8 @@ global function UICallback_SquadSummaryDisplayed
 global function UICallback_UpdateHeader
 global function UICallback_ToggleGladCard
 
-
-
+global function UICallback_ToggleUpgradesGladCard
+global function UICallback_ToggleUpgradesGladCardDeathRecap
 
 global function UICallback_SelectRecapBlock
 global function UICallback_NextRecapBlock
@@ -79,6 +80,8 @@ global function DeathScreen_UpdateRespawnTime
 
 global function ClientCodeCallback_OnDeathRecapData
 global function ClientCodeCallback_OnDeathRecapUpdated
+
+global function ServerCallback_NotifyPlayerLastRank
 
 const MAX_RECAP_GLAD_CARDS = 3
 const MIN_ACTIVATION_DELAY = 2.6
@@ -121,8 +124,8 @@ struct
 	bool           showGladCard = true 
 	bool           allowGladCard = true
 
-
-
+	bool           showUpgradesGladCard = false 
+	bool           showUpgradesGladCardDeathRecap = false 
 
 	EncodedEHandle lastObserverTargetEHandle = 0
 
@@ -164,6 +167,7 @@ struct
 	asset modeSpecificDataRui
 	void functionref( var ) modeSpecificRuiUpdateFunc
 
+	var headerRuiForPlacement
 } file
 
 
@@ -191,6 +195,7 @@ void function Cl_DeathScreen_Init()
 
 	RegisterSignal( "SwitchedTab" )
 	RegisterSignal( "DeathScreenMenuClosed" )
+	RegisterSignal( "KillExistingRequeueThreads" )
 
 	file.useModeSpecificDisplayData = GetCurrentPlaylistVarBool( "has_mode_specific_display_data", true )
 	file.modeSpecificDataRui = SURVIVAL_DEATH_SCREEN_ASSET
@@ -294,7 +299,8 @@ void function ServerCallback_SquadEliminated( int eliminiatedTeam )
 	entity clientPlayer = GetLocalClientPlayer()
 	Assert( IsValid( clientPlayer ) )
 
-	if ( eliminiatedTeam != clientPlayer.GetTeam() )
+	int clientPlayerTeam = clientPlayer.GetTeam()
+	if ( eliminiatedTeam != clientPlayerTeam )
 		return
 
 	
@@ -305,13 +311,80 @@ void function ServerCallback_SquadEliminated( int eliminiatedTeam )
 			ShowDeathScreen( eDeathScreenPanel.SPECTATE )
 	}
 
+	TryEnableDeathScreenRequeue()
+
 	if ( SquadSummaryTabIsPlaylistEnabled() )
 	{
 		if ( GetGameState() < eGameState.WinnerDetermined )
+		{
+			EnableDeathScreenTab( eDeathScreenPanel.SQUAD, false )
 			EnableDeathScreenTab( eDeathScreenPanel.SQUAD_SUMMARY, true )
+		}
 	}
 
 	FlagSet( "SquadEliminated" )
+}
+
+void function UpdateRequeueUI_Thread( int clientPlayerTeam, bool showRequeue )
+{
+	var requeueEle = RunUIScript_ReturnPanel( "UI_GetDeathScreenRequeueElement" )
+	if ( requeueEle == null )
+		return
+
+	if ( !IsValid( clGlobal.levelEnt ) )
+		return
+
+	Signal( clGlobal.levelEnt, "KillExistingRequeueThreads" )
+	EndSignal( clGlobal.levelEnt, "KillExistingRequeueThreads" )
+	EndSignal( clGlobal.levelEnt, "OnDestroy" )
+
+	OnThreadEnd(
+		function() : ( requeueEle )
+		{
+			Hud_SetVisible( requeueEle, false )
+		}
+	)
+
+	Hud_SetVisible( requeueEle, showRequeue )
+
+	if ( !showRequeue )
+		return
+
+	var requeueRui = Hud_GetRui( requeueEle )
+
+	while ( true )
+	{
+		int numPartyInSquad = 0
+		foreach ( entity squadmate in GetPlayerArrayOfTeam( clientPlayerTeam ) )
+		{
+			if ( IsValid( squadmate ) && squadmate.IsConnectionActive() )
+			{
+				if ( IsInMyParty( squadmate.GetUserID() ) )
+					numPartyInSquad++
+
+				
+				
+
+
+
+
+			}
+		}
+
+		int partySize = GetPartySize()
+		bool fullPartyConnected = ( partySize == numPartyInSquad )
+		bool playlistHidden = Playlist_ShouldBeHiddenForScheduleBlocks( GetCurrentPlaylistName() )
+		RuiSetInt( requeueRui, "partySize", partySize )
+		RuiSetBool( requeueRui, "amIPartyLeader", AmIPartyLeader() )
+		RuiSetBool( requeueRui, "fullPartyConnected", fullPartyConnected )
+		RuiSetBool( requeueRui, "playlistHidden", playlistHidden )
+		RuiSetBool( requeueRui, "isMatchmaking", IsMyPartyMatchmaking() )
+		RuiSetString( requeueRui, "matchmakingStatus", GetMyMatchmakingStatus() )
+
+		RunUIScript( "UI_RequeueStatusChanged", fullPartyConnected )
+
+		WaitFrame()
+	}
 }
 
 void function DeathScreen_Destroy()
@@ -594,7 +667,10 @@ void function UpdateEnabledTabs()
 
 	
 	if ( !IsAlive( clientPlayer ) )
+	{
 		EnableDeathScreenTab( eDeathScreenPanel.SPECTATE, true )
+		EnableDeathScreenTab( eDeathScreenPanel.SQUAD, true )
+	}
 
 
 	bool enableMatchEnd =  GetCurrentPlaylistVarBool( "enable_match_end_scoreboard", false )
@@ -644,6 +720,15 @@ void function EnableDeathScreenTab( int tabIndex, bool enable )
 void function SetDeathScreenTabTitle( int tabIndex, string title )
 {
 	RunUIScript( "UI_SetDeathScreenTabTitle", tabIndex, title )
+}
+
+void function TryEnableDeathScreenRequeue()
+{
+
+	entity player = GetLocalClientPlayer()
+	bool showRequeue = IsMatchmakingFromMatchAllowed( player )
+	thread UpdateRequeueUI_Thread( player.GetTeam(), showRequeue )
+
 }
 
 
@@ -718,6 +803,70 @@ void function DeathScreenUpdateChangeLoadout( entity player )
 		Hud_Hide( file.changeLoadoutButton )
 	}
 
+}
+
+
+void function DeathScreen_UpdateTeamMicStatus(var rui, entity localPlayer, bool showMicStatus = true)
+{
+	EndSignal( clGlobal.levelEnt, "ShowRoundEndSquadResults" )
+
+	if ( !IsValid ( localPlayer ) || !IsValid ( rui ) )
+		return
+
+	EndSignal( localPlayer, "OnDestroy" )
+	EndSignal( localPlayer, "DeathScreenMenuClosed" )
+
+	RuiSetBool( rui, "showMicIcons", showMicStatus )
+
+	if (!showMicStatus)
+		return
+
+	array<entity> teamPlayers = GetPlayerArrayOfTeam( localPlayer.GetTeam() )
+
+	for ( int index = 0; index < 4; index++ )
+	{
+		if ( index < teamPlayers.len() && IsValid( teamPlayers[index] ) )
+		{
+			RuiSetString( rui, "playerName" + (index + 1), teamPlayers[index].GetPlayerName() )
+			RuiSetInt( rui, "playerMic" + (index + 1), -1 )
+			RuiSetBool( rui, "playerAvailable" + (index + 1), true )
+		}
+		else
+		{
+			RuiSetString( rui, "playerName" + (index + 1), "" )
+			RuiSetInt( rui, "playerMic" + (index + 1), -1 )
+			RuiSetBool( rui, "playerAvailable" + (index + 1), false )
+		}
+	}
+
+	int[4] prevMicStatus = [ -2, ... ]
+
+	while( true )
+	{
+		for ( int index = 0; index < 4; index++ )
+		{
+			if ( index < teamPlayers.len() && IsValid( teamPlayers[index] ) )
+			{
+				int micStatus = GetPlayerMicStatus( teamPlayers[index] )
+				if ( micStatus != prevMicStatus[index] )
+				{
+					prevMicStatus[index] = micStatus
+					RuiSetInt( rui, "playerMic" + (index + 1), micStatus )
+				}
+			}
+			else
+			{
+				int micStatus = -1
+				if ( micStatus != prevMicStatus[index] )
+				{
+					prevMicStatus[index] = micStatus
+					RuiSetInt( rui, "playerMic" + (index + 1), micStatus )
+				}
+			}
+		}
+
+		WaitFrame()
+	}
 }
 
 void function DeathScreenUpdateHeader( var headerElem )
@@ -821,6 +970,16 @@ void function DeathScreenUpdateHeader( var headerElem )
 	RuiSetBool( headerRui, "shadowMode", false )
 	RuiSetBool( headerRui, "isFinalRing", SURVIVAL_IsFinalDeathFieldStage())
 
+	RuiSetInt( headerRui, "placement", -1  )
+#if DEV
+		printt( "Placement Debug1:", clientPlayer.GetPlayerName(), GetCurrentPlaylistVarBool( "placement_popup", true ), IsSurvivalMode(), GetLocalViewPlayer() == clientPlayer )
+#endif
+	if ( GetCurrentPlaylistVarBool( "placement_popup", true ) && IsSurvivalMode() && GetLocalViewPlayer() == clientPlayer )
+	{
+		file.headerRuiForPlacement = headerRui
+		Remote_ServerCallFunction( "ClientCallback_RequestPlayerLastRank" )
+	}
+
 	RuiSetBool( headerRui, "isSoloMode", IsSoloMode() )
 
 
@@ -894,8 +1053,17 @@ void function DeathScreenUpdateHeader( var headerElem )
 	if ( gameState >= eGameState.WinnerDetermined )
 		file.didGameOverAnimation = true
 
-
+	thread DeathScreen_UpdateTeamMicStatus(headerRui, clientPlayer, true)
 	thread DelayedUpdateHeader( clientPlayer )
+}
+
+void function ServerCallback_NotifyPlayerLastRank( int placement )
+{
+#if DEV
+	printt( "ServerCallback_NotifyPlayerLastRank:", placement )
+#endif
+	if ( file.headerRuiForPlacement != null )
+		RuiSetInt( file.headerRuiForPlacement, "placement", placement  )
 }
 
 void function DelayedUpdateHeader( entity clientPlayer )
@@ -1348,6 +1516,8 @@ void function UICallback_CloseDeathScreenMenu( bool clearRecap = true )
 	if ( ClApexScreens_IsDisabled() )
 		ClApexScreens_EnableAllScreens()
 
+	ClKillReplayFX_StopPreRespawnDuck()
+
 	if ( file.blackBarRui != null )
 	{
 		RuiDestroyIfAlive( file.blackBarRui )
@@ -1470,18 +1640,18 @@ void function UICallback_ToggleGladCard( bool show )
 }
 
 
+void function UICallback_ToggleUpgradesGladCard( bool show )
+{
+	file.showUpgradesGladCard = show
+	thread UpdateGladCardUpgradeVisibility()
+}
 
+void function UICallback_ToggleUpgradesGladCardDeathRecap( bool show )
+{
+	file.showUpgradesGladCardDeathRecap = show
 
-
-
-
-
-
-
-
-
-
-
+	thread UpdateGladCardUpgradeVisibilityDeathRecap()
+}
 
 
 void function UICallback_TryPingRespawn()
@@ -1705,7 +1875,7 @@ void function PopulatePlayerStatsRui( var gladCardRui, int index, bool connected
 	
 	if ( EHIHasValidScriptStruct( data.eHandle ) )
 	{
-		RuiSetString( gladCardRui, "playerName", EHI_GetName( data.eHandle ) )
+		RuiSetString( gladCardRui, "playerName", GetDisplayablePlayerNameFromEHI( data.eHandle ) )
 
 		
 		if ( IsValid( FromEHI( data.eHandle ) ) )
@@ -1873,28 +2043,28 @@ void function UpdateGladCardVisibility()
 }
 
 
+void function UpdateGladCardUpgradeVisibility()
+{
+	if ( !file.showGladCard )
+		return
 
+	entity currentObserverTarget = GetLocalViewPlayer()
+	EHI playerEHI = ToEHI( currentObserverTarget )
 
+	thread DisplaySpectatorCardSidePane( eGladCardDisplaySituation.SPECTATE_ANIMATED,
+		playerEHI, $"", "#HUD_SPECTATE_SPECTATING" )
+}
 
+void function UpdateGladCardUpgradeVisibilityDeathRecap()
+{
+	foreach ( cardData in file.recapGladCardDataTable )
+	{
+		CleanupNestedGladiatorCard( cardData.cardHandle )
+	}
+	file.recapGladCardDataTable.clear()
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+	thread DeathRecapShow( file.recapElem )
+}
 
 
 void function SetAllowGladCard( bool allowGladCard )
@@ -1969,8 +2139,8 @@ void function DisplaySpectatorCardSidePane( int situation, int playerEHI, asset 
 	SetNestedGladiatorCardIsKiller( nestedGCHandleFront, playerEHI == GetKillerEnum() )
 
 
-
-
+		SetNestedGladiatorCardCanShowUpgrades( nestedGCHandleFront, true )
+		SetNestedGladiatorCardShowUpgrades( nestedGCHandleFront, file.showUpgradesGladCard )
 
 
 
@@ -1998,6 +2168,9 @@ void function UpdateBlackBarRui()
 		return
 
 	entity player               = GetLocalClientPlayer()
+	if ( ! IsValid ( player ) )
+		return
+
 	entity playerSpectateTarget = player.GetObserverTarget()
 
 	
@@ -2006,24 +2179,7 @@ void function UpdateBlackBarRui()
 	if ( IsPVEMode() )
 		RuiSetBool( file.blackBarRui, "hideMenuPrompt", true )
 
-	array<entity> teamPlayers = GetPlayerArrayOfTeam( player.GetTeam() )
-	for ( int index = 0; index < 4; index++ )
-	{
-		if ( index < teamPlayers.len() && IsValid( teamPlayers[index] ) && !hideMicStatus )
-		{
-			
-			RuiSetString( file.blackBarRui, "playerName" + (index + 1), teamPlayers[index].GetPlayerName() )
-			RuiTrackInt( file.blackBarRui, "playerMic" + (index + 1), teamPlayers[index], RUI_TRACK_MIC_STATUS )
-			RuiSetBool( file.blackBarRui, "playerAvailable" + (index + 1), true )
-		}
-		else
-		{
-			
-			RuiSetString( file.blackBarRui, "playerName" + (index + 1), "" )
-			RuiSetInt( file.blackBarRui, "playerMic" + (index + 1), -1 )
-			RuiSetBool( file.blackBarRui, "playerAvailable" + (index + 1), false )
-		}
-	}
+	thread DeathScreen_UpdateTeamMicStatus(file.blackBarRui, player, !hideMicStatus)
 }
 
 
@@ -2145,8 +2301,8 @@ void function DeathRecapShow( var recapElem )
 	ChangeNestedGladiatorCardOwner( playerCardHandle, playerEHandle )
 	SetNestedGladiatorCardDisableBlur( playerCardHandle, true )
 
-
-
+		SetNestedGladiatorCardCanShowUpgrades( playerCardHandle, true )
+		SetNestedGladiatorCardShowUpgrades( playerCardHandle, file.showUpgradesGladCardDeathRecap )
 
 
 	RecapAttackerGladCardData playerCardData
@@ -2201,8 +2357,8 @@ void function DeathRecapShow( var recapElem )
 		ChangeNestedGladiatorCardOwner( cardHandle, attackerEHandle )
 		SetNestedGladiatorCardDisableBlur( cardHandle, true )
 
-
-
+			SetNestedGladiatorCardCanShowUpgrades( cardHandle, true )
+			SetNestedGladiatorCardShowUpgrades( cardHandle, file.showUpgradesGladCardDeathRecap )
 
 
 		RecapAttackerGladCardData cardData
@@ -2590,8 +2746,8 @@ void function UpdateGladCardDataTable( EncodedEHandle newEHandle, EncodedEHandle
 	ChangeNestedGladiatorCardOwner( cardHandle, newEHandle )
 	SetNestedGladiatorCardDisableBlur( cardHandle, true )
 
-
-
+		SetNestedGladiatorCardCanShowUpgrades( cardHandle, true )
+		SetNestedGladiatorCardShowUpgrades( cardHandle, file.showUpgradesGladCardDeathRecap )
 
 
 	RecapAttackerGladCardData cardData

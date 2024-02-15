@@ -194,9 +194,9 @@ WeaponData
     "ammo_per_shot"									"1"
     //"ammo_stockpile_max"							"173"
                         
-                                                            
+    "regen_ammo_refill_rate"					    "1.153" //150s cooldown
          
-    "regen_ammo_refill_rate"					    "1.44" //120s cooldown
+                                                           
           
     "regen_ammo_refill_start_delay"					"0.0"
 
@@ -639,18 +639,18 @@ WeaponData
         }
 
                         
-                                           
-         
-                                                                                                                              
-         
+        upgrade_core_ult_cooldown_reduction
+        {
+            "regen_ammo_refill_rate"    "*1.25" // 1.153 * 1.25 = 1.44. 173 / 1.44 = 120s (30s CD reduction from regular 150s)
+        }
 
-                                       
-         
-                                                   
-                                                  
-                                                  
-                                                  
-         
+        upgrade_core_modify_spinup_time
+        {
+            "zoom_time_in"          "1.00" //"1.25"
+            "zoom_time_out"         "0.8"  //"1.0"
+            "ads_move_speed_scale"  "0.6"  //"0.4"
+            "raise_time"            "1.2"  //"1.6"
+        }
           
 	}
 

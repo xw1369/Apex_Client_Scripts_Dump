@@ -48,7 +48,7 @@ ImpactTable
 		"2" "P_impact_exp_XLG_concrete"
 		"3" "P_impact_exp_XLG_concrete"
 		"4" "P_impact_exp_XLG_concrete"
-		"5" "P_impact_exp_XLG_water"
+		"5" "P_impact_exp_XLG_metal"
 		"6" "P_impact_exp_XLG_concrete"
 		"7" "P_impact_exp_XLG_concrete"
 		"8" "P_impact_exp_XLG_concrete"

@@ -2,6 +2,7 @@
 #base "_base_mags_heavy.txt"
 #base "_base_stocks_tactical.txt"
 #base "_base_laser_sights.txt"
+#base "_base_hopup_paintball.txt"
 
                     
 #base "_base_hopup_golden_horse_green.txt"
@@ -138,7 +139,7 @@ WeaponData
 	// Behavior
 	"fire_rate"   									"21"
 	"burst_fire_count"								"5"
-	"burst_fire_delay"								"0.24"
+	"burst_fire_delay"								"0.28"
 
 	"reload_time" 									"2.0"
 	"reload_time_late1"								"1.67"
@@ -204,12 +205,14 @@ WeaponData
 	"viewkick_scale_pitch_valueLerpEnd" 			"10"
 	"viewkick_scale_yaw_valueLerpStart"   			"0"
 	"viewkick_scale_yaw_valueLerpEnd" 				"10"
-	"viewkick_scale_valueDecayDelay"  				"0.25"  // for burstfire, match to burst delay + fire rate (0.05 + 0.2)
+	"viewkick_scale_valueDecayDelay"  				"0.33"  // for burstfire, match to burst delay + fire rate (0.05 + 0.2)
     "viewkick_scale_valueDecayRate"   				"45"
 
 	"viewmodel_shake_forward"						"0.0"
 	"viewmodel_shake_up"							"0.0"
 	"viewmodel_shake_right"							"0.0"
+
+	"spread_decay_delay"  							"0.28"
 
 
 
@@ -240,27 +243,6 @@ WeaponData
 
 	Mods
 	{
-        gold_paintball
-        {
-           "impact_effect_table" 				"bullet_pb_Random"
-
-           "projectile_trail_effect_0_1p" 		"P_tracer_projectile_pb"
-           "projectile_trail_effect_0_3p" 		"P_tracer_projectile_pb"
-
-		    "reload_time"						"*0.75"
-		    "reload_time_late1"					"*0.75"
-		    "reload_time_late2"					"*0.75"
-		    "reload_time_late3"					"*0.75"
-		    "reload_time_late4"					"*0.75"
-		    "reload_time_late5"					"*0.75"
-		    "reloadempty_time"					"*0.75"
-		    "reloadempty_time_late1"			"*0.75"
-		    "reloadempty_time_late2"			"*0.75"
-		    "reloadempty_time_late3"			"*0.75"
-		    "reloadempty_time_late4"			"*0.75"
-		    "reloadempty_time_late5"			"*0.75"
-        }
-
 		optic_cq_hcog_classic
 		{
 			"bodygroup2_set"	       						"0"

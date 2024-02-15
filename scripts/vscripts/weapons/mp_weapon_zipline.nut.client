@@ -482,6 +482,12 @@ var function OnWeaponPrimaryAttack_weapon_zipline( entity weapon, WeaponPrimaryA
 
 
 
+
+
+
+
+
+
 bool function CanTetherEntities( entity startEnt, entity endEnt )
 {
 	TraceResults traceResult = TraceLine( startEnt.GetOrigin(), endEnt.GetOrigin(), [], TRACE_MASK_NPCWORLDSTATIC, TRACE_COLLISION_GROUP_NONE )

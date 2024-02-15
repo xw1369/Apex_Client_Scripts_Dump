@@ -42,7 +42,7 @@ ImpactTable
 		"2" "impact_dirt_large"
 		"3" "impact_concrete_large"
 		"4" "impact_concrete_large"
-		"5" "P_impact_water_LG"
+		"5" "P_impact_digital_water_hrz_w_glass"
 		"6" "impact_concrete_large"
 		"7" "impact_concrete_large"
 		"8" "impact_concrete_large"

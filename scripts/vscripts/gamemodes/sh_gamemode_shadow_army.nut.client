@@ -516,11 +516,13 @@ int function ShadowArmy_GetNumRevSquadsForMatchStart()
 	
 	string currentPlaylist = ShadowArmy_GetCurrentShadowArmyPlaylist()
 	int squadCount = GetPlaylistVarInt( currentPlaylist, "shadow_army_starting_rev_squads", UNSET_SQUAD_COUNT )
+	int maxTeams = GetPlaylistVarInt( currentPlaylist, "max_teams", MAX_TEAMS )
+
+	Assert( squadCount < maxTeams, "Shadow Army: Running the mode with all teams assigned to the Rev Alliance. THIS WILL CAUSE A CRASH IN RETAIL. Ensure max_teams, currently: " + maxTeams + " is greater than shadow_army_starting_rev_squads, currently: " + squadCount )
 
 	
 	if ( squadCount < 0 )
 	{
-		int maxTeams = GetPlaylistVarInt( currentPlaylist, "max_teams", MAX_TEAMS )
 		int maxAlliances = GetPlaylistVarInt( currentPlaylist, "max_alliances", 0 )
 
 		if ( maxTeams > 0 && maxAlliances > 0 )
@@ -1751,6 +1753,23 @@ int function ShadowArmy_GetCurrentGamePhase()
 {
 	return GetGlobalNetInt( "shadowArmy_GamePhase" )
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

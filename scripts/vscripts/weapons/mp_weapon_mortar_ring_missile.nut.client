@@ -72,7 +72,7 @@ const float FUSE_MORTAR_SCAN_LENGTH_MIN		= 350.0
 
 
 
-
+const float FUSE_MORTAR_SCAN_UPGRADE_EXTEND_TIME_MAX = 4.0
 
 
 struct
@@ -1255,7 +1255,7 @@ void function MortarRingBurnVFXThink( entity player )
 
 	int fxid = GetParticleSystemIndex( MORTAR_RING_MISSILE_PLAYER_BURN_FX )
 	int fxHandle = StartParticleEffectOnEntityWithPos( player, fxid, FX_PATTACH_ABSORIGIN_FOLLOW, ATTACHMENTID_INVALID, player.EyePosition(), <0,0,0> )
-	EffectSetIsWithCockpit( fxHandle, true )
+	
 	EffectSetControlPointVector( fxHandle, 1, <MORTAR_RING_MISSILE_PLAYER_BURN_FX_SEVERITY, 999, 0> )
 	thread ColorCorrection_LerpWeight( file.colorCorrection, 0, MORTAR_RING_COLOR_CORRECTION_BASE_SEVERITY, MORTAR_RING_COLOR_CORRECTION_LERP_TIME )
 

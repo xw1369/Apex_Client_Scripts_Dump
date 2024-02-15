@@ -44,10 +44,10 @@ void function ShPassiveWarlordsIre_Init()
 }
 
 
-
-
-
-
+float function GetUpgradedWarlordsIreHighlightDurationMultiplier()
+{
+	return GetCurrentPlaylistVarFloat( "warlordsire_duration_upgraded_multiplier", 1.25 )
+}
 
 
 float function GetWarlordsIreHighlightDurationBase( entity player )
@@ -55,10 +55,10 @@ float function GetWarlordsIreHighlightDurationBase( entity player )
 	float result = file.balance_warlordsIreHighlightDurationBase
 
 
-
-
-
-
+	if( PlayerHasPassive( player, ePassives.PAS_PAS_UPGRADE_ONE ) ) 
+	{
+		result *= GetUpgradedWarlordsIreHighlightDurationMultiplier()
+	}
 
 
 	return result

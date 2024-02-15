@@ -1,0 +1,55 @@
+global function ShPassiveExplosiveSpeedBoost_Init
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+void function ShPassiveExplosiveSpeedBoost_Init()
+{
+	AddCallback_OnPassiveChanged( ePassives.PAS_EXPLOSIVE_DAMAGE_SPEED_BOOST, ExplosiveSpeedBoost_OnPassiveChanged )
+}
+
+void function ExplosiveSpeedBoost_OnPassiveChanged( entity player, int passive, bool didHave, bool nowHas )
+{
+
+
+
+
+
+
+
+
+
+
+
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

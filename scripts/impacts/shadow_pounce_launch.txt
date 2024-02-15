@@ -41,7 +41,7 @@ ImpactTable
 		"2" "P_impact_shadow_pounce_lava" //lava_rock_hot
 		"3" "P_impact_shadow_pounce_default"
 		"4" "P_impact_shadow_pounce_default"
-		"5" "P_impact_exp_med_water" //water_hrz
+		"5" "P_impact_shadow_pounce_default" //water_hrz
 		"6" "P_impact_shadow_pounce_default"
 		"7" "P_impact_shadow_pounce_default"
 		"8" "P_impact_shadow_pounce_default"

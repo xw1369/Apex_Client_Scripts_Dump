@@ -1,0 +1,180 @@
+
+
+
+
+
+
+global function StatsRegister_S20
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+void function StatsRegister_S20()
+{
+
+		CAREER_STATS.s20ce01_gifting_campaign_total_count = RegisterAccumulatedStat_Int( null, "s20ce01_gifting_campaign_total_count", eChallengeGameMode.NON_MODE, CHALLENGES_CALC_DEPENDS )
+
+		CAREER_STATS.s20ce01_hidden_wins_mixtape = RegisterAccumulatedStat_Int(null, "s20ce01_hidden_wins_mixtape", eChallengeGameMode.ANY, CHALLENGES_CALC_DEPENDS)
+		CAREER_STATS.s20ce01_hidden_legend_upgrades = RegisterAccumulatedStat_Int( null, "s20ce01_hidden_legend_upgrades", eChallengeGameMode.ANY, CHALLENGES_CALC_DEPENDS )
+		CAREER_STATS.s20ce01_hidden_combined = RegisterExpensiveCalculatedStat_Int(null, "s20ce01_hidden_combined", DELAY_WRITE_BACK_UNTIL_MATCH_END, SetupS20CE01CombinedBadge, [], eChallengeGameMode.NON_MODE )
+
+		CAREER_STATS.s20ce01_buffet_points = RegisterAccumulatedStat_Int( null, "s20ce01_buffet_points", eChallengeGameMode.NON_MODE, CHALLENGES_CALC_DEPENDS )
+
+
+
+		CAREER_STATS.s20ce02_collect_hunt = RegisterAccumulatedStat_Int( null, "s20ce02_collect_hunt", eChallengeGameMode.BATTLE_ROYALE, CHALLENGES_CALC_DEPENDS )
+		CAREER_STATS.s20ce02_survive_hunt = RegisterAccumulatedStat_Int( null, "s20ce02_survive_hunt", eChallengeGameMode.BATTLE_ROYALE, CHALLENGES_CALC_DEPENDS )
+		CAREER_STATS.s20ce02_complete_hunt = RegisterAccumulatedStat_Int( null, "s20ce02_complete_hunt", eChallengeGameMode.BATTLE_ROYALE, CHALLENGES_CALC_DEPENDS )
+
+		CAREER_STATS.s20ce02_hidden_combined = RegisterExpensiveCalculatedStat_Int( null, "s20ce02_hidden_combined", DELAY_WRITE_BACK_UNTIL_MATCH_END, SetupS20CE02CombinedBadge, [], eChallengeGameMode.NON_MODE )
+
+		CAREER_STATS.s20ce02_buffet_points = RegisterAccumulatedStat_Int( null, "s20ce02_buffet_points", eChallengeGameMode.NON_MODE, CHALLENGES_CALC_DEPENDS )
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+StatCalcFuncInfo function SetupS20CE02CombinedBadge( StatEntry calcEntry, array< StatTemplate > sourceTemplates )
+{
+	StatCalcFuncInfo info
+
+	info.calcFunc_Int = ( int function ( entity player, array< StatEntry > sourceEntries, int when ) {
+		array< ItemFlavor > hiddenChallenges = [
+			GetItemFlavorByAsset( $"settings/itemflav/challenge/s20ce02/hidden_damage_done.rpak" ),
+			GetItemFlavorByAsset( $"settings/itemflav/challenge/s20ce02/hidden_hunts_collected.rpak" ),
+			GetItemFlavorByAsset( $"settings/itemflav/challenge/s20ce02/hidden_hunts_completed.rpak" ),
+		]
+
+		return Challenge_IsAllComplete( player, hiddenChallenges ) ? 1 : 0
+	} )
+
+	return info
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+StatCalcFuncInfo function SetupS20CE01CombinedBadge( StatEntry calcEntry, array< StatTemplate > sourceTemplates )
+{
+	StatCalcFuncInfo info
+
+	info.calcFunc_Int = ( int function ( entity player, array< StatEntry > sourceEntries, int when ) {
+		array< ItemFlavor > hiddenChallenges = [
+			GetItemFlavorByAsset( $"settings/itemflav/challenge/s20ce01/legend_upgrades.rpak" ),
+			GetItemFlavorByAsset( $"settings/itemflav/challenge/s20ce01/hidden_wins.rpak" ),
+			GetItemFlavorByAsset( $"settings/itemflav/challenge/s20ce01/hidden_upgrades.rpak" ),
+			GetItemFlavorByAsset( $"settings/itemflav/challenge/s20ce01/hidden_placements.rpak" ),
+		]
+
+		return Challenge_IsAllComplete( player, hiddenChallenges ) ? 1 : 0
+	} )
+
+	return info
+}
+                              

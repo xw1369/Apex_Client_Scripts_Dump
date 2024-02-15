@@ -488,10 +488,8 @@ void function UIToClient_SurvivalGroundListOpened( var menu )
 
 	UIToClient_GroundlistOpened()
 
-
-		if ( DoesPlayerHaveWeaponSling( GetLocalViewPlayer() ) )
-			SlingSetIsGroundListMenuOpen()
-
+	if ( DoesPlayerHaveWeaponSling( GetLocalViewPlayer() ) )
+		SlingSetIsGroundListMenuOpen()
 
 	if ( isBlackMarket )
 	{
@@ -533,10 +531,8 @@ void function UIToClient_SurvivalGroundListClosed()
 	DeathBoxListPanel_SetActive( fileLevel.listPanel, false )
 	UIToClient_GroundlistClosed()
 
-
-		if ( DoesPlayerHaveWeaponSling( GetLocalViewPlayer() ) )
-			SlingSetIsGroundListMenuOpen()
-
+	if ( DoesPlayerHaveWeaponSling( GetLocalViewPlayer() ) )
+		SlingSetIsGroundListMenuOpen()
 
 	WeaponStatusSetDeathBoxMenuOpen( false )
 }
@@ -780,11 +776,7 @@ void function UpdateSurvivalGroundList( SurvivalGroundListUpdateParams params )
 	{
 		string specialStateSamenessKey = ""
 
-
 		array<entity> mainWeapons = SURVIVAL_GetPrimaryWeaponsIncludingSling( params.player, true )
-
-
-
 		specialStateSamenessKey += mainWeapons.join( "|" )
 
 		if ( isBlackMarket && GetBlackMarketUseCount( deathBox, GetLocalClientPlayer() ) >= GetBlackMarketUseLimit( deathBox, GetLocalClientPlayer() ) )
@@ -908,6 +900,12 @@ void function UpdateSurvivalGroundList( SurvivalGroundListUpdateParams params )
 			shouldBeVisible = (entryData.totalCount > 0 || !entryData.wasLastLootPickedUpByLocalPlayer)
 		}
 
+		if ( entryData.lootFlav.lootType == eLootType.MAINWEAPON )
+		{
+			shouldBeVisible = entryData.lootEnts.len() > 0
+		}
+
+
 		if ( isVendingMachine && shouldBeVisible )
 		{
 			if ( !entryData.isRelevant )
@@ -948,10 +946,10 @@ void function UpdateSurvivalGroundList( SurvivalGroundListUpdateParams params )
 
 
 
-
-
-
-
+		if ( entryData.lootFlav.lootType == eLootType.EVO_CACHE )
+		{
+			shouldBeVisible = false
+		}
 
 
 		DeathBoxListPanelItem ornull item = DeathBoxListPanel_GetItemByKey( fileLevel.listPanel, entryData.key )
@@ -1029,6 +1027,7 @@ void function UpdateSurvivalGroundList( SurvivalGroundListUpdateParams params )
 	const int BLACK_MARKET_UI_TEAMMATES_SUPPORTED = 3
 	for ( int playerIdx = 0; playerIdx < BLACK_MARKET_UI_TEAMMATES_SUPPORTED; playerIdx++ )
 	{
+
 		entity player = (playerIdx < teammates.len() && IsValid( teammates[playerIdx] ) ? teammates[playerIdx] : null)
 		if ( !isMyTeamsBlackMarket && playerIdx > 0 )
 			player = null 
@@ -1044,6 +1043,7 @@ void function UpdateSurvivalGroundList( SurvivalGroundListUpdateParams params )
 			ItemFlavor char = LoadoutSlot_GetItemFlavor( ToEHI( player ), Loadout_Character() )
 			charImage = CharacterClass_GetGalleryPortrait( char )
 			charBackgroundImage = CharacterClass_GetGalleryPortraitBackground( char )
+
 		}
 		RuiSetAsset( widgetRui, format( "player%dCharImage", playerIdx ), charImage )
 		RuiSetAsset( widgetRui, format( "player%dCharBGImage", playerIdx ), charBackgroundImage )
@@ -1051,22 +1051,81 @@ void function UpdateSurvivalGroundList( SurvivalGroundListUpdateParams params )
 		array<LootRef> useItemRefs = []
 		if ( player != null )
 			useItemRefs = GetBlackMarketUseItemRefs( deathBox, player )
-		const int BLACK_MARKET_UI_ITEMS_SUPPORTED = 2
+		int BLACK_MARKET_UI_ITEMS_SUPPORTED = 3
+
+
+			bool isPlayerLoba          = false
+			bool hasBlackMarketUpgrade = false
+
+			if ( player != null && IsValid( player ) )
+			{
+				hasBlackMarketUpgrade = player.HasPassive( ePassives.PAS_ULT_UPGRADE_ONE )
+				isPlayerLoba = IsPlayerLoba( player )
+			}
+
+
+		float scaleFrac = GetScreenScaleFrac()
 		for ( int itemIdx = 0; itemIdx < BLACK_MARKET_UI_ITEMS_SUPPORTED; itemIdx++ )
 		{
 			var itemButton    = Hud_GetChild( fileLevel.menu, format( "BlackMarketWidget_Player%d_ItemButton%d", playerIdx, itemIdx ) )
 			var itemButtonRui = Hud_GetRui( itemButton )
 
 			Hud_ClearToolTipData( itemButton )
-
 			Hud_SetVisible( itemButton, player != null )
 
+			int itemButtonOffset          = Hud_GetBaseX( itemButton )
+
 			if ( playerIdx == 1 && itemIdx == 0 )
-				Hud_SetX( itemButton, int( (teammates.len() > 2 ? -141 : 9) * GetContentFixedScaleFactor( Hud ).x ) )
+				itemButtonOffset = teammates.len() > 2 ? itemButtonOffset : 9
+
+			float itemButtonSizeRatio     = 1.0
+			bool isItemButtonBonusVisible = false
+			bool isItemButtonBonus        = itemIdx == 2
+
+			if( isPlayerLoba )
+			{
+				if( playerIdx == 0 ) 
+				{
+					isItemButtonBonusVisible = isPlayerLoba
+					itemButtonSizeRatio      = 0.85
+
+					if( itemIdx == 0 )
+						itemButtonOffset += int( -46 * scaleFrac )
+				}
+				else
+				{
+					isItemButtonBonusVisible = isPlayerLoba && hasBlackMarketUpgrade
+					if( itemIdx == 0 && isItemButtonBonusVisible )
+						itemButtonOffset += int(-68 * scaleFrac )
+				}
+			}
+
+			if ( isItemButtonBonus )
+				Hud_SetVisible( itemButton, isItemButtonBonusVisible )
+
+
+
+			Hud_SetX( itemButton, itemButtonOffset )
+			Hud_SetWidth( itemButton, Hud_GetBaseWidth( itemButton ) * itemButtonSizeRatio  )
+			Hud_SetHeight( itemButton, Hud_GetBaseHeight( itemButton ) * itemButtonSizeRatio  )
 
 			if ( itemIdx >= useItemRefs.len() || useItemRefs[itemIdx].lootData.index < 0 )
 			{
 				RunUIScript( "ClientToUI_Tooltip_Clear", itemButton )
+
+					if( isItemButtonBonus && !hasBlackMarketUpgrade )
+					{
+						ToolTipData toolTipData
+						toolTipData.titleText = "#UPGRADE_LOBA_ULT_GROUND_LIST_TOOLTIP_TITLE"
+						toolTipData.descText = "#UPGRADE_LOBA_ULT_GROUND_LIST_TOOLTIP_DESC"
+						toolTipData.tooltipFlags = toolTipData.tooltipFlags | eToolTipFlag.PING_DISSABLED
+						Hud_SetToolTipData( itemButton, toolTipData )
+						RunUIScript( "ClientToUI_Tooltip_MarkForClientUpdate", itemButton, eTooltipStyle.DEFAULT )
+						Hud_SetLocked( itemButton, true )
+					}
+					else
+
+					Hud_SetLocked( itemButton, false )
 
 				RuiSetImage( itemButtonRui, "iconImage", $"" )
 				RuiSetInt( itemButtonRui, "lootType", eLootType.INVALID )
@@ -1099,6 +1158,8 @@ void function UpdateSurvivalGroundList( SurvivalGroundListUpdateParams params )
 					ammoIcon = ammoData.hudIcon
 				}
 			}
+
+
 			RuiSetImage( itemButtonRui, "iconImage", icon )
 			RuiSetImage( itemButtonRui, "ammoTypeImage", ammoIcon )
 			RuiSetInt( itemButtonRui, "lootType", lootFlavor.lootType )
@@ -1116,6 +1177,22 @@ void function UpdateSurvivalGroundList( SurvivalGroundListUpdateParams params )
 		}
 	}
 }
+
+
+bool function IsPlayerLoba( entity player )
+{
+	if ( !IsValid( player ) )
+		return false
+
+	ItemFlavor character = LoadoutSlot_GetItemFlavor( ToEHI( player ), Loadout_Character() )
+	string characterRef  = ItemFlavor_GetCharacterRef( character ).tolower()
+
+	if ( characterRef == "character_loba" )
+		return true
+
+	return false
+}
+
 
 int function GetWeaponCategorySortNumber( DeathBoxEntryData entryData )
 {
@@ -1154,6 +1231,9 @@ int function GetWeaponCategorySortNumber( DeathBoxEntryData entryData )
 bool function LastItemWasBetterUpgrade( LootData data, entity player, entity bestLootEnt )
 {
 	if ( fileLevel.predictedActions.len() == 0 || !IsValid( player ) || !IsValid( bestLootEnt ) )
+		return false
+
+	if ( data.lootType == eLootType.MAINWEAPON )
 		return false
 
 	LootData lastLootItem = SURVIVAL_Loot_GetLootDataByRef( fileLevel.predictedActions.top().lootFlavRef )
@@ -1367,7 +1447,7 @@ void function UpdateItem( DeathBoxListPanelItem item )
 		
 		bool isEvolving = EvolvingArmor_IsEquipmentEvolvingArmor( lootFlavor.ref )
 
-
+		isEvolving = isEvolving || UpgradeCore_IsEquipmentArmorCore( lootFlavor.ref )
 
 
 		entity localPlayer = GetLocalClientPlayer()
@@ -1677,7 +1757,8 @@ void function PerformItemAction( DeathBoxListPanelItem item, bool isAltAction, b
 	bool isInventoryFull                              = (amountThatWouldBePickedUp == 0)
 
 	LootRef lootRef  = SURVIVAL_CreateLootRef( lootFlavor, bestLootEnt )
-	int groundAction = SURVIVAL_GetActionForGroundItem( player, lootRef, isAltAction ).action
+	int actionType = isAltAction ? eLootActionType.ALT_ACTION : eLootActionType.PRIMARY_ACTION
+	int groundAction = SURVIVAL_GetActionForGroundItem( player, lootRef, actionType ).action
 
 	bool showUseHighlight     = false
 	bool shouldCloseQuickSwap = true
@@ -1686,11 +1767,7 @@ void function PerformItemAction( DeathBoxListPanelItem item, bool isAltAction, b
 	{
 		
 	}
-
-	else if ( !fromExtendedUse && !isFromQuickSwap && (groundAction == eLootAction.SWAP || groundAction == eLootAction.SWAP_TO_SLING || needExtendedUse) )
-
-
-
+	else if ( !fromExtendedUse && !isFromQuickSwap && ( ShouldStartExtendedUseForGroundPaneltemAction( groundAction ) || needExtendedUse) )
 	{
 		bool requiresButtonFocus = true
 		float duration = 0.4
@@ -1733,6 +1810,17 @@ void function PerformItemAction( DeathBoxListPanelItem item, bool isAltAction, b
 
 	if ( shouldCloseQuickSwap )
 		CloseQuickSwapIfOpen()
+}
+
+bool function ShouldStartExtendedUseForGroundPaneltemAction( int groundAction )
+{
+	if( groundAction == eLootAction.SWAP )
+		return true
+
+	if( groundAction == eLootAction.SWAP_TO_SLING )
+		return true
+
+	return false
 }
 
 

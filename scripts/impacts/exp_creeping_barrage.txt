@@ -50,7 +50,7 @@ ImpactTable
 		"2" "P_impact_exp_lrg_sand"
 		"3" "P_impact_exp_lrg_sand"
 		"4" "P_impact_exp_lrg_sand"
-		"5" "P_impact_exp_lrg_water"
+		"5" "P_impact_exp_lrg_metal"
 		"6" "P_impact_exp_lrg_sand"
 		"7" "P_impact_exp_lrg_sand"
 		"8" "P_impact_exp_lrg_sand"
@@ -105,7 +105,7 @@ ImpactTable
 		"airburst" "Explo_Archer_Impact_3P"
 		"shieldhit" "TitanShield.Explosive.BulletImpact_3P_vs_1P"
 
-		"5" "bangalore_ultimate_explosion_water"
+		"5" "bangalore_ultimate_explosion_metal"
 	}
 
 	Sound_attacker
@@ -143,7 +143,7 @@ ImpactTable
 		"airburst" "Explo_Archer_Impact_3P"
 		"shieldhit" "TitanShield.Explosive.BulletImpact_3P_vs_1P"
 
-		"5" "bangalore_ultimate_explosion_water"
+		"5" "bangalore_ultimate_explosion_metal"
 	}
 
 	Sound_victim
@@ -181,7 +181,7 @@ ImpactTable
 		"airburst" "Explo_Archer_Impact_3P"
 		"shieldhit" "TitanShield.Explosive.BulletImpact_3P_vs_1P"
 
-		"5" "bangalore_ultimate_explosion_water"
+		"5" "bangalore_ultimate_explosion_metal"
 	}
 
 	Sound_victim_from_AI

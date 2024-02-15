@@ -61,7 +61,7 @@ ImpactTable
 		"2" "p_hmn_jetwash_emt_lava_nodecal" //lava_rock_hot
 		"3" "p_hmn_jetwash_emt_dust"
 		"4" "p_hmn_jetwash_emt_dust"
-		"5" "p_hmn_jetwash_emt_water"  //water_hrz
+		"5" "p_hmn_jetwash_emt_metal"  //water_hrz
 		"6" "p_hmn_jetwash_emt_dust"
 		"7" "p_hmn_jetwash_emt_dust"
 		"8" "p_hmn_jetwash_emt_dust"

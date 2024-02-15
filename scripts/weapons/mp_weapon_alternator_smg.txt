@@ -1,6 +1,7 @@
 #base "_base_smg.txt"
 #base "_base_mags_light.txt"
 #base "_base_laser_sights.txt"
+#base "_base_hopup_paintball.txt"
 
                     
 #base "_base_hopup_golden_horse_green.txt"
@@ -38,7 +39,7 @@ WeaponData
 	"stat_accuracy"   								"50"
 	"stat_rof"										"60"
 
-    "projectile_launch_speed"						"19500"
+    "projectile_launch_speed"						"19000"
 
 	// Models
 	"viewmodel"   									"mdl/weapons/alternator_smg/ptpov_alternator_smg.rmdl"
@@ -262,26 +263,6 @@ WeaponData
 
 	Mods
 	{
-        blue_paintball
-        {
-           "impact_effect_table" 				"bullet_pb_Random"
-
-           "projectile_trail_effect_0_1p" 		"P_tracer_projectile_pb"
-           "projectile_trail_effect_0_3p" 		"P_tracer_projectile_pb"
-
-           "reload_time"						"*0.75"
-           "reload_time_late1"					"*0.75"
-           "reload_time_late2"					"*0.75"
-           "reload_time_late3"					"*0.75"
-           "reload_time_late4"					"*0.75"
-           "reload_time_late5"					"*0.75"
-           "reloadempty_time"					"*0.75"
-           "reloadempty_time_late1"			    "*0.75"
-           "reloadempty_time_late2"			    "*0.75"
-           "reloadempty_time_late3"			    "*0.75"
-           "reloadempty_time_late4"			    "*0.75"
-           "reloadempty_time_late5"			    "*0.75"
-        }
 		hopup_shield_breaker
 		{
 		    "damage_shield_scale"                       "1.20"

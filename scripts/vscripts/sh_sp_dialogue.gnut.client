@@ -1,12 +1,12 @@
 
 
-
-const bool DEBUG_QUEUE_PRINTS = false
-
 global table<string, bool> FORBIDDEN_DIALOGUE_EVENT_NAMES = {
 	
 	
 }
+
+
+const bool DEBUG_QUEUE_PRINTS = false
 
 
 
@@ -22,6 +22,9 @@ global function RegisterCSVDialogue
 global function SPDialogueInit
 global function Dialog_RegisterNetworking
 global function GetValidVoices
+
+global function GetBattleChatterAlias1P3P
+global function GetBattleChatterAlias1P3PWithTempVoice
 
 
 
@@ -145,7 +148,7 @@ struct QueueData
 
 const int QUEUE_MAIN = 0
 
-const int NUM_CUSTOM_QUEUES = 5
+const int NUM_CUSTOM_QUEUES = 6
 global const int NUM_TOTAL_DIALOGUE_QUEUES = NUM_CUSTOM_QUEUES + 1
 
 global struct EnvironmentSpeaker
@@ -323,7 +326,7 @@ const string FUNCNAME_PlayDialogueOnCustomSpeakers = "SCB_PlayDialogueOnCustomSp
 
 void function Dialog_RegisterNetworking()
 {
-	Remote_RegisterClientFunction( FUNCNAME_PlayDialogueOnEntity, "int", -1, INT_MAX, "int", INT_MIN, INT_MAX, "int", INT_MIN, INT_MAX )
+	Remote_RegisterClientFunction( FUNCNAME_PlayDialogueOnEntity, "int", -1, INT_MAX, "int", INT_MIN, INT_MAX, "int", INT_MIN, INT_MAX, "int", 0, INVALID_SOUND_SELECTOR )
 	Remote_RegisterClientFunction( FUNCNAME_PlayDialogueAtPosition, "int", -1, INT_MAX, "int", INT_MIN, INT_MAX, "vector", -MAX_WORLD_COORD, MAX_WORLD_COORD, 32 )
 	Remote_RegisterClientFunction( FUNCNAME_PlayDialogueOnEnvironmentSpeakers, "int", 0, INT_MAX, "int", 0, INT_MAX, "int", 0, INT_MAX, "int", -1, INT_MAX, "entity", "int", -1, NUM_TOTAL_DIALOGUE_QUEUES )
 	Remote_RegisterClientFunction( FUNCNAME_PlayDialogueOnEnvironmentSpeakersNoResponse, "int", 0, INT_MAX, "int", 0, INT_MAX, "int", 0, INT_MAX, "int", -1, INT_MAX, "int", -1, NUM_TOTAL_DIALOGUE_QUEUES )
@@ -1027,6 +1030,27 @@ void function RegisterDialogueLine( string name, string alias, int priority, str
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 string function GetAnyDialogueAliasFromName( string name )
 {
 	int aliasID = GetAnyAliasIdForName( name )
@@ -1300,10 +1324,10 @@ void function SuspendMainDialogueQueueForDurationOfSound( entity player, var sou
 }
 
 
-void function SCB_PlayDialogueOnEntity( int aliasID, int dialogueFlags, int speakerEHandle )
+void function SCB_PlayDialogueOnEntity( int aliasID, int dialogueFlags, int speakerEHandle, int selector )
 {
 	entity speaker = GetEntityFromEncodedEHandle( speakerEHandle )
-	thread PlayClientDialogueOnEntity( aliasID, dialogueFlags, speaker )
+	thread PlayClientDialogueOnEntity( aliasID, dialogueFlags, speaker, -1, selector )
 }
 
 
@@ -1476,7 +1500,7 @@ void function DisplaySilentPlayerVoiceDialogue( entity player, DialogueData data
 	PrintDummieTeamChat( player, loc )
 }
 
-void function PlayClientDialogue_Internal( int aliasID, int dialogueFlags, array<entity> speakers, vector pos, int customQueueIdx = -1 )
+void function PlayClientDialogue_Internal( int aliasID, int dialogueFlags, array<entity> speakers, vector pos, int customQueueIdx = -1, int selector = INVALID_SOUND_SELECTOR )
 {
 	DialogueData data = GetDataForAliasId( aliasID )
 
@@ -1693,7 +1717,7 @@ void function PlayClientDialogue_Internal( int aliasID, int dialogueFlags, array
 				}
 				else
 				{
-					file.currentDialoguePlayingHandle = EmitSoundOnEntity( speaker, milesAlias )
+					file.currentDialoguePlayingHandle = EmitSoundOnEntityWithSelector( speaker, milesAlias, selector )
 					file.currentDialoguePlayingName = data.name
 				}
 			}
@@ -1746,9 +1770,9 @@ void function PlayAnyClientSelfDialogueByName( entity self, string name )
 }
 
 
-void function PlayClientDialogueOnEntity( int aliasID, int dialogueFlags, entity ent, int customQueueIdx = -1 )
+void function PlayClientDialogueOnEntity( int aliasID, int dialogueFlags, entity ent, int customQueueIdx = -1, int selector = INVALID_SOUND_SELECTOR )
 {
-	PlayClientDialogue_Internal( aliasID, dialogueFlags, [ent], <0, 0, 0>, customQueueIdx )
+	PlayClientDialogue_Internal( aliasID, dialogueFlags, [ent], <0, 0, 0>, customQueueIdx, selector )
 }
 
 
@@ -1998,4 +2022,35 @@ bool function ShouldPlayDialogueIfSolo( DialogueData data, entity speaker )
 
 
 
-                            
+
+
+string function GetBattleChatterAlias1P3P( entity player, string aliasSubname, bool firstPerson )
+{
+	string voice = GetPlayerVoice( player )
+	if ( voice == SILENT_PLAYER_VOICE )
+		return ""
+
+
+	
+	if( aliasSubname.find( "droneAlertSquads" ) >= 0 )
+	{
+		voice = "crypto"
+	}
+
+
+	string perspective = firstPerson ? "1p" : "3p"
+	string result = "diag_mp_" + voice + "_" + aliasSubname + "_" + perspective
+	if ( result in FORBIDDEN_DIALOGUE_EVENT_NAMES )
+		return ""
+	return result
+}
+
+string function GetBattleChatterAlias1P3PWithTempVoice( string aliasSubname, bool firstPerson )
+{
+	string voice = TEMP_VOICE
+	string perspective = firstPerson ? "1p" : "3p"
+	string result = "diag_mp_" + voice + "_" + aliasSubname + "_" + perspective
+	if ( result in FORBIDDEN_DIALOGUE_EVENT_NAMES )
+		return ""
+	return result
+}

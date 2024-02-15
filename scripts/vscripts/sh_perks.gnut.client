@@ -514,11 +514,11 @@ bool function Perks_CanTeamSeePerkProp( int team, int perkId )
 		}
 
 
-
-
-
-
-
+			array<int> selectableUpgrades = UpgradeCore_GetPotentialClassPerkUpgradesForPlayer( player )
+			if( selectableUpgrades.contains( perkId ) )
+			{
+				return true
+			}
 
 	}
 	return false

@@ -60,6 +60,8 @@ global function DEV_DebugSpawnPrintOn
 
 
 
+
+
 global function SCB_DynDummie_Spawns_Changed
 
 
@@ -173,7 +175,7 @@ struct
 
 
 #if DEV
-		bool dev_PrintsOn = false
+		bool dev_PrintsOn = false	
 		bool dev_spawnPrintsOn = false
 #endif
 } file
@@ -253,6 +255,8 @@ void function CombatRange_Init()
 
 
 }
+
+
 
 
 
@@ -2225,10 +2229,31 @@ void function SCB_DynDummie_Spawns_Changed()
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 #if DEV
-void function DEV_CombatRangePrint( string printMe )
+void function DEV_CombatRangePrint( string printMe, bool forcePrint = false )
 {
-	if( file.dev_PrintsOn )
+	if( file.dev_PrintsOn || forcePrint )
 	{
 		printt( format( "COMBATRANGE: %s", printMe ) )
 	}

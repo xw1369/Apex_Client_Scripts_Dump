@@ -460,62 +460,24 @@ WeaponData
         }
 
                             
-                       
-         
-                                                                                                    
-                                                                                             
-                                                                                      
-                                                         
-                                                                                       
-                                                       
+		ultimate_battery_fast
+        {
+            "viewmodel" 							"mdl/weapons/ultimate_accelerant/ptpov_ultimate_accelerant_held.rmdl"
+            "playermodel" 							"mdl/Weapons/ultimate_accelerant/w_ultimate_accelerant.rmdl"
+            "printname"                             "#SURVIVAL_PICKUP_HEALTH_ULTIMATE"
+            "charge_time"                           "3.0"
+            "hud_icon"                              "rui/hud/loot/loot_health_ultimate"
+            "activitymodifier3p"					"ultimate_battery"
+            "activitymodifier1p"                    "fast_charge"
 
-                                                   
-                                                      
-                                                         
-                                                        
+            "charge_sound_1p"						"Ult_Acc_Charge_Upgraded"
+            "charge_sound_3p"						"Ult_Acc_Charge_Upgraded_3p"
+            "fire_sound_1_player_1p"				"Ult_Acc_Primary"
+            "fire_sound_1_player_3p"				"Ult_Acc_end_3p"
 
-                         
-                                  
-         
-
-                         
-         
-                                                                                       
-                                                                                     
-                                                                                   
-
-                                      
-                                                         
-                                                                
-                 
-                                                         
-                                                                
-                                                                   
-                  
-
-                                                                                         
-                                                  
-
-                                                        
-                                                            
-                                                         
-
-                                                                
-                                                                
-                                                                   
-
-                                                               
-                                                             
-                                                      
-
-                             
-                                                         
-                                                         
-                                                         
-                                                          
-
-                                                       
-         
+            // Enalbe RUI
+            "ui1_enable"							"1"
+        }
               
 
                              

@@ -148,6 +148,15 @@ WeaponData
                                                 
          
            
+
+	                        
+	    upgrade_tac_one //upgrade_ballistic_tac_charge
+	    {
+			"ammo_clip_size"        "300"
+			"ammo_default_total"    "300"
+			"ammo_stockpile_max"    "300"
+	    }
+           
 	}
 
 	active_crosshair_count				                        1

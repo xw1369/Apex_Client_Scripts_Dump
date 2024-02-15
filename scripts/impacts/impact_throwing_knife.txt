@@ -122,7 +122,7 @@ Sound
 		"headshot_flesh" "PulseBlade_SurfaceImpact_Flesh_3P"
 		"headshot_mechanical" "PulseBlade_SurfaceImpact_Metal_3P"
 
-		"5" "PulseBlade_water_SurfaceImpact_3p_vs_3p"
+		"5" "PulseBlade_glass_SurfaceImpact_3p_vs_3p"
 	}
 
 	Sound_attacker
@@ -163,7 +163,7 @@ Sound
 		"headshot_flesh" "PulseBlade_SurfaceImpact_Flesh_3P"
 		"headshot_mechanical" "PulseBlade_SurfaceImpact_Metal_3P"
 
-		"5" "PulseBlade_water_SurfaceImpact_1p_vs_3p"
+		"5" "PulseBlade_glass_SurfaceImpact_1p_vs_3p"
 	}
 
 	Sound_victim
@@ -205,7 +205,7 @@ Sound
 		//"headshot_flesh" "Flesh.BulletImpact_3P_vs_1P"
 		//"headshot_mechanical" "Android.Light.BulletImpact_3P_vs_1P"
 
-		"5" "PulseBlade_water_SurfaceImpact_1p_vs_3p"
+		"5" "PulseBlade_glass_SurfaceImpact_1p_vs_3p"
 	}
 
 	Sound_victim_from_AI

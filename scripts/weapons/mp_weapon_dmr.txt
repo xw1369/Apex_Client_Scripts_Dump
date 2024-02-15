@@ -3,6 +3,8 @@
 #base "_base_barrels_large.txt"
 #base "_base_mags_sniper.txt"
 #base "_base_stocks_sniper.txt"
+#base "_base_hopup_paintball.txt"
+
                   
                             
       
@@ -217,27 +219,6 @@
 
 	"Mods"
 	{
-		gold_paintball
-        {
-           "impact_effect_table" 				"bullet_pb_Random"
-
-           "projectile_trail_effect_0_1p" 		"P_tracer_projectile_pb"
-           "projectile_trail_effect_0_3p" 		"P_tracer_projectile_pb"
-
-           "reload_time"						"*0.75"
-           "reload_time_late1"					"*0.75"
-           "reload_time_late2"					"*0.75"
-           "reload_time_late3"					"*0.75"
-           "reload_time_late4"					"*0.75"
-           "reload_time_late5"					"*0.75"
-           "reloadempty_time"					"*0.75"
-           "reloadempty_time_late1"			"*0.75"
-           "reloadempty_time_late2"			"*0.75"
-           "reloadempty_time_late3"			"*0.75"
-           "reloadempty_time_late4"			"*0.75"
-           "reloadempty_time_late5"			"*0.75"
-        }
-
 		hopup_headshot_dmg
         {
         	"damage_headshot_scale"			"2.5"

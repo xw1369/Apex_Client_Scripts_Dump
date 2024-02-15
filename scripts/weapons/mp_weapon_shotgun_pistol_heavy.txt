@@ -11,6 +11,10 @@ WeaponData
 	"shortprintname"							    "#WPN_MOZAM_HEAVY"
 	"description" 								    "#WPN_MOZAM_HEAVY_DESC"
 
+               
+                                                    
+                     
+
 	"fire_rate"   									"15.5"//"7.5"
 	"burst_fire_count"								"3"
 	"burst_fire_delay"								"0.45"

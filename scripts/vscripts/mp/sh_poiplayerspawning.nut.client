@@ -17,17 +17,20 @@ global function POIPlayerSpawning_Init
 
 
 
-global function  CL_POISpawn_LandingMarkers_Destroy
+global function CL_POISpawn_LandingMarkers_Destroy
+global function ServerToClient_CustomDropship_CameraZoom
+global function CL_EnemyPOI_Set_Wp_Size
 
 
 
-const vector CUSTOM_DROPSHIP_PARALLEL_ANGLES = < 0, 1, 0 >
+const vector CUSTOM_DROPSHIP_PARALLEL_FACING = < 0, 1, 0 >
 
 
 
-enum eTeamType
+global enum eTurboBRTeamType
 {
-	INVALID,
+	INVALID = -1,
+	LOWERMMR,
 	HUMAN,
 	MIXED,
 	BOTS,
@@ -54,7 +57,7 @@ const float 	POISPAWN_CONSTRAINEDDIVE_2DRADIUS = 2952.8
 
 const asset		GROUNDMARKER_FX_RING 	= $"P_ar_target_fuse_instant" 
 const asset 	GROUNDMARKER_FX_CENTER 	= $"P_ar_loot_drop_point_cp"
-const asset 	GROUNDMARKER_FX_BEACON 	= $"P_ar_loot_drop_point_far_cp"
+const asset 	GROUNDMARKER_FX_BEACON 	= $"P_tbr_flare_trail" 
 const float		GROUNDMARKER_RING_FX_RADIUSDIVISOR = 20.0
 const vector 	GROUNDMARKER_RING_FX_COLOR = < 19, 255, 190 >
 const vector	GROUNDMARKER_RING_FX_OUTERMOST_COLOR = < 255, 19, 19 >
@@ -77,7 +80,6 @@ struct sSkydiveLandingMarker
 
 struct
 {
-
 
 
 
@@ -497,11 +499,23 @@ struct
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
 #if DEV
 void function DEVSphere( bool debugParm, vector center, float radius, vector color, bool bShowThruGeo, float showTime, int segments = 4 )
 {
 	bool doDebug = debugParm || FORCEDEBUG
-	if( doDebug )
+	if ( doDebug )
 	{
 		DebugDrawSphere( center, radius, color, bShowThruGeo, showTime, segments )
 	}
@@ -510,7 +524,7 @@ void function DEVSphere( bool debugParm, vector center, float radius, vector col
 void function DEVCube( bool debugParm, vector center, float size, vector color, bool bShowThruGeo, float showTime )
 {
 	bool doDebug = debugParm || FORCEDEBUG
-	if( doDebug )
+	if ( doDebug )
 	{
 		DebugDrawCube( center, size, color, bShowThruGeo, showTime )
 	}
@@ -519,7 +533,7 @@ void function DEVCube( bool debugParm, vector center, float size, vector color, 
 void function DEVLine( bool debugParm, vector start, vector end, vector color, bool showThruGeo, float showTime )
 {
 	bool doDebug = debugParm || FORCEDEBUG
-	if( doDebug )
+	if ( doDebug )
 	{
 		DebugDrawLine( start, end, color, showThruGeo, showTime )
 	}
@@ -528,7 +542,7 @@ void function DEVLine( bool debugParm, vector start, vector end, vector color, b
 void function DEVCylinder( bool debugParm, vector center, vector angles, float radius, float height, vector color, bool bShowThruGeo, float showTime )
 {
 	bool doDebug = debugParm || FORCEDEBUG
-	if( doDebug )
+	if ( doDebug )
 	{
 		DebugDrawCylinder( center, angles, radius, height, color, bShowThruGeo, showTime )
 	}
@@ -537,7 +551,7 @@ void function DEVCylinder( bool debugParm, vector center, vector angles, float r
 void function DEVPrint( bool debugParm, string str )
 {
 	bool doDebug = debugParm || FORCEDEBUG
-	if( doDebug )
+	if ( doDebug )
 	{
 		printt( str )
 	}
@@ -545,12 +559,9 @@ void function DEVPrint( bool debugParm, string str )
 #endif
 
 
-
-
-
 bool function POIPlayerSpawning_Exists()
 {
-	return( GetCurrentPlaylistVarBool( "poiplayerspawning_exists", false ))
+	return( GetCurrentPlaylistVarBool( "poiplayerspawning_exists", false ))	
 }
 
 
@@ -587,6 +598,11 @@ bool function PLV_CustomDropship_AllShipsParallel()
 	return( GetCurrentPlaylistVarBool( "poiplayerspawning_customdropship_allshipsparallel", true ) )
 }
 
+bool function PLV_CustomDropship_SkipOpenHatchShot()
+{
+	return( GetCurrentPlaylistVarBool( "poiplayerspawning_customdropship_skipopenhatchshot", true ) )
+}
+
 bool function PLV_CustomDropship_Skip1P()
 {
 	return( GetCurrentPlaylistVarBool( "poiplayerspawning_customdropship_skip1p", true ) )
@@ -621,6 +637,16 @@ bool function PLV_SpawnWithFreefall()
 float function PLV_Skydive2DRadius()
 {
 	return( GetCurrentPlaylistVarFloat( "poiplayerspawning_skydive2dradius", POISPAWN_CONSTRAINEDDIVE_2DRADIUS ) )
+}
+
+bool function PLV_SpawnPointLootTicks_Enabled()
+{
+	return( GetCurrentPlaylistVarBool( "poiplayerspawning_spawnpointlootticks_enabled", true ))
+}
+
+string function PLV_SpawnPointLootTick_LootPool()
+{
+	return( GetCurrentPlaylistVarString( "poiplayerspawning_loottickloot", "white_kitted_weapons" ))
 }
 
 
@@ -759,7 +785,7 @@ float function PLV_Skydive2DRadius()
 
 void function POIPlayerSpawning_Init()
 {
-	if( !POIPlayerSpawning_Exists() )
+	if ( !POIPlayerSpawning_Exists() )
 		return
 
 	PrecacheParticleSystem( GROUNDMARKER_FX_RING )
@@ -775,10 +801,226 @@ void function POIPlayerSpawning_Init()
 
 
 	Remote_RegisterClientFunction( "CL_POISpawn_LandingMarkers_Destroy" )
+	Remote_RegisterClientFunction( "CL_EnemyPOI_Set_Wp_Size", "entity" )
+
+	
+	Remote_RegisterClientFunction( "ServerToClient_CustomDropship_CameraZoom", "entity", "float", 0.0, 60.0, 8, "float", 0.0, 180.0, 8, "float", 0.0, 180.0, 8 )
 
 	RegisterSignal( "POISpawn_TeamLanded" )
 	RegisterSignal( "POISpawn_CustomDropship_CameraZoom" )
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1873,7 +2115,7 @@ void function CL_POISpawn_LandingMarkers_Create( entity wp )
 	int playerTeam = player.GetTeam()
 	int wpTeam = wp.GetWaypointInt( POISPAWN_SKYDIVEDESTWP_NDX_TEAM )
 
-	if( playerTeam != wpTeam )
+	if ( playerTeam != wpTeam )
 		return
 
 	int ringFXIndex = GetParticleSystemIndex( GROUNDMARKER_FX_RING )
@@ -1882,22 +2124,23 @@ void function CL_POISpawn_LandingMarkers_Create( entity wp )
 
 	float skydiveRadius = PLV_Skydive2DRadius()
 
-	int numRings = 3
-	for( int i = 0; i <= numRings; i++ )
-	{
-		float radiusMod 	= 1 - ( i * 0.025 )
-		float ringRadius 	= skydiveRadius * radiusMod / GROUNDMARKER_RING_FX_RADIUSDIVISOR
-
-		
-		int ringFX = StartParticleEffectInWorldWithHandle( ringFXIndex, destination, < 0,0,0 > )
-		vector ringColor = GROUNDMARKER_RING_FX_COLOR * radiusMod
-		EffectSetControlPointVector( ringFX, 1, ringColor )
-		EffectSetControlPointVector( ringFX, 2, < ringRadius, 0, 0> )
-		file.LandingMarker_FX_Rings.append( ringFX )
-	}
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
 
 	
-	int numBeams = 19
+	int numBeams = 12
 	vector destElevated = destination + < 0, 0, 5000 >
 	array< vector > destLocsArray = GetPointsOnCircle( destElevated, <0,0,0>, skydiveRadius, numBeams  )
 	array< vector > destGroundLocsArray
@@ -1905,9 +2148,14 @@ void function CL_POISpawn_LandingMarkers_Create( entity wp )
 	int beamFXIndex       = GetParticleSystemIndex( GROUNDMARKER_FX_BEACON )
 	foreach( dest in destLocsArray )
 	{
+		
 		vector destOnGround = OriginToGround( dest )
+		float zDistToDest = fabs( destOnGround.z - destination.z )
+		if ( zDistToDest > 2000 )
+			continue
+
 		int beamFX = StartParticleEffectInWorldWithHandle( beamFXIndex, destOnGround, < 0, 180 ,0 > )
-		EffectSetControlPointVector( beamFX, 1, GROUNDMARKER_RING_FX_COLOR )
+		
 		file.LandingMarker_FX_Beams.append( beamFX )
 	}
 }
@@ -1916,7 +2164,7 @@ void function CL_POISpawn_LandingMarkers_Destroy()
 {
 	foreach( ringFX in file.LandingMarker_FX_Rings )
 	{
-		if( EffectDoesExist( ringFX ) )
+		if ( EffectDoesExist( ringFX ) )
 		{
 			EffectStop( ringFX, true, true )
 		}
@@ -1925,12 +2173,20 @@ void function CL_POISpawn_LandingMarkers_Destroy()
 
 	foreach( beamFX in file.LandingMarker_FX_Beams )
 	{
-		if( EffectDoesExist( beamFX ) )
+		if ( EffectDoesExist( beamFX ) )
 		{
 			EffectStop( beamFX, true, true )
 		}
 	}
 	file.LandingMarker_FX_Rings.clear()
+}
+
+void function CL_EnemyPOI_Set_Wp_Size( entity wp )
+{
+	if( IsValid(wp) )
+	{
+		RuiSetBool( wp.wp.ruiHud, "alwaysShowLargeIcon", true )
+	}
 }
 
 
@@ -2651,5 +2907,88 @@ void function CL_POISpawn_LandingMarkers_Destroy()
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+void function ServerToClient_CustomDropship_CameraZoom( entity player, float duration, float fovStart, float fovEnd )
+{
+	if ( !IsValid( player ) )
+		return
+
+	player.SetObserverModeStaticFOVLerp( fovStart, fovEnd, duration )
+}
 
 

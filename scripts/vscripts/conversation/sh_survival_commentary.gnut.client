@@ -203,6 +203,10 @@ global enum eSurvivalCommentaryBucket
 	MATCH_INTRO,
 
 
+	HUNT_AVAIABLE,
+
+
+
 	ENEMY_CAP_TRAIN,
 	SEASONS_GREETINGS,
 	ROUND_WIN_BY_ELIM,
@@ -352,6 +356,13 @@ global enum eSurvivalCommentaryBucket
 	SHADOW_ARMY_LOBA_EVAC_ARRIVED,
 	SHADOW_ARMY_LOBA_EVAC_COMPLETE,
 	SHADOW_ARMY_LOBA_EVAC_NEARMISS,
+
+
+
+
+
+
+
 
 
 	_count
@@ -1235,7 +1246,14 @@ void function PlayBattleChatterToSelfOnClientAndTeamOnServer( entity speaker, st
 
 
 
-	PlayBattleChatterToSelfOnClient( speaker, chatterLine )
+
+
+
+
+
+
+
+
 
 }
 

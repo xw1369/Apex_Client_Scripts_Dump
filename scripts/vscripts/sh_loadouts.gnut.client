@@ -56,9 +56,6 @@ global function RequestSetItemFlavorFavoritesSlot
 global function RequestClearItemFlavorFavoritesSlot
 global function RequestSetFavoredQuip
 global function RequestClearFavoredQuip
-#if DEV
-global function DEV_RequestSetItemFlavorLoadoutSlot
-#endif
 
 global function IsItemFlavorValidForLoadoutSlot
 global function GetValidItemFlavorsForLoadoutSlot
@@ -80,6 +77,10 @@ global function IsLoadoutSlotActive
 
 
 
+
+#if DEV
+global function DEV_RequestSetItemFlavorLoadoutSlot
+#endif
 
 
 
@@ -1281,12 +1282,15 @@ void function RequestClearFavoredQuip( ItemFlavor quipToClear )
 #if DEV
 void function DEV_RequestSetItemFlavorLoadoutSlot( EHI playerEHI, LoadoutEntry entry, ItemFlavor itemFlavor )
 {
-	Assert( playerEHI == LocalClientEHI(), "Tried to use DEV_RequestSetLoadoutSlot on a different player" )
-
 	string commandString = "loadouts_devset " + entry.id + " " + DEV_ItemFlavor_GetCleanedAssetPath( itemFlavor )
 
 
+		Assert( playerEHI == LocalClientEHI(), "Tried to use DEV_RequestSetLoadoutSlot on a different player" )
 		GetLocalClientPlayer().ClientCommand( commandString ) 
+
+
+
+
 
 
 
@@ -2115,6 +2119,11 @@ int function GetLoadoutSlotContentsIndexFromNetworkVar( EHI playerEHI, LoadoutEn
 		return GetEHIScriptStruct( playerEHI ).netVarsLastSeenValuesMap[entry.nvIndex]
 
 }
+
+
+
+
+
 
 
 
@@ -3346,6 +3355,15 @@ bool function IsContentsIndexValidForLoadoutSlot( EHI playerEHI, LoadoutEntry en
 
 
 
+
+
+
+
+
+
+
+
+
 array<string> ornull function GetLoadoutSlotForceResetTo( LoadoutEntry entry )
 {
 #if LOADOUTS_DBG
@@ -3518,6 +3536,11 @@ void function DEV_LoadoutsDebug( LoadoutEntry entry )
 		printt("LoadoutsDebug: " + func1 + " called " + func0 + " for LoadoutEntry "+ entry.DEV_name)
 }
 #endif
+
+
+
+
+
 
 
 

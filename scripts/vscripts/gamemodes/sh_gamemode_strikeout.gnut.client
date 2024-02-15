@@ -353,66 +353,6 @@ bool function Strikeout_IsPlayerRespawnDisabled( entity player )
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 void function Strikeout_OverrideGameState()
 {
 	ClGameState_RegisterGameStateAsset( $"ui/gamestate_info_strikeout.rpak" )
@@ -631,19 +571,9 @@ bool function GetPlaylistVar_AmmoOnKillEnabled()
 	return GetCurrentPlaylistVarBool( "strikeout_ammo_on_kill_enabled", false )
 }
 
-bool function GetPlaylistVar_FreeHealingItemsOnRespawnEnabled()
-{
-	return GetCurrentPlaylistVarBool( "strikeout_healing_items_on_respawn_enabled", false )
-}
-
 bool function GetPlaylistVar_ArmorOnRespawnEnabled()
 {
 	return GetCurrentPlaylistVarBool( "strikeout_armor_on_respawn_enabled", true )
-}
-
-bool function GetPlaylistVar_AmmoOnRespawnEnabled()
-{
-	return GetCurrentPlaylistVarBool( "strikeout_ammo_on_respawn_enabled", false )
 }
 
 float function GetPlaylistVar_AmmoOnKillMultiplier()
@@ -659,11 +589,6 @@ int function GetPlaylistVar_AmmoOnKillBoxesToSpawn()
 int function GetPlaylistVar_RespawnDisabledDeathstage()
 {
 	return GetCurrentPlaylistVarInt( "strikeout_respawn_disable_deathstage_close", 4 )
-}
-
-int function GetPlaylistVar_BonusHealingGrantDeathstage()
-{
-	return GetCurrentPlaylistVarInt( "strikeout_bonus_healing_items_deathstage", 3 )
 }
 
 bool function IsStrikeoutGamemode()

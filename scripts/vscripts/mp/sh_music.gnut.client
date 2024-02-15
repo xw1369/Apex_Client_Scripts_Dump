@@ -494,12 +494,12 @@ void function ServerCallback_PlayMatchEndMusic()
 	entity clientPlayer = GetLocalClientPlayer()
 	if ( clientPlayer.GetTeam() == GetWinningTeam() && GetWinningTeam() >= TEAM_MULTITEAM_FIRST )
 	{
-		EmitSoundOnEntity( clientPlayer, MusicPack_GetWinMusic( GetMusicPackForPlayer( clientPlayer ) ) )
+		EmitUIMusic( MusicPack_GetWinMusic( GetMusicPackForPlayer( clientPlayer ) ) )
 	}
 	else
 	{
-		StopSoundOnEntity( clientPlayer, MusicPack_GetLossMusic( GetMusicPackForPlayer( clientPlayer ) ) )
-		EmitSoundOnEntity( clientPlayer, MusicPack_GetLossMusic( GetMusicPackForPlayer( clientPlayer ) ) )
+		StopUISoundByName( MusicPack_GetLossMusic( GetMusicPackForPlayer( clientPlayer ) ) )
+		EmitUIMusic( MusicPack_GetLossMusic( GetMusicPackForPlayer( clientPlayer ) ) )
 	}
 }
 

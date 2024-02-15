@@ -32,11 +32,13 @@ global enum eLootAction
 	IGNORE
 	PRIMARY_SWAP
 
+	EQUIP_TO_SLING
+	SWAP_TO_SLING
+	TRANSFER_SLING_MAIN
+	TRANSFER_SLING_ALT
 
-		EQUIP_TO_SLING
-		SWAP_TO_SLING
-		TRANSFER_SLING_MAIN
-		TRANSFER_SLING_ALT
+
+
 
 
 	_count
@@ -119,20 +121,24 @@ void function SURVIVAL_LootActions_InitShared()
 	action.title = "#LOOT_ACTION_PRIMARY_SWAP"
 	action.func = TryPrimarySwap
 
+	action = RegisterLootAction( eLootAction.EQUIP_TO_SLING )
+	action.title = "#EQUIP_TO_SLING"
+	action.func = TryPickupSlingWeapon
 
-		action = RegisterLootAction( eLootAction.EQUIP_TO_SLING )
-		action.title = "#EQUIP_TO_SLING"
-		action.func = TryPickupSlingWeapon
+	action = RegisterLootAction( eLootAction.SWAP_TO_SLING )
+	action.title = "#SWAP_TO_SLING"
+	action.func = TrySwapSlingWeapon
 
-		action = RegisterLootAction( eLootAction.SWAP_TO_SLING )
-		action.title = "#SWAP_TO_SLING"
-		action.func = TrySwapSlingWeapon
+	action = RegisterLootAction( eLootAction.TRANSFER_SLING_MAIN )
+	action.title = ""
 
-		action = RegisterLootAction( eLootAction.TRANSFER_SLING_MAIN )
-		action.title = ""
+	action = RegisterLootAction( eLootAction.TRANSFER_SLING_ALT )
+	action.title = ""
 
-		action = RegisterLootAction( eLootAction.TRANSFER_SLING_ALT )
-		action.title = ""
+
+
+
+
 
 
 	action = RegisterLootAction( eLootAction.IGNORE )
@@ -260,18 +266,6 @@ bool function PickupCustomItem( entity pickup, entity player, int pickupFlags, e
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
 		return result
 	}
 
@@ -326,9 +320,9 @@ bool function TryPickupItem( int action, entity pickup, entity player, int picku
 
 
 
-
-
-
+		case eLootType.EVO_CACHE:
+			shouldDestroy = PickupCustomItem( pickup, player, pickupFlags, deathBox, desiredCount )
+			break
 
 
 
@@ -433,23 +427,8 @@ bool function TryPrimarySwap( int action, entity pickup, entity player, int pick
 	return true
 }
 
-
 bool function TryPickupSlingWeapon( int action, entity pickup, entity player, int pickupFlags = 0, entity deathBox = null, int ornull desiredCount = null )
 {
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -484,28 +463,6 @@ bool function TrySwapSlingWeapon( int action, entity pickup, entity player, int 
 	}
 	else
 	{
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 		bool dontSwitchWeapon = ( SURVIVAL_GetPrimaryWeapons( player ).len() > 0 )
 		pickedUp = GiveMainWeapon_Internal( pickup, player, true, true, deathBox, dontSwitchWeapon, true )
 
@@ -540,25 +497,6 @@ void function ExtendedTrySwapSlingWeapon( entity ent, entity player, ExtendedUse
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 		LootData data = SURVIVAL_Loot_GetLootDataByIndex( ent.GetSurvivalInt() )
 		PlayLootPickupFeedbackFX( ent )
 		
@@ -569,6 +507,18 @@ void function ExtendedTrySwapSlingWeapon( entity ent, entity player, ExtendedUse
 			RuiSetBool( slingPassiveRui, "hasMainWeapon", true )
 
 }
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 bool function TrySwapEquipment( int action, entity pickup, entity player, int pickupFlags = 0, entity deathBox = null, int ornull desiredCount = null )
@@ -592,11 +542,7 @@ bool function TrySwapEquipment( int action, entity pickup, entity player, int pi
 
 
 
-
-
 				pickedUp = SwapMainWeapon( pickup, player, pickupFlags, deathBox )
-
-
 
 
 
@@ -742,7 +688,7 @@ bool function PickupOrdnanceItem( entity ammoPickup, entity player, int pickupFl
 	LootData data   = SURVIVAL_Loot_GetLootDataByIndex( ammoPickup.GetSurvivalInt() )
 
 
-
+		
 
 
 
@@ -937,16 +883,12 @@ bool function PickupMainWeapon( entity pickup, entity player, int pickupFlags = 
 }
 
 
-bool function SwapMainWeapon( entity pickup, entity player, int pickupFlags = 0, entity deathBox = null )
+bool function SwapMainWeapon( entity pickup, entity player, int pickupFlags = 0, entity deathBox = null, bool toSling = false )
 {
-	return GiveMainWeapon_Internal( pickup, player, true, true, deathBox, false )
+	return GiveMainWeapon_Internal( pickup, player, true, true, deathBox, false, toSling )
 }
 
-
 bool function GiveMainWeapon_Internal( entity pickup, entity player, bool dropCurrentWeapon, bool doPickupPrint, entity deathBox, bool dontSwitchWeapon, bool isSlingWeapon = false )
-
-
-
 {
 	entity activeWeapon = player.GetActiveWeapon( eActiveInventorySlot.mainHand )
 
@@ -963,24 +905,22 @@ bool function GiveMainWeapon_Internal( entity pickup, entity player, bool dropCu
 		}
 	}
 
-
-		if( isSlingWeapon )
-		{
-			if ( !dropCurrentWeapon && !IsPlayerWeaponSlingEmpty( player ) )
-				return false
-		}
-		else
-
-		{
-			array<entity> primaryWeapons = SURVIVAL_GetPrimaryWeapons( player )
+	if( isSlingWeapon )
+	{
+		if ( !dropCurrentWeapon && !IsPlayerWeaponSlingEmpty( player ) )
+			return false
+	}
+	else
+	{
+		array<entity> primaryWeapons = SURVIVAL_GetPrimaryWeapons( player )
 
 
 
 
-			if ( !dropCurrentWeapon && primaryWeapons.len() > 1 )
+		if ( !dropCurrentWeapon && primaryWeapons.len() > 1 )
 
-				return false
-		}
+			return false
+	}
 
 	
 	if ( dropCurrentWeapon && !IsValid( activeWeapon ) )
@@ -991,10 +931,6 @@ bool function GiveMainWeapon_Internal( entity pickup, entity player, bool dropCu
 		if ( dropCurrentWeapon && !SURVIVAL_PlayerAllowedToPickup( player ) )
 			return false
 	}
-
-
-
-
 
 
 
@@ -1129,11 +1065,7 @@ bool function EquipEquipment( entity pickup, entity player, string equipSlot, en
 	return true
 }
 
-
-	bool function ExtendedSwap( entity pickup, entity player, void functionref( entity, entity, ExtendedUseSettings ) successFunc, int pickupFlags = 0, entity deathBox = null, bool toSling = false )
-
-
-
+bool function ExtendedSwap( entity pickup, entity player, void functionref( entity, entity, ExtendedUseSettings ) successFunc, int pickupFlags = 0, entity deathBox = null, bool toSling = false )
 {
 	LootData data   = SURVIVAL_Loot_GetLootDataByIndex( pickup.GetSurvivalInt() )
 	ExtendedUseSettings settings
@@ -1146,12 +1078,8 @@ bool function EquipEquipment( entity pickup, entity player, string equipSlot, en
 		settings.displayRui = $"ui/extended_use_hint.rpak"
 		settings.displayRuiFunc = DisplayRuiForMainWeaponSwap
 		settings.icon = $""
-
-			settings.hint = toSling ? "#SWAP_EXTENDED_USE": SURVIVAL_GetStringForLootAction( eLootAction.SWAP )
-			settings.holdHint = toSling ? "%use_alt%" : "%use_long%"
-
-
-
+		settings.hint = toSling ? "#SWAP_EXTENDED_USE": SURVIVAL_GetStringForLootAction( eLootAction.SWAP )
+		settings.holdHint = toSling ? "%use_alt%" : "%use_long%"
 		settings.successFunc = MarkAsUsed
 
 
@@ -1159,11 +1087,7 @@ bool function EquipEquipment( entity pickup, entity player, string equipSlot, en
 
 	settings.successFunc = successFunc
 	settings.duration = 0.3
-
-		settings.useInputFlag = toSling ? IN_USE_ALT : IN_USE_LONG
-
-
-
+	settings.useInputFlag = toSling ? IN_USE_ALT : IN_USE_LONG
 
 	thread ExtendedUse( pickup, player, settings )
 
@@ -1173,30 +1097,6 @@ bool function EquipEquipment( entity pickup, entity player, string equipSlot, en
 
 void function ExtendedTrySwapWeapon( entity ent, entity player, ExtendedUseSettings settings )
 {
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

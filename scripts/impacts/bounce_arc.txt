@@ -43,7 +43,7 @@ ImpactTable
 //		"2" "openslot"
 //		"3" "openslot"
 //		"4" "openslot"
-		"5" "P_impact_water_hrz" //water_hrz
+		"5" "P_impact_digital_water_hrz_w_glass" //water_hrz
 //		"6" "openslot"
 //		"7" "openslot"
 //		"8" "openslot"

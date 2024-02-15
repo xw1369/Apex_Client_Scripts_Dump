@@ -1,0 +1,72 @@
+global function ClRingWarning_Init
+
+global function ClRingWarning_RegisterRingWarningAsset
+global function GetRingWarningAsset
+global function ClRingWarning_GetRui
+global function ClRingWarning_Update
+
+struct
+{
+	var  ringWarningRui
+
+	asset ringWarningRuiAsset = $""
+} file
+
+void function ClRingWarning_Init()
+{
+	CreateRingWarningRUI()
+}
+
+void function CreateRingWarningRUI()
+{
+	var rui = CreatePermanentCockpitPostFXRui( GetRingWarningAsset(), MINIMAP_Z_BASE - 1 )
+
+
+	file.ringWarningRui = rui
+}
+
+asset function GetRingWarningAsset()
+{
+	if ( file.ringWarningRuiAsset != $"" )
+		return file.ringWarningRuiAsset
+
+	return $"ui/survival_ring_warning.rpak"
+}
+
+void function ClRingWarning_RegisterRingWarningAsset( asset ringWarningAsset )
+{
+	file.ringWarningRuiAsset = ringWarningAsset
+}
+
+void function ClRingWarning_Update()
+{
+	var rui = file.ringWarningRui
+
+	if( rui == null )
+		return
+
+	if( GetGameState() < eGameState.WinnerDetermined )
+	{
+		entity player = GetLocalViewPlayer()
+
+
+			float timeLeft = StatusEffect_GetTimeRemaining( player, eStatusEffect.ring_lethality_warning )
+			bool shouldWarn = SimplifiedRingLethality_ShouldShowWarning( player )
+			if( shouldWarn && ( DeathField_PointDistanceFromFrontier( player.GetOrigin(), player.DeathFieldIndex() ) <= 0 ))
+			{
+				RuiSetFloat( rui, "lethalTimeLeft", timeLeft )
+				RuiSetFloat( rui, "lethalTimeMax", DEATHFIELD_RING_LETHALITY_STATUS_DURATION )
+			}
+			RuiSetBool( rui, "lethalShouldWarn", shouldWarn && timeLeft > 0 )
+
+
+		RuiSetBool( rui, "hideDeathFieldWarning", ( player.GetObserverMode() == OBS_MODE_ROAMING ) )
+		RuiTrackBool( rui, "hasDeathFieldImmunity", player, RUI_TRACK_SCRIPT_NETWORK_VAR_BOOL, GetNetworkedVariableIndex( "hasDeathFieldImmunity" ) )
+		RuiTrackFloat( rui, "deathfieldDistance", player, RUI_TRACK_DEATHFIELD_DISTANCE )
+	}
+}
+
+var function ClRingWarning_GetRui()
+{
+	return file.ringWarningRui
+}

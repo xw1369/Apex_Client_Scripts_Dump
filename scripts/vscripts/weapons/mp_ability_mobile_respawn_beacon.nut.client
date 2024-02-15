@@ -283,6 +283,7 @@ var function OnWeaponPrimaryAttackAnimEvent_mobile_respawn(entity ent, WeaponPri
 
 
 
+
 float function GetRespawnStationUseTime_Mobile( entity ent )
 {
 	return 7.0

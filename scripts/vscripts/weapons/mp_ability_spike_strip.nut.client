@@ -61,7 +61,7 @@ const string SPIKE_STRIP_EXPLOSION_IMPACT_TABLE = "exp_ferro_tac_SM"
 
 const int SPIKE_STRIP_MAX_TRAPS = 2
 
-
+const int UPGRADE_SPIKE_STRIP_MAX_TRAPS = 3
 
 const float SPIKE_STRIP_SPIKE_HEALTH = 300
 const float SPIKE_STRIP_SPIKE_DURATION = -1
@@ -80,7 +80,7 @@ const int SPIKE_STRIP_DISTANCE_BETWEEN_ROWS = 30
 const float SPIKE_STRIP_MAIN_SPIKE_HEALTH = 300
 const float SPIKE_STRIP_SPIKE_CORE_DORMANT_RADIUS = 440
 
-
+const float UPGRADE_SPIKE_STRIP_SPIKE_CORE_DORMANT_RADIUS = 330
 
 const float SPIKE_STRIP_SPIKE_DELAY = 2.0
 const float SPIKE_STRIP_SPIKE_SCALE_DORMANT = 1.0
@@ -200,20 +200,20 @@ void function MpAbilitySpikeStrip_Init()
 }
 
 
-
-
-
-
+float function GetUpgradedTriggerRadius()
+{
+	return GetCurrentPlaylistVarFloat( "catalyst_spikes_upgraded_detectionRadius", UPGRADE_SPIKE_STRIP_SPIKE_CORE_DORMANT_RADIUS )
+}
 
 
 int function GetMaxTraps( entity player )
 {
 	int result = file.maxTraps
 
-
-
-
-
+		if( PlayerHasPassive( player, ePassives.PAS_TAC_UPGRADE_TWO ) ) 
+		{
+			result = UPGRADE_SPIKE_STRIP_MAX_TRAPS
+		}
 
 	return result
 }
@@ -222,10 +222,10 @@ float function GetTriggerRadius( entity player )
 {
 	float result = file.detectionRadius
 
-
-
-
-
+		if( PlayerHasPassive( player, ePassives.PAS_TAC_UPGRADE_THREE ) ) 
+		{
+			result = GetUpgradedTriggerRadius()
+		}
 
 	return result
 }
@@ -401,6 +401,12 @@ bool function CanDeployOnEnt( entity ent, vector pos )
 
 	return true
 }
+
+
+
+
+
+
 
 
 

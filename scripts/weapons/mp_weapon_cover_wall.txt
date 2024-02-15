@@ -24,6 +24,7 @@ WeaponData
 	"fast_swap_to"									"1"
 	"offhand_switch_force_draw"						"0"
 	"offhand_holster_primary"	                    "1"
+	"offhand_include_primary_activity_mods"         "0"
 
     "does_not_interrupt_cloak"						"1"
     "offhand_allow_player_interact"                 "1"
@@ -247,14 +248,14 @@ WeaponData
         }
 
                     
-                                           
-         
-                                         
-                                         
-                                         
-                                        
-                                        
-         
+        upgrade_core_tac_cooldown_reduction
+        {
+            "ammo_clip_size"        "225"
+            "ammo_default_total"    "225"
+            "ammo_stockpile_max"    "225"
+            "ammo_min_to_fire"      "75"
+            "ammo_per_shot"         "75"
+        }
 
       
 

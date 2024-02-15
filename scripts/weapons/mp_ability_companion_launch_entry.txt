@@ -66,15 +66,15 @@ WeaponData
 		    "ammo_stockpile_max"							"800" // 150 * 7 charges
 		}
 
-                      
-                 
-   
-                                
-                                
-                                
-                                
-                                
-   
+		                    
+		upgrade_tac_one
+		{
+			"ammo_clip_size"        "150"
+			"ammo_default_total"    "150"
+			"ammo_min_to_fire"      "150"
+			"ammo_per_shot"         "150"
+			"ammo_stockpile_max"    "150"
+		}
         
     }
 

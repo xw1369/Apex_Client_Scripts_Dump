@@ -52,7 +52,7 @@ ImpactTable
 		"headshot_flesh" "none" //Human headshot
 		"headshot_mechanical" "none" //Robotic Headshot
 
-		"5" "P_impact_water_hrz"
+		"5" "P_impact_digital_water_hrz"
 	}
 
 	Sound
@@ -91,7 +91,7 @@ ImpactTable
 		"shieldhit" "PulseBlade_SurfaceImpact_BubbleShield_3P"
 		"holohit" "HoloPilot_light_bulletimpact_holo_3p_vs_3p"
 
-		"5" "Phys_Imp_JumpPad_Land_Water"
+		"5" "Phys_Imp_JumpPad_Land_Concrete"
 
 	//	"headshot_flesh" ""
 	//	"headshot_mechanical" ""
@@ -126,7 +126,7 @@ ImpactTable
 		"Y" "Phys_Imp_JumpPad_Land_Concrete"
 		"Z" "Phys_Imp_JumpPad_Land_Dirt"
 
-		"5" "Phys_Imp_JumpPad_Land_Water"
+		"5" "Phys_Imp_JumpPad_Land_Concrete"
 
 		"splash" "Phys_Imp_JumpPad_Land_Water"
 		"slime_splash" "Phys_Imp_JumpPad_Land_Water"
@@ -175,7 +175,7 @@ ImpactTable
 		"shieldhit" "PulseBlade_SurfaceImpact_BubbleShield_3P"
 		"holohit" "holopilot_impacts"
 
-		"5" "Phys_Imp_JumpPad_Land_Water"
+		"5" "Phys_Imp_JumpPad_Land_Concrete"
 
 		// Victim headshot sounds taken care of in PlayVictimHeadshotConfirmation():
 		//"headshot_flesh" "Flesh.BulletImpact_3P_vs_1P"

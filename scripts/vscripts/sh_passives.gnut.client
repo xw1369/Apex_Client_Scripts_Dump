@@ -134,9 +134,7 @@ global enum ePassives
 
 
 
-
 		PAS_WEAPON_SLING,
-
 
 
 
@@ -172,101 +170,101 @@ global enum ePassives
 
 	PAS_DUMMIE,
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+	
+	PAS_TAC_COOLDOWN_REDUCTION,
+	PAS_AMMUVISION,
+	PAS_ULTACCEL_HIGHLIGHT,
+	
+	PAS_HEALING_ITEM_VISION,
+	PAS_LARGE_AMMO_STACKS,
+	PAS_EXTRA_ULT_CHARGE,
+	PAS_DEATHBOX_BATTERY_COUNT,
+
+	
+	PAS_UPGRADE_CAREPACKAGE_INSIGHT,
+	PAS_UPGRADE_BEACON_SCAN,
+	PAS_UPGRADE_CONSOLE_SCAN,
+	PAS_MOD_UPGRADE_ONLY,
+
+	PAS_PAS_UPGRADE_ONE,
+	PAS_PAS_UPGRADE_TWO,
+	PAS_PAS_UPGRADE_THREE,
+
+	PAS_TAC_UPGRADE_ONE,
+	PAS_TAC_UPGRADE_TWO,
+	PAS_TAC_UPGRADE_THREE,
+
+	PAS_ULT_UPGRADE_ONE,
+	PAS_ULT_UPGRADE_TWO,
+	PAS_ULT_UPGRADE_THREE,
+
+	
+	PAS_TAC_COOLDOWN_REDUCTION_EXTRA,
+
+	
+	PAS_EXPLOSIVE_DAMAGE_RESIST,
+	PAS_EXPLOSIVE_DAMAGE_SPEED_BOOST,
+	PAS_EXTRA_ARC_STARS,
+	PAS_MOTHERLODE_RESISTANCE,
+
+	
+	PAS_INCREASED_HEALTH_REGEN,
+
+	
+	PAS_BOOSTED_JETPACK,
+	PAS_EXTRA_SWARM_MISSILE,
+	PAS_SKYWARD_LAUNCH_JETPACKS,
+	PAS_EXTRA_JETPACK_FUEL,
+
+	
+	PAS_REVIVE_HEAL,
+
+	
+	PAS_GAS_HP_REGEN,
+	PAS_GAS_HIGHLIGHT,
+
+	
+	PAS_AUTO_WHITE_RAVEN_SPAWN,
+
+	
+	PAS_STOWED_DRONE_SCAN,
+
+	
+	PAS_SHOTGUN_KNOCK_AUTO_RELOAD,
+
+	
+	PAS_TEAM_VOICES,
+	PAS_NEARBY_TEAMS,
+
+	
+
+	
+	PAS_SQUADWIPE_SQUAD_COUNT,
+
+	
+	PAS_FASTER_REVIVES,
+	PAS_SELF_RES,
+
+	
+	PAS_KNOCK_TAC_RESET,
+
+	
+	PAS_ULT_ACCEL_DOUBLE_CHARGE,
+	PAS_OPTIC_HIGHLIGHT,
+	PAS_ULT_ACCEL_CHARGE,
+
+
+	PAS_ABTEST_UPGRADE_EMPTY1,
+	PAS_ABTEST_UPGRADE_EMPTY2,
+	PAS_ABTEST_UPGRADE_EMPTY3,
+	
+	
+	
+	
+	
+	
+
+	
 
 	
 	
@@ -354,6 +352,10 @@ global enum ePassives
 		PAS_KNOCK_ADRENALINE,
 		PAS_SQUADWIPE,
 		PAS_ORDNANCE_HIGHLIGHT,
+
+
+
+
 
 
 	_count,
@@ -546,7 +548,7 @@ void function OnRegisterRootItemFlavors()
 
 bool function PlayerHasPassive( entity player, int passive )
 {
-	if( !IsValid( player ) )
+	if( !IsValid( player ) || !player.IsPlayer() )
 		return false
 
 	return player.HasPassive( passive )

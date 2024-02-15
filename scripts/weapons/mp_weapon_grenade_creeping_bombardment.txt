@@ -255,13 +255,13 @@ WeaponData
 			rui_crosshair_index					"1"
 		}
 
-                      
-                                     
-   
-                                   
-                                        
-                                      
-   
+		                    
+		upgrade_core_ult_cooldown_reduction
+		{
+			"ammo_clip_size"   								"180"
+        	"ammo_min_to_fire"								"180"
+        	"ammo_per_shot"									"180"
+		}
         
 
 	}

@@ -11,6 +11,7 @@ global function GamemodeUtility_ParseCircleString
 global function GamemodeUtility_ParseVectorString 
 global function GamemodeUtility_ParseStringOfVectors 
 global function GamemodeUtility_GetKillReplayActive 
+global function GamemodeUtility_GetIsTeamIndexValidPlayerTeam 
 
 
 
@@ -51,6 +52,7 @@ global function GamemodeUtility_IsJIPEnabled
 global function GamemodeUtility_IsJIPPlayerSpawnBonusPending 
 global function GamemodeUtility_IsPlayerAbandoning  
 global function GamemodeUtility_GetAbandonPenaltyLength 
+global function GamemodeUtility_AddCallback_OnPlayerJoinedMatchInProgress 
 
 
 
@@ -109,6 +111,14 @@ global enum eGamemodeUtilityCaptureObjectiveColorState
 }
 
 
+
+
+
+
+
+
+
+
 struct {
 
 
@@ -131,10 +141,18 @@ struct {
 
 		bool isLoweringDVSForGamemode = false 
 
+
+
+		array< void functionref( entity ) > onPlayerJoinedMatchInProgressCallbackFuncs 
+
 } file
 
 void function GamemodeUtility_Init()
 {
+
+
+
+
 
 
 
@@ -216,7 +234,7 @@ void function GamemodeUtility_RegisterNetworking()
 
 			RegisterNetworkedVariable( "GamemodeUtility_HasJIPPlayerReceivedSpawnBonus", SNDC_PLAYER_EXCLUSIVE, SNVT_BOOL, false )
 
-		Remote_RegisterClientFunction( "GamemodeUtility_ServerCallback_PlayerJoinedMatchInProgress" )
+		Remote_RegisterClientFunction( "GamemodeUtility_ServerCallback_PlayerJoinedMatchInProgress", "entity" )
 	}
 
 	if ( GamemodeUtility_ShouldPingVictimSquadLocationOnDown() || GamemodeUtility_ShouldPingVictimSquadLocationOnKill() )
@@ -425,6 +443,10 @@ float function GamemodeUtility_GetDurationOfVictimSquadMapPing()
 
 
 
+bool function GamemodeUtility_GetKillReplayActive()
+{
+	return GetCurrentPlaylistVarBool( "killreplay_enabled", false )
+}
 
 
 
@@ -435,6 +457,65 @@ float function GamemodeUtility_GetDurationOfVictimSquadMapPing()
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+void function GamemodeUtility_AddCallback_OnPlayerJoinedMatchInProgress( void functionref( entity ) func )
+{
+	Assert( !file.onPlayerJoinedMatchInProgressCallbackFuncs.contains( func ), "GAMEMODE UTILITY: Already added " + string( func ) + " to onPlayerJoinedMatchInProgressCallbackFuncs" )
+	file.onPlayerJoinedMatchInProgressCallbackFuncs.append( func )
+}
 
 
 
@@ -666,8 +747,6 @@ void function RunVictimSquadMapScan_Thread( int victimTeam )
 		Assert( IsNewThread(), "Must be threaded off" )
 #endif
 
-	EndSignal( clGlobal.levelEnt, "OnDestroy" )
-
 	if ( IsValid( clGlobal.levelEnt ) )
 		EndSignal( clGlobal.levelEnt, "OnDestroy" )
 
@@ -750,6 +829,492 @@ void function RunVictimSquadMapScan_Thread( int victimTeam )
 		wait totalScanDurationWithFadeOut
 	}
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1107,10 +1672,23 @@ bool function GamemodeUtility_IsJIPPlayerSpawnBonusPending( entity player )
 
 
 
-
-void function GamemodeUtility_ServerCallback_PlayerJoinedMatchInProgress()
+void function GamemodeUtility_ServerCallback_PlayerJoinedMatchInProgress( entity jipPlayer )
 {
-	EmitUISound( SFX_JOIN_MATCH_IN_PROGRESS )
+	entity localPlayer = GetLocalClientPlayer()
+	if ( !IsValid( localPlayer ) || !IsValid( jipPlayer ) )  
+		return
+
+	
+	foreach( playerJoinedMatchInProgressFunc in file.onPlayerJoinedMatchInProgressCallbackFuncs )
+	{
+		playerJoinedMatchInProgressFunc( jipPlayer )
+	}
+
+	
+	int jipPlayerTeamOrAlliance = AllianceProximity_IsUsingAlliances() ? AllianceProximity_GetAllianceFromTeam( jipPlayer.GetTeam() ) : jipPlayer.GetTeam()
+	int localPlayerTeamOrAlliance = AllianceProximity_IsUsingAlliances() ? AllianceProximity_GetAllianceFromTeam( localPlayer.GetTeam() ) : localPlayer.GetTeam()
+	if ( jipPlayerTeamOrAlliance == localPlayerTeamOrAlliance )
+		EmitUISound( SFX_JOIN_MATCH_IN_PROGRESS )
 }
 
 
@@ -2087,6 +2665,12 @@ void function GamemodeUtility_SetDVSSettingsForGamemode( bool shouldEnableForced
 
 
 
+bool function GamemodeUtility_GetIsTeamIndexValidPlayerTeam( int teamIndex )
+{
+	return TEAM_MULTITEAM_FIRST <= teamIndex && teamIndex < MAX_TEAMS + TEAM_MULTITEAM_FIRST
+}
+
+
 
 
 
@@ -2192,11 +2776,6 @@ string function GamemodeUtility_GetParsedStringForCircleValues( array< string > 
 	}
 
 	return parsedPlaylistString
-}
-
-bool function GamemodeUtility_GetKillReplayActive()
-{
-	return GetCurrentPlaylistVarBool( "killreplay_enabled", false )
 }
 
 

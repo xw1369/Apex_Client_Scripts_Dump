@@ -730,18 +730,16 @@ AttackerDisplayNameStruct function GetAttackerDisplayNamesFromClassname( entity 
 
 	if ( ent == GetLocalClientPlayer() )
 	{
-		names.attackerName = ent.GetPlayerNameWithClanTag()
+
+			names.attackerName = ent.GetPlayerNameWithClanTag()
+
+
+
 	}
 	else if ( ent.IsPlayer() )
 	{
-		string clubTag = ""
-
-		
-		
-		
-
 		string attackerName = isAttacker ? GetKillerNameFromEHI( ToEHI( ent ) ) : GetDisplayablePlayerNameFromEHI( ToEHI( ent ) )
-		names.attackerName = clubTag + attackerName
+		names.attackerName = attackerName
 	}
 	else if ( ent instanceof C_AI_BaseNPC )
 	{
@@ -878,6 +876,15 @@ bool function IsLocalPlayerOnTeamSpectator()
 bool function IsSpectatorSpectatingPlayer( entity player )
 {
 	return IsSpectator( GetLocalClientPlayer() ) && GetLocalViewPlayer() == player
+}
+
+bool function IsLocalPlayerAlive_NonReplay()
+{
+	
+	
+	
+	
+	return IsAlive( GetLocalClientPlayer() ) && !IsWatchingReplay()
 }
 
 void function RuiSetResolutionToScreenSize( var rui )

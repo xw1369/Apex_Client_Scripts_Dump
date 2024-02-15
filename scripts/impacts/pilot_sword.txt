@@ -40,7 +40,7 @@ ImpactTable
 		"shieldhit" "P_armor_impact"
 		"critical_hit" "xo_damage_exp_1"
 
-		 "5" "xo_footstep_water" //water_hrz
+		 "5" "P_pilot_swd_metal" //water_hrz
 	}
 
 	Sound

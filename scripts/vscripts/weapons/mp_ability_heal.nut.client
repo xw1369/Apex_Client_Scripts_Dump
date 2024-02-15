@@ -2,25 +2,18 @@ global function OnWeaponChargeBegin_ability_heal
 global function OnWeaponChargeEnd_ability_heal
 global function OnWeaponAttemptOffhandSwitch_ability_heal
 
+const int STIM_HEALTH_COST = 20
 
-
-
-
-
+const int STIM_HEALTH_COST_UPGRADE = 15
 
 
 int function GetOctanceHealthCost( entity weapon )
 {
-	int result = GetCurrentPlaylistVarInt( "octane_health_cost", 20 )
 
+	if( IsValid( weapon ) && IsValid( weapon.GetOwner() ) && weapon.GetOwner().HasPassive( ePassives.PAS_TAC_UPGRADE_ONE ) )
+		return GetCurrentPlaylistVarInt( "octane_health_cost_upgrade", STIM_HEALTH_COST_UPGRADE )
 
-
-
-
-
-
-
-	return result
+	return GetCurrentPlaylistVarInt( "octane_health_cost", STIM_HEALTH_COST )
 }
 
 bool function OnWeaponChargeBegin_ability_heal( entity weapon )

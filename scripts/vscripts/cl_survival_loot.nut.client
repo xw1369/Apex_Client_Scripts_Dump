@@ -50,7 +50,7 @@ const float LOOT_PING_DISTANCE = 500.0
 
 const bool LINE_COLORS = true
 
-const float MAGIC_DEATHBOX_Z_OFFSET = 0.5
+const float MAGIC_DEATHBOX_Z_OFFSET = 0.71
 
 const bool HAS_ITEM_PICKUP_FEEDACK_FX = false
 #if HAS_ITEM_PICKUP_FEEDACK_FX
@@ -595,6 +595,11 @@ string function DeathBoxTextOverride( entity ent )
 
 
 
+
+
+
+
+
 		if ( ShouldUseAltInteractForArmorSwap() )
 		{
 			entity ornull armorEnt = GetDeathboxArmorSwap( localViewPlayer, ent )
@@ -612,6 +617,11 @@ string function DeathBoxTextOverride( entity ent )
 	{
 		if ( DeathboxNetwork_CanPlayerUse( localViewPlayer, ent ) )
 			return Localize( "#PAS_ASH_ADDITIONAL_USE_PROMPT" )
+
+
+
+
+
 
 
 
@@ -644,6 +654,11 @@ string function DeathBoxTextOverride( entity ent )
 
 	if ( DeathboxNetwork_CanPlayerUse( localViewPlayer, ent ) )
 		localizedHint = Localize( "#PAS_ASH_ADDITIONAL_USE_PROMPT" ) + "\n" + localizedHint
+
+
+
+
+
 
 
 
@@ -745,20 +760,18 @@ string function Sur_LootTextOverride( entity ent )
 		RuiSetVisible( rui, true )
 	}
 
+	entity player = GetLocalViewPlayer()
+	LootData data = SURVIVAL_Loot_GetLootDataByIndex( ent.GetSurvivalInt() )
 
-		entity player = GetLocalViewPlayer()
-		LootData data = SURVIVAL_Loot_GetLootDataByIndex( ent.GetSurvivalInt() )
+	if( DoesPlayerHaveWeaponSling( player ) && IsPlayerWeaponSlingEmpty( player ) && CanPlayerEquipWeaponRefToSling( player, data.ref, true ) )
+	{
+		var slingPassiveRui = GetSlingPassiveRui()
 
-		if( DoesPlayerHaveWeaponSling( player ) && IsPlayerWeaponSlingEmpty( player ) && CanPlayerEquipWeaponRefToSling( player, data.ref, true ) )
+		if ( slingPassiveRui != null )
 		{
-			var slingPassiveRui = GetSlingPassiveRui()
-
-			if ( slingPassiveRui != null )
-			{
-				RuiSetBool( slingPassiveRui, "slingEmptyAimingAtWeapon", true )
-			}
+			RuiSetBool( slingPassiveRui, "slingEmptyAimingAtWeapon", true )
 		}
-
+	}
 
 	UpdateUseHintForEntity( ent )
 
@@ -867,7 +880,6 @@ void function Sur_OnUseEntLoseFocus( entity ent )
 		SURVIVAL_Loot_UpdateHighlightForLoot( ent )
 	}
 
-
 	if( DoesPlayerHaveWeaponSling( GetLocalViewPlayer() ) )
 	{
 		var slingPassiveRui = GetSlingPassiveRui()
@@ -880,7 +892,6 @@ void function Sur_OnUseEntLoseFocus( entity ent )
 			}
 		}
 	}
-
 }
 
 
@@ -964,12 +975,10 @@ void function UpdateUseHintForEntity( entity ent, var rui = null )
 
 	PerfEnd( PerfIndexClient.UpdateLootRui )
 
-
-		if( DoesPlayerHaveWeaponSling( player ) && CanPlayerEquipWeaponRefToSling( player, data.ref, true ) )
-			RuiSetBool( rui, "usesSlingWeapon", true )
-		else
-			RuiSetBool( rui, "usesSlingWeapon", false )
-
+	if( DoesPlayerHaveWeaponSling( player ) && CanPlayerEquipWeaponRefToSling( player, data.ref, true ) )
+		RuiSetBool( rui, "usesSlingWeapon", true )
+	else
+		RuiSetBool( rui, "usesSlingWeapon", false )
 }
 
 
@@ -1046,6 +1055,7 @@ void function UpdateLootRuiWithData( entity player, var rui, LootData data, int 
 	RuiSetImage( rui, "iconImage", data.hudIcon )
 
 	bool useCustomLootColor = false
+	bool useAltTextColor = false
 	if( data.ref == "expired_banners" )
 	{
 		useCustomLootColor = true
@@ -1084,6 +1094,11 @@ void function UpdateLootRuiWithData( entity player, var rui, LootData data, int 
 			case 5:
 				color = <240, 30, 2>
 				break
+			case 6:
+				color = <235, 223, 63>
+				useAltTextColor = true
+				RuiSetFloat3( rui, "altTextColor", SrgbToLinear( < 194, 142, 221 > / 255.0 ) )
+				break
 
 
 
@@ -1098,6 +1113,7 @@ void function UpdateLootRuiWithData( entity player, var rui, LootData data, int 
 
 	RuiSetInt( rui, "lootTier", data.tier )
 	RuiSetBool( rui, "useCustomLootColor", useCustomLootColor )
+	RuiSetBool( rui, "useAltTextColor", useAltTextColor )
 
 
 	vector iconScale = data.lootType == eLootType.MAINWEAPON ? <2.0, 1.0, 0.0> : <1.0, 1.0, 0.0>
@@ -1119,6 +1135,8 @@ void function UpdateLootRuiWithData( entity player, var rui, LootData data, int 
 
 	LootActionStruct asMain = SURVIVAL_BuildStringForAction( player, lootContext, lootRef, eLootActionType.PRIMARY_ACTION, isInMenu )
 	LootActionStruct asAlt  = SURVIVAL_BuildStringForAction( player, lootContext, lootRef, eLootActionType.ALT_ACTION, isInMenu )
+	LootActionStruct asCharacterAction1  = SURVIVAL_BuildStringForAction( player, lootContext, lootRef, eLootActionType.CHARACTER_ACTION1, isInMenu )
+	LootActionStruct asCharacterAction2  = SURVIVAL_BuildStringForAction( player, lootContext, lootRef, eLootActionType.CHARACTER_ACTION2, isInMenu )
 
 	RuiSetInt( rui, "lootTierReplace", 0 )
 	RuiSetImage( rui, "replaceImage", $"" )
@@ -1136,7 +1154,7 @@ void function UpdateLootRuiWithData( entity player, var rui, LootData data, int 
 		bool isEvo = EvolvingArmor_IsEquipmentEvolvingArmor( lootRef.lootData.ref )
 
 
-
+		isEvo = isEvo || UpgradeCore_IsEquipmentArmorCore( lootRef.lootData.ref )
 
 
 		RuiSetBool( rui, "isEvolvingArmor", isEvo )
@@ -1179,15 +1197,15 @@ void function UpdateLootRuiWithData( entity player, var rui, LootData data, int 
 				RuiSetInt( rui, "replaceExtraPropertyValue", EvolvingArmor_GetEvolutionProgress( player ) )
 			}
 
+			else if( UpgradeCore_IsEquipmentArmorCore( asMain.additionalData.ref ) )
+			{
+				RuiSetBool( rui, "isReplaceEvolvingArmor", true )
 
 
 
+					replacePropertyValue = int( SURVIVAL_GetPlayerShieldHealthFromArmor( player ) / float(SURVIVAL_GetCharacterShieldHealthMaxForArmor( player, asMain.additionalData )) * 125)
 
-
-
-
-
-
+			}
 
 			else
 			{
@@ -1212,6 +1230,9 @@ void function UpdateLootRuiWithData( entity player, var rui, LootData data, int 
 			RuiSetBool( rui, "hasReplace", true )
 		}
 	}
+
+	RuiSetString( rui, "characterAction1Text", asCharacterAction1.displayString )
+	RuiSetString( rui, "characterAction2Text", asCharacterAction2.displayString )
 
 	RuiSetBool( rui, "isSurvivalGadget", false )
 
@@ -1242,7 +1263,7 @@ void function UpdateLootRuiWithData( entity player, var rui, LootData data, int 
 		int shieldPropertyValue = 0
 		if ( EvolvingArmor_IsEquipmentEvolvingArmor( data.ref )
 
-
+			|| ( UpgradeCore_IsEquipmentArmorCore( data.ref ) )
 
 			)
 		{
@@ -1272,11 +1293,11 @@ void function UpdateLootRuiWithData( entity player, var rui, LootData data, int 
 		RuiSetInt( rui, "extraPropertyValue", lootRef.lootExtraProperty )
 
 
-
-
-
-
-
+		if( UpgradeCore_IsEquipmentArmorCore( data.ref ) )
+		{
+			int shieldVal = GetPropSurvivalMainProperty( lootRef.lootProperty )
+			RuiSetString( rui, "subText", Localize( data.desc, shieldVal ) )
+		}
 
 	}
 
@@ -1561,14 +1582,12 @@ void function UpdateLootRuiWithData( entity player, var rui, LootData data, int 
 		}
 
 
-
-			string slingRef = EquipmentSlot_GetLootRefForSlot( player, SLING_EQUIPMENT_SLOT_NAME )
-			if ( SURVIVAL_Loot_IsRefValid( slingRef ) )
-			{
-				LootData slingData = SURVIVAL_Loot_GetLootDataByRef( slingRef )
-				weaponNames.append( slingData.baseWeapon )
-			}
-
+		string slingRef = EquipmentSlot_GetLootRefForSlot( player, SLING_EQUIPMENT_SLOT_NAME )
+		if ( SURVIVAL_Loot_IsRefValid( slingRef ) )
+		{
+			LootData slingData = SURVIVAL_Loot_GetLootDataByRef( slingRef )
+			weaponNames.append( slingData.baseWeapon )
+		}
 
 		foreach ( weaponRef in weaponNames )
 		{
@@ -2059,11 +2078,17 @@ void function TrackLootToPing( entity player )
 
 
 
+			if( UpgradeCore_UpdateHighlightedHarvesterIcon() )
+			{
+				WaitFrame()
+				continue
+			}
 
-
-
-
-
+			if( DeathBoxInsight_UpdateLookatPing() )
+			{
+				WaitFrame()
+				continue
+			}
 
 
 			if ( player.ContextAction_IsInVehicle() )
@@ -2382,12 +2407,8 @@ string function CreateLootDevDisplayString( LootData data )
 		displayString = "[BLUE]/ BLUE " + displayString
 	if ( data.lootTags.contains( WEAPON_LOCKEDSET_MOD_PURPLESET ) )
 		displayString = "[PURPLE]/ PURPLE " + displayString
-	if ( data.baseMods.contains( WEAPON_LOCKEDSET_MOD_GOLDPAINTBALL ) )
+	if ( data.baseMods.contains( WEAPON_LOCKEDSET_MOD_PAINTBALL ) )
 		displayString = "[GOLD PAINTBALL]/ GOLD " + displayString
-	if ( data.baseMods.contains( WEAPON_LOCKEDSET_MOD_PURPLEPAINTBALL ) )
-		displayString = "[PURPLE PAINTBALL]/ PURPLE " + displayString
-	if ( data.baseMods.contains( WEAPON_LOCKEDSET_MOD_BLUEPAINTBALL ) )
-		displayString = "[BLUE PAINTBALL]/ BLUE " + displayString
 
 	return displayString
 }
@@ -2690,6 +2711,14 @@ void function ApplyEquipmentColorAndFXOverrides( entity prop )
 	{
 		vector tierColor       = GetFXRarityColorForTier( lootData.tier )
 		string tierColorString = format( "%f %f %f", tierColor.x, tierColor.y, tierColor.z )
+
+
+		if( UpgradeCore_IsEquipmentArmorCore( lootData.ref ) && GetPropSurvivalMainPropertyFromEnt( prop ) == 0 )
+		{
+			tierColorString = format( "%f %f %f", 50.0, 50.0, 50.0 )
+		}
+
+
 		prop.kv.rendercolor = tierColorString
 
 		if ( EvolvingArmor_IsEquipmentEvolvingArmor( lootData.ref ) )

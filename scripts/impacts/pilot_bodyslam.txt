@@ -42,7 +42,7 @@ ImpactTable
 		"2" "P_hmn_land_impact_lava" //lava_rock_hot
 		"3" "P_hmn_bslam_concrete"
 		"4" "P_hmn_bslam_concrete"
-		"5" "P_impact_exp_med_water"
+		"5" "P_impact_digital_water_hrz_w_glass" //water_hrz
 		"6" "P_hmn_bslam_concrete"
 		"7" "P_hmn_bslam_concrete"
 		"8" "P_hmn_bslam_concrete"

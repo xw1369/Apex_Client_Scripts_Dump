@@ -222,6 +222,12 @@ void function InitWeaponScripts()
 		HopupGoldenHorse_Init()
 
 
+
+
+
+
+
+
 	MpAbilityShifter_Init()
 	
 	MpWeaponDefenderRailgun_Init()
@@ -295,10 +301,8 @@ void function InitWeaponScripts()
 	MpWeaponWraithKunai_rt01_Primary_Init()
 	MeleeAshHeirloom_Init()
 	MpWeaponAshHeirloomPrimary_Init()
-
-		MeleeHorizonHeirloom_Init()
-		MpWeaponHorizonHeirloomPrimary_Init()
-
+	MeleeHorizonHeirloom_Init()
+	MpWeaponHorizonHeirloomPrimary_Init()
 
 		
 		MeleeRevenantScythe_rt01_Init()
@@ -328,8 +332,8 @@ void function InitWeaponScripts()
 		MpWeaponCryptoHeirloomRt01Primary_Init()
 
 
-
-
+		MeleeOctaneKnifeRt01_Init()
+		MpWeaponOctaneKnifePrimaryRt01_Init()
 
 	MeleeGibraltarClub_Init()
 	MpWeaponGibraltarClubPrimary_Init()
@@ -349,10 +353,8 @@ void function InitWeaponScripts()
 	MpAbilityGibraltarShield_Init()
 	MpWeaponBubbleBunker_Init()
 
-
-		MpAbilityPortableAutoLoader_Init()
-		MpWeaponDebuffZone_Init()
-
+	MpAbilityPortableAutoLoader_Init()
+	MpWeaponDebuffZone_Init()
 
 
 
@@ -1473,6 +1475,19 @@ bool function ControlPanel_CanUseFunction( entity playerUser, entity controlPane
 		}
 	}
 
+
+		if ( TitanSword_Super_BlockAction( playerUser, "control_panel" ) )
+			return false
+
+
+	
+	if ( !IsPlayerInCryptoDroneCameraView( playerUser ) )
+	{
+		float verticalOffset = playerUser.GetOrigin().z - controlPanel.GetOrigin().z
+		if ( verticalOffset > 50 || verticalOffset < -50 )
+			return false
+	}
+
 	
 	int maxAngleToAxisAllowedDegrees = 60
 
@@ -2428,17 +2443,21 @@ float function GetShieldHealthFracBeforeDamage( entity ent, int damage )
 	if ( !IsAlive( ent ) )
 		return 0.0
 
-	int shieldHealth    = ent.GetShieldHealth() + damage
+	int shieldHealthBeforeDamage    = ent.GetShieldHealth() + damage
 	int shieldMaxHealth = ent.GetShieldHealthMax()
 
-	Assert( shieldHealth <= shieldMaxHealth )
-	if ( shieldHealth > shieldMaxHealth )
-		shieldHealth = shieldMaxHealth
+	if ( shieldHealthBeforeDamage > shieldMaxHealth )
+	{
+		
+		Warning( "shieldHealth > shieldMaxHealth, this may be due to us having some overshield when we took the damage. " )	
+	}
+	if ( shieldHealthBeforeDamage > shieldMaxHealth )
+		shieldHealthBeforeDamage = shieldMaxHealth
 
 	if ( shieldMaxHealth == 0 )
 		return 0.0
 
-	return float( shieldHealth ) / float( shieldMaxHealth )
+	return float( shieldHealthBeforeDamage ) / float( shieldMaxHealth )
 }
 
 
@@ -3703,26 +3722,6 @@ void function CamBlendFromAngToAng( entity cam, vector startAng, vector endAng, 
 	}
 }
 
-
-int function AddBitMask( int bitsExisting, int bitsToAdd )
-{
-	return bitsExisting | bitsToAdd
-}
-
-
-int function RemoveBitMask( int bitsExisting, int bitsToRemove )
-{
-	return bitsExisting & (~bitsToRemove)
-}
-
-
-bool function HasBitMask( int bitsExisting, int bitsToCheck )
-{
-	int bitsCommon = bitsExisting & bitsToCheck
-	return bitsCommon == bitsToCheck
-}
-
-
 void function SetDeathCamTimeOverride( float functionref() func )
 {
 	file.getDeathCamTimeOverride = func
@@ -4165,9 +4164,6 @@ void function SetTeam( entity ent, int team )
 {
 
 		ent.Code_SetTeam( team )
-
-
-
 
 
 
@@ -5488,16 +5484,32 @@ array<string> function GetValidLootModsInstalled( entity weapon )
 	if ( !SURVIVAL_Loot_IsRefValid( weaponName ) )
 		return []
 
-	if ( SURVIVAL_Weapon_IsAttachmentLocked( weaponName ) )
-		return []
+	bool dropOpticForKittedWeapons = ShouldDropOpticForKittedWeapon()
+
+	if ( !dropOpticForKittedWeapons )
+	{
+		if ( SURVIVAL_Weapon_IsAttachmentLocked( weaponName ) )
+			return []
+	}
 
 	array<string> mods = GetWeaponMods( weapon )
 	array<string> validMods
-
 	foreach ( mod in mods )
 	{
-		if ( SURVIVAL_Loot_IsRefValid( mod ) ) 
-			validMods.append( mod )
+		if ( SURVIVAL_Loot_IsRefValid( mod ) )
+		{
+			if ( dropOpticForKittedWeapons )
+			{
+				string attachPoint = GetAttachPointForAttachmentOnWeapon( weaponName, mod )
+
+				if ( !SURVIVAL_Weapon_IsAttachmentLocked( weaponName ) || attachPoint == "sight" )
+					validMods.append( mod )
+			}
+			else
+			{
+				validMods.append( mod )
+			}
+		}
 	}
 
 	return validMods
@@ -5519,10 +5531,20 @@ array<string> function GetNonInstallableWeaponMods( entity weapon )
 
 	foreach ( mod in mods )
 	{
-		if ( !CanAttachToWeapon( mod, weaponName ) || isAttachmentLocked )
-			foundMods.append( mod )
+		if ( ShouldDropOpticForKittedWeapon() )
+		{
+			if ( !CanAttachToWeapon( mod, weaponName ) )
+				foundMods.append( mod )
+			else
+				installedMods.append( mod )
+		}
 		else
-			installedMods.append( mod )
+		{
+			if ( !CanAttachToWeapon( mod, weaponName ) || isAttachmentLocked )
+				foundMods.append( mod )
+			else
+				installedMods.append( mod )
+		}
 	}
 
 	VerifyToggleMods( foundMods )
@@ -5690,11 +5712,7 @@ bool function Do2DLinesIntersect( vector A, vector B, vector C, vector D )
 
 int function GetSlotForWeapon( entity player, entity weapon )
 {
-
-		array<int> slots = [ WEAPON_INVENTORY_SLOT_PRIMARY_0, WEAPON_INVENTORY_SLOT_PRIMARY_1, SLING_WEAPON_SLOT, WEAPON_INVENTORY_SLOT_ANTI_TITAN ]
-
-
-
+	array<int> slots = [ WEAPON_INVENTORY_SLOT_PRIMARY_0, WEAPON_INVENTORY_SLOT_PRIMARY_1, SLING_WEAPON_SLOT, WEAPON_INVENTORY_SLOT_ANTI_TITAN ]
 
 	foreach ( slot in slots )
 	{
@@ -5715,6 +5733,10 @@ bool function CanAttachToWeapon( string attachment, string weaponName )
 		return false
 
 	if ( !SURVIVAL_Loot_IsRefValid( attachment ) )
+		return false
+
+	
+	if ( !IsValidAttachment( attachment ) )
 		return false
 
 	bool isValidMode = true
@@ -6427,49 +6449,13 @@ table< var, array< entity > > function GetAllMatchReservationParties()
 }
 
 
-void function PollPartyMembersInSquad( entity player )
-{
-	if ( IsValid( player ) )
-		thread PollPartyMembersInSquad_Thread( player )
-}
 
-void function PollPartyMembersInSquad_Thread( entity player )
-{
-	EndSignal( player, "OnDestroy" )
 
-	bool allMembersPresentInSquad = false
 
-	while ( true )
-	{
-		table< string, bool > activeSquadMembers
-		Party party = GetParty()
 
-		int team = player.GetTeam()
-		foreach ( entity teammate in GetPlayerArrayOfTeam( team ) )
-		{
-			if ( IsValid( teammate ) && teammate.IsConnectionActive() )
-				activeSquadMembers[teammate.GetUserID()] <- true
-		}
 
-		bool allPresent = true
-		foreach ( partyMember in party.members )
-		{
-			if ( !( partyMember.uid in activeSquadMembers ) )
-			{
-				allPresent = false
-				break
-			}
-		}
 
-		if ( allPresent != allMembersPresentInSquad )
-		{
-			allMembersPresentInSquad = allPresent
-			RunUIScript( "UpdateSystemMenuPartySquadPresence", allPresent )
-		}
 
-		wait 0.1
-	}
-}
 
 
 
@@ -7134,4 +7120,14 @@ float function HermiteInterpolate( float y0, float y1, float y2, float y3, float
 	a3 = -2.0*mu3 + 3.0*mu2
 
 	return(a0*y1+a1*m0+a2*m1+a3*y2)
+}
+
+string function TryGetValueForKey( entity ent, string key, string defaultValue )
+{
+	if ( ent.HasKey( key ) )
+	{
+		return ent.GetValueForKey( key )
+	}
+
+	return defaultValue
 }

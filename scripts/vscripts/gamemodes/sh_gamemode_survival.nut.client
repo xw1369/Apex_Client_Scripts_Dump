@@ -213,6 +213,10 @@ global enum ePodiumBanner
 	SR_LEGENDS,
 	SR_REV,
 
+
+	S20_ANNIVERSARY,
+	TURBO
+
 	_COUNT
 }
 
@@ -237,6 +241,7 @@ global enum ePodiumBackground
 	SR_REV,
 
 	MP_RR_TROPICS_ISLAND_MU2,
+	MP_RR_THUNDERDOME,
 	_COUNT
 }
 
@@ -1046,6 +1051,23 @@ bool function CanWeaponInspect( entity player, int activity )
 
 	return GetCurrentPlaylistVarBool( "enable_weapon_inspect", true )
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

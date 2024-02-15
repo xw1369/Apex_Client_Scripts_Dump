@@ -46,6 +46,8 @@ global function ClientCodeCallback_UserInfoUpdated
 global function AddCallback_OnPartyUpdated
 global function AddCallbackAndCallNow_OnPartyUpdated
 global function RemoveCallback_OnPartyUpdated
+global function AddCallback_OnClientPartyMemberAdded
+global function RemoveCallback_OnClientPartyMemberAdded
 
 
 
@@ -109,6 +111,7 @@ struct
 		var disembarkRUI
 
 		array< void functionref() > partyUpdatedCallbacks
+		array< void functionref() > partyMemberAddedCallbacks
 
 
 	array<bool functionref( entity, entity )> canPlayerUseCheckCallbacks
@@ -806,6 +809,12 @@ string function CodeCallback_CheckPassThroughAddsMods( entity player, entity hit
 			}
 		}
 
+
+
+
+
+
+
 		return "amped_damage"
 	}
 
@@ -860,6 +869,10 @@ void function ClientCodeCallback_PartyUpdated()
 void function ClientCodeCallback_PartyMemberAdded()
 {
 	printt( "ClientCodeCallback_PartyMemberAdded" )
+	foreach ( callbackFunc in file.partyMemberAddedCallbacks )
+	{
+		callbackFunc()
+	}
 }
 
 void function ClientCodeCallback_PartyMemberRemoved()
@@ -902,6 +915,22 @@ void function RemoveCallback_OnPartyUpdated( void functionref() callbackFunc )
 {
 	Assert( file.partyUpdatedCallbacks.contains( callbackFunc ) )
 	file.partyUpdatedCallbacks.fastremovebyvalue( callbackFunc )
+}
+
+void function AddCallback_OnClientPartyMemberAdded( void functionref() callbackFunc )
+{
+	if ( file.partyMemberAddedCallbacks.contains( callbackFunc ) )
+	{
+		Assert( false, "Tried to add a callback that was already added" )
+	}
+
+	file.partyMemberAddedCallbacks.append( callbackFunc )
+}
+
+void function RemoveCallback_OnClientPartyMemberAdded( void functionref() callbackFunc )
+{
+	Assert( file.partyMemberAddedCallbacks.contains( callbackFunc ) )
+	file.partyMemberAddedCallbacks.fastremovebyvalue( callbackFunc )
 }
 
 

@@ -39,6 +39,11 @@ const int 	RIOT_DRILL_IMPACT_DAMAGE = 5
 const int	RIOT_DRILL_OBJECT_DAMAGE = 1				
 const float RIOT_DRILL_DAMAGE_TICK 	= 0.2			
 
+const float RIOT_DRILL_DURATION_UPGRADE					= 6.0 
+const float RIOT_DRILL_BLAST_LENGTH_UPGRADE_MULTIPLIER 	= 1.5 
+const float RIOT_DRILL_BLAST_RADIUS_UPGRADE_MULTIPLIER 	= 1.5 
+
+
 
 const asset RIOT_DRILL_SPIKE 					= $"mdl/props/madmaggie_tactical_drill_bit/madmaggie_tactical_drill_bit.rmdl"
 const asset RIOT_DRILL_DRILL		 			= $"mdl/props/madmaggie_tactical_drill_bit/madmaggie_tactical_drill_bit.rmdl"
@@ -52,8 +57,8 @@ const asset RIOT_DRILL_BLAST_BEAM_FX 			= $"P_mm_breach_beam"
 const asset RIOT_DRILL_BLAST_BEAM_WARN_FX 		= $"P_mm_breach_beam_warn"
 const asset RIOT_DRILL_AOE_WARNING_01_FX 		= $"P_mm_breach_exit"
 
-
-
+    const asset RIOT_DRILL_BLAST_BEAM_WARN_FX_UPGRADE 		= $"P_mm_breach_beam_warn_big"
+    const asset RIOT_DRILL_AOE_WARNING_01_FX_UPGRADE 		= $"P_mm_breach_exit_big"
 
 const asset RIOT_DRILL_FRONT_FX 				= $"P_mm_breach_enter"
 const asset RIOT_DRILL_SPRAY_TEST_CONE	 		= $"_none_FX_test"
@@ -72,6 +77,11 @@ const string RIOT_DRILL_DAMAGE_SOUND_1P 		= "flesh_thermiteburn_3p_vs_1p"
 const string RIOT_DRILL_DAMAGE_SOUND_3P 		= "flesh_thermiteburn_3p_vs_3p"				
 const string RIOT_DRILL_EXIT_DRILLING 			= "Maggie_Tac_Drill_Exit_Drilling"
 const string RIOT_DRILL_ENTRANCE_DRILLING 		= "Maggie_Tac_Drill_Entrance_Drilling"  
+
+const string RIOT_DRILL_EXIT_DRILLING_UPGRADE	= "Maggie_Tac_Drill_Exit_Drilling_Short"
+
+
+const bool DEBUG_INFO = false
 
 enum eBreachPlacementResult
 {
@@ -154,8 +164,8 @@ void function MpWeaponRiotDrill_Init()
 	PrecacheParticleSystem( RIOT_DRILL_FRONT_FX )
 	PrecacheParticleSystem( RIOT_DRILL_AOE_WARNING_01_FX )
 
-
-
+	    PrecacheParticleSystem( RIOT_DRILL_BLAST_BEAM_WARN_FX_UPGRADE )
+	    PrecacheParticleSystem( RIOT_DRILL_AOE_WARNING_01_FX_UPGRADE )
 
 	PrecacheParticleSystem( RIOT_DRILL_SPRAY_TEST_CONE )
 	PrecacheParticleSystem( RIOT_DRILL_SPRAY_TEST_COLUMN )
@@ -240,28 +250,28 @@ void function RestoreRiotDrillAmmo( entity owner )
 }
 
 
+float function RiotDrill_GetReducedDuration()
+{
+	return GetCurrentPlaylistVarFloat( "riot_drill_reduced_duration", RIOT_DRILL_DURATION_UPGRADE )
+}
 
+float function RiotDrill_GetUpgradedRadiusMultiplier()
+{
+	return GetCurrentPlaylistVarFloat( "riot_drill_upgraded_radius", RIOT_DRILL_BLAST_RADIUS_UPGRADE_MULTIPLIER )
+}
 
-
-
-
-
-
-
-
-
-
-
-
-
+float function RiotDrill_GetUpgradedLengthMultiplier()
+{
+	return GetCurrentPlaylistVarFloat( "riot_drill_upgraded_length", RIOT_DRILL_BLAST_LENGTH_UPGRADE_MULTIPLIER )
+}
 
 
 float function RiotDrill_GetDuration( entity player )
 {
 	float result = file.balance_riotDrillDuration
 
-
-
+		if( PlayerHasPassive( player, ePassives.PAS_TAC_UPGRADE_ONE ) ) 
+			result = RiotDrill_GetReducedDuration()
 
 	return result
 }
@@ -270,8 +280,8 @@ float function RiotDrill_GetRadius( entity player )
 {
 	float result = file.balance_riotDrillRadius
 
-
-
+	if( PlayerHasPassive( player, ePassives.PAS_TAC_UPGRADE_TWO ) ) 
+		result *= RiotDrill_GetUpgradedRadiusMultiplier()
 
 	return result
 }
@@ -280,11 +290,28 @@ float function RiotDrill_GetLength( entity player )
 {
 	float result = file.balance_riotDrillLength
 
-
-
+		if( PlayerHasPassive( player, ePassives.PAS_TAC_UPGRADE_TWO ) ) 
+			result *= RiotDrill_GetUpgradedLengthMultiplier()
 
 	return result
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1389,11 +1416,11 @@ int function FindEndSpikeLocation( entity player, RiotDrillPlacementInfo placeme
 
 	BreachTraceResults breachTraceTresults
 
-
-
-
-
-
+	if( PlayerHasPassive( player, ePassives.PAS_TAC_UPGRADE_TWO ) ) 
+	{
+		breachTraceTresults = BreachTrace( pos, forward, HULL_TRACE_MIN, HULL_TRACE_MAX, 728.0 )
+	}
+	else
 
 	{
 		breachTraceTresults = BreachTrace( pos, forward, HULL_TRACE_MIN, HULL_TRACE_MAX, 512.0 )

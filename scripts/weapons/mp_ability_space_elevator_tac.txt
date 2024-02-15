@@ -250,21 +250,13 @@ WeaponData
 	"viewdrift_hipfire_speed_pitch"   				"0.6"
 	"viewdrift_hipfire_speed_yaw" 					"1.22"
 
-                        
-                                 
-                                    
-                                      
-                                   
-                                       
-                                    
-         
-    "ammo_clip_size"								"200"
-    "ammo_default_total"							"200"
+    "ammo_clip_size"								"250"
+    "ammo_default_total"							"250"
     "ammo_display"							        "bar"
-    "ammo_min_to_fire"								"200"
-    "ammo_per_shot"							        "200"
-    "ammo_stockpile_max"							"200"
-          
+    "ammo_min_to_fire"								"250"
+    "ammo_per_shot"							        "250"
+    "ammo_stockpile_max"							"250"
+
 	"regen_ammo_refill_rate"						"10"
 	"regen_ammo_refill_start_delay"					"0.5"
 	"ammo_no_remove_from_stockpile"					"0"
@@ -315,24 +307,24 @@ WeaponData
 
 		}
 
-                      
-                                             
-   
-                                
-                                         
-                                         
-                                   
-                                 
-   
+		                    
+		upgrade_tac_one //upgrade_horizon_tac_split
+		{
+		    "ammo_clip_size"	    "400"
+            "ammo_default_total"    "400"
+            "ammo_stockpile_max"    "400"
+            "fire_rate"   			"1000"
+            "fire_duration"			"0"
+		}
 
-                                           
-         
-                                
-                                
-                                
-                                
-                                
-         
+        upgrade_core_tac_cooldown_reduction
+        {
+			"ammo_clip_size"        "200"
+			"ammo_default_total"    "200"
+			"ammo_min_to_fire"      "200"
+			"ammo_per_shot"         "200"
+			"ammo_stockpile_max"    "200"
+        }
               
 
 		                      

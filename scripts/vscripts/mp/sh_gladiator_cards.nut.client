@@ -23,8 +23,8 @@ global function SetNestedGladiatorCardOverrideTracker
 global function SetNestedGladiatorCardIsKiller
 global function SetNestedGladiatorCardDisableBlur
 
-
-
+global function SetNestedGladiatorCardShowUpgrades
+global function SetNestedGladiatorCardCanShowUpgrades
 
 
 global function SetNestedGladiatorCardOverrideRankedDetails
@@ -334,8 +334,8 @@ global struct NestedGladiatorCardHandle
 	bool isKiller = false
 
 
-
-
+		bool canShowUpgrades = false
+		bool showUpgrades = false
 
 
 	bool updateQueued = false
@@ -454,6 +454,8 @@ void function ShGladiatorCards_LevelInit()
 		AddCallback_OnPlayerLifeStateChanged( OnPlayerLifestateChanged )
 		AddCallback_PlayerClassChanged( OnPlayerClassChanged )
 
+		RegisterNetVarIntChangeCallback( UPGRADE_CORE_SELECTED_UPGRADES, GladiatorCards_PlayerCompletedLevelChanged )
+
 		AddCallback_GameStateEnter( eGameState.WinnerDetermined, OnWinnerDetermined )
 
 		RegisterSignal( "DisplayGladiatorCardSidePane" )
@@ -466,6 +468,13 @@ void function ShGladiatorCards_LevelInit()
 
 
 	AddCallback_OnItemFlavorRegistered( eItemType.character, OnItemFlavorRegistered_Character )
+
+
+
+
+
+
+
 
 
 
@@ -668,17 +677,17 @@ void function SetNestedGladiatorCardOverrideTracker( NestedGladiatorCardHandle h
 }
 
 
+void function SetNestedGladiatorCardShowUpgrades( NestedGladiatorCardHandle handle, bool showUpgrades )
+{
+	handle.showUpgrades = showUpgrades
+	TriggerNestedGladiatorCardUpdate( handle )
+}
 
-
-
-
-
-
-
-
-
-
-
+void function SetNestedGladiatorCardCanShowUpgrades( NestedGladiatorCardHandle handle, bool canShowUpgrades )
+{
+	handle.canShowUpgrades = canShowUpgrades
+	TriggerNestedGladiatorCardUpdate( handle )
+}
 
 
 void function SetNestedGladiatorCardIsKiller( NestedGladiatorCardHandle handle, bool isKiller )
@@ -1325,6 +1334,8 @@ void function OnItemFlavorRegistered_Character( ItemFlavor characterClass )
 
 
 
+
+
 	MakeItemFlavorSet( badgeList, fileLevel.cosmeticFlavorSortOrdinalMap, setShouldContainANonGRXItem )
 	fileLevel.loadoutCharacterBadgesSlotListMap[characterClass] <- []
 	fileLevel.loadoutCharacterBadgesTierSlotListMap[characterClass] <- []
@@ -1348,10 +1359,15 @@ void function OnItemFlavorRegistered_Character( ItemFlavor characterClass )
 			entry.defaultItemFlavor = entry.validItemFlavorList[ 0 ]
 		}
 		entry.isItemFlavorUnlocked      = (bool function( EHI playerEHI, ItemFlavor badge, bool shouldIgnoreGRX = false, bool shouldIgnoreOtherSlots = false ) : ( characterClass, badgeIndex ) {
-			if( !Loadout_GetPlayerBadgeIsUnlocked( playerEHI, badge, characterClass ) )
-				return false
+			bool isGRXWithStat = GladiatorCardBadge_IsGRXWithStat( badge )
+			bool isGRXUnlockedForLoadout = IsItemFlavorGRXUnlockedForLoadoutSlot( playerEHI, badge, shouldIgnoreGRX, shouldIgnoreOtherSlots )
 
-			return IsItemFlavorGRXUnlockedForLoadoutSlot( playerEHI, badge, shouldIgnoreGRX, shouldIgnoreOtherSlots )
+			if ( !isGRXUnlockedForLoadout && !isGRXWithStat )
+			{
+				return false
+			}
+
+			return ( isGRXUnlockedForLoadout && isGRXWithStat ) || Loadout_GetPlayerBadgeIsUnlocked( playerEHI, badge, characterClass )
 		})
 		entry.isSlotLocked              = bool function( EHI playerEHI ) {
 			return !IsLobby()
@@ -1921,25 +1937,27 @@ void function ActualUpdateNestedGladiatorCard( NestedGladiatorCardHandle handle 
 			RuiSetString( handle.cardRui, "platformString", platformString )
 
 
+			if ( UpgradeCore_GladCardShowUpgrades() )
+			{
+				RuiSetBool( handle.cardRui, "canShowUpgrades", handle.canShowUpgrades )
+				RuiSetBool( handle.cardRui, "showUpgrades", handle.showUpgrades )
+				if ( handle.showUpgrades )
+				{
+					entity viewPlayer = FromEHI( handle.currentOwnerEHI )
+					if ( IsValid ( viewPlayer ) )
+					{
+						array<UpgradeCoreChoice> selectedUpgrades = UpgradeCore_GetSelectedUpgrades( viewPlayer )
+						RuiSetInt( handle.cardRui, "numSlots", selectedUpgrades.len() )
+						for( int i = 0; i < selectedUpgrades.len(); i++ )
+						{
+							array<int> upgradeChoices = UpgradeCore_GetPassiveIndexChoicesForLevel( viewPlayer, i )
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+							RuiSetImage( handle.cardRui, "slotImage" + i, selectedUpgrades[i].icon )
+							RuiSetBool( handle.cardRui, "slotDirectionIsLeft" + i, upgradeChoices.find( selectedUpgrades[i].passiveIndex ) == 0 )
+						}
+					}
+				}
+			}
 
 
 			
@@ -1988,7 +2006,7 @@ void function ActualUpdateNestedGladiatorCard( NestedGladiatorCardHandle handle 
 					PopulateRuiWithRankedBadgeDetails( handle.cardRui, rankScore, ladderPos )
 					PopulateRuiWithPreviousSeasonRankedBadgeDetails ( handle.cardRui, rankScorePrev, ladderPosPrev )
 
-					showRanked = GetCurrentPlaylistVarBool ( "Ranked_ShowRank" , false )
+					showRanked = Ranked_ShouldShowRankedBadge()
 				}
 
 				RuiSetBool( handle.cardRui, "showRanked", showRanked )
@@ -1997,7 +2015,7 @@ void function ActualUpdateNestedGladiatorCard( NestedGladiatorCardHandle handle 
 				{
 					if (!IsLobby() )
 					{
-						RuiSetBool( handle.cardRui, "showPrevRank", GetCurrentPlaylistVarBool ( "Ranked_ShowRank" , false ) )
+						RuiSetBool( handle.cardRui, "showPrevRank", Ranked_ShouldShowPreRankedBadge () )
 					}
 				}
 			}
@@ -2006,7 +2024,7 @@ void function ActualUpdateNestedGladiatorCard( NestedGladiatorCardHandle handle 
 		if ( handle.situation == eGladCardDisplaySituation.GAME_INTRO_CHAMPION_SQUAD_STILL
 		|| handle.situation == eGladCardDisplaySituation.GAME_INTRO_CHAMPION_SQUAD_ANIMATED )
 		{
-			RuiSetBool( handle.cardRui, "showPrevRank", GetCurrentPlaylistVarBool ( "Ranked_ShowRank" , false )  )
+			RuiSetBool( handle.cardRui, "showPrevRank", Ranked_ShouldShowPreRankedBadge ()  )
 			RuiSetInt( handle.cardRui, "teamMemberIndex", -1 )
 			RuiSetBool( handle.cardRui, "isChampion", (handle.currentOwnerEHI == GetGlobalNetInt( "championEEH" )) )
 		}
@@ -2333,6 +2351,16 @@ void function DoGladiatorCardCharacterCapture( CharacterCaptureState ccs )
 	CharacterSkin_Apply( ccs.model, ccs.skin )
 
 	
+	int odlHandle = ODL_FindAsset( ODL_SKINS, bodyModel )
+	if ( odlHandle != -1 )
+	{
+		while( !ODL_IsLoaded( ODL_SKINS, odlHandle ) )
+		{
+			WaitFrame()
+		}
+	}
+
+	
 	while ( !StreamModelIsResident( bodyModel ) )
 	{
 		StreamModelHint( bodyModel )
@@ -2648,11 +2676,15 @@ void function DoGladiatorCardCharacterCapture( CharacterCaptureState ccs )
 
 		PIPSlotState ornull[1] outArray_stillSlotState = [null]
 		string ornull cacheName = null;
+		string ornull characterRef = null;
 		if (EHIHasValidScriptStruct( ccs.playerEHI ))
 		{
-			cacheName = EHI_GetName( ccs.playerEHI );
+			cacheName = EHI_GetName( ccs.playerEHI )
+			ItemFlavor character = LoadoutSlot_GetItemFlavor( ccs.playerEHI, Loadout_Character() )
+			characterRef  = ItemFlavor_GetCharacterRef( character ).tolower()
 		}
-		waitthread CaptureStillPIPThenEndMovingPIPThread( expect PIPSlotState(ccs.stancePIPSlotStateOrNull), outArray_stillSlotState, cacheName )
+
+		waitthread CaptureStillPIPThenEndMovingPIPThread( expect PIPSlotState(ccs.stancePIPSlotStateOrNull), outArray_stillSlotState, cacheName, characterRef )
 		ccs.stancePIPSlotStateOrNull = expect PIPSlotState(outArray_stillSlotState[0])
 
 #if GLADCARD_CC_DEBUG_PRINTS_ENABLED
@@ -2849,6 +2881,14 @@ void function OnPlayerClassChanged( entity player )
 
 
 
+void function GladiatorCards_PlayerCompletedLevelChanged( entity player, int newLevel )
+{
+	TriggerUpdateOfNestedGladiatorCardsForPlayer( player )
+}
+
+
+
+
 
 
 
@@ -2867,25 +2907,40 @@ int function GetPlayerBadgeDataInteger( EHI playerEHI, ItemFlavor badge, int bad
 		}
 
 
-	if ( ItemFlavor_GetGRXMode( badge ) == eItemFlavorGRXMode.REGULAR )
+	int grxTier = -1
+
+	int grxMode = ItemFlavor_GetGRXMode( badge )
+	if ( grxMode == eItemFlavorGRXMode.REGULAR )
 	{
 
 
 
 
-
-
 			if ( GRX_IsItemOwnedByPlayer_AllowOutOfDateData( badge , FromEHI( LocalClientEHI() ) ) )
-				return GRX_GetItemTier( ItemFlavor_GetGRXIndex( badge ) )
-			else
-				return -1
+				grxTier = GRX_GetItemTier( ItemFlavor_GetGRXIndex( badge ) )
 
+
+		if ( !GladiatorCardBadge_IsGRXWithStat( badge ) )
+		{
+			return grxTier
+		}
+	}
+	else if ( grxMode != eItemFlavorGRXMode.NONE )
+	{
+		
+		return 0
 	}
 
 	
-	if ( ItemFlavor_GetGRXMode( badge ) != eItemFlavorGRXMode.NONE )
-		return 0
+	int dataInteger = maxint( grxTier, GetPlayerBadgeDataInteger_Internal( playerEHI, badge, character, showOneTierHigherThanIsUnlocked ) )
 
+	return dataInteger
+}
+
+
+
+int function GetPlayerBadgeDataInteger_Internal( EHI playerEHI, ItemFlavor badge, ItemFlavor ornull character, bool showOneTierHigherThanIsUnlocked )
+{
 	string dynamicTextStatRef = GladiatorCardBadge_GetDynamicTextStatRef( badge )
 	string unlockStatRef      = GladiatorCardBadge_GetUnlockStatRef( badge, character )
 	bool unlocksByDynamicStat = ( unlockStatRef == dynamicTextStatRef )
@@ -2940,9 +2995,6 @@ bool function Loadout_GetPlayerBadgeIsUnlocked( EHI playerEHI, ItemFlavor badge,
 {
 	if ( IsEverythingUnlocked() )
 		return true
-
-	if ( ItemFlavor_GetGRXMode( badge ) != eItemFlavorGRXMode.NONE )
-		return true 
 
 	string unlockStatRef = GladiatorCardBadge_GetUnlockStatRef( badge, character )
 
@@ -3327,6 +3379,122 @@ asset function GladiatorCardStance_GetLightingRigMovingAnimSeq( ItemFlavor flavo
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+bool function GladiatorCardBadge_IsGRXWithStat( ItemFlavor flavor )
+{
+	Assert( ItemFlavor_GetType( flavor ) == eItemType.gladiator_card_badge )
+
+	return ItemFlavor_GetGRXMode( flavor ) == GRX_ITEMFLAVORMODE_REGULAR && GetGlobalSettingsString( ItemFlavor_GetAsset( flavor ), "unlockStatRef" ) != ""
+}
+
+
+
 bool function GladiatorCardBadge_IsTheEmpty( ItemFlavor flavor )
 {
 	Assert( ItemFlavor_GetType( flavor ) == eItemType.gladiator_card_badge )
@@ -3640,6 +3808,26 @@ void function ShGladiatorCards_OnDevnetBugScreenshot()
 		DEV_DumpCharacterCaptures()
 #endif
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

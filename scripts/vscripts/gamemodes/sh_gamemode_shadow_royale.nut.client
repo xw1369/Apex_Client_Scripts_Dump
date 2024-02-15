@@ -1143,7 +1143,7 @@ void function ServerCallback_ModeShadowRoyale_AnnouncementSplash( int messageInd
 			break
 		case eShadowRoyaleMessage.SHADOW_LIVES_REMAINING:
 			messageText = "#SHADOWROYALE_RESPAWNING"
-			int count = RespawnNearSquad_GetRemainingRespawnsForPlayer( GetLocalViewPlayer() )
+			int count = GetRemainingRespawnsForPlayer( GetLocalViewPlayer() )
 			string textBase = "#SHADOWROYALE_RETRIES_NONE"
 			if ( count > 1 )
 				textBase = "#SHADOWROYALE_RETRIES_PLURAL"

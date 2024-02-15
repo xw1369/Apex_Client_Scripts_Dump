@@ -31,6 +31,9 @@ const string TURRET_WINDDOWN_1P = "weapon_sheilaturret_winddown_1P"
 const string TURRET_WINDDOWN_3P = "weapon_sheilaturret_winddown_3P"
 const string TURRET_RELOAD_3P = "weapon_sheilaturret_reload_generic_comp_3p"
 const string TURRET_RELOAD_RAMPART_3P = "weapon_sheilaturret_reload_rampart_comp_3p"
+
+const string TURRET_RELOAD_RAMPART_UPGRADE_3P = "weapon_sheilaturret_reload_rampart_comp_upgraded_3p"
+
 const string TURRET_RELOAD = "weapon_sheilaturret_reload_rampart_null"
 const string TURRET_FIRED_LAST_SHOT_1P = "weapon_sheilaturret_lastshot_1p"
 const string TURRET_FIRED_LAST_SHOT_3P = "weapon_sheilaturret_lastshot_3p"
@@ -138,6 +141,9 @@ void function OnWeaponDeactivate_weapon_mounted_turret_weapon( entity weapon )
 	StopSoundOnEntity( weapon, TURRET_WINDDOWN_1P )
 	StopSoundOnEntity( weapon, TURRET_RELOAD_3P )
 	StopSoundOnEntity( weapon, TURRET_RELOAD_RAMPART_3P )
+
+		StopSoundOnEntity( weapon, TURRET_RELOAD_RAMPART_UPGRADE_3P )
+
 
 
 
@@ -325,6 +331,17 @@ var function OnWeaponPrimaryAttack_weapon_mounted_turret_weapon( entity weapon, 
 
 void function OnWeaponReload_weapon_mounted_turret_weapon( entity weapon, int milestoneIndex )
 {
+
+
+
+
+
+
+
+
+
+
+
 
 
 

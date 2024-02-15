@@ -28,7 +28,7 @@ global function Bleedout_GetIsBleedoutDamageBlocked
 global function Bleedout_IsReviverFriendlyToVictim
 
 
-
+global function Bleedout_CanSelfResFromUpgrade
 
 
 
@@ -486,20 +486,20 @@ void function Bleedout_OverrideBleedoutTime( entity player, float time )
 #endif
 
 
-
-
-
-
+float function Bleedout_GetFastReviveScaler()
+{
+	return GetCurrentPlaylistVarFloat( "fast_revive_time_scaler", .8 )
+}
 
 
 float function Bleedout_GetFirstAidTime( entity player )
 {
 	float firstAidTimeScaler = 1.0
 
-
-
-
-
+	if( PlayerHasPassive( player, ePassives.PAS_FASTER_REVIVES ) ) 
+	{
+		firstAidTimeScaler = Bleedout_GetFastReviveScaler()
+	}
 
 	return Bleedout_GetBaseFirstAidTime( player ) * firstAidTimeScaler
 }
@@ -534,10 +534,10 @@ float function Bleedout_GetFirstAidTimeSelf( entity player )
 		}
 
 
-
-
-
-
+		if ( Bleedout_CanSelfResFromUpgrade( player ) )
+		{
+			return DEFAULT_FIRSTAID_TIME
+		}
 
 
 
@@ -617,7 +617,7 @@ bool function Bleedout_GetSelfResEnabled( entity player )
 			return true
 
 
-
+			if ( Bleedout_CanSelfResFromUpgrade( player ) && IsSurvivalMode() && player.p.numSelfRevivesUsed == 0 )
 
 		return true
 	}
@@ -667,6 +667,11 @@ bool function Bleedout_PlayerCanRes( entity player )
 				return false
 		}
 	}
+
+
+		if ( TitanSword_Super_BlockAction( player, "player_res" ) )
+			return false
+
 
 	if ( GetCurrentPlaylistVarBool( "interrupted_stops_revive", false ) )
 	{
@@ -752,22 +757,22 @@ bool function Bleedout_PlayerCanSelfRes( entity player )
 
 
 
+bool function Bleedout_CanSelfResFromUpgrade( entity player )
+{
+	if( !IsValid( player ) )
+		return false
 
+	if( !PlayerHasPassive( player, ePassives.PAS_SELF_REVIVE ) )
+		return false
 
+	if( !UpgradeCore_PlayerHasUpgradesDefined( player ) )
+		return false
 
+	if( !PlayerHasPassive( player, ePassives.PAS_MEDIC ) ) 
+		return false
 
-
-
-
-
-
-
-
-
-
-
-
-
+	return true
+}
 
 
 int function Bleedout_GetPlayerBleedoutType( entity player )

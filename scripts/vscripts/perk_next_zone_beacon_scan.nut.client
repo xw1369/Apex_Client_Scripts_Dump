@@ -54,7 +54,7 @@ void function Perk_NextZoneBeaconScan_Init()
 		}
 
 
-
+			AddCallback_OnPassiveChanged( ePassives.PAS_UPGRADE_CONSOLE_SCAN, OnPassiveChangedConsoleScanUpgrade )
 
 
 
@@ -67,13 +67,13 @@ void function Perk_NextZoneBeaconScan_Init()
 
 
 
-
-
-
-
-
-
-
+void function OnPassiveChangedConsoleScanUpgrade( entity player, int passive, bool didHave, bool nowHas )
+{
+	if( nowHas )
+	{
+		Perks_AddPerk( player, ePerkIndex.BEACON_SCAN )
+	}
+}
 
 
 

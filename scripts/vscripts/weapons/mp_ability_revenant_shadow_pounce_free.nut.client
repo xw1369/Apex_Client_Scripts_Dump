@@ -303,10 +303,10 @@ var function OnWeaponTossReleaseAnimEvent_shadow_pounce_free( entity weapon, Wea
 }
 
 
-
-
-
-
+float function ShadowPounce_UpgradedChargeTimeScaler()
+{
+	return GetCurrentPlaylistVarFloat( "shadow_pounce_max_charge_time_upgraded_scaler", .8 )
+}
 
 
 float function ShadowPounce_GetMaxChargeTime( entity player )
@@ -314,10 +314,10 @@ float function ShadowPounce_GetMaxChargeTime( entity player )
 	float result = file.maxChargeTime
 
 
-
-
-
-
+	if( PlayerHasPassive( player, ePassives.PAS_TAC_UPGRADE_ONE ) )
+	{
+		result *= ShadowPounce_UpgradedChargeTimeScaler()
+	}
 
 
 	return result

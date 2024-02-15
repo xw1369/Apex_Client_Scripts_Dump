@@ -9,6 +9,10 @@ WeaponData
 	"shortprintname"							    "#WPN_MOZAM_ENERGY"
 	"description" 								    "#WPN_MOZAM_ENERGY_DESC"
 
+               
+                                                    
+                     
+
 	"ballistic_type"                "hitscan"
 
 	"is_semi_auto"					"1"

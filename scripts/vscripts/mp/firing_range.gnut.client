@@ -211,8 +211,6 @@ const bool DEBUG_RESPAWNING = false
 
 
 
-
-
 global function SCB_CloseCharacterSelectMenu
 global function FiringRange_IsCharacterSwitchingEnabled
 global function SCB_FiringRange_EnableCharacterChange
@@ -222,8 +220,8 @@ global function FiringRange_IsPlayerInFinale
 global function SCB_Broadcast_FRSetting_FriendlyFire_Change
 
 
-
-
+global function SCB_Restore_UpgradeCore_Rui
+global function SCB_Broadcast_UpgradeCore_Level_Set
 
 
 
@@ -375,8 +373,8 @@ void function FiringRangeGameMode_Init()
 	Remote_RegisterClientFunction( "SCB_Broadcast_FRSetting_FriendlyFire_Change", "entity" )
 
 
-
-
+	Remote_RegisterClientFunction( "SCB_Restore_UpgradeCore_Rui" )
+	Remote_RegisterClientFunction( "SCB_Broadcast_UpgradeCore_Level_Set", "entity", "int", 0, 5 ) 
 
 
 	Remote_RegisterServerFunction( "UCB_SV_FRSetting_DummieHelmetMatchShields", "bool", "bool" )
@@ -409,12 +407,10 @@ void function FiringRangeGameMode_Init()
 		
 		Remote_RegisterServerFunction( "UCB_SV_FRSetting_Change_Int", "int", 0, eFRSettingType.COUNT_, "int", 0, FRINTSETTINGS_MAXSELECTIONS )
 
-
-			Remote_RegisterServerFunction( "UCB_ResetDoors" )
-
+		Remote_RegisterServerFunction( "UCB_ResetDoors" )
 
 
-
+			Remote_RegisterServerFunction( "UCB_LegendUpgradesReset" )
 
 
 		Remote_RegisterServerFunction( "UICallback_FRDummies_Reset" )
@@ -559,7 +555,7 @@ void function FR_Init_NetVars_And_PVars()
 	frIntSettings_NetVars	[ eFRSettingType.FRDUMMIESHIELDLVL ] <- "frsetting_dummieshieldlvl"
 	frIntSettings_PVars		[ eFRSettingType.FRDUMMIESHIELDLVL ] <- "FRSettingsPVars.dummieshieldlvl"
 	frIntSettings_Mins		[ eFRSettingType.FRDUMMIESHIELDLVL ]	<- 1
-	frIntSettings_Maxs		[ eFRSettingType.FRDUMMIESHIELDLVL ]	<- 4
+	frIntSettings_Maxs		[ eFRSettingType.FRDUMMIESHIELDLVL ]	<- FR_RANDOM_SHIELD_SETTING	
 	frIntSettings_Defaults	[ eFRSettingType.FRDUMMIESHIELDLVL ] <- 3
 
 	
@@ -1331,11 +1327,13 @@ void function SCB_Broadcast_FRSetting_Changed_Int( entity playerThatChanged, int
 			settingValues[ 2 ] <- "#LOOT_TIER2"
 			settingValues[ 3 ] <- "#LOOT_TIER3"
 			settingValues[ 4 ] <- "#LOOT_TIER5"
+			settingValues[ FR_RANDOM_SHIELD_SETTING ] <- "#RANDOM"	
 			valueColors[ 0 ] <- GetKeyColor( COLORID_TEXT_LOOT_TIER1, 0 )
 			valueColors[ 1 ] <- GetKeyColor( COLORID_TEXT_LOOT_TIER1, 0 )
 			valueColors[ 2 ] <- GetKeyColor( COLORID_TEXT_LOOT_TIER2, 0 )
 			valueColors[ 3 ] <- GetKeyColor( COLORID_TEXT_LOOT_TIER3, 0 )
 			valueColors[ 4 ] <- GetKeyColor( COLORID_TEXT_LOOT_TIER5, 0 )
+			valueColors[ FR_RANDOM_SHIELD_SETTING ] <- COLOR_GRAY 
 			settingValue = settingValues[ value ]
 			valueColor = valueColors[ value ]
 			break
@@ -1521,51 +1519,51 @@ void function SCB_Broadcast_FRDummie_Speed_Change( entity playerThatChanged, int
 }
 
 
+void function SCB_Broadcast_UpgradeCore_Level_Set( entity playerThatChanged, int upgradeCoreParm )
+{
+	if( !IsValid( playerThatChanged ) || !playerThatChanged.IsPlayer())
+		return
 
+	
+	string notifierName = playerThatChanged.GetPlayerName()
+	if( notifierName == "" )
+		return
 
+	vector playerColor = GetKeyColor( COLORID_MEMBER_COLOR0, playerThatChanged.GetTeamMemberIndex())
 
+	string settingNameLocalized = Localize( "#LEGENDUPGRADE_LEVEL", "" )
 
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	string upgradeCoreNameLocalized = string( upgradeCoreParm )
 
+	table< int, vector > upgradeCoreColors
+	upgradeCoreColors[ 0 ] <- GetKeyColor( COLORID_TEXT_LOOT_TIER0, 0 )
+	upgradeCoreColors[ 1 ] <- GetKeyColor( COLORID_TEXT_LOOT_TIER1, 0 )
+	upgradeCoreColors[ 2 ] <- GetKeyColor( COLORID_TEXT_LOOT_TIER2, 0 )
+	upgradeCoreColors[ 3 ] <- GetKeyColor( COLORID_TEXT_LOOT_TIER3, 0 )
+	upgradeCoreColors[ 4 ] <- GetKeyColor( COLORID_TEXT_LOOT_TIER5, 0 )
+	vector upgradeCoreColor = upgradeCoreColors[ upgradeCoreParm ]
 
+	
+	vector valueColor = FRIENDLY_COLOR
+	vector baseColor = < 219, 219, 219 >
+	EmitSoundOnEntity( GetLocalViewPlayer(), SFX_SETTING_CHANGE_NOTIFY )
+	Obituary_Print_Localized( Localize( "#OBIT_SETTINGCHANGE_NOTIFY", notifierName, settingNameLocalized, upgradeCoreNameLocalized ), playerColor, upgradeCoreColor )
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+	
+	
+	
+	
+	
+}
 
 
 
@@ -1642,6 +1640,26 @@ bool function FiringRange_IsPlayerInFinale()
 {
 	return file.inFinale
 }
+
+
+void function SCB_Restore_UpgradeCore_Rui()
+{
+	entity viewPlayer = GetLocalViewPlayer()
+
+
+		if( UpgradeCore_IsEnabled() && UpgradeCore_ShowHudUpgradeSelection() )
+		{
+			thread UpgradeCore_RuiThread( viewPlayer )
+		}
+
+}
+
+
+
+
+
+
+
 
 
 
@@ -3704,10 +3722,10 @@ void function IntroDisplayThread()
 			MapZones_ZoneIntroText( viewPlayer, ("#" + GetMapName()), -1 )
 
 
-
-
-
-
+			if( UpgradeCore_IsEnabled() && UpgradeCore_ShowHudUpgradeSelection() )
+			{
+				thread UpgradeCore_RuiThread( viewPlayer )
+			}
 
 
 		wait 6.0
@@ -4623,3 +4641,4 @@ void function SCB_Broadcast_RangeMaster_Change_Thread()
 
 
 
+ 

@@ -32,6 +32,9 @@ const vector TROPHY_RING_COLOR = <134, 182, 255>
 const asset TROPHY_START_FX = $"P_wpn_trophy_loop_st"
 const asset TROPHY_NO_SHIELDS_FX = $"P_trophy_no_shields"
 const asset TROPHY_ELECTRICITY_FX = $"P_wpn_trophy_loop_1"
+
+const asset TROPHY_ELECTRICITY_FX_UPGRADE = $"P_wpn_trophy_loop_1_pow"
+
 const asset TROPHY_INTERCEPT_PROJECTILE_SMALL_FX = $"P_wpn_trophy_imp_sm"
 const asset TROPHY_INTERCEPT_PROJECTILE_LARGE_FX = $"P_wpn_trophy_imp_lg"
 const asset TROPHY_INTERCEPT_PROJECTILE_CLOSE_FX = $"P_wpn_trophy_imp_lite"
@@ -72,6 +75,10 @@ const string TROPHY_TACTICAL_CHARGE_SOUND = "Wattson_Ultimate_G"
 const string TROPHY_INTERCEPT_BEAM_SOUND = "Wattson_Ultimate_H"
 const string TROPHY_INTERCEPT_LARGE = "Wattson_Ultimate_I"
 const string TROPHY_INTERCEPT_SMALL = "Wattson_Ultimate_J"
+
+const string TROPHY_INTERCEPT_BEAM_SOUND_UPGRADE = "Wattson_Ultimate_H_Upgraded"
+const string TROPHY_INTERCEPT_SMALL_UPGRADE = "Wattson_Ultimate_J_Upgraded"
+
 const string TROPHY_DESTROY_SOUND = "Wattson_Ultimate_K"
 const string TROPHY_SHIELD_REPAIR_START = "Wattson_Ultimate_L"
 const string TROPHY_SHIELD_REPAIR_END = "Wattson_Ultimate_N"
@@ -205,8 +212,8 @@ struct
 	float trophy_shieldRegenDelayOnDamage
 
 
-
-
+	table< entity, float >			trophyLastConvertTime
+	table< entity, array<entity> > 	trophy_ConvertedArcStars
 
 } file
 
@@ -215,6 +222,9 @@ function MpWeaponTrophy_Init()
 	PrecacheScriptString( TROPHY_SYSTEM_NAME )
 	PrecacheParticleSystem( TROPHY_START_FX )
 	PrecacheParticleSystem( TROPHY_ELECTRICITY_FX )
+
+		PrecacheParticleSystem( TROPHY_ELECTRICITY_FX_UPGRADE )
+
 	PrecacheParticleSystem( TROPHY_INTERCEPT_PROJECTILE_SMALL_FX )
 	PrecacheParticleSystem( TROPHY_INTERCEPT_PROJECTILE_LARGE_FX )
 	PrecacheParticleSystem( TROPHY_INTERCEPT_PROJECTILE_CLOSE_FX )
@@ -2494,6 +2504,58 @@ void function OnCreateClientOnlyModel_weapon_trophy_defense_system( entity weapo
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 void function Trophy_OnWeaponStatusUpdate( entity player, var rui, int slot )
 {
 	if ( slot != OFFHAND_TACTICAL )
@@ -2813,10 +2875,10 @@ int function GetTrophySystem_MaxHealth( entity owner )
 	int maxHealth = TROPHY_HEALTH_AMOUNT
 
 
-
-
-
-
+	if ( IsValid( owner ) && PlayerHasPassive( owner, ePassives.PAS_BATTERY_POWERED ) && PlayerHasPassive( owner, ePassives.PAS_ULT_UPGRADE_TWO ) ) 
+	{
+		maxHealth *= 2
+	}
 
 
 	return maxHealth
@@ -2828,14 +2890,14 @@ int function GetTrophySystem_MaxShieldCapacity( entity trophy )
 	entity owner = trophy.GetOwner()
 
 
-
-
-
-
-
-
-
-
+	if ( IsValid( owner ) && PlayerHasPassive( owner, ePassives.PAS_BATTERY_POWERED ) && PlayerHasPassive( owner, ePassives.PAS_ULT_UPGRADE_TWO ) ) 
+	{
+		maxCapacity *= 2
+	}
+		if ( IsValid( owner ) && PlayerHasPassive( owner, ePassives.PAS_BATTERY_POWERED ) && PlayerHasPassive( owner, ePassives.PAS_ULT_UPGRADE_ONE ) ) 
+	{
+		maxCapacity /= 2
+	}
 
 	return maxCapacity
 }
@@ -2845,10 +2907,10 @@ int function GetTrophySystem_MaxTrophyCount( entity owner )
 	int maxCount = file.trophy_maxCount
 
 
-
-
-
-
+	if ( IsValid( owner ) && PlayerHasPassive( owner, ePassives.PAS_BATTERY_POWERED ) && PlayerHasPassive( owner, ePassives.PAS_ULT_UPGRADE_ONE ) )  
+	{
+		maxCount = 2
+	}
 
 
 	return maxCount

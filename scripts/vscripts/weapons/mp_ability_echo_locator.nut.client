@@ -1014,6 +1014,8 @@ void function OnEchoLocatorPlanted( entity projectile, DeployableCollisionParams
 
 
 
+
+
 void function EchoLocationChamberMonitor_Thread( entity echoLocator )
 {
 	Assert( IsNewThread(), "Must be threaded off" )
@@ -1984,10 +1986,10 @@ void function EchoLocatorFootstepVFX_Thread( entity echoLocator )
 					float timeDeltaThreshold = LOCK_FX_LIFETIME
 
 
-
-
-
-
+							if( PlayerHasPassive( echoLocator.GetBossPlayer(), ePassives.PAS_ULT_UPGRADE_ONE ) ) 
+							{
+								timeDeltaThreshold = GetEchoLocator_Gunfire_Tracking_Extension()
+							}
 
 
 					if ( lastWeaponFireTime > timeDeltaThreshold )
@@ -2232,8 +2234,8 @@ bool function GetEchoLocatorUseWalkSpeed()
 }
 
 
-
-
-
-
+float function GetEchoLocator_Gunfire_Tracking_Extension()
+{
+	return GetCurrentPlaylistVarFloat( "seer_ult_extended_gunfire_tracking", 3.0 )
+}
       

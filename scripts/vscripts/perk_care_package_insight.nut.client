@@ -108,7 +108,7 @@ void function Perk_CarePackageInsight_Init()
 	Remote_RegisterClientFunction( "ServerToClient_NotifyPathfinderCooldownReduction" )
 
 
-
+		AddCallback_OnPassiveChanged( ePassives.PAS_UPGRADE_CAREPACKAGE_INSIGHT, OnPassiveChangedCarePackageInsightUpgrade )
 
 
 	PrecacheScriptString( HIDDEN_CARE_PACKAGE_ENT_NAME )
@@ -124,6 +124,7 @@ void function Perk_CarePackageInsight_Init()
 
 
 		RegisterSignal( "CarePackage_PerkDisabled" )
+		RegisterSignal( "CarePackage_PerkEnabled" )
 		AddCreateCallback( "prop_care_package_insight", OnCarePackageDataCreated )
 
 		PrecacheParticleSystem( $"P_ar_loot_drop_point_CP_noZ" )
@@ -147,13 +148,14 @@ void function OnActivate_CarePackageInsight( entity player, string characterName
 		entity soundController = CreatePropDynamic( EMPTY_MODEL )
 		soundController.SetParent( player )
 		file.soundController = soundController
+		player.Signal( "CarePackage_PerkEnabled" )
 
 }
 
 void function OnDeactivate_CarePackageInsight( entity player )
 {
 
-	player.Signal( "CarePackage_PerkDisabled" )
+		player.Signal( "CarePackage_PerkDisabled" )
 		if( player == GetLocalViewPlayer() && file.soundController != null )
 		{
 			file.soundController.Destroy()
@@ -163,13 +165,13 @@ void function OnDeactivate_CarePackageInsight( entity player )
 }
 
 
-
-
-
-
-
-
-
+void function OnPassiveChangedCarePackageInsightUpgrade( entity player, int passive, bool didHave, bool nowHas )
+{
+	if( nowHas )
+	{
+		Perks_AddPerk( player, ePerkIndex.CARE_PACKAGE_INSIGHT )
+	}
+}
 
 
 
@@ -552,9 +554,6 @@ bool function S16_PathfinderSkirmisherPassiveActive()
 
 
 
-
-
-
 void function ClientCodeCallback_OnCarePackageInsightDataChanged( entity carePackageInsightEnt )
 {
 	if( carePackageInsightEnt.GetAreContentsTaken() )
@@ -575,7 +574,9 @@ void function OnCarePackageDataCreated_Delayed( entity ent )
 	WaitFrame()
 	entity player = GetLocalViewPlayer()
 	if( !Perks_DoesPlayerHavePerk( player, ePerkIndex.CARE_PACKAGE_INSIGHT ) && !IsSpectator( player ) )
-		return
+	{
+		player.WaitSignal( "CarePackage_PerkEnabled" )
+	}
 
 	if ( !IsValid( ent ) )
 		return
@@ -1148,10 +1149,10 @@ void function ServerToClient_NotifyPathfinderCooldownReduction()
 		string hintStr = "#SURVEY_PATHFINDER_SUCCESS"
 
 
-
-
-
-
+		if( UpgradeCore_IsEnabled() )
+		{
+			hintStr = "#SURVEY_PATHFINDER_SUCCESS_UPGRADED"
+		}
 
 
 		AddPlayerHint( 2.5, 0.25, $"rui/hud/ultimate_icons/ultimate_pathfinder", hintStr )

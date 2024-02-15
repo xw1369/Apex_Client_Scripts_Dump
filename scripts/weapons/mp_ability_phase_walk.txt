@@ -287,19 +287,19 @@ WeaponData
               
 
                             
-                                
-         
-                                    
-         
+        upgrade_core_fast_deploy
+        {
+            "deploy_time"   			"1.0"
+        }
 
-                                           
-         
-                                            
-                                            
-                                           
-                                         
-                                            
-         
+        upgrade_core_tac_cooldown_reduction
+        {
+            "ammo_clip_size"   								"200"
+            "ammo_default_total"							"200"
+            "ammo_min_to_fire"								"200"
+            "ammo_per_shot"									"200"
+            "ammo_stockpile_max"							"200"
+        }
               
 	}
 }

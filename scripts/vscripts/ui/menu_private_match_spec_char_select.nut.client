@@ -347,7 +347,13 @@ void function PrivateMatch_SpectCharSelect_ConfigurePlayerButton( var button, en
 	var buttonRui = Hud_GetRui( button )
 
 	string playerName = ""
-	playerName = player.GetPlayerNameWithClanTag()
+
+
+		playerName = player.GetPlayerNameWithClanTag()
+
+
+
+
 	RuiSetString( buttonRui, "buttonText", playerName )
 
 	asset characterPortrait = $""

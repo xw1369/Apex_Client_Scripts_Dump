@@ -144,15 +144,12 @@ WeaponData
 
                             
 
-                                   
-         
-                                                                                    
-                                            
-                                            
-                                           
-                                         
-                                            
-         
+        upgrade_mirage_tactical_mod // upgrade_mirage_tactical_upgrade
+        {
+        // Mirage has silly numbers - but, adding longer cooldown & extra tac charge
+            "ammo_clip_size"        "300"
+            "ammo_default_total"    "300"
+        }
 
               
 	}

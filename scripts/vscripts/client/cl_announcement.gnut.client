@@ -29,7 +29,12 @@ global const int ANNOUNCEMENT_STYLE_TDM_ROUND_WON = 15
 
 
 
+	global const int ANNOUNCEMENT_STYLE_LEVEL_UP = 19
+	global const int ANNOUNCEMENT_STYLE_EVO_STATIONS_SPAWNED = 20
 
+
+
+	global const int ANNOUNCEMENT_STYLE_HUNT = 21
 
 
 global const int ANNOUNCEMENT_POSITION_ZONE_NONE = 0
@@ -514,6 +519,14 @@ void function AnnouncementMessage_DisplayOnHud( AnnouncementData announcement )
 	switch ( announcement.announcementStyle )
 	{
 
+		case ANNOUNCEMENT_STYLE_HUNT:
+			rui = RuiCreate( $"ui/announcement_hunt.rpak", clGlobal.topoFullScreen, RUI_DRAW_POSTEFFECTS, RUI_SORT_SCREENFADE + 1 )
+
+			EmitSoundOnEntity( player, announcement.soundAlias )
+			break
+
+
+
 		case ANNOUNCEMENT_STYLE_STRIKE:
 			rui = RuiCreate( $"ui/announcement_strike.rpak", clGlobal.topoFullScreen, RUI_DRAW_POSTEFFECTS, RUI_SORT_SCREENFADE + 1 )
 
@@ -524,13 +537,26 @@ void function AnnouncementMessage_DisplayOnHud( AnnouncementData announcement )
 
 
 
+		case ANNOUNCEMENT_STYLE_EVO_STATIONS_SPAWNED:
+			customAnnouncement = true
+			rui = RuiCreate( $"ui/hud_evo_station_activated.rpak", clGlobal.topoFullScreen, RUI_DRAW_POSTEFFECTS, FULLMAP_Z_BASE - 1 )
+			RuiSetFloat( rui, "startTime", Time() )
+			EmitSoundOnEntity( player, announcement.soundAlias )
+			break
 
+		case ANNOUNCEMENT_STYLE_LEVEL_UP:
+			customAnnouncement = true
+			rui = RuiCreate( $"ui/level_up_announcement.rpak", clGlobal.topoFullScreen, RUI_DRAW_POSTEFFECTS, FULLMAP_Z_BASE - 1 )
+			RuiSetFloat( rui, "startTime", Time() )
+			RuiSetString( rui, "levelUpTxt", optionalTextArgs[0] )
 
+			int currentLevel = UpgradeCore_GetPlayerLevel( GetLocalViewPlayer() )
+			vector tierColor = GetKeyColor( COLORID_HUD_LOOT_TIER0, currentLevel ) * 1.4
+			vector nextTierColor = GetKeyColor( COLORID_HUD_LOOT_TIER0, currentLevel == 3 ? currentLevel + 2 : currentLevel + 1 ) * 1.4
 
-
-
-
-
+			RuiSetFloat3( rui, "tierColor", SrgbToLinear( tierColor / 255.0 ) )
+			RuiSetFloat3( rui, "nextTierColor", SrgbToLinear( nextTierColor / 255.0 ) )
+			EmitSoundOnEntity( player, announcement.soundAlias )
 
 
 		case ANNOUNCEMENT_STYLE_SWEEP:

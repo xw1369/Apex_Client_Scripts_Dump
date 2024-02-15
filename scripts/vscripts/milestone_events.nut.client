@@ -48,6 +48,13 @@ global function MilestoneEvent_GetMilestoneGrantRewards
 
 
 
+
+
+
+
+
+
+
 global struct MilestoneEventGrantReward
 {
 	int         grantingLevel
@@ -69,6 +76,7 @@ global struct MilestoneEventGrantReward
 struct FileStruct_LifetimeLevel
 {
 	EntitySet chasePackGrantQueued
+	bool milestoneEvents_MilestoneRewardCeremonyDue = false
 }
 
 
@@ -308,6 +316,79 @@ array<MilestoneEventGrantReward> function MilestoneEvent_GetMilestoneGrantReward
 	}
 	return groups
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

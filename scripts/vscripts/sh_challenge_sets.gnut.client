@@ -1,0 +1,310 @@
+global function Sh_Challenge_Sets_Init
+global function ChallengeCollection_IsEnabled
+global function ChallengeCollection_GetRegisteredCollections
+global function ChallengeCollection_GetActiveCollections
+global function ChallengeCollection_GetActiveCollection
+global function ChallengeCollection_GetByGUID
+global function ChallengeCollection_GetAllChallengeSets
+global function ChallengeCollection_GetMainChallenge
+global function ChallengeCollection_GetAllMainChallenges
+global function ChallengeCollection_GetAllChallenges
+global function ChallengeCollection_HasChallenges
+global function ChallengeCollection_GetCharacterUnlockChallenge
+global function ChallengeCollection_GetProgress
+global function ChallengeCollection_IsComplete
+global function ChallengeSet_GetByGUID
+global function ChallengeSet_GetMainChallenge
+global function ChallengeSet_GetChallenges
+global function ChallengeSet_GetProgress
+global function ChallengeSet_IsComplete
+
+
+global struct ChallengeSet
+{
+	ItemFlavor&         itemFlav 
+	ItemFlavor&         mainChallenge 
+	array< ItemFlavor > challenges
+}
+
+global struct ChallengeCollection
+{
+	ItemFlavor&           itemFlav 
+	ItemFlavor&           mainChallenge 
+	array< ChallengeSet > challengeSets
+}
+
+
+const PLAYLIST_KILLSWITCH_VAR = "challenge_collections_enabled"
+
+
+
+
+
+struct FileStruct_ChallengeSets
+{
+	table< int, ChallengeSet > challengeSets
+	table< int, ChallengeCollection > challengeCollections
+}
+FileStruct_ChallengeSets& file
+
+void function Sh_Challenge_Sets_Init()
+{
+	FileStruct_ChallengeSets fileStruct
+	file = fileStruct
+	AddCallback_OnItemFlavorRegistered( eItemType.calevent_challenge_collection, RegisterChallengeCollectionFlavs )
+}
+
+void function RegisterChallengeCollectionFlavs( ItemFlavor challengeCollectionItemFlav )
+{
+	asset challengeCollectionAsset = ItemFlavor_GetAsset( challengeCollectionItemFlav )
+	SettingsAssetGUID collectionGUID =  ItemFlavor_GetGUID( challengeCollectionItemFlav )
+
+	ChallengeCollection challengeCollection
+	challengeCollection.itemFlav      = challengeCollectionItemFlav
+	challengeCollection.mainChallenge = RegisterMainChallenge( challengeCollectionAsset, collectionGUID )
+	foreach ( var challengeSetData in IterateSettingsAssetArray( challengeCollectionAsset, "challengeSets" ) )
+	{
+		ItemFlavor ornull challengeSetFlav = RegisterItemFlavorFromSettingsAsset( GetSettingsBlockAsset( challengeSetData, "challengeSet" ) )
+
+		if ( challengeSetFlav == null )
+		{
+			Assert( false, format( "Challenge Collection %i has an invalid challengeSet!", collectionGUID ) )
+			continue
+		}
+		expect ItemFlavor( challengeSetFlav )
+
+		ChallengeSet challengeSet = RegisterChallengeSetData( challengeSetFlav, challengeCollection )
+		challengeCollection.challengeSets.append( challengeSet )
+	}
+
+	file.challengeCollections[ collectionGUID ] <- challengeCollection
+}
+
+ItemFlavor function RegisterMainChallenge( asset challengeCollectionOrSetAsset, SettingsAssetGUID parentGUID )
+{
+	
+	ItemFlavor ornull mainChallenge = RegisterItemFlavorFromSettingsAsset( GetGlobalSettingsAsset( challengeCollectionOrSetAsset, "mainChallengeFlav" ) )
+	Assert( mainChallenge != null, format( "Challenge Collection/Set '%i' does not have a valid mainChallenge", parentGUID ) )
+	expect ItemFlavor( mainChallenge )
+	Assert( ItemFlavor_GetType( mainChallenge ) == eItemType.challenge )
+
+	return mainChallenge
+}
+
+ChallengeSet function RegisterChallengeSetData( ItemFlavor challengeSetFlav, ChallengeCollection parentCollection )
+{
+	asset challengeSetAsset = ItemFlavor_GetAsset( challengeSetFlav )
+	ChallengeSet challengeSet
+	challengeSet.itemFlav      = challengeSetFlav
+	challengeSet.mainChallenge = RegisterMainChallenge( challengeSetAsset, ItemFlavor_GetGUID( challengeSetFlav ) )
+	foreach ( var challengeData in IterateSettingsAssetArray( challengeSetAsset, "challenges" ) )
+	{
+		ItemFlavor ornull challengeFlav = RegisterItemFlavorFromSettingsAsset( GetSettingsBlockAsset( challengeData, "challenge" ) )
+		if ( challengeFlav != null )
+		{
+			expect ItemFlavor( challengeFlav )
+			RegisterChallengeSource( challengeFlav, challengeSetFlav, 0 )
+			challengeSet.challenges.append( challengeFlav )
+		}
+	}
+
+	file.challengeSets[ ItemFlavor_GetGUID( challengeSetFlav ) ] <- challengeSet
+	return challengeSet
+}
+
+
+
+
+
+
+bool function ChallengeCollection_IsEnabled()
+{
+	bool isEnabled = GetCurrentPlaylistVarBool( PLAYLIST_KILLSWITCH_VAR, true )
+	return isEnabled
+}
+
+table< int, ChallengeCollection > function ChallengeCollection_GetRegisteredCollections()
+{
+	return file.challengeCollections
+}
+
+array< ChallengeCollection > function ChallengeCollection_GetActiveCollections()
+{
+	array< ChallengeCollection > activeChallengeCollections = []
+	if ( !ChallengeCollection_IsEnabled() )
+		return activeChallengeCollections
+
+	
+	foreach ( collection in file.challengeCollections )
+	{
+		if ( CalEvent_IsActive( collection.itemFlav, GetUnixTimestamp() ) )
+		{
+			activeChallengeCollections.push( collection )
+		}
+	}
+	return activeChallengeCollections
+}
+
+ChallengeCollection ornull function ChallengeCollection_GetActiveCollection()
+{
+	ChallengeCollection ornull collection = null
+	array< ChallengeCollection > collections = ChallengeCollection_GetActiveCollections()
+	if ( collections.len() > 0 )
+	{
+		collection = collections[0]
+	}
+	return collection
+}
+
+
+ChallengeCollection function ChallengeCollection_GetByGUID( int guid )
+{
+	Assert( guid in file.challengeCollections )
+	return file.challengeCollections[ guid ]
+}
+
+array< ChallengeSet > function ChallengeCollection_GetAllChallengeSets( ChallengeCollection challengeCollection )
+{
+	return challengeCollection.challengeSets
+}
+
+ItemFlavor function ChallengeCollection_GetMainChallenge( ItemFlavor challengeCollectionFlav )
+{
+	Assert( ItemFlavor_GetType( challengeCollectionFlav ) == eItemType.calevent_challenge_collection )
+	ItemFlavor challenge = GetItemFlavorByAsset( GetGlobalSettingsAsset( ItemFlavor_GetAsset( challengeCollectionFlav ), "mainChallengeFlav" ) )
+	return challenge
+}
+
+array< ItemFlavor > function ChallengeCollection_GetAllMainChallenges( ChallengeCollection challengeCollection )
+{
+	array<ItemFlavor> challenges
+	challenges.append( ChallengeCollection_GetMainChallenge( challengeCollection.itemFlav ) )
+	foreach ( ChallengeSet set in challengeCollection.challengeSets )
+	{
+		challenges.append( set.mainChallenge )
+	}
+
+	return challenges
+}
+
+array< ItemFlavor > function ChallengeCollection_GetAllChallenges( ChallengeCollection challengeCollection )
+{
+	array<ItemFlavor> challenges
+	if ( IsItemFlavorStructValid( challengeCollection.itemFlav.guid, eValidation.DONT_ASSERT ) && IsItemFlavorStructValid( challengeCollection.mainChallenge.guid, eValidation.DONT_ASSERT ) )
+	{
+		challenges.append( challengeCollection.mainChallenge )
+		foreach ( ChallengeSet set in challengeCollection.challengeSets )
+		{
+			if ( CalEvent_HasStarted( set.itemFlav, GetUnixTimestamp() ) )
+			{
+				challenges.append( set.mainChallenge )
+				foreach ( ItemFlavor challenge in set.challenges )
+				{
+					challenges.append( challenge )
+				}
+			}
+		}
+	}
+	return challenges
+}
+
+bool function ChallengeCollection_HasChallenges( ChallengeCollection challengeCollection )
+{
+	return ChallengeCollection_GetAllChallenges( challengeCollection ).len() > 0
+}
+
+
+ItemFlavor ornull function ChallengeCollection_GetCharacterUnlockChallenge( ItemFlavor characterFlav )
+{
+	Assert( ItemFlavor_GetType( characterFlav ) == eItemType.character )
+
+	
+	ChallengeCollection ornull activeCollection = ChallengeCollection_GetActiveCollection()
+	if ( activeCollection == null )
+	{
+		return null
+	}
+
+	expect ChallengeCollection( activeCollection )
+	array< ItemFlavor > challenges = ChallengeCollection_GetAllChallenges( activeCollection )
+	foreach ( ItemFlavor challenge in challenges )
+	{
+		ItemFlavorBag rewards = Challenge_GetRewards( challenge, 0 ) 
+		foreach ( ItemFlavor reward in rewards.flavors )
+		{
+			if ( reward.guid == characterFlav.guid )
+			{
+				return challenge
+			}
+		}
+	}
+
+	return null
+}
+
+int function ChallengeCollection_GetProgress( entity player, ChallengeCollection challengeCollection )
+{
+	array< ChallengeSet > challengeSets = challengeCollection.challengeSets
+	int progress = 0
+	foreach ( ChallengeSet challengeSet in challengeSets )
+	{
+		if ( ChallengeSet_IsComplete( player, challengeSet ) )
+		{
+			++progress
+		}
+	}
+	return progress
+}
+
+bool function ChallengeCollection_IsComplete( entity player, ChallengeCollection challengeCollection )
+{
+	int goal = MetaChallenge_GetGoalVal( challengeCollection.mainChallenge )
+	int progress = ChallengeCollection_GetProgress( player, challengeCollection )
+
+	return progress >= goal
+}
+
+
+
+
+
+ChallengeSet function ChallengeSet_GetByGUID( SettingsAssetGUID guid )
+{
+	Assert( guid in file.challengeSets )
+	return file.challengeSets[ guid ]
+}
+
+ItemFlavor function ChallengeSet_GetMainChallenge( ItemFlavor challengeSetFlav )
+{
+	Assert( ItemFlavor_GetType( challengeSetFlav ) == eItemType.calevent_challenge_set )
+	ItemFlavor challenge = GetItemFlavorByAsset( GetGlobalSettingsAsset( ItemFlavor_GetAsset( challengeSetFlav ), "mainChallengeFlav" ) )
+	return challenge
+}
+
+array< ItemFlavor > function ChallengeSet_GetChallenges( ChallengeSet challengeSet )
+{
+	return challengeSet.challenges
+}
+
+int function ChallengeSet_GetProgress( entity player, ChallengeSet challengeSet )
+{
+	array< ItemFlavor > challenges = ChallengeSet_GetChallenges( challengeSet )
+	int progress = 0
+	foreach ( ItemFlavor challengeFlav in challenges )
+	{
+		if ( Challenge_IsAssigned( player, challengeFlav ) && Challenge_IsComplete( player, challengeFlav ) )
+		{
+			++progress
+		}
+	}
+
+	return progress
+}
+
+bool function ChallengeSet_IsComplete( entity player, ChallengeSet challengeSet )
+{
+	int goal = challengeSet.challenges.len()
+	int progress = ChallengeSet_GetProgress( player, challengeSet )
+
+	return progress >= goal
+}

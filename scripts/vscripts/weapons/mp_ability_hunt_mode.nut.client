@@ -52,10 +52,10 @@ void function MpAbilityHuntModeWeapon_Init()
 }
 
 
-
-
-
-
+float function HuntMode_GetExtendedDuration()
+{
+	return GetCurrentPlaylistVarFloat( "bloodhound_ult_upgraded_duration", 40 )
+}
 
 
 float function HuntMode_GetDuration( entity player )
@@ -63,10 +63,10 @@ float function HuntMode_GetDuration( entity player )
 	float result = HUNT_MODE_DURATION
 
 
-
-
-
-
+	if( PlayerHasPassive( player, ePassives.PAS_ULT_UPGRADE_ONE ) ) 
+	{
+		return HuntMode_GetExtendedDuration()
+	}
 
 
 	return result
@@ -296,8 +296,6 @@ void function EndThreadOn_HuntCommon( entity player )
 
 
 }
-
-
 
 
 

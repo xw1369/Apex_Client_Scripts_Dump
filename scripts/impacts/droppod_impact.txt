@@ -42,7 +42,7 @@ ImpactTable
 		"2" "P_impact_dpod_lava" //lava_rock_hot
 		"3" "P_impact_dpod_dirt"
 		"4" "P_impact_dpod_dirt"
-		"5" "P_impact_dpod_water"
+		"5" "P_impact_dpod_default"
 		"6" "P_impact_dpod_dirt"
 		"7" "P_impact_dpod_dirt"
 		"8" "P_impact_dpod_dirt"

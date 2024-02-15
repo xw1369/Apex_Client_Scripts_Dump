@@ -119,6 +119,8 @@ void function SV_CL_Init()
 
 
 
+		ShPassiveUpgradeCore_NetvarsInit()
+
 	ShPakRequests_LevelInit()
 	ShXP_Init()
 	ShPersistentData_LevelInit_Begin()
@@ -147,8 +149,8 @@ void function SV_CL_Init()
 
 
 
-
-
+		Perk_DeathBoxInsight_Init()
+		Pickup_XP_Cache_Init ()
 
 
 
@@ -165,10 +167,9 @@ void function SV_CL_Init()
 	CollectionEvents_Init()
 	ThemedShopEvents_Init()
 	BuffetEvents_Init()
+	RewardCampaign_Init()
 
-
-		EventShop_Init()
-
+	EventShop_Init()
 
 	StoryChallengeEvents_Init()
 	Sh_Ranked_ItemRegistrationInit() 
@@ -225,7 +226,7 @@ void function SV_CL_Init()
 
 
 
-	Clubs_Init()
+
 
 	TreasureBox_SharedInit()
 	SeasonQuest_SharedInit()
@@ -243,8 +244,9 @@ void function SV_CL_Init()
 	ShPing_Init()
 	ShQuickchat_Init()
 	ShChallenges_LevelInit_PreStats()
+	Sh_Challenge_Sets_Init()
 
-
+	Sh_Kepler_Init()
 
 
 	ShRewardSetTracker_LevelInit()
@@ -274,7 +276,6 @@ void function SV_CL_Init()
 	SURVIVAL_Loot_InitShared()
 	SURVIVAL_LootActions_InitShared()
 	SURVIVAL_LootTypes_InitShared()
-	SURVIVAL_EquipmentSlot_InitShared()
 
 
 
@@ -435,7 +436,7 @@ void function SV_CL_Init()
 
 
 
-
+		Sh_Survival_BattleRush_Init()
 
 
 	ShTutorial_Init()
@@ -446,27 +447,35 @@ void function SV_CL_Init()
 
 
 
-
-		ShPassiveSling_Init()
-
+	ShPassiveSling_Init()
 
 
 		ShPassiveConduit_Init()
 
 
 
+		ExtraShields_Init()
+
+		ShPassiveUpgradeCore_Init()
+		ShPassiveTacCooldownExtra_Init()
+		ShPassiveExplosiveSpeedBoost_Init()
+		ShPassiveAirborneHealthRegen_Init()
+		ShPassiveBoostedHealthRegen_Init()
+		ShPassiveSquadwipeSquadCount_Init()
+		ShPassiveKnockShotgunAutoReload_Init()
+		ShPassiveZiplineShield_Init()
+		PhysicalOvershield_Init()
+		ShPassiveKnockTacReset_Init()
+
+		UpgradedClusterMissile_Init()
+		UpgradedJets_Init()
+
+		
+
+		UpgradeSelectionMenu_Init()
 
 
-
-
-
-
-
-
-
-
-
-
+	SURVIVAL_EquipmentSlot_InitShared()
 
 
 
@@ -625,7 +634,11 @@ void function SV_CL_Init()
 
 
 
-		AprilFools_S12_Mode_Init()
+
+
+
+
+
 
 
 
@@ -719,6 +732,7 @@ void function SV_CL_Init()
 
 
 
+		BountyHunt_Init()
 
 
 
@@ -730,8 +744,7 @@ void function SV_CL_Init()
 
 
 
-
-
+		CrowdNoiseMeter_Init()
 
 
 	POIPlayerSpawning_Init()
@@ -744,6 +757,14 @@ void function SV_CL_Init()
 
 	ThunderdomeSkull_Init()
 }
+
+
+
+
+
+
+
+
 
 
 
@@ -1019,6 +1040,7 @@ void function Client_Init()
 	
 	ClObituary_Init()
 	ClGameState_Init()
+	ClRingWarning_Init()
 
 	CLUI_Ranked_Init()
 
@@ -1068,6 +1090,7 @@ void function Client_Init()
 
 	CL_Staging_Area_EE_Init()
 
+	ReleaseAllTempMutes()
 }
 
 
@@ -1104,6 +1127,10 @@ void function Shared_Lobby_Init()
 	Teams_RegisterSignals()
 
 
+
+		ShPassiveUpgradeCore_LobbyInit()
+
+
 	ShGamepad_LevelInit()
 	ShItems_LevelInit_Begin()
 	ShGRX_LevelInit()
@@ -1134,10 +1161,9 @@ void function Shared_Lobby_Init()
 	CollectionEvents_Init()
 	ThemedShopEvents_Init()
 	BuffetEvents_Init()
+	RewardCampaign_Init()
 
-
-		EventShop_Init()
-
+	EventShop_Init()
 
 
 		MilestoneEvents_Init()
@@ -1169,12 +1195,12 @@ void function Shared_Lobby_Init()
 
 
 
-	Clubs_Init()
+
+
+
 	TreasureBox_SharedInit()
 	SeasonQuest_SharedInit()
-
 	EventRefresh_SharedInit()
-
 	MenuCamera_Init()
 	MenuScene_Init()
 	ShSceneCapture_LevelInit()
@@ -1186,12 +1212,13 @@ void function Shared_Lobby_Init()
 	ShPing_Init()
 	ShQuickchat_Init()
 	ShChallenges_LevelInit_PreStats()
+	Sh_Challenge_Sets_Init()
 
 
 
 	LootBoxCeremony_SharedInit()
 
-
+	Sh_Kepler_Init()
 
 
 	ShRewardSetTracker_LevelInit()
@@ -1251,13 +1278,8 @@ void function Shared_Lobby_Init()
 
 	Sh_Mastery_Init()
 
-
-		AcidWraith_SharedInit()
-
-
-
-		GoldenHorse_SharedInit()
-
+	
+	AcidWraith_SharedInit()
 }
 
 

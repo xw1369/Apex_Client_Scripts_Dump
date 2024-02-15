@@ -455,18 +455,24 @@ void function UpdateHudDataForMainWeapons( entity player, entity selectedWeapon 
 	bool isOffhandUsesAmmoStatus = IsValid( selectedWeapon ) && selectedWeapon.GetWeaponSettingBool( eWeaponVar.offhand_uses_hud_ammo_status )
 	bool isTurret = IsTurretWeapon( selectedWeapon )
 	bool isHMG = IsHMGWeapon( selectedWeapon )
+	bool isMelee = IsMeleeWeapon( selectedWeapon )
 	isTurret = isTurret || isHMG
 
+	entity slingWeapon = null
+	bool isBallistic = DoesPlayerHaveWeaponSling( player )
+	if ( isBallistic )
+	{
+		slingWeapon = GetPlayerSlingWeapon( player )
 
-		entity slingWeapon = null
-		bool isBallistic = DoesPlayerHaveWeaponSling( player )
-		if ( isBallistic )
+		if( IsValid( slingWeapon ) )
 		{
-			slingWeapon = GetPlayerSlingWeapon( player )
-			UpdateSlingPassiveRui( player )
+			if ( slingWeapon.IsEnergizeWeapon() && isMelee )
+				slingWeapon.Signal( ENERGIZE_STATUS_RUI_ABORT_SIGNAL )
 		}
-		RuiSetBool( rui, "isSlingVerticalOffset", isBallistic )
 
+		UpdateSlingPassiveRui( player )
+	}
+	RuiSetBool( rui, "isSlingVerticalOffset", isBallistic )
 
 	entity weaponInSlot0 = player.GetNormalWeapon( WEAPON_INVENTORY_SLOT_PRIMARY_0 )
 	entity weaponInSlot1 = player.GetNormalWeapon( WEAPON_INVENTORY_SLOT_PRIMARY_1 )
@@ -487,7 +493,6 @@ void function UpdateHudDataForMainWeapons( entity player, entity selectedWeapon 
 	{
 		ClearRuiWeaponData( rui, isTitan )
 		RuiSetFloat( file.ammo_status_hint, "lowAmmoFrac", 0.0 )    
-
 
 		if ( isBallistic )
 		{
@@ -511,10 +516,8 @@ void function UpdateHudDataForMainWeapons( entity player, entity selectedWeapon 
 		return
 	}
 
-
 	if( slingWeapon == activeWeapon && !IsValid( selectedWeapon ) )
 		return
-
 
 	entity selectedORActiveWeapon = IsValid( selectedWeapon ) ? selectedWeapon : ( IsValid(activeWeapon) ? activeWeapon : null )
 
@@ -612,7 +615,6 @@ void function UpdateHudDataForMainWeapons( entity player, entity selectedWeapon 
 		}
 	}
 
-
 	if ( DoesPlayerHaveWeaponSling( player ) )
 	{
 		if ( IsValid( selectedWeapon ) )
@@ -640,7 +642,6 @@ void function UpdateHudDataForMainWeapons( entity player, entity selectedWeapon 
 			}
 		}
 	}
-
 
 	if ( isMainWeapon )
 	{
@@ -735,7 +736,6 @@ void function UpdateHudDataForHMG( entity player, entity selectedWeapon, var rui
 
 	InitWeaponRuiTracks( rui, player, selectedWeapon )
 }
-
 
 void function UpdateHudDataForSling( entity player, entity selectedWeapon, var rui )
 {
@@ -868,7 +868,6 @@ void function UpdateHudDataForPrimaryWeaponsWhileSlingEquipped( entity player, e
 		}
 	}
 }
-
 
 void function UpdateHudDataForVantageSniper( entity player, entity selectedWeapon, bool selected, var rui )
 {
@@ -1014,7 +1013,7 @@ void function UpdateRUIWeaponData( entity player, var rui, entity weapon, int ta
 					if ( weaponData.lootType == eLootType.MAINWEAPON && weapon.GetGrade() > 0 )
 					{
 
-							if ( weapon.HasMod( WEAPON_LOCKEDSET_MOD_BLUEPAINTBALL ) || weapon.HasMod( WEAPON_LOCKEDSET_MOD_PURPLEPAINTBALL ) || weapon.HasMod( WEAPON_LOCKEDSET_MOD_GOLDPAINTBALL ) )
+							if ( weapon.HasMod( WEAPON_LOCKEDSET_MOD_PAINTBALL ) )
 								RuiSetBool( rui, "isPaintballWeapon", true )
 							else
 								RuiSetBool( rui, "isPaintballWeapon", false )
@@ -1385,7 +1384,6 @@ void function UpdateModsOnSurvivalWeaponRui( var rui, entity weapon )
 	string weaponRef = weaponData.ref
 	bool isTurret = GetWeaponInfoFileKeyField_GlobalInt_WithDefault( weapon.GetWeaponClassName(), "is_turret_weapon" , 0 ) == 1
 
-
 	entity player = weapon.GetWeaponOwner()
 	bool isSlingWeapon = GetSlotForWeapon( player, weapon ) == SLING_WEAPON_SLOT
 
@@ -1405,21 +1403,6 @@ void function UpdateModsOnSurvivalWeaponRui( var rui, entity weapon )
 		if( isSlingWeapon )
 			return
 	}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 	array<string> attachments = GetAllAttachmentPoints()
 	array<string> mods        = weapon.GetMods()
@@ -1927,9 +1910,7 @@ void function WeaponStatusSetWeaponInspect( bool inspect )
 	
 
 	additionalWeaponInspectRuis.append( GetVantageTacticalRui() )
-
-		additionalWeaponInspectRuis.append( GetSlingPassiveRui() )
-
+	additionalWeaponInspectRuis.append( GetSlingPassiveRui() )
 
 		additionalWeaponInspectRuis.append( GetConduitShieldRui() )
 
@@ -2068,7 +2049,6 @@ void function UpdateOffhandRuis( entity player )
 	var slingPassiveRui = GetSlingPassiveRui()
 	if ( slingPassiveRui != null )
 		UpdateOffhandRuiVisibility( slingPassiveRui, "%offhand1%" )
-
 
 	if ( !player.IsTitan() )
 	{
@@ -2219,6 +2199,7 @@ struct debuffInfo
 	float duration
 	float timeRemaining
 	asset icon
+	vector iconScale = < 1.0, 1.0, 1.0 >
 }
 
 void function TrackPlayerDebuffInfo( entity player, var rui )
@@ -2247,6 +2228,41 @@ void function TrackPlayerDebuffInfo( entity player, var rui )
 		int silenceOwner = -1
 
 		
+
+		if( Deathfield_EnforcedRingLethality_Enabled() && Deathfield_EnforcedRingLethality_LowerIconEnabled())
+		{
+			if ( StatusEffect_HasSeverity( player, eStatusEffect.ring_lethality_increase ) )
+			{
+				debuffInfo debuff
+				debuff.timeRemaining = StatusEffect_GetTimeRemaining( player, eStatusEffect.ring_lethality_increase )
+				debuff.duration = Deathfield_EnforcedRingLethality_LethalityEffectDuration()
+				debuff.icon = $"hud/ring_lethalitySign"
+				debuff.iconScale = < 0.7, 0.7, 1.0 >
+
+				debuffQueue.append( debuff )
+			}
+			else if ( StatusEffect_HasSeverity( player, eStatusEffect.ring_lethality_warning ) )
+			{
+				
+				debuffInfo debuff
+				debuff.timeRemaining = StatusEffect_GetTimeRemaining( player, eStatusEffect.ring_lethality_warning )
+				debuff.duration = Deathfield_EnforcedRingLethality_SecondTimeThreshold()
+				debuff.iconScale = < 0.7, 0.7, 1.0 >
+
+				bool simplifiedLethality = SimplifiedRingLethality_Enabled()
+				if( simplifiedLethality )
+				{
+					bool shouldWarn = SimplifiedRingLethality_ShouldShowWarning( player )
+					debuff.icon = shouldWarn ? $"hud/simplifiedringlethality_ringout_warn" : $"hud/simplifiedringlethality_ringout"
+				}
+				else
+				{
+					debuff.icon = $"hud/ring_warningSign"
+				}
+				debuffQueue.append( debuff )
+			}
+		}
+
 		if ( StatusEffect_HasSeverity( player, eStatusEffect.sonar_round_embedded ) )
 		{
 			debuffInfo debuff
@@ -2275,6 +2291,16 @@ void function TrackPlayerDebuffInfo( entity player, var rui )
 			debuffQueue.append( debuff )
 		}
 
+
+
+
+
+
+
+
+
+
+
 		
 		if ( StatusEffect_HasSeverity( player, eStatusEffect.silenced_seer_visuals ) )
 		{
@@ -2301,15 +2327,14 @@ void function TrackPlayerDebuffInfo( entity player, var rui )
 			debuffQueue.append( debuff )
 		}
 
-			if ( StatusEffect_HasSeverity( player, eStatusEffect.has_overheat_debuff ) )
-			{
-				debuffInfo debuff
-				debuff.timeRemaining = StatusEffect_GetTimeRemaining( player, eStatusEffect.has_overheat_debuff )
-				debuff.duration = DebuffZone_GetOverheatDuration()
-				debuff.icon = $"rui/hud/character_abilities/overheat_icon"
-				debuffQueue.append( debuff )
-			}
-
+		if ( StatusEffect_HasSeverity( player, eStatusEffect.has_overheat_debuff ) )
+		{
+			debuffInfo debuff
+			debuff.timeRemaining = StatusEffect_GetTimeRemaining( player, eStatusEffect.has_overheat_debuff )
+			debuff.duration = DebuffZone_GetOverheatDuration()
+			debuff.icon = $"rui/hud/character_abilities/overheat_icon"
+			debuffQueue.append( debuff )
+		}
 
 		
 
@@ -2335,27 +2360,6 @@ void function TrackPlayerDebuffInfo( entity player, var rui )
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 		foreach ( int index, debuff in debuffQueue )
 		{
 			if( index >= MAX_DEBUFFS_SHOWN )
@@ -2364,6 +2368,7 @@ void function TrackPlayerDebuffInfo( entity player, var rui )
 			RuiSetFloat( rui, "debuff" + index + "TimeRemaining", debuff.timeRemaining )
 			RuiSetFloat( rui, "debuff" + index + "EffectDuration", debuff.duration )
 			RuiSetAsset( rui, "debuff" + index + "Icon", debuff.icon )
+			RuiSetFloat2( rui, "debuff" + index + "IconScale", debuff.iconScale )
 		}
 
 		RuiSetBool( rui, "isSilenced", isSilenced )

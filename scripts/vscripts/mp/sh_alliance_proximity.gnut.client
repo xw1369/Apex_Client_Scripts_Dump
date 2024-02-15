@@ -53,6 +53,7 @@ global function AllianceProximity_GetAllianceScoreDifference
 
 
 
+
 global function AllianceProximity_ManageIconVisibility_Thread
 global function AllianceProximity_GetUIAllianceFromTeam
 global function AllianceProximity_GetAllianceFromTeamWithObserverCorrection
@@ -70,6 +71,7 @@ global function AllianceProximity_MuteAllianceOnMatchEndReassignment
 
 global function AllianceProximity_GetAllianceColor
 global function AllianceProximity_GetAllianceColorFromTeam
+
 
 struct {
 	bool isUsingAllianceProximity
@@ -100,13 +102,14 @@ struct {
 
 
 
+
 } file
 
 
 void function AllianceProximity_Init()
 {
 #if DEV
-		printt( "ALLIANCE PROXIMITY: Running Init" )
+		printt( "ALLIANCE PROXIMITY: Running ", FUNC_NAME() )
 #endif
 
 	
@@ -144,7 +147,6 @@ void function AllianceProximity_Init()
 
 	
 	
-
 
 
 
@@ -201,7 +203,7 @@ bool function AllianceProximity_ShouldOnlyDisplayPriorityPingsForAlliance()
 
 void function AllianceProximity_SetPriorityPingsForAlliance( array < int > priorityPingTypes )
 {
-	Assert( AllianceProximity_ShouldOnlyDisplayPriorityPingsForAlliance(), "ALLIANCE PROXIMITY: Setting priority pings using AllianceProximity_SetPriorityPingsForAlliance for a mode that doesn't have priority pings enabled." )
+	Assert( AllianceProximity_ShouldOnlyDisplayPriorityPingsForAlliance(), "ALLIANCE PROXIMITY: Setting priority pings using " + FUNC_NAME() + " for a mode that doesn't have priority pings enabled." )
 
 
 #if DEV
@@ -266,7 +268,7 @@ void function AllianceProximity_RegisterNonPlayerTeamToAlliances( int team )
 	if ( !AllianceProximity_GetAllTeamsInAlliances( false ).contains( team ) )
 	{
 #if DEV
-			printt( "ALLIANCE PROXIMITY: AllianceProximity_RegisterNonPlayerTeamToAlliances adding team: " + team + " to file.allAllianceTeams and putting them on alliance: " + ALLIANCE_A )
+			printt( "ALLIANCE PROXIMITY: ", FUNC_NAME(), " adding team: ", team, " to file.allAllianceTeams and putting them on alliance: ", ALLIANCE_A )
 #endif
 		file.allAllianceTeams.append( team )
 		
@@ -275,13 +277,12 @@ void function AllianceProximity_RegisterNonPlayerTeamToAlliances( int team )
 }
 
 
-
 vector function AllianceProximity_GetAllianceColor( int alliance )
 {
 	switch( alliance )
 	{
-		case ALLIANCE_A:	return <76, 200, 255> / 255 
-		case ALLIANCE_B:	return <254, 108, 67> / 255 
+		case ALLIANCE_A:	return GetKeyColor( COLORID_CONTROL_FRIENDLY ) / 255.0
+		case ALLIANCE_B:	return GetKeyColor( COLORID_CONTROL_ENEMY ) / 255.0
 		default:
 			return <0.0, 0.0, 0.0>
 	}
@@ -293,6 +294,7 @@ vector function AllianceProximity_GetAllianceColorFromTeam( int team )
 	int alliance = AllianceProximity_GetAllianceFromTeam( team )
 	return AllianceProximity_GetAllianceColor( alliance )
 }
+
 
 
 int function AllianceProximity_GetAllianceFromTeam( int team )
@@ -393,7 +395,7 @@ array < int > function AllianceProximity_GetAllTeamsInAlliances( bool playerTeam
 
 int function AllianceProximity_GetOtherAlliance( int alliance )
 {
-	Assert( file.maxAlliances == 2, "Running AllianceProximity_GetOtherAlliance in a mode with maxAlliances not equal to 2, you probably want to use AllianceProximity_GetOtherAlliances" )
+	Assert( file.maxAlliances == 2, "ALLIANCE PROXIMITY: Running " + FUNC_NAME() + " in a mode with maxAlliances not equal to 2, you probably want to use AllianceProximity_GetOtherAlliances" )
 	return alliance == ALLIANCE_A ? ALLIANCE_B : ALLIANCE_A
 }
 
@@ -402,7 +404,7 @@ int function AllianceProximity_GetOtherAlliance( int alliance )
 int function AllianceProximity_GetOriginalPlayerTeam_FromPlayerEHI( EHI playerEHI )
 {
 #if DEV
-		Assert(  EHIHasValidScriptStruct( playerEHI ), "ALLIANCE PROXIMITY: Attempted to run AllianceProximity_GetOriginalPlayerTeam_FromPlayerEHI on an Invalid playerEHI" )
+		Assert(  EHIHasValidScriptStruct( playerEHI ), "ALLIANCE PROXIMITY: Attempted to run " + FUNC_NAME() + " on an Invalid playerEHI" )
 #endif
 
 	int team = EHI_GetTeam( playerEHI )
@@ -646,7 +648,7 @@ array< int > function AllianceProximity_GetTeamsInAlliance( int alliance )
 		string alliancesWithTeams
 		foreach( tableAlliance, team in file.allianceToTeamsTable )
 			alliancesWithTeams += tableAlliance + " "
-		Assert( alliance in file.allianceToTeamsTable , "ALLIANCE PROXIMITY: AllianceProximity_GetTeamsInAlliance attempted to get an Alliance that isn't in the allianceToTeamsTable, probably didn't run the AllianceProximity_SetTeamsToAlliances function first.\nAlliances ON = " + AllianceProximity_IsUsingAlliances() + "\nAlliance = " + alliance + "\nAlliances in Table = " + alliancesWithTeams )
+		Assert( alliance in file.allianceToTeamsTable , "ALLIANCE PROXIMITY: " + FUNC_NAME() + " attempted to get an Alliance that isn't in the allianceToTeamsTable, probably didn't run the AllianceProximity_SetTeamsToAlliances function first.\nAlliances ON = " + AllianceProximity_IsUsingAlliances() + "\nAlliance = " + alliance + "\nAlliances in Table = " + alliancesWithTeams )
 #endif
 
 	
@@ -747,46 +749,86 @@ array< int > function AllianceProximity_GetPopulatedTeamsInAlliance( int allianc
 
 
 
-
-
-
-
-
-
-
-
 int function AllianceProximity_GetRepresentativeTeamForAlliance( int alliance )
 {
-
-
-
-
-
-
-
-
-
-
-	array<int> teamsInAlliance = AllianceProximity_GetTeamsInAlliance( alliance )
-
 #if DEV
-		Assert( teamsInAlliance.len() > 0, "AllianceProximity_GetRepresentativeTeamForAlliance tried to get a team from an alliance but there are no teams in alliance " + alliance )
+		int maxTeams = GetCurrentPlaylistVarInt( "max_teams", 0 )
+
+
+
+
+
+
+
+
 #endif
 
-	int team = teamsInAlliance[ 0 ]
-	array < int > playerTeams = GetAllTeams()
 
-	
-	foreach ( teamToTest in teamsInAlliance )
-	{
-		if ( playerTeams.contains( teamToTest ) )
+
+
+
+
+
+
+
+	int repTeam = TEAM_INVALID
+
+
+		array< int > populatedTeams = AllianceProximity_GetPopulatedTeamsInAlliance( alliance )
+
+		if ( populatedTeams.len() > 0 )
 		{
-			team = teamToTest
-			break
+			foreach ( team in populatedTeams )
+			{
+				
+				if ( GamemodeUtility_GetIsTeamIndexValidPlayerTeam( team ) )
+				{
+					repTeam = team
+					break
+				}
+			}
 		}
-	}
 
-	return team
+		
+		if ( repTeam == TEAM_INVALID )
+
+		{
+			array<int> teamsInAlliance = AllianceProximity_GetTeamsInAlliance( alliance )
+
+#if DEV
+				if ( teamsInAlliance.len() == 0 )
+				{
+					array < int > otherAlliancesArray = AllianceProximity_GetOtherAlliances( alliance )
+					int numTeamsInOtherAlliances = 0
+
+					foreach ( otherAlliance in otherAlliancesArray )
+					{
+						numTeamsInOtherAlliances += AllianceProximity_GetTeamsInAlliance( otherAlliance ).len()
+					}
+
+					if ( numTeamsInOtherAlliances == maxTeams )
+						Assert( false, "ALLIANCE PROXIMITY: " + FUNC_NAME() + " tried to get a team from an alliance but there are no teams in alliance " + alliance + " ( looks like all teams got assigned to other alliances ), THIS WILL CAUSE AN INVALID TEAM TO BE RETURNED." )
+				}
+#endif
+
+			Assert( teamsInAlliance.len() > 0, "ALLIANCE PROXIMITY: " + FUNC_NAME() + " tried to get a team from an alliance but there are no teams in alliance " + alliance + ", THIS WILL CAUSE AN INVALID TEAM TO BE RETURNED." )
+
+			
+			
+			foreach ( team in teamsInAlliance )
+			{
+				
+				if ( GamemodeUtility_GetIsTeamIndexValidPlayerTeam( team ) )
+				{
+					repTeam = team
+					break
+				}
+			}
+		}
+
+	Assert( repTeam > TEAM_INVALID, "ALLIANCE PROXIMITY: " + FUNC_NAME() + " is going to return an Invalid Team Index." )
+
+	return repTeam
 }
 
 
@@ -880,10 +922,7 @@ void function AllianceProximity_MuteAllianceOnMatchEndReassignment()
 		EHI teamplayerEhi = teamplayer.GetEncodedEHandle()
 		if ( playerTeam != AllianceProximity_GetOriginalPlayerTeam_FromPlayerEHI( teamplayerEhi ) )
 		{
-			if ( !teamplayer.IsVoiceAndTextMuted() )
-			{
-				TogglePlayerVoiceAndTextMute( teamplayer )
-			}
+			SetPlayerTempMuted( teamplayer )
 		}
 	}
 }
@@ -920,7 +959,7 @@ void function AllianceProximity_SetTeamToAlliance_Internal( int team, int allian
 	if ( !allTeams.contains( team ) )
 	{
 #if DEV
-				Assert( false, "AllianceProximity_SetTeamToAlliance is trying to change the alliance for a team that doesn't exist: " + team + " if this is intentional try the AllianceProximity_RegisterNonPlayerTeamToAlliances function" )
+				Assert( false, "ALLIANCE PROXIMITY: " + FUNC_NAME() + " is trying to change the alliance for a team that doesn't exist: " + team + " if this is intentional try the AllianceProximity_RegisterNonPlayerTeamToAlliances function" )
 #endif
 		return
 	}
@@ -928,7 +967,7 @@ void function AllianceProximity_SetTeamToAlliance_Internal( int team, int allian
 	if ( alliance >= file.maxAlliances )
 	{
 #if DEV
-			Assert( false, "AllianceProximity_SetTeamToAlliance is trying to put team: " + team + " into an invalid alliance: " + alliance )
+			Assert( false, "ALLIANCE PROXIMITY: " + FUNC_NAME() + " is trying to put team: " + team + " into an invalid alliance: " + alliance )
 #endif
 		return
 	}
@@ -936,13 +975,13 @@ void function AllianceProximity_SetTeamToAlliance_Internal( int team, int allian
 	int currentAlliance = team in file.teamToAllianceTable ? file.teamToAllianceTable[ team ] : ALLIANCE_NONE
 	if ( currentAlliance == alliance )
 	{
-		printt( "ALLIANCE PROXIMITY: AllianceProximity_SetTeamToAlliance_Internal Exiting, alliance passed in: " + alliance + " for team: " + team + " is the same as the current alliance: " + currentAlliance )
+		printt( "ALLIANCE PROXIMITY: ", FUNC_NAME(), " Exiting, alliance passed in: ", alliance, " for team: ", team, " is the same as the current alliance: ", currentAlliance )
 		return
 	}
 
 
 #if DEV
-		printt( "ALLIANCE PROXIMITY: Putting team " + team + " on Alliance " + alliance )
+		printt( "ALLIANCE PROXIMITY: Putting team ", team, " on Alliance ", alliance )
 #endif
 
 
@@ -971,6 +1010,11 @@ void function AllianceProximity_SetTeamToAlliance_Internal( int team, int allian
 	else
 	{
 		file.allianceToTeamsTable[ alliance ] <- [ team ]
+
+
+
+
+
 	}
 
 	if ( !file.allAlliances.contains( alliance ) )

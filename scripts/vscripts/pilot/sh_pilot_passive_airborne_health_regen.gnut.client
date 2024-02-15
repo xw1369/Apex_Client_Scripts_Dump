@@ -1,0 +1,31 @@
+global function ShPassiveAirborneHealthRegen_Init
+
+
+
+
+void function ShPassiveAirborneHealthRegen_Init()
+{
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

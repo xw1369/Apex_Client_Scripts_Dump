@@ -42,10 +42,12 @@ const asset BUBBLE_BUNKER_SHIELD_PROJECTILE = $"mdl/props/gibraltar_bubbleshield
 
 
 
-
-
-
-
+const asset BUBBLE_BUNKER_SHIELD_COLLISION_MODEL_SMALL = $"mdl/fx/bb_shield_small.rmdl"
+const asset BUBBLESHIELD_FX_ASSET_SMALL = $"P_wpn_BBunker_shield_small"
+const asset BUBBLE_BUNKER_SMALL_BEAM_FX = $"P_wpn_BBunker_beam_small"
+const asset BUBBLE_BUNKER_SMALL_BEAM_END_FX = $"P_wpn_BBunker_beam_small_end"
+const string BUBBLE_BUNKER_SOUND_ENDING_UPGRADE = "Gibraltar_BabyBubbleShield_LegendUpgrade_Ending"
+const string BUBBLE_BUNKER_SOUND_FINISH_UPGRADE = "Gibraltar_BabyBubbleShield_LegendUpgrade_Deactivate"
 
 
 const string BUBBLE_BUNKER_SOUND_ENDING = "Gibraltar_BubbleShield_Ending"
@@ -95,10 +97,10 @@ void function MpWeaponBubbleBunker_Init()
 
 
 
-
-
-
-
+		PrecacheParticleSystem( BUBBLESHIELD_FX_ASSET_SMALL )
+		PrecacheParticleSystem( BUBBLE_BUNKER_SMALL_BEAM_FX )
+		PrecacheParticleSystem( BUBBLE_BUNKER_SMALL_BEAM_END_FX )
+		PrecacheModel( BUBBLE_BUNKER_SHIELD_COLLISION_MODEL_SMALL )		
 
 
 
@@ -145,15 +147,15 @@ void function MpWeaponBubbleBunker_Init()
 
 
 
+float function BubbleBunker_BaseScaler()
+{
+	return GetCurrentPlaylistVarFloat( "passive_upgrade_gibraltar_bunker_throw_base_scaler", .8 )
+}
 
-
-
-
-
-
-
-
-
+float function BubbleBunker_UpgradedScaler()
+{
+	return GetCurrentPlaylistVarFloat( "passive_upgrade_gibraltar_bunker_throw_upgraded_scaler", 1.1 )
+}
 
 
 float function BubbleBunker_GetThrowPower( entity player )
@@ -161,14 +163,14 @@ float function BubbleBunker_GetThrowPower( entity player )
 	float result = BUBBLE_BUNKER_THROW_POWER
 
 
-
-
-
-
-
-
-
-
+	if( UpgradeCore_IsEnabled() )
+	{
+		result *= BubbleBunker_BaseScaler()
+		if( PlayerHasPassive( player, ePassives.PAS_TAC_UPGRADE_THREE ) ) 
+		{
+			result *= BubbleBunker_UpgradedScaler()
+		}
+	}
 
 
 	return result
@@ -282,6 +284,19 @@ void function OnBubbleBunkerPlanted( entity projectile, DeployableCollisionParam
 
 
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

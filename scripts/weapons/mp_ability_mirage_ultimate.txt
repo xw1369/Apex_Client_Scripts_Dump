@@ -125,18 +125,18 @@ WeaponData
         }
 
                             
-                                  
-         
-                      
-                                              
-                                           
+        upgrade_extra_ultimate_mod
+        {
+        // Two Charges
+            //"ammo_clip_size"   								"120"
+            //"fire_duration"									"1.5"
 
-                        
-                                           
-                                          
-                                        
-                                           
-         
+        // 30s Reduction
+            "ammo_clip_size"   								"30"
+            "ammo_min_to_fire"								"30"
+            "ammo_per_shot"									"30"
+            "ammo_stockpile_max"							"30"
+        }
               
 	}
 

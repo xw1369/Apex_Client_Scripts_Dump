@@ -184,11 +184,11 @@ WeaponData
         {
         }
 
-                         
-                    
-      
-                                          
-      
+	                        
+	    upgrade_ult_one
+	    {
+	        "ammo_clip_size"            "180"
+	    }
 
            
 

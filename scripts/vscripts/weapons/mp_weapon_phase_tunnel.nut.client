@@ -48,6 +48,10 @@ const string SOUND_PORTAL_TRAVEL_3P = "Wraith_phasegate_Travel_3p"
 const string SOUND_PORTAL_TRAVEL_1P_BREACH = "Ash_PhaseBreach_Travel_1p"
 const string SOUND_PORTAL_TRAVEL_3P_BREACH = "Ash_PhaseBreach_Travel_3p"
 
+
+
+
+
 global const string PHASETUNNEL_BLOCKER_SCRIPTNAME = "phase_tunnel_blocker"
 global const string PHASETUNNEL_PRE_BLOCKER_SCRIPTNAME = "pre_phase_tunnel_blocker"
 const string PHASETUNNEL_MOVER_SCRIPTNAME = "phase_tunnel_mover"

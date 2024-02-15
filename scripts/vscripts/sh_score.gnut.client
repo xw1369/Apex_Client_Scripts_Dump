@@ -7,6 +7,10 @@ global function ScoreEvent_FromId
 
 global function GetScoreEvent
 
+
+global function ScoreEvent_SetXpValue
+
+
 global function ScoreEvent_Enable
 global function ScoreEvent_Disable
 global function ScoreEvent_IsEnabled
@@ -78,6 +82,10 @@ global struct ScoreEvent
 	float 	earnMeterOwnValue = 0.00
 	float 	earnMeterEarnValue = 0.00
 	float 	coreMeterScalar = 1.00 
+
+	int 	xpValue
+	bool    isTeamXp
+
 }
 
 struct
@@ -170,6 +178,14 @@ ScoreEvent function GetScoreEvent( string eventName )
 {
 	return file.scoreEvents[eventName]
 }
+
+
+void function ScoreEvent_SetXpValue( ScoreEvent event, int xpValue, bool isTeam )
+{
+	event.xpValue = xpValue
+	event.isTeamXp = isTeam
+}
+
 
 void function ScoreEvent_Enable( ScoreEvent scoreEvent )
 {

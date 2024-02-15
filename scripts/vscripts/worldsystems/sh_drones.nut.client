@@ -32,11 +32,21 @@ global function ShDrones_DroneSpawned
 
 
 
+
+
+
+
+
+
+
+
+
 global function ServerCallback_AddDroneClientData
 global function ShDrones_GetDroneClientData
 global function ServerCallback_SetDroneTrailFXType
 global function ServerCallback_ClearDroneTrailFXType
 global function ServerCallback_ClearAllDroneFX
+global function ServerCallback_DestroyDroneScreenRUIs
 
 
 global const string SIGNAL_DRONE_FALL_START = "signalDroneSpiral"
@@ -60,8 +70,12 @@ global const float DEFAULT_DRONE_ROLL = 45.0
 
 
 
+
 global enum eDroneType
 {
+	
+	
+	
 	
 	INVALID,
 	LOOT_DRONE,
@@ -71,6 +85,12 @@ global enum eDroneType
 
 
 
+
+
+	BLIMP_DRONE,
+
+
+	BROADCAST_DRONE,
 
 
 
@@ -110,11 +130,35 @@ global struct DroneData
 	float __fallingSpeedMax = DEFAULT_DRONE_FALLING_SPEED_MAX
 	float __fallingAccel = DEFAULT_DRONE_FALLING_ACCEL
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 	bool isPanicking
 	float lastPanicTime = 0.0
 	int droneType
 }
 
+
+global struct DroneRUIClientData
+{
+	var topology					= null
+	var rui							= null
+}
 
 global struct DroneClientData
 {
@@ -123,6 +167,8 @@ global struct DroneClientData
 	int trailFXHandle
 	int panicFXHandle
 	int fallFXHandle
+
+	array<DroneRUIClientData> droneRUIs
 }
 
 
@@ -145,11 +191,22 @@ void function ShDrones_Init()
 
 
 
+		ShBlimpDrones_Init()
+
+
+	ShAdDrones_Init()
+
+
+
+
+
 
 
 
 
 		AddCreateCallback( "prop_dynamic", ShDrones_DroneSpawned )
+		AddCreateCallback( "prop_dynamic", ShDrones_DroneRollerSpawned )
+		RegisterSignal( "StopAdDroneVFX" )
 
 }
 
@@ -191,7 +248,42 @@ void function ShDrones_EntitiesDidLoad()
 
 
 
+
+
+	if ( Drones_ShouldSpawnBlimpDrones() )
+	{
+		ShBlimpDrones_EntitiesDidLoad()
+	}
+
+
+
+	if ( Drones_ShouldSpawnBroadcastDrones() )
+	{
+		ShBroadcastDrones_EntitiesDidLoad()
+	}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 }
+
+
+
+
+
+
+
+
 
 
 
@@ -246,8 +338,27 @@ int function Drones_GetLootDronesCountToSpawn()
 
 
 
+int function Drones_GetBlimpDronesCountToSpawn()
+{
+	return GetCurrentPlaylistVarInt( "blimp_drones_spawn_count", 0 )
+}
+
+
+
+int function Drones_GetBroadcastDronesCountToSpawn()
+{
+	return GetCurrentPlaylistVarInt( "broadcast_drones_spawn_count", 0 )
+}
+
+
+
 bool function Drones_ShouldSpawnAdDrones()
 {
+
+
+
+
+
 	return Drones_GetAdDronesCountToSpawn() > 0 && HasEntWithScriptName( AD_DRONE_NODE_SCRIPT_NAME )
 }
 
@@ -270,6 +381,20 @@ bool function Drones_ShouldSpawnLootDrones()
 
 
 
+
+
+
+bool function Drones_ShouldSpawnBlimpDrones()
+{
+	return Drones_GetBlimpDronesCountToSpawn() > 0 && HasEntWithScriptName( BLIMP_DRONE_NODE_SCRIPT_NAME )
+}
+
+
+
+bool function Drones_ShouldSpawnBroadcastDrones()
+{
+	return Drones_GetBroadcastDronesCountToSpawn() > 0 && HasEntWithScriptName( BROADCAST_DRONE_NODE_SCRIPT_NAME )
+}
 
 
 
@@ -305,9 +430,17 @@ void function ShDrones_DroneSpawned( entity droneEnt )
 
 
 
-
-
 }
+
+
+void function ShDrones_DroneRollerSpawned( entity rollerEnt )
+{
+	
+	
+	if ( IsValid( rollerEnt ) && rollerEnt.GetScriptName() == AD_DRONE_PROJECTOR_MODEL_SCRIPTNAME )
+		thread AdDrones_PlayBillboardVFXOnAdDrone_Thread( rollerEnt )
+}
+
 
 int function GetDroneTypeFromDroneEntity( entity droneEnt )
 {
@@ -338,6 +471,18 @@ int function GetDroneTypeFromDroneEntity( entity droneEnt )
 
 
 
+
+
+	else if ( droneEnt.GetModelName().tolower() == BLIMP_DRONE_MODEL.tolower() && droneEnt.GetScriptName().tolower() == BLIMP_DRONE_MODEL_SCRIPTNAME.tolower() )
+	{
+		droneType = eDroneType.BLIMP_DRONE
+	}
+
+
+	else if ( droneEnt.GetModelName().tolower() == BROADCAST_DRONE_MODEL.tolower() && droneEnt.GetScriptName().tolower() == BROADCAST_DRONE_MODEL_SCRIPTNAME.tolower() )
+	{
+		droneType = eDroneType.BROADCAST_DRONE
+	}
 
 
 	return droneType
@@ -375,6 +520,18 @@ int function GetDroneTypeFromDroneMover( entity droneEnt )
 
 
 
+	else if ( ( scriptName == BLIMP_DRONE_MOVER_SCRIPTNAME ) || ( scriptName == BLIMP_DRONE_ROTATOR_SCRIPTNAME ) )
+	{
+		droneType = eDroneType.BLIMP_DRONE
+	}
+
+
+	else if ( ( scriptName == BROADCAST_DRONE_MOVER_SCRIPTNAME ) || ( scriptName == BROADCAST_DRONE_ROTATOR_SCRIPTNAME ) )
+	{
+		droneType = eDroneType.BROADCAST_DRONE
+	}
+
+
 	return droneType
 }
 
@@ -384,6 +541,8 @@ void function ServerCallback_AddDroneClientData( entity droneEnt )
 	printf( "DroneClientDebug: ServerCallback_AddDroneClientData" )
 	AddDroneClientData( droneEnt )
 }
+
+
 
 void function AddDroneClientData( entity droneEnt )
 {
@@ -403,8 +562,18 @@ void function AddDroneClientData( entity droneEnt )
 	clientData.model = droneEnt
 	SetDroneTrailFX( clientData )
 
+
+		if ( droneType == eDroneType.BLIMP_DRONE )
+		{
+			BlimpDrones_InitializeDroneLighting( clientData )
+			BlimpDrones_InitializeDroneRUIs( clientData )
+		}
+
+
 	file.droneToClientData[ droneEnt ] <- clientData
 }
+
+
 
 DroneClientData function ShDrones_GetDroneClientData( entity droneEnt )
 {
@@ -413,6 +582,8 @@ DroneClientData function ShDrones_GetDroneClientData( entity droneEnt )
 
 	return file.droneToClientData[ droneEnt ]
 }
+
+
 
 void function SetDroneTrailFX( DroneClientData droneData )
 {
@@ -439,6 +610,12 @@ void function SetDroneTrailFX( DroneClientData droneData )
 
 
 
+		case eDroneType.BROADCAST_DRONE:
+			BroadcastDrones_SetBroadcastDroneTrailFX( droneData )
+			break
+
+
+
 
 
 
@@ -447,6 +624,8 @@ void function SetDroneTrailFX( DroneClientData droneData )
 			break
 	}
 }
+
+
 
 void function ServerCallback_SetDroneTrailFXType( entity droneEnt, int trailType )
 {
@@ -467,12 +646,18 @@ void function ServerCallback_SetDroneTrailFXType( entity droneEnt, int trailType
 
 		case eDroneType.AD_DRONE:
 			AdDrones_SetAdDroneTrailFXType( droneEnt, trailType )
+			break
 
 
 
 
 
 
+
+
+		case eDroneType.BROADCAST_DRONE:
+			BroadcastDrones_SetBroadcastDroneTrailFXType( droneEnt, trailType )
+			break
 
 
 
@@ -484,6 +669,8 @@ void function ServerCallback_SetDroneTrailFXType( entity droneEnt, int trailType
 			break
 	}
 }
+
+
 
 void function ServerCallback_ClearDroneTrailFXType( entity droneEnt, int trailType )
 {
@@ -513,6 +700,8 @@ void function ServerCallback_ClearDroneTrailFXType( entity droneEnt, int trailTy
 	EffectStop( fxHandle, false, true )
 }
 
+
+
 void function ServerCallback_ClearAllDroneFX( entity droneEnt )
 {
 	printf( "DroneClientDebug: ServerCallback_ClearAllDroneFX" )
@@ -523,6 +712,24 @@ void function ServerCallback_ClearAllDroneFX( entity droneEnt )
 		EffectStop( clientData.panicFXHandle, false, true )
 	if ( EffectDoesExist( clientData.fallFXHandle ) )
 		EffectStop( clientData.fallFXHandle, false, true )
+}
+
+
+
+void function ServerCallback_DestroyDroneScreenRUIs( entity droneEnt )
+{
+	printf( "DroneClientDebug: ServerCallback_DestroyDroneScreenRUIs" )
+
+	if ( !ShDrones_IsValidDrone( droneEnt ) )
+		return
+
+	DroneClientData clientData = ShDrones_GetDroneClientData( droneEnt )
+
+		if ( clientData.droneType == eDroneType.BLIMP_DRONE )
+		{
+			BlimpDrones_DestroyDroneRUIs( clientData )
+		}
+
 }
 
 
