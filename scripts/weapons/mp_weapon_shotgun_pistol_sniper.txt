@@ -11,6 +11,7 @@ WeaponData
 
                
                                                     
+                                                               
                      
 
     "fire_rate"   									"0.9"
@@ -108,6 +109,10 @@ WeaponData
     "viewkick_scale_firstshot_ads"             "0"
     "viewkick_scale_min_ads"                   "1.0"
     "viewkick_scale_max_ads"                   "1.5"
+
+	                                
+		"april_fools_force_scale"               "5.0"
+       
 
 	Mods
 	{

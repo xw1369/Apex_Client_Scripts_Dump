@@ -10,26 +10,22 @@ global function GetActiveCollectionEvent
 global function CollectionEvent_GetChallenges 
 global function CollectionEvent_GetFrontPageRewardBoxTitle
 global function CollectionEvent_GetCollectionName
-
-
 global function CollectionEvent_GetMainPackFlav
 global function CollectionEvent_GetMainPackShortPluralName
 global function CollectionEvent_GetMainPackImage
-
-
 global function CollectionEvent_GetFrontPageGRXOfferLocation
-
 global function CollectionEvent_GetRewardGroups
+global function CollectionEvent_IsGivenItemFlavorReward
 global function CollectionEvent_GetAboutText 
+global function CollectionEvent_GetStoreEventSectionMainImage
+global function CollectionEvent_GetStoreEventSectionMainText
+global function CollectionEvent_GetStoreEventSectionSubText
 global function CollectionEvent_GetMainIcon
 global function CollectionEvent_GetMainThemeCol
 global function CollectionEvent_GetFrontPageBGTintCol
 global function CollectionEvent_GetFrontPageTitleCol
 global function CollectionEvent_GetFrontPageSubtitleCol
 global function CollectionEvent_GetFrontPageTimeRemainingCol
-
-
-
 global function CollectionEvent_GetBGPatternImage
 global function CollectionEvent_GetBGTabPatternImage
 global function CollectionEvent_GetTabLeftSideImage 
@@ -74,8 +70,18 @@ global function HeirloomEvent_IsRewardMythicSkin
 
 
 
-global function CollectionEvent_GetFrontTabText
 
+
+
+
+
+
+
+
+
+
+
+global function CollectionEvent_GetFrontTabText
 
 
 
@@ -244,25 +250,6 @@ string function CollectionEvent_GetCollectionName( ItemFlavor event )
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 ItemFlavor function CollectionEvent_GetMainPackFlav( ItemFlavor event )
 {
 	Assert( ItemFlavor_GetType( event ) == eItemType.calevent_collection )
@@ -342,38 +329,11 @@ string function HeirloomEvent_GetCompletionSequenceName( ItemFlavor event )
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 string function CollectionEvent_GetFrontPageGRXOfferLocation( ItemFlavor event )
 {
 	Assert( ItemFlavor_GetType( event ) == eItemType.calevent_collection )
 	return GetGlobalSettingsString( ItemFlavor_GetAsset( event ), "frontGRXOfferLocation" )
 }
-
-
-
-
-
-
-
-
-
 
 
 
@@ -405,6 +365,29 @@ array<CollectionEventRewardGroup> function CollectionEvent_GetRewardGroups( Item
 
 
 
+bool function CollectionEvent_IsGivenItemFlavorReward( ItemFlavor event, ItemFlavor item )
+{
+	Assert( ItemFlavor_GetType( event ) == eItemType.calevent_collection )
+
+	array<CollectionEventRewardGroup> rewardGroups = CollectionEvent_GetRewardGroups( event )
+
+	foreach( CollectionEventRewardGroup group in rewardGroups )
+	{
+		foreach( ItemFlavor flav in group.rewards )
+		{
+			if ( flav.guid == item.guid )
+			{
+				return true
+			}
+		}
+	}
+
+	return false
+}
+
+
+
+
 array<string> function CollectionEvent_GetAboutText( ItemFlavor event, bool restricted )
 {
 	Assert( ItemFlavor_GetType( event ) == eItemType.calevent_collection )
@@ -416,6 +399,29 @@ array<string> function CollectionEvent_GetAboutText( ItemFlavor event, bool rest
 	return aboutText
 }
 
+
+
+asset function CollectionEvent_GetStoreEventSectionMainImage( ItemFlavor event )
+{
+	Assert( ItemFlavor_GetType( event ) == eItemType.calevent_collection )
+	return GetGlobalSettingsAsset( ItemFlavor_GetAsset( event ), "storeEventSectionMainImage" )
+}
+
+
+
+string function CollectionEvent_GetStoreEventSectionMainText( ItemFlavor event )
+{
+	Assert( ItemFlavor_GetType( event ) == eItemType.calevent_collection )
+	return GetGlobalSettingsString( ItemFlavor_GetAsset( event ), "storeEventSectionMainText" )
+}
+
+
+
+string function CollectionEvent_GetStoreEventSectionSubText( ItemFlavor event )
+{
+	Assert( ItemFlavor_GetType( event ) == eItemType.calevent_collection )
+	return GetGlobalSettingsString( ItemFlavor_GetAsset( event ), "storeEventSectionSubText" )
+}
 
 
 
@@ -468,33 +474,6 @@ vector function CollectionEvent_GetFrontPageTimeRemainingCol( ItemFlavor event )
 	Assert( ItemFlavor_GetType( event ) == eItemType.calevent_collection )
 	return GetGlobalSettingsVector( ItemFlavor_GetAsset( event ), "frontPageTimeRemainingCol" )
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -780,6 +759,47 @@ asset function CollectionEvent_GetHeaderIcon( ItemFlavor event )
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 int function HeirloomEvent_GetItemCount( ItemFlavor event, bool onlyOwned, entity player = null, bool dontCheckInventoryReady = false )
 {
 	Assert( dontCheckInventoryReady || !onlyOwned || ( player != null && GRX_IsInventoryReady( player ) ) )
@@ -867,17 +887,6 @@ int function HeirloomEvent_GetCurrentRemainingItemCount( ItemFlavor event, entit
 {
 	return HeirloomEvent_GetItemCount( event, false ) - HeirloomEvent_GetItemCount( event, true, player )
 }
-
-
-
-
-
-
-
-
-
-
-
 
 
 

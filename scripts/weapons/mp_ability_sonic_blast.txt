@@ -99,7 +99,7 @@ WeaponData
     "aimassist_disable_hipfire"						"1"
     "aimassist_disable_ads"							"1"
     "cooldown_type"									"ammo_instant"
-	"sonic_blast_delay"                             "1.4" //how long from when the drones are summoned until the blast goes off.
+	"sonic_blast_delay"                             "1.2" //how long from when the drones are summoned until the blast goes off.
     "red_crosshair_range" 							"0"
 
     "ammo_suck_behavior"							"offhand_weapons"

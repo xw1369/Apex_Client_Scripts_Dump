@@ -160,7 +160,7 @@ WeaponData
 	"offhand_hybrid_switch_on_lower"				"1"
 
 	"projectile_launch_speed"						"1000"
-	"projectile_launch_pitch_offset"				"1"
+	"projectile_launch_pitch_offset"				"3"
 	"projectile_first_person_offset_fraction"		"1.3"
 
 

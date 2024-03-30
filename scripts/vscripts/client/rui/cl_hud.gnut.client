@@ -10,6 +10,7 @@ global function ServerCallback_ScoreEventWithXpOverrideAndEntity
 
 global function ScoreEvents_SetEnabled
 global function AddGenericQueueMessage
+global function AddImageQueueMessage
 global function AddScoreEventMessage
 
 global function AddCallback_ModifyDamageFlyoutForScriptName
@@ -84,6 +85,10 @@ struct DamageFlyoutData
 {
 	var stackingDamageRui
 
+	
+	float replayDelay
+	entity viewEntity
+
 	float lastDamageFlyoutTime
 	int   lastDamageFlyoutDamage
 	int   damageThisFrame
@@ -148,6 +153,22 @@ void function AddGenericQueueMessage( string messageText, float duration = 4.0 )
 }
 
 
+void function AddImageQueueMessage( string messageText, asset image, float duration = 4.0 )
+{
+	MessageData messageData
+	messageData.messageText = Localize( messageText )
+	messageData.icon = image
+	messageData.duration = duration
+
+	file.pendingEventQueue.append( messageData )
+
+	if ( file.eventQueueActive )
+		return
+
+	thread QueueMessageThink()
+}
+
+
 int function SortPendingEvents( MessageData eventA, MessageData eventB )
 {
 	if ( eventA.messageScale > eventB.messageScale )
@@ -170,6 +191,22 @@ int function SortPendingMedals( MessageData eventA, MessageData eventB )
 }
 
 
+asset function GetRuiAssetForMessage( MessageData messageData )
+{
+	asset ruiAsset = $""
+	if ( GetScoreMessageRuiAssetForMode() != $"" )
+		ruiAsset = GetScoreMessageRuiAssetForMode()
+	else if ( messageData.messageScale > 1.0 )
+	{
+		ruiAsset = $"ui/centerevent_info.rpak"
+	}
+	else
+		ruiAsset = $"ui/pickup_info.rpak"
+
+	return ruiAsset
+}
+
+
 void function QueueMessageThink()
 {
 	
@@ -185,18 +222,8 @@ void function QueueMessageThink()
 
 		messageData.startTime = Time()
 
-		asset ruiAsset = $""
-		var rui
-		if ( GetScoreMessageRuiAssetForMode() != $"" )
-			ruiAsset = GetScoreMessageRuiAssetForMode()
-		else if ( messageData.messageScale > 1.0 )
-		{
-			ruiAsset = $"ui/centerevent_info.rpak"
-		}
-		else
-			ruiAsset = $"ui/pickup_info.rpak"
-
-		rui = CreateCockpitPostFXRui( ruiAsset )
+		asset ruiAsset = GetRuiAssetForMessage( messageData )
+		var rui = CreateCockpitPostFXRui( ruiAsset )
 
 		RuiSetGameTime( rui, "startTime", messageData.startTime )
 		RuiSetFloat( rui, "duration", messageData.duration )
@@ -256,6 +283,11 @@ asset function GetScoreMessageRuiAssetForMode()
 		return $"ui/control_score_info.rpak"
 
 
+
+	if ( GameRules_GetGameMode() == GAMEMODE_FREEDM && GetCurrentPlaylistVarBool( "freedm_treasure_hunt_active", false ) )
+		return $"ui/lockdown_score_info.rpak"
+
+
 	return $""
 }
 
@@ -313,6 +345,14 @@ void function DamageFlyout( float damageAmount, vector damagePosition, entity vi
 		isExtraShieldShot = true
 		isOvershieldShot = false
 	}
+
+
+
+
+
+
+
+
 
 
 	int sortKey = (file.lastSortKey++) % 100
@@ -401,13 +441,19 @@ void function DamageFlyout( float damageAmount, vector damagePosition, entity vi
 
 
 
-
 		else if ( IsForgedShadowsShield( victim ) )
 		{
 			isShadowForm = true
 			shieldIcon = $""
 			shieldFrac = isKillShot ? 0.0 : max( 0, ( victim.GetHealth() - damageAmount ) / victim.GetMaxHealth() )
 		}
+
+
+
+
+
+
+
 
 		else
 		{
@@ -449,6 +495,13 @@ void function DamageFlyout( float damageAmount, vector damagePosition, entity vi
 		shieldLevel = 1
 		timeScale = STUN_GRENADE_ICON_TIMESCALE
 	}
+
+
+
+
+
+
+
 
 
 		if ( TitanSword_Block_PlayerIsBlocking( victim ) && isSourShot )
@@ -503,12 +556,8 @@ void function DamageFlyout( float damageAmount, vector damagePosition, entity vi
 
 
 
-
 		RuiSetFloat( rui, "timeScale", timeScale )
-
-
-			RuiSetBool( rui, "isShadowForm", isShadowForm )
-
+		RuiSetBool( rui, "isShadowForm", isShadowForm )
 
 	}
 
@@ -532,11 +581,13 @@ void function DamageFlyout( float damageAmount, vector damagePosition, entity vi
 	else
 		file.entityDamageFlyouts[victim] <- flyoutData
 
-	bool initNewStackingDamageText = Time() - flyoutData.lastDamageFlyoutTime > FDT_STACK_THRESHOLD || !showStackingDamageText
+	bool initNewStackingDamageText = Time() - flyoutData.lastDamageFlyoutTime > FDT_STACK_THRESHOLD || flyoutData.viewEntity != GetLocalViewPlayer() || flyoutData.replayDelay != GetReplayDelay() || !showStackingDamageText
 	if ( initNewStackingDamageText )
 	{
 		flyoutData.lastDamageFlyoutTime = Time()
 		flyoutData.lastDamageFlyoutDamage = 0
+		flyoutData.replayDelay = GetReplayDelay()
+		flyoutData.viewEntity = GetLocalViewPlayer()
 	}
 
 	float distance = Distance( victim.GetOrigin(), GetLocalViewPlayer().EyePosition() )
@@ -560,7 +611,7 @@ void function DamageFlyout( float damageAmount, vector damagePosition, entity vi
 		var stackingRui
 		if ( initNewStackingDamageText )
 		{
-			stackingRui = RuiCreate( $"ui/stacking_damage_text.rpak", clGlobal.topoFullscreenHud, RUI_DRAW_HUD, sortKey + 100 )
+			stackingRui = RuiCreate( $"ui/stacking_damage_text.rpak", clGlobal.topoFullScreen, RUI_DRAW_HUD, sortKey + 100 )
 			RuiSetResolutionToScreenSize( stackingRui )
 		}
 		else
@@ -607,15 +658,20 @@ void function DamageFlyout( float damageAmount, vector damagePosition, entity vi
 				RuiSetImage( stackingRui, "shieldStatusIcon", $"" )
 
 
-
-			RuiSetBool( stackingRui, "isShadowForm", isShadowForm )
-
+		RuiSetBool( stackingRui, "isShadowForm", isShadowForm )
 
 
 		if ( isCritShot && isHeadShot && GoldenHorsePurple_HasMod( weapon ) )
 		{
 			RuiSetString( stackingRui, "extraText", "#WPN_HOPUP_GOLDEN_HORSE_PURPLE_CRIT" )
 		}
+
+
+
+
+
+
+
 
 
 		flyoutData.stackingDamageRui = stackingRui
@@ -636,7 +692,7 @@ void function DamageFlyout( float damageAmount, vector damagePosition, entity vi
 		}
 		else
 		{
-			var floatingRui = RuiCreate( $"ui/floating_damage_text.rpak", clGlobal.topoFullscreenHud, RUI_DRAW_HUD, sortKey )
+			var floatingRui = RuiCreate( $"ui/floating_damage_text.rpak", clGlobal.topoFullScreen, RUI_DRAW_HUD, sortKey )
 			RuiSetResolutionToScreenSize( floatingRui )
 
 			RuiSetGameTime( floatingRui, "startTime", Time() )
@@ -655,15 +711,20 @@ void function DamageFlyout( float damageAmount, vector damagePosition, entity vi
 				RuiSetBool( floatingRui, "overshield", overshield )
 
 
-
-				RuiSetBool( floatingRui, "isShadowForm", isShadowForm )
-
+			RuiSetBool( floatingRui, "isShadowForm", isShadowForm )
 
 
 				if ( isCritShot && isHeadShot && GoldenHorsePurple_HasMod( weapon ) )
 				{
 					RuiSetString( floatingRui, "extraText", "#WPN_HOPUP_GOLDEN_HORSE_PURPLE_CRIT" )
 				}
+
+
+
+
+
+
+
 
 
 			DamageData newDamageData
@@ -764,7 +825,15 @@ void function ServerCallback_ScoreEventSquadWipe( int scoreEventId, int displayT
 	if( scoreEvent.xpValue > 0 )
 	{
 		string imageStr = scoreEvent.isTeamXp ? "%$rui/hud/common/squad_trios%" : "%$rui/hud/common/squad_solo%"
-		eventText += "`0 + " + scoreEvent.xpValue + " " + imageStr
+
+		if( UpgradeCore_ProgressionLocked_ForPlayer_Get( GetLocalViewPlayer() ) )
+		{
+			eventText += "`0 " + "#SCORE_EVENT_PROGRESSION_LOCKED" + " " + imageStr
+		}
+		else
+		{
+			eventText += "`0 + " + scoreEvent.xpValue + " " + imageStr
+		}
 	}
 	if( ScoreEvent_GetEventName( scoreEvent ) == "Sur_SquadWipe" && IsValid( associatedEntity ) )
 	{
@@ -868,7 +937,15 @@ void function AddScoreEventMessage( ScoreEvent scoreEvent, entity associatedEnti
 		if( scoreEvent.xpValue > 0 )
 		{
 			string imageStr = scoreEvent.isTeamXp ? "%$rui/hud/common/squad_trios%" : "%$rui/hud/common/squad_solo%"
-			eventText += "`0 + " + scoreEvent.xpValue + " " + imageStr
+
+			if( UpgradeCore_ProgressionLocked_ForPlayer_Get( GetLocalViewPlayer() ) )
+			{
+				eventText += "`0 " + "#SCORE_EVENT_PROGRESSION_LOCKED" + " " + imageStr
+			}
+			else
+			{
+				eventText += "`0 + " + scoreEvent.xpValue + " " + imageStr
+			}
 		}
 		if( ScoreEvent_GetEventName( scoreEvent ) == "Sur_DownedPilot" )
 		{

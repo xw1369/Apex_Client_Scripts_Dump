@@ -27,17 +27,19 @@ global function MeleeSkin_GetEquipImage
 global function MeleeSkin_GetItemInspectScale
 global function MeleeSkin_GetItemInspectOffset
 global function MeleeSkin_ShouldHideIfLocked
+global function MeleeSkin_IsItemFlavorUnlocked
 global function MeleeCustomization_ShouldHideIfLocked
 
 
 
+global function ArtifactsCallback_AddArtifactDeathboxesToCharacterLoadouts
 
 global function Deathbox_GetVideo
-global function RequestToggleGoldenHorseDeathboxEquipForMeleeSkin
+global function RequestSetDeathboxEquipForMeleeSkin
 global function Deathbox_GetEquipped
 
 
-global function ServerCallback_Loadouts_GoldenHorseDeathboxEquipForMeleeSkinToggled
+global function ServerCallback_Loadouts_DeathboxEquipForMeleeSkinToggled
 
 
 
@@ -76,6 +78,10 @@ global function Melee_Attack
 
 
 
+
+
+
+
 global function ClientCodeCallback_ShowMeleePrompt
 
 
@@ -97,19 +103,32 @@ global enum eMeleeWeaponType {
 	COUNT
 }
 
-global const string LOADOUT_CLIENT_CALLBACK_TOGGLE_GOLDEN_HORSE_DEATHBOX = "ClientCallback_Loadouts_ToggleGoldenHorseDeathboxEquipForMeleeSkin"
-global const string LOADOUT_SERVER_CALLBACK_GOLDEN_HORSE_DEATHBOX_TOGGLED = "ServerCallback_Loadouts_GoldenHorseDeathboxEquipForMeleeSkinToggled"
+global const string LOADOUT_CLIENT_CALLBACK_TOGGLE_DEATHBOX = "ClientCallback_Loadouts_ToggleDeathboxEquipForMeleeSkin"
+global const string LOADOUT_SERVER_CALLBACK_DEATHBOX_TOGGLED = "ServerCallback_Loadouts_DeathboxEquipForMeleeSkinToggled"
 global const string ARTIFACT_EQUIPPED_MOD = "artifact_equipped" 
+
+global const GH_DEATHBOX_FX = $"P_death_box_fx_gh" 
+
+
+
+
 
 const int DEFAULT_MELEE_WEAPON_GUID = 1222621873
 const int GOLDEN_HORSE_DEATHBOX_GUID = 705533011
 const int DEFAULT_DEATHBOX_GUID = 989815244
 
+const string FX_CORE = "FX_CORE"
+const string FX_CENTER = "FX_CENTER"
+
 const asset DEFAULT_DEATHBOX = $"settings/itemflav/artifact_components/deathbox_default.rpak"
 const asset GOLDEN_HORSE_DEATHBOX = $"settings/itemflav/artifact_components/deathbox_ragold.rpak"
 
-const int NUM_LOADOUT_BACKUPS = 3 
+const int NUM_LOADOUT_BACKUPS = 4 
 const string WEAPON_TYPE_SETTINGS_BLOCK_KEY = "meleeWeaponType"
+
+
+
+
 
 
 const asset DEFAULT_MELEE_SKIN = $"settings/itemflav/melee_skin/default.rpak"
@@ -145,6 +164,10 @@ struct FileStruct_LifetimeLevel
 
 	table<ItemFlavor, CharacterAndMeleeWeapons > charactersMeleeWeaponsMap 
 
+
+
+
+
 #if DEV
 	int menuHeirloomOverrideGUID = -1
 #endif
@@ -156,6 +179,11 @@ void function MeleeShared_Init()
 {
 	FileStruct_LifetimeLevel newFileLevel
 	fileLevel = newFileLevel
+
+
+
+
+
 
 	AddCallback_RegisterRootItemFlavors( void function() {
 		foreach ( asset meleeWeaponAsset in GetBaseItemFlavorsFromArray( "meleeWeapons" ) )
@@ -207,8 +235,8 @@ void function OnItemFlavorRegistered_Melee_Weapon( ItemFlavor meleeWeapon )
 	}
 
 
-
-
+		if ( MeleeWeapon_GetWeaponType( meleeWeapon ) == eMeleeWeaponType.ARTIFACT && Artifacts_GetConfigurationFramework( meleeWeapon ) == eArtifactConfigurationType.COMPONENT )
+			RegisterArtifactComponentsForWeapon( meleeWeapon )
 
 }
 
@@ -221,7 +249,23 @@ void function OnAllItemFlavorsRegistered_Deathboxes()
 
 	ItemFlavor ornull goldenHorseBox = RegisterItemFlavorFromSettingsAsset( GOLDEN_HORSE_DEATHBOX )
 	if ( goldenHorseBox != null ) 
-		fileLevel.fullDeathboxList.append( expect ItemFlavor( goldenHorseBox ) )
+	{
+		expect ItemFlavor( goldenHorseBox )
+
+		fileLevel.fullDeathboxList.append( goldenHorseBox )
+
+
+			if ( !IsLobby() )
+			{
+
+				Artifact_PrecacheDeathboxModelAndFX( goldenHorseBox )
+
+
+
+
+			}
+
+	}
 }
 
 
@@ -265,6 +309,7 @@ void function OnAllItemFlavorsRegistered_Melee_Weapon()
 		skinEntry.networkTo                 = eLoadoutNetworking.PLAYER_GLOBAL
 		skinEntry.networkVarName			= "MeleeSkin"
 		skinEntry.stryderCharDataArrayIndex = ePlayerStryderCharDataArraySlots.MELEE_SKIN
+		skinEntry.isItemFlavorUnlocked      = MeleeSkin_IsItemFlavorUnlocked
 		fileLevel.characterMeleeSkinLoadoutEntryMap[character] <- skinEntry
 
 
@@ -329,6 +374,16 @@ void function MeleeWeaponCosmetics_ApplyForWeapon( entity player, entity weapon 
 	ItemFlavor character = LoadoutSlot_GetItemFlavor( ToEHI( player ), Loadout_Character() )
 	ItemFlavor meleeSkin = LoadoutSlot_GetItemFlavor( ToEHI( player ), Loadout_MeleeSkin( character ) )
 
+
+	if ( Artifacts_Loadouts_IsConfigPointerItemFlavor( meleeSkin ) )
+	{
+		Artifacts_StoreLoadoutDataOnPlayerEntityStruct( player )
+		Artifacts_Loadouts_SetupWeaponComponents( weapon, player )
+
+		return
+	}
+
+
 	MeleeWeaponCosmetics_Apply_Internal( weapon, meleeSkin )
 }
 
@@ -360,8 +415,8 @@ void function MeleeWeaponCosmetics_Apply_Internal( entity weapon, ItemFlavor mel
 string function MeleeSkin_GetSkinName( ItemFlavor meleeSkin )
 {
 
-
-
+	if ( Artifacts_Loadouts_IsConfigPointerItemFlavor( meleeSkin ) )
+		return ""
 
 
 	return GetGlobalSettingsString( ItemFlavor_GetAsset( meleeSkin ), "skinName" )
@@ -370,8 +425,8 @@ string function MeleeSkin_GetSkinName( ItemFlavor meleeSkin )
 int function MeleeSkin_GetCamoIndex( ItemFlavor meleeSkin )
 {
 
-
-
+	if ( Artifacts_Loadouts_IsConfigPointerItemFlavor( meleeSkin ) )
+		return 0
 
 
 	Assert( ItemFlavor_GetType( meleeSkin ) == eItemType.melee_skin )
@@ -401,6 +456,15 @@ asset function MeleeSkin_GetStoreImage( ItemFlavor flavor )
 {
 	Assert( ItemFlavor_GetType( flavor ) == eItemType.melee_skin )
 
+
+	if ( Artifacts_Loadouts_IsConfigPointerItemFlavor( flavor ) )
+	{
+		
+		asset meleeWeaponAsset = GetGlobalSettingsAsset( ItemFlavor_GetAsset( flavor ), "parentItemFlavor" )
+		flavor = GetItemFlavorByAsset( meleeWeaponAsset )
+	}
+
+
 	return GetGlobalSettingsAsset( ItemFlavor_GetAsset( flavor ), "storeImage" )
 }
 
@@ -410,6 +474,15 @@ asset function MeleeSkin_GetStoreImage( ItemFlavor flavor )
 asset function MeleeSkin_GetEquipImage( ItemFlavor flavor )
 {
 	Assert( ItemFlavor_GetType( flavor ) == eItemType.melee_skin )
+
+
+	if ( Artifacts_Loadouts_IsConfigPointerItemFlavor( flavor ) )
+	{
+		
+		asset meleeWeaponAsset = GetGlobalSettingsAsset( ItemFlavor_GetAsset( flavor ), "parentItemFlavor" )
+		flavor = GetItemFlavorByAsset( meleeWeaponAsset )
+	}
+
 
 	return GetGlobalSettingsAsset( ItemFlavor_GetAsset( flavor ), "equipImage" )
 }
@@ -421,6 +494,15 @@ float function MeleeSkin_GetItemInspectScale( ItemFlavor flavor )
 {
 	Assert( ItemFlavor_GetType( flavor ) == eItemType.melee_skin)
 
+
+	if ( Artifacts_Loadouts_IsConfigPointerItemFlavor( flavor ) )
+	{
+		
+		asset meleeWeaponAsset = GetGlobalSettingsAsset( ItemFlavor_GetAsset( flavor ), "parentItemFlavor" )
+		flavor = GetItemFlavorByAsset( meleeWeaponAsset )
+	}
+
+
 	return GetGlobalSettingsFloat( ItemFlavor_GetAsset( flavor ), "itemInspectScale" )
 }
 
@@ -430,6 +512,15 @@ float function MeleeSkin_GetItemInspectScale( ItemFlavor flavor )
 vector function MeleeSkin_GetItemInspectOffset( ItemFlavor flavor )
 {
 	Assert( ItemFlavor_GetType( flavor ) == eItemType.melee_skin)
+
+
+	if ( Artifacts_Loadouts_IsConfigPointerItemFlavor( flavor ) )
+	{
+		
+		asset meleeWeaponAsset = GetGlobalSettingsAsset( ItemFlavor_GetAsset( flavor ), "parentItemFlavor" )
+		flavor = GetItemFlavorByAsset( meleeWeaponAsset )
+	}
+
 
 	return GetGlobalSettingsVector( ItemFlavor_GetAsset( flavor ), "itemInspectOffset" )
 }
@@ -441,15 +532,34 @@ bool function MeleeSkin_ShouldHideIfLocked( ItemFlavor meleeSkin )
 	if ( ItemFlavor_GetType( meleeSkin ) != eItemType.melee_skin )
 		return false
 
+
+	if ( Artifacts_Loadouts_IsConfigPointerItemFlavor( meleeSkin ) )
+		return true
+
+
 	return GetGlobalSettingsBool( ItemFlavor_GetAsset( meleeSkin ), "shouldHideIfLocked" )
+}
+
+
+
+bool function MeleeSkin_IsItemFlavorUnlocked( EHI playerEHI, ItemFlavor meleeSkin, bool shouldIgnoreGRX = false, bool shouldIgnoreOtherSlots = false )
+{
+
+	if ( Artifacts_Loadouts_IsConfigPointerItemFlavor( meleeSkin ) )
+		return Artifacts_Loadouts_IsAnyArtifactUnlocked( playerEHI, shouldIgnoreGRX )
+
+
+	return IsItemFlavorGRXUnlockedForLoadoutSlot( playerEHI, meleeSkin, shouldIgnoreGRX, shouldIgnoreOtherSlots )
 }
 
 
 
 bool function MeleeCustomization_ShouldHideIfLocked( ItemFlavor component )
 {
+
 	if ( ItemFlavor_GetType( component ) <= eItemType.artifact_component_START || ItemFlavor_GetType( component ) >= eItemType.artifact_component_END )
 		return false
+
 
 	return GetSettingsBlockBool( ItemFlavor_GetSettingsBlock( component ), "shouldHideIfLocked" )
 }
@@ -471,6 +581,14 @@ LoadoutEntry function Loadout_Deathbox( ItemFlavor character )
 	Assert( ItemFlavor_GetType( character ) == eItemType.character )
 
 	return fileLevel.characterDeathboxLoadoutEntryMap[character]
+}
+
+
+
+void function ArtifactsCallback_AddArtifactDeathboxesToCharacterLoadouts( array< ItemFlavor > deathboxList )
+{
+	foreach ( ItemFlavor character, CharacterAndMeleeWeapons unused in fileLevel.charactersMeleeWeaponsMap )
+		Loadout_Deathbox( character ).validItemFlavorList = deathboxList
 }
 
 
@@ -500,15 +618,15 @@ ItemFlavor ornull function Deathbox_GetGoldenHorseDeathbox()
 
 
 
-void function RequestToggleGoldenHorseDeathboxEquipForMeleeSkin( EHI playerEHI, LoadoutEntry entry, ItemFlavor meleeSkin )
+void function RequestSetDeathboxEquipForMeleeSkin( EHI playerEHI, LoadoutEntry entry, ItemFlavor meleeSkin, ItemFlavor deathbox )
 {
-	Assert( playerEHI == LocalClientEHI(), "Tried to use RequestToggleGoldenHorseDeathboxEquipForMeleeSkin on a different player" )
+	Assert( playerEHI == LocalClientEHI(), "Tried to use RequestSetDeathboxEquipForMeleeSkin on a different player" )
 	int slotContentsIndex = ConvertItemFlavorToLoadoutSlotContentsIndex( entry, meleeSkin )
 
 	ItemFlavor ornull character = entry.associatedCharacterOrNull
 	Assert( character != null )
 	expect ItemFlavor( character )
-	Remote_ServerCallFunction( LOADOUT_CLIENT_CALLBACK_TOGGLE_GOLDEN_HORSE_DEATHBOX, ItemFlavor_GetGUID( character ), slotContentsIndex )
+	Remote_ServerCallFunction( LOADOUT_CLIENT_CALLBACK_TOGGLE_DEATHBOX, ItemFlavor_GetGUID( character ), slotContentsIndex, deathbox.guid )
 }
 
 
@@ -521,28 +639,20 @@ ItemFlavor function Deathbox_GetEquipped( ItemFlavor character, ItemFlavor melee
 	array<ItemFlavor> skinBackups = LoadoutSlot_GetBackups( playerEHI, skinSlot )
 	array<ItemFlavor> boxBackups  = LoadoutSlot_GetBackups( playerEHI, boxSlot )
 
-	ItemFlavor ornull ghDeathbox = Deathbox_GetGoldenHorseDeathbox()
-	bool hasGHBox = false
 	for ( int i = 0; i < skinBackups.len() && i < boxBackups.len(); i++ )
 	{
 		if ( skinBackups[i] == meleeSkin )
-		{
-			hasGHBox = ( boxBackups[i] == ghDeathbox )
-			break
-		}
+			return boxBackups[i]
 	}
-
-	if ( hasGHBox && ghDeathbox != null )
-		return expect ItemFlavor( ghDeathbox )
 
 	return GetDefaultItemFlavorForLoadoutSlot( playerEHI, boxSlot )
 }
 
 
 
-void function ServerCallback_Loadouts_GoldenHorseDeathboxEquipForMeleeSkinToggled( int characterGUID, int skinGUID )
+void function ServerCallback_Loadouts_DeathboxEquipForMeleeSkinToggled( int characterGUID, int skinGUID, int deathboxGUID )
 {
-	if ( !IsValidItemFlavorGUID( characterGUID ) || !IsValidItemFlavorGUID( skinGUID ) )
+	if ( !IsValidItemFlavorGUID( characterGUID ) || !IsValidItemFlavorGUID( skinGUID ) || !IsValidItemFlavorGUID( deathboxGUID ) )
 		return
 
 	ItemFlavor character = GetItemFlavorByGUID( characterGUID )
@@ -550,9 +660,142 @@ void function ServerCallback_Loadouts_GoldenHorseDeathboxEquipForMeleeSkinToggle
 	Assert( ItemFlavor_GetType( GetItemFlavorByGUID( characterGUID ) ) == eItemType.character && ItemFlavor_GetType( GetItemFlavorByGUID( skinGUID ) ) == eItemType.melee_skin )
 
 	
-	RunUIScript( "MeleeSkinButton_ClientToUI_UpdateDeathboxEquipState", characterGUID, skinGUID )
-	RunUIScript( "MeleeCustomizationScreen_ClientToUI_UpdateDeathboxEquipState", characterGUID, skinGUID )
+	RunUIScript( "MeleeCustomizationScreen_ClientToUI_UpdateDeathboxEquipState", characterGUID, skinGUID, deathboxGUID )
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -777,6 +1020,15 @@ asset function MeleeSkin_GetMenuAnimSeq( ItemFlavor meleeSkin )
 {
 	Assert( ItemFlavor_GetType( meleeSkin ) == eItemType.melee_skin )
 
+
+	if ( Artifacts_Loadouts_IsConfigPointerItemFlavor( meleeSkin ) )
+	{
+		
+		asset meleeWeaponAsset = GetGlobalSettingsAsset( ItemFlavor_GetAsset( meleeSkin ), "parentItemFlavor" )
+		meleeSkin = GetItemFlavorByAsset( meleeWeaponAsset )
+	}
+
+
 	return GetGlobalSettingsAsset( ItemFlavor_GetAsset( meleeSkin ), "menuAnimSeq" )
 }
 
@@ -787,6 +1039,15 @@ string function MeleeSkin_GetKOSound( ItemFlavor meleeSkin )
 {
 	Assert( ItemFlavor_GetType( meleeSkin ) == eItemType.melee_skin )
 
+
+	if ( Artifacts_Loadouts_IsConfigPointerItemFlavor( meleeSkin ) )
+	{
+		
+		asset meleeWeaponAsset = GetGlobalSettingsAsset( ItemFlavor_GetAsset( meleeSkin ), "parentItemFlavor" )
+		meleeSkin = GetItemFlavorByAsset( meleeWeaponAsset )
+	}
+
+
 	return GetGlobalSettingsString( ItemFlavor_GetAsset( meleeSkin ), "koSound" )
 }
 
@@ -796,6 +1057,15 @@ string function MeleeSkin_GetKOSound( ItemFlavor meleeSkin )
 vector function MeleeSkin_GetMenuModelRotation( ItemFlavor meleeSkin )
 {
 	Assert( ItemFlavor_GetType( meleeSkin ) == eItemType.melee_skin )
+
+
+	if ( Artifacts_Loadouts_IsConfigPointerItemFlavor( meleeSkin ) )
+	{
+		
+		asset meleeWeaponAsset = GetGlobalSettingsAsset( ItemFlavor_GetAsset( meleeSkin ), "parentItemFlavor" )
+		meleeSkin = GetItemFlavorByAsset( meleeWeaponAsset )
+	}
+
 
 	return GetGlobalSettingsVector( ItemFlavor_GetAsset( meleeSkin ), "menuMdlRot" )
 }
@@ -836,6 +1106,19 @@ ItemFlavor function MeleeSkin_GetCharacterFlavor( ItemFlavor meleeSkin )
 
 	return GetItemFlavorByAsset( character )
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -961,6 +1244,11 @@ bool function IsValidMeleeAttackTarget( entity attacker, entity inputWeaponOrNul
 
 	return true
 }
+
+
+
+
+
 
 
 
@@ -1434,6 +1722,7 @@ bool function ClientCodeCallback_ShowMeleePrompt( entity player )
 {
 	return false
 }
+
 
 
 

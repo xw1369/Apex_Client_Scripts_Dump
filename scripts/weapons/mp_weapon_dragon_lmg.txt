@@ -4,10 +4,6 @@
 #base "_base_barrels_large.txt"
 #base "_base_projectile_ricochet.txt"
 
-                    
-#base "_base_hopup_golden_horse_yellow.txt"
-      
-
 WeaponData
 {
 	// General
@@ -93,7 +89,7 @@ WeaponData
     "energizing_ui_right_bar_color" 			"255 0 4"
 
      // Energize mechanics
-    "energize_activity_time"                   "4.0"        //this doesn't scale the animation! This is used for UI, make sure it is in parity with the animation timing
+    "energize_activity_time"                   "3.7"        //this doesn't scale the animation! This is used for UI, make sure it is in parity with the animation timing
 
     // Bolt info
 	"bolt_hitsize"									"0.0"

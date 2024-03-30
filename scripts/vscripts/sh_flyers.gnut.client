@@ -22,6 +22,8 @@ global function ShFlyers_Init
 global function ServerToClient_PlayLootRarityFXOnDeathboxDrop
 
 
+global function Flyers_GetAllFlyers
+
 global const FLYER_MODEL = $"mdl/Creatures/flyer/flyer_kingscanyon_animated.rmdl"
 const FLYER_1000X_MODEL = $"mdl/Creatures/flyer/flyer_kingscanyon_animated.rmdl"
 const FLYER_500X_MODEL = $"mdl/Creatures/flyer/flyer_kingscanyon_animated.rmdl"
@@ -1377,6 +1379,11 @@ bool function EvilFlyersEnabled()
 
 
 
+
+
+
+
+
 void function ServerToClient_PlayLootRarityFXOnDeathboxDrop( entity deathBox  )
 {
 	thread PlayLootRarityFXOnDeathboxDrop_threaded( deathBox  )
@@ -1510,4 +1517,13 @@ bool function IsCagedFlyer( entity ent )
 		return false
 
 	return ent.GetScriptName() == CAGED_FLYER_SCRIPT_NAME
+}
+
+array<entity> function Flyers_GetAllFlyers()
+{
+	array<entity> allFlyers
+	allFlyers.extend( GetEntArrayByScriptName( DEATHBOX_FLYER_SCRIPT_NAME ) )
+	allFlyers.extend( GetEntArrayByScriptName( CAGED_FLYER_SCRIPT_NAME ) )
+
+	return allFlyers
 }

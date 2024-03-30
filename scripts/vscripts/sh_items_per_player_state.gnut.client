@@ -273,6 +273,30 @@ void function ShItemPerPlayerState_LevelInit()
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 void function Newness_TEMP_MarkItemAsNewAndInformServer( ItemFlavor flavor )
 {
 	Assert( IsItemFlavorStructValid( flavor.guid, eValidation.ASSERT ) )

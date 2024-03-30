@@ -1,0 +1,501 @@
+
+
+
+global function StatsRegister_Legacy
+
+void function StatsRegister_Legacy()
+{
+	
+	StatEnumStruct season_SES = GetRegisteredStatEnumStruct( eStatEnumStructRefs.SEASON )
+	StatEnumStruct character_SES = GetRegisteredStatEnumStruct( eStatEnumStructRefs.CHARACTER )
+	StatTemplate temp_statTemplateReference 
+
+	
+	
+	CAREER_STATS.season_kills_with_7_characters = RegisterAccumulatedStat_Int( season_SES, "kills_with_7_characters", eChallengeGameMode.EXPIRED, DELAY_WRITE_BACK_UNTIL_MATCH_END )
+	CAREER_STATS.season_placements_wins_with_7_characters = RegisterAccumulatedStat_Int( season_SES, "placements_wins_with_7_characters", eChallengeGameMode.EXPIRED, DELAY_WRITE_BACK_UNTIL_MATCH_END )
+	CAREER_STATS.season_placements_top_5_with_7_characters = RegisterAccumulatedStat_Int( season_SES, "placements_top_5_with_7_characters", eChallengeGameMode.EXPIRED, DELAY_WRITE_BACK_UNTIL_MATCH_END )
+	CAREER_STATS.season_battlepass_bonus_xp_with_7_characters = RegisterAccumulatedStat_Int( season_SES, "battlepass_bonus_xp_with_7_characters", eChallengeGameMode.EXPIRED, DELAY_WRITE_BACK_UNTIL_MATCH_END )
+	
+
+	CAREER_STATS.season01_event_placements_top_5 = RegisterAccumulatedStat_Int( null, "season01_event_placements_top_5", eChallengeGameMode.EXPIRED, DELAY_WRITE_BACK_UNTIL_MATCH_END )
+
+	CAREER_STATS.character_solo_dooms = RegisterAccumulatedStat_Int( character_SES, "solo_dooms", eChallengeGameMode.EXPIRED, DELAY_WRITE_BACK_UNTIL_MATCH_END )
+	CAREER_STATS.character_solo_placements_top_5 = RegisterAccumulatedStat_Int( character_SES, "character_solo_placements_top_5", eChallengeGameMode.EXPIRED, DELAY_WRITE_BACK_UNTIL_MATCH_END )
+	CAREER_STATS.character_solo_wins = RegisterAccumulatedStat_Int( character_SES, "character_solo_wins", eChallengeGameMode.EXPIRED, DELAY_WRITE_BACK_UNTIL_MATCH_END )
+
+	temp_statTemplateReference = CAREER_STATS.character_solo_dooms
+	CAREER_STATS.solo_dooms    = RegisterExpensiveCalculatedStat_Int( null, "solo_dooms", DELAY_WRITE_BACK_UNTIL_MATCH_END, SetupCharacterStatSumEntryFunc_Int, [temp_statTemplateReference], eChallengeGameMode.EXPIRED )
+
+	temp_statTemplateReference         = CAREER_STATS.character_solo_placements_top_5
+	CAREER_STATS.solo_placements_top_5 = RegisterExpensiveCalculatedStat_Int( null, "solo_placements_top_5", DELAY_WRITE_BACK_UNTIL_MATCH_END, SetupCharacterStatSumEntryFunc_Int, [temp_statTemplateReference], eChallengeGameMode.EXPIRED )
+
+	CAREER_STATS.season02_event01_top5s_badge = RegisterAccumulatedStat_Int( null, "season02_event01_top5s_badge", eChallengeGameMode.EXPIRED, DELAY_WRITE_BACK_UNTIL_MATCH_END ) 
+	CAREER_STATS.season02_event01_character_solo_wins = RegisterAccumulatedStat_Int( character_SES, "season02_event01_character_solo_wins", eChallengeGameMode.EXPIRED, DELAY_WRITE_BACK_UNTIL_MATCH_END )
+	CAREER_STATS.season02_event01_num_characters_with_solo_win = RegisterExpensiveCalculatedStat_Int( null, "season02_event01_num_characters_with_solo_win", DELAY_WRITE_BACK_UNTIL_MATCH_END, SetupGetNumSoloWinsWithAllCharactersIronCrown, [], eChallengeGameMode.EXPIRED )
+
+	CAREER_STATS.s03e01_badge = RegisterAccumulatedStat_Int( null, "s03e01_badge", eChallengeGameMode.EXPIRED, DELAY_WRITE_BACK_UNTIL_MATCH_END )
+	CAREER_STATS.s03e02_winter_express_captures = RegisterAccumulatedStat_Int( null, "s03e02_winter_express_captures", eChallengeGameMode.EXPIRED, DELAY_WRITE_BACK_UNTIL_MATCH_END )
+
+	CAREER_STATS.s03_duos_badge_play = RegisterAccumulatedStat_Int( null, "s03_duos_badge_play", eChallengeGameMode.EXPIRED, DELAY_WRITE_BACK_UNTIL_MATCH_END )
+	CAREER_STATS.s03_duos_badge_win = RegisterAccumulatedStat_Int( null, "s03_duos_badge_win", eChallengeGameMode.EXPIRED, DELAY_WRITE_BACK_UNTIL_MATCH_END )
+	CAREER_STATS.s03_duos_tiers_earned = RegisterExpensiveCalculatedStat_Int( null, "s03_duos_tiers_earned", DELAY_WRITE_BACK_UNTIL_MATCH_END, SetupGetDuosTiersEarned, [], eChallengeGameMode.EXPIRED )
+
+	CAREER_STATS.s03e03_buffet_points = RegisterAccumulatedStat_Int( null, "s03e03_buffet_points", eChallengeGameMode.EXPIRED, DELAY_WRITE_BACK_UNTIL_MATCH_END )
+	CAREER_STATS.s03e03_play_each_game_mode = RegisterAccumulatedStat_Int( null, "s03e03_play_each_game_mode", eChallengeGameMode.EXPIRED, DELAY_WRITE_BACK_UNTIL_MATCH_END )
+	CAREER_STATS.s03e03_placement_top_5 = RegisterAccumulatedStat_Int( null, "s03e03_placement_top_5", eChallengeGameMode.EXPIRED, DELAY_WRITE_BACK_UNTIL_MATCH_END )
+
+	CAREER_STATS.s04e01_buffet_points = RegisterAccumulatedStat_Int( null, "s04e01_buffet_points", eChallengeGameMode.EXPIRED, DELAY_WRITE_BACK_UNTIL_MATCH_END )
+	CAREER_STATS.s04e02_buffet_points = RegisterAccumulatedStat_Int( null, "s04e02_buffet_points", eChallengeGameMode.EXPIRED, DELAY_WRITE_BACK_UNTIL_MATCH_END )
+
+	CAREER_STATS.s05e01_buffet_points = RegisterAccumulatedStat_Int( null, "s05e01_buffet_points", eChallengeGameMode.EXPIRED, DELAY_WRITE_BACK_UNTIL_MATCH_END )
+	CAREER_STATS.s05e01_armed_and_dangerous_evolved_kills = RegisterAccumulatedStat_Int( null, "s05e01_armed_and_dangerous_evolved_kills", eChallengeGameMode.EXPIRED, DELAY_WRITE_BACK_UNTIL_MATCH_END )
+	CAREER_STATS.s05e01_armed_and_dangerous_evolved_wins = RegisterAccumulatedStat_Int( null, "s05e01_armed_and_dangerous_evolved_wins", eChallengeGameMode.EXPIRED, DELAY_WRITE_BACK_UNTIL_MATCH_END )
+	CAREER_STATS.s05e01_armed_and_dangerous_evolved_times_respawned_ally = RegisterAccumulatedStat_Int( null, "s05e01_armed_and_dangerous_evolved_times_respawned_ally", eChallengeGameMode.EXPIRED, DELAY_WRITE_BACK_UNTIL_MATCH_END )
+	CAREER_STATS.s05e01_armed_and_dangerous_evolved_combined_badge_earned = RegisterExpensiveCalculatedStat_Int( null, "s05e01_armed_and_dangerous_evolved_combined_badge_earned", DELAY_WRITE_BACK_UNTIL_MATCH_END, SetupGetArmedAndDangerousEvolvedCombinedBadgeEarned, [], eChallengeGameMode.EXPIRED )
+
+	CAREER_STATS.s06e01_buffet_points = RegisterAccumulatedStat_Int( null, "s06e01_buffet_points", eChallengeGameMode.EXPIRED, DELAY_WRITE_BACK_UNTIL_MATCH_END )
+	CAREER_STATS.s06e01_campfire_damage_dealt_in_zone = RegisterAccumulatedStat_Int( null, "s06e01_campfire_damage_dealt_in_zone", eChallengeGameMode.EXPIRED, DELAY_WRITE_BACK_UNTIL_MATCH_END )
+	CAREER_STATS.s06e01_campfire_players_killed_in_zone = RegisterAccumulatedStat_Int( null, "s06e01_campfire_players_killed_in_zone", eChallengeGameMode.EXPIRED, DELAY_WRITE_BACK_UNTIL_MATCH_END )
+	CAREER_STATS.s06e01_campfire_wins = RegisterAccumulatedStat_Int( null, "s06e01_campfire_wins", eChallengeGameMode.EXPIRED, DELAY_WRITE_BACK_UNTIL_MATCH_END )
+	CAREER_STATS.s06e01_campfire_combined_badge_earned = RegisterExpensiveCalculatedStat_Int( null, "s06e01_campfire_combined_badge_earned", DELAY_WRITE_BACK_UNTIL_MATCH_END, SetupGetCampfireCombinedBadgeEarned, [], eChallengeGameMode.EXPIRED )
+
+	CAREER_STATS.s06e02_buffet_points = RegisterAccumulatedStat_Int( null, "s06e02_buffet_points", eChallengeGameMode.EXPIRED, DELAY_WRITE_BACK_UNTIL_MATCH_END )
+	CAREER_STATS.s06e02_shadow_royale_kills = RegisterAccumulatedStat_Int( null, "s06e02_shadow_royale_kills", eChallengeGameMode.EXPIRED, DELAY_WRITE_BACK_UNTIL_MATCH_END )
+	CAREER_STATS.s06e02_shadow_royale_revives = RegisterAccumulatedStat_Int( null, "s06e02_shadow_royale_revives", eChallengeGameMode.EXPIRED, DELAY_WRITE_BACK_UNTIL_MATCH_END )
+	CAREER_STATS.s06e02_shadow_royale_wins = RegisterAccumulatedStat_Int( null, "s06e02_shadow_royale_wins", eChallengeGameMode.EXPIRED, DELAY_WRITE_BACK_UNTIL_MATCH_END )
+	CAREER_STATS.s06e02_shadow_royale_combined_badge_earned = RegisterExpensiveCalculatedStat_Int( null, "s06e02_shadow_royale_combined_badge_earned", DELAY_WRITE_BACK_UNTIL_MATCH_END, SetupGetShadowRoyaleCombinedBadgeEarned, [], eChallengeGameMode.EXPIRED )
+
+	CAREER_STATS.s07e01_buffet_points = RegisterAccumulatedStat_Int( null, "s07e01_buffet_points", eChallengeGameMode.EXPIRED, DELAY_WRITE_BACK_UNTIL_MATCH_END )
+	CAREER_STATS.s07e01_winter_express_captures = RegisterAccumulatedStat_Int( null, "s07e01_winter_express_captures", eChallengeGameMode.EXPIRED, DELAY_WRITE_BACK_UNTIL_MATCH_END )
+	CAREER_STATS.s07e01_winter_express_kills = RegisterAccumulatedStat_Int( null, "s07e01_winter_express_kills", eChallengeGameMode.EXPIRED, DELAY_WRITE_BACK_UNTIL_MATCH_END )
+	CAREER_STATS.s07e01_winter_express_damage = RegisterAccumulatedStat_Int( null, "s07e01_winter_express_damage", eChallengeGameMode.EXPIRED, DELAY_WRITE_BACK_UNTIL_MATCH_END )
+	CAREER_STATS.s07e01_winter_express_combined_badge_earned = RegisterExpensiveCalculatedStat_Int( null, "s07e01_winter_express_combined_badge_earned", DELAY_WRITE_BACK_UNTIL_MATCH_END, SetupGetWinterExpressCombinedBadgeEarned, [], eChallengeGameMode.EXPIRED )
+
+	CAREER_STATS.s07e02_buffet_points = RegisterAccumulatedStat_Int( null, "s07e02_buffet_points", eChallengeGameMode.EXPIRED, DELAY_WRITE_BACK_UNTIL_MATCH_END )
+	CAREER_STATS.s07e02_airdropkitted_damage_dealt = RegisterAccumulatedStat_Int( null, "s07e02_airdropkitted_damage_dealt", eChallengeGameMode.EXPIRED, DELAY_WRITE_BACK_UNTIL_MATCH_END )
+	CAREER_STATS.s07e02_airdropkitted_knockdowns = RegisterAccumulatedStat_Int( null, "s07e02_airdropkitted_knockdowns", eChallengeGameMode.EXPIRED, DELAY_WRITE_BACK_UNTIL_MATCH_END )
+	CAREER_STATS.s07e02_airdropkitted_wins = RegisterAccumulatedStat_Int( null, "s07e02_airdropkitted_wins", eChallengeGameMode.EXPIRED, DELAY_WRITE_BACK_UNTIL_MATCH_END )
+	CAREER_STATS.s07e02_airdropkitted_combined_badge_earned = RegisterExpensiveCalculatedStat_Int( null, "s07e02_airdropkitted_combined_badge_earned", DELAY_WRITE_BACK_UNTIL_MATCH_END, SetupGetAirdropKittedCombinedBadgeEarned, [], eChallengeGameMode.EXPIRED )
+
+	CAREER_STATS.s08ace_buffet_points = RegisterAccumulatedStat_Int( null, "s08ace_buffet_points", eChallengeGameMode.EXPIRED, DELAY_WRITE_BACK_UNTIL_MATCH_END )
+
+	
+	CAREER_STATS.s08seasonal_nessie_dailies = RegisterAccumulatedStat_Int( null, "s08seasonal_nessie_dailies", eChallengeGameMode.EXPIRED, DELAY_WRITE_BACK_UNTIL_MATCH_END )
+	CAREER_STATS.s08seasonal_weapon_damage = RegisterAccumulatedStat_Int( null, "s08seasonal_weapon_damage", eChallengeGameMode.EXPIRED, DELAY_WRITE_BACK_UNTIL_MATCH_END )
+	CAREER_STATS.s08seasonal_character_wins = RegisterAccumulatedStat_Int( null, "s08seasonal_character_wins", eChallengeGameMode.EXPIRED, DELAY_WRITE_BACK_UNTIL_MATCH_END )
+	CAREER_STATS.s08seasonal_combined_badge_earned = RegisterExpensiveCalculatedStat_Int( null, "s08seasonal_combined_badge_earned", DELAY_WRITE_BACK_UNTIL_MATCH_END, SetupGetS08SeasonalCombinedBadgeEarned, [], eChallengeGameMode.EXPIRED )
+
+	
+	CAREER_STATS.s08e01_buffet_points = RegisterAccumulatedStat_Int( null, "s08e01_buffet_points", eChallengeGameMode.EXPIRED, DELAY_WRITE_BACK_UNTIL_MATCH_END )
+	CAREER_STATS.s08e01_ringfury_challenge_2 = RegisterAccumulatedStat_Int( null, "s08e01_ringfury_challenge_2", eChallengeGameMode.EXPIRED, DELAY_WRITE_BACK_UNTIL_MATCH_END )
+	CAREER_STATS.s08e01_ringfury_challenge_3 = RegisterAccumulatedStat_Int( null, "s08e01_ringfury_challenge_3", eChallengeGameMode.EXPIRED, DELAY_WRITE_BACK_UNTIL_MATCH_END )
+	CAREER_STATS.s08e01_ringfury_challenge_4 = RegisterAccumulatedStat_Int( null, "s08e01_ringfury_challenge_4", eChallengeGameMode.EXPIRED, DELAY_WRITE_BACK_UNTIL_MATCH_END )
+	CAREER_STATS.s08e01_ringfury_combined_badge_earned = RegisterExpensiveCalculatedStat_Int( null, "s08e01_ringfury_combined_badge_earned", DELAY_WRITE_BACK_UNTIL_MATCH_END, SetupGetRingFuryCombinedBadgeEarned, [], eChallengeGameMode.EXPIRED )
+
+	
+	CAREER_STATS.s08e02_buffet_points = RegisterAccumulatedStat_Int( null, "s08e02_buffet_points", eChallengeGameMode.EXPIRED, DELAY_WRITE_BACK_UNTIL_MATCH_END )
+	CAREER_STATS.s08e02_wargames_challenge_2 = RegisterAccumulatedStat_Int( null, "s08e02_wargames_challenge_2", eChallengeGameMode.EXPIRED, DELAY_WRITE_BACK_UNTIL_MATCH_END )
+	CAREER_STATS.s08e02_wargames_challenge_3 = RegisterAccumulatedStat_Int( null, "s08e02_wargames_challenge_3", eChallengeGameMode.EXPIRED, DELAY_WRITE_BACK_UNTIL_MATCH_END )
+	CAREER_STATS.s08e02_wargames_challenge_4 = RegisterAccumulatedStat_Int( null, "s08e02_wargames_challenge_4", eChallengeGameMode.EXPIRED, DELAY_WRITE_BACK_UNTIL_MATCH_END )
+	CAREER_STATS.s08e02_wargames_combined_badge_earned = RegisterExpensiveCalculatedStat_Int( null, "s08e02_wargames_combined_badge_earned", DELAY_WRITE_BACK_UNTIL_MATCH_END, SetupGetWarGamesCombinedBadgeEarned, [], eChallengeGameMode.EXPIRED )
+
+
+
+
+
+	
+	CAREER_STATS.s08e04_finale_completed = RegisterAccumulatedStat_Int( null, "s08e04_finale_completed", eChallengeGameMode.EXPIRED, DELAY_WRITE_BACK_UNTIL_MATCH_END )
+	CAREER_STATS.s08e04_finale_not_completed = RegisterCachedCalculatedStat_Int( null, "s08e04_finale_not_completed", DELAY_WRITE_BACK_UNTIL_MATCH_END, SetupGetS08E04FinaleNotCompletedForStat, [], eChallengeGameMode.EXPIRED )
+
+	
+	CAREER_STATS.s09e01_buffet_points          = RegisterAccumulatedStat_Int( null, "s09e01_buffet_points", eChallengeGameMode.EXPIRED, DELAY_WRITE_BACK_UNTIL_MATCH_END )
+	CAREER_STATS.s09e01_br_damage_done         = RegisterAccumulatedStat_Int( null, "s09e01_br_damage_done", eChallengeGameMode.EXPIRED, DELAY_WRITE_BACK_UNTIL_MATCH_END )
+	CAREER_STATS.s09e01_arenas_placements_win  = RegisterAccumulatedStat_Int( null, "s09e01_arenas_placements_win", eChallengeGameMode.EXPIRED, DELAY_WRITE_BACK_UNTIL_MATCH_END )
+	CAREER_STATS.s09e01_br_dooms               = RegisterAccumulatedStat_Int( null, "s09e01_br_dooms", eChallengeGameMode.EXPIRED, DELAY_WRITE_BACK_UNTIL_MATCH_END )
+	CAREER_STATS.s09e01_combined_badge_earned  = RegisterExpensiveCalculatedStat_Int( null, "s09e01_combined_badge_earned", DELAY_WRITE_BACK_UNTIL_MATCH_END, SetupGetGenesisCombinedBadgeEarned, [], eChallengeGameMode.EXPIRED )
+
+	
+	CAREER_STATS.s09e02_01_arenas_matches_played = RegisterAccumulatedStat_Int( null, "s09e02_01_arenas_matches_played", eChallengeGameMode.EXPIRED, DELAY_WRITE_BACK_UNTIL_MATCH_END )
+	CAREER_STATS.s09e02_02_arenas_dooms          = RegisterAccumulatedStat_Int( null, "s09e02_02_arenas_dooms", eChallengeGameMode.EXPIRED, DELAY_WRITE_BACK_UNTIL_MATCH_END )
+	CAREER_STATS.s09e02_03_arenas_damage_done    = RegisterAccumulatedStat_Int( null, "s09e02_03_arenas_damage_done", eChallengeGameMode.EXPIRED, DELAY_WRITE_BACK_UNTIL_MATCH_END )
+	CAREER_STATS.s09e02_01_buffet_points         = RegisterAccumulatedStat_Int( null, "s09e02_01_buffet_points", eChallengeGameMode.EXPIRED, DELAY_WRITE_BACK_UNTIL_MATCH_END )
+	CAREER_STATS.s09e02_02_buffet_points         = RegisterAccumulatedStat_Int( null, "s09e02_02_buffet_points", eChallengeGameMode.EXPIRED, DELAY_WRITE_BACK_UNTIL_MATCH_END )
+	CAREER_STATS.s09e02_03_buffet_points         = RegisterAccumulatedStat_Int( null, "s09e02_03_buffet_points", eChallengeGameMode.EXPIRED, DELAY_WRITE_BACK_UNTIL_MATCH_END )
+
+	
+	CAREER_STATS.s11e01_buffet_points              = RegisterAccumulatedStat_Int( null, "s11e01_buffet_points", eChallengeGameMode.EXPIRED, DELAY_WRITE_BACK_UNTIL_MATCH_END )
+	CAREER_STATS.s11e01_winter_express_damage_done = RegisterAccumulatedStat_Int( null, "s11e01_winter_express_damage_done", eChallengeGameMode.EXPIRED, DELAY_WRITE_BACK_UNTIL_MATCH_END )
+	CAREER_STATS.s11e01_arenas_damage_done         = RegisterAccumulatedStat_Int( null, "s11e01_arenas_damage_done", eChallengeGameMode.EXPIRED, DELAY_WRITE_BACK_UNTIL_MATCH_END )
+	CAREER_STATS.s11e01_br_dooms                   = RegisterAccumulatedStat_Int( null, "s11e01_br_dooms", eChallengeGameMode.EXPIRED, DELAY_WRITE_BACK_UNTIL_MATCH_END )
+	CAREER_STATS.s11e01_combined_badge_earned      = RegisterExpensiveCalculatedStat_Int( null, "s11e01_combined_badge_earned", DELAY_WRITE_BACK_UNTIL_MATCH_END, SetupGetRaidersCombinedBadgeEarned, [], eChallengeGameMode.EXPIRED )
+
+	
+	CAREER_STATS.s11e02_01_buffet_points         = RegisterAccumulatedStat_Int( null, "s11e02_01_buffet_points", eChallengeGameMode.EXPIRED, DELAY_WRITE_BACK_UNTIL_MATCH_END )
+	CAREER_STATS.s11e02_02_buffet_points         = RegisterAccumulatedStat_Int( null, "s11e02_02_buffet_points", eChallengeGameMode.EXPIRED, DELAY_WRITE_BACK_UNTIL_MATCH_END )
+	CAREER_STATS.s11e02_03_buffet_points         = RegisterAccumulatedStat_Int( null, "s11e02_03_buffet_points", eChallengeGameMode.EXPIRED, DELAY_WRITE_BACK_UNTIL_MATCH_END )
+	CAREER_STATS.s11e02_01_br_dooms				 = RegisterAccumulatedStat_Int( null, "s11e02_01_br_dooms", eChallengeGameMode.EXPIRED, DELAY_WRITE_BACK_UNTIL_MATCH_END )
+	CAREER_STATS.s11e02_02_arenas_games_played   = RegisterAccumulatedStat_Int( null, "s11e02_02_arenas_games_played", eChallengeGameMode.EXPIRED, DELAY_WRITE_BACK_UNTIL_MATCH_END )
+	CAREER_STATS.s11e02_03_br_damage_done        = RegisterAccumulatedStat_Int( null, "s11e02_03_br_damage_done", eChallengeGameMode.EXPIRED, DELAY_WRITE_BACK_UNTIL_MATCH_END )
+
+	
+	CAREER_STATS.s12ace_buffet_points            = RegisterAccumulatedStat_Int( null, "s12ace_buffet_points", eChallengeGameMode.EXPIRED, DELAY_WRITE_BACK_UNTIL_MATCH_END )
+	CAREER_STATS.s12ace_br_damage_done			 = RegisterAccumulatedStat_Int( null, "s12ace_br_damage_done", eChallengeGameMode.EXPIRED, DELAY_WRITE_BACK_UNTIL_MATCH_END )
+	CAREER_STATS.s12ace_control_captures         = RegisterAccumulatedStat_Int( null, "s12ace_control_captures", eChallengeGameMode.EXPIRED, DELAY_WRITE_BACK_UNTIL_MATCH_END )
+	CAREER_STATS.s12ace_br_dooms                 = RegisterAccumulatedStat_Int( null, "s12ace_br_dooms", eChallengeGameMode.EXPIRED, DELAY_WRITE_BACK_UNTIL_MATCH_END )
+	CAREER_STATS.s12ace_combined_badge_earned    = RegisterExpensiveCalculatedStat_Int( null, "s12ace_combined_badge_earned", DELAY_WRITE_BACK_UNTIL_MATCH_END, SetupGetS12ACECombinedBadgeEarned, [], eChallengeGameMode.EXPIRED )
+
+	
+	CAREER_STATS.s12e01_buffet_points            = RegisterAccumulatedStat_Int( null, "s12e01_buffet_points", eChallengeGameMode.EXPIRED, DELAY_WRITE_BACK_UNTIL_MATCH_END )
+	CAREER_STATS.s12e01_br_damage_done			 = RegisterAccumulatedStat_Int( null, "s12e01_br_damage_done", eChallengeGameMode.EXPIRED, DELAY_WRITE_BACK_UNTIL_MATCH_END )
+	CAREER_STATS.s12e01_control_captures         = RegisterAccumulatedStat_Int( null, "s12e01_control_captures", eChallengeGameMode.EXPIRED, DELAY_WRITE_BACK_UNTIL_MATCH_END )
+	CAREER_STATS.s12e01_br_dooms                 = RegisterAccumulatedStat_Int( null, "s12e01_br_dooms", eChallengeGameMode.EXPIRED, DELAY_WRITE_BACK_UNTIL_MATCH_END )
+	CAREER_STATS.s12e01_combined_badge_earned    = RegisterExpensiveCalculatedStat_Int( null, "s12e01_combined_badge_earned", DELAY_WRITE_BACK_UNTIL_MATCH_END, SetupGetWarriorsCombinedBadgeEarned, [], eChallengeGameMode.EXPIRED )
+
+	
+	CAREER_STATS.s12e02_01_buffet_points         = RegisterAccumulatedStat_Int( null, "s12e02_01_buffet_points", eChallengeGameMode.EXPIRED, DELAY_WRITE_BACK_UNTIL_MATCH_END )
+	CAREER_STATS.s12e02_02_buffet_points         = RegisterAccumulatedStat_Int( null, "s12e02_02_buffet_points", eChallengeGameMode.EXPIRED, DELAY_WRITE_BACK_UNTIL_MATCH_END )
+	CAREER_STATS.s12e02_01_br_dooms              = RegisterAccumulatedStat_Int( null, "s12e02_01_br_dooms", eChallengeGameMode.EXPIRED, DELAY_WRITE_BACK_UNTIL_MATCH_END )
+	CAREER_STATS.s12e02_02_br_damage_done        = RegisterAccumulatedStat_Int( null, "s12e02_02_br_damage_done", eChallengeGameMode.EXPIRED, DELAY_WRITE_BACK_UNTIL_MATCH_END )
+
+	
+	CAREER_STATS.s12e04_challenge_1            = RegisterAccumulatedStat_Int( null, "s12e04_challenge_1", eChallengeGameMode.NON_MODE, CHALLENGES_CALC_DEPENDS )
+	CAREER_STATS.s12e04_challenge_2            = RegisterAccumulatedStat_Int( null, "s12e04_challenge_2", eChallengeGameMode.NON_MODE, CHALLENGES_CALC_DEPENDS )
+	CAREER_STATS.s12e04_challenge_3            = RegisterAccumulatedStat_Int( null, "s12e04_challenge_3", eChallengeGameMode.NON_MODE, CHALLENGES_CALC_DEPENDS )
+
+	
+	CAREER_STATS.s13_flash_01_buffet_points    = RegisterAccumulatedStat_Int( null, "s13_flash_01_buffet_points", eChallengeGameMode.NON_MODE, CHALLENGES_CALC_DEPENDS )
+
+	
+	CAREER_STATS.kills_with_throwing_knife_gungame = RegisterAccumulatedStat_Int( null, "kills_with_throwing_knife_gungame", eChallengeGameMode.GUNGAME, CHALLENGES_CALC_DEPENDS ) 
+}
+
+StatCalcFuncInfo function SetupCharacterStatSumEntryFunc_Int( StatEntry calcEntry, array<StatTemplate> sourceTemplates )
+{
+	StatTemplate sourceTemplate = sourceTemplates[0]
+
+	StatCalcFuncInfo info
+
+	info.sourceEntries = []
+	array<StatEntry> sourceEntries = expect array<StatEntry>( info.sourceEntries )
+	foreach ( characterRef in GetAllCharacterGUIDStringsForStats() )
+		sourceEntries.append( ResolveStatEntry( sourceTemplate, characterRef ) )
+
+	info.calcFunc_Int = CalcStatSum_Int
+
+	return info
+}
+
+StatCalcFuncInfo function SetupGetNumSoloWinsWithAllCharactersIronCrown( StatEntry calcEntry, array<StatTemplate> sourceTemplates )
+{
+	StatCalcFuncInfo info
+
+	info.calcFunc_Int = (int function ( entity player, array<StatEntry> sourceEntries, int when ) {
+		int count = 0
+
+		foreach ( characterRef in GetAllCharacterGUIDStringsForStats() )
+		{
+			if ( GetStat_Int( player, ResolveStatEntry( CAREER_STATS.season02_event01_character_solo_wins, characterRef ), when ) >= 1 )
+				count++
+		}
+
+		return count
+	})
+
+	return info
+}
+
+StatCalcFuncInfo function SetupGetDuosTiersEarned( StatEntry calcEntry, array<StatTemplate> sourceTemplates )
+{
+	StatCalcFuncInfo info
+
+	info.calcFunc_Int = (int function ( entity player, array<StatEntry> sourceEntries, int when ) {
+		int tiersEarned = 0
+
+		int gamesPlayed = GetStat_Int( player, ResolveStatEntry( CAREER_STATS.s03_duos_badge_play ), when )
+		int gamesWon    = GetStat_Int( player, ResolveStatEntry( CAREER_STATS.s03_duos_badge_win ), when )
+
+		if ( gamesPlayed > 0 )
+			tiersEarned = 1
+
+		if ( gamesWon >= 2 )
+			tiersEarned = gamesWon
+
+		return tiersEarned
+	})
+
+	return info
+}
+
+StatCalcFuncInfo function SetupGetArmedAndDangerousEvolvedCombinedBadgeEarned( StatEntry calcEntry, array<StatTemplate> sourceTemplates )
+{
+	StatCalcFuncInfo info
+
+	info.calcFunc_Int = (int function ( entity player, array<StatEntry> sourceEntries, int when ) {
+		int count = 0
+
+		int kills           = GetStat_Int( player, ResolveStatEntry( CAREER_STATS.s05e01_armed_and_dangerous_evolved_kills ), when )
+		int wins            = GetStat_Int( player, ResolveStatEntry( CAREER_STATS.s05e01_armed_and_dangerous_evolved_wins ), when )
+		int alliesRespawned = GetStat_Int( player, ResolveStatEntry( CAREER_STATS.s05e01_armed_and_dangerous_evolved_times_respawned_ally ), when )
+
+		if ( kills >= 100 && wins >= 5 && alliesRespawned >= 15 )
+			count = 1
+
+		return count
+	})
+
+	return info
+}
+
+StatCalcFuncInfo function SetupGetCampfireCombinedBadgeEarned( StatEntry calcEntry, array<StatTemplate> sourceTemplates )
+{
+	StatCalcFuncInfo info
+
+	info.calcFunc_Int = (int function ( entity player, array<StatEntry> sourceEntries, int when ) {
+		int count = 0
+
+		int kills           = GetStat_Int( player, ResolveStatEntry( CAREER_STATS.s06e01_campfire_players_killed_in_zone ), when )
+		int wins            = GetStat_Int( player, ResolveStatEntry( CAREER_STATS.s06e01_campfire_wins ), when )
+		int damageDealt 	= GetStat_Int( player, ResolveStatEntry( CAREER_STATS.s06e01_campfire_damage_dealt_in_zone ), when )
+
+		if ( kills >= 100 && wins >= 10 && damageDealt >= 10000 )
+			count = 1
+
+		return count
+	})
+
+	return info
+}
+
+StatCalcFuncInfo function SetupGetShadowRoyaleCombinedBadgeEarned( StatEntry calcEntry, array<StatTemplate> sourceTemplates )
+{
+	StatCalcFuncInfo info
+
+	info.calcFunc_Int = (int function ( entity player, array<StatEntry> sourceEntries, int when ) {
+		int count = 0
+
+		int kills   = GetStat_Int( player, ResolveStatEntry( CAREER_STATS.s06e02_shadow_royale_kills ), when )
+		int wins    = GetStat_Int( player, ResolveStatEntry( CAREER_STATS.s06e02_shadow_royale_wins ), when )
+		int revives	= GetStat_Int( player, ResolveStatEntry( CAREER_STATS.s06e02_shadow_royale_revives ), when )
+
+		if ( kills >= 100 && wins >= 5 && revives >= 15 )
+			count = 1
+
+		return count
+	})
+
+	return info
+}
+
+StatCalcFuncInfo function SetupGetWinterExpressCombinedBadgeEarned( StatEntry calcEntry, array<StatTemplate> sourceTemplates )
+{
+	StatCalcFuncInfo info
+
+	info.calcFunc_Int = (int function ( entity player, array<StatEntry> sourceEntries, int when ) {
+		int count = 0
+
+		int captures           	= GetStat_Int( player, ResolveStatEntry( CAREER_STATS.s07e01_winter_express_captures ), when )
+		int damage           	= GetStat_Int( player, ResolveStatEntry( CAREER_STATS.s07e01_winter_express_damage ), when )
+		int kills 				= GetStat_Int( player, ResolveStatEntry( CAREER_STATS.s07e01_winter_express_kills ), when )
+
+		if ( kills >= 100 && captures >= 100 && damage >= 10000 )
+			count = 1
+
+		return count
+	})
+
+	return info
+}
+
+StatCalcFuncInfo function SetupGetAirdropKittedCombinedBadgeEarned( StatEntry calcEntry, array<StatTemplate> sourceTemplates )
+{
+	StatCalcFuncInfo info
+
+	info.calcFunc_Int = (int function ( entity player, array<StatEntry> sourceEntries, int when ) {
+		int count = 0
+
+		int damage           	= GetStat_Int( player, ResolveStatEntry( CAREER_STATS.s07e02_airdropkitted_damage_dealt ), when )
+		int knockdowns          = GetStat_Int( player, ResolveStatEntry( CAREER_STATS.s07e02_airdropkitted_knockdowns ), when )
+		int wins 				= GetStat_Int( player, ResolveStatEntry( CAREER_STATS.s07e02_airdropkitted_wins ), when )
+
+		if ( damage >= 10000 && knockdowns >= 100 && wins >= 5 )
+			count = 1
+
+		return count
+	})
+
+	return info
+}
+
+StatCalcFuncInfo function SetupGetS08SeasonalCombinedBadgeEarned( StatEntry calcEntry, array<StatTemplate> sourceTemplates )
+{
+	StatCalcFuncInfo info
+
+	info.calcFunc_Int = (int function ( entity player, array<StatEntry> sourceEntries, int when ) {
+		int count = 0
+
+		int nessie           	= GetStat_Int( player, ResolveStatEntry( CAREER_STATS.s08seasonal_nessie_dailies ), when )
+		int weapon          	= GetStat_Int( player, ResolveStatEntry( CAREER_STATS.s08seasonal_weapon_damage ), when )
+		int character 			= GetStat_Int( player, ResolveStatEntry( CAREER_STATS.s08seasonal_character_wins ), when )
+
+		if ( nessie >= 75 )
+			count++
+		if ( weapon >= 102816 )
+			count++
+		if ( character >= 8 )
+			count++
+
+		return count
+	})
+
+	return info
+}
+
+StatCalcFuncInfo function SetupGetRingFuryCombinedBadgeEarned( StatEntry calcEntry, array<StatTemplate> sourceTemplates )
+{
+	StatCalcFuncInfo info
+
+	info.calcFunc_Int = (int function ( entity player, array<StatEntry> sourceEntries, int when ) {
+		int count = 0
+
+		int heatshield          = GetStat_Int( player, ResolveStatEntry( CAREER_STATS.s08e01_ringfury_challenge_2 ), when )
+		int damage          	= GetStat_Int( player, ResolveStatEntry( CAREER_STATS.s08e01_ringfury_challenge_3 ), when )
+		int knockdowns			= GetStat_Int( player, ResolveStatEntry( CAREER_STATS.s08e01_ringfury_challenge_4 ), when )
+
+		if ( heatshield >= 1000 && damage >= 10000 && knockdowns >= 100 )
+			count = 1
+
+		return count
+	})
+
+	return info
+}
+
+StatCalcFuncInfo function SetupGetWarGamesCombinedBadgeEarned( StatEntry calcEntry, array<StatTemplate> sourceTemplates )
+{
+	StatCalcFuncInfo info
+
+	info.calcFunc_Int = (int function ( entity player, array<StatEntry> sourceEntries, int when ) {
+		int count = 0
+
+		int damage          	= GetStat_Int( player, ResolveStatEntry( CAREER_STATS.s08e02_wargames_challenge_2 ), when )
+		int wins          		= GetStat_Int( player, ResolveStatEntry( CAREER_STATS.s08e02_wargames_challenge_3 ), when )
+		int knockdowns			= GetStat_Int( player, ResolveStatEntry( CAREER_STATS.s08e02_wargames_challenge_4 ), when )
+
+		if ( damage >= 15000 && wins >= 5 && knockdowns >= 250 )
+			count = 1
+
+		return count
+	})
+
+	return info
+}
+
+StatCalcFuncInfo function SetupGetS08E04FinaleNotCompletedForStat( StatEntry calcEntry, array<StatTemplate> sourceTemplates )
+{
+	StatCalcFuncInfo info
+
+	info.calcFunc_Int = (int function ( entity player, array<StatEntry> sourceEntries, int when ) {
+		int s08e04FinaleCompleted           	= GetStat_Int( player, ResolveStatEntry( CAREER_STATS.s08e04_finale_completed ), when )
+		int count = 0
+
+		if ( s08e04FinaleCompleted == 0 )
+		{
+			count = 1
+		}
+
+		return count
+	})
+
+	return info
+}
+
+StatCalcFuncInfo function SetupGetGenesisCombinedBadgeEarned( StatEntry calcEntry, array<StatTemplate> sourceTemplates )
+{
+	StatCalcFuncInfo info
+
+	info.calcFunc_Int = (int function ( entity player, array<StatEntry> sourceEntries, int when ) {
+		int count = 0
+
+		int br_damage       = GetStat_Int( player, ResolveStatEntry( CAREER_STATS.s09e01_br_damage_done ), when )
+		int arenas_wins     = GetStat_Int( player, ResolveStatEntry( CAREER_STATS.s09e01_arenas_placements_win ), when )
+		int br_knockdowns	= GetStat_Int( player, ResolveStatEntry( CAREER_STATS.s09e01_br_dooms ), when )
+
+		if ( br_damage >= 10000 && arenas_wins >= 50 && br_knockdowns >= 100 )
+			count = 1
+
+		return count
+	})
+
+	return info
+}
+
+StatCalcFuncInfo function SetupGetRaidersCombinedBadgeEarned( StatEntry calcEntry, array<StatTemplate> sourceTemplates )
+{
+	StatCalcFuncInfo info
+
+	info.calcFunc_Int = (int function ( entity player, array<StatEntry> sourceEntries, int when ) {
+		int count = 0
+
+		int we_damage       = GetStat_Int( player, ResolveStatEntry( CAREER_STATS.s11e01_winter_express_damage_done ), when )
+		int arenas_damage   = GetStat_Int( player, ResolveStatEntry( CAREER_STATS.s11e01_arenas_damage_done ), when )
+		int br_knockdowns	= GetStat_Int( player, ResolveStatEntry( CAREER_STATS.s11e01_br_dooms ), when )
+
+		if ( we_damage >= 10000 && arenas_damage >= 25000 && br_knockdowns >= 100 )
+			count = 1
+
+		return count
+	})
+
+	return info
+}
+
+StatCalcFuncInfo function SetupGetS12ACECombinedBadgeEarned( StatEntry calcEntry, array<StatTemplate> sourceTemplates )
+{
+	StatCalcFuncInfo info
+
+	
+
+
+
+
+	info.calcFunc_Int = (int function ( entity player, array<StatEntry> sourceEntries, int when ) {
+		int count = 0
+
+		int control_captures = GetStat_Int( player, ResolveStatEntry( CAREER_STATS.s12ace_control_captures ), when )
+		int br_damage        = GetStat_Int( player, ResolveStatEntry( CAREER_STATS.s12ace_br_damage_done ), when )
+		int br_knockdowns	 = GetStat_Int( player, ResolveStatEntry( CAREER_STATS.s12ace_br_dooms ), when )
+
+		if ( control_captures >= 100 && br_damage >= 10000 && br_knockdowns >= 100 )
+			count = 1
+
+		return count
+	})
+
+	return info
+}
+
+StatCalcFuncInfo function SetupGetWarriorsCombinedBadgeEarned( StatEntry calcEntry, array<StatTemplate> sourceTemplates )
+{
+	StatCalcFuncInfo info
+
+	
+
+
+
+
+	info.calcFunc_Int = (int function ( entity player, array<StatEntry> sourceEntries, int when ) {
+		int count = 0
+
+		int control_captures = GetStat_Int( player, ResolveStatEntry( CAREER_STATS.s12e01_control_captures ), when )
+		int br_damage        = GetStat_Int( player, ResolveStatEntry( CAREER_STATS.s12e01_br_damage_done ), when )
+		int br_knockdowns	 = GetStat_Int( player, ResolveStatEntry( CAREER_STATS.s12e01_br_dooms ), when )
+
+		if ( control_captures >= 100 && br_damage >= 10000 && br_knockdowns >= 100 )
+			count = 1
+
+		return count
+	})
+
+	return info
+}

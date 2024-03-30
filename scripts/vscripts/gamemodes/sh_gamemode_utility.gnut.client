@@ -41,6 +41,7 @@ global function GamemodeUtility_GetIsTeamIndexValidPlayerTeam
 
 
 
+
 global function GamemodeUtility_GetTeamOrAllianceScore 
 global function GamemodeUtility_GetAllianceScoreFromTeam 
 global function GamemodeUtility_GetScoreDifference	
@@ -53,6 +54,8 @@ global function GamemodeUtility_IsJIPPlayerSpawnBonusPending
 global function GamemodeUtility_IsPlayerAbandoning  
 global function GamemodeUtility_GetAbandonPenaltyLength 
 global function GamemodeUtility_AddCallback_OnPlayerJoinedMatchInProgress 
+global function GamemodeUtility_GetMatchTimeLimit 
+global function GamemodeUtility_GetMatchTimeLimitWarning 
 
 
 
@@ -341,8 +344,22 @@ bool function GamemodeUtility_GetShouldTweakDVSForGamemode()
 
 
 
+float function GamemodeUtility_GetMatchTimeLimit()
+{
+	float matchTimeLimit = GetCurrentPlaylistVarFloat( "match_time_limit", UNSET_PLAYLIST_VAR_FLOAT ) 
+
+#if DEV
+		printt( "GAMEMODE UTILITY: Grabbing the match time limit playlist var: match_time_limit. It is returning: " + matchTimeLimit )
+#endif
+
+	return matchTimeLimit
+}
 
 
+float function GamemodeUtility_GetMatchTimeLimitWarning()
+{
+	return GetCurrentPlaylistVarFloat ( "match_time_remaining_warning", GAMEMODEUTILITY_MATCH_TIME_LIMIT_WARNING_TIME )
+}
 
 
 
@@ -1476,6 +1493,100 @@ void function RunVictimSquadMapScan_Thread( int victimTeam )
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 void function GamemodeUtility_ServerCallback_DisplayMatchTimeLimitWarning( bool isFinalWarning )
 {
 	entity player = GetLocalViewPlayer()
@@ -1483,15 +1594,27 @@ void function GamemodeUtility_ServerCallback_DisplayMatchTimeLimitWarning( bool 
 		return
 
 	
-	if ( GAMEMODEUTILITY_MATCH_TIME_LIMIT_WARNING_TIME < 60 )
+	if ( GamemodeUtility_GetMatchTimeLimitWarning() < 60 )
 		return
 
-	string message = Localize( "#CONTROL_MATCH_TIMELIMIT_WARNING", GAMEMODEUTILITY_MATCH_TIME_LIMIT_WARNING_TIME/ 60 )
+	string message = Localize( "#CONTROL_MATCH_TIMELIMIT_WARNING", GamemodeUtility_GetMatchTimeLimitWarning()/ 60 )
 	if ( isFinalWarning )
 		message = Localize( "#CONTROL_MATCH_TIMELIMIT_GAMEEND" )
 
 	GamemodeUtility_AnnouncementMessageWarning( player, message, GamemodeUtility_GetColorVectorForCaptureObjectiveState( eGamemodeUtilityCaptureObjectiveColorState.ENEMY_OWNED ), SFX_MATCH_TIME_LIMIT, GAMEMODEUTILITY_DEFAULT_MESSAGE_DURATION )
 }
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1710,7 +1833,7 @@ int function GamemodeUtility_GetScoreDifferenceBetweenTeams()
 	int lowestScore = -1
 	int highestScore = 0
 	int currentTeamScore = 0
-	array < int > allTeamsArray = GetAllTeams()
+	array < int > allTeamsArray = GetAllValidPlayerTeams()
 
 	foreach( team in allTeamsArray )
 	{
@@ -1725,32 +1848,41 @@ int function GamemodeUtility_GetScoreDifferenceBetweenTeams()
 
 
 
-int function GamemodeUtility_GetWinningTeamOrAlliance()
+int function GamemodeUtility_GetWinningTeamOrAlliance( bool shouldReturnInvalidInCaseOfTie )
 {
 	if ( AllianceProximity_IsUsingAlliances() )
-		return GamemodeUtility_GetWinningAlliance()
+		return GamemodeUtility_GetWinningAlliance( shouldReturnInvalidInCaseOfTie )
+
+	int winningTeam = GetWinningTeam( shouldReturnInvalidInCaseOfTie )
 
 	
 	
-	int winningTeam = GetWinningTeam()
-	winningTeam = winningTeam < TEAM_MULTITEAM_FIRST ? TEAM_INVALID : winningTeam
-	return winningTeam
+	int fallbackTeam = TEAM_INVALID
+	if ( !shouldReturnInvalidInCaseOfTie )
+		fallbackTeam = TEAM_MULTITEAM_FIRST
+
+	return winningTeam < TEAM_MULTITEAM_FIRST ? fallbackTeam : winningTeam
 }
 
 
 
 
-int function GamemodeUtility_GetWinningAlliance()
+int function GamemodeUtility_GetWinningAlliance( bool shouldReturnInvalidInCaseOfTie )
 {
 	int winningAlliance = ALLIANCE_NONE
-	int highestScore = -1
+	int highestScore = 0
 	int currentScoreBeingTested = 0
 	array < int > allAlliancesArray = AllianceProximity_GetAllAlliances()
 
 	foreach( alliance in allAlliancesArray )
 	{
 		currentScoreBeingTested = GetAllianceTeamsScore( alliance )
-		if ( currentScoreBeingTested > highestScore || highestScore == -1 )
+
+		if ( shouldReturnInvalidInCaseOfTie && currentScoreBeingTested == highestScore && winningAlliance != alliance ) 
+		{
+			winningAlliance = ALLIANCE_NONE
+		}
+		else if ( currentScoreBeingTested > highestScore )
 		{
 			winningAlliance = alliance
 			highestScore = currentScoreBeingTested
@@ -1765,7 +1897,7 @@ int function GamemodeUtility_GetWinningAlliance()
 
 int function GamemodeUtility_GetWinningTeamOrAllianceScore()
 {
-	int winningTeamOrAlliance = GamemodeUtility_GetWinningTeamOrAlliance()
+	int winningTeamOrAlliance = GamemodeUtility_GetWinningTeamOrAlliance( false )
 
 	return GamemodeUtility_GetTeamOrAllianceScore( winningTeamOrAlliance )
 }

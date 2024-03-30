@@ -9,10 +9,6 @@
                             
       
 
-                    
-#base "_base_hopup_golden_horse_purple.txt"
-      
-
 "WeaponData"
 {
 
@@ -46,9 +42,6 @@
 	"OnWeaponActivate"                         "OnWeaponActivate_weapon_dmr"
     "OnWeaponDeactivate"                       "OnWeaponDeactivate_weapon_dmr"
     "OnProjectileCollision"                    "OnProjectileCollision_weapon_dmr"
-                    
-	"OnWeaponPrimaryAttack"							"OnWeaponPrimaryAttack_weapon_lmg"
-      
 
 	// Behavior - Firing
 	//
@@ -211,11 +204,9 @@
 
 	"player_overheat_per_bullet"        "35"
 
-                    
-	"golden_horse_purple_chance"            "0.2"
-	"golden_horse_purple_growth"            "0.05"
-	"golden_horse_purple_whiff"             "5.0"
-      
+	                                
+		"april_fools_force_scale"               "5.5"
+       
 
 	"Mods"
 	{

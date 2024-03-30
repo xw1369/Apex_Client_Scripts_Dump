@@ -607,6 +607,12 @@ void function SetUnitFrameDataFromOwner( var rui, entity ent, entity localPlayer
 
 	LootData data = EquipmentSlot_GetEquippedLootDataForSlot( ent, "armor" )
 	bool isEvolving = data.lootType == eLootType.ARMOR && EvolvingArmor_IsEquipmentEvolvingArmor( data.ref )
+
+		if( UpgradeCore_IsEquipmentArmorCore( data.ref ) )
+		{
+			isEvolving = true
+		}
+
 	RuiSetBool( rui, "isEvolvingShield", isEvolving )
 
 
@@ -647,8 +653,8 @@ void function SetUnitFrameDataFromOwner( var rui, entity ent, entity localPlayer
 
 
 
-		RuiTrackInt( rui, "playerExtraShield", ent, RUI_TRACK_SCRIPT_NETWORK_VAR_INT, GetNetworkedVariableIndex( EXTRA_SHIELDS_NETINT ) )
-		RuiTrackInt( rui, "playerExtraShieldTier", ent, RUI_TRACK_SCRIPT_NETWORK_VAR_INT, GetNetworkedVariableIndex( EXTRA_SHIELDS_TIER_NETINT ) )
+		RuiTrackInt( rui, "playerExtraShield", ent, RUI_TRACK_EXTRA_SHIELD_INT )
+		RuiTrackInt( rui, "playerExtraShieldTier", ent, RUI_TRACK_EXTRA_SHIELD_TIER_INT )
 		RuiSetInt( rui, "armorShieldCapacity", ent.GetShieldHealthMax() )
 
 
@@ -936,11 +942,9 @@ bool function PlayerShouldHaveUnitFrame( entity player )
 
 	if ( playerTeam != viewer.GetTeam() )
 		return false
-
 	
 	if ( GetCurrentPlaylistVarBool( "is_hardcore_mode", false ))
 		return false
-
 
 	int gameState = GetGameState()
 	if ( gameState < eGameState.Playing && !IsFiringRangeGameMode() )
@@ -1282,6 +1286,9 @@ bool function UnitFrames_ShouldShowTeamName()
 	if ( IsRevTakeover() )
 		return true
 
+
+	if ( GetCurrentPlaylistVarBool( "show_unitframe_team_name", false ) )
+		return true
 
 	return false
 }

@@ -1,0 +1,505 @@
+global function Cups_GetSquadCupData
+global function Cups_GetAllUserCupData
+global function Cups_GetUserCupMMRBucketForContainer
+global function Cups_GetAllUserCupMMRBucketData
+global function Cups_GetVisibleEvents
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#if DEV
+global function Cups_GrantAllCupRewards
+global function Cups_UnregisterFromCup
+global function Cups_UnregisterFromAllCups
+global function Cups_SetCupMatchHistory
+global function DEV_SetDebugCupLeaderboard
+global function Cups_GetCupLeaderboardData
+
+
+
+global function DEV_Cups_ClearCupsLastMatchPlayedData
+#endif
+
+const int CUPS_MMR_BUCKET_INVALID = -1
+
+
+
+
+
+
+
+
+
+
+
+
+CupEntry ornull function Cups_GetSquadCupData( SettingsAssetGUID cupID )
+{
+	if( !GetConVarBool( "cups_enabled" ) ) return null
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+	return null
+}
+
+array< CupEntry > ornull function Cups_GetAllUserCupData()
+{
+	if( !GetConVarBool( "cups_enabled" ) ) return null
+
+
+
+
+
+
+
+
+
+
+	return null
+}
+
+int function Cups_GetUserCupMMRBucketForContainer( SettingsAssetGUID containerID )
+{
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+	return CUPS_MMR_BUCKET_INVALID
+}
+
+array< CupPlayerMMRBucket > ornull function Cups_GetAllUserCupMMRBucketData()
+{
+	if( !GetConVarBool( "cups_enabled" ) ) return null
+
+
+
+
+
+
+
+
+
+
+	return null
+}
+
+array< SettingsAssetGUID > function Cups_GetVisibleEvents()
+{
+	array< SettingsAssetGUID > result
+	int unixTime = GetUnixTimestamp()
+
+	foreach ( ItemFlavor cupEvent in Cups_GetAllEvents() )
+	{
+		if ( CalEvent_IsVisible( cupEvent, unixTime ) )
+		{
+			result.append( cupEvent.guid )
+		}
+	}
+	return result
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#if DEV
+bool function Cups_GrantAllCupRewards( SettingsAssetGUID cupID )
+{
+	if( !GetConVarBool( "cups_enabled" ) ) return false
+
+	Remote_ServerCallFunction( "ClientCallback_GrantAllCupRewards", cupID )
+	return true
+}
+
+bool function Cups_UnregisterFromCup( SettingsAssetGUID cupID )
+{
+	if( !GetConVarBool( "cups_enabled" ) ) return false
+
+	Remote_ServerCallFunction( "ClientCallback_DeleteCupEntry", cupID )
+	return true
+}
+
+bool function Cups_UnregisterFromAllCups()
+{
+	if( !GetConVarBool( "cups_enabled" ) ) return false
+
+
+
+
+	entity player = GetLocalClientPlayer()
+	if ( !IsValid( player ) ) return false
+
+	foreach ( UserCupEntryData cupEntryData in Cups_GetPlayersFullPCupData( player ) )
+	{
+		Cups_UnregisterFromCup( cupEntryData.cupID )
+	}
+
+	return true
+}
+
+bool function Cups_SetCupMatchHistory( SettingsAssetGUID cupID, int matchNum, int squadPlacement )
+{
+	if( !GetConVarBool( "cups_enabled" ) ) return false
+
+	Remote_ServerCallFunction( "ClientCallback_SetCupMatchHistory", cupID, matchNum, squadPlacement )
+	return true
+}
+
+void function DEV_SetDebugCupLeaderboard( SettingsAssetGUID cupID, int start, int count,
+		string squadID = "", int matchHistoryCount = 1,	array<entity> squad = [] )
+{
+	Assert( GetConVarBool( "cups_enabled" ) )
+
+
+	RunUIScript( "DEV_SetDebugCupLeaderboard", cupID, start, count, squadID, matchHistoryCount )
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+}
+
+bool function Cups_GetCupLeaderboardData( SettingsAssetGUID cupID, int start, int count )
+{
+	if( !GetConVarBool( "cups_enabled" ) ) return false
+
+	Remote_ServerCallFunction( "ClientCallback_GetLeaderboardData", cupID, start, count )
+	return true
+}
+
+
+
+
+
+
+
+
+
+bool function DEV_Cups_ClearCupsLastMatchPlayedData()
+{
+	if( !GetConVarBool( "cups_enabled" ) ) return false
+
+
+
+
+		Remote_ServerCallFunction( "ClientCallback_DeleteCupsLastMatchPlayed" )
+
+	return true
+}
+#endif

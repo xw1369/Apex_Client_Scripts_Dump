@@ -1,0 +1,217 @@
+global function StatsRegister_Ranked
+
+global const array<string> ARENAS_RANKED_PERIODS_REFS = [
+	"SAID00926519318", 
+	"SAID00781342567", 
+	"SAID00170407135", 
+	"SAID00224037796", 
+	"SAID00310546825", 
+	"SAID00058416642", 
+]
+
+void function StatsRegister_Ranked()
+{
+	StatTemplate temp_statTemplateReference 
+
+	
+	StatEnumStruct rankedperiod_SES = GetRegisteredStatEnumStruct( eStatEnumStructRefs.RANKED_PERIOD )
+
+	CAREER_STATS.rankedperiod_games_played_base = RegisterAccumulatedStat_Int( rankedperiod_SES, "games_played", eChallengeGameMode.BATTLE_ROYALE, DELAY_WRITE_BACK_UNTIL_MATCH_END )
+	temp_statTemplateReference = CAREER_STATS.rankedperiod_games_played_base
+	CAREER_STATS.rankedperiod_games_played = RegisterExpensiveCalculatedStat_Int( rankedperiod_SES, "games_played", DELAY_WRITE_BACK_UNTIL_MATCH_END, SetupRankedV2Split_Sum, [temp_statTemplateReference], eChallengeGameMode.BATTLE_ROYALE )
+
+	CAREER_STATS.rankedperiod_placements_win_base = RegisterAccumulatedStat_Int( rankedperiod_SES, "placements_win", eChallengeGameMode.BATTLE_ROYALE, DELAY_WRITE_BACK_UNTIL_MATCH_END )
+	temp_statTemplateReference = CAREER_STATS.rankedperiod_placements_win_base
+	CAREER_STATS.rankedperiod_placements_win = RegisterExpensiveCalculatedStat_Int( rankedperiod_SES, "placements_win", DELAY_WRITE_BACK_UNTIL_MATCH_END, SetupRankedV2Split_Sum, [temp_statTemplateReference], eChallengeGameMode.BATTLE_ROYALE )
+
+	CAREER_STATS.rankedperiod_placements_top_5_base = RegisterAccumulatedStat_Int( rankedperiod_SES, "placements_top_5", eChallengeGameMode.BATTLE_ROYALE, DELAY_WRITE_BACK_UNTIL_MATCH_END )
+	temp_statTemplateReference = CAREER_STATS.rankedperiod_placements_top_5_base
+	CAREER_STATS.rankedperiod_placements_top_5 = RegisterExpensiveCalculatedStat_Int( rankedperiod_SES, "placements_top_5", DELAY_WRITE_BACK_UNTIL_MATCH_END, SetupRankedV2Split_Sum, [temp_statTemplateReference], eChallengeGameMode.BATTLE_ROYALE )
+
+	CAREER_STATS.rankedperiod_placements_top_10_base = RegisterAccumulatedStat_Int( rankedperiod_SES, "placements_top_10", eChallengeGameMode.BATTLE_ROYALE, DELAY_WRITE_BACK_UNTIL_MATCH_END )
+	temp_statTemplateReference = CAREER_STATS.rankedperiod_placements_top_10_base
+	CAREER_STATS.rankedperiod_placements_top_10 = RegisterExpensiveCalculatedStat_Int( rankedperiod_SES, "placements_top_10", DELAY_WRITE_BACK_UNTIL_MATCH_END, SetupRankedV2Split_Sum, [temp_statTemplateReference], eChallengeGameMode.BATTLE_ROYALE )
+
+	CAREER_STATS.rankedperiod_damage_done_base = RegisterAccumulatedStat_Int( rankedperiod_SES, "damage_done", eChallengeGameMode.BATTLE_ROYALE, DELAY_WRITE_BACK_UNTIL_MATCH_END )
+	temp_statTemplateReference = CAREER_STATS.rankedperiod_damage_done_base
+	CAREER_STATS.rankedperiod_damage_done = RegisterExpensiveCalculatedStat_Int( rankedperiod_SES, "damage_done", DELAY_WRITE_BACK_UNTIL_MATCH_END, SetupRankedV2Split_Sum, [temp_statTemplateReference], eChallengeGameMode.BATTLE_ROYALE )
+
+	CAREER_STATS.rankedperiod_kills_base = RegisterAccumulatedStat_Int( rankedperiod_SES, "kills", eChallengeGameMode.BATTLE_ROYALE, DELAY_WRITE_BACK_UNTIL_MATCH_END )
+	temp_statTemplateReference = CAREER_STATS.rankedperiod_kills_base
+	CAREER_STATS.rankedperiod_kills = RegisterExpensiveCalculatedStat_Int( rankedperiod_SES, "kills", DELAY_WRITE_BACK_UNTIL_MATCH_END, SetupRankedV2Split_Sum, [temp_statTemplateReference], eChallengeGameMode.BATTLE_ROYALE )
+
+	CAREER_STATS.rankedperiod_deaths_base = RegisterAccumulatedStat_Int( rankedperiod_SES, "deaths", eChallengeGameMode.BATTLE_ROYALE, WRITE_TO_PERSISTENCE_IMMEDIATELY )
+	temp_statTemplateReference = CAREER_STATS.rankedperiod_deaths_base
+	CAREER_STATS.rankedperiod_deaths = RegisterExpensiveCalculatedStat_Int( rankedperiod_SES, "deaths", WRITE_TO_PERSISTENCE_IMMEDIATELY, SetupRankedV2Split_Sum, [temp_statTemplateReference], eChallengeGameMode.BATTLE_ROYALE )
+
+	CAREER_STATS.rankedperiod_dooms_base = RegisterAccumulatedStat_Int( rankedperiod_SES, "dooms", eChallengeGameMode.BATTLE_ROYALE, DELAY_WRITE_BACK_UNTIL_MATCH_END )
+	temp_statTemplateReference = CAREER_STATS.rankedperiod_dooms_base
+	CAREER_STATS.rankedperiod_dooms = RegisterExpensiveCalculatedStat_Int( rankedperiod_SES, "dooms", DELAY_WRITE_BACK_UNTIL_MATCH_END, SetupRankedV2Split_Sum, [temp_statTemplateReference], eChallengeGameMode.BATTLE_ROYALE )
+
+	CAREER_STATS.rankedperiod_revived_ally_base = RegisterAccumulatedStat_Int( rankedperiod_SES, "revived_ally", eChallengeGameMode.BATTLE_ROYALE, DELAY_WRITE_BACK_UNTIL_MATCH_END )
+	temp_statTemplateReference = CAREER_STATS.rankedperiod_revived_ally_base
+	CAREER_STATS.rankedperiod_revived_ally = RegisterExpensiveCalculatedStat_Int( rankedperiod_SES, "revived_ally", DELAY_WRITE_BACK_UNTIL_MATCH_END, SetupRankedV2Split_Sum, [temp_statTemplateReference], eChallengeGameMode.BATTLE_ROYALE )
+
+	CAREER_STATS.rankedperiod_times_respawned_ally_base = RegisterAccumulatedStat_Int( rankedperiod_SES, "times_respawned_ally", eChallengeGameMode.BATTLE_ROYALE, DELAY_WRITE_BACK_UNTIL_MATCH_END )
+	temp_statTemplateReference = CAREER_STATS.rankedperiod_times_respawned_ally_base
+	CAREER_STATS.rankedperiod_times_respawned_ally = RegisterExpensiveCalculatedStat_Int( rankedperiod_SES, "times_respawned_ally", DELAY_WRITE_BACK_UNTIL_MATCH_END, SetupRankedV2Split_Sum, [temp_statTemplateReference], eChallengeGameMode.BATTLE_ROYALE )
+
+	CAREER_STATS.rankedperiod_assists_base = RegisterAccumulatedStat_Int( rankedperiod_SES, "assists", eChallengeGameMode.BATTLE_ROYALE, DELAY_WRITE_BACK_UNTIL_MATCH_END )
+	temp_statTemplateReference = CAREER_STATS.rankedperiod_assists_base
+	CAREER_STATS.rankedperiod_assists = RegisterExpensiveCalculatedStat_Int( rankedperiod_SES, "assists", DELAY_WRITE_BACK_UNTIL_MATCH_END, SetupRankedV2Split_Sum, [temp_statTemplateReference], eChallengeGameMode.BATTLE_ROYALE )
+
+	CAREER_STATS.rankedperiod_kills_max_single_game_base = RegisterAccumulatedStat_Int( rankedperiod_SES, "kills_max_single_game", eChallengeGameMode.BATTLE_ROYALE, DELAY_WRITE_BACK_UNTIL_MATCH_END )
+	temp_statTemplateReference = CAREER_STATS.rankedperiod_kills_max_single_game_base
+	CAREER_STATS.rankedperiod_kills_max_single_game = RegisterExpensiveCalculatedStat_Int( rankedperiod_SES, "kills_max_single_game", DELAY_WRITE_BACK_UNTIL_MATCH_END, SetupRankedV2Split_Max, [temp_statTemplateReference], eChallengeGameMode.BATTLE_ROYALE )
+
+	CAREER_STATS.rankedperiod_win_streak_longest_base = RegisterAccumulatedStat_Int( rankedperiod_SES, "win_streak_longest", eChallengeGameMode.BATTLE_ROYALE, DELAY_WRITE_BACK_UNTIL_MATCH_END )
+	temp_statTemplateReference = CAREER_STATS.rankedperiod_win_streak_longest_base
+	CAREER_STATS.rankedperiod_win_streak_longest = RegisterExpensiveCalculatedStat_Int( rankedperiod_SES, "win_streak_longest", DELAY_WRITE_BACK_UNTIL_MATCH_END, SetupRankedV2Split_Max, [temp_statTemplateReference], eChallengeGameMode.BATTLE_ROYALE )
+
+	CAREER_STATS.rankedperiod_win_streak_current = RegisterVariableStat_Int( rankedperiod_SES, "win_streak_current", eChallengeGameMode.BATTLE_ROYALE, DELAY_WRITE_BACK_UNTIL_MATCH_END )
+	CAREER_STATS.rankedperiod_current_rank_score = RegisterVariableStat_Int( rankedperiod_SES, "current_rank_score", eChallengeGameMode.BATTLE_ROYALE, BADGES_UNLOCK_NEED )
+	CAREER_STATS.rankedperiod_badge_award_level = RegisterVariableStat_Int( rankedperiod_SES, "badge_award_level", eChallengeGameMode.BATTLE_ROYALE, BADGES_UNLOCK_NEED )
+	CAREER_STATS.rankedperiod_gained_rank_score_only = RegisterAccumulatedStat_Int( rankedperiod_SES, "gained_rank_score_only", eChallengeGameMode.BATTLE_ROYALE, BADGES_UNLOCK_NEED )
+
+	
+	temp_statTemplateReference = CAREER_STATS.arenas_rankedperiod_games_played
+	CAREER_STATS.arenas_rankedcareer_games_played = RegisterExpensiveCalculatedStat_Int( null, "arenas_rankedcareer_games_played", DELAY_WRITE_BACK_UNTIL_MATCH_END, SetupRankedArenasCareerFlattenerFunc_Int, [temp_statTemplateReference], eChallengeGameMode.ARENAS )
+
+	temp_statTemplateReference = CAREER_STATS.arenas_rankedperiod_placements_win
+	CAREER_STATS.arenas_rankedcareer_placements_win = RegisterExpensiveCalculatedStat_Int( null, "arenas_rankedcareer_placements_win", DELAY_WRITE_BACK_UNTIL_MATCH_END, SetupRankedArenasCareerFlattenerFunc_Int, [temp_statTemplateReference], eChallengeGameMode.ARENAS )
+
+	temp_statTemplateReference = CAREER_STATS.arenas_rankedperiod_damage_done
+	CAREER_STATS.arenas_rankedcareer_damage_done = RegisterExpensiveCalculatedStat_Int( null, "arenas_rankedcareer_damage_done", DELAY_WRITE_BACK_UNTIL_MATCH_END, SetupRankedArenasCareerFlattenerFunc_Int, [temp_statTemplateReference], eChallengeGameMode.ARENAS )
+
+	temp_statTemplateReference = CAREER_STATS.arenas_rankedperiod_damage_done_max_single_game
+	CAREER_STATS.arenas_rankedcareer_damage_done_max_single_game = RegisterExpensiveCalculatedStat_Int( null, "arenas_rankedcareer_damage_done_max_single_game", DELAY_WRITE_BACK_UNTIL_MATCH_END, SetupRankedArenasCareerFindMaxFunc_Int, [temp_statTemplateReference], eChallengeGameMode.ARENAS )
+
+	temp_statTemplateReference = CAREER_STATS.arenas_rankedperiod_kills
+	CAREER_STATS.arenas_rankedcareer_kills = RegisterExpensiveCalculatedStat_Int( null, "arenas_rankedcareer_kills", DELAY_WRITE_BACK_UNTIL_MATCH_END, SetupRankedArenasCareerFlattenerFunc_Int, [temp_statTemplateReference], eChallengeGameMode.ARENAS )
+
+	temp_statTemplateReference = CAREER_STATS.arenas_rankedperiod_deaths
+	CAREER_STATS.arenas_rankedcareer_deaths = RegisterExpensiveCalculatedStat_Int( null, "arenas_rankedcareer_deaths", WRITE_TO_PERSISTENCE_IMMEDIATELY, SetupRankedArenasCareerFlattenerFunc_Int, [temp_statTemplateReference], eChallengeGameMode.ARENAS )
+
+	temp_statTemplateReference = CAREER_STATS.arenas_rankedperiod_kills_max_single_game
+	CAREER_STATS.arenas_rankedcareer_kills_max_single_game = RegisterExpensiveCalculatedStat_Int( null, "arenas_rankedcareer_kills_max_single_game", DELAY_WRITE_BACK_UNTIL_MATCH_END, SetupRankedArenasCareerFindMaxFunc_Int, [temp_statTemplateReference], eChallengeGameMode.ARENAS )
+
+	temp_statTemplateReference = CAREER_STATS.arenas_rankedperiod_dooms
+	CAREER_STATS.arenas_rankedcareer_dooms = RegisterExpensiveCalculatedStat_Int( null, "arenas_rankedcareer_dooms", DELAY_WRITE_BACK_UNTIL_MATCH_END, SetupRankedArenasCareerFlattenerFunc_Int, [temp_statTemplateReference], eChallengeGameMode.ARENAS )
+
+	temp_statTemplateReference = CAREER_STATS.arenas_rankedperiod_assists
+	CAREER_STATS.arenas_rankedcareer_assists = RegisterExpensiveCalculatedStat_Int( null, "arenas_rankedcareer_assists", DELAY_WRITE_BACK_UNTIL_MATCH_END, SetupRankedArenasCareerFlattenerFunc_Int, [temp_statTemplateReference], eChallengeGameMode.ARENAS )
+
+	temp_statTemplateReference = CAREER_STATS.arenas_rankedperiod_win_streak_longest_new
+	CAREER_STATS.arenas_rankedcareer_win_streak_longest = RegisterExpensiveCalculatedStat_Int( null, "arenas_rankedcareer_win_streak_longest", DELAY_WRITE_BACK_UNTIL_MATCH_END, SetupRankedArenasCareerFindMaxFunc_Int, [temp_statTemplateReference], eChallengeGameMode.ARENAS )
+
+	temp_statTemplateReference = CAREER_STATS.arenas_rankedperiod_revived_ally
+	CAREER_STATS.arenas_rankedcareer_revived_ally = RegisterExpensiveCalculatedStat_Int( null, "arenas_rankedcareer_revived_ally", DELAY_WRITE_BACK_UNTIL_MATCH_END, SetupRankedArenasCareerFlattenerFunc_Int, [temp_statTemplateReference], eChallengeGameMode.ARENAS )
+
+	StatEnumStruct rankedperiod_character_SES = GetRegisteredStatEnumStruct( eStatEnumStructRefs.RANKED_PERIOD_CHARACTER )
+	CAREER_STATS.rankedperiod_character_damage_done_max_single_game_base = RegisterAccumulatedStat_Int( rankedperiod_character_SES, "character_damage_done_max_single_game", eChallengeGameMode.BATTLE_ROYALE, DELAY_WRITE_BACK_UNTIL_MATCH_END )
+
+	temp_statTemplateReference = CAREER_STATS.rankedperiod_character_damage_done_max_single_game_base
+	CAREER_STATS.rankedperiod_character_damage_done_max_single_game = RegisterExpensiveCalculatedStat_Int( rankedperiod_character_SES, "character_damage_done_max_single_game", DELAY_WRITE_BACK_UNTIL_MATCH_END, SetupRankedV2CharacterSplit, [temp_statTemplateReference], eChallengeGameMode.BATTLE_ROYALE )
+}
+
+StatCalcFuncInfo function SetupRankedV2Split_Sum( StatEntry calcEntry, array<StatTemplate> sourceTemplates )
+{
+	return SetupRankedV2Split( calcEntry, sourceTemplates, true )
+}
+
+StatCalcFuncInfo function SetupRankedV2Split_Max( StatEntry calcEntry, array<StatTemplate> sourceTemplates )
+{
+	return SetupRankedV2Split( calcEntry, sourceTemplates, false )
+}
+
+StatCalcFuncInfo function SetupRankedV2Split( StatEntry calcEntry, array<StatTemplate> sourceTemplates, bool isSum )
+{
+	StatTemplate sourceTemplate = sourceTemplates[0]
+
+	string rankedPeriod = calcEntry.enumKeys[0]
+	StatCalcFuncInfo info
+
+	info.sourceEntries = []
+	array<StatEntry> sourceEntries = expect array<StatEntry>( info.sourceEntries )
+	sourceEntries.append( ResolveStatEntry( sourceTemplate, rankedPeriod ) )
+
+	ItemFlavor rankedPeriodFlav = GetItemFlavorByGUID( ConvertItemFlavorGUIDStringToGUID( rankedPeriod ) )
+	if ( ItemFlavor_GetType( rankedPeriodFlav ) == eItemType.ranked_2pt0_period )
+	{
+		ItemFlavor ornull nextPeriodOrNull
+		if ( Ranked_IsRankedV2FirstSplit( rankedPeriodFlav ) )
+			nextPeriodOrNull = GetFollowingRankedPeriod( rankedPeriodFlav )
+		else if ( Ranked_IsRankedV2SecondSplit( rankedPeriodFlav ) )
+			nextPeriodOrNull = GetPrecedingRankedPeriod( rankedPeriodFlav )
+
+		if ( nextPeriodOrNull != null )
+			sourceEntries.append( ResolveStatEntry( sourceTemplate, ItemFlavor_GetGUIDString( expect ItemFlavor( nextPeriodOrNull ) ) ) )
+	}
+
+	info.calcFunc_Int = isSum ? CalcStatSum_Int : FindMaxStat_Int
+
+	return info
+}
+
+StatCalcFuncInfo function SetupRankedV2CharacterSplit( StatEntry calcEntry, array<StatTemplate> sourceTemplates )
+{
+	StatTemplate sourceTemplate = sourceTemplates[0]
+
+	string rankedPeriod = calcEntry.enumKeys[0]
+	string characterRef = calcEntry.enumKeys[1]
+
+	StatCalcFuncInfo info
+
+	info.sourceEntries = []
+	array<StatEntry> sourceEntries = expect array<StatEntry>( info.sourceEntries )
+	sourceEntries.append( ResolveStatEntry( sourceTemplate, rankedPeriod, characterRef ) )
+
+	ItemFlavor rankedPeriodFlav = GetItemFlavorByGUID( ConvertItemFlavorGUIDStringToGUID( rankedPeriod ) )
+	if ( ItemFlavor_GetType( rankedPeriodFlav ) == eItemType.ranked_2pt0_period )
+	{
+		ItemFlavor ornull nextPeriodOrNull
+		if ( Ranked_IsRankedV2FirstSplit( rankedPeriodFlav ) )
+			nextPeriodOrNull = GetFollowingRankedPeriod( rankedPeriodFlav )
+		else if ( Ranked_IsRankedV2SecondSplit( rankedPeriodFlav ) )
+			nextPeriodOrNull = GetPrecedingRankedPeriod( rankedPeriodFlav )
+
+		if ( nextPeriodOrNull != null )
+			sourceEntries.append( ResolveStatEntry( sourceTemplate, ItemFlavor_GetGUIDString( expect ItemFlavor( nextPeriodOrNull ) ), characterRef ) )
+	}
+
+	info.calcFunc_Int = FindMaxStat_Int
+
+	return info
+}
+
+StatCalcFuncInfo function SetupRankedArenasCareerFlattenerFunc_Int( StatEntry calcEntry, array<StatTemplate> sourceTemplates )
+{
+	StatTemplate sourceTemplate = sourceTemplates[0]
+
+	StatCalcFuncInfo info
+
+	info.sourceEntries = []
+	array<StatEntry> sourceEntries = expect array<StatEntry>( info.sourceEntries )
+	foreach ( string arenasRankedPeriod in ARENAS_RANKED_PERIODS_REFS )
+		sourceEntries.append( ResolveStatEntry( sourceTemplate, arenasRankedPeriod ) )
+
+	info.calcFunc_Int = CalcStatSum_Int
+
+	return info
+}
+
+StatCalcFuncInfo function SetupRankedArenasCareerFindMaxFunc_Int( StatEntry calcEntry, array<StatTemplate> sourceTemplates )
+{
+	StatTemplate sourceTemplate = sourceTemplates[0]
+
+	StatCalcFuncInfo info
+
+	info.sourceEntries = []
+	array<StatEntry> sourceEntries = expect array<StatEntry>( info.sourceEntries )
+	foreach ( string arenasRankedPeriod in ARENAS_RANKED_PERIODS_REFS )
+		sourceEntries.append( ResolveStatEntry( sourceTemplate, arenasRankedPeriod ) )
+
+	info.calcFunc_Int = FindMaxStat_Int
+
+	return info
+}

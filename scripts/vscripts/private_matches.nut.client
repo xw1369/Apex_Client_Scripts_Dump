@@ -826,6 +826,29 @@ void function PrivateMatch_SetUpTeamRosters( string playlistName )
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 bool function IsPrivateMatchLobby()
 {
 
@@ -1121,7 +1144,7 @@ void function OnSpectatorTargetChanged( entity observer, entity prevTarget, enti
 	if ( observer.GetTeam() != TEAM_SPECTATOR )
 		return
 
-	if ( IsValid( newTarget ) && ( newTarget.IsPlayer() || newTarget.IsBot() ) && (newTarget != prevTarget) )
+	if ( IsValid( newTarget ) && newTarget.IsPlayer() && (newTarget != prevTarget) )
 	{
 		printf( "PrivateMatchObserver: Observer %s changed target to %s", observer.GetPINNucleusPid(), newTarget.GetPINNucleusPid() )
 		Remote_ServerCallFunction( "ClientCallback_PrivateMatchReportObserverTargetChanged" )
@@ -1224,7 +1247,7 @@ void function ChampionScreenSetWinningTeamName( var rui )
 	if ( !IsPrivateMatch() )
 		return
 
-	int winningTeamOrAlliance = GamemodeUtility_GetWinningTeamOrAlliance()
+	int winningTeamOrAlliance = GamemodeUtility_GetWinningTeamOrAlliance( true )
 	if( winningTeamOrAlliance != TEAM_INVALID )
 	{
 		int winningTeamIndex = AllianceProximity_IsUsingAlliances() ? AllianceProximity_GetRepresentativeTeamForAlliance( winningTeamOrAlliance ) : winningTeamOrAlliance

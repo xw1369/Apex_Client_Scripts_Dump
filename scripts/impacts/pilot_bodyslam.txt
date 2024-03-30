@@ -67,15 +67,15 @@ ImpactTable
 		"H" "none"
 
 		"J" "none"
-		"K" "none"  // mud?
+		"K" "Octane_Mvmt_Execution_Mythic_Water_Impact_Small"  // mud?
 		"L" "none" // "Plastic_Box.BulletImpact"
 		"M" "none"	//"ArmorFlesh.BulletImpact"
-		"N" "none"	// sand?
-		"O" "none"
+		"N" "Octane_Mvmt_Execution_Mythic_Water_Impact_Small"	// sand?
+		"O" "Octane_Mvmt_Execution_Mythic_Water_Impact_Small"
 		"P" "none"
 		"Q" "none"
 		"R" "none"
-		"S" "none"
+		"S" "Octane_Mvmt_Execution_Mythic_Water_Impact_Small"
 		"T" "none"
 		"U" "none"
 		"V" "none"
@@ -89,15 +89,15 @@ ImpactTable
 		"2" "none" //lava_rock_hot
 		"3" "none"
 		"4" "none"
-		"5" "none"
+		"5" "Octane_Mvmt_Execution_Mythic_Water_Impact_Small"
 		"6" "none"
 		"7" "none"
 		"8" "none"
 		"9" "none"
 
 
-		"splash" "none" //brush water
-		"slime_splash" "none"
+		"splash" "Octane_Mvmt_Execution_Mythic_Water_Impact_Small" //brush water
+		"slime_splash" "Octane_Mvmt_Execution_Mythic_Water_Impact_Small"
 		"airburst" "none"  //No Surface
 		"shieldhit" "none"
 		"holohit" "none"

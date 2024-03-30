@@ -46,7 +46,9 @@ void function ClKillReplayFX_Init()
 void function ClKillReplayFX_ReplayBegin()
 {
 	Assert( file.killreplayVictimTagRUI == null )
-	entity victim = GetLocalClientPlayer().GetKillReplayVictim()
+	entity player = GetLocalClientPlayer()
+	entity victim = player.GetKillReplayVictim()
+	entity localPlayerView = GetLocalViewPlayer()
 
 	
 	if ( IsValid( victim ) && victim.IsPlayer() )
@@ -71,6 +73,7 @@ void function ClKillReplayFX_ReplayBegin()
 	{
 		file.killReplayBlackBar = CreateFullscreenRui( $"ui/death_screen_black_bar.rpak", 1000 )
 		file.killReplayBanner = CreateFullscreenRui( $"ui/death_screen_final_kill_header.rpak", 5000 )
+		DisplaySpectatorCardSidePane(eGladCardDisplaySituation.SPECTATE_ANIMATED, ToEHI( localPlayerView ), $"", "#HUD_SPECTATE_SPECTATING")
 	}
 }
 

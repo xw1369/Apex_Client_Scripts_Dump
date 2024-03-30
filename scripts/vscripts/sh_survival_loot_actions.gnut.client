@@ -784,7 +784,6 @@ bool function PickupVaultKeyItem( entity pickup, entity player, int pickupFlags,
 
 
 
-
 			if ( player == GetLocalViewPlayer() )
 				AddPlayerHint( 5.0, 0.25, $"", vaultData.pingVaultReveal )
 
@@ -876,7 +875,12 @@ bool function PickupBackpackItem( entity pickup, entity player, int pickupFlags,
 bool function PickupMainWeapon( entity pickup, entity player, int pickupFlags = 0, entity deathBox = null )
 {
 	array<entity> primaryWeapons = SURVIVAL_GetPrimaryWeapons( player )
-	bool doDropCurrentWeapon     = (pickupFlags & PICKUP_FLAG_FROM_MENU) > 0 && primaryWeapons.len() > 1
+
+
+
+
+		bool doDropCurrentWeapon     = (pickupFlags & PICKUP_FLAG_FROM_MENU) > 0 && primaryWeapons.len() > 1
+
 	bool dontSwitchWeapon        = (pickupFlags & PICKUP_FLAG_DONT_SWITCH_WEAPONS) > 0
 
 	return GiveMainWeapon_Internal( pickup, player, doDropCurrentWeapon, false, deathBox, dontSwitchWeapon )

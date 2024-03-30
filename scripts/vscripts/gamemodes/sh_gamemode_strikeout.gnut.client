@@ -2,14 +2,19 @@ global function IsStrikeoutGamemode
 
 
 global function Strikeout_GetMaxSquadStrikes
-global function Strikeout_GetSquadStrikes
-global function Strikeout_UI_SetSquadStrikes
 
 
 
 global function Strikeout_IsPlayerRespawnDisabled
 global function Sh_Survival_Strikeout_Init
 global function Sh_Survival_Strikeout_RegisterNetworking
+
+
+
+global function Strikeout_GetLocalClientPlayerSquadStrikes
+global function Strikeout_GetLocalViewPlayerSquadStrikes
+
+
 
 
 
@@ -47,8 +52,9 @@ struct
 
 
 
-	int squadStrikes = 0
-	int lastSquadStrikesAnnoucment = 0
+	int	localClientPlayerSquadStrikes									= 0
+	int localViewPlayerSquadStrikes										= 0
+	int	lastSquadStrikesAnnouncement									= 0
 
 
 
@@ -72,6 +78,8 @@ void function Sh_Survival_Strikeout_Init()
 
 	Obituary_SetVerticalOffset( 60 )
 	AddCallback_PlayerFreefallActiveChanged( StrikeOut_PlayerFreefallActiveChanged )
+
+	DeathScreen_SetIsPlayerWaitingForRespawnFunc( Strikeout_IsPlayerWaitingForRespawn )
 
 
 
@@ -99,13 +107,12 @@ void function Sh_Survival_Strikeout_Init()
 
 void function Sh_Survival_Strikeout_RegisterNetworking()
 {
-	RegisterNetworkedVariable( SQUAD_STRIKES_REF, SNDC_PLAYER_EXCLUSIVE, SNVT_INT, 0.0)
+	RegisterNetworkedVariable( SQUAD_STRIKES_REF, SNDC_PLAYER_EXCLUSIVE, SNVT_INT, 0)
 	RegisterNetworkedVariable( STRIKEOUT_RESPAWN_DISABLED, SNDC_PLAYER_EXCLUSIVE, SNVT_BOOL, false)
 	Remote_RegisterClientFunction( "ServertoClient_SquadElimationAnnouncement", "int", 1, 4)
 	Remote_RegisterClientFunction( "ServertoClient_UpdateStrikeoutRui", "entity")
 	Remote_RegisterClientFunction( "ServerCallback_Strikeout_SetDeathScreenCallbacks" )
 	Remote_RegisterClientFunction( "ServertoClient_RespawnsDisabledAnnouncement" )
-
 }
 
 void function Strikeout_EntitiesDidLoad()
@@ -254,7 +261,7 @@ void function __EntitiesDidLoad()
 
 bool function Strikeout_IsPlayerRespawnDisabled( entity player )
 {
-	return player.GetPlayerNetBool( STRIKEOUT_RESPAWN_DISABLED)
+	return player.GetPlayerNetBool( STRIKEOUT_RESPAWN_DISABLED )
 }
 
 
@@ -379,7 +386,7 @@ void function Strikeout_DeathScreenUpdate( var rui )
 
 	RuiSetString( rui, "headerText", titleString ) 
 	RuiSetString( rui, "killsText", killsText )
-	RuiSetInt( rui, "losingScore", Strikeout_GetSquadStrikes() )
+	RuiSetInt( rui, "losingScore", Strikeout_GetLocalClientPlayerSquadStrikes() )
 	RuiSetInt( rui, "winningScore", Strikeout_GetMaxSquadStrikes() )
 }
 
@@ -400,19 +407,45 @@ void function Strikeout_PopulateSummaryDataStrings( SquadSummaryPlayerData data 
 
 void function Strikeout_StrikesChanged( entity player, int value )
 {
-	bool isPlayer = player == GetLocalViewPlayer()
-	if( !isPlayer )
+	if ( !IsValid( player ) )
 		return
 
-	if( value < file.squadStrikes )
-		return
-
-	file.squadStrikes = value
-	RunUIScript( "Strikeout_UI_SetSquadStrikes", value )
-
-	if( value >= Strikeout_GetMaxSquadStrikes() )
+	if ( player == GetLocalViewPlayer() )
+	{
+		file.localViewPlayerSquadStrikes = value
 		Strikeout_UpdateGameState( player )
+	}
 
+	entity localClientPlayer = GetLocalClientPlayer()
+	if ( IsValid( localClientPlayer ) && IsFriendlyTeam( player.GetTeam(), localClientPlayer.GetTeam() ) )
+	{
+		
+		
+		
+		if ( value < file.localClientPlayerSquadStrikes )
+			return
+
+		file.localClientPlayerSquadStrikes = value
+		RunUIScript( "Strikeout_UI_SetLocalClientPlayerSquadStrikes", value )
+	}
+
+	if ( IsValid( player ) && player.GetPlayerNetBool( "freefallActive" ) )
+	{
+		Strikeout_TriggerStrikeAnnouncement( player )
+	}
+}
+
+
+
+bool function Strikeout_IsPlayerWaitingForRespawn( entity player )
+{
+	if ( !IsValid( player ) || ( player != GetLocalClientPlayer() ) )
+		return false
+
+	if ( Strikeout_IsPlayerRespawnDisabled( player ) )
+		return false
+
+	return ( Strikeout_GetLocalClientPlayerSquadStrikes() < Strikeout_GetMaxSquadStrikes() )
 }
 
 
@@ -423,25 +456,34 @@ void function Strikeout_UpdateGameState( entity player )
 	if( !isPlayer )
 		return
 
+	int localViewPlayerSquadStrikes = Strikeout_GetLocalViewPlayerSquadStrikes()
+
 	var rui = ClGameState_GetRui()
 	if ( rui != null)
 	{
-		RuiSetInt( rui, "squadStrikes", file.squadStrikes )
+		RuiSetInt( rui, "squadStrikes", localViewPlayerSquadStrikes )
 	}
 
 	rui = GetFullmapGamestateRui()
 	if ( rui != null)
 	{
-		RuiSetInt( rui, "squadStrikes", file.squadStrikes )
+		RuiSetInt( rui, "squadStrikes", localViewPlayerSquadStrikes )
 	}
 }
 
 
 
-void function Strikeout_UI_SetSquadStrikes( int strikes )
-{
-	file.squadStrikes = strikes
-}
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -484,40 +526,65 @@ void function ServertoClient_RespawnsDisabledAnnouncement()
 
 void function StrikeOut_PlayerFreefallActiveChanged( entity player, bool isFreefallActive )
 {
-	if( isFreefallActive )
+	if ( !isFreefallActive )
+		return
+
+	Strikeout_TriggerStrikeAnnouncement( player )
+}
+
+
+
+void function Strikeout_TriggerStrikeAnnouncement( entity player )
+{
+	
+	
+	
+	
+	
+
+	if ( !IsValid( player ) || player != GetLocalClientPlayer() )
+		return
+
+	int localClientPlayerSquadStrikes = Strikeout_GetLocalClientPlayerSquadStrikes()
+	if ( file.lastSquadStrikesAnnouncement == localClientPlayerSquadStrikes || localClientPlayerSquadStrikes == 0 )
+		return
+
+	string message = ""
+	string strikeSound = "UI_3Strikes_Widget_Stinger_Strike1"
+	switch ( localClientPlayerSquadStrikes )
 	{
-		int strikes = Strikeout_GetSquadStrikes()
-
-		if ( file.lastSquadStrikesAnnoucment == strikes || strikes == 0 )
-			return
-
-		string message
-		string strikeSound = "UI_3Strikes_Widget_Stinger_Strike1"
-		switch ( strikes )
+		case 1:
 		{
-			case 1:
-				message =  Localize( "#SURVIVAL_STRIKEOUT_DEATH_STRIKE_ONE" )
-				break
-			case 2:
-				message =  Localize( "#SURVIVAL_STRIKEOUT_DEATH_STRIKE_TWO" )
-				strikeSound ="UI_3Strikes_Widget_Stinger_Strike2"
-				break
-			case 3:
-				message =  Localize( "#SURVIVAL_STRIKEOUT_DEATH_STRIKE_THREE" )
-				strikeSound = "UI_3Strikes_Widget_Stinger_Strike3"
-				break
+			message = Localize( "#SURVIVAL_STRIKEOUT_DEATH_STRIKE_ONE" )
+			break
 		}
-
-		AnnouncementData announcement = Announcement_Create( message )
-		announcement.announcementStyle = ANNOUNCEMENT_STYLE_STRIKE
-		announcement.duration = STRIKEOUT_FREEFALL_ANNOUNCEMENT_DURATION
-		announcement.priority = STRIKEOUT_FREEFALL_ANNOUNCEMENT_PRIORTIY
-		AnnouncementFromClass( player, announcement )
-		Strikeout_UpdateGameState( player )
-		EmitSoundOnEntity( GetLocalViewPlayer(), strikeSound )
-
-		file.lastSquadStrikesAnnoucment = strikes
+		case 2:
+		{
+			message     = Localize( "#SURVIVAL_STRIKEOUT_DEATH_STRIKE_TWO" )
+			strikeSound = "UI_3Strikes_Widget_Stinger_Strike2"
+			break
+		}
+		case 3:
+		{
+			message     = Localize( "#SURVIVAL_STRIKEOUT_DEATH_STRIKE_THREE" )
+			strikeSound = "UI_3Strikes_Widget_Stinger_Strike3"
+			break
+		}
+		default:
+			break
 	}
+
+	AnnouncementData announcement = Announcement_Create( message )
+	announcement.announcementStyle = ANNOUNCEMENT_STYLE_STRIKE
+	announcement.duration = STRIKEOUT_FREEFALL_ANNOUNCEMENT_DURATION
+	announcement.priority = STRIKEOUT_FREEFALL_ANNOUNCEMENT_PRIORTIY
+	AnnouncementFromClass( player, announcement )
+
+	Strikeout_UpdateGameState( player )
+
+	EmitSoundOnEntity( player, strikeSound )
+
+	file.lastSquadStrikesAnnouncement = localClientPlayerSquadStrikes
 }
 
 
@@ -553,9 +620,16 @@ void function UpdateRui_RespawnsDisabled()
 
 
 
-int function Strikeout_GetSquadStrikes()
+int function Strikeout_GetLocalClientPlayerSquadStrikes()
 {
-	return file.squadStrikes
+	return file.localClientPlayerSquadStrikes
+}
+
+
+
+int function Strikeout_GetLocalViewPlayerSquadStrikes()
+{
+	return file.localViewPlayerSquadStrikes
 }
 
 
@@ -564,6 +638,7 @@ int function Strikeout_GetMaxSquadStrikes()
 {
 	return GetCurrentPlaylistVarInt( "respawns", 2 ) + 1
 }
+
 
 
 bool function GetPlaylistVar_AmmoOnKillEnabled()

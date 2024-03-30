@@ -26,6 +26,7 @@ global function RegisterImpactTable
 global function GlobalAnimEventWithStringParameter_CloakStart
 
 
+global function ClientCodeCallback_GetScriptAnimSkinIndex
 global function ClientCodeCallback_HandleClientAnimEvent
 
 
@@ -93,6 +94,7 @@ void function AnimEvents_Init()
 	RegisterImpactTable( "melee_human" )
 	RegisterImpactTable( "fuse_flag" )
 	RegisterImpactTable( "fuse_flag" )
+	RegisterImpactTable( "octane_mythic_exec" )
 
 	AddGlobalAnimEvent( "hide", GlobalAnimEvent_Hide )
 	AddGlobalAnimEvent( "show", GlobalAnimEvent_Show )
@@ -298,6 +300,26 @@ void function SendSignalFromTokens( entity self, array<string> tokens )
 		self.Signal( tokens[1], { signal = tokens[1], parm = tokens[2] } )
 	}
 }
+
+
+const int INVALID_SKIN_INDEX = -1
+int function ClientCodeCallback_GetScriptAnimSkinIndex( entity captureModel, entity createdProp )
+{
+	
+
+
+
+
+
+
+
+	ItemFlavor ornull meleeFlavor = captureModel.e.animWindowMeleeSkinItemFlavor 
+	if ( meleeFlavor == null )
+		return INVALID_SKIN_INDEX
+
+	return createdProp.GetSkinIndexByName( MeleeSkin_GetSkinName( expect ItemFlavor( meleeFlavor ) ) )
+}
+
 
 
 void function ClientCodeCallback_HandleClientAnimEvent( entity eventCaller, string eventString )

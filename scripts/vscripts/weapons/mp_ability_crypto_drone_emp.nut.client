@@ -635,6 +635,12 @@ var function OnWeaponPrimaryAttack_ability_crypto_drone_emp( entity weapon, Weap
 
 
 
+
+
+
+
+
+
 void function EMPWarningVisualsEnabled( entity ent, int statusEffect, bool actuallyChanged )
 {
 	if ( ent != GetLocalViewPlayer() )

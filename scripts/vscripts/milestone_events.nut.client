@@ -11,6 +11,22 @@ global function MilestoneEvent_GetFrontPageGRXOfferLocation
 global function MilestoneEvent_GetAboutText
 global function MilestoneEvent_GetMainIcon
 global function MilestoneEvent_GetMilestoneGrantRewards
+global function MilestoneEvent_GetStoreEventSectionMainImage
+global function MilestoneEvent_GetStoreEventSectionMainText
+global function MilestoneEvent_GetStoreEventSectionSubText
+global function MilestoneEvent_GetEventItems
+global function MilestoneEvent_GetMythicEventItems
+global function MilestoneEvent_GetRewardGroups
+global function MilestoneEvent_GetGuaranteedPackFlav
+global function MilestoneEvent_IsItemEventItem
+
+
+
+
+
+
+
+
 
 
 
@@ -62,6 +78,54 @@ global struct MilestoneEventGrantReward
 	asset 		customImage
 	string		customName
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -175,23 +239,6 @@ string function MilestoneEvent_GetFrontPageRewardBoxTitle( ItemFlavor event )
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 ItemFlavor function MilestoneEvent_GetMainPackFlav( ItemFlavor event )
 {
 	Assert( ItemFlavor_GetType( event ) == eItemType.calevent_milestone )
@@ -235,6 +282,14 @@ ItemFlavor function MilestoneEvent_GetMainPackFlav( ItemFlavor event )
 
 
 
+
+
+
+ItemFlavor function MilestoneEvent_GetGuaranteedPackFlav( ItemFlavor event )
+{
+	Assert( ItemFlavor_GetType( event ) == eItemType.calevent_milestone )
+	return GetItemFlavorByAsset( GetGlobalSettingsAsset( ItemFlavor_GetAsset( event ), "guaranteedPackFlav" ) )
+}
 
 
 
@@ -319,6 +374,27 @@ array<MilestoneEventGrantReward> function MilestoneEvent_GetMilestoneGrantReward
 
 
 
+asset function MilestoneEvent_GetStoreEventSectionMainImage( ItemFlavor event )
+{
+	Assert( ItemFlavor_GetType( event ) == eItemType.calevent_milestone )
+	return GetGlobalSettingsAsset( ItemFlavor_GetAsset( event ), "storeEventSectionMainImage" )
+}
+
+
+
+string function MilestoneEvent_GetStoreEventSectionMainText( ItemFlavor event )
+{
+	Assert( ItemFlavor_GetType( event ) == eItemType.calevent_milestone )
+	return GetGlobalSettingsString( ItemFlavor_GetAsset( event ), "storeEventSectionMainText" )
+}
+
+
+
+string function MilestoneEvent_GetStoreEventSectionSubText( ItemFlavor event )
+{
+	Assert( ItemFlavor_GetType( event ) == eItemType.calevent_milestone )
+	return GetGlobalSettingsString( ItemFlavor_GetAsset( event ), "storeEventSectionSubText" )
+}
 
 
 
@@ -334,6 +410,161 @@ array<MilestoneEventGrantReward> function MilestoneEvent_GetMilestoneGrantReward
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+array<ItemFlavor> function MilestoneEvent_GetEventItems( ItemFlavor event, bool isRestricted = false )
+{
+	array<ItemFlavor> eventItems
+	if ( ItemFlavor_GetType( event ) == eItemType.calevent_milestone )
+	{
+		array<CollectionEventRewardGroup> rewardGroups = MilestoneEvent_GetRewardGroups( event, isRestricted )
+		foreach ( CollectionEventRewardGroup rewardGroup in rewardGroups )
+		{
+			
+			if ( rewardGroup.quality == eRarityTier.MYTHIC && rewardGroup.rewards.len() == 1 )
+			{
+				continue
+			}
+
+			foreach ( ItemFlavor reward in rewardGroup.rewards )
+			{
+				eventItems.append( reward )
+			}
+		}
+	}
+	return eventItems
+}
+
+
+
+array<ItemFlavor> function MilestoneEvent_GetMythicEventItems( ItemFlavor event, bool isRestricted = false )
+{
+	array<ItemFlavor> eventItems
+	if ( ItemFlavor_GetType( event ) == eItemType.calevent_milestone )
+	{
+		array<CollectionEventRewardGroup> rewardGroups = MilestoneEvent_GetRewardGroups( event, isRestricted )
+		foreach ( CollectionEventRewardGroup rewardGroup in rewardGroups )
+		{
+			if ( rewardGroup.quality == eRarityTier.MYTHIC )
+			{
+				foreach ( ItemFlavor reward in rewardGroup.rewards )
+				{
+					eventItems.append( reward )
+				}
+			}
+		}
+	}
+	return eventItems
+}
+
+
+
+
+array<CollectionEventRewardGroup> function MilestoneEvent_GetRewardGroups( ItemFlavor event, bool isRestricted = false )
+{
+	Assert( ItemFlavor_GetType( event ) == eItemType.calevent_milestone )
+
+	array<CollectionEventRewardGroup> groups = []
+	string rewardPath = isRestricted ? "restrictedRewardGroups" : "rewardGroups"
+	foreach ( var groupBlock in IterateSettingsAssetArray( ItemFlavor_GetAsset( event ), rewardPath ) )
+	{
+		CollectionEventRewardGroup group
+		group.ref = GetSettingsBlockString( groupBlock, "ref" )
+		group.quality = eRarityTier[GetSettingsBlockString( groupBlock, "quality" )]
+		foreach ( var rewardBlock in IterateSettingsArray( GetSettingsBlockArray( groupBlock, "rewards" ) ) )
+			group.rewards.append( GetItemFlavorByAsset( GetSettingsBlockAsset( rewardBlock, "flavor" ) ) )
+
+		groups.append( group )
+	}
+	return groups
+}
+
+
+
+bool function MilestoneEvent_IsItemEventItem( ItemFlavor event, int itemIdx )
+{
+	Assert( ItemFlavor_GetType( event ) == eItemType.calevent_milestone )
+	array<ItemFlavor> eventItems = MilestoneEvent_GetMythicEventItems( event )
+	eventItems.extend( MilestoneEvent_GetEventItems( event, GRX_IsOfferRestricted() ) )
+	foreach( ItemFlavor item in eventItems )
+	{
+		if ( item.grxIndex == itemIdx )
+			return true
+	}
+	return false
+}
 
 
 

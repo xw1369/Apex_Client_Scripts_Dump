@@ -10,6 +10,7 @@ global function SetNav
 
 global function LocalizeAndShortenNumber_Int
 global function LocalizeAndShortenNumber_Float
+global function LocalizeNumeral
 
 global function IsTenThousandOrMore
 
@@ -523,6 +524,11 @@ string function LocalizeAndShortenNumber_Float( float number, int maxDisplayInte
 		finalDisplayNumber = separatedIntegralString + decimalSeparator + decimalString
 
 	return finalDisplayNumber
+}
+
+string function LocalizeNumeral( int n )
+{
+	return Localize( "#NUMERAL_" + n )
 }
 
 

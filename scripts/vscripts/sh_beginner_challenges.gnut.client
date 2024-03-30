@@ -7,7 +7,6 @@ global function BeginnerChallenges_GetNextChallenge
 global function BeginnerChallenges_GetChallengeByIndex
 global function BeginnerChallenges_GetChallengeIndex
 global function BeginnerChallenges_GetBeginnerChallengesCount
-global function BeginnerChallenges_PlayerHasCompletionBadge
 
 global function BeginnerChallenges_GetNextChallengeForPlayer
 global function BeginnerChallenges_GetNextChallengeIndexForPlayer
@@ -26,12 +25,6 @@ global function BeginnerChallenges_GetPlayerCompletedChallengeCount
 
 
 
-
-
-
-
-
-const asset BEGINNER_CHALLENGES_REWARD_BADGE = $"settings/itemflav/gcard_badge/account/beginner_challenge.rpak"
 
 
 
@@ -355,26 +348,23 @@ int function BeginnerChallenges_GetChallengeIndex( ItemFlavor challenge )
 	return file.beginnerChallenges.find( challenge )
 }
 
-int function BeginnerChallenges_GetBeginnerChallengesCount()
+int function BeginnerChallenges_GetBeginnerChallengesCount( entity player )
 {
-	return file.beginnerChallenges.len()
-}
+	Assert( IsValid( player ) )
 
-ItemFlavor function BeginnerChallenges_GetCompletionBadgeItemFlavor()
-{
-	ItemFlavor beginnerChallengeBadge = GetItemFlavorByAsset( BEGINNER_CHALLENGES_REWARD_BADGE )
+	int numChallenges = 0
 
-	Assert( IsItemFlavorStructValid( beginnerChallengeBadge.guid, eValidation.ASSERT ) )
-	Assert( ItemFlavor_GetGRXMode( beginnerChallengeBadge ) == eItemFlavorGRXMode.REGULAR )
+	for( int i = 0; i < file.beginnerChallenges.len(); ++i )
+	{
+		if ( !Challenge_IsAssigned( player, file.beginnerChallenges[i] ) )
+		{
+			continue
+		}
 
-	return beginnerChallengeBadge
-}
+		++numChallenges
+	}
 
-bool function BeginnerChallenges_PlayerHasCompletionBadge( entity player )
-{
-	Assert ( GRX_IsInventoryReady( player ) )
-
-	return GRX_IsItemOwnedByPlayer( BeginnerChallenges_GetCompletionBadgeItemFlavor(), player )
+	return numChallenges
 }
 
 ItemFlavor ornull function BeginnerChallenges_GetNextChallengeForPlayer( entity player )
@@ -435,32 +425,6 @@ int function BeginnerChallenges_GetPlayerCompletedChallengeCount( entity player 
 	}
 	return count;
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

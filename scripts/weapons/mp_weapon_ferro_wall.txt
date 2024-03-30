@@ -141,7 +141,7 @@ WeaponData
 	//"toss_overhead_time"							"0.2"
 	"offhand_hybrid_switch_on_lower"				"1"
 	"offhand_allow_swap_to_on_zipline"              "0"
-	"regen_ammo_forced_delay"                       "25.0"
+	"regen_ammo_forced_delay"                       "17.0"
 
 
 	"grenade_bounce_vel_frac_shallow"				"0.5"
@@ -308,6 +308,11 @@ WeaponData
               
 
                             
+        upgrade_catalyst_ult_length
+        {
+            "regen_ammo_forced_delay"   "22.0"
+        }
+
         upgrade_core_ult_cooldown_reduction
         {
             "ammo_clip_size"      "120"

@@ -44,6 +44,7 @@ global function CodeCallback_PlayerDecoyStateChange
 
 
 
+
 global const SOUND_DECOY_CONTROL = "Mirage_PsycheOut_ModeSwitch"
 global const SOUND_DECOY_RELEASE = "Mirage_PsycheOut_ModeSwitch"
 
@@ -116,6 +117,21 @@ void function Decoy_Init()
 	PrecacheScriptString( DECOY_SCRIPTNAME )
 	PrecacheScriptString( CONTROLLED_DECOY_SCRIPTNAME )
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

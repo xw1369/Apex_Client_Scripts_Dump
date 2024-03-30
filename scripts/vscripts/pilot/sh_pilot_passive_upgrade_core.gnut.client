@@ -63,7 +63,10 @@ global function UpgradeCore_GetXpRequiredForNextLevel
 
 
 
+
 global function UpgradeCore_SetProgressionLocked
+global function UpgradeCore_ProgressionLocked_ForPlayer_Set
+global function UpgradeCore_ProgressionLocked_ForPlayer_Get
 global function UpgradeCore_SetUpgradesLocked
 global function UpgradeCore_AreUpgradesLocked
 global function UpgradeCore_PlayerHasUpgradesDefined
@@ -188,11 +191,28 @@ struct AdrenalineStatusEffectIndexes
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
 struct
 {
 	table< ItemFlavor, array< ItemFlavor > > characterToPassiveUpgrades
 	table< ItemFlavor, array<SettingsAssetGUID> > characterToPassiveUpgradeOverrides
 	table< ItemFlavor , UpgradeCoreChoice > passiveFlavorToUpgradeData
+
+	table< entity, bool > playerProgressionBlockStatus
+
+
+
 
 
 
@@ -230,24 +250,27 @@ struct
 
 
 
-	int respawnXp = 250
-	int reviveXp = 150
-	int knockXp = 100
-	int assistXp = 75
+	int respawnXp = 125
+	int reviveXp = 100
+	int reviveValueReduction = 25
+	int reviveFarmingThreshold = 6 
+	int reviveMinXp = 25
+	int knockXp = 150
+	int assistXp = 100
 	int squadwipeXp = 100
 	int beaconScanXp = 200
 	int consoleScanXp = 200
 	int wildlifeClearXp = 150
-	int bannerRecoveryXp = 150
-	int finisherXp = 150
+	int bannerRecoveryXp = 75
+	int finisherXp = 100
 	int carePackageOpenXp = 100
 	int vaultOpenXp = 200
 	int perkBinOpenXp = 100
 	int carePackageRevealXp = 50
-	int evoHarvesterXp = 400
+	int evoHarvesterXp = 350
 	int explosiveHoldOpenXp = 150
 	int bloodhoundTrialsXp = 250
-	int flyerKillXp = 75
+	int flyerKillXp = 50
 	int xpCacheSmallXp = 150
 	int xpCacheLargeXp = 500
 	int xpCacheDynamicMinXp = 500
@@ -266,6 +289,9 @@ struct
 	bool  awardOvermatchOnSquadWipe = true
 	bool  armorTiedToUpgrades = true
 	bool  preventFriendlyFireExploits = true
+	bool  preventReviveFarmingExploits = false 
+	bool  allowGracePeriodForEnvKnocksAssistedByEnemies = true 
+	float gracePeriodDurationForEnvKnocksAssistedByEnemies = 6.0 
 	bool  usePersonalObitNotifications = true
 	bool  evoCacheUseDynamicAward = true
 	bool  modesSetInitialLevel = false
@@ -285,16 +311,22 @@ struct
 	float harvesterSpawnInitialMinScale= 0.4
 	float harvesterSpawnInitialMaxScale = 0.7
 	float harvesterSpawnInitialSeperationDistance = 15000.0
-	float harvesterSpawnVerticalOffset = -20.0
+	float harvesterSpawnVerticalOffset = -10.0
 	int harvesterSpawnNumRetries = 4
 	bool harvestersNotAccessibleBeforeAnnounce = true
+
+	bool preventDoubleRingScanRewards = true
+	bool messageDoubleRingScan = true
 
 	float harvester_idealTileArea = 2500.0
 	float harvester_minTileSize = 800.0
 	float harvester_minSurroundingArea = 10000.0
-	float harvester_maxSurroundingArea = 38000.0
+	float harvester_maxSurroundingArea = 35000.0 
 	float harvester_maxPathCost = 10000.0
 	int harvester_minNumAdjacentTiles = 8
+
+	bool harvester_useBadAreaAvoidanceRadius = true
+	float harvester_badAreaAvoidanceRadius = 3000.0
 }tunings
 
 
@@ -356,8 +388,8 @@ global const int UPGRADE_CORE_TOTAL_LEVELS = 3
 global const int UPGRADE_CORE_MAX_EXPECTED_UPGRADES = UPGRADE_CORE_TOTAL_LEVELS * UPGRADE_CORE_NUM_EXPECTED_UPGRADES_PER_LEVEL
 global const float EVO_HARVESTER_ICON_UP_OFFSET = 50 
 const string UPGRADE_CORE_DEFAULT_OVERMATCH_BONUS_XP = "0 100 150 200"
-const string UPGRADE_CORE_DEFAULT_XP_THRESHOLDS_THREE_TIER = "500 1300 1900"
-const string UPGRADE_CORE_DEFAULT_XP_THRESHOLDS_THREE_TIER_DUOS = "400 1000 1650"
+const string UPGRADE_CORE_DEFAULT_XP_THRESHOLDS_THREE_TIER = "450 1350 2000"
+const string UPGRADE_CORE_DEFAULT_XP_THRESHOLDS_THREE_TIER_DUOS = "400 1100 1700"
 const string UPGRADE_CORE_DEFAULT_XP_THRESHOLDS_FOUR_TIER = "450 750 800 1000"
 const int UPGRADE_CORE_LARGE_XP_THRESHOLD = 250
 const float UPGRADE_CORE_LEVEL_UP_NOTI_DURATION = 4.0
@@ -454,13 +486,20 @@ void function ShPassiveUpgradeCore_Init()
 
 
 
-	UpgradeCore_ParseUpgradeOverrides()
+
+
+	thread UpgradeCore_DelayedParseUpgradeOverrides()
 
 	
 	
 	thread UpgardeCore_Init_DelayedUIUpgradeParse()
 
+}
 
+void function UpgradeCore_DelayedParseUpgradeOverrides()
+{
+	WaitFrame()
+	thread UpgradeCore_ParseUpgradeOverrides()
 }
 
 void function UpgradeCore_InitTuningValues()
@@ -469,6 +508,9 @@ void function UpgradeCore_InitTuningValues()
 	tunings.xpLevelThresholds = UpgradeCore_GetLevelXpThresholds()
 	tunings.respawnXp = GetCurrentPlaylistVarInt( "passive_upgrade_core_respawn_xp", tunings.respawnXp )
 	tunings.reviveXp = GetCurrentPlaylistVarInt( "passive_upgrade_core_revive_xp", tunings.reviveXp )
+	tunings.reviveValueReduction = GetCurrentPlaylistVarInt( "passive_upgrade_core_revive_value_reduction", tunings.reviveValueReduction )
+	tunings.reviveFarmingThreshold = GetCurrentPlaylistVarInt( "passive_upgrade_core_revive_farming_threshold", tunings.reviveFarmingThreshold ) 
+	tunings.reviveMinXp = GetCurrentPlaylistVarInt( "passive_upgrade_core_revive_minimum_xp", tunings.reviveMinXp )
 	tunings.knockXp = GetCurrentPlaylistVarInt( "passive_upgrade_core_knock_xp", tunings.knockXp )
 	tunings.assistXp = GetCurrentPlaylistVarInt( "passive_upgrade_core_assist_xp", tunings.assistXp )
 	tunings.squadwipeXp = GetCurrentPlaylistVarInt( "passive_upgrade_core_squadwipe_xp", tunings.squadwipeXp )
@@ -499,6 +541,9 @@ void function UpgradeCore_InitTuningValues()
 	tunings.awardOvermatchOnSquadWipe = GetCurrentPlaylistVarBool( "passive_upgrade_core_overmatch_award_onsquadwipe", tunings.awardOvermatchOnSquadWipe )
 	tunings.armorTiedToUpgrades = UpgradeCore_IsEnabled() && GetCurrentPlaylistVarBool( "passive_upgrade_armor_tied_to_upgrades", true )
 	tunings.preventFriendlyFireExploits = GetCurrentPlaylistVarBool( "passive_upgrade_core_prevent_friendlyfire_exploits", tunings.preventFriendlyFireExploits )
+	tunings.preventReviveFarmingExploits = GetCurrentPlaylistVarBool( "passive_upgrade_core_prevent_revivefarming_exploits", tunings.preventReviveFarmingExploits )
+	tunings.allowGracePeriodForEnvKnocksAssistedByEnemies = GetCurrentPlaylistVarBool( "passive_upgrade_core_allow_window_for_enemyknocks_with_env_damage", tunings.allowGracePeriodForEnvKnocksAssistedByEnemies )
+	tunings.gracePeriodDurationForEnvKnocksAssistedByEnemies = GetCurrentPlaylistVarFloat( "passive_upgrade_core_window_duration_for_enemyknocks_with_env_assist", tunings.gracePeriodDurationForEnvKnocksAssistedByEnemies )
 	tunings.usePersonalObitNotifications = UpgradeCore_IsEnabled() && GetCurrentPlaylistVarBool( "passive_upgrade_use_personal_obituary_notifications", true )
 	tunings.evoCacheUseDynamicAward = GetCurrentPlaylistVarBool( "passive_upgrade_core_xp_xpcache_dynamicaward_enabled", tunings.evoCacheUseDynamicAward )
 	tunings.modesInitialLevel = GetCurrentPlaylistVarInt( "passive_upgrade_core_modes_initial_level", tunings.modesInitialLevel )
@@ -525,6 +570,10 @@ void function UpgradeCore_InitTuningValues()
 	tunings.harvester_minNumAdjacentTiles = GetCurrentPlaylistVarInt( "evo_harvester_minNumAdjacentTiles", tunings.harvester_minNumAdjacentTiles )
 	tunings.harvesterSpawnNumRetries = GetCurrentPlaylistVarInt( "evo_harvester_spawn_num_retries", tunings.harvesterSpawnNumRetries )
 	tunings.harvestersNotAccessibleBeforeAnnounce = GetCurrentPlaylistVarBool( "evo_harvester_noninteractive_before_time_gate", true )
+	tunings.preventDoubleRingScanRewards = GetCurrentPlaylistVarBool( "passive_upgrade_prevent_double_ring_scan_rewards", true )
+	tunings.messageDoubleRingScan = GetCurrentPlaylistVarBool( "passive_upgrade_core_ring_rescan_messaging_enabled", true )
+	tunings.harvester_useBadAreaAvoidanceRadius = GetCurrentPlaylistVarBool( "passive_upgrade_core_harvester_bad_area_avoidance_enabled", tunings.harvester_useBadAreaAvoidanceRadius )
+	tunings.harvester_badAreaAvoidanceRadius = GetCurrentPlaylistVarFloat( "passive_upgrade_core_harvester_bad_area_avoidance_radius", tunings.harvester_badAreaAvoidanceRadius )
 }
 
 void function ShPassiveUpgradeCore_NetvarsInit()
@@ -712,6 +761,19 @@ void function UpgradeCore_OnPlayerClassChanged( entity ent )
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
 }
 
 void function UpgradeCore_SetUpScoreEvents()
@@ -727,6 +789,9 @@ void function UpgradeCore_SetUpScoreEvents()
 
 	ScoreEvent eliminateAssistEvent = GetScoreEvent( "EliminatePilotAssist" )
 	ScoreEvent_SetSplashText( eliminateAssistEvent, "#SCORE_EVENT_SUR_ELIMINATE_PILOT_ASSIST_WITH_ICON" )
+
+	ScoreEvent squadWipe = GetScoreEvent( "Sur_SquadWipe" )
+	ScoreEvent_SetXpValue( squadWipe, tunings.squadwipeXp, true )
 }
 
 
@@ -2256,6 +2321,382 @@ array<int> function UpgradeCore_GetLevelXpThresholds()
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 bool function UpgradeCore_EnabledForCharacter( entity player )
 {
 	return UpgradeCore_GetUpgradesForPlayer( player ).len() > 0
@@ -2264,6 +2705,21 @@ bool function UpgradeCore_EnabledForCharacter( entity player )
 void function UpgradeCore_SetProgressionLocked( bool val )
 {
 	tunings.progressionLocked = val
+}
+
+void function UpgradeCore_ProgressionLocked_ForPlayer_Set( entity player, bool val )
+{
+	file.playerProgressionBlockStatus[ player ] <- val
+}
+
+bool function UpgradeCore_ProgressionLocked_ForPlayer_Get( entity player )
+{
+	if( player in file.playerProgressionBlockStatus )
+	{
+		return file.playerProgressionBlockStatus[ player ]
+	}
+
+	return false
 }
 
 void function UpgradeCore_SetUpgradesLocked( bool val )
@@ -2349,6 +2805,11 @@ array< string > function UpgradeCore_GetUpgradeNamesForPlayer( entity player )
 int function UpgradeCore_GetPlayerLevel( entity player )
 {
 	if( !UpgradeCore_IsEnabled() )
+	{
+		return 0
+	}
+
+	if( !IsValid( player ) )
 	{
 		return 0
 	}
@@ -2665,7 +3126,7 @@ bool function UpgradeCore_Upgrade_Station_CanUseFunction( entity playerUser, ent
 	return true
 }
 
-bool function UpgradeCore_CanUseConsole( entity player, entity console )
+bool function UpgradeCore_CanUseConsole( entity player, entity console, bool checkTime = true )
 {
 	if ( !IsValid( console ) )
 		return false
@@ -2673,7 +3134,7 @@ bool function UpgradeCore_CanUseConsole( entity player, entity console )
 	if ( !IsValid( player ) || !player.IsPlayer() )
 		return false
 
-	if( Time() < GetGlobalNetTime( UPGRADE_CORE_HARVESTER_ACTIVATION_TIME ) )
+	if( checkTime && Time() < GetGlobalNetTime( UPGRADE_CORE_HARVESTER_ACTIVATION_TIME ) )
 		return false
 
 	return !console.GetUseStateByIndex( player.GetTeam() )
@@ -3096,6 +3557,7 @@ void function ServerToClient_NotifyLeveledUp_Delayed( entity player )
 	
 	if( localPlayer != localClient )
 	{
+		player.EndSignal( "OnDestroy", "OnDeath" )
 		Wait( .5 )
 	}
 
@@ -3125,7 +3587,7 @@ void function ServerToClient_NotifyLeveledUp_Delayed( entity player )
 
 void function UpgradeCore_Announce_RevealXPStations()
 {
-	SetMapFeatureItem( 1011, Localize( "#PROMPT_PING_UPGRADE_STATION" ), Localize( "#LEGEND_UPGRADE_ANNOUNCEMENT_STATIONS_INIT_SUBTITLE" ), EVO_STATION_MINIMAP_ICON )
+	SetMapFeatureItem( 1011, Localize( "#PROMPT_PING_UPGRADE_STATION" ), Localize( "#LEGEND_UPGRADE_ANNOUNCEMENT_STATIONS_INIT_SUBTITLE" ), EVO_STATION_MINIMAP_ICON, <1.0, 1.0, 0.0> )
 
 	if( tunings.harvestersNotAccessibleBeforeAnnounce )
 	{
@@ -3249,7 +3711,14 @@ void function UpgradeCore_UpgradeReminderThread( entity player )
 		{
 			timeWithUnspentUpgrade -= reminderHintDelay
 			
-			PlayBattleChatterToSelfOnClient( player, "bc_upgradeReminder" ) 
+
+#if DEV
+			
+			if ( GetConVarInt( "mp_enablematchending" ) != 0 )
+#endif
+			{
+				PlayBattleChatterToSelfOnClient( player, "bc_upgradeReminder" ) 
+			}
 		}
 
 		Wait( 1.0 )
@@ -3538,6 +4007,11 @@ void function UpgradeCore_SetUpConsole_Thread( entity console  )
 	if( Time() < GetGlobalNetTime( UPGRADE_CORE_HARVESTER_ACTIVATION_TIME ) )
 		wait GetGlobalNetTime( UPGRADE_CORE_HARVESTER_ACTIVATION_TIME ) - Time()
 
+	if( !UpgradeCore_CanUseConsole( GetLocalViewPlayer(), console, false ) )
+	{
+		return
+	}
+
 	var rui = UpgradeCore_CreateClientSideHudMarker( EVO_STATION_MINIMAP_ICON, console, EVO_HARVESTER_ICON_UP_OFFSET, true )
 	file.harvesterToWorldspaceRui[console] <- rui
 
@@ -3696,8 +4170,7 @@ void function CL_SetHarvesterState( entity harvester, int harvesterState )
 	{
 		case eHarvesterState.EMPTY:
 			fakeHarvester.Anim_Stop()
-			
-			
+			fakeHarvester.Anim_Play( EVO_HARVESTER_EMPTY_IDLE_ANIM )
 			fakeHarvester.kv.intensity = 0.1
 			if( IsValid( ambGen ) )
 			{

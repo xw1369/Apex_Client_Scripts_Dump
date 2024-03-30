@@ -11,12 +11,6 @@ global function OnCreateClientOnlyModel_ability_revenant_death_totem
 
 
 
-global function SetupShadowDuelRUI
-global function SetupShadowFormRUI
-
-
-
-
 
 
 
@@ -1340,12 +1334,6 @@ void function DeathTotem_DisableWallClimbWhileDeployingTotem( entity ownerPlayer
 
 
 
-
-
-
-
-
-
 void function DeathTotem_UseTotem( entity player, entity totemProxy )
 {
 	if ( !DeathTotem_PlayerCanRecall( player ) )
@@ -1512,26 +1500,6 @@ void function DeathTotem_OnTotemDestroyed( entity totem )
 		UltimateWeaponStateSet( eUltimateState.CHARGING )
 }
 
-
-void function SetupShadowDuelRUI( entity ent )
-{
-	
-	
-	
-	
-	
-}
-
-void function SetupShadowFormRUI( entity ent )
-{
-	
-	
-	
-	
-	RuiSetBool( file.deathProtectionStatusRui, "showTimer", false )
-}
-
-
 void function DeathTotem_StartVisualEffect( entity ent, int statusEffect, bool actuallyChanged )
 {
 	if ( !actuallyChanged )
@@ -1550,26 +1518,9 @@ void function DeathTotem_StartVisualEffect( entity ent, int statusEffect, bool a
 	file.hasMark = true
 	file.deathProtectionStatusRui = CreateFullscreenRui( $"ui/death_protection_status.rpak" )
 
-
-		if ( StatusEffect_HasSeverity( ent, eStatusEffect.shadow_form ) )
-		{
-			SetupShadowFormRUI( ent )
-		}
-		
-		
-		
-		
-		else
-		{
-			RuiSetFloat( file.deathProtectionStatusRui, "maxDuration", file.deathTotemBuffDuration )
-			RuiTrackFloat( file.deathProtectionStatusRui, "timeRemaining", ent, RUI_TRACK_STATUS_EFFECT_TIME_REMAINING, eStatusEffect.death_totem_visual_effect )
-			RuiTrackInt( file.deathProtectionStatusRui, "gameState", null, RUI_TRACK_SCRIPT_NETWORK_VAR_GLOBAL_INT, GetNetworkedVariableIndex( "gameState" ) )
-		}
-
-
-
-
-
+	RuiSetFloat( file.deathProtectionStatusRui, "maxDuration", file.deathTotemBuffDuration )
+	RuiTrackFloat( file.deathProtectionStatusRui, "timeRemaining", ent, RUI_TRACK_STATUS_EFFECT_TIME_REMAINING, eStatusEffect.death_totem_visual_effect )
+	RuiTrackInt( file.deathProtectionStatusRui, "gameState", null, RUI_TRACK_SCRIPT_NETWORK_VAR_GLOBAL_INT, GetNetworkedVariableIndex( "gameState" ) )
 
 
 	entity cockpit = ent.GetCockpit()

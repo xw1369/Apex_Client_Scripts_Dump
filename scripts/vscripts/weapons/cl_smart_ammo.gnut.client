@@ -193,8 +193,6 @@ void function SmartAmmo_LockedOntoWarningHUD_Update()
 			RuiSetFloat (file.lockon_hud, "characterIconScale", 0.8)
 		}
 
-
-
 		else if ( StatusEffect_HasSeverity( player, eStatusEffect.shadow_form ) )
 		{
 			RuiSetString( file.lockon_hud, "lockMessage", "#SHADOW_FORM_HEADER" )
@@ -221,8 +219,6 @@ void function SmartAmmo_LockedOntoWarningHUD_Update()
 			hasBottomUiHandle = true
 			MpAbilityShadowForm_PopulateRui( player, file.lockon_hud_bottom_nested )
 		}
-
-
 
 		else if ( StatusEffect_HasSeverity( player, eStatusEffect.physical_overshield ) )
 		{

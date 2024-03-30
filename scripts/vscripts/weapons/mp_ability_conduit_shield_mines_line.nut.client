@@ -1030,6 +1030,10 @@ void function OnProjectileCollision_ability_shield_mines_line( entity projectile
 
 
 
+
+
+
+
 void function AddThreatIndicator( entity grenade )
 {
 	

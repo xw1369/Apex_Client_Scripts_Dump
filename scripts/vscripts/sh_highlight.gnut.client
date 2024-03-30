@@ -2,6 +2,7 @@ global function Highlight_Init
 
 global function GetHighlightContextForEnt
 global function Highlight_SetPureObserverHighlightParam
+global function GetSurvialPropColorFromRarity
 
 
 global function GetHighlightId
@@ -200,9 +201,7 @@ global enum eHighlightDrawFunc
 	LOS_LINE 
 	LOS_LINE_FADE
 	LOS_LINE_LONGFADE
-
-	REVENANT_EXECUTIONER
-
+	REVENANT_ASSASSINS_INSTINCT
 	LOS_LINE_ENTSONLYCONTENTSBLOCK    
 
 
@@ -336,7 +335,6 @@ void function Highlight_Init()
 	
 	
 
-
 	contextId = RegisterHighlightContext( "enemy_ai" )
 
 		InitHighlightContext( contextId, HIGHLIGHT_FILL_EMPTY_OCCLUDED,				
@@ -348,7 +346,21 @@ void function Highlight_Init()
 			false									
 		)
 		HighlightContext_SetDrawFunc( contextId, eHighlightDrawFunc.LOS )
-		HighlightContext_SetFarFadeDistance( contextId, GoldenHorseRed_GetHighlightDist() )
+		HighlightContext_SetFarFadeDistance( contextId, Nessie_GetHighlightDist() )
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -582,22 +594,19 @@ void function Highlight_Init()
 
 
 
+	contextId = RegisterHighlightContext( "revenant_assassins_instinct_passive" )
 
-
-		contextId = RegisterHighlightContext( "revenant_executioner_passive" )
-
-			InitHighlightContext( contextId,
-				HIGHLIGHT_FILL_EMPTY_OCCLUDED,
-				HIGHLIGHT_OUTLINE_CUSTOM_COLOR_NOZ_NOSCANLINES,
-				2.0,
-				HIGHLIGHT_COLOR_MOVEMENT_REVEALED,
-				<0, 0, 0>,
-				true,
-				false
-			)
-			HighlightContext_SetDrawFunc( contextId, eHighlightDrawFunc.REVENANT_EXECUTIONER )
-			HighlightContext_SetFarFadeDistance( contextId, 5000.0 )
-
+		InitHighlightContext( contextId,
+			HIGHLIGHT_FILL_EMPTY_OCCLUDED,
+			HIGHLIGHT_OUTLINE_CUSTOM_COLOR_NOZ_NOSCANLINES,
+			2.0,
+			HIGHLIGHT_COLOR_MOVEMENT_REVEALED,
+			<0, 0, 0>,
+			true,
+			false
+		)
+		HighlightContext_SetDrawFunc( contextId, eHighlightDrawFunc.REVENANT_ASSASSINS_INSTINCT )
+		HighlightContext_SetFarFadeDistance( contextId, 5000.0 )
 
 
 
@@ -1128,6 +1137,26 @@ void function Highlight_Init()
 		)
 		HighlightContext_SetDrawFunc( contextId, lootHighlightDrawType )
 		HighlightContext_SetFarFadeDistance( contextId, 3000.0 )
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 	
@@ -1980,6 +2009,29 @@ int function Highlight_GetEnemyHighlightId( entity ent )
 }
 
 
+vector function GetSurvialPropColorFromRarity( int rarity )
+{
+	int colorID = COLORID_LOOT_TIER1
+	switch( rarity - 1 )
+	{
+		case eRarityTier.MYTHIC:
+			colorID = COLORID_LOOT_TIER5
+			break
+
+		case eRarityTier.LEGENDARY:
+			colorID = COLORID_LOOT_TIER4
+			break
+
+		case eRarityTier.EPIC:
+			colorID = COLORID_LOOT_TIER3
+			break
+
+		case eRarityTier.RARE:
+			colorID = COLORID_LOOT_TIER2
+	}
+	return GetSurvivalPropColor( colorID )
+}
+
 vector function GetSurvivalPropColor( int colorId )
 {
 	return GetKeyColor( colorId ) / 255.0
@@ -2184,8 +2236,7 @@ void function ClHighlight_UpdateHighlightFlags( entity ent, int contextId, int t
 		}
 			break
 
-
-		case eHighlightDrawFunc.REVENANT_EXECUTIONER:
+		case eHighlightDrawFunc.REVENANT_ASSASSINS_INSTINCT:
 		{
 			ent.Highlight_SetVisibilityType( HIGHLIGHT_VIS_LOS )
 			ent.Highlight_SetFlag( HIGHLIGHT_FLAG_CHECK_OFTEN, true )
@@ -2194,7 +2245,6 @@ void function ClHighlight_UpdateHighlightFlags( entity ent, int contextId, int t
 			ent.Highlight_SetFlag( HIGHLIGHT_FLAG_ADDITIONAL_LOS_CHECKS, true )
 		}
 			break
-
 
 
 
@@ -2639,18 +2689,11 @@ HighlightContextResult  function GetHighlightContextForEnt( entity viewPlayer, e
 				result.contextId = GetHighlightId( HIGHLIGHT_ABILITY_REVEAL )
 				return result
 			}
-
-			else if ( ShouldShadowDuelHighlight( viewTarget, ent ) )
+			else if ( ShouldAssassinsInstinctHighlight( viewTarget, ent ) )
 			{
-				result.contextId = GetHighlightId( HIGHLIGHT_ABILITY_REVEAL )
+				result.contextId = GetHighlightId( "revenant_assassins_instinct_passive" )
 				return result
 			}
-			else if ( ShouldExecutionerHighlight( viewTarget, ent ) )
-			{
-				result.contextId = GetHighlightId( "revenant_executioner_passive" )
-				return result
-			}
-
 			else if ( ShouldArmoredLeapThreatHighlight( viewTarget, ent ) )
 			{
 				result.contextId = GetHighlightId( "armored_leap_threat" )
@@ -2661,6 +2704,30 @@ HighlightContextResult  function GetHighlightContextForEnt( entity viewPlayer, e
 				 result.contextId = GetHighlightId( HIGHLIGHT_NOVA_BLACKHOLE_THREAT )
 				 return result
 			 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -2709,7 +2776,15 @@ var function ReconScan_ShowHudForTarget( entity player, entity enemy, bool pinTo
 
 	player.p.reconScannedByThisPlayerRefCount[enemy]++
 	if ( player.p.reconScannedByThisPlayerRefCount[enemy] > 1 )
-		return
+	{
+		if ( !(enemy in player.p.reconScanRUIs) )
+		{
+			Assert( false, "player isn't in rui table, which shouldn't be possible" )
+			return
+		}
+
+		return player.p.reconScanRUIs[enemy]
+	}
 	int distance = int(Distance( player.GetOrigin(), enemy.GetOrigin() ))
 
 
@@ -2736,11 +2811,21 @@ var function ReconScan_ShowHudForTarget( entity player, entity enemy, bool pinTo
 		return null
 	}
 
-	int armorTier = EquipmentSlot_GetEquipmentTier( refEntity, "armor" )
-	RuiSetInt( rui, "armorTier", armorTier )
 
+	int armorTier = EquipmentSlot_GetEquipmentTier( refEntity, "armor" )
 	LootData data = EquipmentSlot_GetEquippedLootDataForSlot( refEntity, "armor" )
 	bool isEvolving = data.lootType == eLootType.ARMOR && EvolvingArmor_IsEquipmentEvolvingArmor( data.ref )
+
+	RuiTrackInt( rui, "extraShield", refEntity, RUI_TRACK_EXTRA_SHIELD_INT )
+	RuiTrackInt( rui, "extraShieldTier", refEntity, RUI_TRACK_EXTRA_SHIELD_TIER_INT )
+	RuiSetInt( rui, "shieldHealthMax", refEntity.GetShieldHealthMax() )
+	if( data.lootType == eLootType.ARMOR && UpgradeCore_IsEquipmentArmorCore( data.ref ) )
+	{
+		isEvolving = true
+		armorTier = UpgradeCore_GetPlayerArmorTier( refEntity )
+	}
+
+	RuiSetInt( rui, "armorTier", armorTier )
 	RuiSetBool( rui, "isEvolvingShield", isEvolving )
 
 	float shieldFrac = GetShieldHealthFrac( refEntity )
@@ -2760,6 +2845,11 @@ var function ReconScan_ShowHudForTarget( entity player, entity enemy, bool pinTo
 	bool isKillLeader = GradeFlagsHas( enemy, eTargetGrade.CHAMP_KILLLEADER )
 	RuiSetBool( rui, "isChampion", isChampion )
 	RuiSetBool( rui, "isKillLeader", isKillLeader )
+
+	if ( enemy.IsPlayer() )
+	{
+		RuiTrackFloat( rui, "bleedoutEndTime", enemy, RUI_TRACK_SCRIPT_NETWORK_VAR, GetNetworkedVariableIndex( "bleedoutEndTime" ) )
+	}
 
 
 		if ( Control_IsModeEnabled() )
@@ -2792,6 +2882,16 @@ void function ReconScan_TrackTargetData( entity refEntity, entity enemy, entity 
 
 	LootData data = EquipmentSlot_GetEquippedLootDataForSlot( refEntity, "armor" )
 	bool curIsEvolving =  data.lootType == eLootType.ARMOR && EvolvingArmor_IsEquipmentEvolvingArmor( data.ref )
+
+
+	int prevShieldHealthMax = refEntity.GetShieldHealthMax()
+	if( data.lootType == eLootType.ARMOR && UpgradeCore_IsEquipmentArmorCore( data.ref ) )
+	{
+		curIsEvolving = true
+		curArmorTier = UpgradeCore_GetPlayerArmorTier( refEntity )
+	}
+
+
 	bool newIsEvolving = false
 
 	bool curIsShadowForm =   refEntity.IsShadowForm()
@@ -2811,15 +2911,31 @@ void function ReconScan_TrackTargetData( entity refEntity, entity enemy, entity 
 		{
 			newArmorTier = EquipmentSlot_GetEquipmentTier( refEntity, "armor" )
 
+			
+			data          = EquipmentSlot_GetEquippedLootDataForSlot( refEntity, "armor" )
+			newIsEvolving = data.lootType == eLootType.ARMOR && EvolvingArmor_IsEquipmentEvolvingArmor( data.ref )
+
+
+
+				if( data.lootType == eLootType.ARMOR && UpgradeCore_IsEquipmentArmorCore( data.ref ) )
+				{
+					newIsEvolving = true
+					newArmorTier =  UpgradeCore_GetPlayerArmorTier( refEntity )
+				}
+
+				int newShieldHealth = refEntity.GetShieldHealthMax()
+				if( newShieldHealth != prevShieldHealthMax )
+				{
+					RuiSetInt( rui, "shieldHealthMax", newShieldHealth )
+				}
+
+
 			if ( newArmorTier != curArmorTier )
 			{
 				curArmorTier = newArmorTier
 				RuiSetInt( rui, "armorTier", curArmorTier )
 			}
 
-			
-			data          = EquipmentSlot_GetEquippedLootDataForSlot( refEntity, "armor" )
-			newIsEvolving = data.lootType == eLootType.ARMOR && EvolvingArmor_IsEquipmentEvolvingArmor( data.ref )
 			if ( newIsEvolving != curIsEvolving )
 			{
 				curIsEvolving = newIsEvolving
@@ -2917,28 +3033,38 @@ bool function ShouldMaggieHighlight( entity viewPlayer, entity ent )
 }
 
 
-bool function ShouldExecutionerHighlight( entity viewPlayer, entity ent )
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+bool function ShouldAssassinsInstinctHighlight( entity viewPlayer, entity ent )
 {
 	if ( !PlayerHasPassive( viewPlayer, ePassives.PAS_REVENANT_REWORK ) )
 		return false
 
-	return PassiveExecutioner_EntityShouldBeHighlighted( viewPlayer, ent )
+	return PassiveAssassinsInstinct_EntityShouldBeHighlighted( viewPlayer, ent )
 }
-
-bool function ShouldShadowDuelHighlight( entity viewPlayer, entity ent )
-{
-	
-	
-	
-	
-	
-	
-	
-	
-
-	return false
-}
-
 
 bool function ShouldCastleWallHighlight( entity viewPlayer, entity ent )
 {

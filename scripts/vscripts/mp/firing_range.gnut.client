@@ -13,6 +13,8 @@ const float FIRINGRANGE_MAX_SESSIONDURATION = 3600 * 1000
 const float DYNTIMER_PRETIMER_COUNTDOWN_DURATION = 3.0
 const float COUNTDOWN_TIMER_SHRINK = 3.0
 
+const string PERSISTENCEREADY_VAR = "FRSettingsPVars.persistenceready"
+
 enum eRangeMasterUpdateType
 {
 	INVALID,
@@ -103,6 +105,9 @@ const bool FRSETTING_DEFAULT_INFINITERELOADS = false
 const bool FRSETTING_DEFAULT_SHOWHITMARKS = false
 const bool FRSETTING_DEFAULT_SHOW3RDPERSON = false
 
+const bool FRSETTING_DEFAULT_LEGENDUPGRADESENABLED = true
+
+
 const bool 	FRSETTING_DEFAULT_FRIENDLYFIRE = false
 
 
@@ -127,6 +132,10 @@ global function FiringRangeGameMode_Init
 const bool DEBUG_MANTLING = false
 const bool DEBUG_RESPAWNING = false
 #endif
+
+
+
+
 
 
 
@@ -257,6 +266,9 @@ global function SCB_SettingChangedNotification_InfiniteMags
 global function SCB_SettingChangedNotification_ShowHitMarks
 global function SCB_SettingChangedNotification_Show3rdPerson
 
+global function SCB_SettingChangedNotification_LegendUpgradesEnabled
+
+
 global function Make_TitleString
 
 global function RangeMaster_AmI
@@ -284,6 +296,8 @@ const float SCB_MININTERVAL = 1.0
 struct
 {
 	bool fr_NetVarsAndPVarsInitiated = false
+
+
 
 
 
@@ -383,8 +397,9 @@ void function FiringRangeGameMode_Init()
 	Remote_RegisterServerFunction( "UCB_CustomizeRangeMenu_TrackState", "bool" )
 
 
-	Remote_RegisterServerFunction( "UCB_SV_FRsetting_DynamicDummiesOn_Changed", "bool", "bool" )
-	Remote_RegisterClientFunction( "SCB_Broadcast_FRSetting_DynamicDummiesEnabled_Change", "entity" )
+		Remote_RegisterServerFunction( "UCB_SV_FRsetting_DynamicDummiesOn_Changed", "bool", "bool" )
+		Remote_RegisterServerFunction( "UCB_SV_FRsetting_DummieHighlightsOn_Changed", "bool", "bool" )
+		Remote_RegisterClientFunction( "SCB_Broadcast_FRSetting_DynamicDummiesEnabled_Change", "entity" )
 
 
 
@@ -403,6 +418,9 @@ void function FiringRangeGameMode_Init()
 		Remote_RegisterServerFunction( "UCB_SV_FRSetting_HitMarks_Toggle" )
 		Remote_RegisterServerFunction( "UCB_SV_FRSetting_Show3rdPerson", "bool" )
 
+		Remote_RegisterServerFunction( "UCB_SV_FRSetting_LegendUpgradesEnabled", "bool" )
+
+
 
 		
 		Remote_RegisterServerFunction( "UCB_SV_FRSetting_Change_Int", "int", 0, eFRSettingType.COUNT_, "int", 0, FRINTSETTINGS_MAXSELECTIONS )
@@ -410,7 +428,7 @@ void function FiringRangeGameMode_Init()
 		Remote_RegisterServerFunction( "UCB_ResetDoors" )
 
 
-			Remote_RegisterServerFunction( "UCB_LegendUpgradesReset" )
+		Remote_RegisterServerFunction( "UCB_LegendUpgradesReset" )
 
 
 		Remote_RegisterServerFunction( "UICallback_FRDummies_Reset" )
@@ -429,6 +447,9 @@ void function FiringRangeGameMode_Init()
 		Remote_RegisterClientFunction( "SCB_SettingChangedNotification_InfiniteMags" )
 		Remote_RegisterClientFunction( "SCB_SettingChangedNotification_ShowHitMarks" )
 		Remote_RegisterClientFunction( "SCB_SettingChangedNotification_Show3rdPerson" )
+
+			Remote_RegisterClientFunction( "SCB_SettingChangedNotification_LegendUpgradesEnabled" )
+
 
 		
 		Remote_RegisterClientFunction( "SCB_Broadcast_FRSetting_Changed_Int", "entity", "int", 0, eFRSettingType.COUNT_, "int", 0, FRINTSETTINGS_MAXSELECTIONS )
@@ -537,7 +558,8 @@ void function FR_Init_NetVars_And_PVars()
 	frBoolSettings_Defaults	[ eFRSettingType.FRDUMMIEHELMETMATCHSHIELDS ] <- false
 
 
-	frBoolSettings_Defaults	[ eFRSettingType.DYNAMICDUMMIESON ] <- true
+		frBoolSettings_Defaults	[ eFRSettingType.DYNAMICDUMMIESON ] <- true
+		frBoolSettings_Defaults [ eFRSettingType.DUMMIEHIGHLIGHTSON ] <- true
 
 
 	
@@ -607,6 +629,10 @@ void function FR_Init_NetVars_And_PVars()
 	frSetting_IsShared[ eFRSettingType.SHOWHITMARKS ] 	<- false
 	frSetting_IsShared[ eFRSettingType.SHOW3RDPERSON ] 	<- false
 
+
+	frSetting_IsShared[ eFRSettingType.LEGENDUPGRADESENABLED ] 	<- false
+
+
 	frSetting_IsShared[ eFRSettingType.FRIENDLYFIRE ] 		<- true
 	frSetting_IsShared[ eFRSettingType.TARGETSPEED ] 		<- true
 	frSetting_IsShared[ eFRSettingType.FRDUMMIESHIELDLVL ] 	<- true
@@ -619,6 +645,7 @@ void function FR_Init_NetVars_And_PVars()
 	frSetting_IsShared[ eFRSettingType.FRDUMMIESPAWNDISTS ] <- true
 	frSetting_IsShared[ eFRSettingType.FRDUMMIESHOOTING ] 	<- true
 	frSetting_IsShared[ eFRSettingType.DYNAMICDUMMIESON ] 	<- true
+	frSetting_IsShared[ eFRSettingType.DUMMIEHIGHLIGHTSON ] <- true
 
 
 	
@@ -628,6 +655,9 @@ void function FR_Init_NetVars_And_PVars()
 	frSetting_ShouldBeSaved[ eFRSettingType.INFINITEMAGS ] 	<- true
 	frSetting_ShouldBeSaved[ eFRSettingType.SHOWHITMARKS ] 	<- true
 	frSetting_ShouldBeSaved[ eFRSettingType.SHOW3RDPERSON ]	<- true
+
+	frSetting_ShouldBeSaved[ eFRSettingType.LEGENDUPGRADESENABLED ]	<- false
+
 
 	
 	frSetting_ShouldBeSaved[ eFRSettingType.FRIENDLYFIRE ] 	<- false
@@ -643,6 +673,7 @@ void function FR_Init_NetVars_And_PVars()
 		frSetting_ShouldBeSaved[ eFRSettingType.FRDUMMIESHOOTING ] 		<- true 
 		frSetting_ShouldBeSaved[ eFRSettingType.FRDUMMIESPAWNDISTS ] 	<- true
 		frSetting_ShouldBeSaved[ eFRSettingType.DYNAMICDUMMIESON ] 		<- false
+		frSetting_ShouldBeSaved[ eFRSettingType.DUMMIEHIGHLIGHTSON ] 	<- false
 
 
 	
@@ -1258,7 +1289,6 @@ void function SCB_Broadcast_FRSetting_DynamicDummiesEnabled_Change( entity playe
 	{
 		FRSettings_Client_Update()
 	}
-
 }
 
 
@@ -1397,6 +1427,7 @@ void function SCB_Broadcast_FRSetting_Changed_Bool( entity playerThatChanged, in
 
 
 		settingNamesByType[ eFRSettingType.DYNAMICDUMMIESON ] 	<- "#DYNDUMMIE_DYNSPAWN_CHANGED"
+		settingNamesByType[ eFRSettingType.DUMMIEHIGHLIGHTSON ] <- "#FRDUMMIE_HIGHLIGHTSON_CHANGED"
 
 
 	settingName = settingNamesByType[ settingType ]
@@ -1653,6 +1684,146 @@ void function SCB_Restore_UpgradeCore_Rui()
 		}
 
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -4419,6 +4590,10 @@ void function FRSettings_Client_Update()
 	
 	Update_SettingsMenu_Bool( eFRSettingType.SHOW3RDPERSON )
 
+
+		Update_SettingsMenu_Bool( eFRSettingType.LEGENDUPGRADESENABLED )
+
+
 	
 	player.p.frSettings_AllStrs = player.p.frSettings_AllStrs + "\n" + Make_TitleString( Localize( "#FRSETTING_LABEL_FR" ))
 
@@ -4445,9 +4620,10 @@ void function FRSettings_Client_Update()
 	Update_SettingsMenu_Int( eFRSettingType.FRDUMMIESTANCE )
 
 
-	Update_SettingsMenu_Int( eFRSettingType.FRDUMMIESHOOTING )
-	Update_SettingsMenu_Int( eFRSettingType.FRDUMMIESPAWNDISTS )
-	Update_SettingsMenu_Bool( eFRSettingType.DYNAMICDUMMIESON )
+		Update_SettingsMenu_Int( eFRSettingType.FRDUMMIESHOOTING )
+		Update_SettingsMenu_Int( eFRSettingType.FRDUMMIESPAWNDISTS )
+		Update_SettingsMenu_Bool( eFRSettingType.DYNAMICDUMMIESON )
+		Update_SettingsMenu_Bool( eFRSettingType.DUMMIEHIGHLIGHTSON )
 
 
 #if DEV
@@ -4539,6 +4715,17 @@ void function SCB_SettingChangedNotification_Show3rdPerson()
 
 	FRSettings_Client_Update()
 }
+
+
+void function SCB_SettingChangedNotification_LegendUpgradesEnabled()
+{
+	
+	bool isOn = FRS_NetVar_Get_Bool( GetLocalViewPlayer(), eFRSettingType.LEGENDUPGRADESENABLED )
+	LocalSettings_ChangeNotify( "#NOTIFY_LEGENDUPGRADES_ENABLED", isOn )
+
+	FRSettings_Client_Update()
+}
+
 
 void function LocalSettings_ChangeNotify( string baseString, bool isOn )
 {

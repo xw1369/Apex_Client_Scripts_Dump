@@ -2378,6 +2378,10 @@ void function ShPassPanel_LevelInit()
 
 
 
+
+
+
+
 void function UIToClient_StartTempBattlePassPresentationBackground( asset bgImage )
 {
 	
@@ -3003,12 +3007,32 @@ void function UIToClient_ItemPresentation( SettingsAssetGUID itemFlavorGUID, int
 		
 		
 		if ( itemType == eItemType.emote_icon )
-			fileLevel.sceneRefOrigin += <0, 105, -20> 
+		{
+			fileLevel.sceneRefOrigin += <0, 105, -10> 
+		}
+		else if ( itemType == eItemType.weapon_charm )
+		{
+			fileLevel.sceneRefOrigin += <0, 0, -10>
+		}
+		else if ( itemType == eItemType.account_currency )
+		{
+			fileLevel.sceneRefOrigin += <0, 0, -10>
+		}
+		else if ( itemType == eItemType.account_pack )
+		{
+			fileLevel.sceneRefOrigin += <0, 0, -10>
+		}
+		else if ( itemType == eItemType.voucher )
+		{
+			fileLevel.sceneRefOrigin += <0, 0, -10>
+		}
 	}
 
 	if ( showLow )
 	{
 		if ( sceneRefName == "battlepass_center_ref" )
+			fileLevel.sceneRefOrigin += <0, 0, -10.5>
+		else if (sceneRefName == "collection_event_ref")
 			fileLevel.sceneRefOrigin += <0, 0, -10.5>
 		else
 			fileLevel.sceneRefOrigin += <0, 0, -2>
@@ -3195,6 +3219,9 @@ void function ShowBattlepassItem( ItemFlavor item, int level, float scale, var l
 			ShowBattlePassItem_WeaponCharm( item, scale )
 			break
 
+
+		case eItemType.artifact_component_blade:
+
 		case eItemType.melee_skin:
 			ShowBattlePassItem_MeleeSkin( item, scale )
 			break
@@ -3280,6 +3307,7 @@ void function ShowBattlepassItem( ItemFlavor item, int level, float scale, var l
 		case eItemType.artifact_component_deathbox:
 			ShowBattlePassItem_Deathbox( item, scale )
 			break
+
 
 		case eItemType.reward_set_tracker:
 			ShowBattlePassItem_RewardSetTracker( item )
@@ -3385,6 +3413,12 @@ void function ShowBattlePassItem_CharacterSkin( ItemFlavor item, float scale )
 	ItemFlavor char = CharacterSkin_GetCharacterFlavor( item )
 	vector origin   = fileLevel.sceneRefOrigin + <0, 0, 4.0> - 0.6 * CharacterClass_GetMenuZoomOffset( char )
 	vector angles   = fileLevel.sceneRefAngles
+
+	vector previewVerticalOffset = GetGlobalSettingsVector( ItemFlavor_GetAsset( item ), "previewOffset" )
+	origin += previewVerticalOffset
+
+	vector previewAnglesOffset = GetGlobalSettingsVector( ItemFlavor_GetAsset( item ), "previewRotation" )
+	angles += previewAnglesOffset
 
 	entity mover = CreateClientsideScriptMover( $"mdl/dev/empty_model.rmdl", origin, angles )
 	mover.MakeSafeForUIScriptHack()
@@ -3579,10 +3613,41 @@ void function ShowBattlePassItem_MeleeSkin( ItemFlavor item, float scale )
 	entity mover = CreateClientsideScriptMover( $"mdl/dev/empty_model.rmdl", origin, angles )
 	mover.MakeSafeForUIScriptHack()
 
+	bool isArtifact = false
+
+	if ( ItemFlavor_GetType( item ) == eItemType.artifact_component_blade )
+	{
+		item = GetItemFlavorByGUID( ARTIFACT_CONFIGURATION_PTR_0_GUID )
+		isArtifact = true
+	}
+
+
 	vector extraRotation = MeleeSkin_GetMenuModelRotation( item )
 	entity model         = CreateClientSidePropDynamic( origin, AnglesCompose( angles, extraRotation ), MeleeSkin_GetMenuModel( item ) )
 	model.MakeSafeForUIScriptHack()
 	model.SetVisibleForLocalPlayer( 0 )
+
+
+	if ( isArtifact )
+	{
+		int configIdx = 0
+		LoadoutEntry bladeEntry = Artifacts_Loadouts_GetEntryForConfigIndexAndType( configIdx, eArtifactComponentType.BLADE )
+		LoadoutEntry powerSourceEntry = Artifacts_Loadouts_GetEntryForConfigIndexAndType( configIdx, eArtifactComponentType.POWER_SOURCE )
+		LoadoutEntry themeEntry = Artifacts_Loadouts_GetEntryForConfigIndexAndType( configIdx, eArtifactComponentType.THEME )
+
+		if ( bladeEntry.validItemFlavorList.len() < 2 )
+			return
+
+		ItemFlavor bladeComponent = bladeEntry.validItemFlavorList[1]
+		ItemFlavor powerSourceComponent = powerSourceEntry.validItemFlavorList[1]
+		ItemFlavor themeComponent = themeEntry.validItemFlavorList[1]
+		int setIndex = eArtifactSetIndex.MOB
+
+		Artifacts_Loadouts_ApplyModelForSet( model, setIndex )
+		Artifacts_Loadouts_PreviewBladeAndPowerSource( model, bladeComponent, powerSourceComponent )
+		Artifacts_Loadouts_PreviewTheme( model, themeComponent )
+	}
+
 
 	asset animSeq = MeleeSkin_GetMenuAnimSeq( item )
 	if ( animSeq != $"" )

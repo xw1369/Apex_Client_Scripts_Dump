@@ -99,6 +99,7 @@ global struct MapFeature
 	string titleText
 	string descDesc
 	asset  icon
+	vector iconColor = < 1.0, 1.0, 1.0>
 
 	int priority
 }
@@ -2149,7 +2150,7 @@ void function RemoveMapFeatureItemByName( string titleText )
 }
 
 
-MapFeature function SetMapFeatureItem( int priority, string titleText, string descText, asset icon )
+MapFeature function SetMapFeatureItem( int priority, string titleText, string descText, asset icon, vector iconColor = < 1.0, 1.0, 1.0> )
 {
 	MapFeature mapFeature
 
@@ -2157,6 +2158,7 @@ MapFeature function SetMapFeatureItem( int priority, string titleText, string de
 	mapFeature.titleText = titleText
 	mapFeature.descDesc = descText
 	mapFeature.icon = icon
+	mapFeature.iconColor = iconColor
 
 	
 	RemoveMapFeatureItemByName( titleText )
@@ -2194,6 +2196,7 @@ void function UpdateMapFeatures()
 		RuiSetString( file.fullmap_legendRui, "itemTitle" + featurePostfix, mapFeature.titleText )
 		RuiSetString( file.fullmap_legendRui, "itemDesc" + featurePostfix, mapFeature.descDesc )
 		RuiSetImage( file.fullmap_legendRui, "itemIcon" + featurePostfix, mapFeature.icon )
+		RuiSetColorAlpha( file.fullmap_legendRui, "itemIconColor" + featurePostfix, SrgbToLinear( mapFeature.iconColor ), 1.0 )
 	}
 }
 

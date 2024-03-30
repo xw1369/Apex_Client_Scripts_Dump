@@ -256,11 +256,7 @@ const float CRAFTING_PICKUP_GRACE_PERIOD = 5.0
 global const string HOLDER_ENT_NAME = "holder_ent"
 
 
-
 global const int CRAFTING_EVO_GRANT = 200
-
-
-
 const int MAX_ARMOR_EVO_TIER = 5
 
 
@@ -2486,8 +2482,6 @@ void function HarvesterAnimThread( entity harvesterProxy, bool doEmptyingAnim = 
 	else
 	{
 		harvesterProxy.Anim_Play( EVO_HARVESTER_FULL_TO_EMPTY_ANIM )
-
-		EmitSoundOnEntity( GetLocalViewPlayer(), "Crafting_Harvester_Active_Collect_1P" )
 
 		wait waitTime
 
@@ -4900,6 +4894,12 @@ ExtendedUseSettings function WorkbenchExtendedUseSettings( entity ent, entity pl
 
 
 
+
+
+
+
+
+
 int function EnsureValidEvoTier( int evoTier )
 {
 
@@ -5861,6 +5861,7 @@ void function Crafting_Workbench_OpenCraftingMenu( entity workbench )
 	file.craftingItems_ClientList.clear()
 
 	PushLockFOV(0.2)
+	UpgradeSelectionMenu_TryClose()
 	CommsMenu_OpenMenuTo( GetLocalViewPlayer(), eChatPage.CRAFTING, eCommsMenuStyle.CRAFTING, false )
 
 	if ( GetLocalClientPlayer() == GetLocalViewPlayer() && GetCurrentPlaylistVarBool("crafting_enable_stuck_player_fix", false) )
@@ -5878,6 +5879,7 @@ void function Crafting_Workbench_OpenCraftingMenuAsSpectator( entity workbench )
 	file.craftingItems_ClientList.clear()
 
 	PushLockFOV(0.2)
+	UpgradeSelectionMenu_TryClose()
 	CommsMenu_OpenMenuTo( GetLocalViewPlayer(), eChatPage.CRAFTING, eCommsMenuStyle.CRAFTING, false )
 }
 

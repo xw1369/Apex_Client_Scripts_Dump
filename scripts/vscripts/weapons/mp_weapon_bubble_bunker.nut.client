@@ -149,7 +149,7 @@ void function MpWeaponBubbleBunker_Init()
 
 float function BubbleBunker_BaseScaler()
 {
-	return GetCurrentPlaylistVarFloat( "passive_upgrade_gibraltar_bunker_throw_base_scaler", .8 )
+	return GetCurrentPlaylistVarFloat( "passive_upgrade_gibraltar_bunker_throw_base_scaler", 1.0 )
 }
 
 float function BubbleBunker_UpgradedScaler()

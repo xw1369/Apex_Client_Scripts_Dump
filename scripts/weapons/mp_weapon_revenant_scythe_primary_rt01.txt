@@ -1,4 +1,3 @@
-                    
 #base "mp_weapon_melee_survival.txt"
 
 WeaponData
@@ -63,4 +62,3 @@ WeaponData
 	"sway_translate_gain"                      "2.5"
 	"sway_rotate_gain"                         "7"
 }
-      

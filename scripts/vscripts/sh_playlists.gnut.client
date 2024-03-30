@@ -26,6 +26,8 @@ global function GetPlaylistRotationGroup
 
 global function CanPlaylistFitPartySize
 global function GetModeEmblemImage
+global function GetModeBannerLogo
+global function GetModeBannerLogoOrModeEmblemFallback
 global function GetImageFromImageMap
 global function GetThumbnailImageFromImageMap
 global function GetGamemodeLogoFromImageMap
@@ -197,7 +199,6 @@ global const table<string, asset> GAMEMODE_IMAGE_MAP = {
 		hardcore_divided_moon = $"rui/menu/gamemode/playlist_bg_hardcore_divided_moon",
 		hardcore_worlds_edge = $"rui/menu/gamemode/playlist_bg_hardcore_worlds_edge",
 
-
 		tdm_party_crasher = $"rui/menu/gamemode/playlist_bg_arena_party_crasher",
 		tdm_overflow = $"rui/menu/gamemode/playlist_bg_arena_overflow",
 		tdm_habitat = $"rui/menu/gamemode/playlist_bg_arena_habitat",
@@ -236,6 +237,13 @@ global const table<string, asset> GAMEMODE_IMAGE_MAP = {
 
 		trios_bounty_hunt = $"rui/menu/gamemode/playlist_bg_thehunt_trios",
 		duos_bounty_hunt = $"rui/menu/gamemode/playlist_bg_thehunt_duos",
+
+
+
+		mixtape_treasurehunt_thunderdome = $"rui/menu/gamemode/treasure_hunt/playlist_bg_treasurehunt_thunderdome",
+		mixtape_treasurehunt_skulltown = $"rui/menu/gamemode/treasure_hunt/playlist_bg_treasurehunt_skulltown",
+		mixtape_treasurehunt_storm_point_mu2 = $"rui/menu/gamemode/treasure_hunt/playlist_bg_treasurehunt_storm_point_mu2",
+		mixtape_treasurehunt_monument = $"rui/menu/gamemode/treasure_hunt/playlist_bg_treasurehunt_monument",
 
 }
 
@@ -380,11 +388,9 @@ global const table<string, asset> GAMEMODE_THUMBNAIL_IMAGE_MAP = {
 		gungame_estates_day = $"rui/menu/gamemode/playlist_bg_sq_gungame_estates_day",
 
 
-
 		hardcore_olympus = $"rui/menu/gamemode/playlist_bg_sq_hardcore_olympus",
 		hardcore_divided_moon = $"rui/menu/gamemode/playlist_bg_sq_hardcore_divided_moon",
 		hardcore_worlds_edge = $"rui/menu/gamemode/playlist_bg_sq_hardcore_worlds_edge",
-
 
 
 		tdm_party_crasher = $"rui/menu/gamemode/playlist_bg_sq_arena_party_crasher",
@@ -423,6 +429,13 @@ global const table<string, asset> GAMEMODE_THUMBNAIL_IMAGE_MAP = {
 
 		trios_bounty_hunt = $"rui/menu/gamemode/playlist_bg_sq_thehunt_trios",
 		duos_bounty_hunt = $"rui/menu/gamemode/playlist_bg_sq_thehunt_duos",
+
+
+
+		mixtape_treasurehunt_thunderdome = $"rui/menu/gamemode/treasure_hunt/playlist_bg_sq_treasurehunt_thunderdome",
+		mixtape_treasurehunt_skulltown = $"rui/menu/gamemode/treasure_hunt/playlist_bg_sq_treasurehunt_skulltown",
+		mixtape_treasurehunt_storm_point_mu2 = $"rui/menu/gamemode/treasure_hunt/playlist_bg_sq_treasurehunt_storm_point_mu2",
+		mixtape_treasurehunt_monument = $"rui/menu/gamemode/treasure_hunt/playlist_bg_sq_treasurehunt_monument",
 
 }
 
@@ -1147,8 +1160,20 @@ const table<string, asset> GAMEMODE_EMBLEM_MAP = {
 
 		emblem_bounty_hunt = $"rui/hud/gametype_icons/ltm/hunt_ltm_logo_colorized",
 
+
+
+		emblem_treasure_hunt = $"rui/menu/gamemode_emblem/emblem_treasure_hunt",
+
 }
 
+
+
+const table<string, asset> GAMEMODE_BANNER_LOGO_MAP = {
+	freedm = $"rui/rui_screens/apex_logo_tdm",
+
+		logo_treasure_hunt = $"rui/hud/gametype_icons/ltm/treasure_hunt/logo_treasure_hunt",
+
+}
 
 
 
@@ -1166,6 +1191,36 @@ asset function GetModeEmblemImage( string playlistName )
 	}
 
 	return emblemImage
+}
+
+
+
+asset function GetModeBannerLogo( string playlistName )
+{
+	string logoKey	  = GetPlaylistVarString( playlistName, "banner_logo", "" )
+	asset logoImage	  = $""
+
+	if ( logoKey != "" )
+	{
+		if ( logoKey in GAMEMODE_BANNER_LOGO_MAP )
+			logoImage = GAMEMODE_BANNER_LOGO_MAP[logoKey]
+		else
+			Warning( "Playlist '%s' has invalid value for 'banner_logo': %s", playlistName, logoKey )
+	}
+
+	return logoImage
+}
+
+
+
+asset function GetModeBannerLogoOrModeEmblemFallback( string playlistName )
+{
+	asset image = GetModeBannerLogo( playlistName )
+	if ( image == $"" )
+	{
+		image = GetModeEmblemImage( playlistName )
+	}
+	return image
 }
 
 

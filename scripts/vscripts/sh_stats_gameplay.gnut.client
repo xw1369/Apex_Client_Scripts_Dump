@@ -1,0 +1,666 @@
+global function ShStats_Gameplay_LevelInit
+global function StatsRegister_Gameplay
+
+
+
+
+
+struct FileStruct_LifetimeLevel
+{
+	table< string, table< string, bool > > weaponStatCategoryWeaponItemRefSet
+
+
+
+
+
+}
+FileStruct_LifetimeLevel& fileLevel
+
+void function ShStats_Gameplay_LevelInit()
+{
+	FileStruct_LifetimeLevel newFileLevel
+	fileLevel = newFileLevel
+}
+
+void function StatsRegister_Gameplay()
+{
+	
+	
+	foreach( ItemFlavor weaponFlav in GetAllWeaponItemFlavors() )
+	{
+		string weaponGUID = ItemFlavor_GetGUIDString( weaponFlav )
+
+		string weaponCategory = WeaponItemFlavor_GetStatsCategory( weaponFlav )
+		bool isGoldWeapon = ( weaponCategory == WEAPON_STAT_CATEGORY_CRATE_WEAPON )
+
+
+
+
+
+
+
+
+
+		if ( isGoldWeapon )
+		{
+			string goldStatsCategory = WeaponCategoryFlavor_GetStatsKey( WeaponItemFlavor_GetCategory ( weaponFlav ) )
+
+			if ( !( goldStatsCategory in fileLevel.weaponStatCategoryWeaponItemRefSet ) )
+			{
+				fileLevel.weaponStatCategoryWeaponItemRefSet[ goldStatsCategory ] <- {}
+			}
+
+			fileLevel.weaponStatCategoryWeaponItemRefSet[ goldStatsCategory ][ weaponGUID ] <- true
+		}
+
+		if ( !( weaponCategory in fileLevel.weaponStatCategoryWeaponItemRefSet ) )
+		{
+			fileLevel.weaponStatCategoryWeaponItemRefSet[ weaponCategory ] <- {}
+		}
+
+		fileLevel.weaponStatCategoryWeaponItemRefSet[ weaponCategory ][ weaponGUID ] <- true
+	}
+
+	
+	CAREER_STATS.times_fully_kitted = RegisterAccumulatedStat_Int( null, "times_fully_kitted", eChallengeGameMode.BATTLE_ROYALE, BADGES_UNLOCK_NEED )
+	CAREER_STATS.distance_kill = RegisterAccumulatedStat_Int( null, "distance_kill", eChallengeGameMode.BATTLE_ROYALE, CHALLENGES_CALC_DEPENDS )
+
+	CAREER_STATS.times_jumpmaster = RegisterAccumulatedStat_Int( null, "times_jumpmaster", eChallengeGameMode.BATTLE_ROYALE, DELAY_WRITE_BACK_UNTIL_MATCH_END )
+	CAREER_STATS.times_jumpmaster_post_fix = RegisterAccumulatedStat_Int( null, "times_jumpmaster_post_fix", eChallengeGameMode.BATTLE_ROYALE, DELAY_WRITE_BACK_UNTIL_MATCH_END )
+	CAREER_STATS.looted_all_nongold_weapons_in_1_match = RegisterAccumulatedStat_Int( null, "looted_all_nongold_weapons_in_1_match", eChallengeGameMode.BATTLE_ROYALE, DELAY_WRITE_BACK_UNTIL_MATCH_END )
+	CAREER_STATS.valentines_revives_and_respawns = RegisterAccumulatedStat_Int( null, "valentines_revives_and_respawns", eChallengeGameMode.BATTLE_ROYALE, BADGES_UNLOCK_NEED )
+
+	CAREER_STATS.looted_epic_item = RegisterAccumulatedStat_Int( null, "looted_epic_item", eChallengeGameMode.BATTLE_ROYALE, CHALLENGES_CALC_DEPENDS )
+	CAREER_STATS.looted_legendary_item = RegisterAccumulatedStat_Int( null, "looted_legendary_item", eChallengeGameMode.BATTLE_ROYALE, CHALLENGES_CALC_DEPENDS )
+	CAREER_STATS.looted_legendary_helmet = RegisterAccumulatedStat_Int( null, "looted_legendary_helmet", eChallengeGameMode.BATTLE_ROYALE, CHALLENGES_CALC_DEPENDS )
+	CAREER_STATS.looted_legendary_armor = RegisterAccumulatedStat_Int( null, "looted_legendary_armor", eChallengeGameMode.BATTLE_ROYALE, CHALLENGES_CALC_DEPENDS )
+
+	CAREER_STATS.daily_challenges_completed = RegisterAccumulatedStat_Int( null, "daily_challenges_completed", eChallengeGameMode.NON_MODE, CHALLENGES_CALC_DEPENDS )
+	CAREER_STATS.challenge_xp_earned = RegisterAccumulatedStat_Int( null, "challenge_xp_earned", eChallengeGameMode.NON_MODE, CHALLENGES_CALC_DEPENDS )
+	CAREER_STATS.challenge_stars_earned = RegisterAccumulatedStat_Int( null, "challenge_stars_earned", eChallengeGameMode.NON_MODE, CHALLENGES_CALC_DEPENDS )
+
+	CAREER_STATS.thanks = RegisterAccumulatedStat_Int( null, "thanks", eChallengeGameMode.ANY, CHALLENGES_CALC_DEPENDS )
+	CAREER_STATS.dooms = RegisterAccumulatedStat_Int( null, "dooms", eChallengeGameMode.BATTLE_ROYALE, CHALLENGES_CALC_DEPENDS )
+	CAREER_STATS.kills = RegisterAccumulatedStat_Int( null, "kills", eChallengeGameMode.BATTLE_ROYALE, CHALLENGES_CALC_DEPENDS )
+	CAREER_STATS.assists = RegisterAccumulatedStat_Int( null, "assists", eChallengeGameMode.BATTLE_ROYALE, CHALLENGES_CALC_DEPENDS )
+	CAREER_STATS.kills_or_assists = RegisterAccumulatedStat_Int( null, "kills_or_assists", eChallengeGameMode.BATTLE_ROYALE, CHALLENGES_CALC_DEPENDS )
+	CAREER_STATS.times_got_doomed = RegisterAccumulatedStat_Int( null, "times_got_doomed", eChallengeGameMode.BATTLE_ROYALE, DELAY_WRITE_BACK_UNTIL_MATCH_END )
+	CAREER_STATS.deaths = RegisterAccumulatedStat_Int( null, "deaths", eChallengeGameMode.BATTLE_ROYALE, WRITE_TO_PERSISTENCE_IMMEDIATELY )
+	CAREER_STATS.times_respawned_ally = RegisterAccumulatedStat_Int( null, "times_respawned_ally", eChallengeGameMode.BATTLE_ROYALE, DELAY_WRITE_BACK_UNTIL_MATCH_END )
+	CAREER_STATS.winning_kills = RegisterAccumulatedStat_Int( null, "winning_kills", eChallengeGameMode.BATTLE_ROYALE, DELAY_WRITE_BACK_UNTIL_MATCH_END )
+	CAREER_STATS.win_streak_longest = RegisterAccumulatedStat_Int( null, "win_streak_longest", eChallengeGameMode.BATTLE_ROYALE, DELAY_WRITE_BACK_UNTIL_MATCH_END )
+	CAREER_STATS.win_streak_current = RegisterVariableStat_Int( null, "win_streak_current", eChallengeGameMode.BATTLE_ROYALE, DELAY_WRITE_BACK_UNTIL_MATCH_END )
+	CAREER_STATS.win_streak_account_badge_current = RegisterVariableStat_Int( null, "win_streak_account_badge_current", eChallengeGameMode.BATTLE_ROYALE, BADGES_UNLOCK_NEED )
+	CAREER_STATS.win_streak_account_badge_longest = RegisterVariableStat_Int( null, "win_streak_account_badge_longest", eChallengeGameMode.BATTLE_ROYALE, BADGES_UNLOCK_NEED )
+	CAREER_STATS.kills_while_killleader = RegisterAccumulatedStat_Int( null, "kills_while_killleader", eChallengeGameMode.BATTLE_ROYALE, DELAY_WRITE_BACK_UNTIL_MATCH_END )
+	CAREER_STATS.kills_max_single_game = RegisterAccumulatedStat_Int( null, "kills_max_single_game", eChallengeGameMode.BATTLE_ROYALE, DELAY_WRITE_BACK_UNTIL_MATCH_END )
+	CAREER_STATS.damage_done = RegisterAccumulatedStat_Int( null, "damage_done", eChallengeGameMode.BATTLE_ROYALE, CHALLENGES_CALC_DEPENDS )
+	CAREER_STATS.damage_done_midair = RegisterAccumulatedStat_Int( null, "damage_done_midair", eChallengeGameMode.BATTLE_ROYALE, DELAY_WRITE_BACK_UNTIL_MATCH_END )
+	CAREER_STATS.damage_taken = RegisterAccumulatedStat_Int( null, "damage_taken", eChallengeGameMode.BATTLE_ROYALE, DELAY_WRITE_BACK_UNTIL_MATCH_END )
+	CAREER_STATS.shots = RegisterAccumulatedStat_Int( null, "shots", eChallengeGameMode.BATTLE_ROYALE, DELAY_WRITE_BACK_UNTIL_MATCH_END )
+	CAREER_STATS.hits = RegisterAccumulatedStat_Int( null, "hits", eChallengeGameMode.BATTLE_ROYALE, DELAY_WRITE_BACK_UNTIL_MATCH_END )
+	CAREER_STATS.headshots = RegisterAccumulatedStat_Int( null, "headshots", eChallengeGameMode.BATTLE_ROYALE, CHALLENGES_CALC_DEPENDS )
+	CAREER_STATS.executions = RegisterAccumulatedStat_Int( null, "executions", eChallengeGameMode.BATTLE_ROYALE, CHALLENGES_CALC_DEPENDS )
+	CAREER_STATS.revived_ally = RegisterAccumulatedStat_Int( null, "revived_ally", eChallengeGameMode.BATTLE_ROYALE, CHALLENGES_CALC_DEPENDS )
+	CAREER_STATS.respawned_ally = RegisterAccumulatedStat_Int( null, "respawned_ally", eChallengeGameMode.BATTLE_ROYALE, CHALLENGES_CALC_DEPENDS )
+	CAREER_STATS.games_played = RegisterAccumulatedStat_Int( null, "games_played", eChallengeGameMode.BATTLE_ROYALE, CHALLENGES_CALC_DEPENDS )
+	CAREER_STATS.placements_win = RegisterAccumulatedStat_Int( null, "placements_win", eChallengeGameMode.BATTLE_ROYALE, CHALLENGES_CALC_DEPENDS )
+	CAREER_STATS.placements_win_with_squad_alive = RegisterAccumulatedStat_Int( null, "placements_win_with_squad_alive", eChallengeGameMode.BATTLE_ROYALE, DELAY_WRITE_BACK_UNTIL_MATCH_END )
+	CAREER_STATS.placements_top_3 = RegisterAccumulatedStat_Int( null, "placements_top_3", eChallengeGameMode.BATTLE_ROYALE, CHALLENGES_CALC_DEPENDS )
+	CAREER_STATS.placements_top_5 = RegisterAccumulatedStat_Int( null, "placements_top_5", eChallengeGameMode.BATTLE_ROYALE, CHALLENGES_CALC_DEPENDS )
+	CAREER_STATS.placements_top_10 = RegisterAccumulatedStat_Int( null, "placements_top_10", eChallengeGameMode.BATTLE_ROYALE, CHALLENGES_CALC_DEPENDS )
+	CAREER_STATS.placements_win_with_friends = RegisterAccumulatedStat_Int( null, "placements_win_with_friends", eChallengeGameMode.BATTLE_ROYALE, BADGES_UNLOCK_NEED )
+	CAREER_STATS.placements_win_with_no_witnessess = RegisterAccumulatedStat_Int( null, "placements_win_with_no_witnessess", eChallengeGameMode.BATTLE_ROYALE, BADGES_UNLOCK_NEED )
+	CAREER_STATS.placements_win_with_min_executions_per_person = RegisterAccumulatedStat_Int( null, "placements_win_with_min_executions_per_person", eChallengeGameMode.BATTLE_ROYALE, BADGES_UNLOCK_NEED )
+	CAREER_STATS.max_placement_win_streak_with_premade_squad = RegisterAccumulatedStat_Int( null, "max_placement_win_streak_with_premade_squad", eChallengeGameMode.BATTLE_ROYALE, BADGES_UNLOCK_NEED )
+	CAREER_STATS.team_work_kill_count = RegisterAccumulatedStat_Int( null, "team_work_kill_count", eChallengeGameMode.BATTLE_ROYALE, BADGES_UNLOCK_NEED )
+	CAREER_STATS.neutral_airdrops_looted = RegisterAccumulatedStat_Int( null, "neutral_airdrops_looted", eChallengeGameMode.ANY, CHALLENGES_CALC_DEPENDS )
+	CAREER_STATS.damage_done_to_prowler_on_storm_point = RegisterAccumulatedStat_Int( null, "damage_done_to_prowler_on_storm_point", eChallengeGameMode.BATTLE_ROYALE, CHALLENGES_CALC_DEPENDS )
+	CAREER_STATS.damage_done_to_spider_on_storm_point  = RegisterAccumulatedStat_Int( null, "damage_done_to_spider_on_storm_point", eChallengeGameMode.BATTLE_ROYALE, CHALLENGES_CALC_DEPENDS )
+	CAREER_STATS.voidring_damage_prevented = RegisterAccumulatedStat_Int( null, "voidring_damage_prevented", eChallengeGameMode.BATTLE_ROYALE, CHALLENGES_CALC_DEPENDS )
+
+	CAREER_STATS.games_played_any_mode = RegisterAccumulatedStat_Int( null, "games_played_any_mode", eChallengeGameMode.ANY, CHALLENGES_CALC_DEPENDS )
+	CAREER_STATS.dooms_any_mode = RegisterAccumulatedStat_Int( null, "dooms_any_mode", eChallengeGameMode.ANY, CHALLENGES_CALC_DEPENDS )
+	CAREER_STATS.wins_any_mode = RegisterAccumulatedStat_Int( null, "wins_any_mode", eChallengeGameMode.ANY, CHALLENGES_CALC_DEPENDS )
+
+	
+	CAREER_STATS.crafting_items_crafted = RegisterAccumulatedStat_Int( null, "items_crafted", eChallengeGameMode.BATTLE_ROYALE, CHALLENGES_CALC_DEPENDS )
+	CAREER_STATS.crafting_materials_collected = RegisterAccumulatedStat_Int( null, "materials_collected", eChallengeGameMode.BATTLE_ROYALE, CHALLENGES_CALC_DEPENDS )
+	CAREER_STATS.crafting_harvester_used_any_mode = RegisterAccumulatedStat_Int( null, "crafting_harvester_used_any_mode", eChallengeGameMode.BATTLE_ROYALE, CHALLENGES_CALC_DEPENDS )
+	CAREER_STATS.crafting_items_crafted_any_mode = RegisterAccumulatedStat_Int( null, "crafting_items_crafted_any_mode", eChallengeGameMode.ANY, CHALLENGES_CALC_DEPENDS )
+
+	
+	CAREER_STATS.evoarmor_evolves = RegisterAccumulatedStat_Int( null, "evoarmor_evolves", eChallengeGameMode.BATTLE_ROYALE, CHALLENGES_CALC_DEPENDS )
+	CAREER_STATS.evoarmor_evolves_to_purple = RegisterAccumulatedStat_Int( null, "evoarmor_evolves_to_purple", eChallengeGameMode.BATTLE_ROYALE, CHALLENGES_CALC_DEPENDS )
+
+	
+
+		CAREER_STATS.assault_games_played = RegisterAccumulatedStat_Int( null, "assault_games_played", eChallengeGameMode.ANY, CHALLENGES_CALC_DEPENDS )
+		CAREER_STATS.skirmisher_games_played = RegisterAccumulatedStat_Int( null, "skirmisher_games_played", eChallengeGameMode.ANY, CHALLENGES_CALC_DEPENDS )
+		CAREER_STATS.recon_games_played = RegisterAccumulatedStat_Int( null, "recon_games_played", eChallengeGameMode.ANY, CHALLENGES_CALC_DEPENDS )
+		CAREER_STATS.controller_games_played = RegisterAccumulatedStat_Int( null, "controller_games_played", eChallengeGameMode.ANY, CHALLENGES_CALC_DEPENDS )
+		CAREER_STATS.support_games_played = RegisterAccumulatedStat_Int( null, "support_games_played", eChallengeGameMode.ANY, CHALLENGES_CALC_DEPENDS )
+
+		CAREER_STATS.weapon_supply_bins_looted = RegisterAccumulatedStat_Int( null, "weapon_supply_bins_looted", eChallengeGameMode.BATTLE_ROYALE, CHALLENGES_CALC_DEPENDS )
+		CAREER_STATS.care_packages_revealed = RegisterAccumulatedStat_Int( null, "care_packages_revealed", eChallengeGameMode.BATTLE_ROYALE, CHALLENGES_CALC_DEPENDS )
+		CAREER_STATS.ring_consoles_used = RegisterAccumulatedStat_Int( null, "ring_consoles_used", eChallengeGameMode.BATTLE_ROYALE, CHALLENGES_CALC_DEPENDS )
+		CAREER_STATS.extended_supply_bins_looted = RegisterAccumulatedStat_Int( null, "extended_supply_bins_looted", eChallengeGameMode.BATTLE_ROYALE, CHALLENGES_CALC_DEPENDS )
+
+		CAREER_STATS.weapon_supply_bin_epics_looted = RegisterAccumulatedStat_Int( null, "weapon_supply_bin_epics_looted", eChallengeGameMode.BATTLE_ROYALE, CHALLENGES_CALC_DEPENDS )
+		CAREER_STATS.revealed_care_packages_looted = RegisterAccumulatedStat_Int( null, "revealed_care_packages_looted", eChallengeGameMode.BATTLE_ROYALE, CHALLENGES_CALC_DEPENDS )
+		CAREER_STATS.beacon_scanned_squads_killed = RegisterAccumulatedStat_Int( null, "beacon_scanned_squads_killed", eChallengeGameMode.BATTLE_ROYALE, CHALLENGES_CALC_DEPENDS )
+		CAREER_STATS.scanned_ring_locations_reached = RegisterAccumulatedStat_Int( null, "scanned_ring_locations_reached", eChallengeGameMode.BATTLE_ROYALE, CHALLENGES_CALC_DEPENDS )
+		CAREER_STATS.respawn_banners_crafted = RegisterAccumulatedStat_Int( null, "respawn_banners_crafted", eChallengeGameMode.BATTLE_ROYALE, CHALLENGES_CALC_DEPENDS )
+
+
+	
+
+		CAREER_STATS.legend_upgrades_selected = RegisterAccumulatedStat_Int( null, "legend_upgrades_selected", eChallengeGameMode.ANY, CHALLENGES_CALC_DEPENDS )
+
+
+	
+	StatEnumStruct weapon_SES = GetRegisteredStatEnumStruct( eStatEnumStructRefs.WEAPON )
+
+	CAREER_STATS.weapon_kills = RegisterAccumulatedStat_Int( weapon_SES, "kills", eChallengeGameMode.BATTLE_ROYALE, CHALLENGES_CALC_DEPENDS )
+	CAREER_STATS.weapon_dooms = RegisterAccumulatedStat_Int( weapon_SES, "dooms", eChallengeGameMode.BATTLE_ROYALE, CHALLENGES_CALC_DEPENDS )
+	CAREER_STATS.weapon_damage_done = RegisterAccumulatedStat_Int( weapon_SES, "damage_done", eChallengeGameMode.BATTLE_ROYALE, CHALLENGES_CALC_DEPENDS )
+	CAREER_STATS.weapon_shots = RegisterAccumulatedStat_Int( weapon_SES, "shots", eChallengeGameMode.BATTLE_ROYALE, DELAY_WRITE_BACK_UNTIL_MATCH_END )
+	CAREER_STATS.weapon_hits = RegisterAccumulatedStat_Int( weapon_SES, "hits", eChallengeGameMode.BATTLE_ROYALE, DELAY_WRITE_BACK_UNTIL_MATCH_END )
+	CAREER_STATS.weapon_headshots = RegisterAccumulatedStat_Int( weapon_SES, "headshots", eChallengeGameMode.BATTLE_ROYALE, CHALLENGES_CALC_DEPENDS )
+
+	
+	StatEnumStruct character_SES = GetRegisteredStatEnumStruct( eStatEnumStructRefs.CHARACTER )
+
+	CAREER_STATS.character_kills = RegisterAccumulatedStat_Int( character_SES, "kills", eChallengeGameMode.BATTLE_ROYALE, CHALLENGES_CALC_DEPENDS )
+	CAREER_STATS.character_dooms = RegisterAccumulatedStat_Int( character_SES, "dooms", eChallengeGameMode.BATTLE_ROYALE, CHALLENGES_CALC_DEPENDS )
+	CAREER_STATS.character_deaths = RegisterAccumulatedStat_Int( character_SES, "deaths", eChallengeGameMode.BATTLE_ROYALE, WRITE_TO_PERSISTENCE_IMMEDIATELY )
+	CAREER_STATS.character_winning_kills = RegisterAccumulatedStat_Int( character_SES, "winning_kills", eChallengeGameMode.BATTLE_ROYALE, DELAY_WRITE_BACK_UNTIL_MATCH_END )
+	CAREER_STATS.character_kills_while_killleader = RegisterAccumulatedStat_Int( character_SES, "kills_while_killleader", eChallengeGameMode.BATTLE_ROYALE, TRACKERS_NEED )
+	CAREER_STATS.character_damage_done = RegisterAccumulatedStat_Int( character_SES, "damage_done", eChallengeGameMode.BATTLE_ROYALE, CHALLENGES_CALC_DEPENDS )
+	CAREER_STATS.character_damage_done_any_mode = RegisterAccumulatedStat_Int( character_SES, "damage_done_any_mode", eChallengeGameMode.ANY, CHALLENGES_CALC_DEPENDS )
+	CAREER_STATS.character_damage_done_max_single_game = RegisterAccumulatedStat_Int( character_SES, "character_damage_done_max_single_game", eChallengeGameMode.BATTLE_ROYALE, BADGES_UNLOCK_NEED )
+	CAREER_STATS.character_shots = RegisterAccumulatedStat_Int( character_SES, "shots", eChallengeGameMode.BATTLE_ROYALE, DELAY_WRITE_BACK_UNTIL_MATCH_END )
+	CAREER_STATS.character_hits = RegisterAccumulatedStat_Int( character_SES, "hits", eChallengeGameMode.BATTLE_ROYALE, DELAY_WRITE_BACK_UNTIL_MATCH_END )
+	CAREER_STATS.character_headshots = RegisterAccumulatedStat_Int( character_SES, "headshots", eChallengeGameMode.BATTLE_ROYALE, TRACKERS_NEED )
+	CAREER_STATS.character_executions = RegisterAccumulatedStat_Int( character_SES, "executions", eChallengeGameMode.BATTLE_ROYALE, CHALLENGES_CALC_DEPENDS )
+	CAREER_STATS.character_revived_ally = RegisterAccumulatedStat_Int( character_SES, "revived_ally", eChallengeGameMode.BATTLE_ROYALE, TRACKERS_NEED )
+	CAREER_STATS.character_games_played = RegisterAccumulatedStat_Int( character_SES, "games_played", eChallengeGameMode.BATTLE_ROYALE, CHALLENGES_CALC_DEPENDS )
+	CAREER_STATS.character_games_played_any_mode = RegisterAccumulatedStat_Int( character_SES, "games_played_any_mode", eChallengeGameMode.ANY, CHALLENGES_CALC_DEPENDS )
+	CAREER_STATS.character_games_with_5_kills = RegisterAccumulatedStat_Int( character_SES, "games_with_5_kills", eChallengeGameMode.BATTLE_ROYALE, BADGES_UNLOCK_NEED )
+	CAREER_STATS.character_games_with_20_kills = RegisterAccumulatedStat_Int( character_SES, "games_with_20_kills", eChallengeGameMode.BATTLE_ROYALE, BADGES_UNLOCK_NEED )
+	CAREER_STATS.character_games_with_respawning_both_teammates = RegisterAccumulatedStat_Int( character_SES, "character_games_with_respawning_both_teammates", eChallengeGameMode.BATTLE_ROYALE, BADGES_UNLOCK_NEED )
+	CAREER_STATS.character_rapid_eliminations = RegisterAccumulatedStat_Int( character_SES, "character_rapid_eliminations", eChallengeGameMode.BATTLE_ROYALE, BADGES_UNLOCK_NEED )
+	CAREER_STATS.character_most_squad_squad_kills_in_1_game = RegisterAccumulatedStat_Int( character_SES, "most_squad_squad_kills_in_1_game", eChallengeGameMode.BATTLE_ROYALE, BADGES_UNLOCK_NEED )
+	CAREER_STATS.character_placements_win = RegisterAccumulatedStat_Int( character_SES, "placements_win", eChallengeGameMode.BATTLE_ROYALE, BADGES_UNLOCK_NEED )
+	CAREER_STATS.character_placements_win_with_squad_alive = RegisterAccumulatedStat_Int( character_SES, "placements_win_with_squad_alive", eChallengeGameMode.BATTLE_ROYALE, DELAY_WRITE_BACK_UNTIL_MATCH_END )
+	CAREER_STATS.character_placements_top_3 = RegisterAccumulatedStat_Int( character_SES, "placements_top_3", eChallengeGameMode.BATTLE_ROYALE, CHALLENGES_CALC_DEPENDS )
+	CAREER_STATS.character_placements_win_as_jumpmaster = RegisterAccumulatedStat_Int( character_SES, "character_placements_win_as_jumpmaster", eChallengeGameMode.BATTLE_ROYALE, BADGES_UNLOCK_NEED )
+	CAREER_STATS.character_placements_win_as_killleader = RegisterAccumulatedStat_Int( character_SES, "character_placements_win_as_killleader", eChallengeGameMode.BATTLE_ROYALE, BADGES_UNLOCK_NEED )
+	CAREER_STATS.character_placements_win_as_killleader_and_champion = RegisterAccumulatedStat_Int( character_SES, "character_placements_win_as_killleader_and_champion", eChallengeGameMode.BATTLE_ROYALE, BADGES_UNLOCK_NEED )
+	CAREER_STATS.character_placements_win_flawless_1 = RegisterAccumulatedStat_Int( character_SES, "character_placements_win_flawless_1", eChallengeGameMode.BATTLE_ROYALE, BADGES_UNLOCK_NEED )
+	CAREER_STATS.character_placements_win_flawless_2 = RegisterAccumulatedStat_Int( character_SES, "character_placements_win_flawless_2", eChallengeGameMode.BATTLE_ROYALE, BADGES_UNLOCK_NEED )
+	CAREER_STATS.character_placements_win_with_5_headshots = RegisterAccumulatedStat_Int( character_SES, "character_placements_win_with_5_headshots", eChallengeGameMode.BATTLE_ROYALE, BADGES_UNLOCK_NEED )
+	CAREER_STATS.character_ring_closings_survived	= RegisterAccumulatedStat_Int( character_SES, "ring_closings_survived", eChallengeGameMode.ANY, CHALLENGES_CALC_DEPENDS )
+	CAREER_STATS.character_looted_legendary_item	= RegisterAccumulatedStat_Int( character_SES, "looted_legendary_item", eChallengeGameMode.ANY, CHALLENGES_CALC_DEPENDS )
+	CAREER_STATS.character_thanks					= RegisterAccumulatedStat_Int( character_SES, "thanks", eChallengeGameMode.ANY, CHALLENGES_CALC_DEPENDS )
+	CAREER_STATS.character_neutral_airdrops_looted = RegisterAccumulatedStat_Int( character_SES, "neutral_airdrops_looted", eChallengeGameMode.ANY, DELAY_WRITE_BACK_UNTIL_MATCH_END )
+
+	
+	CAREER_STATS.character_won_last_game = RegisterVariableStat_Int( character_SES, "character_won_last_game", eChallengeGameMode.BATTLE_ROYALE, DELAY_WRITE_BACK_UNTIL_MATCH_END )
+	CAREER_STATS.character_hot_streaks = RegisterAccumulatedStat_Int( character_SES, "character_hot_streaks", eChallengeGameMode.BATTLE_ROYALE, BADGES_UNLOCK_NEED )
+	CAREER_STATS.character_reinforcement_recalls = RegisterAccumulatedStat_Int( character_SES, "character_reinforcement_recalls", eChallengeGameMode.BATTLE_ROYALE, BADGES_UNLOCK_NEED )
+	CAREER_STATS.character_banner_once_filled = RegisterAccumulatedStat_Int( character_SES, "character_banner_once_filled", eChallengeGameMode.NON_MODE, DELAY_WRITE_BACK_UNTIL_MATCH_END )
+
+	
+	StatEnumStruct character_weaponcategory_SES = GetRegisteredStatEnumStruct( eStatEnumStructRefs.CHARACTER_WEAPONCATEGORY )
+
+	CAREER_STATS.character_weaponcategory_kills = RegisterAccumulatedStat_Int( character_weaponcategory_SES, "kills", eChallengeGameMode.BATTLE_ROYALE, DELAY_WRITE_BACK_UNTIL_MATCH_END )
+	CAREER_STATS.character_weaponcategory_dooms = RegisterAccumulatedStat_Int( character_weaponcategory_SES, "dooms", eChallengeGameMode.BATTLE_ROYALE, CHALLENGES_CALC_DEPENDS )
+	CAREER_STATS.character_weaponcategory_damage_done = RegisterAccumulatedStat_Int( character_weaponcategory_SES, "damage_done", eChallengeGameMode.BATTLE_ROYALE, CHALLENGES_CALC_DEPENDS )
+	CAREER_STATS.character_weaponcategory_shots = RegisterAccumulatedStat_Int( character_weaponcategory_SES, "shots", eChallengeGameMode.BATTLE_ROYALE, DELAY_WRITE_BACK_UNTIL_MATCH_END )
+	CAREER_STATS.character_weaponcategory_hits = RegisterAccumulatedStat_Int( character_weaponcategory_SES, "hits", eChallengeGameMode.BATTLE_ROYALE, DELAY_WRITE_BACK_UNTIL_MATCH_END )
+	CAREER_STATS.character_weaponcategory_headshots = RegisterAccumulatedStat_Int( character_weaponcategory_SES, "headshots", eChallengeGameMode.BATTLE_ROYALE, CHALLENGES_CALC_DEPENDS )
+
+	
+	StatEnumStruct modes_SES = GetRegisteredStatEnumStruct( eStatEnumStructRefs.MODE )
+
+	CAREER_STATS.modes_games_played = RegisterAccumulatedStat_Int( modes_SES, "games_played", MODE_SPECIFIC, CHALLENGES_CALC_DEPENDS )
+	CAREER_STATS.modes_kills = RegisterAccumulatedStat_Int( modes_SES, "kills", MODE_SPECIFIC, CHALLENGES_CALC_DEPENDS )
+	CAREER_STATS.modes_assists = RegisterAccumulatedStat_Int( modes_SES, "assists", MODE_SPECIFIC, DELAY_WRITE_BACK_UNTIL_MATCH_END )
+	CAREER_STATS.modes_kills_or_assists = RegisterAccumulatedStat_Int( modes_SES, "kills_or_assists", MODE_SPECIFIC, CHALLENGES_CALC_DEPENDS )
+	CAREER_STATS.modes_executions = RegisterAccumulatedStat_Int( modes_SES, "executions", MODE_SPECIFIC, CHALLENGES_CALC_DEPENDS )
+	CAREER_STATS.modes_deaths = RegisterAccumulatedStat_Int( modes_SES, "deaths", MODE_SPECIFIC, DELAY_WRITE_BACK_UNTIL_MATCH_END )
+	CAREER_STATS.modes_dooms = RegisterAccumulatedStat_Int( modes_SES, "dooms", MODE_SPECIFIC, CHALLENGES_CALC_DEPENDS )
+	CAREER_STATS.modes_damage_done = RegisterAccumulatedStat_Int( modes_SES, "damage_done", MODE_SPECIFIC, CHALLENGES_CALC_DEPENDS )
+	CAREER_STATS.modes_placements_win = RegisterAccumulatedStat_Int( modes_SES, "placements_win", MODE_SPECIFIC, CHALLENGES_CALC_DEPENDS )
+	CAREER_STATS.modes_headshots = RegisterAccumulatedStat_Int( modes_SES, "headshots", MODE_SPECIFIC, CHALLENGES_CALC_DEPENDS )
+
+	
+	CAREER_STATS.modes_kills_max_single_game = RegisterAccumulatedStat_Int( modes_SES, "kills_max_single_game", MODE_SPECIFIC, DELAY_WRITE_BACK_UNTIL_MATCH_END )
+	CAREER_STATS.modes_damage_done_max_single_game = RegisterAccumulatedStat_Int( modes_SES, "damage_done_max_single_game", MODE_SPECIFIC, DELAY_WRITE_BACK_UNTIL_MATCH_END )
+	CAREER_STATS.modes_win_streak_current = RegisterVariableStat_Int( modes_SES, "win_streak_current", MODE_SPECIFIC, CHALLENGES_CALC_DEPENDS )
+	CAREER_STATS.modes_win_streak_longest = RegisterAccumulatedStat_Int( modes_SES, "win_streak_longest", MODE_SPECIFIC, BADGES_UNLOCK_NEED )
+	CAREER_STATS.modes_revived_ally = RegisterAccumulatedStat_Int( modes_SES, "revived_ally", MODE_SPECIFIC, CHALLENGES_CALC_DEPENDS )
+
+	
+	StatEnumStruct modes_season_SES = GetRegisteredStatEnumStruct( eStatEnumStructRefs.MODE_SEASON )
+
+	CAREER_STATS.modes_season_games_played = RegisterAccumulatedStat_Int( modes_season_SES, "games_played", MODE_SPECIFIC, DELAY_WRITE_BACK_UNTIL_MATCH_END )
+	CAREER_STATS.modes_season_kills = RegisterAccumulatedStat_Int( modes_season_SES, "kills", MODE_SPECIFIC, DELAY_WRITE_BACK_UNTIL_MATCH_END )
+	CAREER_STATS.modes_season_assists = RegisterAccumulatedStat_Int( modes_season_SES, "assists", MODE_SPECIFIC, DELAY_WRITE_BACK_UNTIL_MATCH_END )
+	CAREER_STATS.modes_season_deaths = RegisterAccumulatedStat_Int( modes_season_SES, "deaths", MODE_SPECIFIC, DELAY_WRITE_BACK_UNTIL_MATCH_END )
+	CAREER_STATS.modes_season_dooms = RegisterAccumulatedStat_Int( modes_season_SES, "dooms", MODE_SPECIFIC, DELAY_WRITE_BACK_UNTIL_MATCH_END )
+	CAREER_STATS.modes_season_damage_done = RegisterAccumulatedStat_Int( modes_season_SES, "damage_done", MODE_SPECIFIC, DELAY_WRITE_BACK_UNTIL_MATCH_END )
+	CAREER_STATS.modes_season_placements_win = RegisterAccumulatedStat_Int( modes_season_SES, "placements_win", MODE_SPECIFIC, DELAY_WRITE_BACK_UNTIL_MATCH_END )
+
+	
+	CAREER_STATS.modes_season_kills_max_single_game = RegisterAccumulatedStat_Int( modes_season_SES, "kills_max_single_game", MODE_SPECIFIC, DELAY_WRITE_BACK_UNTIL_MATCH_END )
+	CAREER_STATS.modes_season_damage_done_max_single_game = RegisterAccumulatedStat_Int( modes_season_SES, "damage_done_max_single_game", MODE_SPECIFIC, DELAY_WRITE_BACK_UNTIL_MATCH_END )
+	CAREER_STATS.modes_season_win_streak_current = RegisterVariableStat_Int( modes_season_SES, "win_streak_current", MODE_SPECIFIC, DELAY_WRITE_BACK_UNTIL_MATCH_END )
+	CAREER_STATS.modes_season_win_streak_longest = RegisterAccumulatedStat_Int( modes_season_SES, "win_streak_longest", MODE_SPECIFIC, DELAY_WRITE_BACK_UNTIL_MATCH_END )
+	CAREER_STATS.modes_season_revived_ally = RegisterAccumulatedStat_Int( modes_season_SES, "revived_ally", MODE_SPECIFIC, DELAY_WRITE_BACK_UNTIL_MATCH_END )
+
+	
+	StatEnumStruct modes_characters_SES = GetRegisteredStatEnumStruct( eStatEnumStructRefs.MODE_CHARACTER )
+
+	CAREER_STATS.modes_character_games_played = RegisterAccumulatedStat_Int( modes_characters_SES, "games_played", MODE_SPECIFIC, CHALLENGES_CALC_DEPENDS )
+	CAREER_STATS.modes_character_damage_done = RegisterAccumulatedStat_Int( modes_characters_SES, "damage_done", MODE_SPECIFIC, CHALLENGES_CALC_DEPENDS )
+	CAREER_STATS.modes_character_kills = RegisterAccumulatedStat_Int( modes_characters_SES, "kills", MODE_SPECIFIC, CHALLENGES_CALC_DEPENDS )
+	CAREER_STATS.modes_character_dooms = RegisterAccumulatedStat_Int( modes_characters_SES, "dooms", MODE_SPECIFIC, CHALLENGES_CALC_DEPENDS )
+	CAREER_STATS.modes_character_deaths = RegisterAccumulatedStat_Int( modes_characters_SES, "deaths", MODE_SPECIFIC, DELAY_WRITE_BACK_UNTIL_MATCH_END )
+	CAREER_STATS.modes_character_placements_win = RegisterAccumulatedStat_Int( modes_characters_SES, "placements_win", MODE_SPECIFIC, CHALLENGES_CALC_DEPENDS )
+
+	
+	StatEnumStruct modes_weapon_SES = GetRegisteredStatEnumStruct( eStatEnumStructRefs.MODE_WEAPON )
+
+	CAREER_STATS.modes_weapon_damage_done = RegisterAccumulatedStat_Int( modes_weapon_SES, "damage_done", MODE_SPECIFIC, CHALLENGES_CALC_DEPENDS )
+	CAREER_STATS.modes_weapon_dooms = RegisterAccumulatedStat_Int( modes_weapon_SES, "dooms", MODE_SPECIFIC, CHALLENGES_CALC_DEPENDS )
+
+		CAREER_STATS.modes_weapon_headshots = RegisterAccumulatedStat_Int( modes_weapon_SES, "headshots", MODE_SPECIFIC, DELAY_WRITE_BACK_UNTIL_MATCH_END )
+		CAREER_STATS.modes_weapon_kills = RegisterAccumulatedStat_Int( modes_weapon_SES, "kills", MODE_SPECIFIC, DELAY_WRITE_BACK_UNTIL_MATCH_END )
+
+
+	
+	StatEnumStruct modes_weaponcategory_SES = GetRegisteredStatEnumStruct( eStatEnumStructRefs.MODE_WEWAPONCATEGORY )
+	StatTemplate temp_statTemplateReference 
+
+	temp_statTemplateReference                    = CAREER_STATS.modes_weapon_damage_done
+	CAREER_STATS.modes_weaponcategory_damage_done = RegisterExpensiveCalculatedStat_Int( modes_weaponcategory_SES, "damage_done", CHALLENGES_CALC_DEPENDS, SetupModesWeaponCategoryStatSumEntryFunc_Int, [temp_statTemplateReference], MODE_SPECIFIC )
+
+	temp_statTemplateReference                    = CAREER_STATS.modes_weapon_dooms
+	CAREER_STATS.modes_weaponcategory_dooms       = RegisterExpensiveCalculatedStat_Int( modes_weaponcategory_SES, "dooms", CHALLENGES_CALC_DEPENDS, SetupModesWeaponCategoryStatSumEntryFunc_Int, [temp_statTemplateReference], MODE_SPECIFIC )
+
+
+		StatTemplate tempBr = CAREER_STATS.weapon_damage_done
+		StatTemplate tempNonBr = CAREER_STATS.modes_weapon_damage_done
+		CAREER_STATS.weapon_damage_done_all_modes = RegisterExpensiveCalculatedStat_Int( weapon_SES, "damage_done_all_modes", CHALLENGES_CALC_DEPENDS, SetupAllModesWeaponStatSumEntryFunc_Int, [tempBr, tempNonBr], eChallengeGameMode.ANY )
+
+		tempBr = CAREER_STATS.weapon_dooms
+		tempNonBr = CAREER_STATS.modes_weapon_dooms
+		CAREER_STATS.weapon_dooms_all_modes = RegisterExpensiveCalculatedStat_Int( weapon_SES, "dooms_all_modes", CHALLENGES_CALC_DEPENDS, SetupAllModesWeaponStatSumEntryFunc_Int, [tempBr, tempNonBr], eChallengeGameMode.ANY )
+
+		tempBr = CAREER_STATS.weapon_kills
+		tempNonBr = CAREER_STATS.modes_weapon_kills
+		CAREER_STATS.weapon_kills_all_modes = RegisterExpensiveCalculatedStat_Int( weapon_SES, "kills_all_modes", CHALLENGES_CALC_DEPENDS, SetupAllModesWeaponStatSumEntryFunc_Int, [tempBr, tempNonBr], eChallengeGameMode.ANY )
+
+		tempBr = CAREER_STATS.weapon_headshots
+		tempNonBr = CAREER_STATS.modes_weapon_headshots
+		CAREER_STATS.weapon_headshots_all_modes = RegisterExpensiveCalculatedStat_Int( weapon_SES, "headshots_all_modes", CHALLENGES_CALC_DEPENDS, SetupAllModesWeaponStatSumEntryFunc_Int, [tempBr, tempNonBr], eChallengeGameMode.ANY )
+
+
+	
+	StatEnumStruct weaponcategory_SES = GetRegisteredStatEnumStruct( eStatEnumStructRefs.WEAPON_CATEGORY )
+
+	
+	
+	temp_statTemplateReference        = CAREER_STATS.character_weaponcategory_kills
+	CAREER_STATS.weaponcategory_kills = RegisterExpensiveCalculatedStat_Int( weaponcategory_SES, "kills", CHALLENGES_CALC_DEPENDS, SetupWeaponCategoryStatSumEntryFunc_Int, [temp_statTemplateReference], eChallengeGameMode.BATTLE_ROYALE )
+
+	temp_statTemplateReference        = CAREER_STATS.character_weaponcategory_dooms
+	CAREER_STATS.weaponcategory_dooms = RegisterExpensiveCalculatedStat_Int( weaponcategory_SES, "dooms", CHALLENGES_CALC_DEPENDS, SetupWeaponCategoryStatSumEntryFunc_Int, [temp_statTemplateReference], eChallengeGameMode.BATTLE_ROYALE )
+
+	temp_statTemplateReference              = CAREER_STATS.character_weaponcategory_damage_done
+	CAREER_STATS.weaponcategory_damage_done = RegisterExpensiveCalculatedStat_Int( weaponcategory_SES, "damage_done", CHALLENGES_CALC_DEPENDS, SetupWeaponCategoryStatSumEntryFunc_Int, [temp_statTemplateReference], eChallengeGameMode.BATTLE_ROYALE )
+
+	temp_statTemplateReference            = CAREER_STATS.character_weaponcategory_headshots
+	CAREER_STATS.weaponcategory_headshots = RegisterExpensiveCalculatedStat_Int( weaponcategory_SES, "headshots", CHALLENGES_CALC_DEPENDS, SetupWeaponCategoryStatSumEntryFunc_Int, [temp_statTemplateReference], eChallengeGameMode.BATTLE_ROYALE )
+
+	
+	
+	StatTemplate tempOne = CAREER_STATS.character_weaponcategory_damage_done
+	StatTemplate tempTwo = CAREER_STATS.modes_weapon_damage_done
+	CAREER_STATS.weaponcategory_damage_done_any_mode = RegisterExpensiveCalculatedStat_Int( weaponcategory_SES, "damage_done_any_mode", CHALLENGES_CALC_DEPENDS, SetupAnyModeWeaponCategoryStatSumEntryFunc_Int, [tempOne, tempTwo], eChallengeGameMode.ANY )
+
+	
+	temp_statTemplateReference                        = CAREER_STATS.modes_games_played
+	CAREER_STATS.all_modes_games_played               = RegisterExpensiveCalculatedStat_Int( null, "games_played_all_modes_non_br", CHALLENGES_CALC_DEPENDS, SetupModesExceptBRStatSumEntryFunc_Int, [temp_statTemplateReference], eChallengeGameMode.EXCEPT_BR )
+
+	temp_statTemplateReference                        = CAREER_STATS.modes_damage_done
+	CAREER_STATS.all_modes_damage_done                = RegisterExpensiveCalculatedStat_Int( null, "damage_done_all_modes_non_br", CHALLENGES_CALC_DEPENDS, SetupModesExceptBRStatSumEntryFunc_Int, [temp_statTemplateReference], eChallengeGameMode.EXCEPT_BR )
+
+	temp_statTemplateReference                        = CAREER_STATS.modes_placements_win
+	CAREER_STATS.all_modes_placements_win             = RegisterExpensiveCalculatedStat_Int( null, "placements_win_all_modes_non_br", CHALLENGES_CALC_DEPENDS, SetupModesExceptBRStatSumEntryFunc_Int, [temp_statTemplateReference], eChallengeGameMode.EXCEPT_BR )
+
+	temp_statTemplateReference                        = CAREER_STATS.modes_kills
+	CAREER_STATS.all_modes_kills                      = RegisterExpensiveCalculatedStat_Int( null, "kills_all_modes_non_br", CHALLENGES_CALC_DEPENDS, SetupModesExceptBRStatSumEntryFunc_Int, [temp_statTemplateReference], eChallengeGameMode.EXCEPT_BR )
+
+	temp_statTemplateReference                        = CAREER_STATS.modes_assists
+	CAREER_STATS.all_modes_assists                    = RegisterExpensiveCalculatedStat_Int( null, "assists_all_modes_non_br", CHALLENGES_CALC_DEPENDS, SetupModesExceptBRStatSumEntryFunc_Int, [temp_statTemplateReference], eChallengeGameMode.EXCEPT_BR )
+
+	temp_statTemplateReference                        = CAREER_STATS.modes_kills_or_assists
+	CAREER_STATS.all_modes_kills_or_assists           = RegisterExpensiveCalculatedStat_Int( null, "kills_or_assists_all_modes_non_br", CHALLENGES_CALC_DEPENDS, SetupModesExceptBRStatSumEntryFunc_Int, [temp_statTemplateReference], eChallengeGameMode.EXCEPT_BR )
+
+	temp_statTemplateReference                        = CAREER_STATS.modes_deaths
+	CAREER_STATS.all_modes_deaths                     = RegisterExpensiveCalculatedStat_Int( null, "deaths_all_modes_non_br", CHALLENGES_CALC_DEPENDS, SetupModesExceptBRStatSumEntryFunc_Int, [temp_statTemplateReference], eChallengeGameMode.EXCEPT_BR )
+
+	temp_statTemplateReference                        = CAREER_STATS.modes_dooms
+	CAREER_STATS.all_modes_dooms                      = RegisterExpensiveCalculatedStat_Int( null, "dooms_all_modes_non_br", CHALLENGES_CALC_DEPENDS, SetupModesExceptBRStatSumEntryFunc_Int, [temp_statTemplateReference], eChallengeGameMode.EXCEPT_BR )
+
+	temp_statTemplateReference                        = CAREER_STATS.modes_executions
+	CAREER_STATS.all_modes_executions                 = RegisterExpensiveCalculatedStat_Int( null, "executions_all_modes_non_br", CHALLENGES_CALC_DEPENDS, SetupModesExceptBRStatSumEntryFunc_Int, [temp_statTemplateReference], eChallengeGameMode.EXCEPT_BR )
+
+	temp_statTemplateReference                        = CAREER_STATS.modes_headshots
+	CAREER_STATS.all_modes_headshots                  = RegisterExpensiveCalculatedStat_Int( null, "headshots_all_modes_non_br", CHALLENGES_CALC_DEPENDS, SetupModesExceptBRStatSumEntryFunc_Int, [temp_statTemplateReference], eChallengeGameMode.EXCEPT_BR )
+
+	temp_statTemplateReference                        = CAREER_STATS.modes_revived_ally
+	CAREER_STATS.all_modes_revived_ally               = RegisterExpensiveCalculatedStat_Int( null, "revived_ally_all_modes_non_br", CHALLENGES_CALC_DEPENDS, SetupModesExceptBRStatSumEntryFunc_Int, [temp_statTemplateReference], eChallengeGameMode.EXCEPT_BR )
+
+	temp_statTemplateReference                        = CAREER_STATS.modes_weapon_damage_done
+	CAREER_STATS.all_modes_weaponcategory_damage_done = RegisterExpensiveCalculatedStat_Int( weaponcategory_SES, "damage_done_all_modes_non_br", CHALLENGES_CALC_DEPENDS, SetupModesExceptBRWeaponCategoryStatSumEntryFunc_Int, [temp_statTemplateReference], eChallengeGameMode.EXCEPT_BR )
+
+	temp_statTemplateReference                        = CAREER_STATS.modes_weapon_dooms
+	CAREER_STATS.all_modes_weaponcategory_dooms       = RegisterExpensiveCalculatedStat_Int( weaponcategory_SES, "dooms_all_modes_non_br", CHALLENGES_CALC_DEPENDS, SetupModesExceptBRWeaponCategoryStatSumEntryFunc_Int, [temp_statTemplateReference], eChallengeGameMode.EXCEPT_BR )
+
+	temp_statTemplateReference                        = CAREER_STATS.modes_character_games_played
+	CAREER_STATS.all_modes_character_games_played     = RegisterExpensiveCalculatedStat_Int( character_SES, "games_played_all_modes_non_br", CHALLENGES_CALC_DEPENDS, SetupModesExceptBRCharacterStatSumEntryFunc_Int, [temp_statTemplateReference], eChallengeGameMode.EXCEPT_BR )
+
+	temp_statTemplateReference                        = CAREER_STATS.modes_character_damage_done
+	CAREER_STATS.all_modes_character_damage_done      = RegisterExpensiveCalculatedStat_Int( character_SES, "damage_done_all_modes_non_br", CHALLENGES_CALC_DEPENDS, SetupModesExceptBRCharacterStatSumEntryFunc_Int, [temp_statTemplateReference], eChallengeGameMode.EXCEPT_BR )
+
+	temp_statTemplateReference                        = CAREER_STATS.modes_character_kills
+	CAREER_STATS.all_modes_character_kills            = RegisterExpensiveCalculatedStat_Int( character_SES, "kills_all_modes_non_br", CHALLENGES_CALC_DEPENDS, SetupModesExceptBRCharacterStatSumEntryFunc_Int, [temp_statTemplateReference], eChallengeGameMode.EXCEPT_BR )
+
+	temp_statTemplateReference                        = CAREER_STATS.modes_character_dooms
+	CAREER_STATS.all_modes_character_dooms            = RegisterExpensiveCalculatedStat_Int( character_SES, "dooms_all_modes_non_br", CHALLENGES_CALC_DEPENDS, SetupModesExceptBRCharacterStatSumEntryFunc_Int, [temp_statTemplateReference], eChallengeGameMode.EXCEPT_BR )
+
+	temp_statTemplateReference                        = CAREER_STATS.modes_character_placements_win
+	CAREER_STATS.all_modes_character_placements_win   = RegisterExpensiveCalculatedStat_Int( character_SES, "placements_win_all_modes_non_br", CHALLENGES_CALC_DEPENDS, SetupModesExceptBRCharacterStatSumEntryFunc_Int, [temp_statTemplateReference], eChallengeGameMode.EXCEPT_BR )
+
+	
+	StatEnumStruct season_SES = GetRegisteredStatEnumStruct( eStatEnumStructRefs.SEASON )
+	CAREER_STATS.season_battlepass_level = RegisterCachedCalculatedStat_Int( season_SES, "battlepass_level", CHALLENGES_CALC_DEPENDS, SetupGetSeasonBattlePassLevelForStat, [], eChallengeGameMode.NON_MODE )
+
+	
+	StatEnumStruct season_character_SES = GetRegisteredStatEnumStruct( eStatEnumStructRefs.SEASON_CHARACTER )
+	CAREER_STATS.season_character_damage_done = RegisterAccumulatedStat_Int( season_character_SES, "damage_done", eChallengeGameMode.BATTLE_ROYALE, TRACKERS_NEED )
+	CAREER_STATS.season_character_kills = RegisterAccumulatedStat_Int( season_character_SES, "kills", eChallengeGameMode.BATTLE_ROYALE, TRACKERS_NEED )
+	CAREER_STATS.season_character_placements_win = RegisterAccumulatedStat_Int( season_character_SES, "placements_win", eChallengeGameMode.BATTLE_ROYALE, TRACKERS_NEED )
+	CAREER_STATS.season_character_placements_top_5 = RegisterAccumulatedStat_Int( season_character_SES, "placements_top_5", eChallengeGameMode.BATTLE_ROYALE, DELAY_WRITE_BACK_UNTIL_MATCH_END )
+
+	
+	CAREER_STATS.season_games_played = RegisterAccumulatedStat_Int( season_SES, "games_played", eChallengeGameMode.BATTLE_ROYALE, DELAY_WRITE_BACK_UNTIL_MATCH_END )
+	CAREER_STATS.season_placements_win = RegisterAccumulatedStat_Int( season_SES, "placements_win", eChallengeGameMode.BATTLE_ROYALE, DELAY_WRITE_BACK_UNTIL_MATCH_END )
+	CAREER_STATS.season_damage_done = RegisterAccumulatedStat_Int( season_SES, "damage_done", eChallengeGameMode.BATTLE_ROYALE, DELAY_WRITE_BACK_UNTIL_MATCH_END )
+	CAREER_STATS.season_kills = RegisterAccumulatedStat_Int( season_SES, "kills", eChallengeGameMode.BATTLE_ROYALE, DELAY_WRITE_BACK_UNTIL_MATCH_END )
+	CAREER_STATS.season_deaths = RegisterAccumulatedStat_Int( season_SES, "deaths", eChallengeGameMode.BATTLE_ROYALE, WRITE_TO_PERSISTENCE_IMMEDIATELY )
+	CAREER_STATS.season_dooms = RegisterAccumulatedStat_Int( season_SES, "dooms", eChallengeGameMode.BATTLE_ROYALE, DELAY_WRITE_BACK_UNTIL_MATCH_END )
+	CAREER_STATS.season_team_work_kill_count = RegisterAccumulatedStat_Int( season_SES, "team_work_kill_count", eChallengeGameMode.BATTLE_ROYALE, DELAY_WRITE_BACK_UNTIL_MATCH_END )
+	CAREER_STATS.season_revived_ally = RegisterAccumulatedStat_Int( season_SES, "revived_ally", eChallengeGameMode.BATTLE_ROYALE, DELAY_WRITE_BACK_UNTIL_MATCH_END )
+	CAREER_STATS.season_times_respawned_ally = RegisterAccumulatedStat_Int( season_SES, "times_respawned_ally", eChallengeGameMode.BATTLE_ROYALE, DELAY_WRITE_BACK_UNTIL_MATCH_END )
+	CAREER_STATS.season_character_damage_done_max_single_game = RegisterAccumulatedStat_Int( season_character_SES, "character_damage_done_max_single_game", eChallengeGameMode.BATTLE_ROYALE, DELAY_WRITE_BACK_UNTIL_MATCH_END )
+	CAREER_STATS.season_assists = RegisterAccumulatedStat_Int( season_SES, "assists", eChallengeGameMode.BATTLE_ROYALE, DELAY_WRITE_BACK_UNTIL_MATCH_END )
+	CAREER_STATS.season_kills_max_single_game = RegisterAccumulatedStat_Int( season_SES, "kills_max_single_game", eChallengeGameMode.BATTLE_ROYALE, DELAY_WRITE_BACK_UNTIL_MATCH_END )
+	CAREER_STATS.season_win_streak_longest = RegisterAccumulatedStat_Int( season_SES, "win_streak_longest", eChallengeGameMode.BATTLE_ROYALE, DELAY_WRITE_BACK_UNTIL_MATCH_END )
+	CAREER_STATS.season_win_streak_current = RegisterVariableStat_Int( season_SES, "win_streak_current", eChallengeGameMode.BATTLE_ROYALE, DELAY_WRITE_BACK_UNTIL_MATCH_END )
+
+	CAREER_STATS.elite_badge_unlock = RegisterAccumulatedStat_Int( null, "elite_badge_unlock", eChallengeGameMode.EXPIRED, DELAY_WRITE_BACK_UNTIL_MATCH_END )
+	CAREER_STATS.character_elite_game_wins = RegisterAccumulatedStat_Int( character_SES, "character_elite_game_wins", eChallengeGameMode.EXPIRED, DELAY_WRITE_BACK_UNTIL_MATCH_END )
+	CAREER_STATS.character_elite_game_8kill_wins = RegisterAccumulatedStat_Int( character_SES, "character_elite_game_8kill_wins", eChallengeGameMode.EXPIRED, DELAY_WRITE_BACK_UNTIL_MATCH_END )
+	CAREER_STATS.elite_888_badge_unlock = RegisterExpensiveCalculatedStat_Int( null, "elite_888_badge_unlock", DELAY_WRITE_BACK_UNTIL_MATCH_END, SetupGetElite888StatusForStat, [], eChallengeGameMode.EXPIRED )
+
+	CAREER_STATS.loot_bins = RegisterAccumulatedStat_Int( null, "loot_bins_opened", eChallengeGameMode.BATTLE_ROYALE, CHALLENGES_CALC_DEPENDS )
+	CAREER_STATS.opponents_outlived = RegisterAccumulatedStat_Int( null, "opponents_outlived", eChallengeGameMode.BATTLE_ROYALE, CHALLENGES_CALC_DEPENDS )
+	CAREER_STATS.survival_time_seconds = RegisterAccumulatedStat_Int( null, "survival_time_seconds", eChallengeGameMode.BATTLE_ROYALE, CHALLENGES_CALC_DEPENDS )
+
+	
+	CAREER_STATS.kills_with_red_weapons_any_mode = RegisterAccumulatedStat_Int( null, "kills_with_red_weapons_any_mode", eChallengeGameMode.ANY, CHALLENGES_CALC_DEPENDS ) 
+	CAREER_STATS.damage_with_red_weapons_any_mode = RegisterAccumulatedStat_Int( null, "damage_with_red_weapons_any_mode", eChallengeGameMode.ANY, CHALLENGES_CALC_DEPENDS )
+	CAREER_STATS.br_top_10_or_arena_win          = RegisterAccumulatedStat_Int( null, "br_top_10_or_arena_win", eChallengeGameMode.ANY, CHALLENGES_CALC_DEPENDS ) 
+	CAREER_STATS.melee_damage_any_mode           = RegisterAccumulatedStat_Int( null, "melee_damage_any_mode", eChallengeGameMode.ANY, CHALLENGES_CALC_DEPENDS ) 
+	CAREER_STATS.kills_or_assists_any_mode       = RegisterAccumulatedStat_Int( null, "kills_or_assists_any_mode", eChallengeGameMode.ANY, CHALLENGES_CALC_DEPENDS ) 
+	CAREER_STATS.ring_closings_survived			 = RegisterAccumulatedStat_Int( null, "ring_closings_survived", eChallengeGameMode.BATTLE_ROYALE, CHALLENGES_CALC_DEPENDS ) 
+	CAREER_STATS.health_restored_any_mode        = RegisterAccumulatedStat_Int( null, "health_restored_any_mode", eChallengeGameMode.ANY, CHALLENGES_CALC_DEPENDS ) 
+	CAREER_STATS.self_revives					 = RegisterAccumulatedStat_Int( null, "self_revives", eChallengeGameMode.BATTLE_ROYALE, CHALLENGES_CALC_DEPENDS ) 
+	CAREER_STATS.executions_any_mode			 = RegisterAccumulatedStat_Int( null, "executions_any_mode", eChallengeGameMode.ANY, CHALLENGES_CALC_DEPENDS ) 
+	CAREER_STATS.damage_done_any_mode		 	 = RegisterAccumulatedStat_Int( null, "damage_done_any_mode", eChallengeGameMode.ANY, CHALLENGES_CALC_DEPENDS ) 
+	CAREER_STATS.top_3_with_3_kill_ko_assist	 = RegisterAccumulatedStat_Int( null, "top_3_with_3_kill_ko_assist", eChallengeGameMode.BATTLE_ROYALE, CHALLENGES_CALC_DEPENDS ) 
+	CAREER_STATS.headshots_any_mode	 			 = RegisterAccumulatedStat_Int( null, "headshots_any_mode", eChallengeGameMode.ANY, CHALLENGES_CALC_DEPENDS ) 
+	CAREER_STATS.damage_done_first_ring_round_br = RegisterAccumulatedStat_Int( null, "damage_done_first_ring_round_br", eChallengeGameMode.BATTLE_ROYALE, CHALLENGES_CALC_DEPENDS ) 
+	CAREER_STATS.damage_done_hipfire_any_mode    = RegisterAccumulatedStat_Int( null, "damage_done_hipfire_any_mode", eChallengeGameMode.ANY, CHALLENGES_CALC_DEPENDS ) 
+	CAREER_STATS.damage_done_ordnance_any_mode   = RegisterAccumulatedStat_Int( null, "damage_done_ordnance_any_mode", eChallengeGameMode.ANY, CHALLENGES_CALC_DEPENDS ) 
+	CAREER_STATS.evoarmor_evolves_to_red         = RegisterAccumulatedStat_Int( null, "evoarmor_evolves_to_red", eChallengeGameMode.BATTLE_ROYALE, CHALLENGES_CALC_DEPENDS ) 
+	CAREER_STATS.arenas_win_with_5_kill_ko_assist = RegisterAccumulatedStat_Int( null, "arenas_win_with_5_kill_ko_assist", eChallengeGameMode.ARENAS, CHALLENGES_CALC_DEPENDS ) 
+	CAREER_STATS.shield_restored = RegisterAccumulatedStat_Int( null, "shield_restored", eChallengeGameMode.BATTLE_ROYALE, CHALLENGES_CALC_DEPENDS ) 
+	CAREER_STATS.mirror_legend_kills_any_mode = RegisterAccumulatedStat_Int( null, "mirror_legend_kills_any_mode", eChallengeGameMode.ANY, CHALLENGES_CALC_DEPENDS ) 
+	CAREER_STATS.equipped_attachment = RegisterAccumulatedStat_Int( null, "equipped_attachment", eChallengeGameMode.BATTLE_ROYALE, CHALLENGES_CALC_DEPENDS ) 
+	CAREER_STATS.character_placements_top_10 = RegisterAccumulatedStat_Int( character_SES, "placements_top_10", eChallengeGameMode.BATTLE_ROYALE, CHALLENGES_CALC_DEPENDS ) 
+}
+
+StatCalcFuncInfo function SetupModesWeaponCategoryStatSumEntryFunc_Int( StatEntry calcEntry, array<StatTemplate> sourceTemplates )
+{
+	StatTemplate sourceTemplate = sourceTemplates[0]
+
+	StatCalcFuncInfo info
+
+	string calcMode 		  = calcEntry.enumKeys[0]
+	string calcWeaponCategory = calcEntry.enumKeys[1]
+
+	info.sourceEntries = []
+	array<StatEntry> sourceEntries = expect array<StatEntry>( info.sourceEntries )
+	foreach ( string weaponItemRefInCategory, bool unused in fileLevel.weaponStatCategoryWeaponItemRefSet[calcWeaponCategory] )
+	{
+		sourceEntries.append( ResolveStatEntry( sourceTemplate, calcMode, weaponItemRefInCategory ) )
+	}
+
+	info.calcFunc_Int = CalcStatSum_Int
+
+	return info
+}
+
+
+StatCalcFuncInfo function SetupAllModesWeaponStatSumEntryFunc_Int( StatEntry calcEntry, array<StatTemplate> sourceTemplates )
+{
+	StatTemplate sourceTemplateBR    = sourceTemplates[0]
+	StatTemplate sourceTemplateModes = sourceTemplates[1]
+
+	StatCalcFuncInfo info
+
+	string calcWeaponRef = calcEntry.enumKeys[0]
+
+	info.sourceEntries = []
+	array<StatEntry> sourceEntries = expect array<StatEntry>( info.sourceEntries )
+
+	sourceEntries.append( ResolveStatEntry( sourceTemplateBR, calcWeaponRef ) )
+
+	foreach ( string modeRefInCategory in STATS_ALTERNATE_MODE_REFS )
+	{
+		sourceEntries.append( ResolveStatEntry( sourceTemplateModes, modeRefInCategory, calcWeaponRef ) )
+	}
+
+	info.calcFunc_Int = CalcStatSum_Int
+
+	return info
+}
+
+
+StatCalcFuncInfo function SetupWeaponCategoryStatSumEntryFunc_Int( StatEntry calcEntry, array<StatTemplate> sourceTemplates )
+{
+	StatTemplate sourceTemplate = sourceTemplates[0]
+
+	StatCalcFuncInfo info
+
+	string calcWeaponCategory = calcEntry.enumKeys[0]
+
+	info.sourceEntries = []
+	array<StatEntry> sourceEntries = expect array<StatEntry>( info.sourceEntries )
+
+	foreach ( characterRef in GetAllCharacterGUIDStringsForStats() )
+	{
+		sourceEntries.append( ResolveStatEntry( sourceTemplate, characterRef, calcWeaponCategory ) )
+	}
+
+	info.calcFunc_Int = CalcStatSum_Int
+
+	return info
+}
+
+StatCalcFuncInfo function SetupModesExceptBRStatSumEntryFunc_Int( StatEntry calcEntry, array<StatTemplate> sourceTemplates )
+{
+	StatTemplate sourceTemplateModes = sourceTemplates[0]
+
+	StatCalcFuncInfo info
+
+	info.sourceEntries = []
+	array<StatEntry> sourceEntries = expect array<StatEntry>( info.sourceEntries )
+
+	foreach ( string modeRefInCategory in STATS_ALTERNATE_MODE_REFS )
+		sourceEntries.append( ResolveStatEntry( sourceTemplateModes, modeRefInCategory ) )
+
+	info.calcFunc_Int = CalcStatSum_Int
+
+	return info
+}
+
+StatCalcFuncInfo function SetupModesExceptBRWeaponCategoryStatSumEntryFunc_Int( StatEntry calcEntry, array<StatTemplate> sourceTemplates )
+{
+	StatTemplate sourceTemplateModes = sourceTemplates[0]
+
+	StatCalcFuncInfo info
+
+	string calcWeaponCategory = calcEntry.enumKeys[0]
+
+	info.sourceEntries = []
+	array<StatEntry> sourceEntries = expect array<StatEntry>( info.sourceEntries )
+	foreach ( string weaponItemRefInCategory, bool unused in fileLevel.weaponStatCategoryWeaponItemRefSet[calcWeaponCategory] )
+	{
+		foreach ( string modeRefInCategory in STATS_ALTERNATE_MODE_REFS )
+		{
+			sourceEntries.append( ResolveStatEntry( sourceTemplateModes, modeRefInCategory, weaponItemRefInCategory ) )
+		}
+	}
+
+	info.calcFunc_Int = CalcStatSum_Int
+
+	return info
+}
+
+StatCalcFuncInfo function SetupModesExceptBRCharacterStatSumEntryFunc_Int( StatEntry calcEntry, array<StatTemplate> sourceTemplates )
+{
+	StatTemplate sourceTemplateModes = sourceTemplates[0]
+
+	StatCalcFuncInfo info
+	string calcCharacter = calcEntry.enumKeys[0]
+
+	info.sourceEntries = []
+	array<StatEntry> sourceEntries = expect array<StatEntry>( info.sourceEntries )
+
+	foreach ( string modeRefInCategory in STATS_ALTERNATE_MODE_REFS )
+		sourceEntries.append( ResolveStatEntry( sourceTemplateModes, modeRefInCategory, calcCharacter ) )
+
+	info.calcFunc_Int = CalcStatSum_Int
+
+	return info
+}
+
+StatCalcFuncInfo function SetupAnyModeWeaponCategoryStatSumEntryFunc_Int( StatEntry calcEntry, array<StatTemplate> sourceTemplates )
+{
+	StatTemplate sourceTemplateBR    = sourceTemplates[0]
+	StatTemplate sourceTemplateModes = sourceTemplates[1]
+
+	StatCalcFuncInfo info
+
+	string calcWeaponCategory = calcEntry.enumKeys[0]
+
+	info.sourceEntries = []
+	array<StatEntry> sourceEntries = expect array<StatEntry>( info.sourceEntries )
+
+	foreach ( characterRef in GetAllCharacterGUIDStringsForStats() )
+	{
+		sourceEntries.append( ResolveStatEntry( sourceTemplateBR, characterRef, calcWeaponCategory ) )
+	}
+	foreach ( string weaponItemRefInCategory, bool unused in fileLevel.weaponStatCategoryWeaponItemRefSet[calcWeaponCategory] )
+	{
+		foreach ( string modeRefInCategory in STATS_ALTERNATE_MODE_REFS )
+		{
+			sourceEntries.append( ResolveStatEntry( sourceTemplateModes, modeRefInCategory, weaponItemRefInCategory ) )
+		}
+	}
+
+	info.calcFunc_Int = CalcStatSum_Int
+
+	return info
+}
+
+StatCalcFuncInfo function SetupGetSeasonBattlePassLevelForStat( StatEntry calcEntry, array<StatTemplate> sourceTemplates )
+{
+	StatCalcFuncInfo info
+
+	string seasonRef = calcEntry.enumKeys[0]
+
+	info.calcFunc_Int = (int function ( entity player, array<StatEntry> sourceEntries, int when ) : ( seasonRef ) {
+		ItemFlavor season = GetItemFlavorByGUID( ConvertItemFlavorGUIDStringToGUID( seasonRef ) )
+		ItemFlavor pass   = Season_GetBattlePass( season )
+
+		
+		
+		
+
+		return GetPlayerBattlePassLevel( player, pass, false ) + 1
+	})
+
+	return info
+}
+
+StatCalcFuncInfo function SetupGetElite888StatusForStat( StatEntry calcEntry, array<StatTemplate> sourceTemplates )
+{
+	StatCalcFuncInfo info
+
+	info.calcFunc_Int = (int function ( entity player, array<StatEntry> sourceEntries, int when ) {
+		int count = 0
+
+		foreach ( characterRef in GetAllCharacterGUIDStringsForStats() )
+		{
+			if ( GetStat_Int( player, ResolveStatEntry( CAREER_STATS.character_elite_game_8kill_wins, characterRef ), when ) >= 1 )
+				count++
+		}
+
+		return count
+	})
+
+	return info
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

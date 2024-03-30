@@ -108,6 +108,9 @@ global enum ePassives
 
 
 
+
+
+
 	PAS_GUNNER,
 	PAS_LOBA_EYE_FOR_QUALITY,
 
@@ -135,6 +138,13 @@ global enum ePassives
 
 
 		PAS_WEAPON_SLING,
+
+
+
+
+
+
+
 
 
 
@@ -235,6 +245,7 @@ global enum ePassives
 	
 	PAS_TEAM_VOICES,
 	PAS_NEARBY_TEAMS,
+	PAS_FASTER_TAC_WINDUP,
 
 	
 
@@ -296,17 +307,13 @@ global enum ePassives
 	PAS_AXIOM,
 	PAS_VANTAGE,
 	PAS_LOCKDOWN,
+	PAS_REVENANT_REWORK,
 
 
 
 
 
 
-
-
-
-
-		PAS_REVENANT_REWORK,
 
 
 

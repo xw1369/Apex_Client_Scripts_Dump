@@ -2358,6 +2358,8 @@ void function DoGladiatorCardCharacterCapture( CharacterCaptureState ccs )
 		{
 			WaitFrame()
 		}
+
+		WaitFrame() 
 	}
 
 	
@@ -3375,6 +3377,11 @@ asset function GladiatorCardStance_GetLightingRigMovingAnimSeq( ItemFlavor flavo
 
 	return GetGlobalSettingsAsset( ItemFlavor_GetAsset( flavor ), "lightingRigMovingAnimSeq" )
 }
+
+
+
+
+
 
 
 

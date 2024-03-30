@@ -108,9 +108,6 @@ void function PassiveMedic_Init()
 
 		RegisterConCommandTriggeredCallback( "+scriptCommand5", AttemptCancelRevive )
 
-
-
-
 		RegisterSignal( "PassiveMedic_DestroySelfResRUI" )
 
 
@@ -799,12 +796,13 @@ void function PassiveMedic_UpdateSelfResRUI( entity player )
 		function() : ( player )
 		{
 			RuiDestroyIfAlive( file.selfResRui )
+			file.selfResRui = null
 		}
 	)
 
 	bool isVisible = true
 
-	while( IsValid( player ) )
+	while( IsValid( player ) && GetGameState() < eGameState.WinnerDetermined )
 	{
 		if( player.p.numSelfRevivesUsed > 0 )
 			return

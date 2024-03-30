@@ -6,10 +6,6 @@
                             
       
 
-                    
-#base "_base_hopup_golden_horse_red.txt"
-      
-
 WeaponData
 {
 	// General
@@ -22,7 +18,11 @@ WeaponData
 	"weapon_type_flags"								"WPT_PRIMARY"
 
 	"menu_icon"										"rui/weapon_icons/r5/weapon_p2020"
-	"hud_icon"										"rui/weapon_icons/r5/weapon_p2020"
+               
+                                                                     
+	     
+		"hud_icon"										"rui/weapon_icons/r5/weapon_p2020"
+       
 	"hud_icon_mastered"								"rui/weapon_icons/mastered/weapon_p2020"
 	"crafting_icon"								    "rui/hud/gametype_icons/survival/crafting_hammerpoint_p2020"
 
@@ -34,6 +34,7 @@ WeaponData
                
                           
                                                                              
+                                                                                  
                      
 	
 	// Callbacks
@@ -254,22 +255,33 @@ WeaponData
                                                  
 
                                              
-                                                                        
+                                                                      
 
                                    
                                                                  
                                                                
                                          
+                                                                                    
           
 
                 
           
+                                             
+                                                    
+                                                
+
+                                                           
+                                                             
+
                                                                     
                                              
+                                                                                        
           
 
                        
           
+                                                                                                                                
+                                                                                       
           
 
                  

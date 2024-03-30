@@ -38,7 +38,7 @@ const float ARC_FLASH_TEMPSHIELD_DURATION = 20.0
 const float ARC_FLASH_TEMPSHIELD_SEVERITY = 0.5
 const float ARC_FLASH_REGEN_INTERVAL = 0.2
 const int ARC_FLASH_REGEN_SHIELD_PER_FRAME = 3
-const float ARC_FLASH_REGEN_DAMAGE_DELAY = 1.0
+const float ARC_FLASH_REGEN_DAMAGE_DELAY = 2.0
 const float ARC_FLASH_REGEN_SELF_MULTIPLIER = 0.67
 const int ARC_FLASH_DECAY_RATE = 2
 const float ARC_FLASH_DECAY_SEVERITY = 0.1
@@ -402,26 +402,22 @@ var function OnWeaponPrimaryAttackAnimEvent_ability_conduit_arc_flash( entity we
 	entity weaponOwner = weapon.GetWeaponOwner()
 
 
-
-
-
-
-
-
-
-
-
-
-
-
 	if ( weaponOwner != GetLocalClientPlayer() )
 		return
 
 
 	weapon.PlayWeaponEffect( FX_TAC_MUZZLE_FLASH, FX_TAC_MUZZLE_FLASH, MUZZLE_ATTACH )
 
-	entity bestTarget = weaponOwner.GetPlayerNetEnt( CONDUIT_ARC_FLASH_BEST_TARGET_NETVAR )
-	bool hasValidTarget = IsValid(bestTarget )
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -577,6 +573,8 @@ float function ScoreTarget( entity player, entity target )
 
 	return score
 }
+
+
 
 
 

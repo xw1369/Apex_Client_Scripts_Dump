@@ -35,7 +35,7 @@ global function AddCallback_OnRecallDrone
 global function RemoveCallback_OnRecallDrone
 
 global function ServerToClient_CryptoDroneAutoReloadDone
-
+global function CryptoDrone_GetPlayerDrone
 
 
 
@@ -260,7 +260,23 @@ void function MpAbilityCryptoDrone_Init()
 
 
 
+
+
+
+
+
 }
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -2451,6 +2467,28 @@ void function CryptoDrone_WeaponInputThink( entity player, entity weapon )
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 void function Camera_OnCreate( entity player, int statusEffect, bool actuallyChanged )
 {
 	if ( player != GetLocalViewPlayer() )
@@ -2775,7 +2813,7 @@ void function TempUpdateRuiDistance( entity player )
 				else if ( (IsVaultPanel( trace.hitEnt ) || IsVaultPanel( parentEnt )) )
 				{
 					UniqueVaultData vaultData = GetUniqueVaultData( trace.hitEnt )
-					if ( player.GetPlayerNetBool( vaultData.hasVaultKeyString ) )
+					if ( HasVaultKey( player ) )
 						targetString = vaultData.hintVaultKeyUse
 				}
 

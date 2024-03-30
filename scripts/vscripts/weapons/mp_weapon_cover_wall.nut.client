@@ -1535,6 +1535,10 @@ void function PlaceWallWithoutHolstering( entity player )
 
 
 
+
+
+
+
 bool function CoverWall_CanUse( entity player, entity ent, int useFlags )
 {
 	if ( ! IsValid( player ) )

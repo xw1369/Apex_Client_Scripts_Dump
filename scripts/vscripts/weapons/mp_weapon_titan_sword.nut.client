@@ -879,6 +879,9 @@ void function TitanSword_FuelMeterRui_Thread( entity weapon, entity player )
 
 bool function TitanSword_VictimHitOverride( entity weapon, entity attacker, entity victim, vector velocity )
 {
+	if ( !TitanSword_WeaponIsTitanSword( weapon ) )
+		return false
+
 	if ( TitanSword_Launcher_VictimHitOverride( weapon, attacker, victim, velocity ) )
 		return true
 

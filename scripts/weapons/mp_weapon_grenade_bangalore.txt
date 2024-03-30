@@ -90,12 +90,14 @@ WeaponData
 	"damage_flags"									"DF_RAGDOLL | DF_EXPLOSION"
 
 
-	"ammo_clip_size"   								"200"
-	"ammo_default_total"							"200"
 	"ammo_display"									"bar"
-	"ammo_min_to_fire"								"100"
-	"ammo_per_shot"									"100"
-	"ammo_stockpile_max"							"200"
+
+	"ammo_clip_size"   								"210"
+    "ammo_default_total"							"210"
+    "ammo_stockpile_max"							"210"
+    "ammo_min_to_fire"								"105"
+    "ammo_per_shot"									"105"
+
 	"regen_ammo_refill_rate"						"3"
 	"regen_ammo_refill_start_delay"					"0.0"
 
@@ -225,6 +227,17 @@ WeaponData
 
 	Mods
 	{
+	                        
+        upgrade_core_tac_cooldown_reduction
+        {
+			"ammo_clip_size"        "180"
+			"ammo_default_total"    "180"
+			"ammo_stockpile_max"    "180"
+			"ammo_min_to_fire"      "90"
+			"ammo_per_shot"         "90"
+        }
+              
+
                             
                       
          

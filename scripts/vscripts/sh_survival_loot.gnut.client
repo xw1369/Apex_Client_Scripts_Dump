@@ -256,6 +256,7 @@ global function IsPlayerCloseEnoughToDeathBoxToLoot
 
 
 
+
 global function IsValidAndUsableDeathBoxEnt
 global function IsLootEntAccessibleViaDeathBox
 
@@ -299,13 +300,28 @@ global const string WEAPON_LOCKEDSET_SUFFIX_PAINTBALL = "_paintball"
 global const string WEAPON_LOCKEDSET_MOD_PAINTBALL = "paintball"
 
 
-
-
+global const string WEAPON_LOCKEDSET_SUFFIX_APRILFOOLS = "_april_fools"
+global const string WEAPON_LOCKEDSET_MOD_APRILFOOLS = "hopup_april_fools"
 
 
 
 global const string WEAPON_LOCKEDSET_SUFFIX_CUPID = "_cupid"
 global const string WEAPON_LOCKEDSET_MOD_CUPID = "cupid"
+
+
+
+global const string WEAPON_LOCKEDSET_SUFFIX_LIGHT = "_light"
+global const string WEAPON_LOCKEDSET_MOD_LIGHT = "hopup_april_fools_light"
+global const string WEAPON_LOCKEDSET_SUFFIX_HEAVY = "_heavy"
+global const string WEAPON_LOCKEDSET_MOD_HEAVY = "hopup_april_fools_heavy"
+global const string WEAPON_LOCKEDSET_SUFFIX_SNIPER = "_sniper"
+global const string WEAPON_LOCKEDSET_MOD_SNIPER = "hopup_april_fools_sniper"
+global const string WEAPON_LOCKEDSET_SUFFIX_ENERGY = "_energy"
+global const string WEAPON_LOCKEDSET_MOD_ENERGY = "hopup_april_fools_energy"
+
+
+
+
 
 
 
@@ -322,10 +338,20 @@ global const string WEAPON_LOCKEDSET_MOD_CUPID = "cupid"
 
 const table< string, string > LOCKEDSET_MOD_TO_SUFFIX = {
 
-
+		[WEAPON_LOCKEDSET_MOD_APRILFOOLS] = WEAPON_LOCKEDSET_SUFFIX_APRILFOOLS,
 
 
 		[WEAPON_LOCKEDSET_MOD_CUPID] = WEAPON_LOCKEDSET_SUFFIX_CUPID,
+
+
+
+
+
+
+
+
+
+
 
 }
 
@@ -360,11 +386,7 @@ const float AUTOPICKUP_ORDNANCE_DISTANCE = 110.0
 
 
 const int EVOLVING_ARMOR_DAMAGE_TIER1 = 100
-
 const int EVOLVING_ARMOR_DAMAGE_TIER2 = 200
-
-
-
 const int EVOLVING_ARMOR_DAMAGE_TIER3 = 300
 const int EVOLVING_ARMOR_DAMAGE_TIER4 = 750
 
@@ -705,6 +727,9 @@ void function SURVIVAL_Loot_InitShared()
 	Remote_RegisterServerFunction( "ClientCallback_Sur_SwapToNextOrdnance" )
 	Remote_RegisterServerFunction( "ClientCallback_Sur_SwitchToOrdnance", "int", INT_MIN, INT_MAX, "bool" )
 	Remote_RegisterServerFunction( "ClientCallback_DeathboxOpened" )
+
+
+
 	Remote_RegisterServerFunction( "ClientCallback_BackpackOpened" )
 	Remote_RegisterServerFunction( "ClientCallback_BackpackClosed" )
 	Remote_RegisterServerFunction( "ClientCallback_Sur_SwapPrimaryPositions" )
@@ -1238,6 +1263,12 @@ bool function WeaponLootRefIsLockedSet( string ref )
 	if ( SURVIVAL_Loot_IsRefValid( ref ) )
 	{
 		LootData weaponData = SURVIVAL_Loot_GetLootDataByRef( ref )
+
+
+
+
+
+
 		return weaponData.baseWeapon != ref
 	}
 	return false
@@ -4832,6 +4863,9 @@ void function Inventory_RegisterNetworking()
 
 
 
+
+
+
 void function ServerToClient_PickedupItem( entity player, int idx, int lootAction )
 {
 	if ( !IsValid( player ) )
@@ -5669,10 +5703,6 @@ int function EvolvingArmor_GetEvolutionProgress( entity player )
 
 	return player.GetPlayerNetInt( NV_EVOLVING_ARMOR_KILL_COUNT )
 }
-
-
-
-
 
 
 
@@ -6999,9 +7029,33 @@ bool function IsPlayerCloseEnoughToDeathBoxToLoot( entity player, entity deathBo
 
 
 
-
 	return distanceToDeathbox <= maxSquareDist
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

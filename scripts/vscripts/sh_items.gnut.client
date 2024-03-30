@@ -33,6 +33,7 @@ global function ItemFlavor_GetHumanReadableRefForPIN_Slow
 global function ItemFlavor_GetCleanDownloadAssetPath_Slow
 global function ItemFlavor_GetType
 global function ItemFlavor_GetAsset
+global function ItemFlavor_GetAssetName
 global function ItemFlavor_GetSettingsBlock
 global function ItemFlavor_SortByTier
 global function ItemFlavor_GetSourceIcon 
@@ -167,12 +168,13 @@ global enum eItemType
 
 		calevent_milestone
 
+	calevent_base_event
 	calevent_buffet
 	calevent_login
 	calevent_story_challenges
 	calevent_skustore
 	calevent_event_shop
-	calevent_apex_cup
+	calevent_apex_cup_container
 	calevent_boost_event
 	calevent_temp_unlock
 	calevent_challenge_collection
@@ -248,10 +250,10 @@ global enum eItemType
 	
 	artifact_component_deathbox
 
-
-
-
-
+	artifact_component_blade 
+	artifact_component_activation_emote
+	artifact_component_power_source
+	artifact_component_theme
 
 	artifact_component_END
 
@@ -273,6 +275,7 @@ global enum eItemType
 	ranked_2pt0_period
 	boost_type
 	ranked_trial
+	apex_cup
 
 	COUNT
 }
@@ -312,10 +315,10 @@ table<int, int> itemTypeUICategoryMap = {
 
 	[eItemType.artifact_component_deathbox] = eItemTypeUICategory.CHARACTER,
 
-
-
-
-
+	[eItemType.artifact_component_blade] = eItemTypeUICategory.CHARACTER,
+	[eItemType.artifact_component_theme] = eItemTypeUICategory.CHARACTER,
+	[eItemType.artifact_component_activation_emote] = eItemTypeUICategory.CHARACTER,
+	[eItemType.artifact_component_power_source] = eItemTypeUICategory.CHARACTER,
 
 
 	[eItemType.battlepass_purchased_xp] = eItemTypeUICategory.NONE,
@@ -364,10 +367,10 @@ global table<int, string> itemTypeNameMap = {
 
 	[eItemType.artifact_component_deathbox] = "#itemtype_artifact_component_deathbox_NAME",
 
-
-
-
-
+	[eItemType.artifact_component_blade] = "#itemtype_artifact_component_blade_NAME",
+	[eItemType.artifact_component_theme] = "#itemtype_artifact_component_theme_NAME",
+	[eItemType.artifact_component_activation_emote] = "#itemtype_artifact_component_activation_emote_NAME",
+	[eItemType.artifact_component_power_source] = "#itemtype_artifact_component_power_source_NAME",
 
 
 	[eItemType.battlepass_purchased_xp] = "#itemtype_battlepass_purchased_xp_NAME",
@@ -907,6 +910,12 @@ asset function ItemFlavor_GetAsset( ItemFlavor flavor )
 	return GetSettingsAssetForUniqueId( flavor.guid )
 }
 
+string function ItemFlavor_GetAssetName( ItemFlavor flavor )
+{
+	array< string > splitStrings = split( string( ItemFlavor_GetAsset( flavor ) ), "/." )
+	return splitStrings[splitStrings.len() - 2]
+}
+
 
 var function ItemFlavor_GetSettingsBlock( ItemFlavor flavor )
 {
@@ -1028,10 +1037,11 @@ string function ItemFlavor_GetRewardShortDescription( ItemFlavor flav )
 
 			return Localize( "#REWARD_EMOTE", Localize( ItemFlavor_GetLongName( ref ) ) )
 
+		
 		case eItemType.gladiator_card_stat_tracker:
 			ItemFlavor ornull ref = GladiatorCardStatTracker_GetCharacterFlavor( flav )
 			if ( ref == null )
-				return ""
+				return Localize( "#REWARD_TRACKER_GENERIC" )
 
 			expect ItemFlavor( ref )
 

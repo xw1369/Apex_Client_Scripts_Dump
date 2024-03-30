@@ -1,7 +1,6 @@
-
 global function MpAbilityExectioner_Init
 global function PassiveRevenantRework_OnPassiveChanged
-global function PassiveExecutioner_EntityShouldBeHighlighted
+global function PassiveAssassinsInstinct_EntityShouldBeHighlighted
 
 const float EXECUTIONER_WATCH_RANGE = 30 * METERS_TO_INCHES
 const int EXECUTIONER_HEALTH_THRESHOLD = 40
@@ -113,7 +112,6 @@ void function PassiveRevenantRework_OnPassiveChanged( entity player, int passive
 
 	}
 }
-
 
 
 
@@ -563,7 +561,7 @@ void function AssassinsInstinct_HighlightThink( entity targetPlayer )
 }
 
 
-bool function PassiveExecutioner_EntityShouldBeHighlighted( entity viewPlayer, entity target )
+bool function PassiveAssassinsInstinct_EntityShouldBeHighlighted( entity viewPlayer, entity target )
 {
 
 		if ( StatusEffect_HasSeverity( target, eStatusEffect.assassins_instinct ) )
@@ -578,4 +576,3 @@ bool function PassiveExecutioner_EntityShouldBeHighlighted( entity viewPlayer, e
 
 	return false
 }
-                            

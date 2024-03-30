@@ -783,6 +783,10 @@ void function PlacementProxyThread( entity weapon, entity player )
 
 
 
+
+
+
+
 void function ManageBlackMarketAmbientGeneric( entity ent )
 {
 	EndSignal( ent, "OnDestroy" )

@@ -86,12 +86,12 @@ WeaponData
     "rumble"                                        "-1"
 
     // Ammo
-    "ammo_default_total"                            "260"
-    "ammo_clip_size"                                "260"
-    "ammo_stockpile_max"                            "260"
+    "ammo_default_total"                            "310"
+    "ammo_clip_size"                                "310"
+    "ammo_stockpile_max"                            "310"
     "ammo_display"                                  "count"
-    "ammo_min_to_fire"                              "260"
-    "ammo_per_shot"                                 "260"
+    "ammo_min_to_fire"                              "310"
+    "ammo_per_shot"                                 "310"
     "regen_ammo_refill_rate"                        "10"
     "regen_ammo_refill_start_delay"                 "8"
     "ammo_no_remove_from_stockpile"                 "0"

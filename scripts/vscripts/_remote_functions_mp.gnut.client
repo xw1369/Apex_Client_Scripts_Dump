@@ -174,9 +174,6 @@ void function RemoteFunctions_Init_Begin()
 		case TEAM_DEATHMATCH:
 		case SURVIVAL:
 
-			RegisterNetworkedVariable( "hasShipKeycard", SNDC_PLAYER_GLOBAL, SNVT_BOOL, false )
-
-
 
 
 
@@ -245,8 +242,6 @@ void function RemoteFunctions_Init_Begin()
 			Remote_RegisterClientFunction( "ServerCallback_RespawnPodStarted", "float", 0.0, 5000.0, 32 )
 			Remote_RegisterClientFunction( "ServerCallback_RespawnDNAHint" )
 
-			RegisterNetworkedVariable( "hasDataKnife", SNDC_PLAYER_GLOBAL, SNVT_BOOL, false )
-
 			RegisterNetworkedVariable( "isEliminated", SNDC_PLAYER_GLOBAL, SNVT_BOOL, false )
 			RegisterNetworkedVariable( "isJumpmaster", SNDC_PLAYER_GLOBAL, SNVT_BOOL, false )
 			RegisterNetworkedVariable( "isJumpingWithSquad", SNDC_PLAYER_GLOBAL, SNVT_BOOL, false )
@@ -273,8 +268,7 @@ void function RemoteFunctions_Init_Begin()
 			RegisterNetworkedVariable( "selectedHealthPickupType", SNDC_PLAYER_EXCLUSIVE, SNVT_INT, defaultHealOption )
 			Remote_RegisterClientFunction( "ServerCallback_TryUseConsumable", "entity", "int", 0, 128 )
 			Remote_RegisterClientFunction( "ServerToClient_DoUltAccelScreenFx" )
-
-			RegisterNetworkedVariable( "TrainingEndTime", SNDC_PLAYER_EXCLUSIVE, SNVT_TIME, -1 )
+			Remote_RegisterClientFunction( "ServerToClient_SetClientChargeTime", "int", 0, 64, "float", 0.0 , 100.0, 32)
 
 			RegisterNetworkedVariable( "playerPrimaryWeapon0", SNDC_PLAYER_GLOBAL, SNVT_INT, -1 )
 			RegisterNetworkedVariable( "playerPrimaryWeapon1", SNDC_PLAYER_GLOBAL, SNVT_INT, -1 )
@@ -428,6 +422,8 @@ void function RemoteFunctions_Init_Begin()
 
 
 
+
+
 			Remote_RegisterClientFunction( "ServerToClient_ShowCloakHintText" ) 
 			Remote_RegisterClientFunction( "ServerToClient_ShowHolopilotDestroyedText" ) 
 
@@ -440,6 +436,10 @@ void function RemoteFunctions_Init_Begin()
 
 			Remote_RegisterUIFunction( "ServerCallback_MilestoneEvent_MilestoneRewardCeremonyIsDue" )
 			Remote_RegisterUIFunction( "ServerCallback_MilestoneEvent_TryDisplayMilestoneRewardCeremonyForAutoOpenPacks" )
+
+
+			Remote_RegisterUIFunction( "ServerCallback_UpdatePlayerLastLoggedInTimestamp", "int", 0, INT_MAX )
+
 
 
 			if ( IsPrivateMatchLobby() || IsPrivateMatch() )
@@ -565,6 +565,9 @@ void function RemoteFunctions_Init_Begin()
 
 
 
+
+
+
 			Control_RegisterNetworking()
 
 
@@ -610,7 +613,7 @@ void function RemoteFunctions_Init_Begin()
 
 
 
-
+			TreasureHunt_RegisterNetworking()
 
 
 
@@ -784,7 +787,7 @@ void function RemoteFunctions_Init_Begin()
 
 	
 
-
+		ShCups_RegisterNetworking()
 
 
 	
@@ -843,7 +846,6 @@ void function RemoteFunctions_Init_Begin()
 	RegisterNetworkedVariable( "revivePlayerHealer", SNDC_PLAYER_GLOBAL, SNVT_ENTITY )
 
 	RegisterNetworkedVariable( "xpMultiplier", SNDC_PLAYER_EXCLUSIVE, SNVT_INT, 0 )
-	RegisterNetworkedVariable( "tutorialContext", SNDC_PLAYER_EXCLUSIVE, SNVT_INT, -1 )
 	RegisterNetworkedVariable( "spectatorTargetCount", SNDC_PLAYER_GLOBAL, SNVT_INT, 0 )
 
 	Remote_RegisterClientFunction( "ServerCallback_RingPulseMinimap", "vector", -64000.0, 64000.0, 8, "float", 0.0, 5000.0, 8, "float", 0.0, 500.0, 8, "int", 0, 255, "vector", 0.0, 255.0, 8, "bool" )
@@ -867,6 +869,9 @@ void function RemoteFunctions_Init_Begin()
 
 	Remote_RegisterServerFunction( "ClientCallback_ViewedOrientationMatchDialog" )
 
+
+	Remote_RegisterServerFunction( "ClientCallback_ViewedCupsAboutDialog" )
+
 	Remote_RegisterServerFunction( "ClientCallback_ViewingMainLobbyPage" )
 	Remote_RegisterServerFunction( "ClientCallback_MarkHeirloomShopPopupAsSeen" )
 	Remote_RegisterServerFunction( "ClientCallback_MarkQuestPopupAsSeen" )
@@ -887,9 +892,6 @@ void function RemoteFunctions_Init_Begin()
 	Remote_RegisterServerFunction( "ClientCallback_MarkStoryEventDialoguePopupAsAttempted" )
 	Remote_RegisterServerFunction( "ClientCallback_MarkStoryEventDialoguePopupAsSeen", "int", INT_MIN, INT_MAX, "int", -1, INT_MAX )
 	Remote_RegisterServerFunction( "ClientCallback_MarkStoryEventChallengesPopupAsSeen", "int", INT_MIN, INT_MAX, "int", -1, INT_MAX )
-
-	
-	Remote_RegisterServerFunction( "ClientCallback_BloodTT_StoryPropDialogueAborted" )
 
 	
 	Remote_RegisterServerFunction( "ClientCallback_SetMatchPreferenceFlag", "int", INT_MIN, INT_MAX )
@@ -976,6 +978,10 @@ void function RemoteFunctions_Init_Begin()
 	Remote_RegisterClientFunction( "ServerCallback_SetWeaponPreviewState", "bool" )
 
 	GibraltarShield_RegisterNetworkFunctions()
+
+
+
+
 
 	MobileHMG_RegisterNetworkFunctions()
 
@@ -1090,12 +1096,6 @@ bool function GetNV_FreefallIsFromPlane( entity player )
 {
 	return player.GetPlayerNetBool( "freefallIsFromPlane" )
 }
-
-
-
-
-
-
 
 
 

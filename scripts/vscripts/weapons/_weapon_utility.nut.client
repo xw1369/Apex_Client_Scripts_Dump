@@ -92,6 +92,9 @@ global function IsWeaponSemiAuto
 
 
 
+
+
+
 global function UICallback_UpdateLaserSightColor
 
 
@@ -544,7 +547,7 @@ void function WeaponUtility_Init()
 	PrecacheImpactEffectTable( CLUSTER_ROCKET_FX_TABLE )
 
 
-
+		PrecacheImpactEffectTable( LIGHT_AMMO_FX_TABLE )
 
 
 
@@ -1951,10 +1954,8 @@ bool function EntityCanHaveStickyEnts( entity stickyEnt, entity ent )
 	if ( stickyEntWeaponClassName == "mp_ability_debuff_zone" && DebuffZone_GetAllowableStickyEnts( ent ) )
 		return true
 
-
-		if( IsForgedShadowsShield( ent ) )
-			return ShadowShield_IsAllowedStickyEnt( ent, stickyEnt, stickyEntWeaponClassName )
-
+	if( IsForgedShadowsShield( ent ) )
+		return ShadowShield_IsAllowedStickyEnt( ent, stickyEnt, stickyEntWeaponClassName )
 
 	
 	if ( entScriptName == MOBILE_SHIELD_SCRIPTNAME )
@@ -4374,6 +4375,12 @@ void function RunWeaponModChangedCallbacks( entity weapon, string mod, bool modA
 
 
 
+
+
+
+
+
+
 int function GetMaxTrackerCountForTitan( entity titan )
 {
 	array<entity> primaryWeapons = titan.GetMainWeapons()
@@ -4570,6 +4577,9 @@ void function PlayDelayedShellEject( entity weapon, float time, int count = 1, b
 		weapon.PlayWeaponEffect( vmShell, worldShell, shellAttach, persistent )
 	}
 }
+
+
+
 
 
 

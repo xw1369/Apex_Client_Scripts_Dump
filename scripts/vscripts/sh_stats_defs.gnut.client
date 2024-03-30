@@ -160,6 +160,7 @@ global struct CareerStats
 	StatTemplate& games_played_any_mode
 	StatTemplate& character_games_played_any_mode
 	StatTemplate& dooms_any_mode
+	StatTemplate& wins_any_mode
 
 	
 	StatTemplate& ring_closings_survived
@@ -406,17 +407,15 @@ global struct CareerStats
 	StatTemplate& catalyst_spikes_damage
 	StatTemplate& catalyst_dark_veil_enemies_crossed
 
+	
+	StatTemplate& revenant_unlock_passive_marked_enemies
+	StatTemplate& revenant_unlock_tactical_distance
+	StatTemplate& revenant_unlock_ultimate_knocks_kills
 
-		
-		StatTemplate& revenant_unlock_passive_marked_enemies
-		StatTemplate& revenant_unlock_tactical_distance
-		StatTemplate& revenant_unlock_ultimate_knocks_kills
-
-		
-		StatTemplate& revenant_passive_marked_enemies
-		StatTemplate& revenant_tactical_distance
-		StatTemplate& revenant_ultimate_knocks_kills
-
+	
+	StatTemplate& revenant_passive_marked_enemies
+	StatTemplate& revenant_tactical_distance
+	StatTemplate& revenant_ultimate_knocks_kills
 
 
 		StatTemplate& assault_games_played
@@ -743,8 +742,6 @@ global struct CareerStats
 	
 	StatTemplate& s13_flash_01_buffet_points
 
-	StatTemplate& s17_eventrefactor_currency 
-
 	
 	
 	
@@ -798,6 +795,18 @@ global struct CareerStats
 		StatTemplate& s20ce02_hidden_combined
 
 		StatTemplate& s20ce02_buffet_points
+
+
+	
+
+		StatTemplate& s20me01_currency_total
+
+		StatTemplate& s20me01_wins_any_mode
+
+		StatTemplate& s20ce04_revives_any_mode
+		StatTemplate& s20ce04_hidden_combined
+
+		StatTemplate& s20ce04_buffet_points
 
 
 
@@ -868,7 +877,13 @@ global struct CareerStats
 		StatTemplate& graduated_bot_queue
 
 
+
+		StatTemplate& gamemode_treasurehunt_objectives_captured
+
+
 	table< int, StatTemplate > meta_challenge_stats
+
+	StatTemplate& autogen_challenges
 } 
 
 global CareerStats CAREER_STATS
@@ -885,36 +900,26 @@ global const array<string> STATS_ALTERNATE_MODE_REFS = [
 	"shadowroyale",
 	"control",
 	"gungame",
-
-
-		"ftdm",
-
-
+	"ftdm",
 	"hardcore_survival",
 	"date_night",
-
-
-		"heatwave",
-
-
-
-		"armeddangerous",
-
-
+	"heatwave",
+	"armeddangerous",
 	"swat",
 	"aprilfools_s16",
 	"shadowarmy",
+	"threestrikes",
 
 
 
 
 
 
+		"treasurehunt",
 
 
 
-
-
+		"aprilfools_s20",
 
 ]
 
@@ -926,38 +931,27 @@ global const array<string> STATS_MATCH_TYPES = [
 	"shadowroyale",
 	"control",
 	"gungame",
-
-
-		"ftdm",
-
-
+	"ftdm",
 	"hardcore_survival",
 	"date_night",
-
-
-		"heatwave",
-
-
+	"heatwave",
 	"swat",
 	STATS_MATCH_TYPE_NONE,
 	"aprilfools_s16",
-
-
-		"armeddangerous",
-
-
+	"armeddangerous",
 	"shadowarmy",
+	"threestrikes",
 
 
 
 
 
 
+		"treasurehunt",
 
 
 
-
-
+		"aprilfools_s20",
 
 
 	
@@ -979,37 +973,27 @@ global enum eChallengeGameMode
 	GUNGAME,
 	WINTER_EXPRESS,
 	SHADOW_ROYALE,
-
-
 	FTDM,
-
-
 	HARDCORE_BR,
 	DATE_NIGHT,
-
-
 	HEATWAVE,
-
-
-
 	ARMED_AND_DANGEROUS,
-
-
 	SWAT,
 	EXPIRED, 
 	APRILFOOLS_S16,
 	SHADOWARMY,
+	THREE_STRIKES,
 
 
 
 
 
 
+	TREASURE_HUNT,
 
 
 
-
-
+	APRILFOOLS_S20,
 
 }
 
@@ -1023,36 +1007,26 @@ global const table<int, string> GAME_MODE_TO_STAT_REF_MAP =
 	[eChallengeGameMode.GUNGAME] = "gungame",
 	[eChallengeGameMode.WINTER_EXPRESS] = "winter_express",
 	[eChallengeGameMode.SHADOW_ROYALE] = "shadowroyale",
-
-
-		[eChallengeGameMode.FTDM] = "ftdm",
-
-
+	[eChallengeGameMode.FTDM] = "ftdm",
 	[eChallengeGameMode.HARDCORE_BR] = "hardcore_survival",
 	[eChallengeGameMode.DATE_NIGHT] = "date_night",
-
-
-		[eChallengeGameMode.HEATWAVE] = "heatwave",
-
-
-
-		[eChallengeGameMode.ARMED_AND_DANGEROUS] = "armeddangerous",
-
-
+	[eChallengeGameMode.HEATWAVE] = "heatwave",
+	[eChallengeGameMode.ARMED_AND_DANGEROUS] = "armeddangerous",
 	[eChallengeGameMode.SWAT] = "swat",
 	[eChallengeGameMode.APRILFOOLS_S16] = "aprilfools_s16",
 	[eChallengeGameMode.SHADOWARMY] = "shadowarmy",
+	[eChallengeGameMode.THREE_STRIKES] = "threestrikes",
 
 
 
 
 
 
+		[eChallengeGameMode.TREASURE_HUNT] = "treasurehunt",
 
 
 
-
-
+		[eChallengeGameMode.APRILFOOLS_S20] = "aprilfools_s20",
 
 }
 

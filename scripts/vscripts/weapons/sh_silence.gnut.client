@@ -7,13 +7,6 @@ global function MpAbilitySharedSilence_Init
 
 
 
-
-global function AbilitySilence_StartVisualEffect
-global function AbilitySilence_StopVisualEffect
-
-
-
-
 const asset FX_SILENCE_REV_VICTIM_1P = $"P_bSilent_screen_CP"
 const asset FX_SILENCE_REV_VICTIM_3P = $"P_bSilent_body"
 const asset FX_SILENCE_SEER_VICTIM_1P = $"P_foa_disrupt_screen_CP"
@@ -98,16 +91,6 @@ void function MpAbilitySharedSilence_Init()
 
 
 }
-
-
-
-
-
-
-
-
-
-
 
 
 

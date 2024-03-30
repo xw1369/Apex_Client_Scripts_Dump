@@ -88,6 +88,8 @@ global function Mastery_DoesStatSatisfyValue
 global function Mastery_IsEnabled
 
 
+global const bool MASTERY_DEBUG = false 
+
 const bool MASTERY_OPEN_GRX = true
 
 const int TRIAL_COUNT = 5
@@ -168,6 +170,7 @@ global struct StatInstance
 	int    statType
 	int    trialIndex = -1 
 	int    xpIndex = -1
+	bool   isModified = false
 	
 #if DEV
 		string description
@@ -943,6 +946,7 @@ void function Sh_Mastery_Init()
 
 
 
+
 void function InitLocalPlayerInfo_Thread()
 {
 	while ( !IsFullyConnected() )
@@ -1158,6 +1162,25 @@ bool function Mastery_IsLocalPlayerInfoReady()
 {
 	return fileLevel.isLocalPlayerInfoReady
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1668,6 +1691,11 @@ void function LoadConfig()
 
 
 
+
+
+
+
+
 array<TrialConfig> function GetJustUnlockedTrials( ItemFlavor weaponFlavor, int lastLevel, int currentLevel )
 {
 	array<TrialConfig> resultTrialList
@@ -1686,7 +1714,7 @@ int function GetXPRankModifierWeight( int placement )
 	return csvValue
 }
 
-int function CalculateXPSpecialModifier_PlacementBonus( int inputValue, int totalHeldTime, entity player, XPModifierConfig xpModifier, bool isBRMode )
+int function CalculateXPSpecialModifier_PlacementBonus( int inputValue, int totalHeldTime, int rank, XPModifierConfig xpModifier, bool isBRMode )
 {
 	if ( !isBRMode )
 	{
@@ -1696,9 +1724,8 @@ int function CalculateXPSpecialModifier_PlacementBonus( int inputValue, int tota
 	{
 		return 0
 	}
-	int rank = GetMatchRank( player )
 	int resultValue = int( GetXPRankModifierWeight( rank ) * (inputValue / float( totalHeldTime )) )
-#if DEV
+#if MASTERY_DEBUG
 		printf( "[Mastery] CalculateXPSpecialModifier_PlacementBonus, input:%d, rank:%d, totalHeldTime:%d, result:%d", inputValue, rank, totalHeldTime, resultValue )
 #endif
 	return resultValue
@@ -1742,10 +1769,17 @@ int function Mastery_CalculateLevelFromXP( int xp )
 	Assert( xp >= 0, "XP " + xp + " too low" )
 	int levelIndex               = 0
 	array<int> xpToCompleteLevel = fileLevel.totalXPToCompleteLevel
-	for ( ; levelIndex < xpToCompleteLevel.len(); levelIndex ++ )
+	if ( xp < xpToCompleteLevel[xpToCompleteLevel.len() - 1] )
 	{
-		if ( xp < xpToCompleteLevel[levelIndex] )
-			return levelIndex + 1
+		for ( ; levelIndex < xpToCompleteLevel.len(); levelIndex ++ )
+		{
+			if ( xp < xpToCompleteLevel[levelIndex] )
+				return levelIndex + 1
+		}
+	}
+	else
+	{
+		levelIndex = xpToCompleteLevel.len()
 	}
 
 	int bonusXP = xp - xpToCompleteLevel[xpToCompleteLevel.len() - 1]
@@ -2107,6 +2141,9 @@ MasteryWeapon_TrialQueryResult ornull function Mastery_GetWeaponFinalTrialData( 
 
 	expect MasteryWeapon_FinalRewardResult( finalReward )
 
+	if( finalReward.rewards.len() == 0 )
+		return null
+
 	MasteryWeapon_TrialQueryResult bonusTrial
 	bonusTrial.trialConfig.name = ItemFlavor_GetLongName(finalReward.rewards[0].flav )
 	bonusTrial.trialConfig.rewards = finalReward.rewards
@@ -2186,6 +2223,7 @@ table<ItemFlavor, MasteryWeapon_MatchXPPerWeapon> function Mastery_GetPreviousMa
 	if ( !IsValid( player ) )
 		return result
 	bool isBRMode = IsBRMode( player )
+	int rank = GetMatchRank( player )
 	int totalHeldTime = GetTotalWeaponHeldTime( player )
 	foreach ( weapon, weaponConfig in fileLevel.weaponConfigMap )
 	{
@@ -2218,7 +2256,7 @@ table<ItemFlavor, MasteryWeapon_MatchXPPerWeapon> function Mastery_GetPreviousMa
 					
 					if ( xpModifier.specialModifier == eSpecialModifierType.Rank )
 					{
-						int bonusXP = CalculateXPSpecialModifier_PlacementBonus( statValue, totalHeldTime, player, xpModifier, isBRMode )
+						int bonusXP = CalculateXPSpecialModifier_PlacementBonus( statValue, totalHeldTime, rank, xpModifier, isBRMode )
 						if ( bonusXP > 0 )
 						{
 							AddXPComponent( matchXPPerWeapon, xpModifier, bonusXP, ACTION_PLACEMENT_BONUS )
@@ -2962,6 +3000,10 @@ int function Mastery_SortTrialQueryResult( MasteryWeapon_TrialQueryResult a, Mas
 
 
 
+
+
+
+
 int function Mastery_GetStatValue( entity player, string statRef )
 {
 	if ( !fileLevel.isMasteryEnabled )
@@ -3016,4 +3058,9 @@ bool function Mastery_DoesStatSatisfyValue( entity player, string statRef, float
 bool function Mastery_IsEnabled()
 {
 	return GetCurrentPlaylistVarInt( "enable_mastery_weapon", 1 ) == 1
+}
+
+bool function Mastery_IsOptimizationEnabled()
+{
+	return GetCurrentPlaylistVarInt( "enable_mastery_opt", 1 ) == 1
 }

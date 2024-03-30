@@ -198,6 +198,7 @@ struct
 
 
 
+
 		int tacticalChargeFXHandle
 
 
@@ -585,6 +586,68 @@ void function OnCreateClientOnlyModel_weapon_trophy_defense_system( entity weapo
 	else
 		DeployableModelInvalidHighlight( model )
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

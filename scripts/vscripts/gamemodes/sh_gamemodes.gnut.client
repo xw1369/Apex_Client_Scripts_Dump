@@ -53,6 +53,11 @@ global function GameMode_RunSharedInits
 global function GameMode_IsDefined
 global function GameMode_AreRoundsEnabled
 
+global function LimitedTimeMode_GetName
+global function LimitedTimeMode_GetIcon
+global function LimitedTimeMode_GetPlaylistFlag
+global function LimitedTimeMode_IsDefined
+
 
 global function GameMode_RunScoreboardInit
 global function GameMode_SetScoreboardSetupFunc
@@ -121,7 +126,13 @@ global struct GamemodeSettings
 
 }
 
-
+global struct LimitedTimeModeSettings
+{
+	string name = ""
+	string name_localized = "Undefined Game Mode"
+	asset icon = $"ui/menu/playlist/classic"
+	string playlist_flag = ""
+}
 
 
 
@@ -177,6 +188,7 @@ const table<string, int> gameModesStringToIdMap = {
 struct
 {
 	table<string, GamemodeSettings> gameModeDefs
+	table<string, LimitedTimeModeSettings> ltmDefs
 
 
 		void functionref() completedResolutionCleanupFunc
@@ -290,6 +302,19 @@ void function GameModes_Init()
 
 
 
+
+
+
+
+
+
+
+
+	gameMode = GAMEMODE_STRIKEOUT
+	LimitedTimeMode_Create( gameMode )
+	LimitedTimeMode_SetName( gameMode, "#STRIKEOUT_NAME" )
+	LimitedTimeMode_SetIcon( gameMode, $"rui/menu/gamemode_emblem/emblem_three_strikes" )
+	LimitedTimeMode_SetPlaylistFlag( gameMode, "is_gamemode_strikeout" )
 
 
 
@@ -624,6 +649,34 @@ void function GameMode_SetCustomIntroAnnouncement( string gameModeName, void fun
 	file.gameModeDefs[gameModeName].customIntroAnnouncementFunc = func
 }
 
+LimitedTimeModeSettings function LimitedTimeMode_Create( string ltmName )
+{
+	Assert( !(ltmName in file.ltmDefs), "LTM already defined!" )
+
+	LimitedTimeModeSettings settings
+	file.ltmDefs[ltmName] <- settings
+
+	return file.ltmDefs[ltmName]
+}
+
+void function LimitedTimeMode_SetName( string ltmName, string nameText )
+{
+	Assert( ltmName in file.ltmDefs, "No LTM Gametype specified in _settings.nut (" + ltmName + ")" )
+	file.ltmDefs[ltmName].name_localized = nameText
+}
+
+void function LimitedTimeMode_SetIcon( string ltmName, asset icon )
+{
+	Assert( ltmName in file.ltmDefs, "No LTM Gametype specified in _settings.nut" )
+	file.ltmDefs[ltmName].icon = icon
+}
+
+void function LimitedTimeMode_SetPlaylistFlag( string ltmName, string playlistFlag )
+{
+	Assert( ltmName in file.ltmDefs, "No LTM Gametype specified in _settings.nut" )
+	file.ltmDefs[ltmName].playlist_flag = playlistFlag
+}
+
 
 
 
@@ -816,6 +869,29 @@ void functionref(entity) function GameMode_GetCustomIntroAnnouncement( string ga
 {
 	Assert( gameModeName in file.gameModeDefs, "No MP Gametype specified in _settings.nut" )
 	return file.gameModeDefs[gameModeName].customIntroAnnouncementFunc
+}
+
+string function LimitedTimeMode_GetName( string ltmName )
+{
+	Assert( ltmName in file.ltmDefs, "No LTM Gametype specified in _settings.nut" )
+	return file.ltmDefs[ltmName].name_localized
+}
+
+asset function LimitedTimeMode_GetIcon( string ltmName )
+{
+	Assert( ltmName in file.ltmDefs, "No LTM Gametype specified in _settings.nut" )
+	return file.ltmDefs[ltmName].icon
+}
+
+string function LimitedTimeMode_GetPlaylistFlag( string ltmName )
+{
+	Assert( ltmName in file.ltmDefs, "No LTM Gametype specified in _settings.nut" )
+	return file.ltmDefs[ltmName].playlist_flag
+}
+
+bool function LimitedTimeMode_IsDefined( string ltmName )
+{
+	return (ltmName in file.ltmDefs)
 }
 
 

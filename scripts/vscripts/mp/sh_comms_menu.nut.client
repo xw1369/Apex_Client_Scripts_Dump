@@ -234,6 +234,14 @@ void function ChatMenuButton_Down( entity player )
 		return
 	}
 
+
+	if( UpgradeCore_IsEnabled() && UpgradeCore_GetUnspentUpgradePoints( player ) > 0 && GetGameState() < eGameState.WinnerDetermined )
+	{
+		UpgradeSelectionMenu_Open()
+		return
+	}
+
+
 	if ( TryOnscreenPromptFunction( player, "quickchat" ) )
 		return
 
@@ -248,14 +256,6 @@ void function ChatMenuButton_Down( entity player )
 	{
 		return
 	}
-
-
-	if( UpgradeCore_IsEnabled() && UpgradeCore_GetUnspentUpgradePoints( player ) > 0 )
-	{
-		UpgradeSelectionMenu_Open()
-		return
-	}
-
 
 	int chatPage = eChatPage.DEFAULT
 
@@ -513,7 +513,7 @@ enum eOptionType
 
 
 
-
+	ARTIFACT_ACTIVATION_EMOTE,
 
 	_count
 }
@@ -565,13 +565,13 @@ CommsMenuOptionData function MakeOption_WeaponInspect()
 }
 
 
-
-
-
-
-
-
-
+CommsMenuOptionData function MakeOption_ArtifactActivationEmote( ItemFlavor quip )
+{
+	CommsMenuOptionData op
+	op.emote = quip
+	op.optionType = eOptionType.ARTIFACT_ACTIVATION_EMOTE
+	return op
+}
 
 
 CommsMenuOptionData function MakeOption_Quip( ItemFlavor quip, int index )
@@ -681,20 +681,20 @@ array<CommsMenuOptionData> function BuildMenuOptions( int chatPage )
 			ItemFlavor character = LoadoutSlot_GetItemFlavor( playerEHI, Loadout_Character() )
 
 
+			if ( !player.Player_IsSkydiving() && Artifacts_PlayerHasArtifactActive( player ) )
+			{
+				ItemFlavor meleeWeapon = LoadoutSlot_GetItemFlavor( playerEHI, Loadout_MeleeSkin( character ) )
+				if ( Artifacts_Loadouts_IsConfigPointerItemFlavor( meleeWeapon ) ) 
+				{
+					int configIdx                     = Artifacts_Loadouts_GetConfigIndex( meleeWeapon )
+					LoadoutEntry activationEmoteEntry = Artifacts_Loadouts_GetEntryForConfigIndexAndType( configIdx, eArtifactComponentType.ACTIVATION_EMOTE )
+					ItemFlavor activationEmoteFlavour = LoadoutSlot_GetItemFlavor( playerEHI, activationEmoteEntry )
+					
 
-
-
-
-
-
-
-
-
-
-
-
-
-
+					if ( !GetGlobalSettingsBool( ItemFlavor_GetAsset( activationEmoteFlavour ), "isEmpty" ) )
+						results.append( MakeOption_ArtifactActivationEmote( activationEmoteFlavour ) )
+				}
+			}
 
 
 			ItemFlavor ornull emptyQuip
@@ -1066,7 +1066,7 @@ string[2] function GetPromptsForMenuOption( int index )
 			break
 
 
-
+		case eOptionType.ARTIFACT_ACTIVATION_EMOTE:
 
 		case eOptionType.QUIP:
 		case eOptionType.SKYDIVE_EMOTE:
@@ -1276,7 +1276,7 @@ var function GetRuiForMenuOption( var mainRui, int index )
 	switch ( op.optionType )
 	{
 
-
+		case eOptionType.ARTIFACT_ACTIVATION_EMOTE:
 
 		case eOptionType.QUIP:
 			ItemFlavor data = expect ItemFlavor( op.emote )
@@ -1326,7 +1326,7 @@ asset function GetIconForMenuOption( int index )
 			return GetDefaultIconForCommsAction( op.commsAction )
 
 
-
+		case eOptionType.ARTIFACT_ACTIVATION_EMOTE:
 
 		case eOptionType.SKYDIVE_EMOTE:
 			ItemFlavor data = expect ItemFlavor( op.emote )
@@ -2267,14 +2267,7 @@ void function SetCurrentChoice( int choice )
 			}
 		}
 
-		array<string> uniqueNames
-		foreach ( index, weaponRef in attachmentTagData.weaponRefs )
-		{
-			string weaponName = GetWeaponInfoFileKeyField_GlobalString( weaponRef, "shortprintname" )
-			if ( uniqueNames.contains( weaponName ) )
-				continue
-			uniqueNames.append( weaponName )
-		}
+		array<string> uniqueNames = SURVIVAL_Loot_GetUniqueWeaponNames( attachmentTagData.weaponRefs )
 
 		for ( int i = 0; i < uniqueNames.len(); ++i )
 		{
@@ -2448,12 +2441,12 @@ bool function MakeCommMenuSelection( int choice, int wheelInputType )
 		}
 
 
-
-
-
-
-
-
+		case eOptionType.ARTIFACT_ACTIVATION_EMOTE:
+		{
+			Remote_ServerCallFunction( "ClientCallback_ActivationEmote" )
+			
+			return true
+		}
 
 
 		case eOptionType.QUIP:

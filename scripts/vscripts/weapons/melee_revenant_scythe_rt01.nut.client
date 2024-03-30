@@ -1,4 +1,3 @@
-
 global function MeleeRevenantScythe_rt01_Init
 
 global function OnWeaponActivate_melee_revenant_scythe_rt01
@@ -57,4 +56,3 @@ void function OnWeaponDeactivate_melee_revenant_scythe_rt01( entity weapon )
 	}
 
 }
-      

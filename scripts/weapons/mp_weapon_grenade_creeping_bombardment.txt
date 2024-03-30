@@ -103,11 +103,13 @@ WeaponData
 	"explosion_shake_duration"						"0.1"
 	"damage_flags"									"DF_RAGDOLL | DF_EXPLOSION"
 
-	"ammo_clip_size"   								"240"
 	"ammo_default_total"							"0"
 	"ammo_display"									"count"
-	"ammo_min_to_fire"								"240"
-	"ammo_per_shot"									"240"
+
+    "ammo_clip_size"   								"270"
+    "ammo_min_to_fire"								"270"
+    "ammo_per_shot"									"270"
+
 	"ammo_stockpile_max"							"0"
 	"regen_ammo_refill_rate"						"1"
 	"regen_ammo_refill_start_delay"					"0.0"
@@ -258,9 +260,9 @@ WeaponData
 		                    
 		upgrade_core_ult_cooldown_reduction
 		{
-			"ammo_clip_size"   								"180"
-        	"ammo_min_to_fire"								"180"
-        	"ammo_per_shot"									"180"
+			"ammo_clip_size"   								"210"
+            "ammo_min_to_fire"								"210"
+            "ammo_per_shot"									"210"
 		}
         
 

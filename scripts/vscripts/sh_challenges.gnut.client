@@ -3,6 +3,8 @@ global function ShChallenges_LevelInit_PreStats
 global function ShChallenges_LevelInit_PostStats
 global function GetAllChallenges
 global function GetAllChallengesOfTimespan
+global function Challenge_IsAutogen
+global function Challenge_GetRequestedAutogenSlotFromFlavor
 global function Challenge_GetTierCount
 global function Challenge_LastTierIsInfinite
 global function Challenge_GetCurrentTier
@@ -71,6 +73,7 @@ global function DEV_RequestCompleteChallengeTier
 global function DEV_GetAssignedChallengeData
 global function DEV_GetChallengeTimeSpans
 #endif
+
 
 
 
@@ -188,6 +191,7 @@ const table<int, string> GAME_MODE_NAME =
 	[eChallengeGameMode.CONTROL] = "#GAME_MODE_CONTROL",
 	[eChallengeGameMode.EXCEPT_BR] = "#GAME_MODE_EXCEPT_BR",
 	[eChallengeGameMode.GUNGAME] = "#GAME_MODE_GUNGAME",
+	[eChallengeGameMode.TREASURE_HUNT] = "#FREEDM_LOCKDOWN_MODE",
 }
 
 
@@ -200,6 +204,7 @@ const table<int, string> GAME_MODE_TAG =
 	[eChallengeGameMode.CONTROL] = "#GAMEMODE_TAG_CONTROL",
 	[eChallengeGameMode.EXCEPT_BR] = "#GAMEMODE_TAG_EXCEPT_BR",
 	[eChallengeGameMode.GUNGAME] = "#GAMEMODE_TAG_GUNGAME",
+	[eChallengeGameMode.TREASURE_HUNT] = "#FREEDM_LOCKDOWN_TAG",
 }
 
 const table<int, vector> GAME_MODE_TAG_COLOR =
@@ -211,6 +216,7 @@ const table<int, vector> GAME_MODE_TAG_COLOR =
 	[eChallengeGameMode.CONTROL] = < 215,154,8 >,
 	[eChallengeGameMode.EXCEPT_BR] = < 0,71,115 >,
 	[eChallengeGameMode.GUNGAME] = < 50,150,50 >,
+	[eChallengeGameMode.TREASURE_HUNT] = < 0,71,115 >,
 }
 
 global enum eChallegeDifficulty
@@ -316,6 +322,7 @@ struct ChallengeSortStruct
 	float progressFrac,
 	int week,
 	int difficulty,
+	string name,
 	ItemFlavor& challengeFlav
 }
 
@@ -402,6 +409,7 @@ struct FileStruct_LifetimeLevel
 	array<ItemFlavor> currentEvents
 	array<ItemFlavor> currentEventShops
 	array<ItemFlavor> currentRewardCampaigns
+
 
 
 
@@ -544,6 +552,18 @@ ItemFlavor ornull function RegisterChallengeFromAsset( asset challengeAsset )
 	
 	ItemFlavor ornull challenge = RegisterItemFlavorFromSettingsAsset( challengeAsset )
 
+
+
+
+
+
+
+
+
+
+
+
+
 	return challenge
 }
 
@@ -629,11 +649,11 @@ void function ShChallenges_LevelInit_PostStats()
 
 					StatEntry stat = GetStatEntryByRef( statRef )
 
-					
-					
-					
-					
-					
+					if ( !stat.writeImmediately )
+					{
+						Assert( false, format( "Challenge '%s' refers to stat that does not have the PERSISTENCE_WRITE_IMMEDIATELY flag: '%s'", string(ItemFlavor_GetAsset( challenge )), statRef ) )
+						continue
+					}
 
 					if ( Challenge_GetTimeSpanKind( challenge ) == eChallengeTimeSpanKind.EVENT_HIDDEN )
 					{
@@ -762,18 +782,6 @@ void function OnChallengeRegistered( ItemFlavor challenge )
 {
 	
 }
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -1345,10 +1353,13 @@ array<ItemFlavor> function GetWeeklyChallengesSortedByProgress( entity player )
 				progressFrac = float(currentAlt - markerAlt) / float(goalValAlt)
 			}
 
+			int activeTier           = Challenge_GetCurrentTier( player, challengeFlav )
+
 			ChallengeSortStruct sortStruct
 			sortStruct.progressFrac  = progressFrac
 			sortStruct.week          = Challenge_FindAssignedWeekOrder( player, challengeFlav )
 			sortStruct.difficulty    = Challenge_GetDifficulty( challengeFlav )
+			sortStruct.name          = Challenge_GetDescription( challengeFlav, activeTier )
 			sortStruct.challengeFlav = challengeFlav
 
 			challengeSortArray.append( sortStruct )
@@ -1427,6 +1438,12 @@ int function Challenge_SortByProgress( ChallengeSortStruct a, ChallengeSortStruc
 	if ( a.difficulty > b.difficulty )
 		return 1
 	else if ( a.difficulty < b.difficulty )
+		return -1
+
+	
+	if ( a.name > b.name )
+		return 1
+	else if ( a.name < b.name )
 		return -1
 
 	return 0
@@ -1546,6 +1563,7 @@ array<ItemFlavor> function GetFavoriteChallenges( entity player )
 		ChallengeSortStruct sortStruct
 		sortStruct.progressFrac  = float(currentProgress) / float(goalProgress)
 		sortStruct.difficulty    = Challenge_GetDifficulty( challengeFlav )
+		sortStruct.name          = Challenge_GetDescription( challengeFlav, currentTier )
 		sortStruct.challengeFlav = challengeFlav
 
 		challengeSortArray.append( sortStruct )
@@ -1719,6 +1737,9 @@ array<int> function GetChallengeCategoryIDArray( bool hideStories = false )
 
 
 
+		array<ItemFlavor> allBeginnerChallenges = GetAssignedChallengesByTimeSpan( GetLocalClientPlayer(), eChallengeTimeSpanKind.BEGINNER )
+		if ( allBeginnerChallenges.len() > 0 )
+			categoryIDtoStringArray.append( eChallengeCategory.BEGINNER )
 
 	
 	int eventIdx = eChallengeCategory.EVENT_00
@@ -2063,6 +2084,30 @@ void function SetSeasonColors( var rui )
 		RuiSetFloat3( rui, "seasonColor", Season_GetTabBGSelectedCol( season ) )
 	}
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -4173,18 +4218,6 @@ bool function Challenge_IsChallengesStateInititated( entity player )
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
 #if DEV
 void function DEV_RequestCompleteChallengeTier( int guid )
 {
@@ -4488,11 +4521,8 @@ void function DEV_PrintAllChallenges( bool assigned = false, bool currentBPOnly 
 					_stat = _stat + " OR " + _statAlt
 				}
 
-			Assert ( ! ( Challenge_IsStreak( challenge, i ) && Challenge_IsSingleMatch( challenge, i ) ), "Somehow we have an impossible combination of a Streak & Single-Match Challenge for " + string(ItemFlavor_GetAsset( challenge )) + " Tier " + string(i) )
 			string _matchreq = "       "
-			if ( Challenge_IsStreak( challenge, i ) )
-				_matchreq = "STREAK "
-			else if ( Challenge_IsSingleMatch( challenge, i ) )
+			if ( Challenge_IsSingleMatch( challenge, i ) )
 				_matchreq = "SINGLE "
 
 			ref.append( _ref )
@@ -6163,36 +6193,6 @@ array<ChallengeRewardDisplayData> function GetChallengeRewardDisplayData( ItemFl
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 string function Challenge_GetDescription( ItemFlavor challenge, int tier, bool getAlt = false )
 {
 	int tierCount = Challenge_GetTierCount( challenge )
@@ -6253,6 +6253,8 @@ bool function DoesPlayerHaveChallenge( entity player, ItemFlavor flavor )
 	PlayerChallengesState pcs = GetPlayerChallengesState( player )
 	return (flavor in pcs.challengeStateMap)
 }
+
+
 
 
 
@@ -7045,7 +7047,6 @@ array<ItemFlavor> function GetAllChallengesOfTimespan( int timeSpan, int weekInd
 
 
 
-
 #if DEV
 string function AddPadding( string str, int minWidth = 8 )
 {
@@ -7117,6 +7118,23 @@ bool function Challenge_IsAllComplete( entity player, array< ItemFlavor > challe
 
 
 
+bool function Challenge_IsAutogen( ItemFlavor flavor )
+{
+	Assert( ItemFlavor_GetType( flavor ) == eItemType.challenge )
+	return GetGlobalSettingsBool( ItemFlavor_GetAsset( flavor ), "autoGenerateStatBacker" )
+}
+
+
+
+int function Challenge_GetRequestedAutogenSlotFromFlavor( ItemFlavor flavor )
+{
+	Assert( ItemFlavor_GetType( flavor ) == eItemType.challenge )
+	string key = GetGlobalSettingsString( ItemFlavor_GetAsset( flavor ), "autogenSlot" )
+	Assert( key in eAutogenStatSlots, format( "Challenge %s has invalid autogen slot: %s", string( ItemFlavor_GetAsset( flavor ) ), key ) )
+	return eAutogenStatSlots[ key ]
+}
+
+
 
 int function Challenge_GetTierCount( ItemFlavor flavor )
 {
@@ -7157,19 +7175,6 @@ bool function Challenge_IsSingleMatch( ItemFlavor flavor, int tier )
 	var tierData = Challenge_GetTierDataBlock( flavor, tier )
 
 	return GetSettingsBlockString( tierData, "matchRequirement" ) == "inSingleMatch"
-}
-
-
-
-
-bool function Challenge_IsStreak( ItemFlavor flavor, int tier )
-{
-	Assert( ItemFlavor_GetType( flavor ) == eItemType.challenge )
-	Assert( tier >= 0 && tier < Challenge_GetTierCount( flavor ) )
-
-	var tierData = Challenge_GetTierDataBlock( flavor, tier )
-
-	return GetSettingsBlockString( tierData, "matchRequirement" ) == "requiresStreak"
 }
 
 
@@ -7368,6 +7373,15 @@ bool function Challenge_LastTierIsInfinite( ItemFlavor flavor )
 
 
 
+
+
+
+
+
+
+
+
+
 int function Challenge_GetWeekNumber( ItemFlavor flavor )
 {
 	Assert( ItemFlavor_GetType( flavor ) == eItemType.challenge )
@@ -7428,8 +7442,13 @@ int function Challenge_GetProgressValue( entity player, ItemFlavor challengeFlav
 	int marker = getAlt ? player.GetPersistentVarAsInt( "challenges[" + cs.persistenceIdx + "].statMarkerAlt" ) :
 		player.GetPersistentVarAsInt( "challenges[" + cs.persistenceIdx + "].statMarker" )
 
-	
-	
+	if ( GetCurrentPlaylistVarBool( "challenge_absValueFix", true ) )
+	{
+		if ( Challenge_ShouldUseAbsoluteValue( challengeFlav, tier ) )
+		{
+			marker = 0
+		}
+	}
 
 	int progress = current - marker
 
@@ -7624,6 +7643,17 @@ bool function Challenge_ShouldStartAtZero( ItemFlavor flavor, int tier )
 	return GetSettingsBlockString( tierData, "progressAccrual" ) == "startAtZero"
 }
 
+
+
+bool function Challenge_ShouldUseAbsoluteValue( ItemFlavor flavor, int tier )
+{
+	Assert( ItemFlavor_GetType( flavor ) == eItemType.challenge )
+	Assert( tier >= 0 && tier < Challenge_GetTierCount( flavor ) )
+
+	var tierData = Challenge_GetTierDataBlock( flavor, tier )
+
+	return GetSettingsBlockString( tierData, "progressAccrual" ) == "absoluteVal"
+}
 
 
 

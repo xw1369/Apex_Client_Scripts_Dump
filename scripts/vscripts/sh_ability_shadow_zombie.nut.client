@@ -845,8 +845,6 @@ void function ShadowAbilitiesClientEffectsEnable( entity player, bool enableFx, 
 
 
 
-
-
 bool function AreTeammatesShadowZombiesOrRespawning( entity player )
 {
 

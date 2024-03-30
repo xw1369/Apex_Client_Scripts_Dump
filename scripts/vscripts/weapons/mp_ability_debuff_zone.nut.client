@@ -29,6 +29,8 @@ const float MISSILE_LIFETIME = 5.0
 
 const float BEST_TARGET_MAX_RANGE = 3000.0
 const int BEST_TARGET_MAX_FOV = 5
+const float BEST_TARGET_SHORT_DISTANCE = 120.0
+const float BEST_TARGET_SHORT_DISTANCE_SQR = BEST_TARGET_SHORT_DISTANCE * BEST_TARGET_SHORT_DISTANCE
 const float LOCKON_DELAY = 0.3
 
 const int DEBUFF_ZONE_RADIUS = 150
@@ -117,6 +119,16 @@ const float HOMING_LONG_DELAY = 0.4
 const string BALLISTIC_HAS_LOCKON_TARGET_NETVAR = "hasBallisticLockonTarget"
 const string BALLISTIC_IS_BEING_TARGETED_NETVAR = "ballisticIsBeingTargeted"
 
+
+const float FOLLOW_UP_SPEED_BOOST_DURATION = 1.0
+
+struct FollowUpStatusEffectIndexes
+{
+	int speedBoostID
+	int followUpVisualsID
+}
+
+
 struct
 {
 	float homingSpeed
@@ -130,6 +142,11 @@ struct
 	float debuffDuration
 	int overheatDamage
 	float lockoutTimeoutDuration
+
+
+
+
+
 
 
 
@@ -217,10 +234,17 @@ float function GetAOETimeout( entity player )
 {
 	float result = file.aoeTimeout
 
-		if( PlayerHasPassive( player, ePassives.PAS_TAC_UPGRADE_TWO ) ) 
+
+		if( PlayerHasPassive( player, ePassives.PAS_TAC_UPGRADE_ONE ) ) 
 		{
 			result = GetUpgradedAOETimeout()
 		}
+
+
+
+
+
+
 
 	return result
 }
@@ -420,6 +444,15 @@ void function OnProjectileCollision_DebuffZone( entity projectile, vector pos, v
 
 
 
+
+
+
+
+
+
+
+
+
 	}
 
 
@@ -495,6 +528,70 @@ void function DebuffZone_OnPlayerOverheat( entity player, entity weapon )
 
 	weapon.PlayWeaponEffect( DEBUFF_EXPLOSION, $"", "muzzle_flash" )
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

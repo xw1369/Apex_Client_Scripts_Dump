@@ -994,6 +994,12 @@ bool function SURVIVAL_Loot_IsReforBaseWeaponDisabled( string ref )
 
 	
 	LootData lootData = SURVIVAL_Loot_GetLootDataByRef( ref )
+
+
+
+
+
+
 	if( lootData.lootType == eLootType.MAINWEAPON && SURVIVAL_Loot_IsRefDisabled( lootData.baseWeapon ) )
 		return true
 

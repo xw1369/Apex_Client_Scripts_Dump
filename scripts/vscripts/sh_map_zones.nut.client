@@ -6,6 +6,7 @@ global function MapZones_AddMinimapLevelLabel
 global function GetZoneMiniMapNameForZoneId
 global function MapZones_GetZoneIdForTriggerName
 global function GetDevNameForZoneId
+global function MapZones_GetNormalZoneName
 
 
 
@@ -17,6 +18,7 @@ global function SCB_OnPlayerEntersMapZone
 global function MapZones_ZoneIntroText
 global function MapZones_ZoneIntroTextFullscreenWithSubtext
 global function MapZones_GetChromaBackgroundForZoneId
+
 
 
 
@@ -374,6 +376,73 @@ string function MapZones_GetZoneStatsRef( int zoneId )
 
 	return statsRef
 }
+
+
+string function MapZones_GetNormalZoneName( string zoneName )
+{
+	if ( zoneName.find( "_SHORT" ) > -1 )
+	{
+		return zoneName.slice( 0, zoneName.len() - 6 )
+	}
+
+	return zoneName
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1180,6 +1249,23 @@ void function SCB_OnPlayerEntersMapZone( int zoneId, int zoneTier )
 	s_lastZoneDisplayNameIndex                         = ((s_lastZoneDisplayNameIndex + 1) % s_lastZoneDisplayNames.len())
 	s_lastZoneDisplayNames[s_lastZoneDisplayNameIndex] = zoneDisplayName
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

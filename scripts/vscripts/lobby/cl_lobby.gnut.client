@@ -31,7 +31,7 @@ struct
 	array<void functionref( entity )> onPlayerAddedToLobbyCallbacks
 
 	array<entity> lobbyBanners
-	array<entity> lobbyBases
+	array<entity> lobbyReskinProps
 #if DEV
 		bool overrideLobbyBanner = false
 #endif
@@ -102,8 +102,8 @@ void function AddCallback_OnPlayerAddedToLobby( void functionref( entity ) onPla
 
 void function CacheLobbyBannerEnt()
 {
-	file.lobbyBanners = GetEntArrayByScriptName( "lobby_banner" )
-	file.lobbyBases = GetEntArrayByScriptName( "lobby_base" )
+	file.lobbyBanners     = GetEntArrayByScriptName( "lobby_banner" )
+	file.lobbyReskinProps = GetEntArrayByScriptName( "event_skin_prop" )
 
 	PrecacheParticleSystem( CAMERA_FLASH_READY_UP_EFFECT )
 
@@ -136,13 +136,19 @@ void function Lobby_OnReadyFX( bool isReady )
 
 	file.readyUpCooldown = now
 
+	if ( IsT1Active() && ( RandomFloat( 1.0 ) > GetCurrentPlaylistVarFloat("t1_chance", 0.8 ) ) )
+	{
+		thread MarvinTriggerAnimThread( "mrvn_lobby_s20_drink_stolen", true )
+		return
+	}
+
 	if ( IsLobbyEvent1Active() )
 	{
 		thread Event1ReadyFX()
 	}
 	else if ( IsLobbyEvent2Active()  )
 	{
-		
+		thread Event2ReadyFX()
 	}
 	else
 	{
@@ -162,8 +168,12 @@ void function NonEventLobbyReadyUp()
 
 void function Event1ReadyFX()
 {
-	if ( RandomFloat( 1.0 ) <= 0.1 )
-		thread MarvinTriggerAnimThread( "mrvn_lobby_s20_prowler", true )
+	thread MarvinTriggerAnimThread( "mrvn_lobby_s20_surprised_bullet", true )
+}
+
+void function Event2ReadyFX()
+{
+	thread MarvinTriggerAnimThread( "mrvn_lobby_s20_surprised_star", true )
 }
 
 void function Lobby_SetBannerSkin( string playlist )
@@ -231,22 +241,26 @@ void function DEV_SetLobbyBannerSkin( int i )
 
 void function SetupEventBase()
 {
-	int skinId = 0
+	string skinName = ""
 
 	if ( IsLobbyEvent1Active() )
-		skinId = 1
+	{
+		skinName = "event_1_skin"
+	}
 
 	if ( IsLobbyEvent2Active() )
-		skinId = 2
+	{
+		skinName = "event_2_skin"
+	}
 
-	if ( skinId == 0 )
+	if ( skinName == "" )
 		return
 
-	foreach ( lobbyBase in file.lobbyBases )
+	foreach ( lobbyReskinProp in file.lobbyReskinProps )
 	{
-		if ( IsValid( lobbyBase ) )
+		if ( IsValid( lobbyReskinProp ) && lobbyReskinProp.GetSkinIndexByName(skinName) != -1)
 		{
-			lobbyBase.SetSkin(skinId )
+			lobbyReskinProp.SetSkin(lobbyReskinProp.GetSkinIndexByName(skinName))
 		}
 	}
 }

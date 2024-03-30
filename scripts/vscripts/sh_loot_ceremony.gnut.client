@@ -75,6 +75,7 @@ global function DEV_SetCustomLootRewardsToDisplay
 
 
 
+
 global function IsItemEquipped
 global function GetCurrentlyEquippedItemNameForItemTypeSlot
 global function GetCurrentlyEquippedItemRarityForItemTypeSlot
@@ -147,6 +148,27 @@ const string SOUND_HOLOGRAM_APPEAR_RESETVIEW = "LootCeremony_LootHologram_Appear
 
 const int FINAL_TIER = 3
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+const array<int> INVALID_ITEM_TYPES_FOR_LOOT_CEREMONY = [
+	eItemType.account_pack,
+
+		eItemType.artifact_component_activation_emote,
+		eItemType.artifact_component_power_source,
+		eItemType.artifact_component_theme,
+
+]
 
 
 
@@ -741,15 +763,39 @@ bool function ZerothItemIsSpecial( ItemFlavor flav, bool isThematicCharacterPack
 	if ( ItemFlavor_GetType( flav ) == eItemType.melee_skin )
 		return true
 
-	if ( ItemFlavor_GetType( flav) == eItemType.weapon_skin ? (GetGlobalSettingsBool( ItemFlavor_GetAsset( flav ), "featureReactsToKills" )) : false )
+	if ( ItemFlavor_GetType( flav ) == eItemType.weapon_skin ? (GetGlobalSettingsBool( ItemFlavor_GetAsset( flav ), "featureReactsToKills" )) : false )
 		return true
 
-	if ( ItemFlavor_GetSourceIcon( flav ) != $"" )
-		return true
+	ItemFlavor ornull collectionEvent = GetActiveCollectionEvent( GetUnixTimestamp() )
+	ItemFlavor ornull milestoneEvent = GetActiveMilestoneEvent( GetUnixTimestamp() )
+
+	
+	if ( milestoneEvent != null )
+	{
+		if ( MilestoneEvent_IsItemEventItem( expect ItemFlavor( milestoneEvent ), flav.grxIndex ) )
+		{
+			return true
+		}
+	}
+	else if ( collectionEvent != null )
+	{
+		if ( CollectionEvent_IsGivenItemFlavorReward( expect ItemFlavor( collectionEvent ), flav ) )
+		{
+			return true
+		}
+	}
+	else
+	{
+		if ( ItemFlavor_GetSourceIcon( flav ) != $"" )
+		{
+			return true
+		}
+	}
 
 
 		if ( ItemFlavor_GetType( flav ) == eItemType.reward_set_tracker )
 			return true
+
 
 	if ( isThematicCharacterPack && packTheme == GetItemFlavorAssociatedCharacterOrWeapon( flav ) && ItemFlavor_GetQuality( flav ) >= eRarityTier.RARE )
 		return true
@@ -762,6 +808,40 @@ bool function ZerothItemIsSpecial( ItemFlavor flav, bool isThematicCharacterPack
 
 	if ( isThematicItemTypePack && packThemeType == ItemFlavor_GetType( flav ) && ItemFlavor_GetQuality( flav ) >= eRarityTier.RARE )
 		return true
+
+	return false
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+bool function IsInvalidTypeForLootCeremony( int type )
+{
+	Assert( type < eItemType.COUNT, "Invalid eItemType : " + type )
+
+	foreach ( int target in INVALID_ITEM_TYPES_FOR_LOOT_CEREMONY )
+	{
+		if ( target == type )
+		{
+			return true
+		}
+	}
 
 	return false
 }
@@ -781,17 +861,20 @@ array<ItemFlavor> function FilterAndSortPackResults( array<ItemFlavor> resultLis
 	bool isThematicWeaponPack = false 
 
 
-		
-		ItemFlavor ornull rewardSetTracker = null
+	
+	ItemFlavor ornull rewardSetTracker = null
+
 
 	
 	foreach ( ItemFlavor result in resultList )
 	{
 		int resultType = ItemFlavor_GetType( result )
-		if ( resultType == eItemType.account_pack )
+
+		if ( IsInvalidTypeForLootCeremony( resultType ) )
 		{
 			continue
 		}
+
 
 		if ( resultType == eItemType.reward_set_tracker )
 		{
@@ -800,6 +883,7 @@ array<ItemFlavor> function FilterAndSortPackResults( array<ItemFlavor> resultLis
 
 		out.append( result )
 	}
+
 
 	if ( rewardSetTracker != null )
 	{
@@ -858,8 +942,8 @@ array<ItemFlavor> function FilterAndSortPackResults( array<ItemFlavor> resultLis
 
 	
 	out.sort( int function( ItemFlavor a, ItemFlavor b ) : ( isThematicCharacterPack, isThematicItemTypePack, isThematicWeaponCategoryPack, packTheme, packThemeType, isThematicWeaponPack ) {
-		bool aIsMeleeSkin = (ItemFlavor_GetType( a ) == eItemType.melee_skin)
-		bool bIsMeleeSkin = (ItemFlavor_GetType( b ) == eItemType.melee_skin)
+		bool aIsMeleeSkin = (ItemFlavor_GetType( a ) == eItemType.melee_skin || ItemFlavor_GetType( a ) == eItemType.artifact_component_blade )
+		bool bIsMeleeSkin = (ItemFlavor_GetType( b ) == eItemType.melee_skin || ItemFlavor_GetType( b ) == eItemType.artifact_component_blade )
 		if ( aIsMeleeSkin )
 			return -1
 		if ( bIsMeleeSkin )
@@ -1889,6 +1973,9 @@ void function ShowRewardBasedOnItemType( int itemType, ItemFlavor item, vector a
 			thread ShowRewards_Badge( item, badgeDataInteger, attachOrigin, attachAngles, rarity, displayIndex )
 			break
 
+
+		case eItemType.artifact_component_blade:
+
 		case eItemType.melee_skin:
 			thread ShowRewards_MeleeSkin( item, attachOrigin, attachAngles, rarity, displayIndex, attachment )
 			break
@@ -2430,6 +2517,15 @@ void function ShowRewards_MeleeSkin( ItemFlavor item, vector origin, vector angl
 
 	origin += <0, 0, WEAPON_SKIN_Z_OFFSET>
 
+	bool isArtifact = false
+
+	if ( ItemFlavor_GetType( item ) == eItemType.artifact_component_blade )
+	{
+		item = GetItemFlavorByGUID( ARTIFACT_CONFIGURATION_PTR_0_GUID )
+		isArtifact = true
+	}
+
+
 	vector extraRotation = MeleeSkin_GetMenuModelRotation( item )
 	entity mover         = CreateClientsideScriptMover( $"mdl/dev/empty_model.rmdl", origin, angles )
 	entity weaponModel   = CreateClientSidePropDynamic( origin, AnglesCompose( angles, extraRotation ), $"mdl/dev/empty_model.rmdl" )
@@ -2440,6 +2536,28 @@ void function ShowRewards_MeleeSkin( ItemFlavor item, vector origin, vector angl
 	mover.MakeSafeForUIScriptHack()
 	weaponModel.MakeSafeForUIScriptHack()
 	weaponModel.SetVisibleForLocalPlayer( 0 )
+
+
+	if ( isArtifact )
+	{
+		int configIdx = 0
+		LoadoutEntry bladeEntry = Artifacts_Loadouts_GetEntryForConfigIndexAndType( configIdx, eArtifactComponentType.BLADE )
+		LoadoutEntry powerSourceEntry = Artifacts_Loadouts_GetEntryForConfigIndexAndType( configIdx, eArtifactComponentType.POWER_SOURCE )
+		LoadoutEntry themeEntry = Artifacts_Loadouts_GetEntryForConfigIndexAndType( configIdx, eArtifactComponentType.THEME )
+
+		if ( bladeEntry.validItemFlavorList.len() < 2 )
+			return
+
+		ItemFlavor bladeComponent = bladeEntry.validItemFlavorList[1]
+		ItemFlavor powerSourceComponent = powerSourceEntry.validItemFlavorList[1]
+		ItemFlavor themeComponent = themeEntry.validItemFlavorList[1]
+		int setIndex = eArtifactSetIndex.MOB
+
+		Artifacts_Loadouts_ApplyModelForSet( weaponModel, setIndex )
+		Artifacts_Loadouts_PreviewBladeAndPowerSource( weaponModel, bladeComponent, powerSourceComponent )
+		Artifacts_Loadouts_PreviewTheme( weaponModel, themeComponent )
+	}
+
 
 	asset animSeq = MeleeSkin_GetMenuAnimSeq( item )
 	if ( animSeq != $"" )
@@ -2950,8 +3068,11 @@ void function ShowRewards_Deathbox( ItemFlavor item, vector origin, vector angle
 		}
 	)
 
+	bool isOwned = GRX_IsItemOwnedByPlayer( item, GetLocalClientPlayer() )
+	string descString = isOwned ? "#EQUIP_IN_MELEE_MENU" : "#FINAL_MILESTONE_REWARD"
+
 	if ( IsSpecialItemPresentationModeActive() )
-		SpecialItemPresentationView_RUI( item, rarity, rui )
+		SpecialItemPresentationView_RUI( item, rarity, rui, descString )
 	else
 		InspectMenuFunctionality_RUI( item, displayIndex, rarity, rui )
 }
@@ -3852,6 +3973,12 @@ array<LoadoutEntry> function EquipButton_GetItemLoadoutEntries( ItemFlavor item,
 				}
 			}
 			break
+
+
+		case eItemType.artifact_component_blade:
+			loadoutEntries = [ Loadout_MeleeSkin( LoadoutSlot_GetItemFlavor( LocalClientEHI(), Loadout_Character() ) ) ]
+			break
+
 
 		case eItemType.melee_skin:
 
@@ -5753,6 +5880,22 @@ bool function IsSpecialItemPresentationModeActive()
 {
 	return fileLevel.specialItemPresentationModeActive
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

@@ -134,6 +134,10 @@ void function OnWeaponActivate_weapon_mobile_hmg( entity weapon )
 
 
 	}
+
+
+		AprilFools_S20_ApplyWeaponGravityMod( weapon )
+
 }
 
 void function OnWeaponDeactivate_weapon_mobile_hmg( entity weapon )

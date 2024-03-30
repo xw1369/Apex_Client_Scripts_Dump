@@ -1,5 +1,7 @@
 WeaponData
 {
+    offhand_match_player_skin            1
+    
 	Mods
 	{
 	    survival_armor_cooldown_mod

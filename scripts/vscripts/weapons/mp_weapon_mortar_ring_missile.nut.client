@@ -96,7 +96,7 @@ struct FireSegmentData
 	vector endPos
 	vector angles
 	vector dirToCenter
-	entity projectile
+	array<int> realms
 	entity moveParent
 }
 
@@ -187,6 +187,14 @@ void function OnProjectileCollision_ability_mortar_ring_missile( entity projecti
 
 
 }
+
+
+
+
+
+
+
+
 
 
 

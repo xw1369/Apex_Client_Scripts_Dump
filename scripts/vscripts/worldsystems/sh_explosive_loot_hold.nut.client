@@ -50,6 +50,18 @@ const int EXPLOSIVE_HOLD_WEAPONS_NEEDED = 6
 const int EXPLOSIVE_HOLD_CRATE_WEAPON_LOOT_TIER = 5
 
 
+const int EXPLOSIVEHOLD_NOPLACEVOL_RADIUS = 220
+const int EXPLOSIVEHOLD_NOPLACEVOL_HEIGHT = 150
+const int EXPLOSIVEHOLD_NOPLACEVOL_COUNT = 1
+
+
+const int EXPLOSIVEHOLD_BREACHTRIGGER_RADIUS = 75
+const int EXPLOSIVEHOLD_BREACHTRIGGER_HEIGHT = 75
+const int EXPLOSIVEHOLD_BREACHTRIGGER_COUNT = 3
+const string EXPLOSIVEHOLD_BREACH_ALARM = "Loba_Ultimate_Staff_VaultAlarm"
+
+
+
 
 
 
@@ -121,6 +133,13 @@ struct ExplosiveHoldData
 	entity leftDoor
 	array<entity> ventFXHelpers
 	entity holdProxy
+
+	
+	array< vector > entranceLocs 
+	array< entity > noPlaceVolumes 
+	array< entity > breachTriggers 
+
+	entity currentUser 
 }
 
 struct DoorInfo
@@ -158,6 +177,7 @@ void function ShExplosiveHold_Init()
 
 	RegisterSignal( "LootHoldUseDone" )
 	RegisterSignal( "LootHoldUseFail" )
+	RegisterSignal( "LootHoldUserBootedByBreach" )
 	RegisterSignal( "LootHoldConnectionChanged" )
 	RegisterSignal( "MaybeActivateExplosiveHoldDefense_Thread" )
 }
@@ -319,7 +339,246 @@ void function EntitiesDidLoad()
 
 
 
+
+
+
+
+
+
+
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1062,6 +1321,117 @@ void function ExplosiveHoldDoor_DisplayRui( entity ent, entity player, var rui, 
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 bool function ExplosiveHold_PlayerHasGrenadeInInventory( entity player )
 {
 	foreach ( info in file.grenadeDatas )
@@ -1214,6 +1584,16 @@ entity function GetExplosiveHoldProxyForLoot( entity lootEnt )
 
 
 
+
+bool function ExplosiveHold_NoPlaceVols_Enabled()
+{
+	return( GetCurrentPlaylistVarBool( "explosivehold_noplacevols_enabled", false ) )
+}
+
+bool function ExplosiveHold_BreachTriggers_Enabled()
+{
+	return( GetCurrentPlaylistVarBool( "explosivehold_breachtriggers_enabled", true ) )
+}
 
 
 

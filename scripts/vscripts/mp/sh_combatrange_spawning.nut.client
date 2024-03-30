@@ -175,7 +175,7 @@ struct
 
 
 #if DEV
-		bool dev_PrintsOn = false	
+		bool dev_PrintsOn = false
 		bool dev_spawnPrintsOn = false
 #endif
 } file
@@ -404,6 +404,9 @@ bool function PlaylistVar_DynamicDummiesEverywhere()
 {
 	return( GetCurrentPlaylistVarBool( PLV_DYNAMICDUMMIES_EVERYWHERE, false ) )
 }
+
+
+
 
 
 

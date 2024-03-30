@@ -9,8 +9,6 @@ global function GetPlayerExtraShieldsTier
 
 
 
-global const string EXTRA_SHIELDS_NETINT = "extra_shields"
-global const string EXTRA_SHIELDS_TIER_NETINT = "extra_shields_tier"
 global const string EXTRA_SHIELDS_DURATION_NETFLOAT = "extra_shields_duration"
 global const float EXTRA_SHIELDS_TOTAL_DURATION = 28.0
 global const int EXTRA_SHIELD_DECAY_RATE = 2
@@ -37,13 +35,10 @@ void function ExtraShields_Init()
 {
 	file.totalShieldDuration = GetCurrentPlaylistVarFloat( "extra_shield_total_shield_duration", EXTRA_SHIELDS_TOTAL_DURATION )
 
-	RegisterNetworkedVariable( EXTRA_SHIELDS_NETINT, SNDC_PLAYER_GLOBAL, SNVT_INT , 0 )
-	RegisterNetworkedVariable( EXTRA_SHIELDS_TIER_NETINT, SNDC_PLAYER_GLOBAL, SNVT_INT , 0 )
 	RegisterNetworkedVariable( EXTRA_SHIELDS_DURATION_NETFLOAT, SNDC_PLAYER_EXCLUSIVE, SNVT_FLOAT_RANGE , file.totalShieldDuration, 0.0, file.totalShieldDuration )
 
 
 	RegisterNetVarFloatChangeCallback( EXTRA_SHIELDS_DURATION_NETFLOAT, ExtraShields_OnExtraShieldDurationChanged )
-	RegisterNetVarIntChangeCallback( EXTRA_SHIELDS_TIER_NETINT, ExtraShields_OnExtraShieldTierChanged )
 
 
 
@@ -58,12 +53,12 @@ void function ExtraShields_Init()
 
 int function GetPlayerExtraShields( entity player )
 {
-	return player.GetPlayerNetInt( EXTRA_SHIELDS_NETINT )
+	return player.GetExtraShieldHealth()
 }
 
 int function GetPlayerExtraShieldsTier( entity player )
 {
-	return player.GetPlayerNetInt( EXTRA_SHIELDS_TIER_NETINT )
+	return player.GetExtraShieldTier()
 }
 
 float function GetPlayerExtraShieldsDuration( entity player )
@@ -186,8 +181,7 @@ void function ExtraShields_OnExtraShieldDurationChanged( entity player, float ne
 		file.extraShieldDurationRui = CreateCockpitPostFXRui( $"ui/extra_shield_indicator.rpak", HUD_Z_BASE )
 		RuiSetFloat( file.extraShieldDurationRui, "timeTotal", file.totalShieldDuration )
 		RuiSetInt( file.extraShieldDurationRui, "state", eArcFlashState.ACTIVE )
-		vector tierColor = GetKeyColor( COLORID_TEXT_LOOT_TIER0, GetPlayerExtraShieldsTier( player ) ) / 255.0
-		RuiSetFloat3( file.extraShieldDurationRui, "colorTint", tierColor )
+		RuiTrackInt( file.extraShieldDurationRui, "tierColor", player, RUI_TRACK_EXTRA_SHIELD_TIER_INT )
 	}
 
 	RuiTrackFloat( file.extraShieldDurationRui, "timeRemaining", player, RUI_TRACK_SCRIPT_NETWORK_VAR, GetNetworkedVariableIndex( EXTRA_SHIELDS_DURATION_NETFLOAT ) )

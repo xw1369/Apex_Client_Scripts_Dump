@@ -29,6 +29,10 @@ global const float DOT_60DEGREE =	0.5
 global const float DOT_80DEGREE =	0.17364817766
 global const float DOT_85DEGREE =	0.0871557427477
 
+
+
+
+
 global const string WHITESPACE_CHARACTERS = "\r\n\t " 
 
 #if DEV
@@ -220,6 +224,8 @@ void function ShUtilityAll_Init()
 		
 		
 		PrecacheParticleSystem( $"test_death_box_mdl" )
+		PrecacheParticleSystem( $"P_death_box_artifact_mdl" )
+		PrecacheParticleSystem( $"P_death_box_artifact_stech" )
 
 
 
@@ -849,6 +855,13 @@ bool function Halloween18_IsModeEnabled()
 bool function GunGame_IsModeEnabled()
 {
 	return GetCurrentPlaylistVarBool( "freedm_gun_game_active", false)
+}
+
+
+
+bool function TreasureHunt_IsModeEnabled()
+{
+	return GetCurrentPlaylistVarBool( "freedm_treasure_hunt_active", false)
 }
 
 
@@ -2317,11 +2330,8 @@ bool function IsLobbyEvent1Active()
 #endif
 
 
-
-	if( IsInnerBeastEventActive() )
-	{
+	if ( IsMobsterEventActive() )
 		return true
-	}
 
 
 	return false
@@ -2341,13 +2351,27 @@ bool function IsLobbyEvent2Active()
 		}
 #endif
 
+
+	if ( IsUrbanAssaultEventActive() )
+		return true
+
+
 	return false
 }
 
 
-bool function IsInnerBeastEventActive()
+bool function IsMobsterEventActive()
 {
-	ItemFlavor event = GetItemFlavorByAsset( $"settings/itemflav/calevent/s20ce02/collection.rpak" )
+	ItemFlavor event = GetItemFlavorByAsset( $"settings/itemflav/calevent/s20me01/event_shop.rpak" )
+	if ( CalEvent_IsActive( event, GetUnixTimestamp() ) )
+		return true
+
+	return false
+}
+
+bool function IsUrbanAssaultEventActive()
+{
+	ItemFlavor event = GetItemFlavorByAsset( $"settings/itemflav/calevent/s20ce04/collection.rpak" )
 	if ( CalEvent_IsActive( event, GetUnixTimestamp() ) )
 		return true
 
@@ -2355,11 +2379,26 @@ bool function IsInnerBeastEventActive()
 }
 
 
+bool function IsT1Active()
+{
+	int unixTimeNow = GetUnixTimestamp()
+	if ( unixTimeNow > expect int( GetCurrentPlaylistVarTimestamp( "t1_active", UNIX_TIME_FALLBACK_2038 ) ) )
+	{
+		return true
+	}
+
+	return false
+}
+
+
+bool function IsMatchmakingFromMatchEnabled()
+{
+	return GetConVarBool( "matchmake_from_match_enabled" ) && GetCurrentPlaylistVarBool( "matchmake_from_match", false )
+}
 
 bool function IsMatchmakingFromMatchAllowed( entity player )
 {
-	bool isAllowed = GetConVarBool( "matchmake_from_match_enabled" )
-	isAllowed = isAllowed && GetCurrentPlaylistVarBool( "matchmake_from_match", false )
+	bool isAllowed = IsMatchmakingFromMatchEnabled()
 	isAllowed = isAllowed && !Playlist_ShouldBeHiddenForScheduleBlocks( GetCurrentPlaylistName() )
 
 
@@ -3014,8 +3053,13 @@ bool function IsInMyParty( string uid )
 
 bool function IsMyPartyMatchmaking()
 {
-	string matchmakingStatus = GetMyMatchmakingStatus()
-	return ( matchmakingStatus != "" )
+	bool isMyPartyMatchmaking = false
+	if ( AmIPartyLeader() )
+		isMyPartyMatchmaking = AreWeMatchmaking()
+	else
+		isMyPartyMatchmaking = ( GetMyMatchmakingStatus() != "" )
+
+	return isMyPartyMatchmaking
 }
 
 
@@ -4179,6 +4223,23 @@ bool function IsPlayerCharacter( entity player, string characterCheck )
 	return true
 }
 
+
+bool function PlayerIsLinkedToDeathbox( entity player, entity deathbox )
+{
+	array<entity> linkedEntArray = player.GetLinkEntArray()
+	foreach ( entity linkedEnt in linkedEntArray )
+	{
+		if ( linkedEnt.GetNetworkedClassName() != "prop_death_box" )
+			continue
+
+		if ( linkedEnt == deathbox )
+			return true
+	}
+
+	return false
+}
+
+
 #if DEV
 bool function DEV_ForceLoadAllEntityTypes()
 {
@@ -4250,3 +4311,10 @@ float function GetNearestAspectRatio( int width, int height )
 	return aspectRatio
 }
 
+
+
+bool function IsBattleRushGamemode()
+{
+	return GetCurrentPlaylistVarBool( "is_gamemode_battle_rush", false )
+}
+                                  

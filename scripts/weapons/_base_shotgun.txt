@@ -215,6 +215,10 @@ WeaponData
 
 	"trophy_system_ignores"                          "always"
 
+                                
+		"april_fools_force_scale"               "40.0"
+      
+
     Mods
     {
         optic_cq_hcog_classic

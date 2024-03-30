@@ -281,6 +281,9 @@ void function ShSurvivalTraining_Init()
 	if ( !IsSurvivalTraining() )
 		return
 
+	RegisterNetworkedVariable( "TrainingEndTime", SNDC_PLAYER_EXCLUSIVE, SNVT_TIME, -1 )
+	RegisterNetworkedVariable( "tutorialContext", SNDC_PLAYER_EXCLUSIVE, SNVT_INT, -1 )
+
 	RegisterCSVDialogue( $"datatable/dialogue/survival_training.rpak" )
 
 	AddCallback_EntitiesDidLoad( Training_EntitiesDidLoad )

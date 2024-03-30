@@ -854,6 +854,10 @@ void function BountyHunt_Init()
 
 
 
+
+
+
+
 void function ServerToClient_ClientHuntEndSignal( entity player )
 {
 	Signal( player, BOUNTY_END_SIGNAL )

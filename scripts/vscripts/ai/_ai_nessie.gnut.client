@@ -3,6 +3,7 @@ global function Nessie_Init
 global function Nessie_IsNessieSwappable
 global function Nessie_IsSpiderSwappable
 global function Nessie_IsProwlerSwappable
+global function Nessie_GetHighlightDist
 
 
 
@@ -16,6 +17,7 @@ global function ServerToClient_OnLeaveNessieTrigger
 const string NESSIE_AUDIO_PLAYLIST_VAR = "use_nessie_schedule_audio"
 const string NESSIE_SWAP_PLAYLIST_VAR = "nessie_swap_enabled"
 const string NESSIE_DEATH_CONFETTI_PLAYLIST_VAR = "nessie_enable_confetti"
+const string NESSIE_HIGHLIGHT_DISTANCE_PLAYLIST_VAR = "nessie_highlight_dist"
 
 const string NESSIE_SPIDER_SWAP_PLAYLIST_VAR = "nessie_spider_swap"
 const string NESSIE_NESSIE_SWAP_PLAYLIST_VAR = "nessie_nessie_swap"
@@ -104,6 +106,12 @@ bool function Nessie_IsSpiderSwappable()
 bool function Nessie_IsProwlerSwappable()
 {
 	return GetCurrentPlaylistVarBool( NESSIE_PROWLER_SWAP_PLAYLIST_VAR, false )
+}
+
+
+float function Nessie_GetHighlightDist()
+{
+	return GetCurrentPlaylistVarFloat( NESSIE_HIGHLIGHT_DISTANCE_PLAYLIST_VAR, 2000 )
 }
 
 void function Nessie_Init()

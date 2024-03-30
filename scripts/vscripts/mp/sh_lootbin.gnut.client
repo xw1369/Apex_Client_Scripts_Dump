@@ -1566,6 +1566,13 @@ array<entity> function LootBin_GetSpawnedLoot( entity lootBin, bool includeRegul
 
 
 
+
+
+
+
+
+
+
 void function CL_LootBinOpening( entity lootBin, int sequenceType )
 {
 	foreach ( OnLootBinOpeningCallbackType cb in file.onLootBinOpeningCallbacks )

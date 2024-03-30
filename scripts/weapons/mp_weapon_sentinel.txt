@@ -3,10 +3,6 @@
 #base "_base_mags_sniper.txt"
 #base "_base_stocks_sniper.txt"
 
-                    
-#base "_base_hopup_golden_horse_yellow.txt"
-      
-
 "WeaponData"
 {
 

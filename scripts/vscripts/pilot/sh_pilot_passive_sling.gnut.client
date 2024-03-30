@@ -53,6 +53,12 @@ void function ShPassiveSling_Init()
 
 	AddCallback_OnPassiveChanged( ePassives.PAS_WEAPON_SLING, PassiveSling_OnPassiveChanged )
 
+
+
+
+
+
+
 	Remote_RegisterServerFunction( "ClientCallback_Sur_SlingToMainWeaponSlot", "int", 0, WEAPON_INVENTORY_SLOT_PRIMARY_1 )
 }
 
@@ -173,6 +179,50 @@ void function PassiveSling_OnPassiveChanged( entity player, int passive, bool di
 
 	}
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

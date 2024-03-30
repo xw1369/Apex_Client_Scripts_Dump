@@ -8,6 +8,7 @@ global function Survival_GetTeamName
 global function Survival_GetTeamIcon
 
 global function FullMap_GetMapNormalizedAimCoordinate
+global function FullMap_GetNormalizeWorldPos
 global function FullMap_ConvertNormalizedPosToWorldPos
 
 global function FullMap_CommonAdd
@@ -1375,7 +1376,7 @@ void function ShowFullmap()
 		else
 		{
 			
-			vector normalized = NormalizeWorldPos( GetLocalViewPlayer().GetOrigin() )
+			vector normalized = FullMap_GetNormalizeWorldPos( GetLocalViewPlayer().GetOrigin() )
 			file.fullmapAimPos = normalized
 			file.fullmapZoomPos = normalized
 		}
@@ -1601,7 +1602,7 @@ void function WaitForEntUpdate( entity ent, entity viewPlayer )
 
 
 
-vector function NormalizeWorldPos( vector pos, float zoomFactor = 1.0 )
+vector function FullMap_GetNormalizeWorldPos( vector pos, float zoomFactor = 1.0 )
 {
 	float mapScaleTweak  = max( file.mapScale * OVERVIEW_MAP_SIZE, 1 )
 	vector normalizedPos = (pos - <file.mapCornerX, file.mapCornerY, 0>) / mapScaleTweak
@@ -1996,7 +1997,7 @@ void function SetCurrentZoom(float zoomFactor, vector zoomPos , bool adjustValue
 {
 	if(adjustValues)
 	{	
-		vector normalized  = NormalizeWorldPos( zoomPos )
+		vector normalized  = FullMap_GetNormalizeWorldPos( zoomPos )
 		float zoomDiff     = 1.0 / zoomFactor
 		float zoomOverHead = ( zoomDiff * 0.5 )
 		normalized          = ( normalized * ( 1.0 + zoomDiff ) ) - <zoomOverHead, zoomOverHead, 0.0>

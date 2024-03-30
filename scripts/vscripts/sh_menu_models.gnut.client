@@ -2,10 +2,13 @@
 
 global function Menu_GetCameraTarget
 global function UICallback_MenuModels_UIScriptHasReset
+global function OnReady_PLAY
 
 #if DEV
 
 global function Menu_InitPresentationDataFromCameraSettings
+global function DEV_PlayLobbyIdle
+global function OnReadyThread
 #endif
 
 
@@ -35,10 +38,6 @@ const float TRANSITION_DURATION = 0.25
 const float DEFAULT_MAX_TURN_SPEED = 270.0
 
 global const asset CHARACTER_BASE_EFFECT = $"P_menu_char_base_rarity"
-
-
-
-
 
 
 
@@ -269,6 +268,12 @@ struct
 		MenuModelData weaponOverviewModelData
 		MenuModelData meleeInspectModelData
 
+		float readyUpIdleTime
+		float readyUpCooldown 			= 0
+		float readyUpCooldownTime
+		float readyUpChance
+
+
 		int                                          currentStickerObjectType = -1
 		int                                          currentUnappliedStickerInstance = -1
 		table< int, table<int, AppliedStickerData> > appliedStickersData
@@ -498,9 +503,14 @@ void function ClMenuModels_Init()
 
 	RegisterSignal( "EndPendingItemInspectThreads" )
 	RegisterSignal( "StopShowingModelInfo" )
+	RegisterSignal( "EndOnReadyThread" )
 
 	AddCallback_OnClientScriptInit( OnClientScriptInit )
 	AddCallback_FullUpdate( OnFullUpdate )
+
+	file.readyUpCooldownTime 		= GetCurrentPlaylistVarFloat("lobby_readup_cooldown", 120.0 )
+	file.readyUpChance      		= GetCurrentPlaylistVarFloat("lobby_readup_chance", 0.8 )
+	file.readyUpIdleTime			= GetCurrentPlaylistVarFloat("lobby_readup_idle_time", 30.0 )
 }
 
 void function OnClientScriptInit( entity player )
@@ -1162,6 +1172,7 @@ void function StartPresentation_PLAY()
 {
 	if ( file.presentationData[file.previousPresentationType].startFunc != StartPresentation_PLAY )
 	{
+		Signal( ModelData_GetModel( file.playCharacter ), "EndOnReadyThread" )
 		ModelData_SetAnim( file.playCharacter, "ACT_MP_MENU_LOBBY_CENTER_IDLE" )
 		UpdateMenuCharacterModel( GetLocalClientPlayer(), -1 )
 
@@ -1169,6 +1180,68 @@ void function StartPresentation_PLAY()
 	}
 
 	AddCallback_OnPartyUpdated( UpdateMenuWithPartyMembers )
+}
+
+void function OnReady_PLAY( bool ready )
+{
+	if ( file.currentPresentationType != ePresentationType.PLAY )
+		return
+
+	if ( !ModelData_GetModel( file.playCharacter ).Anim_HasSequence( "ACT_MP_MENU_LOBBY_CENTER_READYUP" )  )
+		return
+
+	if ( ready )
+	{
+		float now = ClientTime()
+
+		if ( file.readyUpCooldown != 0 && now < (file.readyUpCooldown + file.readyUpCooldownTime) )
+			return
+
+		float dice = RandomFloat( 1.0 )
+
+		if ( dice < file.readyUpChance )
+			return
+
+		file.readyUpCooldown = now
+	}
+
+	thread OnReadyThread( ready )
+}
+
+void function OnReadyThread( bool onReady )
+{
+	Signal( ModelData_GetModel( file.playCharacter ), "EndOnReadyThread" )
+	EndSignal( ModelData_GetModel( file.playCharacter ), "EndOnReadyThread"  )
+
+	if ( onReady )
+	{
+		if ( ModelData_GetModel( file.playCharacter ).GetCurrentSequenceName().find( "lobby_center_idle" ) != -1 )
+		{
+			ModelData_SetAnim( file.playCharacter, "ACT_MP_MENU_LOBBY_CENTER_READYUP" )
+			WaittillAnimDone( ModelData_GetModel( file.playCharacter ) )
+			ModelData_SetAnim( file.playCharacter, "ACT_MP_MENU_LOBBY_CENTER_READY_IDLE" )
+			wait file.readyUpIdleTime
+			ModelData_SetAnim( file.playCharacter, "ACT_MP_MENU_LOBBY_CENTER_UNREADY" )
+			WaittillAnimDone( ModelData_GetModel( file.playCharacter ) )
+			ModelData_SetAnim( file.playCharacter, "ACT_MP_MENU_LOBBY_CENTER_IDLE" )
+		}
+	}
+	else
+	{
+		if ( file.playCharacter.bodyAnim == "ACT_MP_MENU_LOBBY_CENTER_READY_IDLE" )
+		{
+			ModelData_SetAnim( file.playCharacter, "ACT_MP_MENU_LOBBY_CENTER_UNREADY" )
+			WaittillAnimDone( ModelData_GetModel( file.playCharacter ) )
+			ModelData_SetAnim( file.playCharacter, "ACT_MP_MENU_LOBBY_CENTER_IDLE" )
+		}
+		else if ( file.playCharacter.bodyAnim == "ACT_MP_MENU_LOBBY_CENTER_READYUP"  )
+		{
+			WaittillAnimDone( ModelData_GetModel( file.playCharacter ) )
+			ModelData_SetAnim( file.playCharacter, "ACT_MP_MENU_LOBBY_CENTER_UNREADY" )
+			WaittillAnimDone( ModelData_GetModel( file.playCharacter ) )
+			ModelData_SetAnim( file.playCharacter, "ACT_MP_MENU_LOBBY_CENTER_IDLE" )
+		}
+	}
 }
 
 void function EndPresentation_PLAY()
@@ -1434,6 +1507,8 @@ void function StartPresentation_WEAPON_OVERVIEW_INSPECT()
 {
 	file.weaponOverviewBackgroundModelGeo.Show()
 	file.weaponOverviewBackgroundModelSmoke.Show()
+
+	ShowWeaponOverviewItem()
 }
 
 void function EndPresentation_WEAPON_OVERVIEW_INSPECT()
@@ -1745,6 +1820,9 @@ bool function IsEventLobbyActive()
 		return true
 
 	if ( IsLobbyEvent1Active() )
+		return true
+
+	if ( IsLobbyEvent2Active() )
 		return true
 
 	return false
@@ -3132,40 +3210,44 @@ void function UpdateMeleeInspectDisplay( ItemFlavor item )
 	model.SetLocalOrigin( originOffset )
 	model.SetLocalAngles( extraRotation )
 
+
+	if ( Artifacts_Loadouts_IsConfigPointerItemFlavor( item ) )
+	{
+		EHI lcEHI     = ToEHI( GetLocalClientPlayer() )
+		int configIdx = Artifacts_Loadouts_GetConfigIndex( item )
+		LoadoutEntry bladeEntry   = Artifacts_Loadouts_GetEntryForConfigIndexAndType( configIdx, eArtifactComponentType.BLADE )
+		ItemFlavor bladeComponent = LoadoutSlot_GetItemFlavor( lcEHI, bladeEntry )
+		LoadoutEntry powerSourceEntry   = Artifacts_Loadouts_GetEntryForConfigIndexAndType( configIdx, eArtifactComponentType.POWER_SOURCE )
+		ItemFlavor powerSourceComponent = LoadoutSlot_GetItemFlavor( lcEHI, powerSourceEntry )
+		LoadoutEntry themeEntry   = Artifacts_Loadouts_GetEntryForConfigIndexAndType( configIdx, eArtifactComponentType.THEME )
+		ItemFlavor themeComponent = LoadoutSlot_GetItemFlavor( lcEHI, themeEntry )
+
+		int setIndex = eArtifactSetIndex._EMPTY
+		if ( !Artifacts_IsEmptyComponent( themeComponent ) )
+			setIndex = Artifacts_GetSetIndex( themeComponent )
+		else
+			setIndex = Artifacts_GetSetIndex( bladeComponent )
+
+
+		bladeComponent = bladeEntry.validItemFlavorList.len() > 1 ? bladeEntry.validItemFlavorList[1] : bladeComponent
+		powerSourceComponent = powerSourceEntry.validItemFlavorList.len() > 1 ? powerSourceEntry.validItemFlavorList[1] : powerSourceComponent
+		themeComponent = themeEntry.validItemFlavorList.len() > 1 ? themeEntry.validItemFlavorList[1] : themeComponent
+		setIndex = eArtifactSetIndex.MOB
+
+
+		
+		if ( setIndex == eArtifactSetIndex._EMPTY )
+			return
+
+		Artifacts_Loadouts_ApplyModelForSet( model, setIndex )
+		Artifacts_Loadouts_PreviewBladeAndPowerSource( model, bladeComponent, powerSourceComponent )
+		Artifacts_Loadouts_PreviewTheme( model, themeComponent )
+	}
+
+
 	asset animSeq = MeleeSkin_GetMenuAnimSeq( item )
 	if ( animSeq != $"" )
 		model.Anim_Play( animSeq )
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 }
 
 void function UpdateStoreItemDisplay_WeaponCharm( ItemFlavor item )
@@ -3763,10 +3845,6 @@ void function UpdateStoreItemDisplay_MeleeSkin( ItemFlavor item )
 	asset animSeq = MeleeSkin_GetMenuAnimSeq( item )
 	if ( animSeq != $"" )
 		model.Anim_Play( animSeq )
-
-
-
-
 }
 
 void function UpdateStoreItemDisplay_ApexCoins( ItemFlavor item )
@@ -4103,13 +4181,26 @@ void function UIToClient_ClearMeleeSkinPreview()
 	ClearMeleeInspectItem()
 }
 
+
+
+
+
 void function UIToClient_OverviewWeapon( SettingsAssetGUID itemFlavorGUID )
 {
-	ClearStoreInspectItem()
-
 	ItemFlavor item = GetItemFlavorByGUID( itemFlavorGUID )
+	ModelData_SetSkinFlavor( file.weaponOverviewModelData, item )
+	
+	
+	if (file.currentPresentationType == ePresentationType.WEAPON_OVERVIEW)
+		ShowWeaponOverviewItem()
+}
 
-	ModelData_SetSkinFlavor( file.weaponOverviewModelData, item ) 
+
+
+void function ShowWeaponOverviewItem() 
+{
+	ClearStoreInspectItem()
+	ItemFlavor item = ModelData_GetSkinFlavor( file.weaponOverviewModelData)
 
 #if DEV
 		if ( InputIsButtonDown( KEY_LSHIFT ) )
@@ -4751,6 +4842,23 @@ void function ModelData_SetAnim( MenuModelData modelData, string anim )
 	modelData.bodyAnim = anim
 	ModelData_GetModel( modelData ).Anim_Play( anim )
 }
+
+#if DEV
+void function DEV_PlayLobbyIdle( string anim = "" )
+{
+	if ( file.currentPresentationType == ePresentationType.PLAY )
+	{
+		if ( anim != "" )
+		{
+			ModelData_SetAnim( file.playCharacter, anim )
+		}
+		else
+		{
+			ModelData_SetAnim( file.playCharacter, "ACT_MP_MENU_LOBBY_CENTER_IDLE" )
+		}
+	}
+}
+#endif
 
 void function ModelData_SetSkinFlavor( MenuModelData modelData, ItemFlavor weaponOrCharacterSkinFlavor )
 {
@@ -5446,7 +5554,7 @@ void function FlashMenuModel( entity model, int flashType, vector flashColor, bo
 	if ( !IsValid( model ) )
 		return
 
-	WaitForOdlModelLoad( model, true )
+	
 
 	WaitFrame() 
 

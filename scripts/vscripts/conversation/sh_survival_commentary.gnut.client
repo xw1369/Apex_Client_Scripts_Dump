@@ -359,10 +359,10 @@ global enum eSurvivalCommentaryBucket
 
 
 
-
-
-
-
+	TH_TD_FIRST_OBJECTIVE_INCOMING,
+	TH_TD_TEAM_WINNING,
+	TH_OBJECTIVE_INCOMING,
+	TH_OBJECTIVE_CAPTURED,
 
 
 	_count

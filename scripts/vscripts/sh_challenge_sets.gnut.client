@@ -1,5 +1,6 @@
 global function Sh_Challenge_Sets_Init
 global function ChallengeCollection_IsEnabled
+global function ChallengeCollection_IsActive
 global function ChallengeCollection_GetRegisteredCollections
 global function ChallengeCollection_GetActiveCollections
 global function ChallengeCollection_GetActiveCollection
@@ -8,15 +9,25 @@ global function ChallengeCollection_GetAllChallengeSets
 global function ChallengeCollection_GetMainChallenge
 global function ChallengeCollection_GetAllMainChallenges
 global function ChallengeCollection_GetAllChallenges
+global function ChallengeCollection_GetFirstActiveForMetaChallenge
 global function ChallengeCollection_HasChallenges
 global function ChallengeCollection_GetCharacterUnlockChallenge
 global function ChallengeCollection_GetProgress
 global function ChallengeCollection_IsComplete
+global function ChallengeCollection_GetFirstViewedTime
+
+
+
+global function ChallengeCollection_GetEndTime
 global function ChallengeSet_GetByGUID
 global function ChallengeSet_GetMainChallenge
 global function ChallengeSet_GetChallenges
 global function ChallengeSet_GetProgress
 global function ChallengeSet_IsComplete
+
+
+
+
 
 
 global struct ChallengeSet
@@ -31,6 +42,8 @@ global struct ChallengeCollection
 	ItemFlavor&           itemFlav 
 	ItemFlavor&           mainChallenge 
 	array< ChallengeSet > challengeSets
+
+	int baseAvailabilitySeconds = 0
 }
 
 
@@ -52,6 +65,10 @@ void function Sh_Challenge_Sets_Init()
 	FileStruct_ChallengeSets fileStruct
 	file = fileStruct
 	AddCallback_OnItemFlavorRegistered( eItemType.calevent_challenge_collection, RegisterChallengeCollectionFlavs )
+
+
+
+
 }
 
 void function RegisterChallengeCollectionFlavs( ItemFlavor challengeCollectionItemFlav )
@@ -75,6 +92,11 @@ void function RegisterChallengeCollectionFlavs( ItemFlavor challengeCollectionIt
 
 		ChallengeSet challengeSet = RegisterChallengeSetData( challengeSetFlav, challengeCollection )
 		challengeCollection.challengeSets.append( challengeSet )
+	}
+
+	if ( GetGlobalSettingsBool( challengeCollectionAsset, "hasAvailabilityPeriod" ) )
+	{
+		challengeCollection.baseAvailabilitySeconds = GetGlobalSettingsInt( challengeCollectionAsset, "availabilityPeriod" ) * SECONDS_PER_DAY
 	}
 
 	file.challengeCollections[ collectionGUID ] <- challengeCollection
@@ -123,6 +145,25 @@ bool function ChallengeCollection_IsEnabled()
 	return isEnabled
 }
 
+bool function ChallengeCollection_IsActive( entity player, ChallengeCollection challengeCollection )
+{
+	int currentTime = GetUnixTimestamp()
+	int firstViewedTime = ChallengeCollection_GetFirstViewedTime( player, challengeCollection )
+
+	int availabilitySeconds = ChallengeCollection_GetAvailabilitySeconds( challengeCollection )
+	if ( availabilitySeconds > 0 && firstViewedTime > 0 )
+	{
+		return currentTime - firstViewedTime < availabilitySeconds
+	}
+
+	if ( !CalEvent_IsActive( challengeCollection.itemFlav, currentTime ) )
+	{
+		return false
+	}
+
+	return Kepler_IsPlayerEligibleForItemFlavor( player, challengeCollection.itemFlav )
+}
+
 table< int, ChallengeCollection > function ChallengeCollection_GetRegisteredCollections()
 {
 	return file.challengeCollections
@@ -157,7 +198,7 @@ ChallengeCollection ornull function ChallengeCollection_GetActiveCollection()
 }
 
 
-ChallengeCollection function ChallengeCollection_GetByGUID( int guid )
+ChallengeCollection function ChallengeCollection_GetByGUID( SettingsAssetGUID guid )
 {
 	Assert( guid in file.challengeCollections )
 	return file.challengeCollections[ guid ]
@@ -208,6 +249,28 @@ array< ItemFlavor > function ChallengeCollection_GetAllChallenges( ChallengeColl
 	return challenges
 }
 
+
+ChallengeCollection ornull function ChallengeCollection_GetFirstActiveForMetaChallenge( ItemFlavor metaChallengeFlav )
+{
+	foreach ( challengeCollection in ChallengeCollection_GetActiveCollections() )
+	{
+		if ( challengeCollection.mainChallenge == metaChallengeFlav )
+		{
+			return challengeCollection
+		}
+
+		foreach ( challengeSet in challengeCollection.challengeSets )
+		{
+			if ( challengeSet.mainChallenge == metaChallengeFlav )
+			{
+				return challengeCollection
+			}
+		}
+	}
+
+	return null
+}
+
 bool function ChallengeCollection_HasChallenges( ChallengeCollection challengeCollection )
 {
 	return ChallengeCollection_GetAllChallenges( challengeCollection ).len() > 0
@@ -242,6 +305,25 @@ ItemFlavor ornull function ChallengeCollection_GetCharacterUnlockChallenge( Item
 	return null
 }
 
+int function ChallengeCollection_GetAvailabilitySeconds( ChallengeCollection challengeCollection )
+{
+	
+	if ( challengeCollection.baseAvailabilitySeconds <= 0 )
+	{
+		return challengeCollection.baseAvailabilitySeconds
+	}
+
+	string playlistKey = ItemFlavor_GetGUIDString( challengeCollection.itemFlav ) + "_availability_period"
+	int overrideAvailabilityPeriod = GetPlaylistVarInt( "defaults", playlistKey, -1 )
+
+	if ( overrideAvailabilityPeriod >= 0 )
+	{
+		return overrideAvailabilityPeriod * SECONDS_PER_DAY
+	}
+
+	return challengeCollection.baseAvailabilitySeconds
+}
+
 int function ChallengeCollection_GetProgress( entity player, ChallengeCollection challengeCollection )
 {
 	array< ChallengeSet > challengeSets = challengeCollection.challengeSets
@@ -263,6 +345,75 @@ bool function ChallengeCollection_IsComplete( entity player, ChallengeCollection
 
 	return progress >= goal
 }
+
+string function ChallengeCollection_GetFirstViewedTimePersistenceVarName( ChallengeCollection challengeCollection )
+{
+	return ItemFlavor_GetGUIDString( challengeCollection.itemFlav ) + "_viewed"
+}
+
+int function ChallengeCollection_GetFirstViewedTime( entity player, ChallengeCollection challengeCollection )
+{
+	if ( ChallengeCollection_GetAvailabilitySeconds( challengeCollection ) <= 0 )
+	{
+		return -1
+	}
+
+	return player.GetPersistentVarAsInt( ChallengeCollection_GetFirstViewedTimePersistenceVarName( challengeCollection ) )
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+int function ChallengeCollection_GetEndTime( entity player, ChallengeCollection challengeCollection )
+{
+	int availabilitySeconds = ChallengeCollection_GetAvailabilitySeconds( challengeCollection )
+	int firstViewedTime = ChallengeCollection_GetFirstViewedTime( player, challengeCollection )
+
+	if ( availabilitySeconds <= 0 || firstViewedTime <= 0 )
+	{
+		return CalEvent_GetFinishUnixTime( challengeCollection.itemFlav )
+	}
+
+	return firstViewedTime + availabilitySeconds
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

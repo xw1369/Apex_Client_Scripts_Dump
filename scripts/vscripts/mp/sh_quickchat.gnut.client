@@ -528,20 +528,11 @@ array<string> function GetSubjectNamesForCommsAction( int commsAction, entity su
 
 
 
-
-		if ( Control_IsModeEnabled() )
-		{
-			if ( commsAction == eCommsAction.PING_CONTROL_OBJECTIVE_ATTACK || commsAction == eCommsAction.PING_CONTROL_OBJECTIVE_DEFEND )
-			{
-				entity owner = subjectEnt.GetOwner()
-				if ( IsValid( owner ) && IsPlayerWaypoint( owner ) && owner.GetWaypointType() == eWaypoint.CONTROL_OBJECTIVE )
-				{
-					int objectiveID = owner.GetWaypointInt( INT_CONTROL_WAYPOINT_TYPE_INDEX )
-					return [ Control_GetObjectiveNameFromObjectiveID_Localized( objectiveID ) ]
-				}
-			}
-		}
-
+	if ( CaptureObjectivePing_GetIsCaptureObjectivePingCommsAction( commsAction, subjectEnt ) )
+	{
+		int objectiveID = CaptureObjectivePing_GetObjectiveIndexFromWaypoint( subjectEnt.GetOwner() )
+		return [ CaptureObjectivePing_GetObjectiveNameFromObjectiveID_Localized( objectiveID ) ]
+	}
 
 	return ["<subjectUnk:[" + subjectEnt + "]>"]
 }
@@ -589,6 +580,16 @@ vector function GetSubjectColorForCommsAction( entity subjectEnt, string itemRef
 			}
 			break
 
+
+		case "prop_script":
+			if ( IsEnemyTeam( player.GetTeam(), subjectEnt.GetTeam() ) )
+			{
+				return OBITUARY_COLOR_ENEMY
+			}
+			else if ( IsFriendlyTeam( player.GetTeam(), subjectEnt.GetTeam() ) )
+			{
+				return OBITUARY_COLOR_FRIENDLY
+			}
 
 	}
 
@@ -970,6 +971,7 @@ void function HandleBroadcastCommsAction( entity player, int commsAction, entity
 	}
 
 
+		
 		bool isControlObjectivePing = false
 		if ( Control_IsModeEnabled() )
 		{
@@ -996,7 +998,7 @@ void function HandleBroadcastCommsAction( entity player, int commsAction, entity
 					
 					if ( GetCommsWaypointSoundsEnabled() && shouldUseTeamCommsBehaviour || shouldUseAllianceCommsBehaviour )
 					{
-						int pingType = commsAction == eCommsAction.PING_CONTROL_OBJECTIVE_ATTACK ? ePingType.CONTROL_OBJECTIVE_ATTACK : ePingType.CONTROL_OBJECTIVE_DEFEND
+						int pingType = commsAction == eCommsAction.PING_CONTROL_OBJECTIVE_ATTACK ? ePingType.PING_CAPTURE_OBJECTIVE_ATTACK : ePingType.PING_CAPTURE_OBJECTIVE_DEFEND
 						string pingSound = Ping_GetSoundForLocationPing( subjectEnt.GetOwner(), pingType, ( player == GetLocalViewPlayer() ), true )
 						if ( pingSound != "" )
 							EmitSoundOnEntity( subjectEnt.GetOwner(), pingSound )
@@ -1096,6 +1098,7 @@ void function HandleBroadcastCommsAction( entity player, int commsAction, entity
 		string subjectTier         = GetSubjectLootTierForCommsAction( subjectEnt, itemRef )
 
 
+			
 			if ( Control_IsModeEnabled() )
 			{
 				
@@ -1104,7 +1107,7 @@ void function HandleBroadcastCommsAction( entity player, int commsAction, entity
 					subjectColor = GetSubjectColorForCommsAction( subjectEnt.GetOwner(), itemRef, player )
 					secondarySubjectColor = GetSecondarySubjectColorForCommsAction( subjectEnt.GetOwner(), player )
 
-					int pingCount = Control_GetPingCountForObjectiveForAlliance( subjectEnt.GetOwner(), AllianceProximity_GetAllianceFromTeam( subjectEnt.GetTeam() ) )
+					int pingCount = CaptureObjectivePing_GetPingCountForObjectiveForTeamOrAlliance( subjectEnt.GetOwner(), AllianceProximity_GetAllianceFromTeam( subjectEnt.GetTeam() ) )
 					pingCount-- 
 					if ( pingCount > 0 )
 					{
@@ -1117,6 +1120,25 @@ void function HandleBroadcastCommsAction( entity player, int commsAction, entity
 				}
 			}
 
+
+
+			
+			if ( TreasureHunt_IsModeEnabled() )
+			{
+				
+				if ( commsAction == eCommsAction.PING_TREASUREHUNT_OBJ_ATTACK && IsValid( subjectEnt ) && IsValid( subjectEnt.GetOwner() ) )
+				{
+					subjectColor = GetSubjectColorForCommsAction( subjectEnt.GetOwner(), itemRef, player )
+					secondarySubjectColor = GetSecondarySubjectColorForCommsAction( subjectEnt.GetOwner(), player )
+
+					int pingCount = CaptureObjectivePing_GetPingCountForObjectiveForTeamOrAlliance( subjectEnt.GetOwner(), subjectEnt.GetTeam() )
+					pingCount-- 
+					if ( pingCount > 0 )
+						subjectTier = "+" + pingCount
+					else
+						subjectTier = ""
+				}
+			}
 
 
 		if ( commsAction == eCommsAction.PING_VANTAGE_ENEMY_SPOTTED_1 ||
@@ -1190,6 +1212,7 @@ void function HandleBroadcastCommsAction( entity player, int commsAction, entity
 					locText = Localize( chatText, playerName, Localize( subjectName ), subjectTier, countText, elapseTime)
 
 
+				
 				if ( Control_IsModeEnabled() )
 				{
 					if ( isControlObjectivePing )
@@ -1683,6 +1706,7 @@ void function AddCallback_OnQuickchatEvent( int index, void functionref(entity, 
 	Assert( !file.onQuickchatCallbacks[ index ].contains( func ) )
 	file.onQuickchatCallbacks[ index ].append( func )
 }
+
 
 
 

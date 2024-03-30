@@ -1671,6 +1671,8 @@ void function SupportBin_OnPropScriptCreated( entity ent )
 		return
 	if( ent.GetSkin() != ent.GetSkinIndexByName( SUPPORT_LOOT_BIN_SKIN_NAME ) )
 		return
+	if( GradeFlagsHas( ent, eGradeFlags.IS_OPEN_SECRET ) )
+		return
 
 	Perks_AddMinimapEntityForPerk( ePerkIndex.EXTRA_BIN_LOOT, ent )
 	AddCallback_CanOpenLootBin( ent, SupportBin_CanUseSupportBin )

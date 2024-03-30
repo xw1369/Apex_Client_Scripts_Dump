@@ -28,11 +28,6 @@ const float TRACKING_VISION_DRAW_DIST_FOOTPRINTS = 4098.0
 const float TRACKING_VISION_DRAW_DIST_FOOTPRINTS_SQR = TRACKING_VISION_DRAW_DIST_FOOTPRINTS * TRACKING_VISION_DRAW_DIST_FOOTPRINTS
 const float TRACKING_VISION_SNIPER_RANGE = 3000.0
 
-
-
-const int SHADOW_FORM_BLEEDING_THRESHOLD = 75
-
-
 enum eTrackingPOIDrawSize
 {
 	NORMAL,
@@ -172,14 +167,10 @@ void function TrackingVision_OnPlayerClassChanged( entity player )
 	if ( playerIsLocalViewPlayer )
 		ResetWaypointVisibilities()
 
-
-		if ( PlayerHasPassive( localViewPlayer, ePassives.PAS_TRACKING_VISION ) || PlayerHasPassive( localViewPlayer, ePassives.PAS_REVENANT_REWORK ) )
-
-
-
-		{
-			return
-		}
+	if ( PlayerHasPassive( localViewPlayer, ePassives.PAS_TRACKING_VISION ) )
+	{
+		return
+	}
 
 
 
@@ -201,13 +192,10 @@ void function TrackingVisionUpdatePlayerConnected( entity player )
 	entity localViewPlayer = GetLocalViewPlayer()
 
 
-		if ( !PlayerHasPassive( localViewPlayer, ePassives.PAS_TRACKING_VISION ) && !PlayerHasPassive( localViewPlayer, ePassives.PAS_REVENANT_REWORK ) )
-
-
-
-		{
-			return
-		}
+	if ( !PlayerHasPassive( localViewPlayer, ePassives.PAS_TRACKING_VISION ) )
+	{
+		return
+	}
 
 	
 
@@ -292,13 +280,6 @@ void function TrackingVisionLoopFX_Update( entity player )
 	{
 		entity viewPlayer = GetLocalViewPlayer()
 		float statusSeverity
-
-			if( PlayerHasPassive( player, ePassives.PAS_REVENANT_REWORK ) )
-			{
-				statusSeverity = StatusEffect_GetSeverity( viewPlayer, eStatusEffect.shadow_form )
-			}
-			else
-
 		if ( PlayerHasPassive( player, ePassives.PAS_TRACKING_VISION ) )
 		{
 			statusSeverity = StatusEffect_GetSeverity( viewPlayer, eStatusEffect.hunt_mode_visuals )
@@ -310,13 +291,6 @@ void function TrackingVisionLoopFX_Update( entity player )
 			int handle = footstepData.fxHandle
 
 			bool shouldHaveEffect = IsAlive( enemy ) && !IsPlayerInPlane( enemy ) && !enemy.Player_IsSkydiving()
-
-				if( PlayerHasPassive( player, ePassives.PAS_REVENANT_REWORK ) )
-				{
-					shouldHaveEffect = IsAlive( enemy ) && !IsPlayerInPlane( enemy ) && !enemy.Player_IsSkydiving() && ( ( enemy.GetShieldHealth() + enemy.GetHealth() ) <= SHADOW_FORM_BLEEDING_THRESHOLD )
-				}
-				else
-
 			if ( PlayerHasPassive( player, ePassives.PAS_TRACKING_VISION ) )
 			{
 				shouldHaveEffect = IsAlive( enemy ) && !IsPlayerInPlane( enemy ) && !enemy.Player_IsSkydiving()
@@ -1123,7 +1097,6 @@ void function TrackingVisionCreatePOIBlueprint( entity waypoint, int poiEventID,
 			waypoint.WaypointSetCheckDist( TRACKING_VISION_DRAW_DIST_MAX )
 			break
 
-
 		case eTrackingVisionNetworkedPOITypes.PLAYER_ABILITY_REVENANT_POUNCE_START:
 		case eTrackingVisionNetworkedPOITypes.PLAYER_ABILITY_REVENANT_POUNCE_LAND:
 		case eTrackingVisionNetworkedPOITypes.PLAYER_ABILITY_REVENANT_FORGED_SHADOWS:
@@ -1887,7 +1860,6 @@ void function TrackingVision_GetDrawInfo( entity waypoint, TrackingVisionDrawInf
 			break
 
 
-
 		case eTrackingVisionNetworkedPOITypes.PLAYER_ABILITY_CONDUIT_TACTICAL:
 			drawInfo.drawSize = eTrackingPOIDrawSize.NORMAL
 			drawInfo.icon = $"rui/hud/poi_icons/poi_conduit_tactical"
@@ -2012,11 +1984,9 @@ int function GetPingTypeFromPOIType( entity waypoint )
 
 		case eTrackingVisionNetworkedPOITypes.PLAYER_ABILITY_REDEPLOY_BALLOON:
 
-
 		case eTrackingVisionNetworkedPOITypes.PLAYER_ABILITY_REVENANT_POUNCE_START:
 		case eTrackingVisionNetworkedPOITypes.PLAYER_ABILITY_REVENANT_POUNCE_LAND:
 		case eTrackingVisionNetworkedPOITypes.PLAYER_ABILITY_REVENANT_FORGED_SHADOWS:
-
 
 
 

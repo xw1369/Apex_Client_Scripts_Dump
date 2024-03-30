@@ -1,12 +1,5 @@
 globalize_all_functions
 
-struct
-{
-	var lastAnnouncementRui
-
-	bool announcementsEnabled = true
-} file
-
 global const int ANNOUNCEMENT_STYLE_BIG = 0
 global const int ANNOUNCEMENT_STYLE_QUICK = 1
 global const int ANNOUNCEMENT_STYLE_PLAYER_LEVEL = 2
@@ -35,6 +28,10 @@ global const int ANNOUNCEMENT_STYLE_TDM_ROUND_WON = 15
 
 
 	global const int ANNOUNCEMENT_STYLE_HUNT = 21
+
+
+
+
 
 
 global const int ANNOUNCEMENT_POSITION_ZONE_NONE = 0
@@ -90,10 +87,24 @@ global struct AnnouncementData
 	LevelUpData & levelUpData
 }
 
+struct
+{
+	var lastAnnouncementRui = null
+
+	bool announcementsEnabled = true
+
+
+
+
+} file
+
 void function CLAnnouncement_Init()
 {
 	RegisterSignal( "AnnoucementPurge" )
 	RegisterSignal( "UIToClient_Notification" )
+
+	
+	ClearAnnouncements()
 
 	
 	
@@ -530,7 +541,7 @@ void function AnnouncementMessage_DisplayOnHud( AnnouncementData announcement )
 		case ANNOUNCEMENT_STYLE_STRIKE:
 			rui = RuiCreate( $"ui/announcement_strike.rpak", clGlobal.topoFullScreen, RUI_DRAW_POSTEFFECTS, RUI_SORT_SCREENFADE + 1 )
 
-			RuiSetInt( rui, "stikeTotal", Strikeout_GetSquadStrikes() )
+			RuiSetInt( rui, "stikeTotal", Strikeout_GetLocalClientPlayerSquadStrikes() )
 
 			EmitSoundOnEntity( player, announcement.soundAlias )
 			break
@@ -541,6 +552,7 @@ void function AnnouncementMessage_DisplayOnHud( AnnouncementData announcement )
 			customAnnouncement = true
 			rui = RuiCreate( $"ui/hud_evo_station_activated.rpak", clGlobal.topoFullScreen, RUI_DRAW_POSTEFFECTS, FULLMAP_Z_BASE - 1 )
 			RuiSetFloat( rui, "startTime", Time() )
+			RuiSetFloat( rui, "duration", announcement.duration )
 			EmitSoundOnEntity( player, announcement.soundAlias )
 			break
 
@@ -548,6 +560,7 @@ void function AnnouncementMessage_DisplayOnHud( AnnouncementData announcement )
 			customAnnouncement = true
 			rui = RuiCreate( $"ui/level_up_announcement.rpak", clGlobal.topoFullScreen, RUI_DRAW_POSTEFFECTS, FULLMAP_Z_BASE - 1 )
 			RuiSetFloat( rui, "startTime", Time() )
+			RuiSetFloat( rui, "duration", announcement.duration )
 			RuiSetString( rui, "levelUpTxt", optionalTextArgs[0] )
 
 			int currentLevel = UpgradeCore_GetPlayerLevel( GetLocalViewPlayer() )
@@ -557,6 +570,7 @@ void function AnnouncementMessage_DisplayOnHud( AnnouncementData announcement )
 			RuiSetFloat3( rui, "tierColor", SrgbToLinear( tierColor / 255.0 ) )
 			RuiSetFloat3( rui, "nextTierColor", SrgbToLinear( nextTierColor / 255.0 ) )
 			EmitSoundOnEntity( player, announcement.soundAlias )
+			break
 
 
 		case ANNOUNCEMENT_STYLE_SWEEP:
@@ -681,6 +695,7 @@ void function AnnouncementMessage_DisplayOnHud( AnnouncementData announcement )
 			if (IsValentinesS15())
 				rui = RuiCreate( $"ui/kill_leader_datenight_noti.rpak", clGlobal.topoFullScreen, RUI_DRAW_POSTEFFECTS, 0 )
 			RuiSetFloat( rui, "startTime", Time() )
+			RuiSetFloat( rui, "duration", announcement.duration )
 			RuiSetString( rui, "messageText", optionalTextArgs[0] )
 			RuiSetString( rui, "messageSubText", optionalTextArgs[1] )
 			EmitSoundOnEntity( player, announcement.soundAlias )
@@ -690,6 +705,7 @@ void function AnnouncementMessage_DisplayOnHud( AnnouncementData announcement )
 			customAnnouncement = true
 			rui = RuiCreate( $"ui/rating_leader_noti.rpak", clGlobal.topoFullScreen, RUI_DRAW_POSTEFFECTS, FULLMAP_Z_BASE - 1 )
 			RuiSetFloat( rui, "startTime", Time() )
+			RuiSetFloat( rui, "duration", announcement.duration )
 			RuiSetString( rui, "messageText", optionalTextArgs[0] )
 			RuiSetString( rui, "messageSubText", optionalTextArgs[1] )
 			EmitSoundOnEntity( player, announcement.soundAlias )
@@ -728,6 +744,7 @@ void function AnnouncementMessage_DisplayOnHud( AnnouncementData announcement )
 			customAnnouncement = true
 			rui = RuiCreate( $"ui/arenas_round_won.rpak", clGlobal.topoFullScreen, RUI_DRAW_POSTEFFECTS, 0 )
 			RuiSetFloat( rui, "startTime", Time() )
+			RuiSetFloat( rui, "duration", announcement.duration )
 			RuiSetString( rui, "messageText", Localize( announcement.messageText ) )
 			RuiSetString( rui, "subText", Localize( announcement.subText ) )
 
@@ -738,10 +755,19 @@ void function AnnouncementMessage_DisplayOnHud( AnnouncementData announcement )
 			rui = RuiCreate( $"ui/tdm_roundwon_noti.rpak", clGlobal.topoFullScreen, RUI_DRAW_POSTEFFECTS, 0 )
 
 			RuiSetFloat( rui, "startTime", Time() )
+			RuiSetFloat( rui, "duration", announcement.duration )
 			RuiSetString( rui, "messageText", Localize( announcement.messageText ) )
 
 			EmitSoundOnEntity( player, announcement.soundAlias )
 			break
+
+
+
+
+
+
+
+
 
 		default:
 			Assert( false, "Unknown announcement style: " + announcement.announcementStyle )
@@ -758,6 +784,9 @@ void function AnnouncementMessage_DisplayOnHud( AnnouncementData announcement )
 		RuiSetImage( rui, "iconImage", announcement.icon )
 	}
 
+	if ( UpgradeSelectionMenu_IsActive() )
+		RuiSetVisible(rui, false)
+
 	file.lastAnnouncementRui = rui
 
 	wait announcement.duration
@@ -771,7 +800,8 @@ void function ClearAnnouncements()
 	file.lastAnnouncementRui = null
 	clGlobal.isAnnouncementActive = false
 	ClearAnnouncementIsActive()
-	clGlobal.levelEnt.Signal( "AnnoucementPurge" )
+	if ( IsValid( clGlobal.levelEnt ) )
+		clGlobal.levelEnt.Signal( "AnnoucementPurge" )
 }
 
 int function Announcement_GetActivePositionZone()
@@ -799,6 +829,9 @@ int function Announcement_GetActivePositionZone()
 		case ANNOUNCEMENT_STYLE_RATING_LEADER:
 		case ANNOUNCEMENT_STYLE_GOT_TREASURE_PACK:
 		case ANNOUNCEMENT_STYLE_GENERIC_WARNING:
+
+
+
 			return ANNOUNCEMENT_POSITION_ZONE_TOP_CENTER
 			break
 
@@ -820,6 +853,13 @@ void function Announcements_SetEnabled( bool state )
 	file.announcementsEnabled = state
 }
 
+void function Announcements_SetVisible( bool state )
+{
+	if ( file.lastAnnouncementRui == null || clGlobal.isAnnouncementActive == false )
+		return
+
+	RuiSetVisible( file.lastAnnouncementRui, state )
+}
 
 void function UIToClient_Notification( string titleText, string messageText )
 {
@@ -883,3 +923,10 @@ void function ServertoClient_LTM_AnnouncementSplash()
 	AnnouncementFromClass( player, announcement )
 
 }
+
+
+
+
+
+
+

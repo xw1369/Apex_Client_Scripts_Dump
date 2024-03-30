@@ -106,19 +106,17 @@ WeaponData
 			"melee_lunge_no_target_range"					"0"
 		}
 
-		                       
-	        shadow_form_hands
-	        {
-	            "viewmodel"   							    "mdl/Weapons/empty_handed/ptpov_shadowhand.rmdl"
-	        }
-            revenant_shadow_form_melee
-            {
-                "melee_angle"									"*1.4"
-                "melee_lunge_no_target_range"					"*1.4"
-                "melee_lunge_target_angle"						"*1.4"
-                "melee_lunge_target_range"						"*1.4"
-                "melee_range"									"*1.4"
-            }
-               
+        shadow_form_hands
+        {
+            "viewmodel"   							    "mdl/Weapons/empty_handed/ptpov_shadowhand.rmdl"
+        }
+        revenant_shadow_form_melee
+        {
+            "melee_angle"									"*1.4"
+            "melee_lunge_no_target_range"					"*1.4"
+            "melee_lunge_target_angle"						"*1.4"
+            "melee_lunge_target_range"						"*1.4"
+            "melee_range"									"*1.4"
+        }
 	}
 }

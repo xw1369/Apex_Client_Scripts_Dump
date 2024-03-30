@@ -20,6 +20,8 @@ global function ItemFlavor_GetGRXIndex
 global function ItemFlavor_GetGRXAlias
 global function ItemFlavor_GetGRXOwnershipTarget
 global function ItemFlavor_GetGRXOwnershipTargettedBy
+global function ItemFlavor_GetGRXMultipleOwnershipRequirementsList
+global function ItemFlavor_GetGRXMultipleOwnershipTarget
 global function GRXCurrency_RegisterNewCurrencyAssetInEventSlot
 global function GRXCurrency_GetCurrencyIndex
 global function GRXCurrency_GetPurchaseSound
@@ -49,6 +51,21 @@ global function GRXPack_GetStickerCompletionRewardPack
 global function DEV_GetItemFlavorByGRXRef
 global function DEV_IsValidGRXRef
 #endif
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -181,6 +198,12 @@ global function GRXPack_GetTickSoundAlias
 
 
 
+
+
+
+
+
+
 global function GRX_GetMostRecentPackOpeningResults
 global function GRXPack_GetCustomColor
 global function GRXPack_GetCustomCountTextCol
@@ -238,6 +261,7 @@ global function ClientCodeCallback_GRXPackOpened
 
 
 
+
 global const int S20_ANNIVERSARY_GIFTING_CAMPAIGN_ITEM_COUNT = 12
 global const int S20_ANNIVERSARY_GIFTING_CAMPAIGN_GOAL = 6
 
@@ -274,7 +298,17 @@ global enum eItemFlavorGRXMode
 	CONSUMABLE = GRX_ITEMFLAVORMODE_CONSUMABLE,
 	CURRENCY = GRX_ITEMFLAVORMODE_CURRENCY,
 	OWNERSHIP_TARGET = -1337,
+	MULTIPLE_OWNERSHIP_TARGET = -9001,
 }
+
+
+
+
+
+
+
+
+
 
 
 
@@ -665,6 +699,14 @@ struct PlayerGRXScriptState
 
 
 
+
+
+
+
+
+
+
+
 struct FileStruct_LifetimeLevel
 {
 	array<ItemFlavor>      	packFlavorList
@@ -673,6 +715,7 @@ struct FileStruct_LifetimeLevel
 	table<string, int>     	grxRefToGRXIndexMap
 
 	array<ItemFlavor> stickerPacksWithRewards
+	table< int, int > multiOwnershipUnlockMap
 
 #if DEV
 		table<string, ItemFlavor> grxRefItemFlavorMap
@@ -686,6 +729,9 @@ struct FileStruct_LifetimeLevel
 		PlayerGRXScriptState localGRXState
 
 		ItemFlavorBag ornull mostRecentPackOpeningResultsOrNull = null
+
+
+
 
 
 
@@ -751,6 +797,10 @@ void function ShGRX_LevelInit()
 
 
 	fileLevel = newFileLevel
+
+
+
+
 
 	AddCallback_RegisterRootItemFlavors( void function() {
 		Assert( GRX_CURRENCY_COUNT == 5 )
@@ -894,6 +944,25 @@ void function ShGRX_RegisterItemFlavor( ItemFlavor flavor )
 			targettedBy.append( flavor.guid )
 		}
 	}
+	else if ( flavor.grxMode == eItemFlavorGRXMode.MULTIPLE_OWNERSHIP_TARGET )
+	{
+		array< ItemFlavor > ownershipRequirementsList = ItemFlavor_GetGRXMultipleOwnershipRequirementsList( flavor )
+		if ( ownershipRequirementsList.len() == 0 )
+		{
+			Assert( false, "Item had GRX mode MULTIPLE_OWNERSHIP_TARGET but list was empty: " + string( ItemFlavor_GetAsset( flavor ) ) )
+			return
+		}
+
+		foreach ( reqFlav in ownershipRequirementsList )
+		{
+#if DEV
+				bool duplicateGRXRefFoundInMultiple = reqFlav.guid in fileLevel.multiOwnershipUnlockMap
+				Assert( !duplicateGRXRefFoundInMultiple, "Duplicate GRX ref in multiple unlock mapping found. Already used by " + string( ItemFlavor_GetAsset( GetItemFlavorByGUID( fileLevel.multiOwnershipUnlockMap[ reqFlav.guid ] ) ) ) )
+#endif
+
+			fileLevel.multiOwnershipUnlockMap[ reqFlav.guid ] <- flavor.guid
+		}
+	}
 
 
 
@@ -1011,10 +1080,42 @@ ItemFlavor ornull function ItemFlavor_GetGRXOwnershipTarget( ItemFlavor flavor )
 	asset ownershipTargetFlavAsset = GetGlobalSettingsAsset( ItemFlavor_GetAsset( flavor ), "ownershipTarget" )
 	if ( IsValidItemFlavorSettingsAsset( ownershipTargetFlavAsset ) )
 		return GetItemFlavorByAsset( ownershipTargetFlavAsset )
-
 	return null
 }
 
+
+
+array< ItemFlavor > function ItemFlavor_GetGRXMultipleOwnershipRequirementsList( ItemFlavor flavor )
+{
+	Assert( IsItemFlavorStructValid( flavor.guid, eValidation.ASSERT ) )
+	Assert( flavor.grxMode == eItemFlavorGRXMode.MULTIPLE_OWNERSHIP_TARGET, "attempted to check GRX multiple ownership mode for an item that does not have that mode set: " + string( ItemFlavor_GetAsset( flavor ) ) )
+
+	array< ItemFlavor > ownershipList = []
+	foreach ( int index, var ownershipBlock in IterateSettingsAssetArray( ItemFlavor_GetAsset( flavor ), "multipleOwnershipTargets" ) )
+	{
+		asset ownershipAsset = GetSettingsBlockAsset( ownershipBlock, "multipleOwnershipTarget" )
+		Assert( IsValidItemFlavorSettingsAsset( ownershipAsset ), format( "Bad ownership target in GRX configuration of %s: %s", string( ItemFlavor_GetAsset( flavor ) ), string( ownershipAsset ) ) )
+		ownershipList.append( GetItemFlavorByAsset( ownershipAsset ) )
+	}
+
+	Assert( ownershipList.len() > 0, "Mode was set to MULTIPLE_OWNERSHIP_TARGET, but no valid targets were found: " + string( ItemFlavor_GetAsset( flavor ) ) )
+	return ownershipList
+}
+
+
+
+ItemFlavor ornull function ItemFlavor_GetGRXMultipleOwnershipTarget( ItemFlavor flavor )
+{
+	Assert( IsItemFlavorStructValid( flavor.guid, eValidation.ASSERT ) )
+
+	if ( flavor.guid in fileLevel.multiOwnershipUnlockMap )
+	{
+		ItemFlavor target = GetItemFlavorByGUID( fileLevel.multiOwnershipUnlockMap[ flavor.guid ] )
+		return target
+	}
+
+	return null
+}
 
 
 
@@ -1232,6 +1333,26 @@ bool function IsItemOwnedByPlayerInternal( ItemFlavor flav, entity player = null
 		return false
 	}
 
+	if ( grxMode == eItemFlavorGRXMode.MULTIPLE_OWNERSHIP_TARGET )
+	{
+		array< ItemFlavor > ownershipTargetList = ItemFlavor_GetGRXMultipleOwnershipRequirementsList( flav )
+		if ( ownershipTargetList.len() == 0 )
+		{
+			Warning( "Item flavor %s is set to use GRX ownership of a set of items, but the set was empty: %s", string( ItemFlavor_GetAsset( flav ) ) )
+			return false
+		}
+
+		foreach ( ItemFlavor ownershipFlav in ownershipTargetList )
+		{
+			if ( !IsItemOwnedByPlayerInternal( ownershipFlav, player ) )
+			{
+				return false
+			}
+		}
+
+		return true
+	}
+
 	
 	
 	
@@ -1316,6 +1437,73 @@ bool function IsItemOwnedByPlayerInternal( ItemFlavor flav, entity player = null
 
 	return has
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -2890,6 +3078,29 @@ bool function GRXPack_PlayerOwnsAllItemsInPack( entity player, ItemFlavor pack )
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 #if DEV
 ItemFlavorBag ornull DEV_GRX_ForcePackResults_resultsOrNull
 void function DEV_GRX_ForcePackResults( int packError, ... )
@@ -3328,6 +3539,16 @@ void function GRXDbg( entity player, string label, ... )
 
 
 
+
+
+
+
+
+
+
+
+
+
 PlayerGRXScriptState function GetPlayerGRXScriptState( entity player )
 {
 
@@ -3344,6 +3565,22 @@ PlayerGRXScriptState function GetPlayerGRXScriptState( entity player )
 		return fileLevel.localGRXState
 
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -4666,6 +4903,12 @@ void function UIToClient_GRXInventoryCleanStateChange( bool isClean, int marketp
 
 
 
+
+
+
+
+
+
 #if DEV
 
 
@@ -4683,6 +4926,202 @@ void function UIToClient_GRXInventoryCleanStateChange( bool isClean, int marketp
 
 
 #endif
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -6426,6 +6865,24 @@ bool function GRX_IsItemCoveredByOfferRestrictions( ItemFlavor flav )
 
 
 #endif
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

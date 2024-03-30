@@ -302,6 +302,7 @@ void function UpdateScoreboardVisibility()
 	{
 		s_latestShowWasForTPPrompt = wantsTPPrompt
 		RunUIScript( "TryCloseSurvivalInventory", null )
+		UpgradeSelectionMenu_TryClose()
 		RunUIScript( "SetShowingMap", true )
 
 		foreach ( func in file.scoreboardShowCallbacks )

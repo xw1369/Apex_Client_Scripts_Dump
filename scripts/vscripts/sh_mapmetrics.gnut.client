@@ -386,9 +386,6 @@ void function MapMetrics_RegisterNetworking()
 
 
 
-
-
-
 void function MapMetrics_ClientTakeScreenshot( entity player, vector position, vector angles )
 {
 	string screenshotFileName = CreateScreenShotFileName( position, angles )
@@ -512,7 +509,7 @@ void function MapMetrics_ClientEndMapMetrics()
 			"}\n"
 	}
 
-	WriteMetricsDataToFile( file.metricsFileName, file.metricsDataBuffer, true )
+	WriteMetricsDataToFile( file.metricsFileName, "map_metrics", file.metricsDataBuffer, true )
 
 	file.metricsDataBuffer = ""
 	file.metricsFileName = ""

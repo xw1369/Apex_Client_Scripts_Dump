@@ -236,6 +236,9 @@ struct
 
 
 
+
+
+
 }
 file
 
@@ -638,6 +641,84 @@ void function AddBeaconEntToRespawnBeaconsArray( entity beacon )
 	if ( IsValid( beacon ) )
 		file.allStations.append( beacon )
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -2241,6 +2322,77 @@ void function ServerCallback_RespawnDNAHint()
 
 
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

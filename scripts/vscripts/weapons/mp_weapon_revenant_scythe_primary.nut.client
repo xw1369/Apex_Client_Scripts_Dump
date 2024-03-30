@@ -12,7 +12,6 @@ const asset SCY_FX_BLADE_PC_3P = $"P_scy_blade_pc1_3P"
 const asset SCY_FX_BLADE_PC_2_3P = $"P_scy_blade_pc2_3P"
 const asset SCY_FX_BASE_3P = $"P_scy_blade_base_3P"
 
-
 const asset SCY_RT01_FX_BLADE_PC_1_1P = $"P_scy_rt01_blade_pc1_1p"
 const asset SCY_RT01_FX_BLADE_PC_2_1P = $"P_scy_rt01_blade_pc2_1p"
 const asset SCY_RT01_FX_BLADE_PC_3_1P = $"P_scy_rt01_blade_pc3_1p"
@@ -31,7 +30,6 @@ const table<string, table< int, int > > HEIRLOOM_SKIN_REMAP =
 	},
 }
 
-
 void function MpWeaponRevenantScythePrimary_Init()
 {
 	PrecacheParticleSystem( SCY_FX_BLADE_PC )
@@ -42,7 +40,6 @@ void function MpWeaponRevenantScythePrimary_Init()
 	PrecacheParticleSystem( SCY_FX_BLADE_PC_3P )
 	PrecacheParticleSystem( SCY_FX_BLADE_PC_2_3P )
 	PrecacheParticleSystem( SCY_FX_BASE_3P )
-
 
 	PrecacheParticleSystem( SCY_RT01_FX_BLADE_PC_1_1P )
 	PrecacheParticleSystem( SCY_RT01_FX_BLADE_PC_2_1P )
@@ -57,12 +54,7 @@ void function MpWeaponRevenantScythePrimary_Init()
 
 
 
-
 }
-
-
-
-
 
 
 
@@ -87,7 +79,6 @@ void function OnWeaponActivate_weapon_revenant_scythe_primary( entity weapon )
 		weapon.PlayWeaponEffect( SCY_FX_BLADE_PC, SCY_FX_BLADE_PC_3P, "blade_piece_fx_08", true )
 		weapon.PlayWeaponEffect( SCY_FX_BASE, SCY_FX_BASE_3P, "blade_base_fx", true )
 	}
-
 	else if ( meleeSkinName == "scythe_rt01" )
 	{
 		weapon.PlayWeaponEffect( SCY_RT01_FX_BLADE_PC_3_1P, SCY_RT01_FX_BLADE_PC_2_3P, "blade_piece_fx_01", true )
@@ -100,7 +91,6 @@ void function OnWeaponActivate_weapon_revenant_scythe_primary( entity weapon )
 		weapon.PlayWeaponEffect( SCY_RT01_FX_BLADE_PC_1_1P, SCY_RT01_FX_BLADE_PC_1_3P, "blade_piece_fx_08", true )
 		weapon.PlayWeaponEffect( SCY_RT01_FX_BASE_1P, SCY_RT01_FX_BASE_3P, "blade_base_fx", true )
 	}
-
 }
 
 void function OnWeaponDeactivate_weapon_revenant_scythe_primary( entity weapon )
@@ -114,7 +104,6 @@ void function OnWeaponDeactivate_weapon_revenant_scythe_primary( entity weapon )
 		weapon.StopWeaponEffect( SCY_FX_BLADE_PC_3, SCY_FX_BLADE_PC_2_3P )
 		weapon.StopWeaponEffect( SCY_FX_BASE, SCY_FX_BASE_3P )
 	}
-
 	else if ( meleeSkinName == "scythe_rt01" )
 	 {
 		weapon.StopWeaponEffect( SCY_RT01_FX_BLADE_PC_1_1P, SCY_RT01_FX_BLADE_PC_1_3P )
@@ -122,5 +111,4 @@ void function OnWeaponDeactivate_weapon_revenant_scythe_primary( entity weapon )
 		weapon.StopWeaponEffect( SCY_RT01_FX_BLADE_PC_3_1P, SCY_RT01_FX_BLADE_PC_2_3P )
 		weapon.StopWeaponEffect( SCY_RT01_FX_BASE_1P, SCY_RT01_FX_BASE_3P )
 	 }
-
 }

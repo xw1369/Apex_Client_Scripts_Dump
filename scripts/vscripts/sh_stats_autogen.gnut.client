@@ -1,0 +1,193 @@
+global function AutogenStats_Init
+global function StatsRegister_Autogen
+global function AutogenChallenge_GetAutogenSlotFromGUID
+global function AutogenChallenge_GetChallengeFlavAtSlot
+
+
+global enum eAutogenStatSlots
+{
+	SLOT_00,
+	SLOT_01,
+	SLOT_02,
+	SLOT_03,
+	SLOT_04,
+	SLOT_05,
+	SLOT_06,
+	SLOT_07,
+	SLOT_08,
+	SLOT_09,
+
+	
+	LIMIT,
+}
+
+struct FileLevel_Lifetime
+{
+	array< ItemFlavor > eventsWithPotentialAutogenChallenges
+	array< ItemFlavor > autogenChallenges
+	table<int, int> autogenGUIDToSlotMap
+}
+FileLevel_Lifetime& file
+
+void function AutogenStats_Init()
+{
+	FileLevel_Lifetime fileStruct
+	file = fileStruct
+
+	AddCallback_OnItemFlavorRegistered( eItemType.calevent_buffet, OnItemFlavorRegistered_AddCalEventForAutogenCheck )
+	AddCallback_OnItemFlavorRegistered( eItemType.calevent_event_shop, OnItemFlavorRegistered_AddCalEventForAutogenCheck )
+	AddCallback_OnItemFlavorRegistered( eItemType.calevent_themedshop, OnItemFlavorRegistered_AddCalEventForAutogenCheck )
+	AddCallback_OnItemFlavorRegistered( eItemType.calevent_collection, OnItemFlavorRegistered_AddCalEventForAutogenCheck )
+
+	AddCallbackOrMaybeCallNow_OnAllItemFlavorsRegistered( OnAllItemFlavorsRegistered_SetupAutogenChallenges )
+
+
+
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+void function OnItemFlavorRegistered_AddCalEventForAutogenCheck( ItemFlavor event )
+{
+	file.eventsWithPotentialAutogenChallenges.append( event )
+}
+
+void function OnAllItemFlavorsRegistered_SetupAutogenChallenges()
+{
+	foreach ( ItemFlavor event in file.eventsWithPotentialAutogenChallenges )
+	{
+		if ( !CalEvent_HasStarted( event, GetUnixTimestamp() ) || CalEvent_HasFinished( event, GetUnixTimestamp() ) )
+		{
+			continue
+		}
+
+		if ( !CalEvent_IsActive( event, GetUnixTimestamp() ) )
+		{
+			continue
+		}
+
+		if ( ItemFlavor_GetType( event ) == eItemType.calevent_buffet )
+		{
+			BuffetEventModesAndChallengesData data = BuffetEvent_GetModesAndChallengesData( event )
+			AddAutogenChallengesToKnownList( data.dailyChallenges )
+			AddAutogenChallengesToKnownList( data.hiddenChallenges )
+
+			ItemFlavor ornull mainFlav = data.mainChallengeFlav
+			if ( mainFlav != null )
+			{
+				expect ItemFlavor( mainFlav )
+				AddAutogenChallengesToKnownList( [ mainFlav ] )
+			}
+		}
+		else if ( ItemFlavor_GetType( event ) == eItemType.calevent_event_shop )
+		{
+			AddAutogenChallengesToKnownList( EventShop_GetCurrentActiveEventShopDailyChallenges() )
+			AddAutogenChallengesToKnownList( EventShop_GetCurrentActiveEventShopEventChallenges() )
+		}
+		else if ( ItemFlavor_GetType( event ) == eItemType.calevent_themedshop )
+		{
+			AddAutogenChallengesToKnownList( ThemedShopEvent_GetChallenges( event ) )
+		}
+		else if ( ItemFlavor_GetType( event ) == eItemType.calevent_collection )
+		{
+			AddAutogenChallengesToKnownList( CollectionEvent_GetChallenges( event ) )
+		}
+		else
+		{
+			Assert( false, "unhandled calevent type for autogen stats: " + string( ItemFlavor_GetAsset( event ) ) )
+		}
+	}
+
+	Assert( file.autogenChallenges.len() <= eAutogenStatSlots.LIMIT, "too many autogen challenges: " + file.autogenChallenges.len() )
+
+	printt( "found autogen challenges array of length: " + file.autogenChallenges.len() )
+
+	array< int > usedSlots
+	foreach ( ItemFlavor challenge in file.autogenChallenges )
+	{
+		if ( IsGUIDInAutogenMap( ItemFlavor_GetGUID( challenge ) ) )
+		{
+			continue
+		}
+
+		int requestedSlot = Challenge_GetRequestedAutogenSlotFromFlavor( challenge )
+		Assert( !usedSlots.contains( requestedSlot ),
+			format( "duplicate autogen slot requested for two guids: %s wants %d, but %s is already there!",
+				string( ItemFlavor_GetAsset( challenge ) ),
+				requestedSlot,
+				string( ItemFlavor_GetAsset( expect ItemFlavor( AutogenChallenge_GetChallengeFlavAtSlot( requestedSlot ) ) ) )
+			)
+		)
+
+		file.autogenGUIDToSlotMap[ ItemFlavor_GetGUID( challenge ) ] <- requestedSlot
+		usedSlots.append( requestedSlot )
+
+		printt( format( "added challenge %s to autogen slot %d", string( ItemFlavor_GetAsset( challenge ) ), requestedSlot ) )
+	}
+}
+
+void function StatsRegister_Autogen()
+{
+	array< string > allSlots = []
+	foreach ( string slotRef, int value in eAutogenStatSlots )
+	{
+		if ( value != eAutogenStatSlots.LIMIT )
+		{
+			allSlots.append( slotRef )
+		}
+	}
+
+	StatEnumStruct autogenSlots_SES = RegisterStatEnumStruct( null, "autogenSlot", "eAutogenSlot", allSlots )
+	CAREER_STATS.autogen_challenges = RegisterAccumulatedStat_Int( autogenSlots_SES, "autogen_any_mode", eChallengeGameMode.ANY, CHALLENGES_CALC_DEPENDS )
+}
+
+bool function IsGUIDInAutogenMap( int guid )
+{
+	return guid in file.autogenGUIDToSlotMap
+}
+
+void function AddAutogenChallengesToKnownList( array< ItemFlavor > potentials )
+{
+	foreach ( ItemFlavor potentialChallenge in potentials )
+	{
+		if ( Challenge_IsAutogen( potentialChallenge ) )
+		{
+			file.autogenChallenges.append( potentialChallenge )
+		}
+	}
+}
+
+int function AutogenChallenge_GetAutogenSlotFromGUID( int guid )
+{
+	Assert( !IsGUIDInAutogenMap( guid ), "autogen map does not contain guid: " + guid )
+	return file.autogenGUIDToSlotMap[ guid ]
+}
+
+ItemFlavor ornull function AutogenChallenge_GetChallengeFlavAtSlot( int slot )
+{
+	foreach( int guid, int mapSlot in file.autogenGUIDToSlotMap )
+	{
+		if ( slot == mapSlot )
+		{
+			return GetItemFlavorByGUID( guid )
+		}
+	}
+
+	return null
+}
+

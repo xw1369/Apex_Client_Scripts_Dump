@@ -1,0 +1,148 @@
+                        
+
+#base "mp_weapon_melee_survival.txt"
+
+WeaponData
+{
+	// General
+	"printname"   									"Cold Steel"
+	"shortprintname"								"Cold Steel"
+	"description" 									"BANGALORE_HEIRLOOM_DESCRIPTION"
+	"longdesc"										"BANGALORE_HEIRLOOM_LONGDESC"
+
+    // UI/HUD
+	"menu_icon"										"rui/menu/dpad_comms/emoji/fist"
+	"hud_icon"										"rui/menu/dpad_comms/emoji/fist"
+
+	// Models
+	"viewmodel"   									"mdl/Weapons/char_artifact/ptpov_set_v23_mob.rmdl" 
+	"playermodel" 									"mdl/Weapons/char_artifact/w_set_v23_mob.rmdl" 
+	//"holstermodel"								    "mdl/Props/bangalore_heirloom_prop/bangalore_heirloom_prop.rmdl"
+
+	"holster_type"									"pistol"
+	"holster_offset"						    	"2 0 2"
+	"holster_angles_offset"						    "0 -10 -10"  // "pitch roll yaw"
+
+	"OnWeaponActivate"								"OnWeaponActivate_weapon_artifact_dagger_primary"
+	"OnWeaponDeactivate"							"OnWeaponDeactivate_weapon_artifact_dagger_primary"
+    "OnWeaponOwnerChanged"                          "OnWeaponOwnerChanged_weapon_artifact_dagger"
+    "OnCreateVMFx"                                  "OnCreateVMFx_ArtifactDagger"
+
+	"is_heirloom"								    "1"
+	"is_artifact"                                   "1"
+
+	"dof_nearDepthStart"							"0.5"
+	"dof_nearDepthEnd"							    "6.4"
+
+	"projectile_adjust_to_hand"						"1"
+	"projectile_adjust_to_gun_barrel"				"0"
+
+	"melee_has_gesture"                             "1"
+
+	// Behavior
+	"deployfirst_time"								"2.1"
+
+	// Animation
+	"activitymodifier3P"						"artifact_dagger"
+	"anim_reuse_unarmed"                        "1"
+	
+	// Bob - Hip  //From Gibby WarClub
+	"bob_cycle_time"                           "0.4"
+	"bob_max_speed"                            "150"
+	"bob_vert_dist"                            "0.19"
+	"bob_horz_dist"                            "0.1"
+	"bob_pitch"                                "0.75"
+	"bob_yaw"                                  "-1.7"
+	"bob_roll"                                 "1.2"
+
+	// Sway - General
+	"sway_rotate_attach"                       "SWAY_ROTATE"
+	"sway_min_x"                               "-0.5"
+	"sway_min_y"                               "-0.5"
+	"sway_min_z"                               "-0.6"
+	"sway_max_x"                               "0.5"
+	"sway_max_y"                               "0.5"
+	"sway_max_z"                               "0.6"
+	"sway_min_pitch"                           "-3"
+	"sway_min_yaw"                             "-2.5"
+	"sway_min_roll"                            "-4"
+	"sway_max_pitch"                           "3"
+	"sway_max_yaw"                             "2.5"
+	"sway_max_roll"                            "4"
+	"sway_translate_gain"                      "2.5"
+	"sway_rotate_gain"                         "7"
+
+	// Bodygroups
+    // blade
+    "bodygroup3_name"	"blade"
+    "bodygroup3_set"	"0"
+    // power
+    "bodygroup4_name"	"power"
+    "bodygroup4_set"	"0"
+
+    Mods
+    {
+        blade0
+        {
+            "bodygroup3_set"    "0"
+        }
+
+        blade1
+        {
+            "bodygroup3_set"    "1"
+        }
+
+        blade2
+        {
+            "bodygroup3_set"    "2"
+        }
+
+        blade3
+        {
+            "bodygroup3_set"    "3"
+        }
+
+        blade4
+        {
+            "bodygroup3_set"    "4"
+        }
+
+        blade5
+        {
+            "bodygroup3_set"    "5"
+        }
+
+        power0
+        {
+            "bodygroup4_set"    "0"
+        }
+
+        power1
+        {
+            "bodygroup4_set"    "1"
+        }
+
+        power2
+        {
+            "bodygroup4_set"    "2"
+        }
+
+        power3
+        {
+            "bodygroup4_set"    "3"
+        }
+
+        power4
+        {
+            "bodygroup4_set"    "4"
+        }
+
+        power5
+        {
+            "bodygroup4_set"    "5"
+        }
+    }
+
+}
+
+      

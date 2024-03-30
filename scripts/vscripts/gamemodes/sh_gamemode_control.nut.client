@@ -27,8 +27,6 @@ global function Control_RegisterNetworking
 
 
 
-
-
 global function ServerCallback_Control_ShowSpawnSelection
 global function ServerCallback_Control_UpdateSpawnWaveTimerTime
 global function ServerCallback_Control_UpdateSpawnWaveTimerVisibility
@@ -73,9 +71,6 @@ global function Control_SendRespawnChoiceToServer
 global function Control_InstanceObjectivePing_Thread
 global function Control_UpdatePlayerExpHUD
 global function	Control_ScoreboardSetup
-global function ServerCallback_Control_UpdateObjectivePingText
-global function ServerCallback_Control_UpdateObjectivePingCounts
-global function ServerCallback_Control_UpdateLastPingedObjective
 global function ServerCallback_Control_SetIsPlayerUsingLosingExpTiers
 global function UICallback_Control_Loadouts_OnClosed
 global function ServerCallback_Control_PlayAllWeaponEvoUpgradeFX
@@ -92,7 +87,6 @@ global function Control_PopulateSummaryDataStrings
 global function Control_ScoreboardUpdateHeader
 global function Control_IsLocalClientInMapCameraView
 global function Control_CloseCharacterSelectOnlyIfOpen
-global function Control_GetObjectiveNameFromObjectiveID_Localized
 
 global function Control_ToggleMapRui
 
@@ -111,9 +105,6 @@ global function Control_IsSpawnWaypointHomebaseForAlliance
 
 global function Control_GetPlayerExpTotal
 global function Control_GetPlayerExpTier
-global function Control_DidPlayerPingSameObjective
-global function Control_GetPingCountForObjectiveForAlliance
-global function Control_GetObjectiveStarterPings
 global function Control_GetStarterPingFromTraceBlockerPing
 global function Control_GetDefaultWeaponTier
 global function Control_SetHomeBaseBadPlacesForMRBForAlliance
@@ -201,11 +192,6 @@ const INT_ALLIANCE_B_PLAYERSONOBJ = 6
 const CONTROL_INT_OBJ_NEUTRAL_ALLIANCE_OWNER = 7
 
 const float CONTROL_INTRO_DELAY = 2.2
-
-const string CONTROL_OBJECTIVE_A_NAME = "A"
-const string CONTROL_OBJECTIVE_B_NAME = "B"
-const string CONTROL_OBJECTIVE_C_NAME = "C"
-const string CONTROL_OBJECTIVE_DEFAULT_NAME = "Default Objective Name"
 
 const INT_ALLIANCE_A_SCORE = 4
 const INT_ALLIANCE_B_SCORE = 5
@@ -465,18 +451,6 @@ enum eControlIconIndex
 }
 
 
-enum eControlObjectivePingValue
-{
-	NONE,
-	ATTACK_A,
-	DEFEND_A,
-	ATTACK_B,
-	DEFEND_B,
-	ATTACK_C,
-	DEFEND_C
-}
-
-
 enum eControlTimedEventType
 {
 	LOCKOUT,
@@ -731,13 +705,7 @@ struct {
 
 
 
-
 		array< entity > playersUsingLosingTeamExpTiersArray
-
-		
-		array<entity> objectiveStarterPings
-		table< entity, int > objectiveToPingCountTableAllianceA
-		table< entity, int > objectiveToPingCountTableAllianceB
 
 		
 		array< vector > allianceABlockedHomeBasePositionsForMRB = []
@@ -765,8 +733,6 @@ struct {
 		var			spawnHeader
 		float		uiVMUpdateTime
 		var			bountyTracker
-
-		entity	lastLocalObjectivePing
 
 		var announcementRui
 		var fullMapAnnouncementRui
@@ -868,6 +834,8 @@ void function Control_Init()
 		PrecacheParticleSystem( $"P_wpn_evo_upgrade_FP" )
 		PrecacheParticleSystem( $"P_wpn_evo_upgrade" )
 		Control_RegisterTimedEvents()
+		CaptureObjectivePing_AddCallback_SetGetCaptureObjectiveIDFromWaypointFunction( Control_GetObjectiveIDFromWaypoint )
+		CaptureObjectivePing_AddCallback_SetIsCaptureObjectivePingObjectiveWaypoint( Control_IsObjectiveWaypoint )
 
 
 
@@ -883,8 +851,6 @@ void function Control_Init()
 			printt( "CONTROL: CONTROL_DETAILED_DEBUG is set to true, debug prints that fire very frequently are enabled" )
 		else
 			printt( "CONTROL: CONTROL_DETAILED_DEBUG is set to false, to enable debug prints that fire frequently set CONTROL_DETAILED_DEBUG to true" )
-
-
 
 
 
@@ -1029,7 +995,6 @@ void function Control_Init()
 		AddCallback_GameStateEnter( eGameState.Resolution, Control_OnGamestateEnterResolution_Client )
 		GameMode_OverrideCompletedResolutionCleanupFunc( Control_OnGamestateEnterResolution_Client )
 		AddCallback_OnCharacterSelectMenuClosed( Control_OnCharacterSelectMenuClosed )
-		AddCallback_OnFindFullMapAimEntity( Control_GetObjectiveUnderAim, Control_PingObjectiveUnderAim )
 
 		
 		Fullmap_AddCallback_OnFullmapCreated( Control_OnFullmapCreated )
@@ -1042,8 +1007,8 @@ void function Control_Init()
 		AddCallback_OnPlayerDisconnected( Control_OnPlayerDisconnected )
 
 		AddCreateCallback( "prop_script", OnVehicleBaseSpawned )
-		AddCreateCallback( PLAYER_WAYPOINT_CLASSNAME, Control_OnPlayerWaypointCreated )
-		AddDestroyCallback( PLAYER_WAYPOINT_CLASSNAME, Control_OnPlayerWaypointDestroyed )
+		CaptureObjectivePing_AddCallback_SetIsCaptureObjectivePingCommsActionFunction( Control_IsControlObjectiveCommsAction )
+		CaptureObjectivePing_AddCallback_SetGetObjectivesArrayFunction( Control_GetObjectiveWaypointsArray )
 
 		CircleAnnouncementsEnable( false )
 		CircleBannerAnnouncementsEnable( false )
@@ -1141,9 +1106,6 @@ void function Control_RegisterNetworking()
 	Remote_RegisterClientFunction( "ServerCallback_Control_BountyClaimedAlert", "entity", "int", INT_MIN, INT_MAX, "int",ALLIANCE_NONE, 2  )
 	Remote_RegisterClientFunction( "ServerCallback_Control_AirdropNotification", "bool" )
 	Remote_RegisterClientFunction( "ServerCallback_Control_UpdateExtraScoreBoardInfo", "int", 0, 2, "int", INT_MIN, INT_MAX, "int", INT_MIN, INT_MAX )
-	Remote_RegisterClientFunction( "ServerCallback_Control_UpdateObjectivePingText", "entity", "int", INT_MIN, INT_MAX, "int", INT_MIN, INT_MAX, "bool" )
-	Remote_RegisterClientFunction( "ServerCallback_Control_UpdateObjectivePingCounts", "entity", "int", ALLIANCE_A, ALLIANCE_B + 1, "int", 0, INT_MAX )
-	Remote_RegisterClientFunction( "ServerCallback_Control_UpdateLastPingedObjective", "entity", "entity", "entity", "int", INT_MIN, INT_MAX, "bool" )
 	Remote_RegisterClientFunction( "ServerCallback_Control_SetIsPlayerUsingLosingExpTiers", "bool" )
 	Remote_RegisterClientFunction( "ServerCallback_Control_DisplaySpawnAlertMessage", "int", 0, eControlSpawnAlertCode._count )
 	Remote_RegisterClientFunction( "ServerCallback_Control_DisplayWaveSpawnBarStatusMessage", "bool", "int", 0, eControlWaypointTypeIndex._count )
@@ -2651,6 +2613,19 @@ float function Control_GetMRBAirdropDelay()
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
 void function Control_SetHomeBaseBadPlacesForMRBForAlliance( int alliance, array < vector > locations )
 {
 	if ( alliance == ALLIANCE_A )
@@ -2914,48 +2889,6 @@ void function Control_RegisterTimedEvents()
 
 
 
-entity function Control_GetObjectiveUnderAim( vector worldPos, float adjustedRange )
-{
-	float closestDistSqr = FLT_MAX
-	entity closestEnt
-	array<entity> objectiveArray = file.waypointList
-	foreach ( objective in objectiveArray )
-	{
-		if ( !IsValid( objective ) )
-			continue
-
-		vector objectiveOrigin = objective.GetOrigin()
-		if ( fabs( objectiveOrigin.x - worldPos.x ) > adjustedRange || fabs( objectiveOrigin.y - worldPos.y ) > adjustedRange )
-			continue
-
-		float distSqr = Distance2DSqr( objectiveOrigin, worldPos )
-		if ( distSqr < closestDistSqr )
-		{
-			closestDistSqr = distSqr
-			closestEnt     = objective
-		}
-	}
-
-	return closestEnt
-}
-
-
-
-
-bool function Control_PingObjectiveUnderAim( entity objective )
-{
-	entity player = GetLocalClientPlayer()
-
-	if ( !IsValid( player ) )
-		return false
-
-	Ping_SetControlObjective( player, objective )
-	return true
-}
-
-
-
-
 void function Control_PingObjectiveFromObjID( int objID )
 {
 	entity player = GetLocalClientPlayer()
@@ -2963,20 +2896,20 @@ void function Control_PingObjectiveFromObjID( int objID )
 	if ( !IsValid( player ) )
 		return
 
-	foreach ( ping in Control_GetObjectiveStarterPings() )
+	foreach ( ping in CaptureObjectivePing_GetStarterPingsArray() )
 	{
 		if ( !IsValid( ping ) )
 			continue
 
 		int objectiveWaypointPingType = Waypoint_GetPingTypeForWaypoint( ping )
-		if ( objectiveWaypointPingType == ePingType.CONTROL_OBJECTIVE_DEFEND || objectiveWaypointPingType == ePingType.CONTROL_OBJECTIVE_ATTACK )
+		if ( objectiveWaypointPingType == ePingType.PING_CAPTURE_OBJECTIVE_DEFEND || objectiveWaypointPingType == ePingType.PING_CAPTURE_OBJECTIVE_ATTACK )
 		{
 			if ( IsValid( ping.GetParent() ) && IsValid( ping.GetParent().GetOwner() ) )
 			{
 				entity pingedObjective = ping.GetParent().GetOwner()
 				int pingedObjectiveObjID = pingedObjective.GetWaypointInt( INT_CONTROL_WAYPOINT_TYPE_INDEX )
 				if ( pingedObjectiveObjID == objID )
-					Ping_SetControlObjective( player, pingedObjective )
+					CaptureObjectivePing_SetObjectivePing( player, pingedObjective )
 			}
 		}
 	}
@@ -5138,7 +5071,7 @@ void function SetupObjectiveWaypoint( entity wp, var rui )
 		thread ManageObjectiveWaypoint( wp, rui )
 		int objectiveID = wp.GetWaypointInt( INT_CONTROL_WAYPOINT_TYPE_INDEX )
 
-		RuiSetString( rui, "objectiveName", Control_GetObjectiveNameFromObjectiveID_Localized( objectiveID ) )
+		RuiSetString( rui, "objectiveName", CaptureObjectivePing_GetObjectiveNameFromObjectiveID_Localized( objectiveID ) )
 		RuiTrackFloat( rui, "capturePercentage", wp, RUI_TRACK_WAYPOINT_FLOAT, FLOAT_CAP_PERC )
 		RuiTrackInt( rui, "currentControllingTeam", wp, RUI_TRACK_WAYPOINT_INT, INT_CAPTURING_ALLIANCE )
 		RuiTrackInt( rui, "currentOwner", wp, RUI_TRACK_WAYPOINT_INT, CONTROL_INT_OBJ_ALLIANCE_OWNER)
@@ -5175,6 +5108,13 @@ void function ManageObjectiveWaypoint( entity wp, var rui )
 	)
 
 	WaitForever()
+}
+
+
+
+array < entity > function Control_GetObjectiveWaypointsArray()
+{
+	return file.waypointList
 }
 
 
@@ -5318,7 +5258,7 @@ void function ObjectiveWaypointThink( entity wp, var rui )
 			{
 				bool hasEmphasis = wp.GetWaypointFloat( FLOAT_BOUNTY_AMOUNT ) > 0
 				RuiSetBool( rui,"hasEmphasis", hasEmphasis )
-				RuiSetInt( rui, "numTeamPings", Control_GetPingCountForObjectiveForAlliance( wp, playerAlliance ) )
+				RuiSetInt( rui, "numTeamPings", CaptureObjectivePing_GetPingCountForObjectiveForTeamOrAlliance( wp, playerAlliance ) )
 				RuiSetBool( rui, "localPlayerOnObjective",  Control_Client_IsOnObjective( wp, player ) )
 				RuiSetBool( rui, "isHidden", file.inGameMapRui != null || IsScoreboardShown() ) 
 			}
@@ -5356,7 +5296,7 @@ void function ObjectiveGameStateTrackerThink( entity wp, var gameStateRui, bool 
 		localPlayerView.EndSignal( "OnDestroy" )
 
 	
-	RuiSetString( mainTrackerRui, "name", Control_GetObjectiveNameFromObjectiveID_Localized( waypointIndex ) )
+	RuiSetString( mainTrackerRui, "name", CaptureObjectivePing_GetObjectiveNameFromObjectiveID_Localized( waypointIndex ) )
 
 	RuiTrackFloat( mainTrackerRui, "capturePercentage", wp, RUI_TRACK_WAYPOINT_FLOAT, FLOAT_CAP_PERC )
 	RuiTrackInt( mainTrackerRui, "currentControllingTeam", wp, RUI_TRACK_WAYPOINT_INT, INT_CAPTURING_ALLIANCE )
@@ -5935,7 +5875,7 @@ void function Control_BountyInfoOverride_Thread( entity wp, TimedEventLocalClien
 	entity linkedEnt = wp.GetParent()
 	int currentOwner = linkedEnt.GetWaypointInt( CONTROL_INT_OBJ_ALLIANCE_OWNER)
 	int objectiveID = linkedEnt.GetWaypointInt( INT_CONTROL_WAYPOINT_TYPE_INDEX )
-	string objectiveName = Control_GetObjectiveNameFromObjectiveID_Localized( objectiveID )
+	string objectiveName = CaptureObjectivePing_GetObjectiveNameFromObjectiveID_Localized( objectiveID )
 	string eventName
 	if( GamemodeUtility_IsPlayerOnTeamObserver( localClientPlayer ) )
 		eventName = Localize( "#CONTROL_POINT_BOUNTY_CONTROL", objectiveName ) 
@@ -6213,7 +6153,7 @@ void function ServerCallback_Control_ProcessObjectiveStateChange( entity objecti
 
 	int localPlayerAlliance = AllianceProximity_GetAllianceFromTeam( localViewPlayer.GetTeam() )
 	int objectiveID = objective.GetWaypointInt( INT_CONTROL_WAYPOINT_TYPE_INDEX )
-	string objectiveName = Control_GetObjectiveNameFromObjectiveID_Localized( objectiveID )
+	string objectiveName = CaptureObjectivePing_GetObjectiveNameFromObjectiveID_Localized( objectiveID )
 
 	if ( newState == eControlPointObjectiveState.CONTROLLED )
 	{
@@ -6351,7 +6291,7 @@ void function ServerCallback_Control_BountyClaimedAlert( entity wp, int bountyAm
 	string announcementSFX = localPlayerAlliance == capturingAlliance ? CONTROL_SFX_CAPTURE_BONUS_CLAIMED_FRIENDLY : CONTROL_SFX_CAPTURE_BONUS_CLAIMED_ENEMY
 	vector announcementColor = localPlayerAlliance == capturingAlliance ? GamemodeUtility_GetColorVectorForCaptureObjectiveState( eGamemodeUtilityCaptureObjectiveColorState.FRIENDLY_OWNED ) : GamemodeUtility_GetColorVectorForCaptureObjectiveState( eGamemodeUtilityCaptureObjectiveColorState.ENEMY_OWNED )
 	int objectiveID = wp.GetWaypointInt( INT_CONTROL_WAYPOINT_TYPE_INDEX )
-	string objectiveName = Control_GetObjectiveNameFromObjectiveID_Localized( objectiveID )
+	string objectiveName = CaptureObjectivePing_GetObjectiveNameFromObjectiveID_Localized( objectiveID )
 	Obituary_Print_Localized( Localize( "#CONTROL_POINT_BOUNTY_CLAIMED_SPECIFIC_OBIT", objectiveName, Localize( teamName ) ), announcementColor )
 	AnnouncementMessageRight( GetLocalClientPlayer(), Localize( "#CONTROL_POINT_BOUNTY_CLAIMED_SPECIFIC", objectiveName, teamName ), "", SrgbToLinear( announcementColor / 255 ), $"rui/hud/gametype_icons/control/capture_bonus", CONTROL_MESSAGE_DURATION, announcementSFX, SrgbToLinear( announcementColor / 255 ) )
 }
@@ -6372,7 +6312,7 @@ void function ServerCallback_Control_BountyActiveAlert( entity wp )
 	int ownerAlliance = wp.GetWaypointInt( CONTROL_INT_OBJ_ALLIANCE_OWNER)
 	vector announcementColor = localPlayerAlliance == ownerAlliance ? GamemodeUtility_GetColorVectorForCaptureObjectiveState( eGamemodeUtilityCaptureObjectiveColorState.FRIENDLY_OWNED ) : GamemodeUtility_GetColorVectorForCaptureObjectiveState( eGamemodeUtilityCaptureObjectiveColorState.ENEMY_OWNED )
 	int objectiveID = wp.GetWaypointInt( INT_CONTROL_WAYPOINT_TYPE_INDEX )
-	string objectiveName = Control_GetObjectiveNameFromObjectiveID_Localized( objectiveID )
+	string objectiveName = CaptureObjectivePing_GetObjectiveNameFromObjectiveID_Localized( objectiveID )
 
 	Obituary_Print_Localized( Localize( "#CONTROL_POINT_BOUNTY_PLACED_SPECIFIC_OBIT", objectiveName ), announcementColor )
 	AnnouncementMessageRight( localViewPlayer, Localize( "#CONTROL_POINT_BOUNTY_PLACED_SPECIFIC", objectiveName ), "", SrgbToLinear( announcementColor / 255), $"rui/hud/gametype_icons/control/capture_bonus", CONTROL_MESSAGE_DURATION, CONTROL_SFX_CAPTURE_BONUS_ADDED, SrgbToLinear( announcementColor / 255 ) )
@@ -6386,31 +6326,6 @@ bool function Control_Client_IsOnObjective( entity wp, entity player )
 		return false
 
 	return player.GetPlayerNetInt( "control_ObjectiveIndex" ) == wp.GetWaypointInt( INT_CONTROL_WAYPOINT_TYPE_INDEX )
-}
-
-
-
-
-string function Control_GetObjectiveNameFromObjectiveID_Localized( int objectiveID )
-{
-	string objectiveName = CONTROL_OBJECTIVE_DEFAULT_NAME
-	switch ( objectiveID )
-	{
-		case eControlWaypointTypeIndex.OBJECTIVE_A:
-			objectiveName = "#CONTROL_OBJECTIVE_A"
-			break
-		case eControlWaypointTypeIndex.OBJECTIVE_B:
-			objectiveName = "#CONTROL_OBJECTIVE_B"
-			break
-		case eControlWaypointTypeIndex.OBJECTIVE_C:
-			objectiveName = "#CONTROL_OBJECTIVE_C"
-			break
-		default:
-			Warning("CONTROL: Running Control_GetObjectiveNameFromObjectiveID_Localized function with an invalid objectiveID: %i", objectiveID )
-			return objectiveName
-	}
-
-	return Localize( objectiveName )
 }
 
 
@@ -6490,27 +6405,9 @@ void function Control_CLUpdateCrowdNoiseMeterThread()
 
 
 
-
-string function Control_GetObjectiveNameFromObjectiveID( int objectiveID )
+bool function Control_IsObjectiveWaypoint( entity waypoint )
 {
-	string objectiveName = CONTROL_OBJECTIVE_DEFAULT_NAME
-	switch ( objectiveID )
-	{
-		case eControlWaypointTypeIndex.OBJECTIVE_A:
-			objectiveName = CONTROL_OBJECTIVE_A_NAME
-			break
-		case eControlWaypointTypeIndex.OBJECTIVE_B:
-			objectiveName = CONTROL_OBJECTIVE_B_NAME
-			break
-		case eControlWaypointTypeIndex.OBJECTIVE_C:
-			objectiveName = CONTROL_OBJECTIVE_C_NAME
-			break
-		default:
-			Warning("CONTROL: Running Control_GetObjectiveNameFromObjectiveID function with an invalid objectiveID: %i", objectiveID )
-			break
-	}
-
-	return objectiveName
+	return IsValid( waypoint ) && waypoint.GetWaypointType() == eWaypoint.CONTROL_OBJECTIVE
 }
 
 
@@ -6702,344 +6599,6 @@ string function Control_GetObjectiveNameFromObjectiveID( int objectiveID )
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-array<entity> function Control_GetObjectiveStarterPings()
-{
-	return file.objectiveStarterPings
-}
-
-
-
-
-int function Control_GetPingCountForObjectiveForAlliance( entity wp, int alliance )
-{
-	int pingCount = 0
-
-	if ( IsValid( wp ) && wp.GetWaypointType() == eWaypoint.CONTROL_OBJECTIVE )
-	{
-		if ( alliance == ALLIANCE_A && wp in file.objectiveToPingCountTableAllianceA )
-		{
-			pingCount = file.objectiveToPingCountTableAllianceA[ wp ]
-		}
-		else if ( alliance == ALLIANCE_B && wp in file.objectiveToPingCountTableAllianceB )
-		{
-			pingCount = file.objectiveToPingCountTableAllianceB[ wp ]
-		}
-	}
-	return pingCount
-}
 
 
 
@@ -7051,7 +6610,7 @@ entity function Control_GetStarterPingFromTraceBlockerPing( entity pingedEnt, in
 
 	if ( IsValid( pingedEnt ) && pingedEnt.GetScriptName() == CONTROL_OBJECTIVE_SCRIPTNAME && IsValid( pingedEnt.GetOwner() ) )
 	{
-		array<entity> objectiveStartPings = Control_GetObjectiveStarterPings()
+		array<entity> objectiveStartPings = CaptureObjectivePing_GetStarterPingsArray()
 
 		if ( objectiveStartPings.len() > 0 )
 		{
@@ -7089,145 +6648,29 @@ entity function Control_GetStarterPingFromTraceBlockerPing( entity pingedEnt, in
 
 
 
-void function Control_OnPlayerWaypointCreated( entity wp )
+bool function Control_IsControlObjectiveCommsAction( int commsAction, entity subjectEnt )
 {
-	if ( IsValid( wp ) && wp.GetWaypointType() == eWaypoint.PING_LOCATION && IsValid( wp.GetOwner() ) )
+	bool isControlObjectiveCommsAction = false
+
+	if ( Control_IsModeEnabled() )
 	{
-		entity objectiveWaypoint = wp.GetOwner()
-
-		if ( objectiveWaypoint.GetNetworkedClassName() != PLAYER_WAYPOINT_CLASSNAME )
-			return
-
-		if ( IsValid( objectiveWaypoint ) && objectiveWaypoint.GetWaypointType() == eWaypoint.CONTROL_OBJECTIVE && !file.objectiveStarterPings.contains( wp ) )
-				file.objectiveStarterPings.append( wp )
+		if ( commsAction == eCommsAction.PING_CONTROL_OBJECTIVE_ATTACK || commsAction == eCommsAction.PING_CONTROL_OBJECTIVE_DEFEND )
+		{
+			entity owner = subjectEnt.GetOwner()
+			if ( IsValid( owner ) && IsPlayerWaypoint( owner ) && owner.GetWaypointType() == eWaypoint.CONTROL_OBJECTIVE )
+				isControlObjectiveCommsAction = true
+		}
 	}
+
+	return isControlObjectiveCommsAction
 }
 
 
 
 
-void function Control_OnPlayerWaypointDestroyed( entity wp )
+int function Control_GetObjectiveIDFromWaypoint( entity waypoint )
 {
-	if ( IsValid( wp ) && wp.GetWaypointType() == eWaypoint.PING_LOCATION && IsValid( wp.GetOwner() ) && file.objectiveStarterPings.contains( wp ) )
-		file.objectiveStarterPings.fastremovebyvalue( wp )
-}
-
-
-
-
-void function ServerCallback_Control_UpdateObjectivePingText( entity wp, int pingType, int pingCount, bool doesPlayerHavePingOnObjective )
-{
-	if ( IsValid( wp ) && IsValid( wp.wp.ruiHud ) && pingCount >= 0 )
-	{
-		if ( pingType == ePingType.CONTROL_OBJECTIVE_DEFEND || pingType == ePingType.CONTROL_OBJECTIVE_ATTACK )
-		{
-			
-			string promptText = ""
-
-			if ( pingCount <= 0 ) 
-			{
-				promptText = Localize( "#PROMPT_PING_CONTROL_OBJECTIVE" )
-			}
-			else 
-			{
-				if ( doesPlayerHavePingOnObjective )
-				{
-					if ( pingCount == 1 ) 
-					{
-						promptText = Localize( "#PROMPT_CANCELED_PING" )
-					}
-					else 
-					{
-						promptText = Localize( "#PROMPT_PING_CONTROL_OBJECTIVE_CANCEL", pingCount )
-					}
-				}
-				else 
-				{
-					promptText = Localize( "#PROMPT_PING_CONTROL_OBJECTIVE_JOIN", pingCount )
-				}
-			}
-
-			promptText = promptText + " `1%ping%`0"
-			RuiSetString( wp.wp.ruiHud, "pingPrompt", promptText )
-		}
-	}
-}
-
-
-
-
-void function ServerCallback_Control_UpdateLastPingedObjective( entity pingingPlayer, entity wp, entity pingedEnt, int pingType, bool isDestroying )
-{
-	entity localPlayer = GetLocalViewPlayer()
-
-	if ( !IsValid( wp ) || !IsValid( pingedEnt ) ||!IsValid( pingingPlayer ) || !IsValid( localPlayer ) )
-		return
-
-	if ( pingingPlayer != localPlayer )
-		return
-
-	if ( pingType != ePingType.CONTROL_OBJECTIVE_DEFEND &&  pingType != ePingType.CONTROL_OBJECTIVE_ATTACK )
-		return
-
-	entity objectiveWaypoint = pingedEnt.GetOwner()
-	if ( IsValid( objectiveWaypoint ) && objectiveWaypoint.GetWaypointType() == eWaypoint.CONTROL_OBJECTIVE )
-	{
-		if ( isDestroying )
-		{
-			file.lastLocalObjectivePing = null
-		}
-		else
-		{
-			file.lastLocalObjectivePing = wp
-		}
-	}
-}
-
-
-
-
-void function ServerCallback_Control_UpdateObjectivePingCounts( entity objectiveWaypoint, int alliance, int count )
-{
-	if ( IsValid( objectiveWaypoint ) && objectiveWaypoint.GetWaypointType() == eWaypoint.CONTROL_OBJECTIVE )
-	{
-		if ( alliance == ALLIANCE_A )
-		{
-			file.objectiveToPingCountTableAllianceA[ objectiveWaypoint ] <- count
-		}
-		else if ( alliance == ALLIANCE_B )
-		{
-			file.objectiveToPingCountTableAllianceB[ objectiveWaypoint ] <- count
-		}
-	}
-}
-
-
-
-
-bool function Control_DidPlayerPingSameObjective( entity player, entity wp, entity pingEnt )
-{
-	if ( !IsValid( pingEnt ) || !IsValid( player ) || !IsValid( wp ) )
-		return false
-
-	entity objectiveWaypoint = pingEnt.GetOwner()
-	if ( IsValid( objectiveWaypoint ) && objectiveWaypoint.GetWaypointType() == eWaypoint.CONTROL_OBJECTIVE )
-	{
-
-			entity oldPing = file.lastLocalObjectivePing
-			if ( IsValid( oldPing ) && oldPing == wp )
-				return true
-
-
-
-
-
-
-
-
-
-
-	}
-	return false
+	return waypoint.GetWaypointInt( INT_CONTROL_WAYPOINT_TYPE_INDEX )
 }
 
 
@@ -7252,7 +6695,7 @@ int function Control_GetAllianceUsingCatchupMechanics()
 	
 	if ( scoreDifference > 0 )
 	{
-		losingAlliance = AllianceProximity_GetOtherAlliance( GamemodeUtility_GetWinningAlliance() )
+		losingAlliance = AllianceProximity_GetOtherAlliance( GamemodeUtility_GetWinningAlliance( false ) )
 
 		if ( scoreDifference >= Control_GetPointDiffForCatchupMechanics() )
 		{
@@ -7284,7 +6727,7 @@ int function Control_GetAllianceUsingCatchupMechanics()
 int function Control_GetMinHeldObjectivesToGenerateScore_ForAlliance( int alliance )
 {
 	int minNumOwnedObjectivesToGainScore = Control_GetMinHeldObjectivesToGenerateScore()
-	return ( minNumOwnedObjectivesToGainScore > 0 && ( !Control_GetIsMinHeldObjectivesOnlyForWinningTeam() || Control_ShouldUseCatchupMechanics() && GamemodeUtility_GetWinningAlliance() == alliance ) ) ? minNumOwnedObjectivesToGainScore : 0
+	return ( minNumOwnedObjectivesToGainScore > 0 && ( !Control_GetIsMinHeldObjectivesOnlyForWinningTeam() || Control_ShouldUseCatchupMechanics() && GamemodeUtility_GetWinningAlliance( true ) == alliance ) ) ? minNumOwnedObjectivesToGainScore : 0
 }
 
 
@@ -7304,7 +6747,7 @@ int function Control_GetNumOwnedObjectivesByAlliance( int alliance )
 
 		foreach( wp in file.waypointList )
 		{
-			if ( IsValid( wp ) && wp.GetWaypointType() == eWaypoint.CONTROL_OBJECTIVE )
+			if ( Control_IsObjectiveWaypoint( wp ) )
 			{
 				int objectiveOwner = wp.GetWaypointInt( CONTROL_INT_OBJ_ALLIANCE_OWNER)
 				if ( objectiveOwner == alliance )
@@ -10215,12 +9658,12 @@ void function ProcessSpawnMenu( entity player )
 		}
 
 		int lastLocalPingObjID = -1
-		if ( IsValid( file.lastLocalObjectivePing ) )
+		entity lastLocalObjectivePing = CaptureObjectivePing_GetLastPingedObjective()
+		if ( IsValid( lastLocalObjectivePing ) )
 		{
-			entity objectiveWaypoint = file.lastLocalObjectivePing.GetOwner()
-			if ( IsValid( objectiveWaypoint ) && objectiveWaypoint.GetWaypointType() == eWaypoint.CONTROL_OBJECTIVE )
+			entity objectiveWaypoint = lastLocalObjectivePing.GetOwner()
+			if ( Control_IsObjectiveWaypoint( objectiveWaypoint ) )
 				lastLocalPingObjID = objectiveWaypoint.GetWaypointInt( INT_CONTROL_WAYPOINT_TYPE_INDEX )
-
 		}
 
 		RunUIScript( "SetLastLocalPingObjIDForUI", lastLocalPingObjID )
@@ -10292,7 +9735,7 @@ void function SpawnMenu_ButtonUpdate( entity wp, bool shouldShowWaypoint, int sp
 					capturePercentage = objective.GetWaypointFloat( FLOAT_CAP_PERC )
 					hasEmphasis = objective.GetWaypointFloat( FLOAT_BOUNTY_AMOUNT ) > 0
 					if ( localPlayerAlliance != ALLIANCE_NONE )
-						numTeamPings = Control_GetPingCountForObjectiveForAlliance( objective, localPlayerAlliance )
+						numTeamPings = CaptureObjectivePing_GetPingCountForObjectiveForTeamOrAlliance( objective, localPlayerAlliance )
 
 					allianceAPlayersOnObjective = objective.GetWaypointInt( INT_ALLIANCE_A_PLAYERSONOBJ )
 					allianceBPlayersOnObjective = objective.GetWaypointInt( INT_ALLIANCE_B_PLAYERSONOBJ )
@@ -10305,7 +9748,7 @@ void function SpawnMenu_ButtonUpdate( entity wp, bool shouldShowWaypoint, int sp
 					waypointTypeIndex,
 					screenPos[0],
 					screenPos[1],
-					Control_GetObjectiveNameFromObjectiveID_Localized( waypointTypeIndex ),
+					CaptureObjectivePing_GetObjectiveNameFromObjectiveID_Localized( waypointTypeIndex ),
 					capturePercentage,
 					currentControllingTeam,
 					currentOwner,
@@ -11996,7 +11439,7 @@ void function Thread_Control_InGameMapData()
 					case eControlWaypointTypeIndex.OBJECTIVE_B:
 					case eControlWaypointTypeIndex.OBJECTIVE_C:
 						
-						nameInformation = Control_GetObjectiveNameFromObjectiveID_Localized( waypointTypeIndex )
+						nameInformation = CaptureObjectivePing_GetObjectiveNameFromObjectiveID_Localized( waypointTypeIndex )
 						shouldShowObjective = true
 						
 						int waypointOwner = ALLIANCE_NONE
@@ -12204,7 +11647,7 @@ void function Control_ScoreboardUpdateHeader( var headerRui, var frameRui,  int 
 
 	int winningTeam = -1
 	if( ( GetAllianceTeamsScore( ALLIANCE_A ) + GetAllianceTeamsScore( ALLIANCE_B ) ) > 0 )
-		winningTeam = GamemodeUtility_GetWinningAlliance()
+		winningTeam = GamemodeUtility_GetWinningAlliance( true )
 
 	RuiSetBool( headerRui, "isWinning", ( winningTeam == team ) )
 

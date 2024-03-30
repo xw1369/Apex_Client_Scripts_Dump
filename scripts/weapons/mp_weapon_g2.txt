@@ -6,10 +6,6 @@
       
 #base "_base_hopup_paintball.txt"
 
-                    
-#base "_base_hopup_golden_horse_yellow.txt"
-      
-
 "WeaponData"
 {
 	// General
@@ -271,9 +267,26 @@
 	"viewmodel_ads_rui_bottomleft_attachment"	"RUI_BL_CROSSHAIR_G7"
 	"viewmodel_ads_centerpoint_attachment"      "ADS_CENTER_SIGHT_G7"
 
+                 
+                                                   
+                                                                                   
+                                                   
+      
+
 	"Mods"
 	{
 	    crate	    {}
+
+                   
+                 
+   
+                                          
+                                                  
+                                                                           
+                                                                                    
+                                                         
+   
+        
 
                   
 		hopup_double_tap

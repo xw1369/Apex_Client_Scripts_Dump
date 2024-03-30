@@ -4,10 +4,6 @@
 
 #base "_base_mags_energy.txt"
 
-                    
-#base "_base_hopup_golden_horse_green.txt"
-      
-
 WeaponData
 {
 	// General
@@ -57,10 +53,6 @@ WeaponData
 	"OnWeaponPrimaryAttack"							"OnWeaponPrimaryAttack_weapon_lstar"
 	"OnWeaponNpcPrimaryAttack"						"OnWeaponNpcPrimaryAttack_weapon_lstar"
 	"OnWeaponCooldown"								"OnWeaponCooldown_weapon_lstar"
-
-                    
-	"OnWeaponDeactivate"							"GoldenHorseGreen_OnWeaponDeactivate"
-      
 
 	// Menu
 	"menu_category"                                 "lmg"

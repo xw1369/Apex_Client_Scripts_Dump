@@ -174,7 +174,7 @@ global enum eLoadoutCategory
 		DEATHBOX,
 
 
-
+		ARTIFACT_CONFIGURATIONS,
 
 
 	OTHER,
@@ -203,7 +203,7 @@ global const table< int, string > LOADOUT_CATEGORIES_TO_NAMES_MAP = {
 	[eLoadoutCategory.DEATHBOX] = "deathbox",
 
 
-
+	[eLoadoutCategory.ARTIFACT_CONFIGURATIONS] = "artifact_weapons",
 
 
 	[eLoadoutCategory.OTHER] = "other",
@@ -410,7 +410,7 @@ void function ShLoadouts_LevelInit_Begin()
 		Remote_RegisterServerFunction( "ClientCallback_favorites_clear", "int", INT_MIN, INT_MAX, "int", INT_MIN, INT_MAX )
 
 
-		Remote_RegisterServerFunction( LOADOUT_CLIENT_CALLBACK_TOGGLE_GOLDEN_HORSE_DEATHBOX, "int", 0, INT_MAX, "int", 0, INT_MAX ) 
+		Remote_RegisterServerFunction( LOADOUT_CLIENT_CALLBACK_TOGGLE_DEATHBOX, "int", 0, INT_MAX, "int", 0, INT_MAX, "int", 0, INT_MAX ) 
 
 
 
@@ -531,7 +531,7 @@ void function ShLoadouts_LevelInit_Finish()
 
 		Remote_RegisterClientFunction( "ServerToClient_LoadoutSlotDidChange", "entity", "int", 0, fileLevel.loadoutSlotEntries.len() )
 
-		Remote_RegisterClientFunction( LOADOUT_SERVER_CALLBACK_GOLDEN_HORSE_DEATHBOX_TOGGLED, "int", 0, INT_MAX, "int", 0, INT_MAX ) 
+		Remote_RegisterClientFunction( LOADOUT_SERVER_CALLBACK_DEATHBOX_TOGGLED, "int", 0, INT_MAX, "int", 0, INT_MAX, "int", 0, INT_MAX ) 
 
 		int batchMax = fileLevel.loadoutSlotEntries.len() + 1
 		Remote_RegisterClientFunction( "ServerToClient_LoadoutSlotDidChangeBatch", "entity",
@@ -1407,17 +1407,6 @@ bool function IsItemFlavorUnlockedForLoadoutSlot( EHI playerEHI, LoadoutEntry en
 
 
 
-
-
-
-
-
-
-
-
-
-
-
 	LoadoutEntry_IsItemFlavorUnlockedFuncType isItemFlavorUnlocked = entry.isItemFlavorUnlocked
 	if ( isItemFlavorUnlocked == null )
 		isItemFlavorUnlocked = IsItemFlavorGRXUnlockedForLoadoutSlot
@@ -1538,7 +1527,7 @@ ItemFlavor function GetFirstValidItemFlavor( EHI playerEHI, LoadoutEntry entry, 
 				return flav
 		}
 	}
-	Assert( false, "Could not find an unlocked item flavor for loadout slot: " + entry.id )
+	Assert( false, "Could not find an unlocked item flavor for loadout slot: " + entry.id + " , number of possible itemFlavors " + itemFlavors.len() )
 	unreachable
 }
 
@@ -1740,6 +1729,16 @@ void function ShLoadouts_OnPlayerEHICreated( EHI player, bool thisCallIsHappenin
 		}
 
 }
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -2360,6 +2359,16 @@ int function GetLoadoutSlotContentsIndexFromNetworkVar( EHI playerEHI, LoadoutEn
 
 
 
+
+
+
+
+
+
+
+
+
+
 void function RefreshLoadoutSlotInternal( EHI playerEHI, LoadoutEntry entry, table<LoadoutEntry, bool> ornull refreshedSlotsSet, array<int> ornull queuedSlotsIndicesForRpc, bool isDependent )
 {
 #if LOADOUTS_DBG
@@ -2532,6 +2541,16 @@ void function ServerToClient_LoadoutSlotSetFailed()
 	RunUIScript( "ClientToUI_PlayLootCeremonySound", "menu_deny" )
 	return
 }
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -3536,6 +3555,15 @@ void function DEV_LoadoutsDebug( LoadoutEntry entry )
 		printt("LoadoutsDebug: " + func1 + " called " + func0 + " for LoadoutEntry "+ entry.DEV_name)
 }
 #endif
+
+
+
+
+
+
+
+
+
 
 
 

@@ -995,11 +995,6 @@ void function ServerToClient_ShowHealthRUI_Thread( entity owner, entity victim, 
 
 	var rui = ReconScan_ShowHudForTarget( owner, victim, false )
 
-	if ( rui != null && victim.IsPlayer() )
-	{
-		RuiTrackFloat( rui, "bleedoutEndTime", victim, RUI_TRACK_SCRIPT_NETWORK_VAR, GetNetworkedVariableIndex( "bleedoutEndTime" ) )
-	}
-
 	while ( Time() < endTime )
 	{
 		bool phaseShifted = victim.IsPlayer() ? victim.IsPhaseShiftedOrPending() : false

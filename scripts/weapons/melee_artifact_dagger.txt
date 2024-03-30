@@ -1,0 +1,115 @@
+                        
+
+#base "melee_pilot_emptyhanded.txt"
+
+WeaponData
+{
+
+	// General
+	"printname"   								"Melee"
+	"shortprintname"							"Melee"
+	"description" 								"Description needed"
+	"longdesc"									"Description needed"
+
+	"menu_icon"									"rui/hud/common/melee_icon"
+	"hud_icon"									"rui/hud/common/melee_icon"
+
+	// Models
+	"viewmodel"   								"mdl/Weapons/char_artifact/ptpov_set_v23_mob.rmdl"
+	"playermodel" 								"mdl/Weapons/char_artifact/w_set_v23_mob.rmdl"
+
+	"OnWeaponActivate"							"OnWeaponActivate_melee_artifact_dagger"
+    "OnWeaponDeactivate"						"OnWeaponDeactivate_melee_artifact_dagger"
+    "OnWeaponOwnerChanged"                      "OnWeaponOwnerChanged_melee_artifact_dagger"
+
+	"is_heirloom"								"1"
+	"is_artifact"                               "1"
+
+	"projectile_adjust_to_hand"						"1"
+	"projectile_adjust_to_gun_barrel"				"0"
+
+    // FX
+	"impact_effect_table" 						"melee_artifact_MOB"
+
+	// Animation
+	"activitymodifier3P"						"artifact_dagger"
+	"anim_reuse_unarmed"                        "1"
+
+	// Bodygroups
+    // blade
+    "bodygroup3_name"	"blade"
+    "bodygroup3_set"	"0"
+    // power
+    "bodygroup4_name"	"power"
+    "bodygroup4_set"	"0"
+
+    Mods
+    {
+        blade0
+        {
+            "bodygroup3_set"    "0"
+        }
+
+        blade1
+        {
+            "bodygroup3_set"    "1"
+        }
+
+        blade2
+        {
+            "bodygroup3_set"    "2"
+        }
+
+        blade3
+        {
+            "bodygroup3_set"    "3"
+        }
+
+        blade4
+        {
+            "bodygroup3_set"    "4"
+        }
+
+        blade5
+        {
+            "bodygroup3_set"    "5"
+        }
+
+        power0
+        {
+            "bodygroup4_set"    "0"
+        }
+
+        power1
+        {
+            "bodygroup4_set"    "1"
+        }
+
+        power2
+        {
+            "bodygroup4_set"    "2"
+        }
+
+        power3
+        {
+            "bodygroup4_set"    "3"
+        }
+
+        power4
+        {
+            "bodygroup4_set"    "4"
+        }
+
+        power5
+        {
+            "bodygroup4_set"    "5"
+        }
+
+        power6
+        {
+            "bodygroup4_set"    "6"
+        }
+    }
+}
+
+      

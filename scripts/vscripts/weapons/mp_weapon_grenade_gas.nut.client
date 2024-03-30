@@ -5,6 +5,9 @@ global function OnWeaponTossReleaseAnimEvent_weapon_greande_gas
 global function OnWeaponDeactivate_weapon_grenade_gas
 
 
+const float UPGRADE_CAUSTIC_GAS_HP_REGEN_DELAY = 2.0
+
+
 
 
 
@@ -34,9 +37,45 @@ void function MpWeaponGrenadeGas_Init()
 
 
 
+
 	PrecacheParticleSystem( GAS_GRENADE_FX_GLOW_FP )
 	PrecacheParticleSystem( GAS_GRENADE_FX_GLOW_3P )
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 void function OnWeaponReadyToFire_weapon_grenade_gas( entity weapon )
@@ -91,6 +130,16 @@ void function OnProjectileCollision_weapon_grenade_gas( entity projectile, vecto
 
 	projectile.GrenadeIgnite()
 }
+
+
+
+
+
+
+
+
+
+
 
 
 

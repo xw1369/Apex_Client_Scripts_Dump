@@ -238,7 +238,11 @@ void function OutOfBoundsDeadTime_Changed( entity player )
 void function DeactivateOutOfBoundsIndicator( )
 {
 	entity player = GetLocalViewPlayer()
-	StopSoundOnEntity( player, "Boundary_Warning_Loop" )
+
+	if( !RingLethality_Is_Player_InRingOutWarning( player ) )
+	{
+		StopSoundOnEntity( player, "Boundary_Warning_Loop" )
+	}
 
 	Hud_Hide( player.hudElems.OutOfBoundsWarning_Message )
 	Hud_ClearPulsate( player.hudElems.OutOfBoundsWarning_Message )
@@ -272,7 +276,10 @@ void function ActivateOutOfBoundsIndicator()
 		OnThreadEnd(
 			function() : ( player )
 			{
-				StopSoundOnEntity( player, "Boundary_Warning_Loop" )
+				if( !RingLethality_Is_Player_InRingOutWarning( player ) )
+				{
+					StopSoundOnEntity( player, "Boundary_Warning_Loop" )
+				}
 			}
 		)
 

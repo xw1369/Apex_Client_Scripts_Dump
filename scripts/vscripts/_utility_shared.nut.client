@@ -228,7 +228,10 @@ void function InitWeaponScripts()
 
 
 
-	MpAbilityShifter_Init()
+
+
+
+
 	
 	MpWeaponDefenderRailgun_Init()
 
@@ -266,7 +269,6 @@ void function InitWeaponScripts()
 
 		MpWeaponTitanSword_Init()
 
-	MpWeaponZipline_Init()
 	MpWeaponAlternatorSMG_Init()
 	MpWeaponShotgun_Init()
 
@@ -303,19 +305,17 @@ void function InitWeaponScripts()
 	MpWeaponAshHeirloomPrimary_Init()
 	MeleeHorizonHeirloom_Init()
 	MpWeaponHorizonHeirloomPrimary_Init()
-
-		
-		MeleeRevenantScythe_rt01_Init()
-		MpWeaponRevenantScythePrimary_rt01_Init()
-
+	
+	MeleeRevenantScythe_rt01_Init()
+	MpWeaponRevenantScythePrimary_rt01_Init()
 
 		MeleeFuseHeirloom_Init()
 		MpWeaponFuseHeirloomPrimary_Init()
 
 
 
-
-
+		MeleeArtifactDagger_Init()
+		MpWeaponArtifactDaggerPrimary_Init()
 
 
 
@@ -350,276 +350,26 @@ void function InitWeaponScripts()
 		MpWeaponMeleeBoxingRing_Init()
 
 
-	MpAbilityGibraltarShield_Init()
-	MpWeaponBubbleBunker_Init()
-
-	MpAbilityPortableAutoLoader_Init()
-	MpWeaponDebuffZone_Init()
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 	MpWeaponEmoteProjector_Init()
 	MpGenericOffhand_Init()
 
 
 
 
-	MpWeaponGrenadeDefensiveBombardment_Init()
-
-
-
-
-
 
 	MpAbilityHuntModeWeapon_Init()
-	MpAbilityAreaSonarScan_Init()
-	MpWeaponGrenadeGas_Init()
-	MpWeaponDirtyBomb_Init()
-	MpWeaponDeployableMedic_Init()
 	MpWeaponIncapShield_Init()
 
 
 
 
 
-	MpWeaponGrenadeBangalore_Init()
-	MpWeaponGrenadeCreepingBombardment_Init()
-	MpWeaponGrenadeCreepingBombardmentWeapon_Init()
-	MpAbilityNone_Init()
-	MpAbilityMirageUltimate_Init()
-	MpAbilityCryptoDrone_Init()
-	MpAbilityCryptoDroneEMP_Init()
-	MpWeaponPhaseTunnel_Init()
-	MpWeaponTeslaTrap_Init()
-	MpWeaponTrophy_Init()
-	MpAbilitySilence_Init()
-	MpAbilityRevenantDeathTotem_Init()
-	MpAbilitySharedSilence_Init()
-	MpWeaponArcBolt_Init()
-	MpWeaponPhaseBreach_Init()
-	MpWeaponAshDataknife_Init()
 
 
 
 
 
-
-	MpWeaponRiotDrill_Init()
-	MpAbilityWreckingBall_Init()
-	MpMaggieCommon_Init()
-
-
-
-	MpWeaponCoverWall_Init()
-	MpWeaponMountedTurretPlaceable_Init()
-	MpWeaponMountedTurretWeapon_Init()
-	MpWeaponMobileHMG_Init()
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-	MpAbilityValkJets_Init()
-	MpAbilityValkSkyward_Init()
-	MpAbilityValkClusterMissile_Init()
-
-
-
-
-
-
-		MpAbilityConduitArcFlash_Init()
-		Mp_ability_shield_mines_init()
-		Mp_ability_shield_mines_line_init()
-
-
-
-
-
-
-
-
-
-
-
-
-		
-		MpAbilityShadowForm_Init()
-		MpAbilityExectioner_Init()
-		
-		
-		MpAbilityShadowPounceFree_Init()
-		
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-	MpWeaponBlackHole_Init()
-	MpSpaceElevatorAbility_Init()
-
-
-	MpWeaponClusterBombLauncher_Init()
-	MpWeapon_Mortar_Ring_Init()
-	MpWeapon_Mortar_Ring_Missile_Init()
-
-	MpWeaponEchoLocator_Init()
-	MpAbilitySonicBlast_Init()
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-	MpAbilityRiseFromTheAshes_Init()
-
-
-
-
-
-
-
-
-		MpAbilityShieldThrow_Init()
-		MpAbilityArmoredLeap_Init()
-		MpWeaponReviveShield_Init()
-
-
-
-
-
-
-
-
-
-		PassiveVantage_Init()
-		SniperUlt_Init()
-		Companion_Launch_Init()
-		MpWeaponVantageRecall_Init()
-
-		SniperRecon_Init()
-		VantageCompanion_Init()
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-	MpWeaponFerroWall_Init()
-	MpAbilitySpikeStrip_Init()
-	MpAbilityReinforce_Init()
-
-
-
-
-
+		MpAbilityRiseFromTheAshes_Init()
 
 
 
@@ -671,6 +421,330 @@ void function InitWeaponScripts()
 
 	MpWeaponBasicBolt_Init()
 	MpWeaponLmg_Init()
+
+
+
+
+
+
+
+
+
+
+
+
+
+}
+
+void function InitAbilityScripts()
+{
+	
+	MpAbilityNone_Init()								
+	MpAbilityShifter_Init() 							
+	MpAbilitySharedSilence_Init()						
+	ShShellShock_Init()									
+	ShGas_Init()										
+	Sh_PassiveVoices_Init()								
+	MpWeaponPhaseTunnel_Init()							
+	MpWeaponZipline_Init() 								
+	MpAbilityGibraltarShield_Init()						
+	MpWeaponBubbleBunker_Init()							
+	MpWeaponGrenadeDefensiveBombardment_Init()			
+	MpAbilityAreaSonarScan_Init()						
+	PassiveMedic_Init()									
+	MpWeaponDeployableMedic_Init()						
+	MpWeaponGrenadeBangalore_Init()						
+	MpWeaponGrenadeCreepingBombardment_Init()			
+	MpWeaponGrenadeCreepingBombardmentWeapon_Init()		
+	MpAbilityMirageUltimate_Init()						
+	MpWeaponDirtyBomb_Init()							
+	MpWeaponGrenadeGas_Init()							
+	PassiveOctane_Init()								
+	Sh_JumpPad_Init()									
+	MpWeaponTeslaTrap_Init()							
+	MpWeaponTrophy_Init()								
+	MpAbilityCryptoDrone_Init()							
+	MpAbilityCryptoDroneEMP_Init()						
+	MpAbilitySilence_Init()								
+	MpAbilityRevenantDeathTotem_Init()					
+	ShLobaPassiveEyeForQuality_LevelInit()				
+	LobaTacticalTranslocation_LevelInit()				
+	LobaUltimateBlackMarket_LevelInit()					
+	PassiveGunner_Init()								
+	MpWeaponCoverWall_Init()							
+	MpWeaponMountedTurretPlaceable_Init()				
+	MpWeaponMountedTurretWeapon_Init()					
+	MpWeaponMobileHMG_Init()							
+	MpSpaceElevatorAbility_Init()						
+	MpSpaceElevator_Init()								
+	MpWeaponBlackHole_Init()							
+	PassiveGrenadier_Init()								
+	MpWeaponClusterBombLauncher_Init()					
+	MpWeapon_Mortar_Ring_Init()							
+	MpWeapon_Mortar_Ring_Missile_Init()					
+	MpAbilityValkJets_Init()							
+	MpAbilityValkClusterMissile_Init()					
+	MpAbilityValkSkyward_Init()							
+	PassiveHeartbeatSensor_Init()						
+	MpAbilitySonicBlast_Init()							
+	MpWeaponEchoLocator_Init()							
+	MpWeaponAshDataknife_Init()							
+	MpWeaponArcBolt_Init()								
+	MpWeaponPhaseBreach_Init()							
+	MpMaggieCommon_Init()								
+	ShPassiveWarlordsIre_Init()							
+	MpWeaponRiotDrill_Init()							
+	MpAbilityWreckingBall_Init()						
+	MpWeaponReviveShield_Init()							
+	MpAbilityShieldThrow_Init()							
+	MpAbilityArmoredLeap_Init()							
+	PassiveVantage_Init()								
+	SniperRecon_Init()									
+	Companion_Launch_Init()								
+	VantageCompanion_Init()								
+	MpWeaponVantageRecall_Init()						
+	SniperUlt_Init()									
+	ShResin_Init()										
+	MpAbilityReinforce_Init()							
+	PassiveReinforce_Init()								
+	MpAbilitySpikeStrip_Init()							
+	MpWeaponFerroWall_Init()							
+	ShPassiveSling_Init()								
+	MpWeaponDebuffZone_Init()							
+	MpAbilityPortableAutoLoader_Init()					
+	MpAbilityExectioner_Init()							
+	MpAbilityShadowPounceFree_Init()					
+	MpAbilityShadowForm_Init()							
+
+		ShPassiveConduit_Init()							
+		MpAbilityConduitArcFlash_Init()					
+		Mp_ability_shield_mines_init()					
+		Mp_ability_shield_mines_line_init()				
+
+
+
+		ExtraShields_Init()
+
+		ShPassiveUpgradeCore_Init()
+		ShPassiveTacCooldownExtra_Init()
+		ShPassiveExplosiveSpeedBoost_Init()
+		ShPassiveAirborneHealthRegen_Init()
+		ShPassiveBoostedHealthRegen_Init()
+		ShPassiveSquadwipeSquadCount_Init()
+		ShPassiveKnockShotgunAutoReload_Init()
+		ShPassiveZiplineShield_Init()
+		PhysicalOvershield_Init()
+		ShPassiveKnockTacReset_Init()
+		ShPassiveFasterTacWindup_Init()
+
+		UpgradedClusterMissile_Init()
+		UpgradedJets_Init()
+
+		
+
+		UpgradeSelectionMenu_Init()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+	
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+	
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -2362,6 +2436,86 @@ array<ArrayDistanceEntry> function ArrayDistance2DResultsVector( array<vector> v
 	return allResults
 }
 
+struct PlaneVisibility
+{
+	float value
+	vector connectPoint
+}
+
+vector function FindBestDeathboxEdgeForVFX_WorldSpace( entity deathbox, entity player )
+{
+	vector endPoint = FindBestDeathboxEdgeForVFX_LocalSpace( deathbox, player )
+	endPoint = RotateVector( endPoint, deathbox.GetAngles() )
+	endPoint += deathbox.GetOrigin()
+
+	return endPoint
+}
+vector function FindBestDeathboxEdgeForVFX_LocalSpace( entity deathbox, entity player )
+{
+	vector mins = deathbox.GetBoundingMins()
+	vector maxs = deathbox.GetBoundingMaxs()
+	vector boxToPlayer = player.EyePosition() - deathbox.GetOrigin()
+	vector fwd = deathbox.GetForwardVector()
+	vector rgt = deathbox.GetRightVector()
+	vector up  = deathbox.GetUpVector()
+
+	
+	array<PlaneVisibility> planeArray
+
+	{
+		PlaneVisibility testPlane
+		testPlane.value = DotProduct( fwd, boxToPlayer - maxs.x * fwd )
+		testPlane.connectPoint = <maxs.x, 0, maxs.z * 0.5>
+		planeArray.append( testPlane )
+	}
+
+	{
+		PlaneVisibility testPlane
+		testPlane.value = DotProduct( -fwd, boxToPlayer - mins.x * fwd )
+		testPlane.connectPoint = <mins.x, 0, maxs.z * 0.5>
+		planeArray.append( testPlane )
+	}
+	
+	{
+		PlaneVisibility testPlane
+		testPlane.value = DotProduct( rgt, boxToPlayer - maxs.y * rgt )
+		testPlane.connectPoint = <0, mins.y, maxs.z * 0.5>
+		planeArray.append( testPlane )
+	}
+
+	{
+		PlaneVisibility testPlane
+		testPlane.value = DotProduct( -rgt, boxToPlayer - mins.y * rgt )
+		testPlane.connectPoint = <0, maxs.y, maxs.z * 0.5>
+		planeArray.append( testPlane )
+	}
+
+	{
+		PlaneVisibility testPlane
+		testPlane.value = DotProduct( up, boxToPlayer - maxs.z * up )
+		testPlane.connectPoint = <0, 0, maxs.z>
+		planeArray.append( testPlane )
+	}
+
+	{
+		PlaneVisibility testPlane
+		testPlane.value = DotProduct( -up, boxToPlayer )
+		testPlane.connectPoint = <0, 0, mins.z>
+		planeArray.append( testPlane )
+	}
+
+	planeArray.sort( int function( PlaneVisibility a, PlaneVisibility b ) : ()
+	{
+		if ( a.value > b.value )
+			return -1
+		else if( a.value < b.value )
+			return 1
+
+		return 0
+	} )
+
+	return planeArray[0].connectPoint
+}
 
 GravityLandData function GetGravityLandData( vector startPos, vector parentVelocity, vector objectVelocity, float timeLimit, bool bDrawPath = false, int traceMask = TRACE_MASK_NPCWORLDSTATIC, float bDrawPathDuration = 0.0, array pathColor = [ 255, 255, 0 ] )
 {
@@ -3277,31 +3431,29 @@ float function GetAverageValueInArray( array<float> values )
 }
 
 
-int function GetWinningTeam()
+int function GetWinningTeam( bool shouldReturnInvalidInCaseOfTie = true )
 {
 	int currentWinningTeam = GetNetWinningTeam()
 	if ( currentWinningTeam != -1 )
 		return currentWinningTeam
 
-	int maxScore    = -1
-	int playerTeam
+	int maxScore = -1
 	int currentScore
 	int winningTeam = TEAM_UNASSIGNED
-	array <entity> playersArray = GetPlayerArray()
+	array < int > allTeamsArray = GetAllValidPlayerTeams()
 
-	
-	foreach ( player in playersArray )
+	foreach ( playerTeam in allTeamsArray )
 	{
-		playerTeam = player.GetTeam()
 		if ( IsRoundBased() )
 			currentScore = GameRules_GetTeamScore2( playerTeam )
 		else
 			currentScore = GameRules_GetTeamScore( playerTeam )
 
-		if ( currentScore == maxScore && winningTeam != playerTeam ) 
+		if ( shouldReturnInvalidInCaseOfTie && currentScore == maxScore && winningTeam != playerTeam ) 
+		{
 			winningTeam = TEAM_UNASSIGNED
-
-		if ( currentScore > maxScore )
+		}
+		else if ( currentScore > maxScore )
 		{
 			maxScore = currentScore
 			winningTeam = playerTeam
@@ -4739,6 +4891,52 @@ array<vector> function GetPointsOnCircle( vector origin, vector angles, float ra
 }
 
 
+array< vector > function GetPointsAlongLine( vector start, vector end, int count, bool debugDraw = false )
+{
+	Assert( count > 0, FUNC_NAME() + "(): ERROR! Count Must Be > 0." )
+
+	array< vector > result = []
+
+	vector rowStartEdge = start
+	vector rowEndEdge = end
+	float rowWidth = Distance( rowStartEdge, rowEndEdge )
+	vector nextItemDir = ( rowEndEdge - rowStartEdge )/rowWidth
+
+
+	vector itemPos
+
+	if( count < 2 )
+	{
+		itemPos = ( rowEndEdge + rowStartEdge ) / 2
+		result.append( itemPos )
+	}
+	else 
+	{
+		float distBtwnItems = rowWidth / ( count - 1 )
+		itemPos = rowStartEdge
+		vector nextItemDelta = nextItemDir * distBtwnItems
+
+		for( int i = 0; i < count; i++ )
+		{
+			result.append( itemPos )
+			itemPos = itemPos + nextItemDelta
+		}
+	}
+
+#if DEV
+		if( debugDraw )
+		{
+			for( int i = 0; i < result.len(); i++ )
+			{
+				DebugDrawText( result[ i ], string( i ), false, 60 )
+			}
+		}
+#endif
+
+	return result
+}
+
+
 
 
 
@@ -6120,13 +6318,8 @@ entity function GetJumpmasterForTeam( int team, bool mustBeAlive = true )
 
 	foreach ( entity player in teammates )
 	{
-
-
-
-
-			if ( !player.GetPlayerNetBool( "playerInPlane" ) )
-				continue
-
+		if ( !player.GetPlayerNetBool( "playerInPlane" ) && Survival_RequireJumpmasterInPlane() )
+			continue
 
 		if ( !player.GetPlayerNetBool( "isJumpingWithSquad" ) )
 			continue
@@ -6145,13 +6338,8 @@ int function GetNumPlayersJumpingWithSquad( int team, bool mustBeAlive = true  )
 	array<entity> teammates = mustBeAlive ? GetPlayerArrayOfTeam_Alive( team ) : GetPlayerArrayOfTeam( team )
 	foreach ( entity player in teammates )
 	{
-
-
-
-
-			if ( !player.GetPlayerNetBool( "playerInPlane" ) )
-				continue
-
+		if ( !player.GetPlayerNetBool( "playerInPlane" ) && Survival_RequireJumpmasterInPlane() )
+			continue
 
 		if ( !player.GetPlayerNetBool( "isJumpingWithSquad" ) )
 			continue

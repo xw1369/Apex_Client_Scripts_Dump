@@ -1444,6 +1444,10 @@ void function CodeCallback_ScriptMoverTraversalStopped( entity ent, bool isBlock
 
 
 
+
+
+
+
 bool function IsMobileShieldEnt( entity ent )
 {
 	return ent.GetScriptName() == MOBILE_SHIELD_SCRIPTNAME
@@ -1576,6 +1580,14 @@ void function AttemptChangeDirection( entity player )
 				desiredPos = ShieldThrow_GetThrowDestination( player, weapon )
 			}
 			Remote_ServerCallFunction( "ClientCallback_AttemptChangeShieldDirection", desiredPos )
+		}
+		else
+		{
+			if( weapon.GetWeaponPrimaryClipCount() < weapon.GetWeaponPrimaryClipCountMax() )
+			{
+				if ( IsValid( player ) )
+					EmitSoundOnEntity( player, "Survival_UI_Ability_NotReady" )
+			}
 		}
 
 	}

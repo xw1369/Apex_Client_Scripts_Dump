@@ -6,8 +6,13 @@ global function Stats_IsValidMapForStats
 
 
 
+
+
 global function Stats_CurrentModeSupportsCustomStats
 global function Stats_CurrentModeIsSurvival
+
+global function CalcStatSum_Int
+global function FindMaxStat_Int
 
 bool function Stats_IsValidMapForStats()
 {
@@ -22,6 +27,13 @@ bool function Stats_IsValidMapForStats()
 
 	return true
 }
+
+
+
+
+
+
+
 
 
 
@@ -149,4 +161,24 @@ bool function Stats_CurrentModeIsSurvival()
 	}
 
 	return mode == "survival" || mode == "duo" || mode == "ranked"
+}
+
+int function CalcStatSum_Int( entity player, array<StatEntry> sourceEntries, int when )
+{
+	int sum = 0
+	foreach ( StatEntry sourceEntry in sourceEntries )
+		sum += GetStat_Int( player, sourceEntry, when )
+	return sum
+}
+
+int function FindMaxStat_Int( entity player, array<StatEntry> sourceEntries, int when )
+{
+	int max = 0
+	foreach ( StatEntry sourceEntry in sourceEntries )
+	{
+		int temp = GetStat_Int( player, sourceEntry, when )
+		if ( temp > max )
+			max = temp
+	}
+	return max
 }

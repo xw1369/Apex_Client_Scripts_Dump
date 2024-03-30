@@ -61,6 +61,11 @@ void function Vantage_OnPassiveChanged( entity player, int passive, bool didHave
 
 
 
+
+
+
+
+
 		if ( !(player in vantageTargetTrackingList) )
 		{
 			array<entity> targets

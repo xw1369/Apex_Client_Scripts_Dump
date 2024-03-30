@@ -554,6 +554,10 @@ bool function S16_PathfinderSkirmisherPassiveActive()
 
 
 
+
+
+
+
 void function ClientCodeCallback_OnCarePackageInsightDataChanged( entity carePackageInsightEnt )
 {
 	if( carePackageInsightEnt.GetAreContentsTaken() )
@@ -596,6 +600,9 @@ void function AddDropLocationEffects( entity ent )
 {
 	ent.EndSignal( "OnDestroy" )
 	entity carePackage = ent.GetLinkEnt()
+	if( !IsValid( carePackage ) )
+		return
+
 	carePackage.EndSignal( "OnDestroy" )
 
 	int colorID = COLORID_AIRDROP_DEFAULT_COLOR

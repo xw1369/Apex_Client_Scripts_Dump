@@ -100,6 +100,9 @@ global function CodeCallback_GetExtendedRangeUseEntitiesForPlayer
 global function AddGetExtendedRangeUseEntityCallback
 global function RemoveGetExtendedRangeUseEntityCallback
 
+global function CodeCallback_ObjectPlacementSpecial_CheckInvalidEnt
+global function CodeCallback_ObjectPlacementSpecial_GetMaxHeight
+
 struct
 {
 
@@ -810,10 +813,10 @@ string function CodeCallback_CheckPassThroughAddsMods( entity player, entity hit
 		}
 
 
-
-
-
-
+			if ( currMods.contains( "hopup_april_fools_energy" ) )
+			{
+				return "amped_damage_alt"
+			}
 
 		return "amped_damage"
 	}
@@ -1057,4 +1060,26 @@ void function RemoveGetExtendedRangeUseEntityCallback( void functionref( entity,
 {
 	Assert( file.getExtendedRangeUseEntityCallbacks.contains( callbackFunc ), "Callback " + string( callbackFunc ) + " doesn't exist" )
 	file.getExtendedRangeUseEntityCallbacks.fastremovebyvalue( callbackFunc )
+}
+
+bool function CodeCallback_ObjectPlacementSpecial_CheckInvalidEnt( entity ent )
+{
+
+
+
+	return false
+
+
+	unreachable
+}
+
+float function CodeCallback_ObjectPlacementSpecial_GetMaxHeight( entity player )
+{
+
+
+
+	return 0
+
+
+	unreachable
 }

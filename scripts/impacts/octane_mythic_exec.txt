@@ -1,0 +1,275 @@
+// "Gamematerial" "effect_name"
+
+
+ImpactTable
+{
+	FX
+	{
+		"C" "P_octane_exec_mythic_concrete_small" // Concrete, rock, porcelain, boulder, gravel, asphalt, brick, concrete_block, plaster
+		"D" "P_octane_exec_mythic_dirt_small"     //Dirt, slipperyslime, snow, carpet, cardboard, floatingstandable, ceiling_tile, papercup
+		"E" "P_octane_exec_mythic_metal_small"	  // metal_titan
+
+		"F" "none" //flesh
+		"G" "P_octane_exec_mythic_metal_small"	  //metalgrate, chainlink, chain
+		"H" "none" //alienflesh
+
+		"J" "P_octane_exec_mythic_dirt_small"	  //grass
+		"K" "P_octane_exec_mythic_mud_small"		//Mud
+		"L" "P_octane_exec_mythic_concrete_small" //plastic_barrel, plastic_box, item, rubber, rubbertire, jeeptire, slidingrubbertire, brakingrubbertire, slidingrubbertire_front, slidingrubbertire_rear
+		"M" "P_octane_exec_mythic_metal_small" //Default, metal, metal_box, solidmetal, armorflesh, metal_bouncy, slippery_metal, shellcasing_small, shellcasing_large, metal_barrel, floating_metal_barrel, weapon
+		"N" "P_octane_exec_mythic_slime_small" //Slime
+		"O" "P_octane_exec_mythic_mud_small" //Foliage
+		"P" "P_octane_exec_mythic_metal_small" //Computer
+
+		"R" "P_octane_exec_mythic_metal_small" //metalpanel, grenade, canister
+
+		"R" "P_octane_exec_mythic_metal_small" //metalpanel, grenade, canister
+		"S" "P_octane_exec_mythic_water_small" //water, slime
+		"T" "P_octane_exec_mythic_concrete_small" //tile
+		"U" "P_octane_exec_mythic_metal_small"	 //glass_breakable
+
+		"V" "P_octane_exec_mythic_metal_small" //Metal Vent
+		"W" "P_octane_exec_mythic_concrete_small" //Wood, Wood_lowdensity, Wood_Box, Wood_Crate, Wood_Plank, Wood_Solid, Wood_Furniture, Wood_Panel watermelon
+
+		"Y" "" //glass, brokenglass, glassbottle, pottery
+		"Z" "P_octane_exec_mythic_sand_small"  //sand
+
+		"airburst" "none"  //No Surface
+
+		"0" "P_octane_exec_mythic_concrete_small"
+		"1" "P_octane_exec_mythic_lava_small" //lava_flow
+		"2" "P_octane_exec_mythic_lava_small" //lava_rock_hot
+		"3" "P_octane_exec_mythic_concrete_small"
+		"4" "P_octane_exec_mythic_concrete_small"
+		"5" "P_octane_exec_mythic_water_small" //water_hrz
+		"6" "P_octane_exec_mythic_concrete_small"
+		"7" "P_octane_exec_mythic_concrete_small"
+		"8" "P_octane_exec_mythic_concrete_small"
+		"9" "P_octane_exec_mythic_concrete_small" //puddle
+
+		"splash" "P_octane_exec_mythic_water_small" //brush water
+		"slime_splash" "P_octane_exec_mythic_slime_small"
+		"airburst" "P_octane_exec_mythic_concrete_small"  //No Surface
+		"shieldhit" "P_octane_exec_mythic_metal_small"
+		"shadowhit" "P_octane_exec_mythic_metal_small"
+		"holohit" "P_octane_exec_mythic_metal_small"
+		"critical_hit" "P_octane_exec_mythic_metal_small"
+
+		"headshot_flesh" "P_impact_flesh"
+		"headshot_mechanical" "P_armor_impact"
+
+		"pass_through"	"P_octane_exec_mythic_metal_small"
+	}
+
+	Sound
+	{
+		"C" "none"
+		"D" "none"
+		"E" "none"
+		"F" "none"
+		"G" "none" // "ChainLink.BulletImpact"
+		"H" "none"
+
+		"J" "none"
+		"K" "Octane_Mvmt_Execution_Mythic_Water_Impact"  // mud?
+		"L" "none" // "Plastic_Box.BulletImpact"
+		"M" "none"	//"ArmorFlesh.BulletImpact"
+		"N" "Octane_Mvmt_Execution_Mythic_Water_Impact"	// sand?
+		"O" "Octane_Mvmt_Execution_Mythic_Water_Impact"
+		"P" "none"
+		"Q" "none"
+		"R" "none"
+		"S" "Octane_Mvmt_Execution_Mythic_Water_Impact"
+		"T" "none"
+		"U" "none"
+		"V" "none"
+		"W" "none"
+		"X"	"none" // Titan bubble shield
+		"Y" "none"
+		"Z" "none"
+
+		"0" "none"
+		"1" "none" //lava_flow
+		"2" "none" //lava_rock_hot
+		"3" "none"
+		"4" "none"
+		"5" "Octane_Mvmt_Execution_Mythic_Water_Impact"
+		"6" "none"
+		"7" "none"
+		"8" "none"
+		"9" "none"
+
+
+		"splash" "Octane_Mvmt_Execution_Mythic_Water_Impact" //brush water
+		"slime_splash" "Octane_Mvmt_Execution_Mythic_Water_Impact"
+		"airburst" "none"  //No Surface
+		"shieldhit" "none"
+		"holohit" "none"
+		"critical_hit" "none"
+
+		"headshot_flesh" "none"
+		"headshot_mechanical" "none"
+
+		"pass_through"	"none"
+	}
+
+	Sound_attacker
+	{
+		"C" "none"
+		"D" "none"
+		"E" "none"
+		"F" "none"
+		"G" "none" // "ChainLink.BulletImpact"
+		"H" "none"
+
+		"J" "none"
+		"K" "none"  // mud?
+		"L" "none" // "Plastic_Box.BulletImpact"
+		"M" "none"	//"ArmorFlesh.BulletImpact"
+		"N" "none"	// sand?
+		"O" "none"
+		"P" "none"
+		"Q" "none"
+		"R" "none"
+		"S" "none"
+		"T" "none"
+		"U" "none"
+		"V" "none"
+		"W" "none"
+		"X"	"none" // Titan bubble shield
+		"Y" "none"
+		"Z" "none"
+
+		"0" "none"
+		"1" "none" //lava_flow
+		"2" "none" //lava_rock_hot
+		"3" "none"
+		"4" "none"
+		"5" "none"
+		"6" "none"
+		"7" "none"
+		"8" "none"
+		"9" "none"
+
+
+		"splash" "none" //brush water
+		"slime_splash" "none"
+		"airburst" "none"  //No Surface
+		"shieldhit" "none"
+		"holohit" "none"
+		"critical_hit" "none"
+
+		"headshot_flesh" "none"
+		"headshot_mechanical" "none"
+
+		"pass_through"	"none"
+	}
+
+	Sound_victim
+	{
+		"C" "none"
+		"D" "none"
+		"E" "none"
+		"F" "none"
+		"G" "none" // "ChainLink.BulletImpact"
+		"H" "none"
+
+		"J" "none"
+		"K" "none"  // mud?
+		"L" "none" // "Plastic_Box.BulletImpact"
+		"M" "none"	//"ArmorFlesh.BulletImpact"
+		"N" "none"	// sand?
+		"O" "none"
+		"P" "none"
+		"Q" "none"
+		"R" "none"
+		"S" "none"
+		"T" "none"
+		"U" "none"
+		"V" "none"
+		"W" "none"
+		"X"	"none" // Titan bubble shield
+		"Y" "none"
+		"Z" "none"
+
+		"0" "none"
+		"1" "none" //lava_flow
+		"2" "none" //lava_rock_hot
+		"3" "none"
+		"4" "none"
+		"5" "none"
+		"6" "none"
+		"7" "none"
+		"8" "none"
+		"9" "none"
+
+
+		"splash" "none" //brush water
+		"slime_splash" "none"
+		"airburst" "none"  //No Surface
+		"shieldhit" "none"
+		"holohit" "none"
+		"critical_hit" "none"
+
+		"headshot_flesh" "none"
+		"headshot_mechanical" "none"
+
+		"pass_through"	"none"
+	}
+
+	Sound_victim_from_AI
+	{
+		"C" "none"
+		"D" "none"
+		"E" "none"
+		"F" "none"
+		"G" "none" // "ChainLink.BulletImpact"
+		"H" "none"
+
+		"J" "none"
+		"K" "none"  // mud?
+		"L" "none" // "Plastic_Box.BulletImpact"
+		"M" "none"	//"ArmorFlesh.BulletImpact"
+		"N" "none"	// sand?
+		"O" "none"
+		"P" "none"
+		"Q" "none"
+		"R" "none"
+		"S" "none"
+		"T" "none"
+		"U" "none"
+		"V" "none"
+		"W" "none"
+		"X"	"none" // Titan bubble shield
+		"Y" "none"
+		"Z" "none"
+
+		"0" "none"
+		"1" "none" //lava_flow
+		"2" "none" //lava_rock_hot
+		"3" "none"
+		"4" "none"
+		"5" "none"
+		"6" "none"
+		"7" "none"
+		"8" "none"
+		"9" "none"
+
+
+		"splash" "none" //brush water
+		"slime_splash" "none"
+		"airburst" "none"  //No Surface
+		"shieldhit" "none"
+		"holohit" "none"
+		"critical_hit" "none"
+
+		"headshot_flesh" "none"
+		"headshot_mechanical" "none"
+
+		"pass_through"	"none"
+
+		// Victim headshot sounds taken care of in PlayVictimHeadshotConfirmation():
+		//"headshot_flesh" "Flesh.BulletImpact_3P_vs_1P"
+		//"headshot_mechanical" "Android.Light.BulletImpact_3P_vs_1P"
+	}
+}

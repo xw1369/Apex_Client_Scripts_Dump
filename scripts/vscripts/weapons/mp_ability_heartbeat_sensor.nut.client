@@ -203,6 +203,11 @@ void function HeartbeatSensor_OnPassiveChanged( entity player, int passive, bool
 
 
 
+
+
+
+
+
 			if ( player == localViewPlayer )
 			{
 				file.heartbeatSensorVictims.clear()
@@ -218,6 +223,8 @@ void function HeartbeatSensor_OnPassiveChanged( entity player, int passive, bool
 
 				delete file.heartbeatSensorEyeVFX[player]
 			}
+
+
 
 	}
 }
@@ -239,11 +246,11 @@ void function HeartbeatSensor_OnPassiveChanged( entity player, int passive, bool
 
 void function PlayerZoomInCallback( entity player )
 {
-
-	if ( !IsAlive( player ) )
+	if ( !PlayerHasPassive( player, ePassives.PAS_PARIAH ) )
 		return
 
-	if ( !PlayerHasPassive( player, ePassives.PAS_PARIAH ) )
+
+	if ( !IsAlive( player ) )
 		return
 
 	if ( player == GetLocalViewPlayer() )
@@ -463,17 +470,6 @@ void function HeartbeatSensorTogglePressed( entity player )
 		Remote_ServerCallFunction( "ClientCallback_ToggleHeartbeatSensor" )
 	}
 }
-
-
-
-
-
-
-
-
-
-
-
 
 
 

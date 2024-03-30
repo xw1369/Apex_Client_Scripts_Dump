@@ -250,6 +250,7 @@ void function ClBloodhound_TT_Init()
 void function Bloodhound_TT_RegisterNetworking()
 {
 	Remote_RegisterClientFunction( "SCB_BloodTT_SetCustomSpeakerIdx", "int", 0, NUM_TOTAL_DIALOGUE_QUEUES )
+	Remote_RegisterServerFunction( "ClientCallback_BloodTT_StoryPropDialogueAborted" )
 }
 
 
@@ -1960,6 +1961,9 @@ bool function IsChallengeActive()
 
 void function OnAbortDialogue( string dialogueRefName )
 {
+	if ( !IsBloodhoundTTEnabled() )
+		return
+
 	entity player = GetLocalClientPlayer()
 
 	array<string> storyPropRefNames = clone(DIALOGUE_LINES_STORY_PROP_HUNT)
@@ -1972,6 +1976,12 @@ void function OnAbortDialogue( string dialogueRefName )
 		Remote_ServerCallFunction( "ClientCallback_BloodTT_StoryPropDialogueAborted" )
 	}
 }
+
+
+
+
+
+
 
 
 

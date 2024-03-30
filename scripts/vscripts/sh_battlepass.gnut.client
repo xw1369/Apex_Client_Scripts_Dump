@@ -86,6 +86,7 @@ global function CanPlayerPurchaseBattlePassLevelsWithLegendTokens
 
 
 
+
 #if DEV
 global function DEV_BattlePass
 #endif
@@ -1757,6 +1758,25 @@ asset function GetBattlePassDisplayBadge( int levelIndex )
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 bool function CanPlayerPurchaseBattlePassLevelsWithLegendTokens( entity player, ItemFlavor pass )
 {
 	if ( !IsPurchasingBattlePassLevelsWithLegendTokensEnabled() )
@@ -1776,6 +1796,21 @@ bool function CanPlayerPurchaseBattlePassLevelsWithLegendTokens( entity player, 
 		printt("CanPlayerPurchaseBattlePassLevelsWithLegendTokens - returning false because player's current battlepass level is below the minimum requirement to purchase levels with legend tokens")
 		return false
 	}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 	return true
 }

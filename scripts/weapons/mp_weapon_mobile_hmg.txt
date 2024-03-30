@@ -193,11 +193,7 @@ WeaponData
 	"ammo_min_to_fire"								"173"
     "ammo_per_shot"									"1"
     //"ammo_stockpile_max"							"173"
-                        
-    "regen_ammo_refill_rate"					    "1.153" //150s cooldown
-         
-                                                           
-          
+    "regen_ammo_refill_rate"					    "1.44" //120s cooldown
     "regen_ammo_refill_start_delay"					"0.0"
 
     "offhand_hybrid_switch_on_attack"               "0"
@@ -641,7 +637,7 @@ WeaponData
                         
         upgrade_core_ult_cooldown_reduction
         {
-            "regen_ammo_refill_rate"    "*1.25" // 1.153 * 1.25 = 1.44. 173 / 1.44 = 120s (30s CD reduction from regular 150s)
+            "regen_ammo_refill_rate"    "*1.3333" // 1.44 * 1.3333 = 1.92. 173 / 1.92 = 90s (30s CD reduction from regular 120s)
         }
 
         upgrade_core_modify_spinup_time

@@ -92,12 +92,12 @@ global enum eCrowdNoiseMeterModifiers
 	KILL_STREAK_FREQUENT_5_NEGATIVE,
 
 
-
-
-
-
-
-
+	TREASURE_HUNT_CAPTURING_ZONE_POSITIVE,
+	TREASURE_HUNT_CAPTURING_ZONE_NEGATIVE,
+	TREASURE_HUNT_CAPTURED_ZONE_POSITIVE,
+	TREASURE_HUNT_CAPTURED_ZONE_NEGATIVE,
+	TREASURE_HUNT_CONTESTING_ZONE_POSITIVE,
+	TREASURE_HUNT_CONTESTING_ZONE_NEGATIVE,
 
 
 	NESSIE_FIREWORKS_EE,
@@ -315,14 +315,14 @@ void function CrowdNoiseMeter_Init()
 	file.crowdNoiseMeterModifiers[eCrowdNoiseMeterModifiers.KILL_STREAK_FREQUENT_5_NEGATIVE] = GetCurrentPlaylistVarFloat( "crowd_noise_meter_modifier_kill_streak_frequent_5_negative", 0.0 )
 
 
+		file.crowdNoiseMeterModifiers[eCrowdNoiseMeterModifiers.TREASURE_HUNT_CAPTURING_ZONE_POSITIVE] = GetCurrentPlaylistVarFloat( "crowd_noise_meter_modifier_treasure_hunt_capturing_zone_positive", 0.0 )
+		file.crowdNoiseMeterModifiers[eCrowdNoiseMeterModifiers.TREASURE_HUNT_CAPTURING_ZONE_NEGATIVE] = GetCurrentPlaylistVarFloat( "crowd_noise_meter_modifier_treasure_hunt_capturing_zone_negative", 0.0 )
 
+		file.crowdNoiseMeterModifiers[eCrowdNoiseMeterModifiers.TREASURE_HUNT_CAPTURED_ZONE_POSITIVE] = GetCurrentPlaylistVarFloat( "crowd_noise_meter_modifier_treasure_hunt_captured_zone_positive", 0.0 )
+		file.crowdNoiseMeterModifiers[eCrowdNoiseMeterModifiers.TREASURE_HUNT_CAPTURED_ZONE_NEGATIVE] = GetCurrentPlaylistVarFloat( "crowd_noise_meter_modifier_treasure_hunt_captured_zone_negative", 0.0 )
 
-
-
-
-
-
-
+		file.crowdNoiseMeterModifiers[eCrowdNoiseMeterModifiers.TREASURE_HUNT_CONTESTING_ZONE_POSITIVE] = GetCurrentPlaylistVarFloat( "crowd_noise_meter_modifier_treasure_hunt_contesting_zone_positive", 0.0 )
+		file.crowdNoiseMeterModifiers[eCrowdNoiseMeterModifiers.TREASURE_HUNT_CONTESTING_ZONE_NEGATIVE] = GetCurrentPlaylistVarFloat( "crowd_noise_meter_modifier_treasure_hunt_contesting_zone_negative", 0.0 )
 
 
 	file.crowdNoiseMeterModifiers[eCrowdNoiseMeterModifiers.NESSIE_FIREWORKS_EE] = GetCurrentPlaylistVarFloat( "crowd_noise_meter_nessie_fireworks_ee_positive", 1 )

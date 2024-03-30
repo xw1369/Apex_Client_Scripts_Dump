@@ -13,6 +13,7 @@ WeaponData
 
                
                                                     
+                                                               
                      
 
 	"fire_rate"   									"15.5"//"7.5"

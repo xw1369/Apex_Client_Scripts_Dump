@@ -1,5 +1,6 @@
 global function OnWeaponTossReleaseAnimEvent_weapon_jump_pad
 global function OnWeaponTossPrep_weapon_jump_pad
+global function OnJumpPadPlanted
 
 const float JUMP_PAD_ANGLE_LIMIT = 0.70
 

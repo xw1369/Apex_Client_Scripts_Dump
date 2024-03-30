@@ -74,7 +74,7 @@ global const string ARCBOLT_THREAT_INDICATOR_SCRIPTNAME = "arcbolt_threat"
 
 const float TETHER_DURATION_DEFAULT = 5.0
 
-const float TETHER_DURATION_UPGRADE = 23.5
+const float TETHER_DURATION_UPGRADE = 15.0
 
 const float SHIELD_SCALE_DAMAGE_MULT_DEFAULT = 2.0
 const float TETHER_RADIUS_DEFAULT = 190
@@ -396,6 +396,9 @@ float function GetBoltLifetime( entity player )
 
 	return result
 }
+
+
+
 
 
 

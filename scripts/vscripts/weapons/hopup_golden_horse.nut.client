@@ -14,8 +14,6 @@ global function GoldenHorsePurple_HasMod
 
 global function GoldenHorseBlue_HasMod
 
-global function GoldenHorseRed_GetHighlightDist
-
 global function HopupGoldenHorse_GetEnabledList
 
 
@@ -65,7 +63,6 @@ const string PVAR_GOLDEN_HORSE_RED_FOLLOW_COMBAT = "golden_horse_red_follow_comb
 const string PVAR_GOLDEN_HORSE_RED_FOLLOW_GOAL = "golden_horse_red_follow_goal"
 const string PVAR_GOLDEN_HORSE_RED_ENEMY_DIST = "golden_horse_red_enemy_dist"
 const string PVAR_GOLDEN_HORSE_RED_COOLDOWN = "golden_horse_red_cooldown_sec"
-const string PVAR_GOLDEN_HORSE_RED_HIGHLIGHT_DIST = "golden_horse_red_highlight_dist"
 const string PVAR_GOLDEN_HORSE_RED_TELEPORT_DIST = "golden_horse_red_teleport_dist"
 const string PVAR_GOLDEN_HORSE_RED_TELEPORT_COMBAT_DIST = "golden_horse_red_teleport_combat_dist"
 
@@ -1231,10 +1228,6 @@ float function GoldenHorseRed_GetCooldown()
 	return GetCurrentPlaylistVarFloat( PVAR_GOLDEN_HORSE_RED_COOLDOWN, GOLDEN_HORSE_RED_SUMMON_COOLDOWN_TIME_SEC )
 }
 
-float function GoldenHorseRed_GetHighlightDist()
-{
-	return GetCurrentPlaylistVarFloat( PVAR_GOLDEN_HORSE_RED_HIGHLIGHT_DIST, 2000 )
-}
 
 bool function GoldenHorseRed_HasMod( entity weapon )
 {

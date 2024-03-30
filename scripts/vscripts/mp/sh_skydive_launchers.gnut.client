@@ -28,6 +28,13 @@ global enum eSkydiveLauncherType
 	
 }
 
+global enum eSkydiveLauncherAirControlType
+{
+	DEFAULT,
+	LIMITED,
+	FULL
+}
+
 enum eSkydiveLauncherThreshold
 {
 	FLOOR,
@@ -127,6 +134,8 @@ void function Sh_SkydiveLaunchers_Init()
 
 	file.holsterWeaponsOnAscent = GetCurrentPlaylistVarBool( "skydive_launchers_holster_weapons", true )
 }
+
+
 
 
 

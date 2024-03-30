@@ -1175,6 +1175,10 @@ void function BLACKHOLE_ProjectileLanded( entity projectile, DeployableCollision
 
 
 
+
+
+
+
 void function BLACKHOLE_TriggerEnter( entity trigger, entity ent )
 {
 	if ( !ent.DoesShareRealms( trigger ) )

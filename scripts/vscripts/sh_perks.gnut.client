@@ -154,6 +154,7 @@ void function Perks_Init()
 		return
 
 	RegisterSignal( "UpdatePerkMinimapVisibility" )
+	RegisterSignal( "UpdatePerkMinimapReady" )
 	RegisterSignal( "HidePerkMinimapVisibility" )
 
 
@@ -478,6 +479,23 @@ bool function Perks_DoesPlayerHavePerk( entity player, int perkIndex )
 
 
 	return player.p.activePerks.contains( perkIndex )
+}
+
+bool function Perks_IsPerkReady( entity player, int perkIndex )
+{
+	Assert( IsValid( player ) )
+	if ( !IsValid( player ) )
+		return false
+
+	bool isReady = true
+	switch ( perkIndex )
+	{
+		case ePerkIndex.BEACON_SCAN:
+			isReady = !HasActiveSurveyZone( player )
+			break
+	}
+
+	return isReady
 }
 
 void function Perks_AddMinimapEntityForPerk( int perkId, entity ent )
@@ -882,9 +900,10 @@ void function Perks_MinimapPackage_ListenToClassChanges( entity ent, var rui, in
 	{
 		entity localPlayer = GetLocalViewPlayer()
 		bool canUsePerk = Perks_DoesPlayerHavePerk( localPlayer, perkIndex )
-		vector color = canUsePerk ? INTERACTIBLE_PERK_MINIMAP_COLOR : NON_INTERACTIBLE_PERK_MINIMAP_COLOR
+		bool isPerkReady = Perks_IsPerkReady( localPlayer, perkIndex )
+		vector color = canUsePerk && isPerkReady ? INTERACTIBLE_PERK_MINIMAP_COLOR : NON_INTERACTIBLE_PERK_MINIMAP_COLOR
 		RuiSetFloat3( rui, "iconColor", color )
-		clGlobal.levelEnt.WaitSignal( "UpdatePerkMinimapVisibility" )
+		clGlobal.levelEnt.WaitSignal( "UpdatePerkMinimapVisibility", "UpdatePerkMinimapReady" )
 	}
 }
 

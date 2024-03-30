@@ -7,7 +7,7 @@ global function ShPassiveZiplineShield_Init
 
 const int ZIPLINE_OVERSHIELD_HEALTH = 50
 const float ZIPLINE_OVERSHIELD_COOLDOWN = 30.0
-const float ZIPLINE_DAMAGE_MITIGATION = 0.75
+const float ZIPLINE_DAMAGE_MITIGATION = 0.5
 const float ZIPLINE_ENERGIZED_DURATION = 30
 const asset ENERGIZED_ZIPLINE_FX = $"P_LU_Path_Zipline_elec"
 

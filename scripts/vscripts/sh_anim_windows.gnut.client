@@ -25,6 +25,7 @@ global const asset REVENANT_MDL = $"mdl/humans/class/heavy/pilot_heavy_revenant.
 const string BLOODHOUND_BIRD_KEY = "set_bloodhound_raven_skin"
 const string REVENANT_SHADOW_KEY = "set_revenant_shadow_skin"
 const string MELEE_SKIN_KEY = "match_melee_skin"
+const string ARTIFACT_SMEAR_KEY = "artifact_3p_smear"
 
 const bool SCRIPT_ANIM_WINDOWS_DEBUG = false
 
@@ -75,6 +76,7 @@ void function ShAnimWindows_LevelInit()
 		RegisterAnimWindowPropScriptCallback( BLOODHOUND_BIRD_KEY, AnimWindow_SetBloodhoundRavenPropSkin )
 		RegisterAnimWindowPropScriptCallback( REVENANT_SHADOW_KEY, AnimWindow_SetRevenantShadowPropSkin )
 		RegisterAnimWindowPropScriptCallback( MELEE_SKIN_KEY, AnimWindow_MatchMeleePropSkin )
+		RegisterAnimWindowPropScriptCallback( ARTIFACT_SMEAR_KEY, AnimWindow_SetSmearPropColour )
 
 
 
@@ -302,8 +304,8 @@ void function AnimWindow_CreateProp_Start( ScriptAnimWindow window, var settings
 		SetTeam( prop, window.ent.GetTeam() )
 		prop.kv.renderamt = window.ent.kv.renderamt
 		prop.CopyHighlightState( window.ent )
-		if ( window.ent.IsHidden() )
-			prop.Hide()
+		
+			
 
 
 	
@@ -1537,6 +1539,31 @@ void function AnimWindow_MatchMeleePropSkin( ScriptAnimWindow window, var settin
 		printt( "Setting prop melee skin to " + meleeSkinName + " :: " + skindex )
 		if ( skindex != -1 )
 			prop.SetSkin( skindex )
+	}
+}
+
+void function AnimWindow_SetSmearPropColour( ScriptAnimWindow window, var settingsBlock, entity prop )
+{
+	printt( "setting colour for artifact prop smear" )
+
+	entity owner = window.ent
+	if( !IsValid( owner ) )
+		return
+
+	if ( owner.IsPlayerDecoy() )
+		owner = owner.GetBossPlayer()
+
+	if ( IsValid( owner ) && owner.IsPlayer() )
+	{
+		if ( owner == GetLocalClientPlayer() && owner.p.artifactConfig == null ) 
+			Artifacts_StoreLoadoutDataOnPlayerEntityStruct( owner )
+
+		if ( owner.p.artifactConfig == null )
+			return
+
+		ArtifactConfig artifactConfig = expect ArtifactConfig( owner.p.artifactConfig )
+
+		prop.kv.rendercolor = Artifacts_FX_GetSmearColor( artifactConfig.powerSource )
 	}
 }
 

@@ -3411,6 +3411,47 @@ bool function TeamShouldSeeBeaconMarker( int team, entity beacon )
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 void function SURVIVAL_AddCallback_OnDeathFieldStartShrink( void functionref( DeathFieldStageData ) callbackFunc )
 {
 	Assert( !file.ClientCallbacks_OnDeathFieldStartShrink.contains( callbackFunc ), "Already added " + string( callbackFunc ) + " with SURVIVAL_AddCallback_OnDeathFieldStartShrink" )
@@ -3710,6 +3751,7 @@ void function ServerCallback_SurveyBeaconNotifications( entity beacon, int notif
 				AddPlayerHint( 2.5, 0.25, $"rui/hud/ultimate_icons/ultimate_pathfinder", "#SURVEY_PATHFINDER_SUCCESS" )
 
 			clGlobal.levelEnt.Signal( "UpdateSurveyBeaconVisibility" )
+			clGlobal.levelEnt.Signal( "UpdatePerkMinimapReady" )
 
 			break
 
@@ -3820,6 +3862,7 @@ void function  SurveyBeacon_ShowSquadInfo_Thread()
 void function ServerCallback_UpdateSurveyBeaconHUDVisibility()
 {
 	clGlobal.levelEnt.Signal( "UpdateSurveyBeaconVisibility" )
+	clGlobal.levelEnt.Signal( "UpdatePerkMinimapReady" )
 }
 
 void function SurveyBeaon_ClassChanged( entity player )

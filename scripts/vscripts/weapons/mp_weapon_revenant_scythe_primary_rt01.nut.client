@@ -1,5 +1,3 @@
-
-
 global function MpWeaponRevenantScythePrimary_rt01_Init
 
 global function OnWeaponActivate_weapon_revenant_scythe_primary_rt01
@@ -121,5 +119,4 @@ void function OnWeaponDeactivate_weapon_revenant_scythe_primary_rt01( entity wea
 		weapon.StopWeaponEffect( SCY_RT01_FX_BLADE_PC_3_1P, SCY_RT01_FX_BLADE_PC_2_3P )
 		weapon.StopWeaponEffect( SCY_RT01_FX_BASE_1P, SCY_RT01_FX_BASE_3P )
 	 }
-
 }

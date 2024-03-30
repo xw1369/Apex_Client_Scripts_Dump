@@ -1,5 +1,3 @@
-
-
 global function Sh_DeathField_EnforcedRingLethality_Init
 
 global function Deathfield_EnforcedRingLethality_Enabled
@@ -14,14 +12,17 @@ global function SimplifiedRingLethality_Ringout_WarningTime
 global function SimplifiedRingLethality_ResetTime
 global function SimplifiedRingLethality_ShouldShowWarning
 
+global function RingLethality_Is_Player_InDeathfield
+global function RingLethality_Is_Player_InRingOutWarning
 
 
 
 
 
 
-const string DEATHFIELD_RING_LETHALITY_1P_ACTIVATION_SOUND = "ui_revshellseeker_aggressor_targetlock_1p"
-const string SIMPLIFIEDRINGLETHALITY_SOUND_RINGOUT 			= "Boundary_Warning_Loop"
+
+const string DEATHFIELD_RING_LETHALITY_1P_ACTIVATION_SOUND 	= "ui_revshellseeker_aggressor_targetlock_1p"
+const string SIMPLIFIEDRINGLETHALITY_SOUND_RINGOUT_LOOP 	= "Boundary_Warning_Loop"
 const string SIMPLIFIEDRINGLETHALITY_SOUND_RINGOUT_WARNING 	= "Survival_Circle_Ringout_Warning_Stinger"
 
 global const float DEATHFIELD_RING_LETHALITY_STATUS_DURATION = 45 
@@ -52,7 +53,6 @@ enum eRingLethality_StatusEffectType
 
 enum eRingLethality_SoundTypes
 {
-	RINGOUT,
 	RINGOUT_WARNING,
 	LETHAL,
 	COUNT_
@@ -70,6 +70,10 @@ struct
 
 
 
+
+
+		bool snd_RingWarnLoopPlaying = false
+
 } file
 
 void function Sh_DeathField_EnforcedRingLethality_Init()
@@ -81,6 +85,8 @@ void function Sh_DeathField_EnforcedRingLethality_Init()
 
 
 
+		RegisterSignal( "RingoutLoop_Sound_Stop" )
+		AddCreateCallback( "player", CL_Manage_RingOutLoopSound )
 
 }
 
@@ -126,7 +132,7 @@ float function Deathfield_EnforcedRingLethality_LethalityEffectDuration()
 
 bool function Deathfield_EnforcedRingLethality_LowerIconEnabled()
 {
-	return GetCurrentPlaylistVarBool( "deathfield_enforced_ring_lethality_lower_icon_enabled", false )	
+	return GetCurrentPlaylistVarBool( "deathfield_enforcedringlethality_lowericon_enabled", false )
 }
 
 
@@ -158,7 +164,19 @@ float function SimplifiedRingLethality_ResetTime()
 bool function SimplifiedRingLethality_ShouldSkipRound1()
 {
 	
-	return GetCurrentPlaylistVarBool( "simplifiedringlethality_shouldskipround1", false ) 
+	return GetCurrentPlaylistVarBool( "simplifiedringlethality_shouldskipround1", true )
+}
+
+
+bool function SimplifiedRingLethality_Respawn_Continues_RingOutTimer()
+{
+	return GetCurrentPlaylistVarBool( "simplifiedringlethality_respawn_continues_ringouttimer", true )
+}
+
+
+float function SimplifiedRingLethality_Respawn_RingOutAllowanceTime_Given()
+{
+	return GetCurrentPlaylistVarFloat( "simplifiedringlethality_respawn_ringoutallowancetime_given", 30.0 )
 }
 
 bool function SimplifiedRingLethality_ShouldShowWarning( entity player )
@@ -170,9 +188,14 @@ bool function SimplifiedRingLethality_ShouldShowWarning( entity player )
 	bool shouldWarn = false
 	if ( simplifiedLethality )
 	{
+		if( !StatusEffect_HasSeverity( player, eStatusEffect.ring_lethality_warning ) )
+			return false
+
 		float ringOutTime = SimplifiedRingLethality_RingoutTime()
 		float warningTime = SimplifiedRingLethality_Ringout_WarningTime()
-		shouldWarn = StatusEffect_GetTimeRemaining( player, eStatusEffect.ring_lethality_warning ) <= ( ringOutTime - warningTime )
+		float threshold = ringOutTime - warningTime
+		float timeRemaining = StatusEffect_GetTimeRemaining( player, eStatusEffect.ring_lethality_warning )
+		shouldWarn = timeRemaining <= threshold
 	}
 	else
 	{
@@ -705,5 +728,126 @@ bool function SimplifiedRingLethality_ShouldShowWarning( entity player )
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+bool function RingLethality_Is_Player_InDeathfield( entity player )
+{
+	if( !IsValid( player ) )
+		return false
+
+	if( !IsAlive( player ) )
+		return false
+
+	float distanceFromDeathfieldFrontier = DeathField_PointDistanceFromFrontier( player.GetOrigin(), player.DeathFieldIndex() )
+	return( distanceFromDeathfieldFrontier <= 0 )
+}
+
+bool function RingLethality_Is_Player_InRingOutWarning( entity player )
+{
+	if ( !RingLethality_Is_Player_InDeathfield( player ) )
+		return false
+
+	return SimplifiedRingLethality_ShouldShowWarning( player )
+}
+
+
+void function CL_Manage_RingOutLoopSound( entity player )
+{
+	if ( player.IsBot() )
+		return
+
+	thread CL_Manage_RingOutLoopSound_Thread()
+}
+
+
+void function CL_Manage_RingOutLoopSound_Thread()
+{
+	entity player = GetLocalViewPlayer()
+
+	player.Signal( "RingoutLoop_Sound_Stop" )
+	EndSignal( player, "RingoutLoop_Sound_Stop" )
+
+	bool simplifiedLethality = SimplifiedRingLethality_Enabled()
+	if( !simplifiedLethality )
+		return
+
+#if DEV
+		string playerName = player.GetPlayerName()
+		string debugStr_Play = format( "%s(): RingOut Loop Playing for Player: %s", FUNC_NAME(), playerName )
+		string debugStr_Stop = format( "%s(): RingOut Loop Stopping for Player: %s", FUNC_NAME(), playerName )
+#endif
+
+	while ( GetGameState() <= eGameState.Playing && IsValid( player )  )
+	{
+		if ( GetGameState() != eGameState.Playing )
+		{
+			WaitFrame()
+			continue
+		}
+
+		
+		bool shouldWarn = RingLethality_Is_Player_InRingOutWarning( player )
+		if ( shouldWarn && !file.snd_RingWarnLoopPlaying )
+		{
+			file.snd_RingWarnLoopPlaying = true
+			wait 0.5 
+			EmitSoundOnEntity( player, SIMPLIFIEDRINGLETHALITY_SOUND_RINGOUT_LOOP )
+
+			
+			
+			
+			
+		}
+		else if ( !shouldWarn && file.snd_RingWarnLoopPlaying )
+		{
+			file.snd_RingWarnLoopPlaying = false
+			StopSoundOnEntity( player, SIMPLIFIEDRINGLETHALITY_SOUND_RINGOUT_LOOP )
+
+			
+			
+			
+			
+		}
+		wait 0.1
+	}
+}
 
 

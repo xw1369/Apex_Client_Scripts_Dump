@@ -1,0 +1,43 @@
+global function StatsRegister_Arenas
+
+void function StatsRegister_Arenas()
+{
+	
+	CAREER_STATS.arenas_badge_perfect_game = RegisterAccumulatedStat_Int( null, "arenas_badge_perfect_game", eChallengeGameMode.ARENAS, CHALLENGES_CALC_DEPENDS ) 
+	CAREER_STATS.arenas_badge_no_down_win = RegisterAccumulatedStat_Int( null, "arenas_badge_no_down_win", eChallengeGameMode.ARENAS, BADGES_UNLOCK_NEED ) 
+
+	CAREER_STATS.arenas_rounds_won = RegisterAccumulatedStat_Int( null, "arenas_rounds_won", eChallengeGameMode.ARENAS, CHALLENGES_CALC_DEPENDS )
+	CAREER_STATS.arenas_cash_stations_captured = RegisterAccumulatedStat_Int( null, "arenas_cash_stations_captured", eChallengeGameMode.ARENAS, CHALLENGES_CALC_DEPENDS )
+
+	StatEnumStruct character_SES = GetRegisteredStatEnumStruct( eStatEnumStructRefs.CHARACTER )
+	CAREER_STATS.arenas_character_win_streak_current_new = RegisterVariableStat_Int( character_SES, "arenas_character_win_streak_current_new", eChallengeGameMode.ARENAS, DELAY_WRITE_BACK_UNTIL_MATCH_END )
+	CAREER_STATS.arenas_character_win_streak_longest_new = RegisterAccumulatedStat_Int( character_SES, "arenas_character_win_streak_longest_new", eChallengeGameMode.ARENAS, BADGES_UNLOCK_NEED )
+	CAREER_STATS.arenas_character_kills_max_single_game = RegisterAccumulatedStat_Int( character_SES, "arenas_character_kills_max_single_game", eChallengeGameMode.ARENAS, BADGES_UNLOCK_NEED )
+	CAREER_STATS.arenas_character_damage_done_max_single_game = RegisterAccumulatedStat_Int( character_SES, "arenas_character_damage_done_max_single_game", eChallengeGameMode.ARENAS, BADGES_UNLOCK_NEED )
+	CAREER_STATS.arenas_character_rounds_won = RegisterAccumulatedStat_Int( character_SES, "arenas_character_rounds_won", eChallengeGameMode.ARENAS, CHALLENGES_CALC_DEPENDS )
+
+	CAREER_STATS.arenas_skills_purchased = RegisterAccumulatedStat_Int( null, "arenas_skills_purchased", eChallengeGameMode.ARENAS, CHALLENGES_CALC_DEPENDS )
+	CAREER_STATS.arenas_ordnance_purchased = RegisterAccumulatedStat_Int( null, "arenas_ordnance_purchased", eChallengeGameMode.ARENAS, CHALLENGES_CALC_DEPENDS )
+	CAREER_STATS.arenas_heals_purchased = RegisterAccumulatedStat_Int( null, "arenas_heals_purchased", eChallengeGameMode.ARENAS, CHALLENGES_CALC_DEPENDS )
+	CAREER_STATS.arenas_weapons_upgraded = RegisterAccumulatedStat_Int( null, "arenas_weapons_upgraded", eChallengeGameMode.ARENAS, CHALLENGES_CALC_DEPENDS )
+
+	
+	StatEnumStruct arenasRankedperiod_SES = GetRegisteredStatEnumStruct( eStatEnumStructRefs.ARENA_RANKED_PERIOD )
+	CAREER_STATS.arenas_rankedperiod_games_played = RegisterAccumulatedStat_Int( arenasRankedperiod_SES, "games_played", eChallengeGameMode.ARENAS, DELAY_WRITE_BACK_UNTIL_MATCH_END )
+	CAREER_STATS.arenas_rankedperiod_current_rank_score = RegisterVariableStat_Int( arenasRankedperiod_SES, "current_rank_score", eChallengeGameMode.ARENAS, BADGES_UNLOCK_NEED )
+	CAREER_STATS.arenas_rankedperiod_badge_award_level = RegisterVariableStat_Int( arenasRankedperiod_SES, "badge_award_level", eChallengeGameMode.ARENAS, BADGES_UNLOCK_NEED )
+	CAREER_STATS.arenas_rankedperiod_gained_rank_score_only = RegisterAccumulatedStat_Int( arenasRankedperiod_SES, "gained_rank_score_only", eChallengeGameMode.ARENAS, BADGES_UNLOCK_NEED )
+
+	
+	CAREER_STATS.arenas_rankedperiod_placements_win = RegisterAccumulatedStat_Int( arenasRankedperiod_SES, "placements_win", eChallengeGameMode.ARENAS, DELAY_WRITE_BACK_UNTIL_MATCH_END )
+	CAREER_STATS.arenas_rankedperiod_damage_done = RegisterAccumulatedStat_Int( arenasRankedperiod_SES, "damage_done", eChallengeGameMode.ARENAS, DELAY_WRITE_BACK_UNTIL_MATCH_END )
+	CAREER_STATS.arenas_rankedperiod_damage_done_max_single_game = RegisterAccumulatedStat_Int( arenasRankedperiod_SES, "damage_done_max_single_game", eChallengeGameMode.ARENAS, DELAY_WRITE_BACK_UNTIL_MATCH_END )
+	CAREER_STATS.arenas_rankedperiod_kills = RegisterAccumulatedStat_Int( arenasRankedperiod_SES, "kills", eChallengeGameMode.ARENAS, DELAY_WRITE_BACK_UNTIL_MATCH_END )
+	CAREER_STATS.arenas_rankedperiod_deaths = RegisterAccumulatedStat_Int( arenasRankedperiod_SES, "deaths", eChallengeGameMode.ARENAS, WRITE_TO_PERSISTENCE_IMMEDIATELY )
+	CAREER_STATS.arenas_rankedperiod_dooms = RegisterAccumulatedStat_Int( arenasRankedperiod_SES, "dooms", eChallengeGameMode.ARENAS, DELAY_WRITE_BACK_UNTIL_MATCH_END )
+	CAREER_STATS.arenas_rankedperiod_assists = RegisterAccumulatedStat_Int( arenasRankedperiod_SES, "assists", eChallengeGameMode.ARENAS, DELAY_WRITE_BACK_UNTIL_MATCH_END )
+	CAREER_STATS.arenas_rankedperiod_kills_max_single_game = RegisterAccumulatedStat_Int( arenasRankedperiod_SES, "kills_max_single_game", eChallengeGameMode.ARENAS, DELAY_WRITE_BACK_UNTIL_MATCH_END )
+	CAREER_STATS.arenas_rankedperiod_win_streak_current_new = RegisterVariableStat_Int( arenasRankedperiod_SES, "win_streak_current_new", eChallengeGameMode.ARENAS, DELAY_WRITE_BACK_UNTIL_MATCH_END )
+	CAREER_STATS.arenas_rankedperiod_win_streak_longest_new = RegisterAccumulatedStat_Int( arenasRankedperiod_SES, "win_streak_longest_new", eChallengeGameMode.ARENAS, DELAY_WRITE_BACK_UNTIL_MATCH_END )
+	CAREER_STATS.arenas_rankedperiod_revived_ally = RegisterAccumulatedStat_Int( arenasRankedperiod_SES, "revived_ally", eChallengeGameMode.ARENAS, DELAY_WRITE_BACK_UNTIL_MATCH_END )
+}

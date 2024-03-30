@@ -20,7 +20,7 @@ global function ServerCallback_AnnounceLostPoint
 global function ServerCallback_AnnounceWeaponSkip
 global function ServerCallback_UpdateWeaponPreviews
 global function ServerCallback_GunGame_SetSummaryScreen
-
+global function GunGame_GetHUDRui
 global function GunGame_PopulateSummaryDataStrings
 
 global function GunGame_IsTeamWinning
@@ -734,6 +734,39 @@ void function GunGame_Init()
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+var function GunGame_GetHUDRui()
+{
+	return file.gamemodeRUI
+}
+
+
 void function ServerCallback_AnnounceScored( int lootIndex )
 {
 	Assert( SURVIVAL_Loot_IsLootIndexValid( lootIndex ) )
@@ -870,7 +903,7 @@ void function GunGame_OnSelectedWeaponChanged( entity selectedWeapon )
 	bool isWeaponTypeUlt = false
 
 	string weaponName = selectedWeapon.GetWeaponClassName()
-	printt("weapon Ult name: " + weaponName)
+	printt("Gun Run: weapon Ult name: " + weaponName)
 
 	switch( weaponName )
 	{
@@ -885,7 +918,7 @@ void function GunGame_OnSelectedWeaponChanged( entity selectedWeapon )
 			break
 	}
 
-	printt("weapon Ult : " + isWeaponTypeUlt)
+	printt("Gun Run: weapon Ult : " + isWeaponTypeUlt)
 	RuiSetBool( file.gamemodeRUI, "hasWeaponUltActive", isWeaponTypeUlt )
 }
 
@@ -984,7 +1017,7 @@ void function DisplayGunGameScore_thread()
 			
 			if (!IsValid(player) && i < (GetCurrentPlaylistVarInt("max_team_size", 3)  -2) )
 			{
-				printf("remove " + i)
+				printt("Gun Run: remove " + i)
 				RuiSetBool(rui, "squadWeaponPreview" + i, false)
 				file.connectedSquadMembers.remove(i)
 			}
@@ -1224,6 +1257,8 @@ void function GunGame_ScoreboardUpdateHeader( var headerRui, var frameRui, int t
 
 		RuiSetBool( headerRui, "isWinning", GunGame_IsTeamWinning(team) )
 		RuiSetImage( headerRui, "teamIcon", Squads_GetSquadIcon(squadIndex))
+		RuiSetBool( headerRui, "useGunGameElements", true )
+		RuiSetBool( headerRui, "useScoreLimitElements", false )
 	}
 
 }

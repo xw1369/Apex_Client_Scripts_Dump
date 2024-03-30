@@ -5,6 +5,7 @@
 
 global function Sh_Kepler_Init
 global function Kepler_IsPlayerInVariant
+global function Kepler_IsPlayerEligibleForItemFlavor
 
 
 
@@ -27,19 +28,27 @@ global function Kepler_IsPlayerInVariant
 global enum eKeplerScenario
 {
 	APEX_TAB_ORDERING,
+	WELCOME_CHALLENGE_20_1,
 
 	COUNT
 }
 
 table<int, string> keplerActiveScenarios = {
-	[eKeplerScenario.APEX_TAB_ORDERING] = "apex-tab-ordering"
+	[eKeplerScenario.APEX_TAB_ORDERING] = "apex-tab-ordering",
+	[eKeplerScenario.WELCOME_CHALLENGE_20_1] = "20-1-welcome-challenge-01"
+}
+
+struct KeplerVariantData
+{
+	string variantName
+	array<asset> controlledAssets
 }
 
 struct KeplerScenarioData
 {
 	ItemFlavor& flavor
 	string scenarioKey
-	array<string> variants
+	array<KeplerVariantData> variants
 }
 
 struct FileStruct_Kepler
@@ -66,7 +75,17 @@ void function InitializeScenarioData( asset scenarioAsset, ItemFlavor flavor )
 	var variantArray = GetSettingsBlockArray( settingsBlock, "variants" )
 	foreach ( var variant in IterateSettingsArray( variantArray ) )
 	{
-		scenario.variants.append( GetSettingsBlockString( variant, "variantName" ) )
+		KeplerVariantData variantData
+		variantData.variantName = GetSettingsBlockString( variant, "variantName" )
+
+		
+		asset controlledAsset = GetSettingsBlockAsset( variant, "controlledCollection" )
+		if ( controlledAsset != $"" )
+		{
+			variantData.controlledAssets.append( controlledAsset )
+		}
+
+		scenario.variants.append( variantData )
 	}
 
 	file.loadedScenarios[scenario.scenarioKey] <- scenario
@@ -96,6 +115,40 @@ void function Sh_Kepler_Init()
 
 }
 
+bool function Kepler_IsPlayerEligibleForItemFlavor( entity player, ItemFlavor itemFlavor )
+{
+	AssertLocalOrServerValidPlayer( player )
+
+	bool isReferencedByAnyScenario = false
+
+	foreach ( int scenario, string scenarioKey in keplerActiveScenarios )
+	{
+		if ( !( scenarioKey in file.loadedScenarios ) )
+		{
+			Warning( "Active scenario %s does not have a loaded Bakery asset", scenarioKey )
+			continue
+		}
+
+		KeplerScenarioData scenarioData = file.loadedScenarios[scenarioKey]
+		foreach (KeplerVariantData variant in scenarioData.variants )
+		{
+			foreach ( asset controlledAsset in variant.controlledAssets )
+			{
+				if ( GetUniqueIdForSettingsAsset( controlledAsset ) == itemFlavor.guid )
+				{
+					isReferencedByAnyScenario = true
+					if ( Kepler_IsPlayerInVariant( player, scenario, variant.variantName ) )
+					{
+						return true
+					}
+				}
+			}
+		}
+	}
+
+	return !isReferencedByAnyScenario
+}
+
 bool function AllowCheckForVariant( int scenario, string variantName )
 {
 	Assert( scenario >= 0 && scenario < eKeplerScenario.COUNT, "Checking variant for invalid Kepler scenario, are you using eKeplerScenario?" )
@@ -119,9 +172,10 @@ bool function AllowCheckForVariant( int scenario, string variantName )
 
 
 
-
-bool function Kepler_IsPlayerInVariant( int scenario, string variantName )
+bool function Kepler_IsPlayerInVariant( entity player, int scenario, string variantName )
 {
+	AssertLocalOrServerValidPlayer( player )
+
 	if ( !AllowCheckForVariant( scenario, variantName ) )
 	{
 		return false
@@ -136,44 +190,25 @@ bool function Kepler_IsPlayerInVariant( int scenario, string variantName )
 #endif
 
 	string scenarioKey = keplerActiveScenarios[scenario]
+
+
 	return Kepler_IsPlayerInVariant_Internal( scenarioKey, variantName )
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

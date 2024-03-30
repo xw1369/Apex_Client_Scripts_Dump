@@ -13,9 +13,18 @@ global function EventShop_GetEventShopCurrency
 global function EventShop_GetEventShopGRXCurrency
 global function EventShop_HasSweepstakesOffers
 global function EventShop_GetGRXOfferLocation
+global function EventShop_GetGridToolTipBodyText
+global function EventShop_GetGridToolTipBodySetsText
+global function EventShop_GetGridToolTipBodyInsufficientText
+global function EventShop_GetGridToolTipSubtitleDailyLimitText
+global function EventShop_GetGridToolTipCounterAvailableText
+global function EventShop_GetGridToolTipCounterDailyLimitText
+global function EventShop_GetGridToolTipBodySweepstakesText
+global function EventShop_GetGridToolTipBody2Text
 global function EventShop_GetEventMainIcon
 global function EventShop_GetLeftCornerHeaderBackground
 global function EventShop_GetRightPanelBackground
+global function EventShop_GetRightPanelBackgroundColor
 global function EventShop_GetShopPageItemsBackground
 global function EventShop_GetSweepstakesPrizeImage
 global function EventShop_GetLobbyButtonImage
@@ -50,6 +59,13 @@ global function EventShop_GetTotalCurrencyPersistenceVar
 global function EventShop_GetTotalCurrencyStat
 global function EventShop_IsEventShopActive
 global function EventShop_GetCurrentEventCurrencyLifetimeTotal
+
+
+
+
+
+
+
 
 
 
@@ -182,6 +198,12 @@ void function EventShop_Init()
 			{
 				expired = CalEvent_GetFinishUnixTime( event ) < GetUnixTimestamp()
 			}
+
+		if ( expired )
+		{
+			printt( "EventShop_Init: skipping registration of subassets for expired event ", ItemFlavor_GetGUIDString( event ) )
+			return 
+		}
 
 		eventShopData.mainChallengeFlav = RegisterItemFlavorFromSettingsAsset( GetGlobalSettingsAsset( ItemFlavor_GetAsset( event ), "mainChallengeFlav" ) )
 		if ( eventShopData.mainChallengeFlav != null )
@@ -494,6 +516,46 @@ ItemFlavor function EventShop_GetEventShopGRXCurrency()
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 bool function EventShop_HasSweepstakesOffers( ItemFlavor event )
 {
 	Assert( ItemFlavor_GetType( event ) == eItemType.calevent_event_shop )
@@ -511,6 +573,70 @@ string function EventShop_GetGRXOfferLocation( ItemFlavor event )
 {
 	Assert( ItemFlavor_GetType( event ) == eItemType.calevent_event_shop )
 	return GetGlobalSettingsString( ItemFlavor_GetAsset( event ), "eventShopGRXOfferLocation" )
+}
+
+
+
+string function EventShop_GetGridToolTipBodyText( ItemFlavor event )
+{
+	Assert( ItemFlavor_GetType( event ) == eItemType.calevent_event_shop )
+	return GetGlobalSettingsString( ItemFlavor_GetAsset( event ), "eventShopGridToolTipBodyText" )
+}
+
+
+
+string function EventShop_GetGridToolTipBodySetsText( ItemFlavor event )
+{
+	Assert( ItemFlavor_GetType( event ) == eItemType.calevent_event_shop )
+	return GetGlobalSettingsString( ItemFlavor_GetAsset( event ), "eventShopGridToolTipBodySetsText" )
+}
+
+
+
+string function EventShop_GetGridToolTipBodyInsufficientText( ItemFlavor event )
+{
+	Assert( ItemFlavor_GetType( event ) == eItemType.calevent_event_shop )
+	return GetGlobalSettingsString( ItemFlavor_GetAsset( event ), "eventShopGridToolTipBodyInsufficientText" )
+}
+
+
+
+string function EventShop_GetGridToolTipSubtitleDailyLimitText( ItemFlavor event )
+{
+	Assert( ItemFlavor_GetType( event ) == eItemType.calevent_event_shop )
+	return GetGlobalSettingsString( ItemFlavor_GetAsset( event ), "eventShopGridToolTipSubtitleDailyLimitText" )
+}
+
+
+
+string function EventShop_GetGridToolTipCounterAvailableText( ItemFlavor event )
+{
+	Assert( ItemFlavor_GetType( event ) == eItemType.calevent_event_shop )
+	return GetGlobalSettingsString( ItemFlavor_GetAsset( event ), "eventShopGridToolTipCounterAvailableText" )
+}
+
+
+
+string function EventShop_GetGridToolTipCounterDailyLimitText( ItemFlavor event )
+{
+	Assert( ItemFlavor_GetType( event ) == eItemType.calevent_event_shop )
+	return GetGlobalSettingsString( ItemFlavor_GetAsset( event ), "eventShopGridToolTipCounterDailyLimitText" )
+}
+
+
+
+string function EventShop_GetGridToolTipBodySweepstakesText( ItemFlavor event )
+{
+	Assert( ItemFlavor_GetType( event ) == eItemType.calevent_event_shop )
+	return GetGlobalSettingsString( ItemFlavor_GetAsset( event ), "eventShopGridToolTipBodySweepstakesText" )
+}
+
+
+
+string function EventShop_GetGridToolTipBody2Text( ItemFlavor event )
+{
+	Assert( ItemFlavor_GetType( event ) == eItemType.calevent_event_shop )
+	return GetGlobalSettingsString( ItemFlavor_GetAsset( event ), "eventShopGridToolTipBody2Text" )
 }
 
 
@@ -543,6 +669,14 @@ asset function EventShop_GetRightPanelBackground( ItemFlavor event )
 {
 	Assert( ItemFlavor_GetType( event ) == eItemType.calevent_event_shop )
 	return GetGlobalSettingsAsset( ItemFlavor_GetAsset( event ), "rightPanelBg" )
+}
+
+
+
+vector function EventShop_GetRightPanelBackgroundColor( ItemFlavor event )
+{
+	Assert( ItemFlavor_GetType( event ) == eItemType.calevent_event_shop )
+	return GetGlobalSettingsVector( ItemFlavor_GetAsset( event ), "rightPanelBgColor" )
 }
 
 
@@ -886,6 +1020,38 @@ string function EventShop_GetTotalCurrencyStat( ItemFlavor event )
 	Assert( ItemFlavor_GetType( event ) == eItemType.calevent_event_shop )
 	return GetGlobalSettingsString( ItemFlavor_GetAsset( event ), "eventShopTotalCurrencyStat" )
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

@@ -57,7 +57,9 @@ global function test_tiptext
 
 
 const string DEBUG_OUTPUT_PATH = "../../dumps/" 
+
 const float MIN_EXECUTION_DURATION = 4.9
+const float MAX_EXECUTION_DURATION = 6.0
 const float MAX_EXECUTION_DISPLACEMENT = 90 
 
 
@@ -108,6 +110,88 @@ void function test_itemflavorsdump( string filter )
 	else
 		printt( "Failed to write " + count + " entries to '" + fullPathAndName + "'.  This directory must pre-exist.")
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

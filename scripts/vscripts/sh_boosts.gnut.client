@@ -1468,11 +1468,11 @@ string function LocalizeWeaponClass( Boost boost )
 string function LocalizeList( array< string > locIds )
 {
 	const MAX_LOC = 5 
-	int numStr = locIds.len()
+	int numStr = ClampInt ( locIds.len(), 0, MAX_LOC )
 
 	
 	
-	if ( numStr > MAX_LOC )
+	if ( locIds.len() > MAX_LOC ) 
 	{
 		printf("\nsh_boosts %s: Loc Ids:\n", FUNC_NAME() )
 		for ( int i = 0; i < numStr; i++ )
@@ -1480,9 +1480,10 @@ string function LocalizeList( array< string > locIds )
 			printf( "\t sh_boosts %s: locId[%i]: '%s'\n", FUNC_NAME(), i, locIds[i] )
 		}
 
-		Assert ( false, "LocalizeList() has more entries than it can localize!" )
+		Warning ( "LocalizeList() has more entries than it can localize!" )
 		
 	}
+
 	if ( numStr == 0 )
 		return ""
 
@@ -1510,6 +1511,7 @@ string function LocalizeGamemodeConditions( Boost boost )
 	array< string > matches = []
 	array< string > playlists = GetVisiblePlaylistNames()
 
+	
 	foreach ( string playlistName in playlists )
 	{
 		string pinMatchType = GetPlaylistVarString( playlistName, "pin_match_type", "" )

@@ -3,6 +3,7 @@ global function OnWeaponActivate_weapon_horizon_heirloom_primary
 global function OnWeaponDeactivate_weapon_horizon_heirloom_primary
 
 const string HORIZON_WEAPON = "mp_weapon_horizon_heirloom_primary"
+const string HORIZON_MODEL_IDENTIFIER = "horizon_heirloom"
 
 const HORIZON_WEAPON_IDLE_FX_1P = $"P_wpn_morning_star_idle"
 const HORIZON_WEAPON_IDLE_FX_3P = $"P_wpn_morning_star_idle_3p"
@@ -128,6 +129,9 @@ void function HorizonHeirloom_ScriptAnimWindowStartCallback( entity ent, string 
 
 void function HorizonHeirloom_ScriptAnimWindowStopCallback( entity ent, string parameter )
 {
+	if ( !ent.IsWeaponX() && ent.GetModelName().find( HORIZON_MODEL_IDENTIFIER ) == -1 ) 
+		return
+
 	entity weapon
 
 	if ( ent.IsWeaponX() )

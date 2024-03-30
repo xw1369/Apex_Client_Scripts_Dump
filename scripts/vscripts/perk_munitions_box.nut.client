@@ -230,6 +230,9 @@ void function OnMunitionsBoxSpawned( entity ent )
 		AddCallback_CanOpenLootBin( ent, CanPlayerUseMunitionsBoxCallback )
 	}
 
+	if( GradeFlagsHas( ent, eGradeFlags.IS_OPEN_SECRET ) )
+		return
+
 	Perks_AddMinimapEntityForPerk( ePerkIndex.MUNITIONS_BOX, ent )
 }
 

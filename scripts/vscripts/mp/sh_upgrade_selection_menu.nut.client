@@ -13,6 +13,7 @@ global function UpgradeSelectionMenu_Open
 global function UpgradeSelectionMenu_HandleKeyInput
 global function UpgradeSelectionMenu_MockSelection
 global function UpgradeSelectionMenu_UpdateChoices
+global function UpgradeSelectionMenu_TryClose
 
 
 void function UpgradeSelectionMenu_Init()
@@ -137,6 +138,8 @@ void function UpgradeSelectionMenu_Open()
 	if( !UpgradeCore_ShowHudUpgradeSelection() )
 		return
 
+	Announcements_SetVisible(false)
+
 	RunUIScript( "ClientToUi_SetUpgradeSelectionOpen", true )
 
 	file.upgradesSelectionMenu = CreateCockpitPostFXRui( $"ui/upgrade_core_selection_menu.rpak", RUI_SORT_SCREENFADE + 2 )
@@ -164,6 +167,11 @@ void function UpgradeSelectionMenu_ListenForDamageThread( entity player )
 	player.EndSignal( "OnDestroy" )
 	player.EndSignal( "OnDeath" )
 	player.EndSignal( "UpgradeSelectionMenuClose" )
+	player.EndSignal( "FreefallStarted" )
+
+	entity drone = CryptoDrone_GetPlayerDrone( player )
+	if ( IsValid( drone ) )
+		drone.EndSignal( "CameraViewStart" )
 
 	float lastHealthFrac = GetHealthFrac( player )
 	float lastShieldFrac = GetShieldHealthFrac( player )
@@ -340,8 +348,15 @@ void function UpgradeSelectionMenu_ApplyUpgrade( int choice )
 		UpgradeCore_SelectOption( upgradeChoices[choice], true )
 }
 
+void function UpgradeSelectionMenu_TryClose()
+{
+	if( UpgradeSelectionMenu_IsActive() )
+		UpgradeSelectionMenu_Shutdown()
+}
+
 void function UpgradeSelectionMenu_Shutdown()
 {
+	Announcements_SetVisible(true)
 	entity player = GetLocalViewPlayer()
 	if( player )
 	{

@@ -212,6 +212,7 @@ const string CIRCLE_CLOSING_IN_SOUND = "UI_InGame_RingMoveWarning"
 const float TITAN_DESYNC_TIME = 1.0
 
 const int INVALID_TEAM_OR_ALLIANCE = -1
+const int MIN_PLAYERS_FOR_PODIUM_SCALING = 9
 
 
 const int HEALTH_STATE_DEFAULT = 0
@@ -746,8 +747,8 @@ void function SURVIVAL_PopulatePlayerInfoRui( entity player, var rui )
 		RuiTrackInt( rui, "playerOvershield", player, RUI_TRACK_TEMP_SHIELD_INT )
 
 
-		RuiTrackInt( rui, "playerExtraShield", player, RUI_TRACK_SCRIPT_NETWORK_VAR_INT, GetNetworkedVariableIndex( EXTRA_SHIELDS_NETINT ) )
-		RuiTrackInt( rui, "playerExtraShieldTier", player, RUI_TRACK_SCRIPT_NETWORK_VAR_INT, GetNetworkedVariableIndex( EXTRA_SHIELDS_TIER_NETINT ) )
+		RuiTrackInt( rui, "playerExtraShield", player, RUI_TRACK_EXTRA_SHIELD_INT )
+		RuiTrackInt( rui, "playerExtraShieldTier", player, RUI_TRACK_EXTRA_SHIELD_TIER_INT )
 
 	RuiTrackFloat( rui, "cameraViewFrac", player, RUI_TRACK_STATUS_EFFECT_SEVERITY, eStatusEffect.camera_view ) 
 	vector shieldFrac = < SURVIVAL_GetArmorShieldCapacity( 0 ) / 100.0,
@@ -1841,7 +1842,7 @@ void function NextCircleStartTimeChanged( entity player, float new )
 
 	if ( GamePlaying() && CircleBannerAnnouncementsEnabled() )
 	{
-		if ( !GetCurrentPlaylistVarBool( "deathfield_starts_after_ship_flyout", true ) && SURVIVAL_GetCurrentDeathFieldStage() == 0 )
+		if ( !GetCurrentPlaylistVarBool( "deathfield_starts_after_ship_flyout", true ) && !GetCurrentPlaylistVarBool( "sur_circle_start_paused", false ) && SURVIVAL_GetCurrentDeathFieldStage() == 0 )
 			return 
 
 		roundString = GetAnnouncementSubtextString(roundNumber)
@@ -1988,7 +1989,8 @@ void function EquipmentChanged( entity player, string equipSlot, int new )
 					RuiSetBool( file.pilotRui, "isEvolvingShield", true )
 					int playerTier = UpgradeCore_GetPlayerArmorTier( player, false )
 					RuiSetInt( file.pilotRui, "armorTierBarOverride", playerTier )
-					if( playerTier > tier && es.unitFrameTierVar != "" )
+
+					if( playerTier > tier && es.unitFrameTierVar != "" && equipSlot == "armor")
 					{
 						RuiSetInt( file.pilotRui, es.unitFrameTierVar, playerTier )
 					}
@@ -3563,7 +3565,20 @@ void function ShowChampionVictoryScreen( int winningTeam )
 	if ( s_championScreenExtraFunc != null )
 		s_championScreenExtraFunc( rui )
 
-	if ( !Control_IsModeEnabled() )
+	bool shouldPlayChampionScreenSound = true
+
+		
+		if ( Control_IsModeEnabled() )
+			shouldPlayChampionScreenSound = false
+
+
+
+		
+		if ( GameRules_GetGameMode() == GAMEMODE_FREEDM )
+			shouldPlayChampionScreenSound = false
+
+
+	if ( shouldPlayChampionScreenSound )
 		EmitSoundOnEntity( GetLocalClientPlayer(), GetChampionScreenSound() )
 
 	Chroma_VictoryScreen()
@@ -4926,6 +4941,15 @@ vector function GetVictorySquadFormationPosition( vector mainPosition, vector an
 
 
 
+	
+	int maxPlayersToShow = GetCurrentPlaylistVarInt( "podium_max_players_to_show", GetExpectedSquadSize() )
+
+	if ( maxPlayersToShow > MIN_PLAYERS_FOR_PODIUM_SCALING )
+	{
+		offset_side = 31.0
+		offset_back = -28.0
+	}
+
 
 		if ( Control_IsModeEnabled() )
 		{
@@ -5617,8 +5641,6 @@ void function DeathboxHighlightLootTierDistChangedCallback( entity box, int maxL
 
 void function ManageDeathboxHighlights( entity box )
 {
-	array<entity> itemsInBox = box.GetLinkEntArray()
-
 	bool longerHighlightDist = box.GetNetBool( "highlightFar" )
 	int maxTier = box.GetNetInt( "maxLootTier" )
 
@@ -5674,6 +5696,9 @@ void function ServerCallback_AutoReloadComplete( entity weapon )
 		return
 
 	if ( file.pilotRui == null )
+		return
+
+	if ( IsWatchingKillReplay() )
 		return
 
 	

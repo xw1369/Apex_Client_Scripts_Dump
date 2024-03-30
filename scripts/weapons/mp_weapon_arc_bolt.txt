@@ -72,10 +72,10 @@ WeaponData
 	lower_time                          0.15
 	play_offhand_start_end_anim         1
 
-	ammo_clip_size                      25 // seconds to full charge
-	ammo_per_shot                       25
-	ammo_min_to_fire                    25
-	ammo_default_total                  25
+	ammo_clip_size                      20 // seconds to full charge
+	ammo_per_shot                       20
+	ammo_min_to_fire                    20
+	ammo_default_total                  20
 
 	aimassist_disable_hipfire           0
 	aimassist_disable_ads               0

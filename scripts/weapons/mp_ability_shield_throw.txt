@@ -79,6 +79,7 @@ WeaponData
 	"sound_throw_3p"								"Newcastle_Tactical_DroneLaunch_3p"
 	"sound_deploy_3p"								"Newcastle_Tactical_Draw_3p"
 	"sound_grenade_projectile"                      "Newcastle_Tactical_Drone_Travel_3P_Enemy"
+	"sound_dryfire"                                 ""
 
 	// Damage - When Used by Players
 	"damage_type" 									"burn"

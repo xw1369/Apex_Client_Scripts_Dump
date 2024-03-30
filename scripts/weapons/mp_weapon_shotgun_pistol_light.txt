@@ -11,6 +11,7 @@ WeaponData
 
                
                                                     
+                                                               
                      
 
     "projectiles_per_shot"							"1"
@@ -126,6 +127,10 @@ WeaponData
     "fx_muzzle_flash_view"                   "P_mozambique_auto_base_FP_FULL"
     "fx_muzzle_flash_world"                  "P_mozambique_auto_base_FULL"
     "impact_effect_table" 				    "bullet_Mozambique_light"
+
+	                                
+		"april_fools_force_scale"               "5.0"
+       
 
 	Mods
 	{

@@ -498,6 +498,9 @@ void function BeaconScanEnemy_DisplayEnemiesOnMinimap_Thread( entity player, ent
 	if ( player != GetLocalViewPlayer() )
 		return
 
+	player.EndSignal( "OnDestroy" )
+	player.EndSignal( "OnDeath" )
+
 	int team = player.GetTeam()
 	array<entity> aliveEnemies = GetPlayerArrayOfEnemies_Alive( team )
 

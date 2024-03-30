@@ -1,0 +1,326 @@
+global function PerfMetrics_SmokeTestInit
+
+
+
+
+
+
+
+
+global function PerfMetrics_ClientStartRecordingMetrics
+
+
+
+struct
+{
+	string metricsFileName
+	string metricsDataBuffer
+	array<string> metricsDataCategories
+	bool oldDVSEnable
+} perfMetrics
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+const int SINGLE_PERF_TEST_TIME_SECONDS = 10
+
+void function PerfMetrics_SmokeTestInit()
+{
+	PerfMetrics_RegisterNetworking()
+
+
+
+
+}
+
+void function PerfMetrics_RegisterNetworking()
+{
+	Remote_RegisterClientFunction( "PerfMetrics_ClientStartRecordingMetrics",
+		"int", -INT_MAX, INT_MAX, "int", -INT_MAX, INT_MAX, "int", -INT_MAX, INT_MAX, "int", -INT_MAX, INT_MAX )
+	Remote_RegisterServerFunction( "PerfMetrics_OnClientEndRecordingPerfMetrics" )
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+const string METRICS_FPS = "FPS"
+const int SAMPLE_COUNT = SINGLE_PERF_TEST_TIME_SECONDS * 30
+
+void function PerfMetrics_ClientStartRecordingMetrics( int legendGUID, int legendSkinGUID, int weaponGUID, int weaponSkinGUID )
+{
+	perfMetrics.oldDVSEnable = GetConVarBool( "dvs_enable" )
+	SetConVarBool( "dvs_enable", false )
+	thread PerfMetrics_ClientStartRecordingMetrics_Thread( legendGUID, legendSkinGUID, weaponGUID, weaponSkinGUID )
+}
+
+void function PerfMetrics_ClientStartRecordingMetrics_Thread( int legendGUID, int legendSkinGUID, int weaponGUID, int weaponSkinGUID )
+{
+	string mapName = GetMapName()
+	string hardware = GetConsoleName()
+	string buildString = GetGameVersion()
+
+	int buildNum = buildString.slice( buildString.find( "#" ) + 1 ).tointeger()
+
+	string functionref( int, string ) getAssetName = string function( int GUID, string defaultValue ) : ()
+	{
+		if ( IsValidItemFlavorGUID( GUID ) )
+		{
+			return ItemFlavor_GetAssetName( GetItemFlavorByGUID( GUID ) )
+		}
+
+		return defaultValue
+	}
+
+	string legendName = getAssetName( legendGUID, "bloodhound" )
+	string legendSkinName = getAssetName( legendSkinGUID, "classic" )
+	string weaponSkinName = getAssetName( weaponSkinGUID, "factory_issue" )
+
+	string weaponName = "mp_weapon_autopistol"
+	if ( IsValidItemFlavorGUID( weaponGUID ) )
+	{
+		weaponName = WeaponItemFlavor_GetClassname( GetItemFlavorByGUID( weaponGUID ) )
+	}
+
+	perfMetrics.metricsFileName = format( "perf_metrics_%s_%s_%s_%s_%s_CL#%i.csv", hardware, legendName, legendSkinName, weaponName, weaponSkinName, buildNum )
+
+	perfMetrics.metricsDataBuffer = "Hardware,Build ID,Map,Legend,Legend Skin,Weapon,Weapon Skin,FPS\n"
+	perfMetrics.metricsDataBuffer += format( "%s,%s,%s,%s,%s,%s,%s", hardware, buildString, mapName, legendName, legendSkinName, weaponName, weaponSkinName )
+	perfMetrics.metricsDataBuffer += "\n"
+
+	for( int i = 0; i < SAMPLE_COUNT; i++ )
+	{
+		int fps = int( RoundToNearestInt( 1.0 / RenderFrameTime() ) )
+		perfMetrics.metricsDataBuffer += format( ",,,,,,,%i\n", fps )
+		wait RenderFrameTime()
+	}
+
+	PerfMetrics_ClientEndRecordingPerfMetrics()
+}
+
+void function PerfMetrics_ClientEndRecordingPerfMetrics()
+{
+	SetConVarBool( "dvs_enable", perfMetrics.oldDVSEnable )
+	Remote_ServerCallFunction( "PerfMetrics_OnClientEndRecordingPerfMetrics" )
+	WriteMetricsDataToFile( perfMetrics.metricsFileName, "perf_metrics", perfMetrics.metricsDataBuffer, true )
+}
+

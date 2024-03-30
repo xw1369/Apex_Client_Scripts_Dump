@@ -1075,6 +1075,10 @@ void function DirtyBombPrecache()
 
 
 
+
+
+
+
 void function DirtyBomb_OnPropScriptCreated( entity ent )
 {
 	switch ( ent.GetScriptName() )

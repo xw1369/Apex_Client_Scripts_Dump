@@ -11,14 +11,8 @@ global function Silence_GetEffectDuration
 
 
 
-
-
-
 const float SILENCE_AREA_DURATION = 10.0
 const float SILENCE_AREA_RADIUS = 175.0 
-
-const float SILENCE_AREA_RADIUS_LARGE = 500.0 
-
 
 
 const asset FX_SILENCE_READY_1P = $"P_wpn_bSilence_glow_FP"
@@ -157,14 +151,6 @@ void function OnProjectileCollision_ability_silence( entity projectile, vector p
 
 	projectile.GrenadeExplode( normal )
 }
-
-
-
-
-
-
-
-
 
 
 

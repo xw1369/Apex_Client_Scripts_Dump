@@ -266,8 +266,8 @@ bool function Bleedout_CanRevivePlayer( entity reviver, entity victim, int useFl
 
 		float reviveRangeFrac = (1.0 + DotProduct( reviver.GetViewForward(), Normalize( reviverEyeToVictim ) )) * 0.5
 
-		vector reviverViewForward                             = reviver.GetViewForward()
-		vector reviverRight                                   = reviver.GetViewRight()
+		vector reviverViewForward                             = Normalize( reviver.GetViewForward() )
+		vector reviverRight                                   = Normalize( reviver.GetViewRight() )
 		float reviverEyeToVictimOntoRight                     = DotProduct( reviverEyeToVictim, reviverRight )
 		vector reviverEyeToVictimOntoForwardUpPlane           = reviverEyeToVictim - (reviverEyeToVictimOntoRight * reviverRight)
 		vector reviverEyeToVictimOntoForwardUpPlaneNormalized = Normalize( reviverEyeToVictimOntoForwardUpPlane )

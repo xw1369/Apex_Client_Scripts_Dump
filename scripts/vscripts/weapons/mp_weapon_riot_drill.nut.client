@@ -895,6 +895,8 @@ float function RiotDrill_GetLength( entity player )
 
 
 
+
+
 void function OnClientAnimEvent_weapon_riot_drill( entity weapon, string name )
 {
 	if ( !IsValid( weapon ) )

@@ -62,6 +62,8 @@ global function Survival_ClampToRing
 
 
 
+global function Survival_RequireJumpmasterInPlane
+
 
 
 
@@ -1487,6 +1489,21 @@ bool function IsSquadDataPersistenceEmpty( entity player )
 	}
 	return true
 }
+
+
+bool function Survival_RequireJumpmasterInPlane()
+{
+
+
+
+
+
+		if ( ForcedSpawn_UseForcedSpawning() )
+			return false
+
+	return true
+}
+
 
 
 

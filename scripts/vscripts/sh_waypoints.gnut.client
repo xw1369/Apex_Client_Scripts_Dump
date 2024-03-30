@@ -111,8 +111,6 @@ global function GetPingedEntForLocWaypoint
 
 
 
-
-
 global function Waypoint_GetQuantityForWaypoint
 
 
@@ -220,6 +218,11 @@ global enum eWaypoint
 
 
 	SKYDIVE_EMOTE_ICON,
+
+
+		TREASUREHUNT_OBJECTIVE,
+
+
 	_count
 }
 
@@ -451,6 +454,12 @@ void function PlayerWaypoint_CreateCallback( entity wp )
 
 		case eWaypoint.CONTROL_OBJECTIVE:
 			thread Control_InstanceObjectivePing_Thread( wp )
+			break
+
+
+
+		case eWaypoint.TREASUREHUNT_OBJECTIVE:
+			TreasureHunt_InstanceObjectivePing( wp )
 			break
 
 
@@ -2605,15 +2614,13 @@ void function InstanceLocationPing_Thread( entity wp )
 			break
 
 
-
-		case ePingType.CONTROL_OBJECTIVE_DEFEND:
-		case ePingType.CONTROL_OBJECTIVE_ATTACK:
+		case ePingType.PING_CAPTURE_OBJECTIVE_DEFEND:
+		case ePingType.PING_CAPTURE_OBJECTIVE_ATTACK:
 			shouldPlayPingSound = false 
 			RuiSetBool( rui, "displayDistance", false )
 			RuiSetBool( rui, "hideIcon", true )
 			RuiSetBool( rui, "doClamp", false )
 			break
-
 
 
 		case ePingType.UPGRADE_STATION:
@@ -2623,7 +2630,6 @@ void function InstanceLocationPing_Thread( entity wp )
 				thread UpgradeCore_HarvesterPinged( pingedParent == null ? pingedEnt : pingedParent, wp )
 			}
 			break
-
 
 	}
 
@@ -2723,15 +2729,13 @@ void function InstanceLocationPing_Thread( entity wp )
 	
 	if ( AllianceProximity_ShouldTryToTransmitPingOrIconToAlliance( true, pingType ) )
 	{
-
-			
-			if ( pingType != ePingType.CONTROL_OBJECTIVE_DEFEND && pingType != ePingType.CONTROL_OBJECTIVE_ATTACK )
-
-			{
-				thread AllianceProximity_ManageIconVisibility_Thread( wp, rui, false, true )
-				thread AllianceProximity_ManageIconVisibility_Thread( wp, wp.wp.ruiMinimap, false, false )
-				thread AllianceProximity_ManageIconVisibility_Thread( wp, wp.wp.ruiFullmap, true, false )
-			}
+		
+		if ( pingType != ePingType.PING_CAPTURE_OBJECTIVE_DEFEND && pingType != ePingType.PING_CAPTURE_OBJECTIVE_ATTACK )
+		{
+			thread AllianceProximity_ManageIconVisibility_Thread( wp, rui, false, true )
+			thread AllianceProximity_ManageIconVisibility_Thread( wp, wp.wp.ruiMinimap, false, false )
+			thread AllianceProximity_ManageIconVisibility_Thread( wp, wp.wp.ruiFullmap, true, false )
+		}
 	}
 }
 
@@ -4040,6 +4044,26 @@ array<entity> function Waypoints_GetActiveLootPings()
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 entity function Waypoint_GetLootPingDibsPlayer( entity wp )
 {
 	int wpType = wp.GetWaypointType()
@@ -4084,13 +4108,6 @@ void function TogglePlayerWaypointMute( entity player )
 
 	file.mutedPlayers[ player ] = !file.mutedPlayers[ player ]
 }
-
-
-
-
-
-
-
 
 
 

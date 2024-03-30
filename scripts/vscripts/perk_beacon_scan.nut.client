@@ -242,15 +242,21 @@ void function OnSurveyBeaconCreated( entity beacon )
 		SetCallback_CanUseEntityCallback( beacon, SurveyBeacon_CanUseFunction )
 
 		string scriptName = beacon.GetScriptName()
+
+		entity localPlayer = GetLocalViewPlayer()
+		bool canUseBeacon = localPlayer in file.surveyBeaconData && SurveyBeacon_CanActivate( localPlayer, beacon )
+
 		if( scriptName == ENEMY_SURVEY_BEACON_SCRIPTNAME )
 		{
 			AddAnimEvent( beacon, "PlayEffects_SurveyBeacon_Laser", PlayEffects_SurveyBeacon_Laser)
-			Perks_AddMinimapEntityForPerk( ePerkIndex.BEACON_ENEMY_SCAN, beacon )
+			if( canUseBeacon )
+				Perks_AddMinimapEntityForPerk( ePerkIndex.BEACON_ENEMY_SCAN, beacon )
 		}
 		else if( scriptName == NEXT_ZONE_SURVEY_BEACON_SCRIPTNAME )
 		{
 			AddAnimEvent( beacon, "PlayEffects_RingConsole_Pulse", PlayEffects_RingConsole_Pulse )
-			Perks_AddMinimapEntityForPerk( ePerkIndex.BEACON_SCAN, beacon )
+			if( canUseBeacon )
+				Perks_AddMinimapEntityForPerk( ePerkIndex.BEACON_SCAN, beacon )
 		}
 		AddEntityCallback_GetUseEntOverrideText( beacon, GetSurveyBeaconHoldUseTextOverride )
 

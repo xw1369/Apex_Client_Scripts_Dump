@@ -37,6 +37,7 @@ global function GetXPEventCount
 
 
 
+global function GetCurrentAccountLevel
 global function GetNextAccountLevel
 global function GetTotalXPToReachAccountLevel
 
@@ -227,12 +228,17 @@ int function GetPlayerAccountXPPreviousProgress( EHI playerEHI )
 
 
 
-int function GetNextAccountLevel( entity player )
+
+int function GetCurrentAccountLevel( entity player )
 {
 	int currentXP    = GetPlayerAccountXPProgress( ToEHI( player ) )
-	int currentLevel = GetAccountLevelForXP( currentXP )
+	return GetAccountLevelForXP( currentXP )
+}
 
-	return currentLevel + 1
+
+int function GetNextAccountLevel( entity player )
+{
+	return GetCurrentAccountLevel( player ) + 1
 }
 
 
@@ -576,13 +582,13 @@ void function InitXPData()
 		InitXpEventTypeData( eXPType.RATINGS_LEADER, "xp_ratings_leader", "#EOG_XP_RATINGS_LEADER" )
 		XpEventTypeData_SetDisplayEmpty( eXPType.RATINGS_LEADER, true )
 
-		InitXpEventTypeData( eXPType.OBJECTIVE_CAPTURE_DURATION, "xp_objective_capture_duration", "#EOG_XP_OBJECTIVE_CAPTURE_TIME" )
-		XpEventTypeData_SetDisplayEmpty( eXPType.OBJECTIVE_CAPTURE_DURATION, true )
-		XpEventTypeData_SetCountDisplay( eXPType.OBJECTIVE_CAPTURE_DURATION, eNumericDisplayType.TIME_SECONDS_SHORT )
-
 		InitXpEventTypeData( eXPType.BONUS_OBJECTIVES_COMPLETED, "xp_bonus_objectives_completed", "#EOG_XP_BONUS_OBJECTIVES_COMPLETED" )
 		XpEventTypeData_SetDisplayEmpty( eXPType.BONUS_OBJECTIVES_COMPLETED, true )
 
+
+	InitXpEventTypeData( eXPType.OBJECTIVE_CAPTURE_DURATION, "xp_objective_capture_duration", "#EOG_XP_OBJECTIVE_CAPTURE_TIME" )
+	XpEventTypeData_SetDisplayEmpty( eXPType.OBJECTIVE_CAPTURE_DURATION, false )
+	XpEventTypeData_SetCountDisplay( eXPType.OBJECTIVE_CAPTURE_DURATION, eNumericDisplayType.TIME_SECONDS_SHORT )
 
 	InitXpEventTypeData( eXPType.MATCH_COMPLETED, "xp_match_completed", "#EOG_XP_MATCH_COMPLETED" )
 	XpEventTypeData_SetDisplayEmpty( eXPType.MATCH_COMPLETED, true )

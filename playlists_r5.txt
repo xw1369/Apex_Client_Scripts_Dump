@@ -1,7 +1,7 @@
 playlists
 {
     version stable
-    versionNum 20000
+    versionNum 20100
 
     Gamemodes
     {
@@ -57,13 +57,14 @@ playlists
                 ///////// Non-season events (you can delete these once the event is done) /////////
                 ///////////////////////////////////////////////////////////////////////////////////
 
+				t1_active "2024-04-22 10:00:00 -07:00"
 
                 ///////////////////////////////////////////////////////////////////////////////////
                 //// Ranked Tuning Var
                 ///////////////////////////////////////////////////////////////////////////////////
 
                 challenge_negative_value_check 0
-                ranked_season_end_date "2024-04-02 10:00:00 -08:00"
+                ranked_level_requirement_0_base 1
 
                 ///////////////////////////////////////////////////////////////////////////////////
                 //// Deathfield
@@ -243,97 +244,98 @@ playlists
                 custom_match_playlist_code_default_key     "custom_match_playlist_category_0_entry_0"
                 custom_match_playlist_category_count       6
 
-                custom_match_playlist_category_0_count     3
+                custom_match_playlist_category_0_count     4
                 custom_match_playlist_category_0_name      "#CUSTOMMATCH_BR_TRIOS"
                 custom_match_playlist_category_0_logo      BATTLE_ROYALE
                 custom_match_playlist_category_0_entry_0   "des_hu_cm"
                 custom_match_playlist_category_0_entry_1   "tropic_mu2_cm"
                 custom_match_playlist_category_0_entry_2   "oly_mu2_cm"
+                custom_match_playlist_category_0_entry_3   "moon_cm"
 
-                custom_match_playlist_category_1_count     3
+                custom_match_playlist_category_1_count     4
                 custom_match_playlist_category_1_name      "#CUSTOMMATCH_BR_DUOS"
                 custom_match_playlist_category_1_logo      BATTLE_ROYALE
                 custom_match_playlist_category_1_entry_0   "duo_des_hu_cm"
                 custom_match_playlist_category_1_entry_1   "duo_tropic_mu2_cm"
                 custom_match_playlist_category_1_entry_2   "duo_oly_mu2_cm"
+                custom_match_playlist_category_1_entry_3   "duo_moon_cm"
 
-                custom_match_playlist_category_2_count     6
+                custom_match_playlist_category_2_count     7
                 custom_match_playlist_category_2_name      "#TDM_NAME"
                 custom_match_playlist_category_2_logo      freedm
-                custom_match_playlist_category_2_entry_0   "tdm_fragment_pm"
-                custom_match_playlist_category_2_entry_1   "tdm_estates_pm"
-                custom_match_playlist_category_2_entry_2   "tdm_wattson_pm"
-                custom_match_playlist_category_2_entry_3   "tdm_amp_station_pm"
-                custom_match_playlist_category_2_entry_4   "tdm_thunderdome_pm"
-                custom_match_playlist_category_2_entry_5   "tdm_habitat_pm"
+                custom_match_playlist_category_2_entry_0   "tdm_fragment_s_pm"
+                custom_match_playlist_category_2_entry_1   "tdm_estates_s_pm"
+                custom_match_playlist_category_2_entry_2   "tdm_wattson_s_pm"
+                custom_match_playlist_category_2_entry_3   "tdm_amp_station_s_pm"
+                custom_match_playlist_category_2_entry_4   "tdm_thunderdome_s_pm"
+                custom_match_playlist_category_2_entry_5   "tdm_skull_s_pm"
+                custom_match_playlist_category_2_entry_6   "tdm_core_s_pm"
 
-                custom_match_playlist_category_3_count     5
+                custom_match_playlist_category_3_count     7
                 custom_match_playlist_category_3_name      "#GAME_MODE_GUNGAME"
                 custom_match_playlist_category_3_logo      freedm
-                custom_match_playlist_category_3_entry_0   "gg_estates_pm"
-                custom_match_playlist_category_3_entry_1   "gg_fragment_pm"
-                custom_match_playlist_category_3_entry_2   "gg_wattson_pm"
-                custom_match_playlist_category_3_entry_3   "gg_amp_station_pm"
-                custom_match_playlist_category_3_entry_4   "gg_thunderdome_pm"
+                custom_match_playlist_category_3_entry_0   "gg_estates_s_pm"
+                custom_match_playlist_category_3_entry_1   "gg_fragment_s_pm"
+                custom_match_playlist_category_3_entry_2   "gg_wattson_s_pm"
+                custom_match_playlist_category_3_entry_3   "gg_amp_station_s_pm"
+                custom_match_playlist_category_3_entry_4   "gg_thunderdome_s_pm"
+                custom_match_playlist_category_3_entry_5   "gg_skull_s_pm"
+                custom_match_playlist_category_3_entry_6   "gg_core_s_pm"
 
-                custom_match_playlist_category_4_count     4
+                custom_match_playlist_category_4_count     5
                 custom_match_playlist_category_4_name      "#CONTROL_NAME"
                 custom_match_playlist_category_4_logo      CONTROL
-                custom_match_playlist_category_4_entry_0   "control_labs_pm"
-                custom_match_playlist_category_4_entry_1   "control_siphon_pm"
-                custom_match_playlist_category_4_entry_2   "control_barometer_pm"
-                custom_match_playlist_category_4_entry_3   "control_thunderdome_pm"
+                custom_match_playlist_category_4_entry_0   "control_labs_s_pm"
+                custom_match_playlist_category_4_entry_1   "control_siphon_s_pm"
+                custom_match_playlist_category_4_entry_2   "control_barometer_s_pm"
+                custom_match_playlist_category_4_entry_3   "control_thunderdome_s_pm"
+                custom_match_playlist_category_4_entry_4   "control_production_s_pm"
 
-                custom_match_playlist_category_5_count     3
-                custom_match_playlist_category_5_name      "#BATTLE_RUSH_TITLE"
-                custom_match_playlist_category_5_logo      LTM
-                custom_match_playlist_category_5_entry_0   "battle_rush_des_pm"
-                custom_match_playlist_category_5_entry_1   "battle_rush_oly_pm"
-                custom_match_playlist_category_5_entry_2   "battle_rush_sp_pm"
+                custom_match_playlist_category_5_count     8
+                custom_match_playlist_category_5_name      "#CUSTOMMATCH_ALGS"
+                custom_match_playlist_category_5_logo      BATTLE_ROYALE
+                custom_match_playlist_category_5_entry_0   "des_new_spawn_pm"
+                custom_match_playlist_category_5_entry_1   "des_new_spawn_jump_pm"
+                custom_match_playlist_category_5_entry_2   "des_new_spawn_ping_pm"
+                custom_match_playlist_category_5_entry_3   "des_new_spawn_no_ship_pm"
+                custom_match_playlist_category_5_entry_4   "topics_new_spawn_pm"
+                custom_match_playlist_category_5_entry_5   "topics_new_spawn_jump_pm"
+                custom_match_playlist_category_5_entry_6   "topics_new_spawn_ping_pm"
+                custom_match_playlist_category_5_entry_7   "topics_new_spawn_no_ship_pm"
 
                 custom_match_scoreboard_test 1
 
                 ///////////////////////////
                 // Progression Modifiers //
                 ///////////////////////////
-                progboost_ver                       20000
-                progboost_numEvents                 2
-				
-				progboost_typeId_0 accxp_global_mult_2x
-				progboost_eventId_0 accxp_20ce01_1_5x
-				progboost_effects_0 "ACCXP_GLOBAL:1.5"
-				progboost_startDate_0 "2024-02-13 10:00:00 -08:00"
-				progboost_endDate_0 "2024-02-27 10:00:00 -08:00"
+				progboost_ver                       20100
+                progboost_numEvents                 4
 
-				progboost_typeId_1 accxp_global_mult_2x
-				progboost_eventId_1 accxp_20_SIE_2x
-				progboost_startDate_1 "2024-02-13 10:00:00 -08:00"
-				progboost_endDate_1 "2024-03-13 10:00:00 -07:00"
-				progboost_regionConditions_1 "GB FR"
-				progboost_platformConditions_1 "PS4 PS5"
+				progboost_typeId_0                  accxp_mode_mult_template
+                progboost_eventId_0                 mboost_20_1_me01_1_5x_1
+                progboost_effects_0             	"ACCXP_GLOBAL:1.5"
+                progboost_gamemodeConditions_0  	"treasure_hunt"
+                progboost_startDate_0               "2024-03-29 10:00:00 -07:00"
+                progboost_endDate_0                 "2024-04-01 10:00:00 -07:00"
 
-                ///////////////////////////////////////////////////////////////////////////////////
-                //// Gamemode Selector Vars, support up to 10 selector(0-9)
-                ///////////////////////////////////////////////////////////////////////////////////
-                game_mode_selector0                     "battle_rush_desertlands"
-                game_mode_selector0_start_timestamp     "2024-02-13 10:00:00 -08:00"
-                game_mode_selector0_end_timestamp       "2024-02-27 10:00:00 -08:00"
-                game_mode_selector1                     "battle_rush_olymp"
-                game_mode_selector1_start_timestamp     "2024-02-13 10:00:00 -08:00"
-                game_mode_selector1_end_timestamp       "2024-02-27 10:00:00 -08:00"
-                game_mode_selector2                     "battle_rush_storm_point"
-                game_mode_selector2_start_timestamp     "2024-02-13 10:00:00 -08:00"
-                game_mode_selector2_end_timestamp       "2024-02-27 10:00:00 -08:00"
+				progboost_typeId_1                  accxp_mode_mult_template
+                progboost_eventId_1                 mboost_20_1_me01_1_5x_2
+                progboost_effects_1             	"ACCXP_GLOBAL:1.5"
+                progboost_gamemodeConditions_1  	"treasure_hunt"
+                progboost_startDate_1               "2024-04-05 10:00:00 -07:00"
+                progboost_endDate_1                 "2024-04-08 10:00:00 -07:00"
 
-                game_mode_selector3                     "survival_hunt_20_des"
-                game_mode_selector3_start_timestamp     "2024-03-05 10:00:00 -08:00"
-                game_mode_selector3_end_timestamp       "2024-03-19 10:00:00 -07:00"
-                game_mode_selector4                     "survival_hunt_20_tropic"
-                game_mode_selector4_start_timestamp     "2024-03-05 10:00:00 -08:00"
-                game_mode_selector4_end_timestamp       "2024-03-19 10:00:00 -07:00"
-                game_mode_selector5                     "survival_hunt_20_oly"
-                game_mode_selector5_start_timestamp     "2024-03-05 10:00:00 -08:00"
-                game_mode_selector5_end_timestamp       "2024-03-19 10:00:00 -07:00"
+				progboost_typeId_2                  accxp_mode_mult_template
+                progboost_eventId_2                 mboost_20_1_me01_1_5x_3
+                progboost_effects_2             	"ACCXP_GLOBAL:1.5"
+                progboost_gamemodeConditions_2  	"treasure_hunt"
+                progboost_startDate_2               "2024-04-12 10:00:00 -07:00"
+                progboost_endDate_2                 "2024-04-15 10:00:00 -07:00"
+
+				progboost_typeId_3                  mythic_challenge_progress_1_5x
+                progboost_eventId_3                 mythicboost_20_1_ce03_1_5x
+                progboost_startDate_3               "2024-04-23 10:00:00 -07:00"
+                progboost_endDate_3                 "2024-05-07 10:00:00 -07:00"
             }
             maps
             {
@@ -344,8 +346,8 @@ playlists
         {
             inherit defaults
 
-            simplifiedringlethality_ringouttime 240.0
-            simplifiedringlethality_warningtime 180.0
+			simplifiedringlethality_ringouttime 330.0
+			simplifiedringlethality_warningtime 270.0
         }
 
         control
@@ -367,7 +369,8 @@ playlists
 				control_min_held_zones_to_score                 0
 				control_is_min_objectives_rule_winners_only     1
 
-                death_screen_default_tab                        1
+                death_screen_default_tab                        2
+                spectator_enabled                               0
 
                 maps_use_preprocessed_data                      0
 
@@ -521,7 +524,7 @@ playlists
                 loadoutselection_enable_loadouts            1
                 loadoutselection_enable_challenge_loadouts  1
                 loadoutselection_enable_featured_loadouts   1
-                loadoutselection_rotation_start             "2024-02-13 09:30:00 -08:00"
+                loadoutselection_rotation_start             "2024-03-26 09:30:00 -07:00"
                 loadout_ammo_multiplier                     2
 
                 //Legend specific vars
@@ -598,6 +601,11 @@ playlists
                 should_spawn_placed_vehicles    0
                 survey_beacons_enabled          0
                 wildlife_ai_enabled             0
+
+                hovertanks_count_intro 0
+                hovertanks_count_mid 0
+                hovertanks_chance_mid 0
+                canyonlands_hovertanks_circle_index 0
 
                 // Deathfield
                 deathfield_is_enabled 0
@@ -687,7 +695,7 @@ playlists
         }
 
         ///////////////////////////////////////////////////////////////////////////////////
-        //// Deathfield OVERRIDE- WE + Tropic
+        //// Deathfield OVERRIDE- BR MAPS
         ///////////////////////////////////////////////////////////////////////////////////
 
 		survival_ring_desertlands
@@ -768,103 +776,127 @@ playlists
             }
         }
 
+        survival_ring_moon
+        {
+            vars
+            {
+                deathfield_preShrinkDuration_0      75
+                deathfield_preShrinkDuration_1      120
+                deathfield_preShrinkDuration_2      90
+                deathfield_preShrinkDuration_3      90
+                deathfield_preShrinkDuration_4      75
+                deathfield_preShrinkDuration_5      60
+                deathfield_preShrinkDuration_6      20
+
+                survival_death_field_start_radius   73000
+                deathfield_radius_0                 28500
+                deathfield_radius_1                 13000
+                deathfield_radius_2                 8000
+                deathfield_radius_3                 4000
+                deathfield_radius_4                 2000
+                deathfield_radius_5                 1
+                deathfield_radius_6                 -1
+
+                deathfield_shrinkSpeed_0            167
+                deathfield_shrinkSpeed_1            140
+                deathfield_shrinkSpeed_2            120
+                deathfield_shrinkSpeed_3            85
+                deathfield_shrinkSpeed_4            40
+                deathfield_shrinkSpeed_5            16.7
+                deathfield_shrinkSpeed_6            10
+
+                deathfield_damagePercent_0          0.03
+                deathfield_damagePercent_1          0.04
+                deathfield_damagePercent_2          0.10
+                deathfield_damagePercent_3          0.15
+                deathfield_damagePercent_4          0.20
+                deathfield_damagePercent_5          0.25
+                deathfield_damagePercent_6          0.25
+            }
+        }
+
+
         ///////////////////////////////////////////////////////////////////////////////////
-        //// Deathfield OVERRIDE- battle rush ltm
+        //// Deathfield OVERRIDE- STRIKEOUT LTM
         ///////////////////////////////////////////////////////////////////////////////////
 
-		survival_ring_battle_rush
-		{
-			vars
-			{
-			    deathfield_preShrinkDuration_0      120
-			    deathfield_preShrinkDuration_1      60
-			    deathfield_preShrinkDuration_2      120
-			    deathfield_preShrinkDuration_3      60
-			    deathfield_preShrinkDuration_4      30
-			    deathfield_preShrinkDuration_5      30
-			    deathfield_preShrinkDuration_6      30
+        survival_ring_tropics_strikeout
+        {
+            vars
+            {
+                deathfield_preShrinkDuration_0      75
+                deathfield_preShrinkDuration_1      120
+                deathfield_preShrinkDuration_2      90
+                deathfield_preShrinkDuration_3      90
+                deathfield_preShrinkDuration_4      75
+                deathfield_preShrinkDuration_5      60
+                deathfield_preShrinkDuration_6      20
 
-			    survival_death_field_start_radius   28500
-			    deathfield_radius_0                 15000
-			    deathfield_radius_1                 10000
-			    deathfield_radius_2                 4000
-			    deathfield_radius_3                 1
-			    deathfield_radius_4                 -1
-			    deathfield_radius_5                 -1
-			    deathfield_radius_6                 -1
+                survival_death_field_start_radius   75000
+                deathfield_radius_0                 30500
+                deathfield_radius_1                 15000
+                deathfield_radius_2                 8000
+                deathfield_radius_3                 4000
+                deathfield_radius_4                 2000
+                deathfield_radius_5                 1
+                deathfield_radius_6                 -1
 
-			    deathfield_shrinkSpeed_0            100
-			    deathfield_shrinkSpeed_1            100
-			    deathfield_shrinkSpeed_2            80
-			    deathfield_shrinkSpeed_3            60
-			    deathfield_shrinkSpeed_4            16.7
-			    deathfield_shrinkSpeed_5            -1
-			    deathfield_shrinkSpeed_6            -1
+                deathfield_shrinkSpeed_0            170
+                deathfield_shrinkSpeed_1            140
+                deathfield_shrinkSpeed_2            120
+                deathfield_shrinkSpeed_3            85
+                deathfield_shrinkSpeed_4            40
+                deathfield_shrinkSpeed_5            16.7
+                deathfield_shrinkSpeed_6            10
 
-			    deathfield_damagePercent_0          0.03
-			    deathfield_damagePercent_1          0.04
-			    deathfield_damagePercent_2          0.10
-			    deathfield_damagePercent_3          0.15
-			    deathfield_damagePercent_4          0.25
-			    deathfield_damagePercent_5          0.25
-			    deathfield_damagePercent_6          0.25
+                deathfield_damagePercent_0          0.04
+                deathfield_damagePercent_1          0.10
+                deathfield_damagePercent_2          0.15
+                deathfield_damagePercent_3          0.20
+                deathfield_damagePercent_4          0.26
+                deathfield_damagePercent_5          0.26
+                deathfield_damagePercent_6          0.26
+            }
+        }
 
-			    deathfield_circleDeviation_0        1.0
-                deathfield_circleDeviation_1        1.0
-                deathfield_circleDeviation_2        0.2
-                deathfield_circleDeviation_3        0
-                deathfield_circleDeviation_4        0
+        survival_ring_olymp_strikeout
+        {
+            vars
+            {
+                deathfield_preShrinkDuration_0      75
+                deathfield_preShrinkDuration_1      120
+                deathfield_preShrinkDuration_2      90
+                deathfield_preShrinkDuration_3      90
+                deathfield_preShrinkDuration_4      75
+                deathfield_preShrinkDuration_5      60
+                deathfield_preShrinkDuration_6      20
 
+                survival_death_field_start_radius   63000
+                deathfield_radius_0                 22000
+                deathfield_radius_1                 13000
+                deathfield_radius_2                 8000
+                deathfield_radius_3                 4000
+                deathfield_radius_4                 2000
+                deathfield_radius_5                 1
+                deathfield_radius_6                 -1
 
-			}
-		}
+                deathfield_shrinkSpeed_0            160
+                deathfield_shrinkSpeed_1            140
+                deathfield_shrinkSpeed_2            120
+                deathfield_shrinkSpeed_3            85
+                deathfield_shrinkSpeed_4            40
+                deathfield_shrinkSpeed_5            16.7
+                deathfield_shrinkSpeed_6            10
 
-		survival_ring_battle_rush_large
-		{
-			vars
-			{
-			    deathfield_preShrinkDuration_0      120
-			    deathfield_preShrinkDuration_1      60
-			    deathfield_preShrinkDuration_2      80
-			    deathfield_preShrinkDuration_3      60
-			    deathfield_preShrinkDuration_4      30
-			    deathfield_preShrinkDuration_5      30
-			    deathfield_preShrinkDuration_6      30
-
-			    survival_death_field_start_radius   40000
-			    deathfield_radius_0                 34000
-			    deathfield_radius_1                 22000
-			    deathfield_radius_2                 8000
-			    deathfield_radius_3                 1
-			    deathfield_radius_4                 -1
-			    deathfield_radius_5                 -1
-			    deathfield_radius_6                 -1
-
-			    deathfield_shrinkSpeed_0            185
-			    deathfield_shrinkSpeed_1            100
-			    deathfield_shrinkSpeed_2            100
-			    deathfield_shrinkSpeed_3            70
-			    deathfield_shrinkSpeed_4            16.7
-			    deathfield_shrinkSpeed_5            -1
-			    deathfield_shrinkSpeed_6            -1
-
-			    deathfield_damagePercent_0          0.03
-			    deathfield_damagePercent_1          0.04
-			    deathfield_damagePercent_2          0.10
-			    deathfield_damagePercent_3          0.15
-			    deathfield_damagePercent_4          0.25
-			    deathfield_damagePercent_5          0.25
-			    deathfield_damagePercent_6          0.25
-
-                deathfield_circleDeviation_0        1.0
-                deathfield_circleDeviation_1        1.0
-                deathfield_circleDeviation_2        0.2
-                deathfield_circleDeviation_3        0
-                deathfield_circleDeviation_4        0
-
-			}
-		}
-
+                deathfield_damagePercent_0          0.04
+                deathfield_damagePercent_1          0.10
+                deathfield_damagePercent_2          0.15
+                deathfield_damagePercent_3          0.20
+                deathfield_damagePercent_4          0.26
+                deathfield_damagePercent_5          0.26
+                deathfield_damagePercent_6          0.26
+            }
+        }
 
         ////////////////////////////////////////////////////
         ///////////// Tutorial / Firing Range //////////////
@@ -1018,421 +1050,436 @@ playlists
         }
 
         ///////////////////////////////////
-        ////////////   BR LTMS  ///////////
+        /////// APRIL FOOLS - BR LTM //////
         ///////////////////////////////////
 
-		// BATTLE RUSH
-		battle_rush_base
-		{
-		    inherit survival
-		    vars
-		    {
-		        is_gamemode_battle_rush 1
-		        max_players 30
-		        max_teams 10
-		        max_nofill_players 3
+        survival_aprfls20_oly
+        {
+            inherit olympus_mu2_trio
+            vars
+            {
+				visible 1
 
-		        visible 0
-		        is_limited_mode 1
-		        pin_match_type      "turbo"
-		        allow_prestige_badges 0
+				visible_schedule_block_0        "2024-04-01 10:00:00 -07:00 | 2024-04-02 10:00:00 -07:00"
+				visible_schedule_block_1        ""
+				playlist_rotation_group         olympus_rotation
+				allow_prestige_badges           0
 
-		        has_auto_banners 1
+				pin_match_type "aprilfoolss20"
+                stats_match_type "aprilfools_s20"
 
-		        matchmake_from_match 1
+				is_april_fools_s20 1
+				april_fools_s20_care_package_spawn_enabled 1
 
-		        ui_slot ltm
-		        show_ltm_about_button 1
-		        show_ltm_about_button_is_takeover 0
-		        emblem generic
-		        ui_rules                    "quick_match"
-		        image ranked_3
-		        gamemode_logo LTM
-		        name #BATTLE_RUSH_TITLE
-		        description #BATTLE_RUSH_DESC
-		        about_text #BATTLE_RUSH_DESC
-		        modeDescriptionString #BATTLE_RUSH_LOBBY_DESC
-		        show_skydive_announce 1
-		        announce_desc #BATTLE_RUSH_DESC
+				nessie_swap_enabled                 1
+				nessie_spider_swap                  1
+				nessie_prowler_swap                 1
 
-		        crafting_enabled 1
-		        crafting_dispensers_enabled 1
+				loot_distribution_override_Weapon_Low "mp_weapon_shotgun_pistol:9 mp_weapon_shotgun_pistol_light:4 mp_weapon_shotgun_pistol_heavy:4 mp_weapon_shotgun_pistol_sniper:3 mp_weapon_shotgun_pistol_energy:4"
+				loot_distribution_override_Weapon_Medium "mp_weapon_shotgun_pistol:7 mp_weapon_shotgun_pistol_light:5.25 mp_weapon_shotgun_pistol_heavy:5.25 mp_weapon_shotgun_pistol_sniper:3.5 mp_weapon_shotgun_pistol_energy:5"
+				loot_distribution_override_Weapon_High "mp_weapon_shotgun_pistol:7 mp_weapon_shotgun_pistol_light:5.25 mp_weapon_shotgun_pistol_heavy:5.25 mp_weapon_shotgun_pistol_sniper:3.5 mp_weapon_shotgun_pistol_energy:5"
+            }
+        }
 
-		        passive_upgrade_core_enabled 1
-				passive_upgrade_core_xp_thresholds "400 850 1400"
+        survival_aprfls20_oly_duo
+        {
+            inherit olympus_mu2_duo
+            vars
+            {
+                visible 1
 
-				passive_upgrade_core_use_shortened_tree 1
+                visible_schedule_block_0        "2024-04-01 10:00:00 -07:00 | 2024-04-02 10:00:00 -07:00"
+                visible_schedule_block_1        ""
+                playlist_rotation_group         olympus_rotation
+                allow_prestige_badges           0
 
-		        survival_enable_gladiator_intros 0
-		        charselect_intro_transition_duration 1.5
-		        character_select_time_max 5.0
-		        character_select_time_min 5.0
-		        charselect_outro_squad_present_duration 5.0
-		        charselect_outro_scene_change_duration 2.0
-		        charselect_outro_transition_duration 1.5
+				pin_match_type "aprilfoolss20"
+                stats_match_type "aprilfools_s20"
 
-		        play_match_end_music_on_squad_eliminated    0
-		        disable_default_music 1
+				is_april_fools_s20 1
+				april_fools_s20_care_package_spawn_enabled 1
 
-		        jump_from_plane_enabled 0
-		        poiplayerspawning_exists 1
-		        poiplayerspawning_airdrop 1
+				nessie_swap_enabled                 1
+				nessie_spider_swap                  1
+				nessie_prowler_swap                 1
 
-				loot_hotzone_count 0
-				loot_distribution_override_lifeline_tt_medbay_loot  "gold_kitted_weapons_qm:5"
-				survival_disabled_loot                              "armor_pickup_lv1_evolving armor_pickup_lv2_evolving armor_pickup_lv3_evolving armor_pickup_lv4_exec_armor armor_pickup_lv4_all_fast backpack_pickup_lv1 backpack_pickup_lv2 helmet_pickup_lv1"
+				loot_distribution_override_Weapon_Low "mp_weapon_shotgun_pistol:9 mp_weapon_shotgun_pistol_light:4 mp_weapon_shotgun_pistol_heavy:4 mp_weapon_shotgun_pistol_sniper:3 mp_weapon_shotgun_pistol_energy:4"
+				loot_distribution_override_Weapon_Medium "mp_weapon_shotgun_pistol:7 mp_weapon_shotgun_pistol_light:5.25 mp_weapon_shotgun_pistol_heavy:5.25 mp_weapon_shotgun_pistol_sniper:3.5 mp_weapon_shotgun_pistol_energy:5"
+				loot_distribution_override_Weapon_High "mp_weapon_shotgun_pistol:7 mp_weapon_shotgun_pistol_light:5.25 mp_weapon_shotgun_pistol_heavy:5.25 mp_weapon_shotgun_pistol_sniper:3.5 mp_weapon_shotgun_pistol_energy:5"
+            }
+        }
 
-		        loot_group_overrides "
-		        Weapon_Low:Weapon_Low_QM
-		        Weapon_Medium:Weapon_Medium_QM
-		        Weapon_High:Weapon_High_QM
-		        gold_weapons:gold_kitted_weapons_qm
-		        Attachment_Low:Attachment_QM
-		        Attachment_Medium:Attachment_QM
-		        Attachment_High:Attachment_QM
-		        Attachment_Low_v2:Attachment_QM
-		        Attachment_Medium_v2:Attachment_QM
-		        Attachment_High_v2:Attachment_QM
-		        Sniper_Tower_Platform:Weapon_Medium_QM
-		        Zone_High_CausticTT:Weapon_High_QM
-		        POI_Sniper:Weapon_Medium_QM
-		        data_knife_vault:Vault_QM
-		        top_tier_inventory:gold_kitted_weapons_qm
-		        loot_roller_contents_common:Health_High
-		        loot_roller_contents_rare:blue_kitted_weapons_qm
-		        loot_roller_contents_epic:purple_kitted_weapons_qm
-		        loot_roller_contents_legendary:gold_kitted_weapons_qm
-		        marvin_contents_epic:purple_kitted_weapons_qm
-		        telephaser_loot_roller_contents_common:Health_High
-		        telephaser_loot_roller_contents_rare:blue_kitted_weapons_qm
-		        telephaser_loot_roller_contents_epic:purple_kitted_weapons_qm
-		        telephaser_loot_roller_contents_legendary:gold_kitted_weapons_qm
-		        pathtt_loot_roller_contents_common:Health_High
-		        pathtt_loot_roller_contents_rare:blue_kitted_weapons_qm
-		        pathtt_loot_roller_contents_epic:purple_kitted_weapons_qm
-		        pathtt_loot_roller_contents_legendary:gold_kitted_weapons_qm
-		        Backpack_Low:Backpack_QM
-		        Backpack_Medium:Backpack_QM
-		        Backpack_High:Backpack_QM
-		        loottick_static_01:loottick_static_01_qm
-		        loottick_static_02:loottick_static_02_qm
-		        loottick_static_03:loottick_static_03_qm"
+        survival_aprfls20_oly_ltm
+        {
+            inherit survival_aprfls20_oly
+            vars
+            {
+                visible 1
+                visible_schedule_block_0     "2024-04-02 10:00:00 -07:00 | 2024-04-08 10:00:00 -07:00"
+                visible_schedule_block_1     ""
+                playlist_rotation_group      ""
 
-				explosive_hold_rack_loot_group          "purple_kitted_weapons_qm"
-		        explosive_hold_floor_loot_group         "purple_kitted_weapons_qm"
-		        maybe_add_weapon_to_loot_bin_on_open    "white_kitted_weapons_qm"
-		        loot_rollers_num_loot_to_spawn          4
+                ui_slot ltm
+                is_limited_mode 1
+				name #APRILFOOLS_S20_BR_LTM_MODE
+				emblem generic
+				gamemode_logo LTM
+				gamemode_select_category_name "#GAMEMODE_CATEGORY_LTM"
+				image panel_olympus_mu2
 
-				shotgun_dt_override_countPerDrop                8
-		        sniper_dt_override_countPerDrop                 14
-				bullet_dt_override_countPerDrop                 30
-		        highcal_dt_override_countPerDrop                30
-				special_dt_override_countPerDrop                30
+                ui_rules                    "aprilfools_s20"
+                show_ltm_about_button 1
+            }
+        }
 
-                loot_distribution_override_ammo "bullet:27, shotgun:6, highcal:27, special:25, sniper:15"
-                loot_distribution_override_Zone_Low "Health_Small:9, Health_Large:9, ordnance:10.5, Backpack_Low:0.5, Attachment_Low_v2:10"
-                loot_distribution_override_Zone_Medium "Health_Small:8, Health_Large:10, ordnance:11, Backpack_Medium:1, Attachment_Medium_v2:10"
-                loot_distribution_override_Zone_High "Health_Small:7, Health_Large:11, ordnance:9, Backpack_High:1, Attachment_High_v2:10"
+        survival_aprfls20_tr
+        {
+            inherit tropic_trio
+            vars
+            {
+                visible 1
+				visible_schedule_block_0        "2024-04-01 10:00:00 -07:00 | 2024-04-02 10:00:00 -07:00"
+				visible_schedule_block_1        ""
+				playlist_rotation_group         storm_point_rotation
+				allow_prestige_badges           0
 
-		        playlist_ring_tuning_override       survival_ring_battle_rush
-		        deathfield_start_enabled            1
+				pin_match_type "aprilfoolss20"
+                stats_match_type "aprilfools_s20"
 
-		        should_give_character_loadout_on_survival_ship_skydive      1
-		        should_give_character_loadout_on_spawn_and_respawn          1
+				is_april_fools_s20 1
+				april_fools_s20_care_package_spawn_enabled 1
 
-		        default_loadout_weapons             ""
-		        default_loadout_consumables         "health_pickup_health_small:4 health_pickup_combo_small:4"
-		        default_loadout_equipment           "armor_core_pickup_lv1 helmet_pickup_lv1 incapshield_pickup_lv1 backpack_pickup_lv2"
+				nessie_swap_enabled                 1
+				nessie_spider_swap                  1
+				nessie_prowler_swap                 1
 
-		        ap_use_dynamic_difficulty 0
-		        ap_raw_difficulty 0.2
-		        ap_min_strafe_press_time 0
-		        ap_max_strafe_press_time 1.5
-		        ap_crouch_probability 0.1
-		        ap_crouch_duration 1
-		        ap_suppressive_fire_enabled 0
-		        ap_human_pity_timer 1.0
-		    }
-		    gamemodes { survival { maps {
-		        mp_rr_desertlands_hu 1
-		    } } }
-		}
+				loot_distribution_override_Weapon_Low "mp_weapon_shotgun_pistol:9 mp_weapon_shotgun_pistol_light:4 mp_weapon_shotgun_pistol_heavy:4 mp_weapon_shotgun_pistol_sniper:3 mp_weapon_shotgun_pistol_energy:4"
+				loot_distribution_override_Weapon_Medium "mp_weapon_shotgun_pistol:7 mp_weapon_shotgun_pistol_light:5.25 mp_weapon_shotgun_pistol_heavy:5.25 mp_weapon_shotgun_pistol_sniper:3.5 mp_weapon_shotgun_pistol_energy:5"
+				loot_distribution_override_Weapon_High "mp_weapon_shotgun_pistol:7 mp_weapon_shotgun_pistol_light:5.25 mp_weapon_shotgun_pistol_heavy:5.25 mp_weapon_shotgun_pistol_sniper:3.5 mp_weapon_shotgun_pistol_energy:5"
+            }
+        }
 
-		battle_rush_desertlands
-		{
-		    inherit battle_rush_base
-		    vars
-		    {
-		        visible_schedule_block_0		"2024-02-13 10:00:00 -08:00 | 2024-02-27 10:00:00 -08:00"
-		        playlist_rotation_group         worlds_edge_rotation
-		        visible 1
+        survival_aprfls20_tr_duo
+        {
+            inherit tropic_duo
+            vars
+            {
+                visible 1
+                visible_schedule_block_0        "2024-04-01 10:00:00 -07:00 | 2024-04-02 10:00:00 -07:00"
+                visible_schedule_block_1        ""
+                playlist_rotation_group         storm_point_rotation
+                allow_prestige_badges           0
 
-				map_name #MP_RR_DESERTLANDS_MU3
-		        panel_image panel_worlds_edge_mu3
-		        map_change_VO_alias "mapChangeWE"
+				pin_match_type "aprilfoolss20"
+                stats_match_type "aprilfools_s20"
 
-		        deathfield_start_positions          "-13111 -20881 -3654, 13665 4819 -4239, 15315 -25505 -4493, -4419 14684 -2968"
-		        loot_drones_spawn_count             12
-		        loot_drones_vault_key_count         8
-		        blimp_drones_spawn_count            2
-		    }
-		    gamemodes { survival { maps {
-		        mp_rr_desertlands_hu 1
-		    } } }
-		}
+				is_april_fools_s20 1
+				april_fools_s20_care_package_spawn_enabled 1
 
-		battle_rush_olymp
-		{
-		    inherit battle_rush_base
-		    vars
-		    {
-		        visible 1
-		        visible_schedule_block_0		"2024-02-13 10:00:00 -08:00 | 2024-02-27 10:00:00 -08:00"
-				playlist_rotation_group        olympus_rotation
+				nessie_swap_enabled                 1
+				nessie_spider_swap                  1
+				nessie_prowler_swap                 1
 
-		        panel_image panel_olympus_mu2
-		        map_name #MP_RR_OLYMPUS_MU2
-		        map_change_VO_alias "mapChangeOL"
+				loot_distribution_override_Weapon_Low "mp_weapon_shotgun_pistol:9 mp_weapon_shotgun_pistol_light:4 mp_weapon_shotgun_pistol_heavy:4 mp_weapon_shotgun_pistol_sniper:3 mp_weapon_shotgun_pistol_energy:4"
+				loot_distribution_override_Weapon_Medium "mp_weapon_shotgun_pistol:7 mp_weapon_shotgun_pistol_light:5.25 mp_weapon_shotgun_pistol_heavy:5.25 mp_weapon_shotgun_pistol_sniper:3.5 mp_weapon_shotgun_pistol_energy:5"
+				loot_distribution_override_Weapon_High "mp_weapon_shotgun_pistol:7 mp_weapon_shotgun_pistol_light:5.25 mp_weapon_shotgun_pistol_heavy:5.25 mp_weapon_shotgun_pistol_sniper:3.5 mp_weapon_shotgun_pistol_energy:5"
+            }
+        }
 
-		        deathfield_start_positions   "-23206 473 -4922, 2929 -17790 -5342, 16005 8546 -3463, -6553 20556 -5891"
-		        loot_distribution_override_lifeline_tt_medbay_loot "gold_kitted_weapons_qm:5"
+        survival_aprfls20_tr_ltm
+        {
+            inherit survival_aprfls20_tr
+            vars
+            {
+                visible 1
+                visible_schedule_block_0     "2024-04-02 10:00:00 -07:00 | 2024-04-08 10:00:00 -07:00"
+                visible_schedule_block_1     ""
+                playlist_rotation_group      ""
 
-		        blimp_drones_spawn_count 2
-		    }
-		    gamemodes { survival { maps {
-		        mp_rr_olympus_mu2 1
-		    } } }
-		}
+                ui_slot ltm
+                is_limited_mode 1
+                name #APRILFOOLS_S20_BR_LTM_MODE
+                emblem generic
+                gamemode_logo LTM
+                gamemode_select_category_name "#GAMEMODE_CATEGORY_LTM"
+                image panel_storm_point_mu2
 
-		battle_rush_storm_point
-		{
-		    inherit battle_rush_base
-		    vars
-		    {
-		        visible 1
-		        visible_schedule_block_0		"2024-02-13 10:00:00 -08:00 | 2024-02-27 10:00:00 -08:00"
-		        playlist_rotation_group         storm_point_rotation
-		        panel_image panel_storm_point_mu2
-		        map_name #MP_RR_TROPIC_ISLAND
-		        map_change_VO_alias "mapChangeSP"
-		        survival_plane_angle_deviation     -20
+                ui_rules                    "aprilfools_s20"
+                show_ltm_about_button 1
+            }
+        }
 
-		        deathfield_start_positions         "8087 -18185 688"
-		        playlist_ring_tuning_override       survival_ring_battle_rush_large
+        survival_aprfls20_moon
+        {
+            inherit moon_trio
+            vars
+            {
+                visible 1
+                visible_schedule_block_0        "2024-04-01 10:00:00 -07:00 | 2024-04-02 10:00:00 -07:00"
+                visible_schedule_block_1        ""
+                playlist_rotation_group         moon_rotation
+                allow_prestige_badges           0
 
-		        should_ai_reward_evo_pts 1
-		        armory_roof_repel_enabled 0
-		        wildlife_ai_enabled 1
-		        wildlife_ai_max_allowed_alive 100
-		        wildlife_ai_prowler_camp_max_alive 4
-		        wildlife_ai_prowler_camp_initial_spawn_limit 2
-		        ai_spider_jungle_evo_pt_percent 0.25
-		        ai_prowler_evo_pt_percent 0.25
-		        ai_flyer_evo_pt_percent 0.25
-		        wildlife_ai_spider_lootdrop_percent 0.50
-		        wildlife_ai_prowler_lootdrop_percent 0.50
-		        wildlife_ai_ordnance_lootdrop_percent 0.10
-		        wildlife_ai_helmet_lootdrop_percent 0.05
-		        wildlife_ai_epicitem_lootdrop_percent 0.00
-		        wildlife_ai_epicitem_bonus_limit 0.2
-		        wildlife_ai_epicitem_kill_increment 0.015
-		        health_jungle_spider 42
-		        health_prowler 114
-		        ai_force_prowler_skin 2
-		        ai_force_junglespider_skin 3
+                pin_match_type "aprilfoolss20"
+                stats_match_type "aprilfools_s20"
 
-		        blimp_drones_spawn_count 2
-		    }
-		    gamemodes { survival { maps {
-		        mp_rr_tropic_island_mu2 1
-		    } } }
-		}
+                is_april_fools_s20 1
+				april_fools_s20_care_package_spawn_enabled 1
 
-		// Hunt Takeover
-		survival_hunt_20_base
+                nessie_swap_enabled                 1
+                nessie_spider_swap                  1
+                nessie_prowler_swap                 1
+
+				loot_distribution_override_Weapon_Low "mp_weapon_shotgun_pistol:9 mp_weapon_shotgun_pistol_light:4 mp_weapon_shotgun_pistol_heavy:4 mp_weapon_shotgun_pistol_sniper:3 mp_weapon_shotgun_pistol_energy:4"
+				loot_distribution_override_Weapon_Medium "mp_weapon_shotgun_pistol:7 mp_weapon_shotgun_pistol_light:5.25 mp_weapon_shotgun_pistol_heavy:5.25 mp_weapon_shotgun_pistol_sniper:3.5 mp_weapon_shotgun_pistol_energy:5"
+				loot_distribution_override_Weapon_High "mp_weapon_shotgun_pistol:7 mp_weapon_shotgun_pistol_light:5.25 mp_weapon_shotgun_pistol_heavy:5.25 mp_weapon_shotgun_pistol_sniper:3.5 mp_weapon_shotgun_pistol_energy:5"
+            }
+        }
+
+        survival_aprfls20_moon_duo
+        {
+            inherit moon_duo
+            vars
+            {
+				visible 1
+				visible_schedule_block_0        "2024-04-01 10:00:00 -07:00 | 2024-04-02 10:00:00 -07:00"
+				visible_schedule_block_1        ""
+                playlist_rotation_group         moon_rotation
+                allow_prestige_badges           0
+
+				pin_match_type "aprilfoolss20"
+                stats_match_type "aprilfools_s20"
+
+				is_april_fools_s20 1
+				april_fools_s20_care_package_spawn_enabled 1
+
+				nessie_swap_enabled                 1
+				nessie_spider_swap                  1
+				nessie_prowler_swap                 1
+
+				loot_distribution_override_Weapon_Low "mp_weapon_shotgun_pistol:9 mp_weapon_shotgun_pistol_light:4 mp_weapon_shotgun_pistol_heavy:4 mp_weapon_shotgun_pistol_sniper:3 mp_weapon_shotgun_pistol_energy:4"
+				loot_distribution_override_Weapon_Medium "mp_weapon_shotgun_pistol:7 mp_weapon_shotgun_pistol_light:5.25 mp_weapon_shotgun_pistol_heavy:5.25 mp_weapon_shotgun_pistol_sniper:3.5 mp_weapon_shotgun_pistol_energy:5"
+				loot_distribution_override_Weapon_High "mp_weapon_shotgun_pistol:7 mp_weapon_shotgun_pistol_light:5.25 mp_weapon_shotgun_pistol_heavy:5.25 mp_weapon_shotgun_pistol_sniper:3.5 mp_weapon_shotgun_pistol_energy:5"
+            }
+        }
+
+        survival_aprfls20_moon_ltm
+        {
+            inherit survival_aprfls20_moon
+            vars
+            {
+                visible 1
+                visible_schedule_block_0     "2024-04-02 10:00:00 -07:00 | 2024-04-08 10:00:00 -07:00"
+                visible_schedule_block_1     ""
+                playlist_rotation_group      ""
+
+                ui_slot ltm
+                is_limited_mode 1
+                name #APRILFOOLS_S20_BR_LTM_MODE
+                emblem generic
+                gamemode_logo LTM
+                gamemode_select_category_name "#GAMEMODE_CATEGORY_LTM"
+                image panel_divided_moon
+
+                ui_rules                    "aprilfools_s20"
+                show_ltm_about_button 1
+            }
+        }
+
+        ///////////////////////////////////
+        /////// STRIKEOUT - BR LTM //////
+        ///////////////////////////////////
+
+        survival_strikeout_base
         {
             inherit survival
             vars
             {
-                bounty_hunt_enabled 1
                 visible 0
-                ui_slot regular_1
+                is_limited_mode 1
+                ui_slot ltm
                 show_ltm_about_button 1
-                ui_rules "the_hunt_20"
-                name #PL_BEASTWITHIN_20_0_The_Hunt_NAME_TRIO
-                description #HUNT_GAMEMODE_DESC
-                abbreviation #HUNT_GAMEMODE_NAME_SHORT
-                gameModeString #PL_BEASTWITHIN_20_0_The_Hunt_NAME_TRIO
-                modeDescriptionString #THE_HUNT_GAME_MODE_STRING
-                image trios_bounty_hunt
-                gamemode_logo BOUNTYHUNT
-                emblem emblem_bounty_hunt
+                show_ltm_about_button_is_takeover 0
+                pin_match_type "threestrikes"
+
+                is_gamemode_strikeout 1
+                strikeout_ammo_on_kill_enabled 1
+                strikeout_ammo_on_kill_multiplier 1.0
+                strikeout_ammo_on_kill_spawns 4
+                strikeout_respawn_disable_deathstage_close 4
+                strikeout_announcement_duration 7.0
+                deathbox_duration 60.0
+                invulnerable_bleedout_transparency_amount 140
+                loot_hotzone_count 4
+
+                allow_prestige_badges 0
+                should_tweak_dvs_for_gamemode       1
+                emblem emblem_3strikes
+
+                ui_rules                    "strikeout"
+                image strikeout_olympus_mu2
+                max_nofill_players 6
+                gamemode_logo LTM
+
+                name #STRIKEOUT_TITLE
+                description #STRIKEOUT_DESC
+                about_text #STRIKEOUT_DESC
+
                 show_skydive_announce 1
-                announce_desc #PL_BEASTWITHIN_20_0_The_Hunt_SKYDIVE_ANNOUNCE
-                announce_emblem_left "rui/hud/gametype_icons/ltm/hunt_ltm_logo_dark"
-                announce_emblem_right "rui/hud/gametype_icons/ltm/hunt_ltm_logo_dark"
-                allow_prestige_badges 1
-                pin_match_type survival
-            }
-        }
+                announce_desc #SURVIVAL_STRIKEOUT_SUBTEXT
+                announce_emblem_left  "rui/hud/gametype_icons/ltm/threestrikes_ltm_logo"
+                announce_emblem_right  "rui/hud/gametype_icons/ltm/threestrikes_ltm_logo"
+                survival_disabled_loot              "mp_ability_mobile_respawn_beacon"
+                passive_upgrade_core_overrides      "character_lifeline:0:0:SAID02057969131:0"
 
-        survival_hunt_20_des
-        {
-            inherit survival_hunt_20_base
-            vars
-            {
-                visible 1
-                visible_schedule_block_0 "2024-03-05 10:00:00 -08:00 | 2024-03-19 10:00:00 -07:00"
+                // RESPAWNING
+                bleedout_death_prevention_enabled                   1
+                bleedout_downedplayers_invulnerable                 1
+                survival_respawn_style  "spawn_group_skydive"
+                respawn_cooldown                9
+                respawns 2
+                bleedout_can_force_bleedout_timeout 1
+                bleedout_force_bleedout_time    3.0
+                is_elimination_based 0
+                should_give_character_loadout_on_survival_ship_skydive 1
+                should_give_character_loadout_on_spawn_and_respawn 0
 
-                playlist_rotation_group the_hunt_we_rotation
-                panel_image panel_worlds_edge_mu3
-                map_name #MP_RR_DESERTLANDS_MU3
-                map_change_VO_alias "mapChangeWE"
-                playlist_ring_tuning_override survival_ring_desertlands
+                is_using_min_guaranteed_loadout                     1
+                min_guaranteed_loadout_replace_mythic_with_min      1
+                min_guaranteed_weaponloadout_ring_0                 "mp_weapon_semipistol_whiteset mp_weapon_shotgun_pistol_whiteset"
+                min_guaranteed_weaponloadout_ring_1                 "mp_weapon_alternator_smg_blueset mp_weapon_doubletake_blueset"
+                min_guaranteed_weaponloadout_ring_2                 "mp_weapon_volt_smg_blueset mp_weapon_g2_blueset"
+                min_guaranteed_weaponloadout_ring_3                 "mp_weapon_rspn101_purpleset mp_weapon_3030_purpleset"
+                min_guaranteed_weaponloadout_ring_4                 "mp_weapon_r97_purpleset mp_weapon_hemlok_purpleset"
+                min_guaranteed_weaponloadout_ring_5                 "mp_weapon_r97_gold mp_weapon_hemlok_gold"
 
-                loot_drones_spawn_count 12
-                loot_drones_vault_key_count 8
+                min_guaranteed_equipmentloadout_ring_0              "armor_pickup_lv1_evolving helmet_pickup_lv1 incapshield_pickup_lv1"
+                min_guaranteed_equipmentloadout_ring_1              "armor_pickup_lv2_evolving helmet_pickup_lv2 incapshield_pickup_lv2 backpack_pickup_lv1"
+                min_guaranteed_equipmentloadout_ring_2              "armor_pickup_lv2_evolving helmet_pickup_lv2 incapshield_pickup_lv2 backpack_pickup_lv2"
+                min_guaranteed_equipmentloadout_ring_3              "armor_pickup_lv3_evolving helmet_pickup_lv3 incapshield_pickup_lv3 backpack_pickup_lv2 mp_ability_redeploy_balloon"
+                min_guaranteed_equipmentloadout_ring_4              "armor_pickup_lv3_evolving helmet_pickup_lv3 incapshield_pickup_lv3 backpack_pickup_lv3 mp_ability_redeploy_balloon"
+                min_guaranteed_equipmentloadout_ring_5              "armor_pickup_lv3_evolving helmet_pickup_lv3 incapshield_pickup_lv3 backpack_pickup_lv3 mp_ability_void_ring"
 
-                blimp_drones_spawn_count 2
+				min_guaranteed_consumableloadout_ring_0             "health_pickup_health_large:2 health_pickup_combo_large:2"
+                min_guaranteed_consumableloadout_ring_1             "health_pickup_health_large:2 health_pickup_combo_large:2"
+                min_guaranteed_consumableloadout_ring_2             "health_pickup_health_large:3 health_pickup_combo_large:3 mp_weapon_frag_grenade:1"
+                min_guaranteed_consumableloadout_ring_3             "health_pickup_health_large:3 health_pickup_combo_large:3 health_pickup_combo_full:1 mp_weapon_frag_grenade:1"
+                min_guaranteed_consumableloadout_ring_4             "health_pickup_health_large:4 health_pickup_combo_large:4 health_pickup_combo_full:1 mp_weapon_frag_grenade:1"
+                min_guaranteed_consumableloadout_ring_5             "health_pickup_health_large:4 health_pickup_combo_large:4 health_pickup_combo_full:2 mp_weapon_frag_grenade:1"
+
+                min_guaranteed_ammocount_ring_0                     2
+                min_guaranteed_ammocount_ring_1                     2
+                min_guaranteed_ammocount_ring_2                     3
+                min_guaranteed_ammocount_ring_3                     3
+                min_guaranteed_ammocount_ring_4                     3
+                min_guaranteed_ammocount_ring_5                     4
+
+				override_healing_values_on_revived                  1
+				override_healing_allows_health_loss                 0
+				percent_to_set_health_to_on_revived                 1.0
+				percent_to_set_shields_to_on_revived                0.0
+				revive_time_override 2.0
+
+				survival_disabled_loot                              "incapshield_pickup_lv4_selfrevive"
+				loot_distribution_override_POI_Ultra "Backpack_3:15 Backpack_2:9 incapshield_pickup_lv4_selfrevive:0 Weapon_High:31 Health_High:20"
+				loot_distribution_override_POI_OctaneTT "backpack_pickup_lv3:1 backpack_pickup_lv2:2 armor_pickup_lv3_evolving:0 incapshield_pickup_lv4_selfrevive:0"
+				loot_distribution_override_POI_HotZone_Item "armor_pickup_lv3_evolving:5 helmet_pickup_lv3:5 backpack_pickup_lv3:5 incapshield_pickup_lv3:15 armor_pickup_lv4_all_fast:20 helmet_pickup_lv4_abilities:30 backpack_pickup_lv4_revive_boost:14 incapshield_pickup_lv4_selfrevive:0"
+				loot_distribution_override_crate_jackpot_items "armor_pickup_lv3_evolving:7 armor_pickup_lv4_all_fast:5 helmet_pickup_lv4_abilities:0 backpack_pickup_lv4_revive_boost:21 incapshield_pickup_lv4_selfrevive:0"
+				loot_distribution_override_gold_items "armor_pickup_lv4_all_fast:10 helmet_pickup_lv4_abilities:47 backpack_pickup_lv4_revive_boost:39 incapshield_pickup_lv4_selfrevive:0"
+				loot_distribution_override_Incapshield_3 "incapshield_pickup_lv3:100 incapshield_pickup_lv4_selfrevive:0"
+				loot_distribution_override_Vault_QM "gold_kitted_weapons_qm:10 helmet_pickup_lv4_abilities:6 backpack_pickup_lv4_revive_boost:6 incapshield_pickup_lv4_selfrevive:0  mp_pickup_xp_cache_dynamic:2 incapshield_pickup_lv3:6"
+				loot_distribution_override_gold_equipment_qm "helmet_pickup_lv4_abilities:33 backpack_pickup_lv4_revive_boost:33 incapshield_pickup_lv4_selfrevive:0 incapshield_pickup_lv3:34"
+				loot_distribution_override_Tick_Epic_Items "Hopup_Gold:2 armor_pickup_lv3_evolving:8 armor_pickup_lv4_all_fast:1 helmet_pickup_lv3:8 helmet_pickup_lv4_abilities:1 backpack_pickup_lv3:8 backpack_pickup_lv4_revive_boost:1 incapshield_pickup_lv3:9 incapshield_pickup_lv4_selfrevive:0 health_pickup_combo_full:9 shotgun_bolt_l3:9 highcal_mag_l3:9 energy_mag_l3:9 sniper_mag_l3:6 stock_sniper_l3:9 stock_tactical_l3:9 barrel_stabilizer_l3:9 laser_sight_l3:9"
+				loot_distribution_override_phaselockbox_contents_epic "armor_pickup_lv3_evolving:6.5 armor_pickup_lv4_all_fast:1.5 helmet_pickup_lv3:6.5 helmet_pickup_lv4_abilities:2.25 backpack_pickup_lv3:.5 backpack_pickup_lv4_revive_boost:1.5 incapshield_pickup_lv3:9 incapshield_pickup_lv4_selfrevive:0 shotgun_bolt_l3:8.25 highcal_mag_l3:8.25 energy_mag_l3:8.25 sniper_mag_l3:8.25 stock_sniper_l3:8.25 stock_tactical_l3:8.25 laser_sight_l3:8.25 barrel_stabilizer_l3:8.25 gold_weapons:0.25"
+				loot_distribution_override_phaselockbox_contents_legendary "armor_pickup_lv4_all_fast:8 helmet_pickup_lv4_abilities:20 backpack_pickup_lv4_revive_boost:18 incapshield_pickup_lv4_selfrevive:0 optic_cq_threat:16 Hopup_Gold:16 bullets_mag_l4:8 highcal_mag_l4:8 energy_mag_l4:8 sniper_mag_l4:8 gold_weapons:4"
+				loot_distribution_override_flyer_deathbox_all_gold "gold_weapons:37.5 helmet_pickup_lv4_abilities:15 armor_pickup_lv4_all_fast:5 incapshield_pickup_lv4_selfrevive:0 backpack_pickup_lv4_revive_boost:10 optic_cq_threat:2.5 optic_sniper_threat:2.5 bullets_mag_l4:1.5 highcal_mag_l4:1.5 energy_mag_l4:1.5 sniper_mag_l4:1.5 Hopup_Gold:5"
+				loot_distribution_override_data_knife_vault "Hopup_Gold:5 armor_pickup_lv3_evolving:2 armor_pickup_lv4_all_fast:2 helmet_pickup_lv3:4 helmet_pickup_lv4_abilities:3 backpack_pickup_lv3:5 backpack_pickup_lv4_revive_boost:5 incapshield_pickup_lv3:6 incapshield_pickup_lv4_selfrevive:0 health_pickup_combo_full:3 shotgun_bolt_l3:3 bullets_mag_l3:3 highcal_mag_l3:3 sniper_mag_l3:3 stock_sniper_l3:3 stock_tactical_l3:4 laser_sight_l3:4 barrel_stabilizer_l3:4 mp_pickup_xp_cache_dynamic:2"
+				loot_distribution_override_loot_roller_contents_epic "armor_pickup_lv3_evolving:7 armor_pickup_lv4_all_fast:0.5 helmet_pickup_lv3:7 helmet_pickup_lv4_abilities:0.5 backpack_pickup_lv3:7.5 backpack_pickup_lv4_revive_boost:0.5 incapshield_pickup_lv3:7 incapshield_pickup_lv4_selfrevive:0 shotgun_bolt_l3:8 bullets_mag_l3:8 highcal_mag_l3:8 energy_mag_l3:8 sniper_mag_l3:6 stock_sniper_l3:5 stock_tactical_l3:9 laser_sight_l3:9 barrel_stabilizer_l3:9"
+				loot_distribution_override_loot_roller_contents_legendary "armor_pickup_lv4_all_fast:9 helmet_pickup_lv4_abilities:11 backpack_pickup_lv4_revive_boost:11 incapshield_pickup_lv4_selfrevive:0 optic_cq_threat:8 Hopup_Gold:8 bullets_mag_l4:9 highcal_mag_l4:9 energy_mag_l4:9 shotgun_bolt_l4:9 sniper_mag_l4:4 gold_weapons:2"
+				loot_distribution_override_pathtt_loot_roller_contents_legendary "incapshield_pickup_lv4_selfrevive:0 backpack_pickup_lv4_revive_boost:25 optic_sniper_threat:4 optic_cq_threat:8 bullets_mag_l4:5 highcal_mag_l4:5 energy_mag_l4:4 sniper_mag_l4:2 Hopup_Gold:15 helmet_pickup_lv4_abilities:20"
+				loot_distribution_override_caustictt_loot "gold_weapons:1 armor_pickup_lv3_evolving:4 armor_pickup_lv4_all_fast:1 helmet_pickup_lv3:4 helmet_pickup_lv4_abilities:1 backpack_pickup_lv3:4 backpack_pickup_lv4_revive_boost:1 incapshield_pickup_lv3:4 incapshield_pickup_lv4_selfrevive:0"
+				loot_distribution_override_telephaser_loot_roller_contents_epic "armor_pickup_lv3_evolving:6.5 armor_pickup_lv4_all_fast:0.75 helmet_pickup_lv3:6.5 helmet_pickup_lv4_abilities:2.25 backpack_pickup_lv3:6.5 backpack_pickup_lv4_revive_boost:1.5 incapshield_pickup_lv3:6.5 incapshield_pickup_lv4_selfrevive:0 Hopup_Purple:0 shotgun_bolt_l3:8.25 highcal_mag_l3:8.25 energy_mag_l3:8.25 sniper_mag_l3:6.5 stock_sniper_l3:8.25 stock_tactical_l3:8.25 laser_sight_l3:8.25 barrel_stabilizer_l3:8.25 mp_ability_void_ring:0.5 mp_ability_redeploy_balloon:0.5 gold_weapons:0.25"
+				loot_distribution_override_telephaser_loot_roller_contents_legendary "armor_pickup_lv4_all_fast:6 helmet_pickup_lv4_abilities:15 backpack_pickup_lv4_revive_boost:13 incapshield_pickup_lv4_selfrevive:0 optic_cq_threat:16 Hopup_Gold:16 bullets_mag_l4:10 highcal_mag_l4:10 energy_mag_l4:8 sniper_mag_l4:4 gold_weapons:1"
+				loot_distribution_override_lifeline_upgrade_carepackage_item_1_door_1 "incapshield_pickup_lv4_selfrevive:0 helmet_pickup_lv4_abilities:1"
             }
             gamemodes { survival { maps {
-                mp_rr_desertlands_hu 1
+            mp_rr_olympus_mu2 1
             } } }
         }
 
-        survival_hunt_20_des_duo
+        survival_strikeout_olymp
         {
-            inherit survival_hunt_20_des
-            vars
-            {
-				visible 1
-				visible_schedule_block_0 "2024-03-05 10:00:00 -08:00 | 2024-03-19 10:00:00 -07:00"
-				playlist_rotation_group the_hunt_we_rotation
-				ui_slot regular_2
-				name #PL_BEASTWITHIN_20_0_The_Hunt_NAME_DUO
-				gameModeString #PL_BEASTWITHIN_20_0_The_Hunt_NAME_DUO
-				image duos_bounty_hunt
-				max_teams 30
-				num_squads_in_staging 10
-				pin_match_type duo
-				max_nofill_players 6
-            }
-            gamemodes { survival { maps {
-				mp_rr_desertlands_hu 1
-			} } }
-        }
+	        inherit survival_strikeout_base
+	        vars
+		    {
+		        visible 1
+		        visible_schedule_block_0	"2024-04-23 10:00:00 -07:00 | 2024-05-07 10:00:00 -07:00"
 
-        survival_hunt_20_tropic
+				playlist_rotation_group        olympus_rotation_mt
+            	image strikeout_olympus_mu2
+            	map_name #MP_RR_OLYMPUS_MU2
+            	map_change_VO_alias "mapChangeOL"
+            	pin_match_type survival
+            	playlist_ring_tuning_override survival_ring_olymp_strikeout
+
+				tel_p1 "2024-04-16 10:00:00 -07:00"
+				tel_p2 "2024-04-19 10:00:00 -07:00"
+				tel_p3 "2024-04-22 10:00:00 -07:00"
+		    }
+            gamemodes { survival { maps {
+             mp_rr_olympus_mu2 1
+            } } }
+	    }
+
+        survival_strikeout_storm_point
         {
-            inherit survival_hunt_20_base
-            vars
-            {
-                visible 1
-                visible_schedule_block_0 "2024-03-05 10:00:00 -08:00 | 2024-03-19 10:00:00 -07:00"
-                playlist_rotation_group the_hunt_tr_rotation
-                panel_image panel_storm_point_mu2
+	        inherit survival_strikeout_base
+	        vars
+		    {
+		        visible 1
+		        visible_schedule_block_0	"2024-04-23 10:00:00 -07:00 | 2024-05-07 10:00:00 -07:00"
+
+                playlist_rotation_group         storm_point_rotation_mt
+                image strikeout_storm_point_mu2
                 map_name #MP_RR_TROPIC_ISLAND
                 map_change_VO_alias "mapChangeSP"
 
-				playlist_ring_tuning_override survival_ring_tropics
-				should_ai_reward_evo_pts 1
-				armory_roof_repel_enabled 0
+                survival_plane_angle_deviation     -20
 
-				wildlife_ai_enabled 1
-				wildlife_ai_max_allowed_alive 100
+                playlist_ring_tuning_override survival_ring_tropics_strikeout
+                survival_death_field_start_radius  79000
+                deathfield_radius_0                28000
+                deathfield_radius_1                15000
+                deathfield_shrinkSpeed_0           185
+                should_ai_reward_evo_pts 1
+                armory_roof_repel_enabled 0
+                wildlife_ai_enabled 1
+                wildlife_ai_max_allowed_alive 100
+                wildlife_ai_prowler_camp_max_alive 4
+                wildlife_ai_prowler_camp_initial_spawn_limit 2
+                ai_spider_jungle_evo_pt_percent 0.25
+                ai_prowler_evo_pt_percent 0.25
+                ai_flyer_evo_pt_percent 0.25
+                wildlife_ai_spider_lootdrop_percent 0.50
+                wildlife_ai_prowler_lootdrop_percent 0.50
+                wildlife_ai_ordnance_lootdrop_percent 0.10
+                wildlife_ai_helmet_lootdrop_percent 0.05
+                wildlife_ai_epicitem_lootdrop_percent 0.00
+                wildlife_ai_epicitem_bonus_limit 0.2
+                wildlife_ai_epicitem_kill_increment 0.015
+                health_jungle_spider 42
+                health_prowler 114
+                ai_force_prowler_skin 2
+                ai_force_junglespider_skin 3
 
-				wildlife_ai_prowler_camp_max_alive 4
-				wildlife_ai_prowler_camp_initial_spawn_limit 2
-
-				ai_spider_jungle_evo_pt_percent 0.25
-				ai_prowler_evo_pt_percent 0.25
-				ai_flyer_evo_pt_percent 0.25
-
-				wildlife_ai_spider_lootdrop_percent 0.50
-				wildlife_ai_prowler_lootdrop_percent 0.50
-				wildlife_ai_ordnance_lootdrop_percent 0.10
-				wildlife_ai_helmet_lootdrop_percent 0.05
-
-				wildlife_ai_epicitem_lootdrop_percent 0.00
-				wildlife_ai_epicitem_bonus_limit 0.2
-				wildlife_ai_epicitem_kill_increment 0.015
-
-				health_jungle_spider 42
-				health_prowler 114
-
-				ai_force_prowler_skin 2
-				ai_force_junglespider_skin 3
-
-				blimp_drones_spawn_count 2
-            }
+				tel_p1 "2024-04-16 10:00:00 -07:00"
+				tel_p2 "2024-04-19 10:00:00 -07:00"
+				tel_p3 "2024-04-22 10:00:00 -07:00"
+		    }
             gamemodes { survival { maps {
-                mp_rr_tropic_island_mu2 1
+            mp_rr_tropic_island_mu2 1
             } } }
-        }
-
-        survival_hunt_20_tropic_duo
-        {
-            inherit survival_hunt_20_tropic
-            vars
-            {
-                visible 1
-                visible_schedule_block_0 "2024-03-05 10:00:00 -08:00 | 2024-03-19 10:00:00 -07:00"
-                playlist_rotation_group the_hunt_tr_rotation
-                ui_slot regular_2
-                name #PL_BEASTWITHIN_20_0_The_Hunt_NAME_DUO
-                gameModeString #PL_BEASTWITHIN_20_0_The_Hunt_NAME_DUO
-                image duos_bounty_hunt
-                max_teams 30
-                num_squads_in_staging 10
-                pin_match_type duo
-                max_nofill_players 6
-            }
-            gamemodes { survival { maps {
-                mp_rr_tropic_island_mu2 1
-            } } }
-        }
-
-        survival_hunt_20_oly
-        {
-            inherit survival_hunt_20_base
-            vars
-            {
-                visible 1
-                visible_schedule_block_0 "2024-03-05 10:00:00 -08:00 | 2024-03-19 10:00:00 -07:00"
-                playlist_rotation_group the_hunt_oly_rotation
-                panel_image panel_olympus_mu2
-                map_name #MP_RR_OLYMPUS_MU2
-                map_change_VO_alias "mapChangeOL"
-                playlist_ring_tuning_override survival_ring_small
-
-                blimp_drones_spawn_count 2
-            }
-            gamemodes { survival { maps {
-                mp_rr_olympus_mu2 1
-            } } }
-        }
-
-        survival_hunt_20_oly_duo
-        {
-            inherit survival_hunt_20_oly
-            vars
-            {
-                visible 1
-                visible_schedule_block_0 "2024-03-05 10:00:00 -08:00 | 2024-03-19 10:00:00 -07:00"
-                playlist_rotation_group the_hunt_oly_rotation
-                ui_slot regular_2
-                name #PL_BEASTWITHIN_20_0_The_Hunt_NAME_DUO
-                gameModeString #PL_BEASTWITHIN_20_0_The_Hunt_NAME_DUO
-                image duos_bounty_hunt
-                max_teams 30
-                num_squads_in_staging 10
-                pin_match_type duo
-                max_nofill_players 6
-            }
-            gamemodes { survival { maps {
-                mp_rr_olympus_mu2 1
-            } } }
-        }
+	    }
 
         ///////////////////////////////////
         ///////////   MIXTAPE   ///////////
@@ -1448,7 +1495,7 @@ playlists
                 description #EMPTY_STRING
             }
             gamemodes { freedm { maps {
-                mp_rr_arena_habitat 1
+                mp_rr_freedm_skulltown 1
             } } }
         }
 
@@ -1515,6 +1562,7 @@ playlists
 
                 edict_cleanup_loot_merge_enabled            0
                 max_snapshots                               135
+                is_using_capture_objective_pings            1
 
                 // XP Reward Tuning
                 xp_friend_amount                                1.0
@@ -1584,7 +1632,7 @@ playlists
                 loadoutselection_enable_challenge_loadouts                              0
                 loadoutselection_enable_featured_loadouts                               0
                 loadoutselection_avoid_duplicate_weapons_in_loadouts                    1
-                loadoutselection_rotation_start                                         "2024-02-13 09:30:00 -08:00"
+                loadoutselection_rotation_start                                         "2024-03-26 09:30:00 -07:00"
                 loadoutselection_disable_all_tiers_for_disabledweapons                  1
 
                 control_default_equipment_tier                          2
@@ -1599,10 +1647,13 @@ playlists
                 random_ammobrick_ondeath_spawncount                     0
                 grenade_ondeath_max_spawncount                          1
                 should_stop_music_on_skydive                            0
+                ambient_dialogue_enabled                                0
+                respawn_dropship_skydive                                1
 
                 disable_all_perks                                       1
                 passive_upgrade_core_enabled                            0
                 upgrade_core_survival_disabled_loot                     ""
+                character_select_upgrade_tree_enabled                   0
 
                 // Timed Events
                 control_point_diff_to_be_losingteam                 62
@@ -1644,29 +1695,52 @@ playlists
             }
         }
 
-		mix_s_control_siphon
-		{
-			inherit control_base
-			vars
-			{
-				map_name  #CONTROL_MAP_NAME_LAVA_SIPHON
-				image control_lava_siphon
-				control_map_id_override                   "control_layout_siphon"
-
-				// Memory optimizations
-				is_using_cull_circle_ents   1
-				cull_entity_spawn_circle "< 7000, -21000, -3000 > 13000"
-			}
-			gamemodes { control { maps {
-				mp_rr_desertlands_hu 1
-			} } }
-		}
-
-		mix_s_control_thunderdome_base
+        mix_s_control_production
         {
             inherit control_base
             vars
             {
+                visible 1
+                visible_schedule_block_0	"2024-03-26 10:00:00 -07:00 | 2024-04-01 10:00:00 -07:00"
+                visible_schedule_block_1    "2024-04-08 10:00:00 -07:00 | 2024-05-02 10:00:00 -07:00"
+
+                map_name  "#CONTROL_MAP_NAME_PRODUCTION"
+                image control_moon_production_yard
+                control_map_id_override                   "control_layout_production"
+
+                fullmapCustomZoomFactor 4.25
+                fullmapCustomZoomAnchorX 0.2
+                fullmapCustomZoomAnchorY 0.45
+
+                // Memory optimizations
+                is_using_cull_circle_ents   1
+                cull_entity_spawn_circle "< -32590, -3912, 4235 > 15000"
+            }
+            gamemodes { control { maps {
+                mp_rr_divided_moon 1
+            } } }
+        }
+
+        mix_s_control_production_event
+        {
+            inherit mix_s_control_production
+            vars
+            {
+                visible 1
+                visible_schedule_block_0     "2024-04-02 10:00:00 -07:00 | 2024-04-08 10:00:00 -07:00"
+                visible_schedule_block_1     ""
+            }
+        }
+
+		mix_s_control_thunderdome
+        {
+            inherit control_base
+            vars
+            {
+                visible 1
+                visible_schedule_block_0	"2024-03-26 10:00:00 -07:00 | 2024-04-01 10:00:00 -07:00"
+                visible_schedule_block_1    "2024-04-08 10:00:00 -07:00 | 2024-05-02 10:00:00 -07:00"
+
                 map_name  "#MP_RR_THUNDERDOME"
                 image panel_thunderdome
                 control_map_id_override                   "control_layout_cntrl_thunderdome"
@@ -1688,7 +1762,7 @@ playlists
                 crowd_noise_meter_modifier_control_capture_negative						-0.15
                 crowd_noise_meter_modifier_control_huge_lead_positive					0.1
                 crowd_noise_meter_modifier_control_huge_lead_negative					0
-                crowd_noise_meter_modifier_control_imminent_win_positive				0.25
+                crowd_noise_meter_modifier_control_imminent_win_positive				0.0
                 crowd_noise_meter_modifier_control_imminent_win_negative				-0.15
                 crowd_noise_meter_modifier_control_lockout_broken_positive				0.25
                 crowd_noise_meter_modifier_control_lockout_broken_negative				-0.1
@@ -1719,49 +1793,57 @@ playlists
 
                 broadcast_drones_spawn_count    7
                 blimp_drones_spawn_count        2
+
+                survival_disabled_loot "mp_ability_redeploy_balloon"
             }
             gamemodes { control { maps {
                 mp_rr_thunderdome 1
             } } }
         }
 
-        mix_s_control_thunderdome_launch
+        mix_s_control_thunderdome_event
         {
-            inherit mix_s_control_thunderdome_base
+            inherit mix_s_control_thunderdome
             vars
             {
-                visible                         1
-                visible_schedule_block_0		"2024-02-13 10:00:00 -08:00 | 2024-02-20 10:00:00 -08:00"
+                visible 1
+                visible_schedule_block_0     "2024-04-02 10:00:00 -07:00 | 2024-04-08 10:00:00 -07:00"
+                visible_schedule_block_1     ""
             }
         }
 
-        mix_s_control_thunderdome
-        {
-            inherit mix_s_control_thunderdome_base
-            vars
-            {
-                visible                         1
-                visible_schedule_block_0		"2024-02-20 10:00:00 -08:00 | 2024-03-27 10:00:00 -07:00"
-            }
-        }
-
-		mix_s_control_labs
+		mix_s_control_barometer
 		{
-		    inherit control_base
-		    vars
-		    {
-		        map_name  "#CONTROL_MAP_NAME_LAB"
-		        image control_hammond_labs
-		        control_map_id_override                   "control_layout_labs"
+			inherit control_base
+			vars
+			{
+                visible 1
+                visible_schedule_block_0	"2024-03-26 10:00:00 -07:00 | 2024-04-01 10:00:00 -07:00"
+                visible_schedule_block_1    "2024-04-08 10:00:00 -07:00 | 2024-05-02 10:00:00 -07:00"
 
-		        // Memory optimizations
-		        is_using_cull_circle_ents   1
-		        cull_entity_spawn_circle "< -5000, -2000, -6000 > 17000"
-		    }
-		    gamemodes { control { maps {
-		       mp_rr_olympus_mu2 1
-		    } } }
+			    map_name  "#CONTROL_MAP_NAME_BAROMETER"
+			    image control_barometer
+			    control_map_id_override                   "control_layout_barometer"
+
+			    // Memory optimizations
+			    is_using_cull_circle_ents   1
+			    cull_entity_spawn_circle "< -16000, -22000, 1000 > 15000"
+			}
+			gamemodes { control { maps {
+			    mp_rr_tropic_island_mu2 1
+			} } }
 		}
+
+        mix_s_control_barometer_event
+        {
+            inherit mix_s_control_barometer
+            vars
+            {
+                visible 1
+                visible_schedule_block_0     "2024-04-02 10:00:00 -07:00 | 2024-04-08 10:00:00 -07:00"
+                visible_schedule_block_1     ""
+            }
+        }
 
 	   ////////////////////////////////////////////
        ///////////////// FreeDM ///////////////////
@@ -1789,6 +1871,8 @@ playlists
                 mode_health_regen_tick                      0.25
                 mode_health_regen_delay                     6.0
 
+                auto_pickup_ordnance                        1
+
 				match_jip 1
                 min_jip_time                30.0
                 max_time_remaining_for_jip  600.0
@@ -1809,6 +1893,7 @@ playlists
                 disable_all_perks                                       1
                 passive_upgrade_core_enabled                            0
                 upgrade_core_survival_disabled_loot                     ""
+                character_select_upgrade_tree_enabled                   0
 			}
 		}
 
@@ -1850,7 +1935,6 @@ playlists
                 freedm_prematch_intro_time          7.0
                 freedm_tdm_active 1
                 scoreboard_mode_id 5
-                auto_pickup_ordnance 1
 
                 pin_match_type          "ftdm"
                 stats_match_type        "ftdm"
@@ -1862,17 +1946,90 @@ playlists
             }
         }
 
-		mix_s_tdm_thunderdome_base
+        mix_s_tdm_amps
         {
             inherit freedm_tdm
             vars
             {
+                visible 1
+                visible_schedule_block_0	"2024-03-26 10:00:00 -07:00 | 2024-04-01 10:00:00 -07:00"
+                visible_schedule_block_1    "2024-04-08 10:00:00 -07:00 | 2024-05-02 10:00:00 -07:00"
+                map_name  "#FREEDM_MAP_NAME_AMPS"
+                image mixtape_amps
+                freedm_forced_location "fdm_amps"
+                is_using_cull_circle_ents   1
+                cull_entity_spawn_circle "<27440 40984 10398> 9000"
+
+                fullmapCustomZoomFactor 8.5
+                fullmapCustomZoomAnchorX 0.8
+                fullmapCustomZoomAnchorY 0.05
+            }
+            gamemodes { freedm { maps {
+                mp_rr_tropic_island_mu2 1
+            } } }
+        }
+
+        mix_s_tdm_amps_event
+        {
+            inherit mix_s_tdm_amps
+            vars
+            {
+                visible 1
+                visible_schedule_block_0     "2024-04-02 10:00:00 -07:00 | 2024-04-08 10:00:00 -07:00"
+                visible_schedule_block_1     ""
+            }
+        }
+
+        mix_s_tdm_monument
+        {
+            inherit freedm_tdm
+            vars
+            {
+                visible 1
+                visible_schedule_block_0	"2024-03-26 10:00:00 -07:00 | 2024-04-01 10:00:00 -07:00"
+                visible_schedule_block_1    "2024-04-08 10:00:00 -07:00 | 2024-05-02 10:00:00 -07:00"
+
+                map_name  "#mp_rr_freedm_map_name_monument"
+                image mixtape_treasurehunt_monument
+                freedm_forced_location "fdm_monument"
+                is_using_cull_circle_ents   1
+                cull_entity_spawn_circle "<3915, 9918, -3940> 8000"
+
+				fullmapCustomZoomFactor 4.25
+				fullmapCustomZoomAnchorX 0.55
+				fullmapCustomZoomAnchorY 0.39
+            }
+            gamemodes { freedm { maps {
+                mp_rr_desertlands_hu 1
+             } } }
+        }
+
+        mix_s_tdm_monument_event
+        {
+            inherit mix_s_tdm_monument
+            vars
+            {
+                visible 1
+                visible_schedule_block_0     "2024-04-02 10:00:00 -07:00 | 2024-04-08 10:00:00 -07:00"
+                visible_schedule_block_1     ""
+            }
+        }
+
+		mix_s_tdm_thunderdome
+        {
+            inherit freedm_tdm
+            vars
+            {
+	            visible 1
+                visible_schedule_block_0	"2024-03-26 10:00:00 -07:00 | 2024-04-01 10:00:00 -07:00"
+                visible_schedule_block_1    "2024-04-08 10:00:00 -07:00 | 2024-05-02 10:00:00 -07:00"
+
                 map_name  "#MP_RR_THUNDERDOME"
                 freedm_forced_location "fdm_thunderdome"
                 image panel_thunderdome
 
-                max_props                300000  // 300k
-                max_prop_data_dwords     400000  // 400k
+                max_props                300000
+                max_prop_data_dwords     400000
                 maps_use_preprocessed_data 0
 
                 streaks_tracker_enabled													1
@@ -1880,11 +2037,11 @@ playlists
                 score_delta_for_medium_win												8
                 score_delta_for_large_win												15
 
-                crowd_noise_meter_enabled												1 // 1 = true, 0 = false
-                crowd_noise_meter_enable_server_broadcasting							1 // 1 = true, 0 = false
+                crowd_noise_meter_enabled												1
+                crowd_noise_meter_enable_server_broadcasting							1
 
-                crowd_noise_meter_decay_interval_seconds								5 // how often we decay the noise meter
-                crowd_noise_meter_decay_value											-0.07 // how much we decay the noise meter
+                crowd_noise_meter_decay_interval_seconds								5
+                crowd_noise_meter_decay_value											-0.09
                 crowd_noise_meter_delta_decay_rate                                      2
 
                 crowd_noise_meter_cheer_delta_trigger                                   0.1
@@ -1893,25 +2050,25 @@ playlists
                 crowd_noise_meter_modifier_lead_change_negative							0
                 crowd_noise_meter_modifier_match_halfway_score_reached_positive			0.15
                 crowd_noise_meter_modifier_match_halfway_score_reached_negative			-0.1
-                crowd_noise_meter_modifier_close_to_winning_match_positive				0.4
-                crowd_noise_meter_modifier_close_to_winning_match_negative				-0.1
+                crowd_noise_meter_modifier_close_to_winning_match_positive				0.1
+                crowd_noise_meter_modifier_close_to_winning_match_negative				-0.05
                 crowd_noise_meter_modifier_kill_streak_consecutive_3_positive			0.1
                 crowd_noise_meter_modifier_kill_streak_consecutive_3_negative			0
-                crowd_noise_meter_modifier_kill_streak_consecutive_5_positive			0.2
+                crowd_noise_meter_modifier_kill_streak_consecutive_5_positive			0.05
                 crowd_noise_meter_modifier_kill_streak_consecutive_5_negative			0
                 crowd_noise_meter_modifier_kill_streak_consecutive_10_positive			0.25
                 crowd_noise_meter_modifier_kill_streak_consecutive_10_negative			0
-                crowd_noise_meter_modifier_kill_streak_consecutive_15_positive			0.3
+                crowd_noise_meter_modifier_kill_streak_consecutive_15_positive			0.15
                 crowd_noise_meter_modifier_kill_streak_consecutive_15_negative			0
                 crowd_noise_meter_modifier_kill_streak_frequent_1_positive              0.1
                 crowd_noise_meter_modifier_kill_streak_frequent_1_negative              0
-                crowd_noise_meter_modifier_kill_streak_frequent_2_positive				0.17
+                crowd_noise_meter_modifier_kill_streak_frequent_2_positive				0.02
                 crowd_noise_meter_modifier_kill_streak_frequent_2_negative				-1
-                crowd_noise_meter_modifier_kill_streak_frequent_3_positive				0.2
+                crowd_noise_meter_modifier_kill_streak_frequent_3_positive				0.1
                 crowd_noise_meter_modifier_kill_streak_frequent_3_negative				0
                 crowd_noise_meter_modifier_kill_streak_frequent_5_positive				0.3
                 crowd_noise_meter_modifier_kill_streak_frequent_5_positive				0
-                crowd_noise_meter_modifier_win_by_large_margin_positive					0.3
+                crowd_noise_meter_modifier_win_by_large_margin_positive					0
                 crowd_noise_meter_modifier_win_by_large_margin_negative					0
                 crowd_noise_meter_modifier_win_by_medium_margin_positive				0.2
                 crowd_noise_meter_modifier_win_by_medium_margin_negative				0
@@ -1933,61 +2090,16 @@ playlists
             } } }
         }
 
-		mix_s_tdm_thunderdome_launch
-		{
-		    inherit mix_s_tdm_thunderdome_base
-		    vars
-		    {
-		        visible                         1
-		        visible_schedule_block_0		"2024-02-13 10:00:00 -08:00 | 2024-02-20 10:00:00 -08:00"
-		    }
-		}
-
-		mix_s_tdm_thunderdome
-        {
-            inherit mix_s_tdm_thunderdome_base
-            vars
-            {
-                visible                         1
-                visible_schedule_block_0		"2024-02-20 10:00:00 -08:00 | 2024-03-27 10:00:00 -07:00"
-            }
-        }
-
-        mix_s_tdm_fragment
-        {
-            inherit freedm_tdm
-            vars
-            {
-                map_name  "#FREEDM_MAP_NAME_FRAGMENT"
-                image gungame_fragment_east
-                freedm_forced_location "fdm_fragment"
-                is_using_cull_circle_ents   1
-                cull_entity_spawn_circle "<9186, 5536, -3324> 9000"
-
-                fullmapCustomZoomFactor 4.25
-                fullmapCustomZoomAnchorX 0.66
-                fullmapCustomZoomAnchorY 0.45
-            }
-            gamemodes { freedm { maps {
-                mp_rr_desertlands_hu 1
-             } } }
-        }
-
-         mix_s_tdm_habitat
-        {
-            inherit freedm_tdm
-            vars
-            {
-                map_name  "#MP_RR_ARENA_HABITAT"
-                image tdm_habitat
-                freedm_forced_location "fdm_arena_habitat"
-
-                fullmapCustomZoomFactor 1.25
-            }
-            gamemodes { freedm { maps {
-                mp_rr_arena_habitat 1
-             } } }
-        }
+	   mix_s_tdm_thunderdome_event
+	    {
+	        inherit mix_s_tdm_thunderdome
+	        vars
+	        {
+                visible 1
+                visible_schedule_block_0     "2024-04-02 10:00:00 -07:00 | 2024-04-08 10:00:00 -07:00"
+                visible_schedule_block_1     ""
+	        }
+	    }
 
 	   ///////////////////////////////////
        ////////////   GUN RUN   //////////
@@ -2074,136 +2186,1134 @@ playlists
            }
        }
 
-		mix_s_gungame_fragment
+		mix_s_gungame_thunderdome
+		{
+		   inherit freedm_gungame
+		   vars
+		   {
+				visible 1
+                visible_schedule_block_0	"2024-03-26 10:00:00 -07:00 | 2024-04-01 10:00:00 -07:00"
+                visible_schedule_block_1    "2024-04-08 10:00:00 -07:00 | 2024-05-02 10:00:00 -07:00"
+
+		        map_name  "#MP_RR_THUNDERDOME"
+		        image panel_thunderdome
+
+		        freedm_forced_location "gr_thunderdome"
+
+		        streaks_tracker_enabled													1
+
+		        score_delta_for_medium_win												3
+		        score_delta_for_large_win												8
+
+		        crowd_noise_meter_enabled												1
+		        crowd_noise_meter_enable_server_broadcasting							1
+
+		        crowd_noise_meter_decay_interval_seconds                                5
+		        crowd_noise_meter_decay_value                                           -0.04
+
+		        crowd_noise_meter_delta_decay_rate                                      2
+
+		        crowd_noise_meter_cheer_delta_trigger                                   0.1
+
+		        crowd_noise_meter_modifier_lead_change_positive                         0.2
+		        crowd_noise_meter_modifier_lead_change_negative                         0
+		        crowd_noise_meter_modifier_match_halfway_score_reached_positive			0.15
+		        crowd_noise_meter_modifier_match_halfway_score_reached_negative			-0.1
+		        crowd_noise_meter_modifier_close_to_winning_match_positive              0.05
+		        crowd_noise_meter_modifier_close_to_winning_match_negative              -0.05
+		        crowd_noise_meter_modifier_kill_streak_consecutive_3_positive           0.1
+		        crowd_noise_meter_modifier_kill_streak_consecutive_3_negative           0
+		        crowd_noise_meter_modifier_kill_streak_consecutive_5_positive           0.2
+		        crowd_noise_meter_modifier_kill_streak_consecutive_5_negative           0
+		        crowd_noise_meter_modifier_kill_streak_consecutive_10_positive          0.1
+		        crowd_noise_meter_modifier_kill_streak_consecutive_10_negative          0
+		        crowd_noise_meter_modifier_kill_streak_consecutive_15_positive          0.4
+		        crowd_noise_meter_modifier_kill_streak_consecutive_15_negative          0
+		        crowd_noise_meter_modifier_kill_streak_frequent_1_positive              0.2
+		        crowd_noise_meter_modifier_kill_streak_frequent_1_negative              0
+		        crowd_noise_meter_modifier_kill_streak_frequent_2_positive              0.05
+		        crowd_noise_meter_modifier_kill_streak_frequent_2_negative              -0.1
+		        crowd_noise_meter_modifier_kill_streak_frequent_3_positive              0.3
+		        crowd_noise_meter_modifier_kill_streak_frequent_3_negative              0
+		        crowd_noise_meter_modifier_kill_streak_frequent_5_positive              0.4
+		        crowd_noise_meter_modifier_kill_streak_frequent_5_positive              0
+		        crowd_noise_meter_modifier_win_by_large_margin_positive                 0
+		        crowd_noise_meter_modifier_win_by_large_margin_negative                 0
+		        crowd_noise_meter_modifier_win_by_medium_margin_positive                0.2
+		        crowd_noise_meter_modifier_win_by_medium_margin_negative                0
+		        crowd_noise_meter_modifier_win_by_medium_margin_positive                0.1
+		        crowd_noise_meter_modifier_win_by_medium_margin_negative                0
+
+		        crowd_noise_meter_round_point_trigger_odds								100
+		        crowd_noise_meter_player_death_trigger_odds								100
+
+		        nessie_hunt_nessies_to_spawn 10
+		        nessie_hunt_nessies_to_hunt 10
+		        nessie_hunt_enabled 1
+
+		        broadcast_drones_spawn_count    7
+		        blimp_drones_spawn_count        2
+		    }
+		    gamemodes { freedm { maps {
+		        mp_rr_thunderdome 1
+		    } } }
+		}
+
+		mix_s_gungame_thunderdome_event
+		{
+		    inherit mix_s_gungame_thunderdome
+		    vars
+		    {
+                visible 1
+                visible_schedule_block_0     "2024-04-02 10:00:00 -07:00 | 2024-04-08 10:00:00 -07:00"
+                visible_schedule_block_1     ""
+		    }
+		}
+
+		mix_s_gungame_skulltown
 		{
 		    inherit freedm_gungame
 		    vars
 		    {
-		        map_name  "#FREEDM_MAP_NAME_FRAGMENT"
-		        image gungame_fragment_east
+		        visible 1
+                visible_schedule_block_0	"2024-03-26 10:00:00 -07:00 | 2024-04-01 10:00:00 -07:00"
+                visible_schedule_block_1    "2024-04-08 10:00:00 -07:00 | 2024-05-02 10:00:00 -07:00"
 
-		        fullmapCustomZoomFactor 4.25
-		        fullmapCustomZoomAnchorX 0.66
-		        fullmapCustomZoomAnchorY 0.45
+		        map_name  "#FREEDM_MAP_NAME_SKULLTOWN"
+		        image gungame_skull_town
 
-		        freedm_forced_location "fdm_fragment"
-		        is_using_cull_circle_ents   1
-		        cull_entity_spawn_circle "<9186, 5536, -3324> 9000"
+		        fullmapCustomZoomFactor 1.25
 		    }
 		    gamemodes { freedm { maps {
-		        mp_rr_desertlands_hu 1
+		        mp_rr_freedm_skulltown 1
 		     } } }
 		}
 
-		mix_s_gungame_thunderdome_base
+		mix_s_gungame_skulltown_event
+        {
+            inherit mix_s_gungame_skulltown
+            vars
+            {
+                visible 1
+                visible_schedule_block_0     "2024-04-02 10:00:00 -07:00 | 2024-04-08 10:00:00 -07:00"
+                visible_schedule_block_1     ""
+            }
+        }
+
+        mix_s_gungame_monument
+        {
+            inherit freedm_gungame
+            vars
+            {
+                visible 1
+                visible_schedule_block_0	"2024-03-26 10:00:00 -07:00 | 2024-04-01 10:00:00 -07:00"
+                visible_schedule_block_1    "2024-04-08 10:00:00 -07:00 | 2024-05-02 10:00:00 -07:00"
+
+                map_name  "#mp_rr_freedm_map_name_monument"
+                image mixtape_treasurehunt_monument
+                freedm_forced_location "gun_run_monument"
+                is_using_cull_circle_ents   1
+                cull_entity_spawn_circle "<3915, 9918, -3940> 8000"
+
+                fullmapCustomZoomFactor 4.25
+                fullmapCustomZoomAnchorX 0.55
+                fullmapCustomZoomAnchorY 0.39
+            }
+            gamemodes { freedm { maps {
+                mp_rr_desertlands_hu 1
+             } } }
+        }
+
+        mix_s_gungame_monument_event
+        {
+            inherit mix_s_gungame_monument
+            vars
+            {
+                visible 1
+                visible_schedule_block_0     "2024-04-02 10:00:00 -07:00 | 2024-04-08 10:00:00 -07:00"
+                visible_schedule_block_1     ""
+            }
+        }
+
+       ///////////////////////////////////
+       ///// LOCKDOWN - MIXTAPE LTM /////
+       ///////////////////////////////////
+
+		freedm_tr_hunt_base
 		{
-		   inherit freedm_gungame
-		   vars
-		   {
-				map_name  "#MP_RR_THUNDERDOME"
-				image panel_thunderdome
-
-				freedm_forced_location "gr_thunderdome"
-
-				streaks_tracker_enabled													1
-
-				score_delta_for_medium_win												3
-				score_delta_for_large_win												8
-
-				crowd_noise_meter_enabled												1
-				crowd_noise_meter_enable_server_broadcasting							1
-
-				crowd_noise_meter_decay_interval_seconds                                5
-				crowd_noise_meter_decay_value                                           -0.04
-
-				crowd_noise_meter_delta_decay_rate                                      2
-
-				crowd_noise_meter_cheer_delta_trigger                                   0.1
-
-				crowd_noise_meter_modifier_lead_change_positive                         0.2
-				crowd_noise_meter_modifier_lead_change_negative                         0
-				crowd_noise_meter_modifier_match_halfway_score_reached_positive			0.15
-				crowd_noise_meter_modifier_match_halfway_score_reached_negative			-0.1
-				crowd_noise_meter_modifier_close_to_winning_match_positive              0.4
-				crowd_noise_meter_modifier_close_to_winning_match_negative              -0.1
-				crowd_noise_meter_modifier_kill_streak_consecutive_3_positive           0.1
-				crowd_noise_meter_modifier_kill_streak_consecutive_3_negative           0
-				crowd_noise_meter_modifier_kill_streak_consecutive_5_positive           0.2
-				crowd_noise_meter_modifier_kill_streak_consecutive_5_negative           0
-				crowd_noise_meter_modifier_kill_streak_consecutive_10_positive          0.3
-				crowd_noise_meter_modifier_kill_streak_consecutive_10_negative          0
-				crowd_noise_meter_modifier_kill_streak_consecutive_15_positive          0.4
-				crowd_noise_meter_modifier_kill_streak_consecutive_15_negative          0
-				crowd_noise_meter_modifier_kill_streak_frequent_1_positive              0.2
-				crowd_noise_meter_modifier_kill_streak_frequent_1_negative              0
-				crowd_noise_meter_modifier_kill_streak_frequent_2_positive              0.25
-				crowd_noise_meter_modifier_kill_streak_frequent_2_negative              -0.1
-				crowd_noise_meter_modifier_kill_streak_frequent_3_positive              0.3
-				crowd_noise_meter_modifier_kill_streak_frequent_3_negative              0
-				crowd_noise_meter_modifier_kill_streak_frequent_5_positive              0.4
-				crowd_noise_meter_modifier_kill_streak_frequent_5_positive              0
-				crowd_noise_meter_modifier_win_by_large_margin_positive                 0.3
-				crowd_noise_meter_modifier_win_by_large_margin_negative                 0
-				crowd_noise_meter_modifier_win_by_medium_margin_positive                0.2
-				crowd_noise_meter_modifier_win_by_medium_margin_negative                0
-				crowd_noise_meter_modifier_win_by_medium_margin_positive                0.1
-				crowd_noise_meter_modifier_win_by_medium_margin_negative                0
-
-				crowd_noise_meter_round_point_trigger_odds								100
-				crowd_noise_meter_player_death_trigger_odds								100
-
-				nessie_hunt_nessies_to_spawn 10
-				nessie_hunt_nessies_to_hunt 10
-				nessie_hunt_enabled 1
-
-				broadcast_drones_spawn_count    7
-				blimp_drones_spawn_count        2
-			}
-			gamemodes { freedm { maps {
-				mp_rr_thunderdome 1
-			} } }
-		}
-
-		mix_s_gungame_thunderdome_launch
-		{
-		    inherit mix_s_gungame_thunderdome_base
+		    inherit freedm_base
 		    vars
 		    {
-		        visible                         1
-		        visible_schedule_block_0		"2024-02-13 10:00:00 -08:00 | 2024-02-20 10:00:00 -08:00"
+		        visible                                 0
+		        is_limited_mode                         0
+		        ui_slot                                 mixtape
+		        show_ltm_about_button                   1
+		        show_ltm_about_button_is_takeover       0
+		        ui_rules                                treasure_hunt
+		        emblem                                  emblem_treasure_hunt
+		        image                                   ranked_3
+		        gamemode_logo                           FREEDM
+		        name                                    #FREEDM_LOCKDOWN_MODE
+		        description                             #FREEDM_LOCKDOWN_MODE_DESC
+		        about_text                              #FREEDM_LOCKDOWN_MODE_ABOUT
+		        modeDescriptionString                   #FREEDM_LOCKDOWN_MODE_NEWMODE_MSG
+		        show_skydive_announce                   0
+
+		        freedm_treasure_hunt_active 1
+
+		        max_players 12
+		        max_alliances 0
+		        max_teams 4
+
+		        pin_match_type "treasure_hunt"
+		        stats_match_type "treasurehunt"
+
+		        // JIP
+		        match_jip                                   1
+		        max_score_difference_for_jip                250
+		        max_score_for_jip                           300
+		        max_time_remaining_for_jip                  600.0
+		        match_jip_state_delay                       15.0
+
+		        treasure_hunt_should_heal_on_capture    1
+		        is_using_capture_objective_pings        1
+
+		        // Intro Flow
+		        survival_enable_all_squads_intro                    1
+		        survival_enable_squad_intro                         1
+		        survival_squad_intro_show_title_frame               1
+		        survival_enable_gladiator_intros                    0
+		        survival_enable_mvp_intros                          1
+		        survival_hide_character_select_room                 1
+		        charselect_outro_mvp_present_duration               8
+		        charselect_outro_all_squads_present_duration        9
+		        roundwinningkillreplay_enabled                      1
+		        roundwinningkillreplay_slowmo                       0
+		        max_snapshots                                       175
+		        round_winning_kill_replay_startup_wait              4.2
+
+		        // HUD
+		        show_unitframe_team_name                            1
+		        has_squad_based_ui                                  1
+		        show_team_color_obituary                            1
+		        show_team_color_obituary_enemies_red                0
+		        show_hud_in_prematch                                1
+		        show_teamunitframes_in_prematch                     1
+		        hide_inventory_counter_in_prematch                  1
+
+		        // Scoring
+		        scorelimit                                          500
+		        treasure_hunt_obj_capturestart_score_amnt           15
+		        treasure_hunt_obj_capturing_score_amnt              5
+		        treasure_hunt_capturing_score_interval              3.0
+		        treasure_hunt_obj_captured_score_amnt               25
+		        treasure_hunt_suddendeath_obj_captured_score_amnt   50
+		        treasure_hunt_kill_score_amnt                       5
+		        treasure_hunt_kill_from_zone_score_amnt             10
+		        treasure_hunt_kill_winner_score_amnt                15
+
+		        treasure_hunt_zone_hold_time                        90
+		        treasure_hunt_spawn_repeat_cooldown                 180
+
+		        treasure_hunt_max_spawn_count                       3
+		        treasure_hunt_max_spawn_count_earlygame             2
+		        treasure_hunt_max_spawn_count_midgame               2
+		        treasure_hunt_max_spawn_count_lategame              1
+
+		        survival_rounds_enabled 0
+		        freedm_airdrops_enabled 0
+
+		        // Catchup mechanics Tuning
+		        treasure_hunt_minor_catchup_threshold               50
+		        treasure_hunt_major_catchup_threshold               90
+
+		        // XP Reward Tuning
+		        xp_friend_amount                                1.0
+		        xp_friend_frac                                  0.04
+		        xp_kill_amount                                  15
+		        xp_survival_duration_amount                     3.0
+		        xp_match_completed_amount                       150
+		        xp_match_completed_joined_in_progress_amount    150
+		        xp_win_match_amount                             100
+		        xp_challenge_completed_amount                   1
+		        xp_objective_capture_duration_amount            1.67
+		        xp_champion_amount                              0
+		        xp_first_kill_amount                            0
+		        xp_kill_champion_amount                         0
+		        xp_damage_dealt_amount                          0
+		        xp_top_five_amount                              0
+		        xp_first_top_five_amount                        0
 		    }
 		}
 
-		mix_s_gungame_thunderdome
+		mix_s_tr_hunt_skulltown
 		{
-		    inherit mix_s_gungame_thunderdome_base
+		    inherit freedm_tr_hunt_base
 		    vars
 		    {
-		        visible                         1
-		        visible_schedule_block_0		"2024-02-20 10:00:00 -08:00 | 2024-03-27 10:00:00 -07:00"
+                visible 1
+                visible_schedule_block_0     "2024-04-02 10:00:00 -07:00 | 2024-04-08 10:00:00 -07:00"
+                visible_schedule_block_1     ""
+
+		        map_name  "#FREEDM_MAP_NAME_SKULLTOWN"
+		        image mixtape_treasurehunt_skulltown
+		        freedm_forced_location "treaure_hunt_skulltown"
+
+		        fullmapCustomZoomFactor 1.25
+		    }
+		    gamemodes { freedm { maps {
+		         mp_rr_freedm_skulltown 1
+		     } } }
+		}
+
+		mix_s_tr_hunt_skulltown_ltm
+		{
+		    inherit mix_s_tr_hunt_skulltown
+		    vars
+		    {
+		        visible 1
+		        visible_schedule_block_0		"2024-03-26 10:00:00 -07:00 | 2024-04-02 10:00:00 -07:00"
+		        visible_schedule_block_1		"2024-04-08 10:00:00 -07:00 | 2024-04-16 10:00:00 -07:00"
+
+		        ui_slot ltm
+		        is_limited_mode 1
+		        gamemode_logo LTM
+		        gamemode_select_category_name "#GAMEMODE_CATEGORY_LTM"
 		    }
 		}
 
-		mix_s_gungame_estates
+		mix_s_tr_hunt_thunderdome
 		{
-		   inherit freedm_gungame
-		   vars
-		   {
-		       map_name  "#FREEDM_MAP_NAME_ESTATES"
-		       image gungame_estates_day
+		    inherit freedm_tr_hunt_base
+		    vars
+		    {
+                visible 1
+                visible_schedule_block_0     "2024-04-02 10:00:00 -07:00 | 2024-04-08 10:00:00 -07:00"
+                visible_schedule_block_1     ""
 
-		       fullmapCustomZoomFactor 4.0
-		       fullmapCustomZoomAnchorX 0.25
-		       fullmapCustomZoomAnchorY 0.55
+		        map_name  "#MP_RR_THUNDERDOME"
+		        image mixtape_treasurehunt_thunderdome
 
-		       freedm_forced_location "freedm_estates"
-		       is_using_cull_circle_ents   1
-		       cull_entity_spawn_circle "<-23170, 411, -4411> 9000"
-		   }
-		   gamemodes { freedm { maps {
-		       mp_rr_olympus_mu2 1
-		   } } }
+		        freedm_forced_location "th_thunderdome"
+
+		        // SCORE DELTA MARGINS
+		        score_delta_for_medium_win												2
+		        score_delta_for_large_win												4
+
+		        // CROWD NOISE METER
+		        crowd_noise_meter_enabled												1
+		        crowd_noise_meter_enable_server_broadcasting							1
+
+		        // CROWD NOISE METER DECAY
+		        crowd_noise_meter_decay_interval_seconds								5
+		        crowd_noise_meter_decay_value											-0.02
+
+		        crowd_noise_meter_delta_decay_rate                                      2
+
+		        // CROWD NOISE METER CHEERS DELTA
+		        crowd_noise_meter_cheer_delta_trigger                                   0.1
+
+		        // CROWD NOISE METER EVENTS
+		        crowd_noise_meter_modifier_treasure_hunt_capturing_zone_positive		0.01
+		        crowd_noise_meter_modifier_treasure_hunt_capturing_zone_negative		0.0
+
+		        crowd_noise_meter_modifier_treasure_hunt_captured_zone_positive			0.15
+		        crowd_noise_meter_modifier_treasure_hunt_captured_zone_negative			-0.05
+
+		        crowd_noise_meter_modifier_treasure_hunt_contesting_zone_positive		0.006
+		        crowd_noise_meter_modifier_treasure_hunt_contesting_zone_negative		0.0
+
+		        crowd_noise_meter_modifier_lead_change_positive							0.05
+		        crowd_noise_meter_modifier_lead_change_negative							-0.05
+
+		        crowd_noise_meter_modifier_match_halfway_score_reached_positive			0.15
+		        crowd_noise_meter_modifier_match_halfway_score_reached_negative			-0.05
+
+		        crowd_noise_meter_modifier_close_to_winning_match_positive				0.15
+		        crowd_noise_meter_modifier_close_to_winning_match_negative				0.0
+
+		        crowd_noise_meter_modifier_win_by_large_margin_positive					0.3
+		        crowd_noise_meter_modifier_win_by_large_margin_negative					0.0
+
+		        crowd_noise_meter_modifier_win_by_medium_margin_positive				0.2
+		        crowd_noise_meter_modifier_win_by_medium_margin_negative				0.0
+
+		        crowd_noise_meter_modifier_win_by_medium_margin_positive				0.1
+		        crowd_noise_meter_modifier_win_by_medium_margin_negative				0.0
+
+		        //Nessie Easter Egg Event
+		        nessie_hunt_nessies_to_spawn 10
+		        nessie_hunt_nessies_to_hunt 10
+		        nessie_hunt_enabled 1
+
+		        //Broadcast Drone Movers
+		        broadcast_drones_spawn_count 7
+
+		        //Blimp Drones
+		        blimp_drones_spawn_count 2
+		    }
+		    gamemodes { freedm { maps {
+		         mp_rr_thunderdome 1
+		     } } }
 		}
+
+		mix_s_tr_hunt_thunderdome_ltm
+		{
+		    inherit mix_s_tr_hunt_thunderdome
+		    vars
+		    {
+		        visible 1
+		        visible_schedule_block_0		"2024-03-26 10:00:00 -07:00 | 2024-04-02 10:00:00 -07:00"
+		        visible_schedule_block_1		"2024-04-08 10:00:00 -07:00 | 2024-04-16 10:00:00 -07:00"
+
+		        ui_slot ltm
+		        is_limited_mode 1
+		        gamemode_logo LTM
+		        gamemode_select_category_name "#GAMEMODE_CATEGORY_LTM"
+		    }
+		}
+
+		mix_s_tr_hunt_amps
+		{
+		    inherit freedm_tr_hunt_base
+		    vars
+		    {
+                visible 1
+                visible_schedule_block_0     "2024-04-02 10:00:00 -07:00 | 2024-04-08 10:00:00 -07:00"
+                visible_schedule_block_1     ""
+
+		        map_name  "#FREEDM_MAP_NAME_AMPS"
+		        image mixtape_treasurehunt_storm_point_mu2
+		        freedm_forced_location "fdm_th_amps"
+		    }
+		    gamemodes { freedm { maps {
+		         mp_rr_tropic_island_mu2 1
+		     } } }
+		}
+
+		mix_s_tr_hunt_amps_ltm
+		{
+		    inherit mix_s_tr_hunt_amps
+		    vars
+		    {
+		        visible 1
+		        visible_schedule_block_0		"2024-03-26 10:00:00 -07:00 | 2024-04-02 10:00:00 -07:00"
+		        visible_schedule_block_1		"2024-04-08 10:00:00 -07:00 | 2024-04-16 10:00:00 -07:00"
+
+		        ui_slot ltm
+		        is_limited_mode 1
+		        gamemode_logo LTM
+		        gamemode_select_category_name "#GAMEMODE_CATEGORY_LTM"
+		    }
+		}
+
+		mix_s_tr_hunt_monument
+		{
+		    inherit freedm_tr_hunt_base
+		    vars
+		    {
+                visible 1
+                visible_schedule_block_0     "2024-04-02 10:00:00 -07:00 | 2024-04-08 10:00:00 -07:00"
+                visible_schedule_block_1     ""
+
+		        map_name  "#mp_rr_freedm_map_name_monument"
+		        image mixtape_treasurehunt_monument
+
+		        freedm_forced_location "treasure_hunt_monument"
+		        is_using_cull_circle_ents   1
+		        cull_entity_spawn_circle "<3915, 9918, -3940> 8000"
+
+				fullmapCustomZoomFactor 4.25
+				fullmapCustomZoomAnchorX 0.55
+				fullmapCustomZoomAnchorY 0.39
+		    }
+		    gamemodes { freedm { maps {
+		         mp_rr_desertlands_hu 1
+		     } } }
+		}
+
+		mix_s_tr_hunt_monument_ltm
+		{
+		    inherit mix_s_tr_hunt_monument
+		    vars
+		    {
+		        visible 1
+		        visible_schedule_block_0		"2024-03-26 10:00:00 -07:00 | 2024-04-02 10:00:00 -07:00"
+		        visible_schedule_block_1		"2024-04-08 10:00:00 -07:00 | 2024-04-16 10:00:00 -07:00"
+
+		        ui_slot ltm
+		        is_limited_mode 1
+		        gamemode_logo LTM
+		        gamemode_select_category_name "#GAMEMODE_CATEGORY_LTM"
+		    }
+		}
+
+       ///////////////////////////////////
+       // MIXTAPE APRIL FOOLS TAKEOVER //
+       ///////////////////////////////////
+
+        mix_s_control_aprfls20_tr
+        {
+            inherit mix_s_control_barometer
+            vars
+            {
+                visible 1
+                visible_schedule_block_0	 "2024-04-01 10:00:00 -07:00 | 2024-04-02 10:00:00 -07:00"
+                visible_schedule_block_1     ""
+
+                pin_match_type "aprilfoolss20"
+				stats_match_type "aprilfools_s20"
+
+                is_april_fools_s20 1
+                april_fools_s20_gravity_enabled 0
+                april_fools_s20_weapon_gravity_enabled 0
+
+                percent_to_set_health_to_on_kill        1.0
+                percent_to_set_shields_to_on_kill       1.0
+
+                loadoutselection_avoid_duplicate_weapons_in_loadouts               0
+                loadoutselection_rotation_start                                    "2024-04-01 09:30:00 -07:00"
+
+                loadoutselection_dt_override_loadout_blitz_loadout_1              "april_blitz_loadout_1"
+                loadoutselection_dt_override_loadout_blitz_loadout_2              "april_blitz_loadout_2"
+                loadoutselection_dt_override_loadout_blitz_loadout_3              "april_blitz_loadout_3"
+                loadoutselection_dt_override_loadout_blitz_loadout_4              "april_blitz_loadout_4"
+                loadoutselection_dt_override_loadout_blitz_loadout_5              "april_blitz_loadout_5"
+                loadoutselection_dt_override_loadout_blitz_loadout_6              "april_blitz_loadout_6"
+                loadoutselection_dt_override_loadout_blitz_loadout_7              "april_blitz_loadout_7"
+
+                loadoutselection_dt_override_loadout_heavy_loadout_1              "april_heavy_loadout_1"
+                loadoutselection_dt_override_loadout_heavy_loadout_2              "april_heavy_loadout_2"
+                loadoutselection_dt_override_loadout_heavy_loadout_3              "april_heavy_loadout_3"
+                loadoutselection_dt_override_loadout_heavy_loadout_4              "april_heavy_loadout_4"
+                loadoutselection_dt_override_loadout_heavy_loadout_5              "april_heavy_loadout_5"
+                loadoutselection_dt_override_loadout_heavy_loadout_6              "april_heavy_loadout_6"
+                loadoutselection_dt_override_loadout_heavy_loadout_7              "april_heavy_loadout_7"
+
+                loadoutselection_dt_override_loadout_assault_loadout_1            "april_assault_loadout_1"
+                loadoutselection_dt_override_loadout_assault_loadout_2            "april_assault_loadout_2"
+                loadoutselection_dt_override_loadout_assault_loadout_3            "april_assault_loadout_3"
+                loadoutselection_dt_override_loadout_assault_loadout_4            "april_assault_loadout_4"
+                loadoutselection_dt_override_loadout_assault_loadout_5            "april_assault_loadout_5"
+                loadoutselection_dt_override_loadout_assault_loadout_6            "april_assault_loadout_6"
+                loadoutselection_dt_override_loadout_assault_loadout_7            "april_assault_loadout_7"
+
+                loadoutselection_dt_override_loadout_specialist_loadout_1          "april_specialist_loadout_1"
+                loadoutselection_dt_override_loadout_specialist_loadout_2          "april_specialist_loadout_2"
+                loadoutselection_dt_override_loadout_specialist_loadout_3          "april_specialist_loadout_3"
+                loadoutselection_dt_override_loadout_specialist_loadout_4          "april_specialist_loadout_4"
+                loadoutselection_dt_override_loadout_specialist_loadout_5          "april_specialist_loadout_5"
+                loadoutselection_dt_override_loadout_specialist_loadout_6          "april_specialist_loadout_6"
+                loadoutselection_dt_override_loadout_specialist_loadout_7          "april_specialist_loadout_7"
+
+                loadoutselection_dt_override_loadout_longrange_loadout_1            "april_longrange_loadout_1"
+                loadoutselection_dt_override_loadout_longrange_loadout_2            "april_longrange_loadout_2"
+                loadoutselection_dt_override_loadout_longrange_loadout_3            "april_longrange_loadout_3"
+                loadoutselection_dt_override_loadout_longrange_loadout_4            "april_longrange_loadout_4"
+                loadoutselection_dt_override_loadout_longrange_loadout_5            "april_longrange_loadout_5"
+                loadoutselection_dt_override_loadout_longrange_loadout_6            "april_longrange_loadout_6"
+                loadoutselection_dt_override_loadout_longrange_loadout_7            "april_longrange_loadout_7"
+
+                loot_distribution_override_control_airdrop_left "mp_weapon_shotgun_pistol_light:15 mp_weapon_shotgun_pistol_heavy:15 mp_weapon_shotgun_pistol_energy:15 mp_weapon_shotgun_pistol_sniper:15 control_purple_kitted_weapons:0 control_gold_kitted_weapons:0 crate_weapons_earlygame:0 crate_weapons_midgame:0 crate_weapons_lategame:0"
+                loot_distribution_override_control_airdrop_center "mp_weapon_shotgun_pistol_april_fools:100 control_purple_kitted_weapons:0 control_gold_kitted_weapons:0 crate_weapons_earlygame:0 crate_weapons_midgame:0 crate_weapons_lategame:0"
+            }
+        }
+
+        mix_s_control_aprfls20_tr_ltm
+        {
+            inherit mix_s_control_aprfls20_tr
+            vars
+            {
+                visible 1
+                visible_schedule_block_0     "2024-04-02 10:00:00 -07:00 | 2024-04-08 10:00:00 -07:00"
+                visible_schedule_block_1     ""
+                ui_slot ltm
+                is_limited_mode 1
+
+                name #APRILFOOLS_S20_CONTROL_LTM_MODE
+                emblem generic
+                gamemode_logo LTM
+                gamemode_select_category_name "#GAMEMODE_CATEGORY_LTM"
+            }
+        }
+
+        mix_s_control_aprfls20_mn
+        {
+            inherit mix_s_control_production
+            vars
+            {
+                visible_schedule_block_0	"2024-04-01 10:00:00 -07:00 | 2024-04-02 10:00:00 -07:00"
+                visible_schedule_block_1     ""
+                visible 1
+
+                pin_match_type "aprilfoolss20"
+				stats_match_type "aprilfools_s20"
+
+                is_april_fools_s20 1
+                april_fools_s20_gravity_enabled 0
+                april_fools_s20_weapon_gravity_enabled 0
+
+                percent_to_set_health_to_on_kill        1.0
+                percent_to_set_shields_to_on_kill       1.0
+
+                loadoutselection_avoid_duplicate_weapons_in_loadouts               0
+                loadoutselection_rotation_start                                    "2024-04-01 09:30:00 -07:00"
+
+                loadoutselection_dt_override_loadout_blitz_loadout_1              "april_blitz_loadout_1"
+                loadoutselection_dt_override_loadout_blitz_loadout_2              "april_blitz_loadout_2"
+                loadoutselection_dt_override_loadout_blitz_loadout_3              "april_blitz_loadout_3"
+                loadoutselection_dt_override_loadout_blitz_loadout_4              "april_blitz_loadout_4"
+                loadoutselection_dt_override_loadout_blitz_loadout_5              "april_blitz_loadout_5"
+                loadoutselection_dt_override_loadout_blitz_loadout_6              "april_blitz_loadout_6"
+                loadoutselection_dt_override_loadout_blitz_loadout_7              "april_blitz_loadout_7"
+
+                loadoutselection_dt_override_loadout_heavy_loadout_1              "april_heavy_loadout_1"
+                loadoutselection_dt_override_loadout_heavy_loadout_2              "april_heavy_loadout_2"
+                loadoutselection_dt_override_loadout_heavy_loadout_3              "april_heavy_loadout_3"
+                loadoutselection_dt_override_loadout_heavy_loadout_4              "april_heavy_loadout_4"
+                loadoutselection_dt_override_loadout_heavy_loadout_5              "april_heavy_loadout_5"
+                loadoutselection_dt_override_loadout_heavy_loadout_6              "april_heavy_loadout_6"
+                loadoutselection_dt_override_loadout_heavy_loadout_7              "april_heavy_loadout_7"
+
+                loadoutselection_dt_override_loadout_assault_loadout_1            "april_assault_loadout_1"
+                loadoutselection_dt_override_loadout_assault_loadout_2            "april_assault_loadout_2"
+                loadoutselection_dt_override_loadout_assault_loadout_3            "april_assault_loadout_3"
+                loadoutselection_dt_override_loadout_assault_loadout_4            "april_assault_loadout_4"
+                loadoutselection_dt_override_loadout_assault_loadout_5            "april_assault_loadout_5"
+                loadoutselection_dt_override_loadout_assault_loadout_6            "april_assault_loadout_6"
+                loadoutselection_dt_override_loadout_assault_loadout_7            "april_assault_loadout_7"
+
+                loadoutselection_dt_override_loadout_specialist_loadout_1          "april_specialist_loadout_1"
+                loadoutselection_dt_override_loadout_specialist_loadout_2          "april_specialist_loadout_2"
+                loadoutselection_dt_override_loadout_specialist_loadout_3          "april_specialist_loadout_3"
+                loadoutselection_dt_override_loadout_specialist_loadout_4          "april_specialist_loadout_4"
+                loadoutselection_dt_override_loadout_specialist_loadout_5          "april_specialist_loadout_5"
+                loadoutselection_dt_override_loadout_specialist_loadout_6          "april_specialist_loadout_6"
+                loadoutselection_dt_override_loadout_specialist_loadout_7          "april_specialist_loadout_7"
+
+                loadoutselection_dt_override_loadout_longrange_loadout_1            "april_longrange_loadout_1"
+                loadoutselection_dt_override_loadout_longrange_loadout_2            "april_longrange_loadout_2"
+                loadoutselection_dt_override_loadout_longrange_loadout_3            "april_longrange_loadout_3"
+                loadoutselection_dt_override_loadout_longrange_loadout_4            "april_longrange_loadout_4"
+                loadoutselection_dt_override_loadout_longrange_loadout_5            "april_longrange_loadout_5"
+                loadoutselection_dt_override_loadout_longrange_loadout_6            "april_longrange_loadout_6"
+                loadoutselection_dt_override_loadout_longrange_loadout_7            "april_longrange_loadout_7"
+
+                loot_distribution_override_control_airdrop_left "mp_weapon_shotgun_pistol_light:15 mp_weapon_shotgun_pistol_heavy:15 mp_weapon_shotgun_pistol_energy:15 mp_weapon_shotgun_pistol_sniper:15 control_purple_kitted_weapons:0 control_gold_kitted_weapons:0 crate_weapons_earlygame:0 crate_weapons_midgame:0 crate_weapons_lategame:0"
+                loot_distribution_override_control_airdrop_center "mp_weapon_shotgun_pistol_april_fools:100 control_purple_kitted_weapons:0 control_gold_kitted_weapons:0 crate_weapons_earlygame:0 crate_weapons_midgame:0 crate_weapons_lategame:0"
+            }
+        }
+
+        mix_s_control_aprfls20_mn_ltm
+        {
+            inherit mix_s_control_aprfls20_mn
+            vars
+            {
+                visible 1
+                visible_schedule_block_0     "2024-04-02 10:00:00 -07:00 | 2024-04-08 10:00:00 -07:00"
+                visible_schedule_block_1     ""
+
+                ui_slot ltm
+                is_limited_mode 1
+                name #APRILFOOLS_S20_CONTROL_LTM_MODE
+                emblem generic
+                gamemode_logo LTM
+                gamemode_select_category_name "#GAMEMODE_CATEGORY_LTM"
+            }
+        }
+
+        mix_s_control_aprfls20_th
+        {
+            inherit mix_s_control_thunderdome
+            vars
+            {
+                visible 1
+                visible_schedule_block_0	"2024-04-01 10:00:00 -07:00 | 2024-04-02 10:00:00 -07:00"
+                visible_schedule_block_1     ""
+
+                pin_match_type "aprilfoolss20"
+				stats_match_type "aprilfools_s20"
+
+                is_april_fools_s20 1
+                april_fools_s20_gravity_enabled 0
+                april_fools_s20_weapon_gravity_enabled 0
+
+                percent_to_set_health_to_on_kill        1.0
+                percent_to_set_shields_to_on_kill       1.0
+
+                loadoutselection_avoid_duplicate_weapons_in_loadouts               0
+                loadoutselection_rotation_start                                    "2024-04-01 09:30:00 -07:00"
+
+                loadoutselection_dt_override_loadout_blitz_loadout_1              "april_blitz_loadout_1"
+                loadoutselection_dt_override_loadout_blitz_loadout_2              "april_blitz_loadout_2"
+                loadoutselection_dt_override_loadout_blitz_loadout_3              "april_blitz_loadout_3"
+                loadoutselection_dt_override_loadout_blitz_loadout_4              "april_blitz_loadout_4"
+                loadoutselection_dt_override_loadout_blitz_loadout_5              "april_blitz_loadout_5"
+                loadoutselection_dt_override_loadout_blitz_loadout_6              "april_blitz_loadout_6"
+                loadoutselection_dt_override_loadout_blitz_loadout_7              "april_blitz_loadout_7"
+
+                loadoutselection_dt_override_loadout_heavy_loadout_1              "april_heavy_loadout_1"
+                loadoutselection_dt_override_loadout_heavy_loadout_2              "april_heavy_loadout_2"
+                loadoutselection_dt_override_loadout_heavy_loadout_3              "april_heavy_loadout_3"
+                loadoutselection_dt_override_loadout_heavy_loadout_4              "april_heavy_loadout_4"
+                loadoutselection_dt_override_loadout_heavy_loadout_5              "april_heavy_loadout_5"
+                loadoutselection_dt_override_loadout_heavy_loadout_6              "april_heavy_loadout_6"
+                loadoutselection_dt_override_loadout_heavy_loadout_7              "april_heavy_loadout_7"
+
+                loadoutselection_dt_override_loadout_assault_loadout_1            "april_assault_loadout_1"
+                loadoutselection_dt_override_loadout_assault_loadout_2            "april_assault_loadout_2"
+                loadoutselection_dt_override_loadout_assault_loadout_3            "april_assault_loadout_3"
+                loadoutselection_dt_override_loadout_assault_loadout_4            "april_assault_loadout_4"
+                loadoutselection_dt_override_loadout_assault_loadout_5            "april_assault_loadout_5"
+                loadoutselection_dt_override_loadout_assault_loadout_6            "april_assault_loadout_6"
+                loadoutselection_dt_override_loadout_assault_loadout_7            "april_assault_loadout_7"
+
+                loadoutselection_dt_override_loadout_specialist_loadout_1          "april_specialist_loadout_1"
+                loadoutselection_dt_override_loadout_specialist_loadout_2          "april_specialist_loadout_2"
+                loadoutselection_dt_override_loadout_specialist_loadout_3          "april_specialist_loadout_3"
+                loadoutselection_dt_override_loadout_specialist_loadout_4          "april_specialist_loadout_4"
+                loadoutselection_dt_override_loadout_specialist_loadout_5          "april_specialist_loadout_5"
+                loadoutselection_dt_override_loadout_specialist_loadout_6          "april_specialist_loadout_6"
+                loadoutselection_dt_override_loadout_specialist_loadout_7          "april_specialist_loadout_7"
+
+                loadoutselection_dt_override_loadout_longrange_loadout_1            "april_longrange_loadout_1"
+                loadoutselection_dt_override_loadout_longrange_loadout_2            "april_longrange_loadout_2"
+                loadoutselection_dt_override_loadout_longrange_loadout_3            "april_longrange_loadout_3"
+                loadoutselection_dt_override_loadout_longrange_loadout_4            "april_longrange_loadout_4"
+                loadoutselection_dt_override_loadout_longrange_loadout_5            "april_longrange_loadout_5"
+                loadoutselection_dt_override_loadout_longrange_loadout_6            "april_longrange_loadout_6"
+                loadoutselection_dt_override_loadout_longrange_loadout_7            "april_longrange_loadout_7"
+
+                loot_distribution_override_control_airdrop_left "mp_weapon_shotgun_pistol_light:15 mp_weapon_shotgun_pistol_heavy:15 mp_weapon_shotgun_pistol_energy:15 mp_weapon_shotgun_pistol_sniper:15 control_purple_kitted_weapons:0 control_gold_kitted_weapons:0 crate_weapons_earlygame:0 crate_weapons_midgame:0 crate_weapons_lategame:0"
+                loot_distribution_override_control_airdrop_center "mp_weapon_shotgun_pistol_april_fools:100 control_purple_kitted_weapons:0 control_gold_kitted_weapons:0 crate_weapons_earlygame:0 crate_weapons_midgame:0 crate_weapons_lategame:0"
+            }
+        }
+
+        mix_s_control_aprfls20_th_ltm
+        {
+            inherit mix_s_control_aprfls20_th
+            vars
+            {
+                visible 1
+                visible_schedule_block_0     "2024-04-02 10:00:00 -07:00 | 2024-04-08 10:00:00 -07:00"
+                visible_schedule_block_1     ""
+
+                ui_slot ltm
+                is_limited_mode 1
+                name #APRILFOOLS_S20_CONTROL_LTM_MODE
+                emblem generic
+                gamemode_logo LTM
+                gamemode_select_category_name "#GAMEMODE_CATEGORY_LTM"
+            }
+        }
+
+        mix_s_tdm_aprfls20_amps
+        {
+            inherit mix_s_tdm_amps
+            vars
+            {
+                visible 1
+                visible_schedule_block_0	"2024-04-01 10:00:00 -07:00 | 2024-04-02 10:00:00 -07:00"
+                visible_schedule_block_1    ""
+
+                pin_match_type "aprilfoolss20"
+				stats_match_type "aprilfools_s20"
+
+                is_april_fools_s20 1
+                april_fools_s20_gravity_enabled 0
+                april_fools_s20_weapon_gravity_enabled 0
+
+                percent_to_set_health_to_on_kill        1.0
+                percent_to_set_shields_to_on_kill       1.0
+
+                loadoutselection_avoid_duplicate_weapons_in_loadouts               0
+                loadoutselection_rotation_start                                    "2024-04-01 09:30:00 -07:00"
+
+                loadoutselection_dt_override_loadout_blitz_loadout_1              "april_blitz_loadout_1"
+                loadoutselection_dt_override_loadout_blitz_loadout_2              "april_blitz_loadout_2"
+                loadoutselection_dt_override_loadout_blitz_loadout_3              "april_blitz_loadout_3"
+                loadoutselection_dt_override_loadout_blitz_loadout_4              "april_blitz_loadout_4"
+                loadoutselection_dt_override_loadout_blitz_loadout_5              "april_blitz_loadout_5"
+                loadoutselection_dt_override_loadout_blitz_loadout_6              "april_blitz_loadout_6"
+                loadoutselection_dt_override_loadout_blitz_loadout_7              "april_blitz_loadout_7"
+
+                loadoutselection_dt_override_loadout_heavy_loadout_1              "april_heavy_loadout_1"
+                loadoutselection_dt_override_loadout_heavy_loadout_2              "april_heavy_loadout_2"
+                loadoutselection_dt_override_loadout_heavy_loadout_3              "april_heavy_loadout_3"
+                loadoutselection_dt_override_loadout_heavy_loadout_4              "april_heavy_loadout_4"
+                loadoutselection_dt_override_loadout_heavy_loadout_5              "april_heavy_loadout_5"
+                loadoutselection_dt_override_loadout_heavy_loadout_6              "april_heavy_loadout_6"
+                loadoutselection_dt_override_loadout_heavy_loadout_7              "april_heavy_loadout_7"
+
+                loadoutselection_dt_override_loadout_assault_loadout_1            "april_assault_loadout_1"
+                loadoutselection_dt_override_loadout_assault_loadout_2            "april_assault_loadout_2"
+                loadoutselection_dt_override_loadout_assault_loadout_3            "april_assault_loadout_3"
+                loadoutselection_dt_override_loadout_assault_loadout_4            "april_assault_loadout_4"
+                loadoutselection_dt_override_loadout_assault_loadout_5            "april_assault_loadout_5"
+                loadoutselection_dt_override_loadout_assault_loadout_6            "april_assault_loadout_6"
+                loadoutselection_dt_override_loadout_assault_loadout_7            "april_assault_loadout_7"
+
+                loadoutselection_dt_override_loadout_specialist_loadout_1          "april_specialist_loadout_1"
+                loadoutselection_dt_override_loadout_specialist_loadout_2          "april_specialist_loadout_2"
+                loadoutselection_dt_override_loadout_specialist_loadout_3          "april_specialist_loadout_3"
+                loadoutselection_dt_override_loadout_specialist_loadout_4          "april_specialist_loadout_4"
+                loadoutselection_dt_override_loadout_specialist_loadout_5          "april_specialist_loadout_5"
+                loadoutselection_dt_override_loadout_specialist_loadout_6          "april_specialist_loadout_6"
+                loadoutselection_dt_override_loadout_specialist_loadout_7          "april_specialist_loadout_7"
+
+                loadoutselection_dt_override_loadout_longrange_loadout_1            "april_longrange_loadout_1"
+                loadoutselection_dt_override_loadout_longrange_loadout_2            "april_longrange_loadout_2"
+                loadoutselection_dt_override_loadout_longrange_loadout_3            "april_longrange_loadout_3"
+                loadoutselection_dt_override_loadout_longrange_loadout_4            "april_longrange_loadout_4"
+                loadoutselection_dt_override_loadout_longrange_loadout_5            "april_longrange_loadout_5"
+                loadoutselection_dt_override_loadout_longrange_loadout_6            "april_longrange_loadout_6"
+                loadoutselection_dt_override_loadout_longrange_loadout_7            "april_longrange_loadout_7"
+            }
+        }
+
+        mix_s_tdm_aprfls20_amps_ltm
+        {
+            inherit mix_s_tdm_aprfls20_amps
+            vars
+            {
+                visible 1
+                visible_schedule_block_0     "2024-04-02 10:00:00 -07:00 | 2024-04-08 10:00:00 -07:00"
+                visible_schedule_block_1     ""
+
+                ui_slot ltm
+                is_limited_mode 1
+                name #APRILFOOLS_S20_TDM_LTM_MODE
+                emblem generic
+                gamemode_logo LTM
+                gamemode_select_category_name "#GAMEMODE_CATEGORY_LTM"
+            }
+        }
+
+        mix_s_tdm_aprfls20_mon
+        {
+            inherit mix_s_tdm_monument
+            vars
+            {
+                visible 1
+                visible_schedule_block_0	"2024-04-01 10:00:00 -07:00 | 2024-04-02 10:00:00 -07:00"
+                visible_schedule_block_1    ""
+
+                pin_match_type "aprilfoolss20"
+				stats_match_type "aprilfools_s20"
+
+                is_april_fools_s20 1
+                april_fools_s20_gravity_enabled 0
+                april_fools_s20_weapon_gravity_enabled 0
+
+                percent_to_set_health_to_on_kill        1.0
+                percent_to_set_shields_to_on_kill       1.0
+
+                loadoutselection_avoid_duplicate_weapons_in_loadouts               0
+                loadoutselection_rotation_start                                    "2024-04-01 09:30:00 -07:00"
+
+                loadoutselection_dt_override_loadout_blitz_loadout_1              "april_blitz_loadout_1"
+                loadoutselection_dt_override_loadout_blitz_loadout_2              "april_blitz_loadout_2"
+                loadoutselection_dt_override_loadout_blitz_loadout_3              "april_blitz_loadout_3"
+                loadoutselection_dt_override_loadout_blitz_loadout_4              "april_blitz_loadout_4"
+                loadoutselection_dt_override_loadout_blitz_loadout_5              "april_blitz_loadout_5"
+                loadoutselection_dt_override_loadout_blitz_loadout_6              "april_blitz_loadout_6"
+                loadoutselection_dt_override_loadout_blitz_loadout_7              "april_blitz_loadout_7"
+
+                loadoutselection_dt_override_loadout_heavy_loadout_1              "april_heavy_loadout_1"
+                loadoutselection_dt_override_loadout_heavy_loadout_2              "april_heavy_loadout_2"
+                loadoutselection_dt_override_loadout_heavy_loadout_3              "april_heavy_loadout_3"
+                loadoutselection_dt_override_loadout_heavy_loadout_4              "april_heavy_loadout_4"
+                loadoutselection_dt_override_loadout_heavy_loadout_5              "april_heavy_loadout_5"
+                loadoutselection_dt_override_loadout_heavy_loadout_6              "april_heavy_loadout_6"
+                loadoutselection_dt_override_loadout_heavy_loadout_7              "april_heavy_loadout_7"
+
+                loadoutselection_dt_override_loadout_assault_loadout_1            "april_assault_loadout_1"
+                loadoutselection_dt_override_loadout_assault_loadout_2            "april_assault_loadout_2"
+                loadoutselection_dt_override_loadout_assault_loadout_3            "april_assault_loadout_3"
+                loadoutselection_dt_override_loadout_assault_loadout_4            "april_assault_loadout_4"
+                loadoutselection_dt_override_loadout_assault_loadout_5            "april_assault_loadout_5"
+                loadoutselection_dt_override_loadout_assault_loadout_6            "april_assault_loadout_6"
+                loadoutselection_dt_override_loadout_assault_loadout_7            "april_assault_loadout_7"
+
+                loadoutselection_dt_override_loadout_specialist_loadout_1          "april_specialist_loadout_1"
+                loadoutselection_dt_override_loadout_specialist_loadout_2          "april_specialist_loadout_2"
+                loadoutselection_dt_override_loadout_specialist_loadout_3          "april_specialist_loadout_3"
+                loadoutselection_dt_override_loadout_specialist_loadout_4          "april_specialist_loadout_4"
+                loadoutselection_dt_override_loadout_specialist_loadout_5          "april_specialist_loadout_5"
+                loadoutselection_dt_override_loadout_specialist_loadout_6          "april_specialist_loadout_6"
+                loadoutselection_dt_override_loadout_specialist_loadout_7          "april_specialist_loadout_7"
+
+                loadoutselection_dt_override_loadout_longrange_loadout_1            "april_longrange_loadout_1"
+                loadoutselection_dt_override_loadout_longrange_loadout_2            "april_longrange_loadout_2"
+                loadoutselection_dt_override_loadout_longrange_loadout_3            "april_longrange_loadout_3"
+                loadoutselection_dt_override_loadout_longrange_loadout_4            "april_longrange_loadout_4"
+                loadoutselection_dt_override_loadout_longrange_loadout_5            "april_longrange_loadout_5"
+                loadoutselection_dt_override_loadout_longrange_loadout_6            "april_longrange_loadout_6"
+                loadoutselection_dt_override_loadout_longrange_loadout_7            "april_longrange_loadout_7"
+            }
+        }
+
+        mix_s_tdm_aprfls20_mon_ltm
+        {
+            inherit mix_s_tdm_aprfls20_mon
+            vars
+            {
+                visible 1
+                visible_schedule_block_0     "2024-04-02 10:00:00 -07:00 | 2024-04-08 10:00:00 -07:00"
+                visible_schedule_block_1     ""
+
+                ui_slot ltm
+                is_limited_mode 1
+                name #APRILFOOLS_S20_TDM_LTM_MODE
+                emblem generic
+                gamemode_logo LTM
+                gamemode_select_category_name "#GAMEMODE_CATEGORY_LTM"
+            }
+        }
+
+        mix_s_tdm_aprfls20_th
+        {
+            inherit mix_s_tdm_thunderdome
+            vars
+            {
+                visible 1
+                visible_schedule_block_0	"2024-04-01 10:00:00 -07:00 | 2024-04-02 10:00:00 -07:00"
+                visible_schedule_block_1    ""
+
+                pin_match_type "aprilfoolss20"
+				stats_match_type "aprilfools_s20"
+
+                is_april_fools_s20 1
+                april_fools_s20_gravity_enabled 0
+                april_fools_s20_weapon_gravity_enabled 0
+
+                percent_to_set_health_to_on_kill        1.0
+                percent_to_set_shields_to_on_kill       1.0
+
+                loadoutselection_avoid_duplicate_weapons_in_loadouts               0
+                loadoutselection_rotation_start                                    "2024-04-01 09:30:00 -07:00"
+
+                loadoutselection_dt_override_loadout_blitz_loadout_1              "april_blitz_loadout_1"
+                loadoutselection_dt_override_loadout_blitz_loadout_2              "april_blitz_loadout_2"
+                loadoutselection_dt_override_loadout_blitz_loadout_3              "april_blitz_loadout_3"
+                loadoutselection_dt_override_loadout_blitz_loadout_4              "april_blitz_loadout_4"
+                loadoutselection_dt_override_loadout_blitz_loadout_5              "april_blitz_loadout_5"
+                loadoutselection_dt_override_loadout_blitz_loadout_6              "april_blitz_loadout_6"
+                loadoutselection_dt_override_loadout_blitz_loadout_7              "april_blitz_loadout_7"
+
+                loadoutselection_dt_override_loadout_heavy_loadout_1              "april_heavy_loadout_1"
+                loadoutselection_dt_override_loadout_heavy_loadout_2              "april_heavy_loadout_2"
+                loadoutselection_dt_override_loadout_heavy_loadout_3              "april_heavy_loadout_3"
+                loadoutselection_dt_override_loadout_heavy_loadout_4              "april_heavy_loadout_4"
+                loadoutselection_dt_override_loadout_heavy_loadout_5              "april_heavy_loadout_5"
+                loadoutselection_dt_override_loadout_heavy_loadout_6              "april_heavy_loadout_6"
+                loadoutselection_dt_override_loadout_heavy_loadout_7              "april_heavy_loadout_7"
+
+                loadoutselection_dt_override_loadout_assault_loadout_1            "april_assault_loadout_1"
+                loadoutselection_dt_override_loadout_assault_loadout_2            "april_assault_loadout_2"
+                loadoutselection_dt_override_loadout_assault_loadout_3            "april_assault_loadout_3"
+                loadoutselection_dt_override_loadout_assault_loadout_4            "april_assault_loadout_4"
+                loadoutselection_dt_override_loadout_assault_loadout_5            "april_assault_loadout_5"
+                loadoutselection_dt_override_loadout_assault_loadout_6            "april_assault_loadout_6"
+                loadoutselection_dt_override_loadout_assault_loadout_7            "april_assault_loadout_7"
+
+                loadoutselection_dt_override_loadout_specialist_loadout_1          "april_specialist_loadout_1"
+                loadoutselection_dt_override_loadout_specialist_loadout_2          "april_specialist_loadout_2"
+                loadoutselection_dt_override_loadout_specialist_loadout_3          "april_specialist_loadout_3"
+                loadoutselection_dt_override_loadout_specialist_loadout_4          "april_specialist_loadout_4"
+                loadoutselection_dt_override_loadout_specialist_loadout_5          "april_specialist_loadout_5"
+                loadoutselection_dt_override_loadout_specialist_loadout_6          "april_specialist_loadout_6"
+                loadoutselection_dt_override_loadout_specialist_loadout_7          "april_specialist_loadout_7"
+
+                loadoutselection_dt_override_loadout_longrange_loadout_1            "april_longrange_loadout_1"
+                loadoutselection_dt_override_loadout_longrange_loadout_2            "april_longrange_loadout_2"
+                loadoutselection_dt_override_loadout_longrange_loadout_3            "april_longrange_loadout_3"
+                loadoutselection_dt_override_loadout_longrange_loadout_4            "april_longrange_loadout_4"
+                loadoutselection_dt_override_loadout_longrange_loadout_5            "april_longrange_loadout_5"
+                loadoutselection_dt_override_loadout_longrange_loadout_6            "april_longrange_loadout_6"
+                loadoutselection_dt_override_loadout_longrange_loadout_7            "april_longrange_loadout_7"
+            }
+        }
+
+        mix_s_tdm_aprfls20_th_ltm
+        {
+            inherit mix_s_tdm_aprfls20_th
+            vars
+            {
+                visible 1
+                visible_schedule_block_0     "2024-04-02 10:00:00 -07:00 | 2024-04-08 10:00:00 -07:00"
+                visible_schedule_block_1     ""
+
+                ui_slot ltm
+                is_limited_mode 1
+                name #APRILFOOLS_S20_TDM_LTM_MODE
+                emblem generic
+                gamemode_logo LTM
+                gamemode_select_category_name "#GAMEMODE_CATEGORY_LTM"
+            }
+        }
+
+        mix_s_gungame_aprfls20_sk
+        {
+            inherit mix_s_gungame_skulltown
+            vars
+            {
+                visible 1
+                visible_schedule_block_0	 "2024-04-01 10:00:00 -07:00 | 2024-04-02 10:00:00 -07:00"
+                visible_schedule_block_1     ""
+
+                pin_match_type "aprilfoolss20"
+				stats_match_type "aprilfools_s20"
+
+                is_april_fools_s20 1
+                april_fools_s20_gravity_enabled 0
+                april_fools_s20_weapon_gravity_enabled 0
+
+                percent_to_set_health_to_on_kill        1.0
+                percent_to_set_shields_to_on_kill       1.0
+
+                gun_game_optic_override_mp_weapon_shotgun_pistol_energy     "optic_cq_holosight"
+                gun_game_optic_override_mp_weapon_shotgun_pistol_heavy      "optic_cq_hcog_classic"
+                gun_game_optic_override_mp_weapon_shotgun_pistol_light      "optic_cq_threat"
+                gun_game_optic_override_mp_weapon_shotgun_pistol_sniper     "optic_cq_hcog_bruiser"
+
+                "gungame_weapon_group_crate_override"                   "mp_weapon_wingman_crate:1 mp_weapon_shotgun_crate:1 mp_weapon_sniper:1"
+                "gungame_weapon_group_assault_rifle_override"           "mp_weapon_hemlok_purpleset:1 mp_weapon_rspn101_purpleset:1 mp_weapon_vinson_purpleset:1 mp_weapon_energy_ar_gold:1 mp_weapon_nemesis_purpleset:1 mp_weapon_shotgun_pistol_heavy:3"
+                "gungame_weapon_group_smg_override"                     "mp_weapon_alternator_smg_whiteset:1 mp_weapon_r97_blueset:1 mp_weapon_volt_smg_whiteset:1 mp_weapon_car_blueset:1 mp_weapon_shotgun_pistol_light:3"
+                "gungame_weapon_group_lmg_override"                     "mp_weapon_lmg_blueset:1 mp_weapon_esaw_blueset:1 mp_weapon_dragon_lmg_blueset:1 mp_weapon_lstar_blueset:1"
+                "gungame_weapon_group_marksmen_override"                "mp_weapon_g2_purpleset:1 mp_weapon_3030_gold:1 mp_weapon_doubletake_blueset:1 mp_weapon_shotgun_pistol_energy:3"
+                "gungame_weapon_group_shotguns_override"                "mp_weapon_mastiff_whiteset:1 mp_weapon_energy_shotgun_whiteset:1 mp_weapon_shotgun_blueset:1 mp_weapon_shotgun_pistol_gold:1 mp_weapon_shotgun_pistol_heavy:1 mp_weapon_shotgun_pistol_light:1 mp_weapon_shotgun_pistol_energy:1"
+                "gungame_weapon_group_snipers_override"                 "mp_weapon_dmr_blueset:1 mp_weapon_shotgun_pistol_sniper:3 mp_weapon_sniper:1"
+                "gungame_weapon_group_pistol_override"                  "mp_weapon_wingman_crate:1 mp_weapon_autopistol_blueset:1 mp_weapon_shotgun_pistol_gold:1"
+                "gungame_weapon_24_override"                            "mp_weapon_shotgun_pistol_april_fools"
+            }
+        }
+
+        mix_s_gungame_aprfls20_sk_ltm
+        {
+            inherit mix_s_gungame_aprfls20_sk
+            vars
+            {
+                visible 1
+                visible_schedule_block_0     "2024-04-02 10:00:00 -07:00 | 2024-04-08 10:00:00 -07:00"
+                visible_schedule_block_1     ""
+
+                ui_slot ltm
+                is_limited_mode 1
+                name #APRILFOOLS_S20_GUNRUN_LTM_MODE
+                emblem generic
+                gamemode_logo LTM
+                gamemode_select_category_name "#GAMEMODE_CATEGORY_LTM"
+            }
+        }
+
+        mix_s_gungame_aprfls20_th
+        {
+            inherit mix_s_gungame_thunderdome
+            vars
+            {
+                visible 1
+                visible_schedule_block_0	"2024-04-01 10:00:00 -07:00 | 2024-04-02 10:00:00 -07:00"
+                visible_schedule_block_1    ""
+
+                pin_match_type "aprilfoolss20"
+				stats_match_type "aprilfools_s20"
+
+                is_april_fools_s20 1
+                april_fools_s20_gravity_enabled 0
+                april_fools_s20_weapon_gravity_enabled 0
+
+                percent_to_set_health_to_on_kill        1.0
+                percent_to_set_shields_to_on_kill       1.0
+
+                gun_game_optic_override_mp_weapon_shotgun_pistol_energy     "optic_cq_holosight"
+                gun_game_optic_override_mp_weapon_shotgun_pistol_heavy      "optic_cq_hcog_classic"
+                gun_game_optic_override_mp_weapon_shotgun_pistol_light      "optic_cq_threat"
+                gun_game_optic_override_mp_weapon_shotgun_pistol_sniper     "optic_cq_hcog_bruiser"
+
+                "gungame_weapon_group_crate_override"                   "mp_weapon_wingman_crate:1 mp_weapon_shotgun_crate:1 mp_weapon_sniper:1"
+                "gungame_weapon_group_assault_rifle_override"           "mp_weapon_hemlok_purpleset:1 mp_weapon_rspn101_purpleset:1 mp_weapon_vinson_purpleset:1 mp_weapon_energy_ar_gold:1 mp_weapon_nemesis_purpleset:1 mp_weapon_shotgun_pistol_heavy:3"
+                "gungame_weapon_group_smg_override"                     "mp_weapon_alternator_smg_whiteset:1 mp_weapon_r97_blueset:1 mp_weapon_volt_smg_whiteset:1 mp_weapon_car_blueset:1 mp_weapon_shotgun_pistol_light:3"
+                "gungame_weapon_group_lmg_override"                     "mp_weapon_lmg_blueset:1 mp_weapon_esaw_blueset:1 mp_weapon_dragon_lmg_blueset:1 mp_weapon_lstar_blueset:1"
+                "gungame_weapon_group_marksmen_override"                "mp_weapon_g2_purpleset:1 mp_weapon_3030_gold:1 mp_weapon_doubletake_blueset:1 mp_weapon_shotgun_pistol_energy:3"
+                "gungame_weapon_group_shotguns_override"                "mp_weapon_mastiff_whiteset:1 mp_weapon_energy_shotgun_whiteset:1 mp_weapon_shotgun_blueset:1 mp_weapon_shotgun_pistol_gold:1 mp_weapon_shotgun_pistol_heavy:1 mp_weapon_shotgun_pistol_light:1 mp_weapon_shotgun_pistol_energy:1"
+                "gungame_weapon_group_snipers_override"                 "mp_weapon_dmr_blueset:1 mp_weapon_shotgun_pistol_sniper:3 mp_weapon_sniper:1"
+                "gungame_weapon_group_pistol_override"                  "mp_weapon_wingman_crate:1 mp_weapon_autopistol_blueset:1 mp_weapon_shotgun_pistol_gold:1"
+                "gungame_weapon_24_override"                            "mp_weapon_shotgun_pistol_april_fools"
+            }
+        }
+
+        mix_s_gungame_aprfls20_th_ltm
+        {
+            inherit mix_s_gungame_aprfls20_th
+            vars
+            {
+                visible 1
+                visible_schedule_block_0     "2024-04-02 10:00:00 -07:00 | 2024-04-08 10:00:00 -07:00"
+                visible_schedule_block_1     ""
+
+                ui_slot ltm
+                is_limited_mode 1
+                name #APRILFOOLS_S20_GUNRUN_LTM_MODE
+                emblem generic
+                gamemode_logo LTM
+                gamemode_select_category_name "#GAMEMODE_CATEGORY_LTM"
+            }
+        }
+
+        mix_s_gungame_aprfls20_mon
+        {
+            inherit mix_s_gungame_monument
+            vars
+            {
+                visible 1
+                visible_schedule_block_0	"2024-04-01 10:00:00 -07:00 | 2024-04-02 10:00:00 -07:00"
+                visible_schedule_block_1    ""
+
+                pin_match_type "aprilfoolss20"
+				stats_match_type "aprilfools_s20"
+
+                is_april_fools_s20 1
+                april_fools_s20_gravity_enabled 0
+                april_fools_s20_weapon_gravity_enabled 0
+
+                percent_to_set_health_to_on_kill        1.0
+                percent_to_set_shields_to_on_kill       1.0
+
+                gun_game_optic_override_mp_weapon_shotgun_pistol_energy     "optic_cq_holosight"
+                gun_game_optic_override_mp_weapon_shotgun_pistol_heavy      "optic_cq_hcog_classic"
+                gun_game_optic_override_mp_weapon_shotgun_pistol_light      "optic_cq_threat"
+                gun_game_optic_override_mp_weapon_shotgun_pistol_sniper     "optic_cq_hcog_bruiser"
+
+                "gungame_weapon_group_crate_override"                   "mp_weapon_wingman_crate:1 mp_weapon_shotgun_crate:1 mp_weapon_sniper:1"
+                "gungame_weapon_group_assault_rifle_override"           "mp_weapon_hemlok_purpleset:1 mp_weapon_rspn101_purpleset:1 mp_weapon_vinson_purpleset:1 mp_weapon_energy_ar_gold:1 mp_weapon_nemesis_purpleset:1 mp_weapon_shotgun_pistol_heavy:3"
+                "gungame_weapon_group_smg_override"                     "mp_weapon_alternator_smg_whiteset:1 mp_weapon_r97_blueset:1 mp_weapon_volt_smg_whiteset:1 mp_weapon_car_blueset:1 mp_weapon_shotgun_pistol_light:3"
+                "gungame_weapon_group_lmg_override"                     "mp_weapon_lmg_blueset:1 mp_weapon_esaw_blueset:1 mp_weapon_dragon_lmg_blueset:1 mp_weapon_lstar_blueset:1"
+                "gungame_weapon_group_marksmen_override"                "mp_weapon_g2_purpleset:1 mp_weapon_3030_gold:1 mp_weapon_doubletake_blueset:1 mp_weapon_shotgun_pistol_energy:3"
+                "gungame_weapon_group_shotguns_override"                "mp_weapon_mastiff_whiteset:1 mp_weapon_energy_shotgun_whiteset:1 mp_weapon_shotgun_blueset:1 mp_weapon_shotgun_pistol_gold:1 mp_weapon_shotgun_pistol_heavy:1 mp_weapon_shotgun_pistol_light:1 mp_weapon_shotgun_pistol_energy:1"
+                "gungame_weapon_group_snipers_override"                 "mp_weapon_dmr_blueset:1 mp_weapon_shotgun_pistol_sniper:3 mp_weapon_sniper:1"
+                "gungame_weapon_group_pistol_override"                  "mp_weapon_wingman_crate:1 mp_weapon_autopistol_blueset:1 mp_weapon_shotgun_pistol_gold:1"
+                "gungame_weapon_24_override"                            "mp_weapon_shotgun_pistol_april_fools"
+            }
+        }
+
+        mix_s_gungame_aprfls20_mon_ltm
+        {
+            inherit mix_s_gungame_aprfls20_mon
+            vars
+            {
+                visible 1
+                visible_schedule_block_0     "2024-04-02 10:00:00 -07:00 | 2024-04-08 10:00:00 -07:00"
+                visible_schedule_block_1     ""
+
+                ui_slot ltm
+                is_limited_mode 1
+                name #APRILFOOLS_S20_GUNRUN_LTM_MODE
+                emblem generic
+                gamemode_logo LTM
+                gamemode_select_category_name "#GAMEMODE_CATEGORY_LTM"
+            }
+        }
 
         ///////////////////////////////////
         /////////   STORM POINT   /////////
@@ -2218,7 +3328,6 @@ playlists
                 ui_slot regular_1
 
                 image trios
-                video trios
                 panel_image panel_storm_point_mu2
 
                 name #PL_TRIO
@@ -2274,22 +3383,38 @@ playlists
             } } }
         }
 
-        tropic_trio
+		tropic_trio
 		{
-		   inherit tropic_mu2_base
-		   vars
-		   {
-		       visible 1
-		       playlist_rotation_group         storm_point_rotation
-		       max_nofill_players 6
-               visible_schedule_block_0        "2024-02-13 10:00:00 -08:00 | 2024-03-05 10:00:00 -08:00"
-               visible_schedule_block_1        "2024-03-19 10:00:00 -07:00 | 2024-03-27 10:00:00 -07:00"
+			inherit tropic_mu2_base
+			vars
+			{
+				visible 1
+				playlist_rotation_group         storm_point_rotation
+				max_nofill_players 6
+				visible_schedule_block_0        "2024-03-20 10:00:00 -07:00 | 2024-04-01 10:00:00 -07:00"
+				visible_schedule_block_1        "2024-04-02 10:00:00 -07:00 | 2024-04-23 10:00:00 -07:00"
 
-               wattson_tt_ee_enabled 1
+				wattson_tt_ee_enabled 1
 
-		       allow_prestige_badges 1
-		   }
+				allow_prestige_badges 1
+
+				tel_p1 "2024-04-16 10:00:00 -07:00"
+				tel_p2 "2024-04-19 10:00:00 -07:00"
+				tel_p3 "2024-04-22 10:00:00 -07:00"
+			}
 		}
+
+		tropic_trio_mt
+        {
+            inherit tropic_trio
+            vars
+            {
+                visible 1
+                playlist_rotation_group         storm_point_rotation_mt
+                visible_schedule_block_0        "2024-04-23 10:00:00 -07:00 | 2024-05-02 10:00:00 -07:00"
+                visible_schedule_block_1        ""
+            }
+        }
 
 		tropic_duo
 		{
@@ -2299,8 +3424,8 @@ playlists
 				visible 1
 				playlist_rotation_group         storm_point_rotation
 				ui_slot regular_2
-				visible_schedule_block_0        "2024-02-13 10:00:00 -08:00 | 2024-03-05 10:00:00 -08:00"
-				visible_schedule_block_1        "2024-03-19 10:00:00 -07:00 | 2024-03-27 10:00:00 -07:00"
+				visible_schedule_block_0        "2024-03-20 10:00:00 -07:00 | 2024-04-01 10:00:00 -07:00"
+				visible_schedule_block_1        "2024-04-02 10:00:00 -07:00 | 2024-04-23 10:00:00 -07:00"
 
 				name #PL_DUO
 				description #PL_DUO_DESC
@@ -2317,8 +3442,24 @@ playlists
 				wattson_tt_ee_enabled 1
 
 				allow_prestige_badges 1
+
+				tel_p1 "2024-04-16 10:00:00 -07:00"
+				tel_p2 "2024-04-19 10:00:00 -07:00"
+				tel_p3 "2024-04-22 10:00:00 -07:00"
 		   }
 		}
+
+		tropic_duo_mt
+        {
+           inherit tropic_duo
+           vars
+           {
+                visible 1
+                playlist_rotation_group         storm_point_rotation_mt
+				visible_schedule_block_0        "2024-04-23 10:00:00 -07:00 | 2024-05-02 10:00:00 -07:00"
+				visible_schedule_block_1        ""
+           }
+        }
 
 		tropic_ranked
 		{
@@ -2326,7 +3467,8 @@ playlists
 		   vars
 		   {
 		       visible 1
-               visible_schedule_block_0        "2024-02-13 10:00:00 -08:00 | 2024-03-26 09:30:00 -07:00"
+               visible_schedule_block_0        "2024-03-26 10:00:00 -07:00 | 2024-04-02 09:30:00 -07:00"
+               visible_schedule_block_1        "2024-04-02 10:00:00 -07:00 | 2024-05-07 09:30:00 -07:00"
 
 		       ui_slot ranked
 		       ui_rules                        "survival_ranked"
@@ -2383,68 +3525,28 @@ playlists
             } } }
         }
 
-		des_hu_trio
-		{
-		    inherit des_hu_base
-		    vars
-		    {
+        des_ranked
+        {
+            inherit des_hu_base
+            vars
+            {
 				visible 1
-				visible_schedule_block_0        "2024-02-13 10:00:00 -08:00 | 2024-03-05 10:00:00 -08:00"
-				visible_schedule_block_1        "2024-03-19 10:00:00 -07:00 | 2024-03-27 10:00:00 -07:00"
-				playlist_rotation_group worlds_edge_rotation
-				max_nofill_players 6
+				visible_schedule_block_0        "2024-03-26 10:00:00 -07:00 | 2024-04-02 09:30:00 -07:00"
+				visible_schedule_block_1        "2024-04-02 10:00:00 -07:00 | 2024-05-07 09:30:00 -07:00"
+                ui_slot ranked
+                ui_rules                        "survival_ranked"
+                image ranked_2
 
-				allow_prestige_badges 1
-		    }
-		}
+                name #PL_Ranked_Leagues
+                description #PL_des_ranked_desc
 
-		des_hu_duo
-		{
-			inherit des_hu_base
-			vars
-			{
-				visible 1
-				visible_schedule_block_0        "2024-02-13 10:00:00 -08:00 | 2024-03-05 10:00:00 -08:00"
-				visible_schedule_block_1        "2024-03-19 10:00:00 -07:00 | 2024-03-27 10:00:00 -07:00"
-				playlist_rotation_group worlds_edge_rotation
-				ui_slot regular_2
+                is_ranked_game 1
+                pin_match_type ranked
 
-				name #PL_DUO
-				description #PL_DUO_DESC
-				gameModeString  #PL_DUO
+                allow_prestige_badges 1
+            }
+        }
 
-				image duos
-
-				max_teams 30
-				num_squads_in_staging 10
-
-				pin_match_type duo
-				max_nofill_players 6
-
-				allow_prestige_badges 1
-			}
-		}
-
-		des_ranked
-		{
-			inherit des_hu_base
-			vars
-			{
-				visible 1
-				visible_schedule_block_0        "2024-02-13 10:00:00 -08:00 | 2024-03-26 09:30:00 -07:00"
-				ui_slot ranked
-				ui_rules                        "survival_ranked"
-				image ranked_2
-
-				name #PL_Ranked_Leagues
-				description #PL_survival_ranked_desc
-
-				is_ranked_game 1
-				pin_match_type ranked
-
-				allow_prestige_badges 1
-			}
-		}
 
         ///////////////////////////////////
         ////////////   OLYMPUS   //////////
@@ -2484,12 +3586,28 @@ playlists
            vars
            {
 				visible 1
-				visible_schedule_block_0        "2024-02-13 10:00:00 -08:00 | 2024-03-05 10:00:00 -08:00"
-				visible_schedule_block_1        "2024-03-19 10:00:00 -07:00 | 2024-03-27 10:00:00 -07:00"
+				visible_schedule_block_0        "2024-03-20 10:00:00 -07:00 | 2024-04-01 10:00:00 -07:00"
+				visible_schedule_block_1        "2024-04-02 10:00:00 -07:00 | 2024-04-23 10:00:00 -07:00"
 				playlist_rotation_group         olympus_rotation
 				max_nofill_players 6
 
 				allow_prestige_badges 1
+
+				tel_p1 "2024-04-16 10:00:00 -07:00"
+				tel_p2 "2024-04-19 10:00:00 -07:00"
+				tel_p3 "2024-04-22 10:00:00 -07:00"
+           }
+        }
+
+        olympus_mu2_trio_mt
+        {
+           inherit olympus_mu2_trio
+           vars
+           {
+                visible 1
+				visible_schedule_block_0        "2024-04-23 10:00:00 -07:00 | 2024-05-02 10:00:00 -07:00"
+				visible_schedule_block_1        ""
+                playlist_rotation_group         olympus_rotation_mt
            }
         }
 
@@ -2499,8 +3617,8 @@ playlists
            vars
            {
 				visible 1
-				visible_schedule_block_0        "2024-02-13 10:00:00 -08:00 | 2024-03-05 10:00:00 -08:00"
-				visible_schedule_block_1        "2024-03-19 10:00:00 -07:00 | 2024-03-27 10:00:00 -07:00"
+				visible_schedule_block_0        "2024-03-20 10:00:00 -07:00 | 2024-04-01 10:00:00 -07:00"
+				visible_schedule_block_1        "2024-04-02 10:00:00 -07:00 | 2024-04-23 10:00:00 -07:00"
 				playlist_rotation_group         olympus_rotation
 				ui_slot regular_2
 				max_nofill_players 6
@@ -2516,6 +3634,22 @@ playlists
 				pin_match_type duo
 
 				allow_prestige_badges 1
+
+				tel_p1 "2024-04-16 10:00:00 -07:00"
+				tel_p2 "2024-04-19 10:00:00 -07:00"
+				tel_p3 "2024-04-22 10:00:00 -07:00"
+           }
+        }
+
+        olympus_mu2_duo_mt
+        {
+           inherit olympus_mu2_duo
+           vars
+           {
+                visible 1
+				visible_schedule_block_0        "2024-04-23 10:00:00 -07:00 | 2024-05-02 10:00:00 -07:00"
+				visible_schedule_block_1        ""
+                playlist_rotation_group         olympus_rotation_mt
            }
         }
 
@@ -2525,7 +3659,8 @@ playlists
            vars
            {
                visible 1
-               visible_schedule_block_0        "2024-02-13 10:00:00 -08:00 | 2024-03-26 09:30:00 -07:00"
+               visible_schedule_block_0        "2024-03-26 10:00:00 -07:00 | 2024-04-02 09:30:00 -07:00"
+               visible_schedule_block_1        "2024-04-02 10:00:00 -07:00 | 2024-05-07 09:30:00 -07:00"
                ui_slot ranked
                ui_rules                     "survival_ranked"
                image ranked_3
@@ -2537,6 +3672,89 @@ playlists
 
                allow_prestige_badges 1
            }
+        }
+
+		///////////////////////////////////
+		////////////   MOON   //////////
+		///////////////////////////////////
+
+        moon_base
+        {
+            inherit survival
+            vars
+            {
+                visible 0
+                ui_slot regular_1
+
+                image trios
+                panel_image panel_divided_moon
+
+                name #PL_TRIO
+                description #PL_survival_squads_desc
+                abbreviation #PL_TRIO
+                map_name #MP_RR_DIVIDED_MOON
+                map_change_VO_alias "mapChangeBM"
+
+                pin_match_type survival
+
+                playlist_ring_tuning_override survival_ring_moon
+
+				blimp_drones_spawn_count            2
+                blimp_drones_lighting_origin "0 0 38000"
+            }
+            gamemodes { survival { maps {
+                mp_rr_divided_moon 1
+            } } }
+        }
+
+        moon_trio
+        {
+            inherit moon_base
+            vars
+            {
+				visible 1
+				visible_schedule_block_0        "2024-03-20 10:00:00 -07:00 | 2024-04-01 10:00:00 -07:00"
+				visible_schedule_block_1        "2024-04-02 10:00:00 -07:00 | 2024-04-23 10:00:00 -07:00"
+                playlist_rotation_group         moon_rotation
+                max_nofill_players 6
+
+                allow_prestige_badges 1
+
+                tel_p1 "2024-04-16 10:00:00 -07:00"
+                tel_p2 "2024-04-19 10:00:00 -07:00"
+                tel_p3 "2024-04-22 10:00:00 -07:00"
+            }
+        }
+
+        moon_duo
+        {
+            inherit moon_base
+            vars
+            {
+                visible 1
+                visible_schedule_block_0        "2024-03-20 10:00:00 -07:00 | 2024-04-01 10:00:00 -07:00"
+                visible_schedule_block_1        "2024-04-02 10:00:00 -07:00 | 2024-04-23 10:00:00 -07:00"
+                playlist_rotation_group         moon_rotation
+                ui_slot regular_2
+                max_nofill_players 6
+
+                name #PL_DUO
+                description #PL_DUO_DESC
+                gameModeString #PL_DUO
+
+                image duos
+
+                max_teams 30
+                num_squads_in_staging 10
+
+                pin_match_type duo
+
+                allow_prestige_badges 1
+
+                tel_p1 "2024-04-16 10:00:00 -07:00"
+                tel_p2 "2024-04-19 10:00:00 -07:00"
+                tel_p3 "2024-04-22 10:00:00 -07:00"
+            }
         }
 
         ////////////////////////////////////////////////////
@@ -2561,7 +3779,6 @@ playlists
 
                 tournament_variant  "oly_mu2_pm"
                 no_ring_variant     "oly_no_ring_pm"
-                ///custom_ending_variant "oly_custom_endings_pm"
             }
         }
         oly_mu2_pm
@@ -2592,17 +3809,6 @@ playlists
                 requires_special_access 1
             }
         }
-        oly_custom_endings_pm
-        {
-            inherit oly_mu2_pm
-            vars
-            {
-                name            "#PL_TOURNAMENT_OLYMPUS_CUSTOM_ENDINGS"
-                deathfield_end_on_script_locations 1
-                requires_special_access 1
-            }
-        }
-
         tropic_mu2_cm
         {
             inherit tropic_mu2_base
@@ -2721,7 +3927,57 @@ playlists
                 requires_special_access 1
             }
         }
+		moon_cm
+		{
+            inherit moon_base
+            vars
+            {
+                map_name            "#MP_RR_DIVIDED_MOON"
+                panel_image     panel_divided_moon
+                visible         1
+                private_match   1
+                match_teamNoFill 1
+                recruit_a_squad_enabled 0
+                require_training 0
+                require_new_player_orientation 0
+                treasurebox_drop_chance_high -1.0
+                treasurebox_drop_chance_low -1.0
+                cm_public_min_players 30
+                origin_disconnect_on_error 0
 
+                tournament_variant      "moon_pm"
+                no_ring_variant         "moon_no_ring_pm"
+            }
+        }
+        moon_pm
+        {
+            inherit moon_cm
+            vars
+            {
+                map_name            "#PL_TOURNAMENT_MOON_BASE"
+                holosprays_enabled 0
+                survival_disabled_loot "mp_ability_void_ring"
+                crafting_pickup_grace_period 0
+                disable_skydive_emotes_postdrop 1
+                survival_enable_gladiator_intros 0
+                enable_champion 0
+                loot_distribution_override_Zone_HotZone "mp_ability_mobile_respawn_beacon:0.8 mp_ability_redeploy_balloon:1 blank:9.2"
+
+            }
+        }
+        moon_no_ring_pm
+        {
+            inherit moon_pm
+            vars
+            {
+                map_name            "#PL_TOURNAMENT_MOON_NORING"
+                match_ending_enabled 0
+                jump_from_plane_enabled 0
+                crafting_enabled 0
+                sur_circle_start_paused 1
+                requires_special_access 1
+            }
+        }
         duo_des_hu_cm
 		{
 		  inherit des_hu_base
@@ -2758,7 +4014,6 @@ playlists
               loot_distribution_override_Zone_HotZone "mp_ability_mobile_respawn_beacon:0.8 mp_ability_redeploy_balloon:1 blank:9.2"
 		  }
 		}
-
 		duo_tropic_mu2_cm
 		{
 		  inherit tropic_mu2_base
@@ -2831,9 +4086,45 @@ playlists
               loot_distribution_override_Zone_HotZone "mp_ability_mobile_respawn_beacon:0.8 mp_ability_redeploy_balloon:1 blank:9.2"
           }
         }
+        duo_moon_cm
+        {
+            inherit moon_base
+            vars
+            {
+                 name            "#PL_DUO"
+                 visible          1
+                 private_match    1
+                 match_teamNoFill 1
+                 recruit_a_squad_enabled 0
+                 require_training 0
+                 treasurebox_drop_chance_high -1.0
+                 treasurebox_drop_chance_low -1.0
+                 cm_public_min_players 30
+                 require_new_player_orientation 0
+                 max_teams 30
+                 pin_match_type duo
 
+                 tournament_variant  "duo_moon_pm"
+            }
+        }
+        duo_moon_pm
+        {
+            inherit duo_moon_cm
+            vars
+            {
+                 name            "#PL_DUO"
+                 holosprays_enabled 0
+                 survival_disabled_loot "mp_ability_void_ring"
+                 crafting_pickup_grace_period 0
+                 disable_skydive_emotes_postdrop 1
+                 survival_enable_gladiator_intros 0
+                 enable_champion 0
+                 loot_distribution_override_Zone_HotZone "mp_ability_mobile_respawn_beacon:0.8 mp_ability_redeploy_balloon:1 blank:9.2"
+            }
+        }
         ///////// Custom Match LTM's/MIX TAPE ////////////
-        tdm_cm
+        /// Team Death Match
+        tdm_s_cm
         {
             inherit freedm_tdm
             vars
@@ -2853,9 +4144,9 @@ playlists
             }
         }
 
-		tdm_fragment_pm
+		tdm_fragment_s_pm
 		{
-			inherit tdm_cm
+			inherit tdm_s_cm
 			vars
 			{
 				visible 1
@@ -2873,10 +4164,9 @@ playlists
 			    mp_rr_desertlands_hu 1
 			 } } }
 		}
-
-		tdm_estates_pm
+		tdm_estates_s_pm
 		{
-			inherit tdm_cm
+			inherit tdm_s_cm
 			vars
 			{
 				visible 1
@@ -2895,10 +4185,9 @@ playlists
 			mp_rr_olympus_mu2 1
 			} } }
 		}
-
-		tdm_wattson_pm
+		tdm_wattson_s_pm
 		{
-			inherit tdm_cm
+			inherit tdm_s_cm
 			vars
 			{
 				visible 1
@@ -2918,119 +4207,143 @@ playlists
 			mp_rr_tropic_island_mu2 1
 			} } }
 		}
+		tdm_amp_station_s_pm
+		{
+			inherit tdm_s_cm
+			vars
+			{
+				visible 1
+				map_name  "#FREEDM_MAP_NAME_AMPS"
+				panel_image mixtape_amps
+				freedm_forced_location "fdm_amps"
+				is_using_cull_circle_ents   1
+				cull_entity_spawn_circle "<27440 40984 10398> 9000"
 
-        tdm_amp_station_pm
-        {
-          inherit tdm_cm
-          vars
-          {
-			visible 1
-			map_name  "#FREEDM_MAP_NAME_AMPS"
-			panel_image mixtape_amps
-			freedm_forced_location "fdm_amps"
-			is_using_cull_circle_ents   1
-			cull_entity_spawn_circle "<27440 40984 10398> 9000"
-
-			fullmapCustomZoomFactor 8.5
-			fullmapCustomZoomAnchorX 0.8
-			fullmapCustomZoomAnchorY 0.05
-            }
-            gamemodes { freedm { maps {
-                mp_rr_tropic_island_mu2 1
-            } } }
-        }
-
-        tdm_thunderdome_pm
-        {
-          inherit tdm_cm
-          vars
-          {
-                visible 1
-		        map_name  "#MP_RR_THUNDERDOME"
-		        panel_image panel_thunderdome
-		        freedm_forced_location "fdm_thunderdome"
-
-		        max_props                300000  // 300k
-                max_prop_data_dwords     400000  // 400k
-                maps_use_preprocessed_data 0
-
-                streaks_tracker_enabled													1
-
-                score_delta_for_medium_win												8
-                score_delta_for_large_win												15
-
-                crowd_noise_meter_enabled												1 // 1 = true, 0 = false
-                crowd_noise_meter_enable_server_broadcasting							1 // 1 = true, 0 = false
-
-                crowd_noise_meter_decay_interval_seconds								5 // how often we decay the noise meter
-                crowd_noise_meter_decay_value											-0.07 // how much we decay the noise meter
-                crowd_noise_meter_delta_decay_rate                                      2
-
-                crowd_noise_meter_cheer_delta_trigger                                   0.1
-
-                crowd_noise_meter_modifier_lead_change_positive							0.2
-                crowd_noise_meter_modifier_lead_change_negative							0
-                crowd_noise_meter_modifier_match_halfway_score_reached_positive			0.15
-                crowd_noise_meter_modifier_match_halfway_score_reached_negative			-0.1
-                crowd_noise_meter_modifier_close_to_winning_match_positive				0.4
-                crowd_noise_meter_modifier_close_to_winning_match_negative				-0.1
-                crowd_noise_meter_modifier_kill_streak_consecutive_3_positive			0.1
-                crowd_noise_meter_modifier_kill_streak_consecutive_3_negative			0
-                crowd_noise_meter_modifier_kill_streak_consecutive_5_positive			0.2
-                crowd_noise_meter_modifier_kill_streak_consecutive_5_negative			0
-                crowd_noise_meter_modifier_kill_streak_consecutive_10_positive			0.25
-                crowd_noise_meter_modifier_kill_streak_consecutive_10_negative			0
-                crowd_noise_meter_modifier_kill_streak_consecutive_15_positive			0.3
-                crowd_noise_meter_modifier_kill_streak_consecutive_15_negative			0
-                crowd_noise_meter_modifier_kill_streak_frequent_1_positive              0.1
-                crowd_noise_meter_modifier_kill_streak_frequent_1_negative              0
-                crowd_noise_meter_modifier_kill_streak_frequent_2_positive				0.17
-                crowd_noise_meter_modifier_kill_streak_frequent_2_negative				-1
-                crowd_noise_meter_modifier_kill_streak_frequent_3_positive				0.2
-                crowd_noise_meter_modifier_kill_streak_frequent_3_negative				0
-                crowd_noise_meter_modifier_kill_streak_frequent_5_positive				0.3
-                crowd_noise_meter_modifier_kill_streak_frequent_5_positive				0
-                crowd_noise_meter_modifier_win_by_large_margin_positive					0.3
-                crowd_noise_meter_modifier_win_by_large_margin_negative					0
-                crowd_noise_meter_modifier_win_by_medium_margin_positive				0.2
-                crowd_noise_meter_modifier_win_by_medium_margin_negative				0
-                crowd_noise_meter_modifier_win_by_medium_margin_positive				0.1
-                crowd_noise_meter_modifier_win_by_medium_margin_negative				0
-
-                crowd_noise_meter_round_point_trigger_odds								100
-                crowd_noise_meter_player_death_trigger_odds								100
-
-                nessie_hunt_nessies_to_spawn 10
-                nessie_hunt_nessies_to_hunt 10
-                nessie_hunt_enabled 1
-
-                broadcast_drones_spawn_count    7
-                blimp_drones_spawn_count        2
-                is_using_cull_circle_ents 0
-
+				fullmapCustomZoomFactor 8.5
+				fullmapCustomZoomAnchorX 0.8
+				fullmapCustomZoomAnchorY 0.05
 			}
 			gamemodes { freedm { maps {
-				mp_rr_thunderdome 1
+			    mp_rr_tropic_island_mu2 1
 			} } }
-        }
+		}
+		tdm_thunderdome_s_pm
+		{
+			inherit tdm_s_cm
+			vars
+			{
+			    visible 1
+			    map_name  "#MP_RR_THUNDERDOME"
+			    panel_image panel_thunderdome
+			    freedm_forced_location "fdm_thunderdome"
 
-        tdm_habitat_pm
+			    max_props                300000
+			    max_prop_data_dwords     400000
+			    maps_use_preprocessed_data 0
+
+			    streaks_tracker_enabled													1
+
+			    score_delta_for_medium_win												8
+			    score_delta_for_large_win												15
+
+			    crowd_noise_meter_enabled												1
+			    crowd_noise_meter_enable_server_broadcasting							1
+
+			    crowd_noise_meter_decay_interval_seconds								5
+			    crowd_noise_meter_decay_value											-0.09
+			    crowd_noise_meter_delta_decay_rate                                      2
+
+			    crowd_noise_meter_cheer_delta_trigger                                   0.1
+
+			    crowd_noise_meter_modifier_lead_change_positive							0.2
+			    crowd_noise_meter_modifier_lead_change_negative							0
+			    crowd_noise_meter_modifier_match_halfway_score_reached_positive			0.15
+			    crowd_noise_meter_modifier_match_halfway_score_reached_negative			-0.1
+			    crowd_noise_meter_modifier_close_to_winning_match_positive				0.1
+			    crowd_noise_meter_modifier_close_to_winning_match_negative				-0.05
+			    crowd_noise_meter_modifier_kill_streak_consecutive_3_positive			0.1
+			    crowd_noise_meter_modifier_kill_streak_consecutive_3_negative			0
+			    crowd_noise_meter_modifier_kill_streak_consecutive_5_positive			0.05
+			    crowd_noise_meter_modifier_kill_streak_consecutive_5_negative			0
+			    crowd_noise_meter_modifier_kill_streak_consecutive_10_positive			0.25
+			    crowd_noise_meter_modifier_kill_streak_consecutive_10_negative			0
+			    crowd_noise_meter_modifier_kill_streak_consecutive_15_positive			0.15
+			    crowd_noise_meter_modifier_kill_streak_consecutive_15_negative			0
+			    crowd_noise_meter_modifier_kill_streak_frequent_1_positive              0.1
+			    crowd_noise_meter_modifier_kill_streak_frequent_1_negative              0
+			    crowd_noise_meter_modifier_kill_streak_frequent_2_positive				0.02
+			    crowd_noise_meter_modifier_kill_streak_frequent_2_negative				-1
+			    crowd_noise_meter_modifier_kill_streak_frequent_3_positive				0.1
+			    crowd_noise_meter_modifier_kill_streak_frequent_3_negative				0
+			    crowd_noise_meter_modifier_kill_streak_frequent_5_positive				0.3
+			    crowd_noise_meter_modifier_kill_streak_frequent_5_positive				0
+			    crowd_noise_meter_modifier_win_by_large_margin_positive					0
+			    crowd_noise_meter_modifier_win_by_large_margin_negative					0
+			    crowd_noise_meter_modifier_win_by_medium_margin_positive				0.2
+			    crowd_noise_meter_modifier_win_by_medium_margin_negative				0
+			    crowd_noise_meter_modifier_win_by_medium_margin_positive				0.1
+			    crowd_noise_meter_modifier_win_by_medium_margin_negative				0
+
+			    crowd_noise_meter_round_point_trigger_odds								100
+			    crowd_noise_meter_player_death_trigger_odds								100
+
+			    nessie_hunt_nessies_to_spawn 10
+			    nessie_hunt_nessies_to_hunt 10
+			    nessie_hunt_enabled 1
+
+			    broadcast_drones_spawn_count    7
+			    blimp_drones_spawn_count        2
+			    is_using_cull_circle_ents 0
+
+			}
+				gamemodes { freedm { maps {
+					mp_rr_thunderdome 1
+				} } }
+		}
+        tdm_skull_s_pm
         {
-            inherit tdm_cm
+            inherit tdm_s_cm
             vars
             {
                 visible 1
-                map_name  "#MP_RR_ARENA_HABITAT"
-                panel_image tdm_habitat
-                freedm_forced_location "fdm_arena_habitat"
+                map_name  "#FREEDM_MAP_NAME_SKULLTOWN"
+                panel_image gungame_skull_town
+
                 fullmapCustomZoomFactor 1.25
             }
             gamemodes { freedm { maps {
-                mp_rr_arena_habitat 1
+                mp_rr_freedm_skulltown 1
              } } }
         }
+        tdm_core_s_pm
+        {
+            inherit tdm_s_cm
+            vars
+            {
+                visible 1
+                map_name  "#mp_rr_freedm_map_name_the_core"
+                panel_image mixtape_moon_core
+                freedm_forced_location "fdm_the_core"
 
-		gungame_cm
+                is_using_cull_circle_ents 1
+                cull_entity_spawn_circle "<-11563 19157 7802> 8000"
+
+                // Memory optimizations
+                max_props                300000  // 300k
+                max_prop_data_dwords     400000  // 400k
+                maps_use_preprocessed_data 0
+
+                // THESE VALUES HAVE BEEN SET
+                fullmapCustomZoomFactor 3.5
+                fullmapCustomZoomAnchorX 0.40
+                fullmapCustomZoomAnchorY 0.28
+            }
+            gamemodes { freedm { maps {
+                mp_rr_divided_moon 1
+             } } }
+        }
+        /// Gun Game
+		gungame_s_cm
 		{
 			inherit freedm_gungame
             vars
@@ -3046,9 +4359,9 @@ playlists
                 mixtape_match_abandon_penalty  0
             }
 		}
-        gg_fragment_pm
+        gg_fragment_s_pm
         {
-            inherit gungame_cm
+            inherit gungame_s_cm
             vars
             {
 				visible         1
@@ -3067,9 +4380,9 @@ playlists
                 mp_rr_desertlands_hu 1
              } } }
         }
-        gg_estates_pm
+        gg_estates_s_pm
         {
-            inherit gungame_cm
+            inherit gungame_s_cm
             vars
             {
                 visible         1
@@ -3089,10 +4402,9 @@ playlists
                 mp_rr_olympus_mu2 1
             } } }
         }
-
-        gg_wattson_pm
+        gg_wattson_s_pm
         {
-            inherit gungame_cm
+            inherit gungame_s_cm
             vars
             {
                 visible 1
@@ -3111,10 +4423,9 @@ playlists
 		        mp_rr_tropic_island_mu2 1
              } } }
         }
-
-        gg_amp_station_pm
+        gg_amp_station_s_pm
         {
-            inherit gungame_cm
+            inherit gungame_s_cm
             vars
             {
 				visible 1
@@ -3132,10 +4443,9 @@ playlists
                 mp_rr_tropic_island_mu2 1
              } } }
         }
-
-        gg_thunderdome_pm
+        gg_thunderdome_s_pm
         {
-            inherit gungame_cm
+            inherit gungame_s_cm
             vars
             {
 				visible 1
@@ -3162,25 +4472,25 @@ playlists
                 crowd_noise_meter_modifier_lead_change_negative                         0
                 crowd_noise_meter_modifier_match_halfway_score_reached_positive			0.15
                 crowd_noise_meter_modifier_match_halfway_score_reached_negative			-0.1
-                crowd_noise_meter_modifier_close_to_winning_match_positive              0.4
-                crowd_noise_meter_modifier_close_to_winning_match_negative              -0.1
+                crowd_noise_meter_modifier_close_to_winning_match_positive              0.05
+                crowd_noise_meter_modifier_close_to_winning_match_negative              -0.05
                 crowd_noise_meter_modifier_kill_streak_consecutive_3_positive           0.1
                 crowd_noise_meter_modifier_kill_streak_consecutive_3_negative           0
                 crowd_noise_meter_modifier_kill_streak_consecutive_5_positive           0.2
                 crowd_noise_meter_modifier_kill_streak_consecutive_5_negative           0
-                crowd_noise_meter_modifier_kill_streak_consecutive_10_positive          0.3
+                crowd_noise_meter_modifier_kill_streak_consecutive_10_positive          0.1
                 crowd_noise_meter_modifier_kill_streak_consecutive_10_negative          0
                 crowd_noise_meter_modifier_kill_streak_consecutive_15_positive          0.4
                 crowd_noise_meter_modifier_kill_streak_consecutive_15_negative          0
                 crowd_noise_meter_modifier_kill_streak_frequent_1_positive              0.2
                 crowd_noise_meter_modifier_kill_streak_frequent_1_negative              0
-                crowd_noise_meter_modifier_kill_streak_frequent_2_positive              0.25
+                crowd_noise_meter_modifier_kill_streak_frequent_2_positive              0.05
                 crowd_noise_meter_modifier_kill_streak_frequent_2_negative              -0.1
                 crowd_noise_meter_modifier_kill_streak_frequent_3_positive              0.3
                 crowd_noise_meter_modifier_kill_streak_frequent_3_negative              0
                 crowd_noise_meter_modifier_kill_streak_frequent_5_positive              0.4
                 crowd_noise_meter_modifier_kill_streak_frequent_5_positive              0
-                crowd_noise_meter_modifier_win_by_large_margin_positive                 0.3
+                crowd_noise_meter_modifier_win_by_large_margin_positive                 0
                 crowd_noise_meter_modifier_win_by_large_margin_negative                 0
                 crowd_noise_meter_modifier_win_by_medium_margin_positive                0.2
                 crowd_noise_meter_modifier_win_by_medium_margin_negative                0
@@ -3202,7 +4512,40 @@ playlists
                 mp_rr_thunderdome 1
             } } }
         }
-
+        gg_skull_s_pm
+        {
+            inherit gungame_s_cm
+            vars
+            {
+                visible 1
+                map_name  "#FREEDM_MAP_NAME_SKULLTOWN"
+                panel_image gungame_skull_town
+				fullmapCustomZoomFactor 1.25
+            }
+            gamemodes { freedm { maps {
+                mp_rr_freedm_skulltown 1
+             } } }
+        }
+        gg_core_s_pm
+        {
+            inherit gungame_s_cm
+            vars
+            {
+                visible 1
+                map_name  "#mp_rr_freedm_map_name_the_core"
+                panel_image mixtape_moon_core
+                fullmapCustomZoomFactor 3.5
+                fullmapCustomZoomAnchorX 0.40
+                fullmapCustomZoomAnchorY 0.28
+                freedm_forced_location "fdm_the_core"
+                is_using_cull_circle_ents 1
+                cull_entity_spawn_circle "<-11563 19157 7802> 8000"
+            }
+            gamemodes { freedm { maps {
+                mp_rr_divided_moon 1
+             } } }
+        }
+		/// Control
         control_cm
         {
             inherit control_base
@@ -3229,8 +4572,7 @@ playlists
                  mp_rr_desertlands_hu 1
             } } }
         }
-
-        control_labs_pm
+        control_labs_s_pm
         {
             inherit control_cm
             vars
@@ -3248,8 +4590,7 @@ playlists
                mp_rr_olympus_mu2 1
             } } }
         }
-
-		control_siphon_pm
+		control_siphon_s_pm
 		{
 			inherit control_cm
 			vars
@@ -3267,8 +4608,7 @@ playlists
 			  mp_rr_desertlands_hu 1
 			} } }
 		}
-
-		control_barometer_pm
+		control_barometer_s_pm
         {
             inherit control_cm
             vars
@@ -3286,8 +4626,7 @@ playlists
 			    mp_rr_tropic_island_mu2 1
             } } }
         }
-
-		control_thunderdome_pm
+		control_thunderdome_s_pm
         {
             inherit control_cm
             vars
@@ -3314,7 +4653,7 @@ playlists
                crowd_noise_meter_modifier_control_capture_negative						-0.15
                crowd_noise_meter_modifier_control_huge_lead_positive					0.1
                crowd_noise_meter_modifier_control_huge_lead_negative					0
-               crowd_noise_meter_modifier_control_imminent_win_positive				0.25
+               crowd_noise_meter_modifier_control_imminent_win_positive				0.0
                crowd_noise_meter_modifier_control_imminent_win_negative				-0.15
                crowd_noise_meter_modifier_control_lockout_broken_positive				0.25
                crowd_noise_meter_modifier_control_lockout_broken_negative				-0.1
@@ -3346,110 +4685,166 @@ playlists
                broadcast_drones_spawn_count 7
                blimp_drones_spawn_count     2
                is_using_cull_circle_ents 0
+
+               survival_disabled_loot "mp_ability_redeploy_balloon"
            }
            gamemodes { control { maps {
                mp_rr_thunderdome 1
            } } }
         }
-        ///
-        ///TURBO LTM for Activation
-        ///
-        battle_rush_cm
+		control_production_s_pm
         {
-            inherit battle_rush_base
+            inherit control_cm
             vars
             {
-                matchmake_from_match 0
-                private_match    1
+                visible         1
+			    map_name  "#CONTROL_MAP_NAME_PRODUCTION"
+			    panel_image control_moon_production_yard
+			    control_map_id_override                   "control_layout_production"
+
+                fullmapCustomZoomFactor 4.25
+                fullmapCustomZoomAnchorX 0.2
+                fullmapCustomZoomAnchorY 0.45
+
+                // Memory optimizations
+                is_using_cull_circle_ents   1
+                cull_entity_spawn_circle "< -32590, -3912, 4235 > 15000"
+			}
+			gamemodes { control { maps {
+			    mp_rr_divided_moon 1
+            } } }
+        }
+        /// ALGS Custom Spawn Playlists
+		des_new_spawn_pm
+		{
+		    inherit des_hu_base
+		    vars
+		    {
+		        map_name            "#PL_TOURNAMENT_DES_NEW_SPAWNS"
+		        visible         1
+		        private_match   1
+		        match_teamNoFill 1
+		        recruit_a_squad_enabled 0
+		        require_training 0
+		        require_new_player_orientation 0
+		        treasurebox_drop_chance_high -1.0
+		        treasurebox_drop_chance_low -1.0
+		        cm_public_min_players 30
+		        origin_disconnect_on_error 0
+		        requires_special_access 1
+		        holosprays_enabled 0
+                survival_disabled_loot "mp_ability_void_ring"
+                crafting_pickup_grace_period 0
+                disable_skydive_emotes_postdrop 1
+                survival_enable_gladiator_intros 0
+                enable_champion 0
+                loot_distribution_override_Zone_HotZone "mp_ability_mobile_respawn_beacon:0.8 mp_ability_redeploy_balloon:1 blank:9.2"
+
+
+                jump_from_plane_enabled 0
+                forced_spawn_enabled 1
+                forced_spawn_ring_wait_time_after_spawn 30
+                forced_spawn_height 3000
+		    }
+		}
+		des_new_spawn_jump_pm
+        {
+            inherit des_new_spawn_pm
+            vars
+            {
+                map_name            "#PL_TOURNAMENT_DES_NEW_SPAWNS_JUMP"
+                forced_spawn_use_jumpmaster 1
+                forced_spawn_height 6000
+                forced_spawn_ring_wait_time_after_spawn 60
+            }
+        }
+        des_new_spawn_ping_pm
+        {
+            inherit des_new_spawn_pm
+            vars
+            {
+                map_name            "#PL_TOURNAMENT_DES_NEW_SPAWNS_PING"
+                forced_spawn_show_enemy_start_pings 1
+                forced_spawn_enemy_ping_display_time 15
+                forced_spawn_height 5000
+                forced_spawn_ring_wait_time_after_spawn 45
+            }
+        }
+        des_new_spawn_no_ship_pm
+        {
+            inherit des_new_spawn_pm
+            vars
+            {
+                map_name            "#PL_TOURNAMENT_DES_NEW_SPAWNS_NO_SHIP"
+                forced_spawn_do_dropship_fly_in_sequence 0
+                forced_spawn_height 4000
+                forced_spawn_ring_wait_time_after_spawn 20
+            }
+        }
+        topics_new_spawn_pm
+        {
+            inherit tropic_mu2_base
+            vars
+            {
+                map_name            "#PL_TOURNAMENT_TROPIC_NEW_SPAWNS"
+                visible         1
+                private_match   1
                 match_teamNoFill 1
                 recruit_a_squad_enabled 0
                 require_training 0
+                require_new_player_orientation 0
                 treasurebox_drop_chance_high -1.0
                 treasurebox_drop_chance_low -1.0
-                require_new_player_orientation 0
+                cm_public_min_players 30
+                origin_disconnect_on_error 0
+                holosprays_enabled 0
+                survival_disabled_loot "mp_ability_void_ring"
+                crafting_pickup_grace_period 0
+                disable_skydive_emotes_postdrop 1
+                survival_enable_gladiator_intros 0
+                enable_champion 0
                 requires_special_access 1
-                cm_hidden_playlist 1
+                loot_distribution_override_Zone_HotZone "mp_ability_mobile_respawn_beacon:0.8 mp_ability_redeploy_balloon:1 blank:9.2"
+
+                jump_from_plane_enabled 0
+                forced_spawn_enabled 1
+                forced_spawn_height 3000
+                forced_spawn_ring_wait_time_after_spawn 30
             }
         }
-        battle_rush_des_pm
+        topics_new_spawn_jump_pm
         {
-            inherit battle_rush_cm
+            inherit topics_new_spawn_pm
             vars
             {
-                visible 1
-                panel_image panel_worlds_edge_mu3
-                map_name MP_RR_DESERTLANDS_MU3
-                map_change_VO_alias "mapChangeWE"
-                deathfield_start_positions          "-13111 -20881 -3654, 13665 4819 -4239, 15315 -25505 -4493, -4419 14684 -2968"
-                loot_drones_spawn_count             12
-                loot_drones_vault_key_count         8
-
-                blimp_drones_spawn_count            2
+                map_name            "#PL_TOURNAMENT_TROPIC_NEW_SPAWNS_JUMP"
+                forced_spawn_use_jumpmaster 1
+                forced_spawn_height 6000
+                forced_spawn_ring_wait_time_after_spawn 60
             }
-            gamemodes { survival { maps {
-                mp_rr_desertlands_hu 1
-            } } }
         }
-        battle_rush_oly_pm
+        topics_new_spawn_ping_pm
         {
-            inherit battle_rush_cm
+            inherit topics_new_spawn_pm
             vars
             {
-                visible 1
-                panel_image panel_olympus_mu2
-                map_name #MP_RR_OLYMPUS_MU2
-                map_change_VO_alias "mapChangeOL"
-
-		        deathfield_start_positions   "-23206 473 -4922, 2929 -17790 -5342, 16005 8546 -3463, -6553 20556 -5891"
-		        loot_distribution_override_lifeline_tt_medbay_loot "gold_kitted_weapons_qm:5"
-
-		        blimp_drones_spawn_count 2
+                map_name            "#PL_TOURNAMENT_TROPIC_NEW_SPAWNS_PING"
+                forced_spawn_show_enemy_start_pings 1
+                forced_spawn_enemy_ping_display_time 15
+                forced_spawn_height 5000
+                forced_spawn_ring_wait_time_after_spawn 45
             }
-            gamemodes { survival { maps {
-                mp_rr_olympus_mu2 1
-            } } }
         }
-        battle_rush_sp_pm
+        topics_new_spawn_no_ship_pm
         {
-            inherit battle_rush_cm
+            inherit topics_new_spawn_pm
             vars
             {
-                visible 1
-                panel_image panel_storm_point_mu2
-                map_name #MP_RR_TROPIC_ISLAND
-                map_change_VO_alias "mapChangeSP"
-
-				survival_plane_angle_deviation     -20
-
-		        deathfield_start_positions         "8087 -18185 688"
-		        playlist_ring_tuning_override       survival_ring_battle_rush_large
-
-		        should_ai_reward_evo_pts 1
-		        armory_roof_repel_enabled 0
-		        wildlife_ai_enabled 1
-		        wildlife_ai_max_allowed_alive 100
-		        wildlife_ai_prowler_camp_max_alive 4
-		        wildlife_ai_prowler_camp_initial_spawn_limit 2
-		        ai_spider_jungle_evo_pt_percent 0.25
-		        ai_prowler_evo_pt_percent 0.25
-		        ai_flyer_evo_pt_percent 0.25
-		        wildlife_ai_spider_lootdrop_percent 0.50
-		        wildlife_ai_prowler_lootdrop_percent 0.50
-		        wildlife_ai_ordnance_lootdrop_percent 0.10
-		        wildlife_ai_helmet_lootdrop_percent 0.05
-		        wildlife_ai_epicitem_lootdrop_percent 0.00
-		        wildlife_ai_epicitem_bonus_limit 0.2
-		        wildlife_ai_epicitem_kill_increment 0.015
-		        health_jungle_spider 42
-		        health_prowler 114
-		        ai_force_prowler_skin 2
-		        ai_force_junglespider_skin 3
-
-		        blimp_drones_spawn_count 2
+                map_name            "#PL_TOURNAMENT_TROPIC_NEW_SPAWNS_NO_SHIP"
+                forced_spawn_do_dropship_fly_in_sequence 0
+                forced_spawn_height 4000
+                forced_spawn_ring_wait_time_after_spawn 20
             }
-            gamemodes { survival { maps {
-                mp_rr_tropic_island_mu2 1
-            } } }
         }
 
         ///////////////////////////////////
@@ -3531,13 +4926,12 @@ playlists
             vars
             {
                 visible 1
-                visible_schedule_block_0        "2024-02-13 10:00:00 -08:00 | 2024-03-27 10:00:00 -07:00"
+                visible_schedule_block_0        "2024-03-20 10:00:00 -07:00 | 2024-05-02 10:00:00 -07:00"
                 ui_slot regular_1
 
                 panel_image panel_worlds_edge_mu3
 
                 image trios
-                video trios
 
                 name #PL_TRIO
                 description #PL_survival_squads_desc
@@ -3573,18 +4967,19 @@ playlists
 
     } //end of playlists
 
-    PlaylistRotation    // must be specified after playlists are specified
+    PlaylistRotation
     {
         rotationStartTime
         {
-            start  "2024-02-13 10:00:00 -08:00"
+            start  "2024-03-26 10:00:00 -07:00"
+            end    "2024-04-23 10:00:00 -07:00"
         }
 
         rotation
         {
-            olympus_rotation            90
-            storm_point_rotation        90
-            worlds_edge_rotation        90
+			storm_point_rotation    90
+			olympus_rotation        90
+			moon_rotation           90
         }
     }
 
@@ -3592,68 +4987,161 @@ playlists
     {
         rotationStartTime
         {
-            start  "2024-02-13 10:00:00 -08:00"
+            start  "2024-03-26 10:00:00 -07:00"
         }
 
         rotation
         {
-            olympus_ranked              1440
-            tropic_ranked         		1440 // 24hrs
-            des_ranked                  1440
-        }
-    }
-
-    PlaylistRotation mixtape_launch_week
-    {
-        rotationStartTime
-        {
-            start  "2024-02-13 10:00:00 -08:00"
-            end    "2024-02-20 10:00:00 -08:00"
-        }
-
-        rotation
-        {
-            mix_s_tdm_thunderdome_launch       15
-            mix_s_control_thunderdome_launch   15
-            mix_s_gungame_thunderdome_launch   15
+			tropic_ranked           1440 // 24 hours
+			olympus_ranked          1440
+			des_ranked              1440
         }
     }
 
     PlaylistRotation mixtape
-    {
-        rotationStartTime
-        {
-            start  "2024-02-20 10:00:00 -08:00"
-        }
-
-        rotation
-        {
-            mix_s_tdm_fragment          15
-            mix_s_control_labs          15
-            mix_s_gungame_thunderdome   15
-            mix_s_tdm_habitat           15
-            mix_s_control_thunderdome   15
-            mix_s_gungame_fragment      15
-            mix_s_tdm_thunderdome       15
-            mix_s_control_siphon        15
-            mix_s_gungame_estates       15
-        }
-    }
-
-	PlaylistRotation the_hunt_takeover
 	{
 	    rotationStartTime
 	    {
-	        start  "2024-03-05 10:00:00 -08:00"
-	        end    "2024-03-19 10:00:00 -07:00"
-	        hide_until_start 1
+	        start   "2024-03-26 10:00:00 -07:00"
+	        end     "2024-04-01 10:00:00 -07:00"
 	    }
 
 	    rotation
 	    {
-	        the_hunt_oly_rotation        90
-	        the_hunt_tr_rotation         90
-	        the_hunt_we_rotation         90
+			mix_s_tdm_amps              15
+			mix_s_control_production    15
+			mix_s_gungame_thunderdome   15
+
+			mix_s_tdm_monument          15
+			mix_s_control_thunderdome   15
+			mix_s_gungame_skulltown     15
+
+			mix_s_tdm_thunderdome       15
+			mix_s_control_barometer     15
+			mix_s_gungame_monument      15
 	    }
 	}
+
+	PlaylistRotation mixtape_aprilfools
+    {
+        rotationStartTime
+        {
+            start  "2024-04-01 10:00:00 -07:00"
+            end    "2024-04-02 10:00:00 -07:00"
+            hide_until_start 1
+        }
+
+        rotation
+        {
+			mix_s_tdm_aprfls20_amps        15
+			mix_s_control_aprfls20_mn      15
+			mix_s_gungame_aprfls20_th      15
+
+			mix_s_tdm_aprfls20_mon         15
+			mix_s_control_aprfls20_th      15
+			mix_s_gungame_aprfls20_sk      15
+
+			mix_s_tdm_aprfls20_th          15
+			mix_s_control_aprfls20_tr      15
+			mix_s_gungame_aprfls20_mon     15
+        }
+    }
+
+	PlaylistRotation mixtape_lockdown
+    {
+        rotationStartTime
+        {
+            start  "2024-04-02 10:00:00 -07:00"
+            end    "2024-04-08 10:00:00 -07:00"
+            hide_until_start 1
+        }
+
+        rotation
+        {
+	        mix_s_gungame_skulltown_event       15
+
+            mix_s_tr_hunt_thunderdome           15
+            mix_s_tdm_monument_event            15
+            mix_s_control_barometer_event       15
+
+            mix_s_tr_hunt_skulltown             15
+            mix_s_gungame_thunderdome_event     15
+            mix_s_tdm_amps_event                15
+
+            mix_s_tr_hunt_monument              15
+            mix_s_control_thunderdome_event     15
+            mix_s_gungame_monument_event        15
+
+            mix_s_tr_hunt_amps                  15
+            mix_s_tdm_thunderdome_event         15
+            mix_s_control_production_event      15
+        }
+    }
+
+    PlaylistRotation aprilfools_ltm
+    {
+        rotationStartTime
+        {
+            start  "2024-04-02 10:00:00 -07:00"
+            end    "2024-04-08 10:00:00 -07:00"
+            hide_until_start 1
+        }
+
+        rotation
+        {
+            mix_s_tdm_aprfls20_amps_ltm        15
+            survival_aprfls20_oly_ltm          30
+            mix_s_control_aprfls20_mn_ltm      15
+            survival_aprfls20_tr_ltm           30
+            mix_s_gungame_aprfls20_th_ltm      15
+            survival_aprfls20_moon_ltm         30
+
+            mix_s_tdm_aprfls20_mon_ltm         15
+            survival_aprfls20_oly_ltm          30
+            mix_s_control_aprfls20_th_ltm      15
+            survival_aprfls20_tr_ltm           30
+            mix_s_gungame_aprfls20_sk_ltm      15
+            survival_aprfls20_moon_ltm         30
+
+            mix_s_tdm_aprfls20_th_ltm          15
+            survival_aprfls20_oly_ltm          30
+            mix_s_control_aprfls20_tr_ltm      15
+            survival_aprfls20_tr_ltm           30
+            mix_s_gungame_aprfls20_mon_ltm     15
+            survival_aprfls20_moon_ltm         30
+        }
+    }
+
+	PlaylistRotation lockdown_ltm
+    {
+        rotationStartTime
+        {
+            start   "2024-03-26 10:00:00 -07:00"
+            end     "2024-04-16 10:00:00 -07:00"
+            hide_until_start 1
+        }
+
+        rotation
+        {
+            mix_s_tr_hunt_thunderdome_ltm     15
+            mix_s_tr_hunt_skulltown_ltm       15
+            mix_s_tr_hunt_amps_ltm            15
+            mix_s_tr_hunt_monument_ltm        15
+        }
+    }
+
+    PlaylistRotation mt_br
+    {
+        rotationStartTime
+        {
+            start  "2024-04-23 10:00:00 -07:00"
+            hide_until_start 1
+        }
+
+        rotation
+        {
+            storm_point_rotation_mt    90
+            olympus_rotation_mt        90
+        }
+    }
 }

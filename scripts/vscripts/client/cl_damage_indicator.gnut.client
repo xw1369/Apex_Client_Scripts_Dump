@@ -317,6 +317,11 @@ void function DamageIndicators( vector origin, entity attacker, int damageSource
 	if ( !ShouldShowDamageArrows( damageSourceId ) )
 		return
 
+
+
+
+
+
 	entity localViewPlayer = GetLocalViewPlayer()
 	if ( !IsValid( localViewPlayer ) )
 		return
@@ -373,7 +378,6 @@ bool function ShouldShowDamageArrows( int damageSourceId )
 
 
 		case eDamageSourceId.caustic_toxin:
-
 
 
 
@@ -798,11 +802,8 @@ asset function GetIndicatorModel( entity grenade )
 
 
 
-	if ( IsValid( grenade ) && grenade.IsPlayer() )
-	{
-		if ( grenade.HasPassive( ePassives.PAS_REVENANT_REWORK ) )
-			return GRENADE_INDICATOR_GENERIC
-	}
+
+
 
 
 	if ( grenade instanceof C_PlayerWaypoint )
@@ -1094,6 +1095,7 @@ void function UpdateDamageArrows( entity localViewPlayer, entity cockpit )
 
 		varsUpdated = false
 		bool inPhaseShift = localViewPlayer.IsPhaseShifted()
+		bool isDead = !IsAlive( localViewPlayer )
 
 		foreach ( arrowData in file.damageArrows )
 		{
@@ -1108,7 +1110,7 @@ void function UpdateDamageArrows( entity localViewPlayer, entity cockpit )
 					arrowData.endTime = 0.0
 			}
 
-			if ( (file.damageArrowTime >= arrowData.endTime) || inPhaseShift )
+			if ( (file.damageArrowTime >= arrowData.endTime) || inPhaseShift || isDead )
 			{
 				arrowData.arrow.DisableDraw()
 				arrowData.arrow.ClearParent()

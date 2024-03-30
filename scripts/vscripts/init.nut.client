@@ -145,6 +145,7 @@ global struct CupEntry
 	int currSquadPosition
 	float positionPercentage
 	int currSquadScore
+	int reRollCount
 	array< CupMatchSummary > matchSummaryData
 	array< int > tierScoreBounds
 }
@@ -174,7 +175,6 @@ global struct CupLeaderboardEntry
 	array<CupPlayerInfo> squadInfo
 	int squadScore
 	array<CupMatchSummary> matchHistoryData
-	table<string, int> squadCalculatedStatTotals
 }
 
 global struct CupTierRewardData
@@ -228,7 +228,6 @@ global struct PartyMember
 	bool ready
 	bool present
 	string eaid
-	string tag
 	int boostCount
 	string unspoofedHardware
 	string unspoofedUID

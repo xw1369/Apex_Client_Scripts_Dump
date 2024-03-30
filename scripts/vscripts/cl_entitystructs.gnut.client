@@ -156,6 +156,10 @@ global struct ClientPlayerStruct
 		array<int> activePerks
 
 
+
+
+
+
 	entity previousWeapon
 
 	entity knife = null
@@ -244,6 +248,10 @@ global struct ClientPlayerStruct
 		table< int, string > CRngDummieBehaviors_Strs
 		string crngSettings_AllStrs
 
+
+
+		ArtifactConfig ornull artifactConfig = null
+
 }
 
 
@@ -264,8 +272,7 @@ global struct ClientWeaponStruct
 	float startChargeTime = 0.0
 	bool  wasCharged = false
 	bool wasFired
-
-		bool fromWall
+	bool fromWall
 
 	bool  initialized = false
 

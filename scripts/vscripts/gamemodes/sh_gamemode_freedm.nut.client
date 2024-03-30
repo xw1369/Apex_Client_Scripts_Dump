@@ -34,6 +34,10 @@ global function DEV_ScoreTrackAnimateIn
 
 
 
+
+
+
+
 global function FreeDM_GamemodeInitClient
 global function FreeDM_ScoreboardSetup
 global function FreeDM_SetScoreboardSetupFunc
@@ -102,8 +106,6 @@ const string FDM_PODIUM_SCRIPT_SPARKS = "script_sparks"
 
 const string FREEDM_SFX_MATCH_TIME_LIMIT = "Ctrl_Match_End_Warning_1p"
 const string GUNGAME_COUNTDOWN_SOUND = "UI_InGame_GunGame_Countdown"
-const string TDM_VICTORY_SOUND = "TDM_UI_Victory"
-const string TDM_LOSS_SOUND = "TDM_UI_Loss"
 const string TDM_COUNTDOWN_SOUND = "TDM_UI_InGame_Countdown"
 const string TDM_ROUND_WON = "TDM_UI_RoundWon"
 const string TDM_ROUND_LOSS = "TDM_UI_RoundLoss"
@@ -175,6 +177,8 @@ eCommsAction.INVENTORY_NO_AMMO_SPECIAL,
 
 
 struct {
+
+
 
 
 
@@ -347,7 +351,7 @@ void function FreeDM_GamemodeInitShared()
 
 
 
-
+		TreasureHunt_Init()
 
 
 
@@ -431,10 +435,13 @@ void function FreeDM_RegisterNetworking()
 	Remote_RegisterClientFunction("UICallback_FreeDM_OpenCharacterSelect")
 }
 
-bool function FreeDM_ShouldSpawnOnConnect(entity player)
+bool function FreeDM_ShouldSpawnOnConnect( entity player )
 {
 	return false
 }
+
+
+
 
 
 
@@ -658,6 +665,26 @@ void function FreeDM_SetAudioEvent( int event, string eventString )
 
 	file.audioEvents[ event ] <- eventString
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1552,6 +1579,30 @@ const int FramesToWait = 60
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 const string FREEDM_AIRDROP_ANIMATION = "droppod_loot_drop_lifeline"
 
 
@@ -1676,6 +1727,17 @@ void function ServerCallback_FreeDM_AirdropNotification()
 
 
 const string FREEDM_DEFAULT_AIRDROP_CONTENTS = "arenas_red_airdrop_weapons arenas_gold_airdrop_weapons arenas_gold_airdrop_weapons"
+
+const string FREEDM_AF_AIRDROP_CONTENTS = "af_airdrop_weapons af_airdrop_weapons af_airdrop_weapons"
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1810,9 +1872,13 @@ void function Client_OnPrematchInit()
 
 
 
-	RunUIScript("SetRespawnOverlayTime", Time(), Time() + roundStartTime)
-	RunUIScript("SetRespawnOverlayString", Localize( "#ROUND_NUM_IN", GetRoundsPlayed() + 1))
-	RunUIScript("SetRespawnOverlayIdleString", Localize( "#MATCH_STARTED"))
+	if ( GetCurrentPlaylistVarBool( "use_round_countdown_overlay", true ) )
+	{
+		RunUIScript("SetRespawnOverlayTime", Time(), Time() + roundStartTime)
+		RunUIScript("SetRespawnOverlayString", Localize( "#ROUND_NUM_IN", GetRoundsPlayed() + 1))
+		RunUIScript("SetRespawnOverlayIdleString", Localize( "#MATCH_STARTED"))
+	}
+
 	thread _CountdownIntroSoundThread()
 }
 
@@ -2201,18 +2267,12 @@ void function ServerCallback_FreeDM_ChampionSounds( int winningTeamOrAlliance )
 	var endSound
 	if( isWinner )
 	{
-		SetChampionScreenSound( file.audioEvents[eFreeDMAudioEvents.Victory_Sound] )
-
-			endSound = EmitSoundOnEntity_NoTimeScale( localPlayer, TDM_VICTORY_SOUND )
-
+		endSound = EmitSoundOnEntity_NoTimeScale( localPlayer, file.audioEvents[eFreeDMAudioEvents.Victory_Sound] )
 		endMusic = EmitSoundOnEntity_NoTimeScale( localPlayer, file.audioEvents[eFreeDMAudioEvents.Victory_Music] )
 	}
 	else
 	{
-		SetChampionScreenSound( file.audioEvents[eFreeDMAudioEvents.Defeat_Sound] )
-
-			endSound = EmitSoundOnEntity_NoTimeScale( localPlayer, TDM_LOSS_SOUND )
-
+		endSound = EmitSoundOnEntity_NoTimeScale( localPlayer, file.audioEvents[eFreeDMAudioEvents.Defeat_Sound] )
 		endMusic = EmitSoundOnEntity_NoTimeScale( localPlayer, file.audioEvents[eFreeDMAudioEvents.Loss_Music] )
 	}
 
@@ -2251,11 +2311,13 @@ void function AnnouncementMessageWarning( entity player, string messageText, vec
 void function UICallback_FreeDM_OpenCharacterSelect()
 {
 	
+	Assert( FreeDM_IsActiveGameMode() )
 	if ( !FreeDM_IsActiveGameMode() )
 		return
 
 	entity clientPlayer = GetLocalClientPlayer()
 
+	Assert( IsValid( clientPlayer ), "IsValid( clientPlayer ) in sh_gamemode_freedm.nut UICallback_FreeDM_OpenCharacterSelect" )
 	if ( !IsValid( clientPlayer ) )
 		return
 

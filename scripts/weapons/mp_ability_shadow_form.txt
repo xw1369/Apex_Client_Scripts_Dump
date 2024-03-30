@@ -52,10 +52,10 @@ WeaponData
 	"cooldown_type"                                 "ammo_instant"
 	"ammo_suck_behavior"							"offhand_weapons"
 	"ammo_display"									"count"
-	"ammo_clip_size"   								"120"
+	"ammo_clip_size"   								"180"
 	"ammo_default_total"							"0"
-	"ammo_min_to_fire"								"120"
-	"ammo_per_shot"									"120"
+	"ammo_min_to_fire"								"180"
+	"ammo_per_shot"									"180"
 	"ammo_stockpile_max"							"0"
 	"fire_duration"									"25.0"
 
@@ -106,10 +106,10 @@ WeaponData
                             
         upgrade_ult_one
         {
-            "ammo_clip_size"   								"90"
+            "ammo_clip_size"   								"150"
         	"ammo_default_total"							"0"
-        	"ammo_min_to_fire"								"90"
-        	"ammo_per_shot"									"90"
+        	"ammo_min_to_fire"								"150"
+        	"ammo_per_shot"									"150"
         }
               
     }

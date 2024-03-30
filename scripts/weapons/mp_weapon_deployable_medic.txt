@@ -264,15 +264,15 @@ WeaponData
 
 		}
 
-		                    
+                                      
 
 		upgrade_core_tac_cooldown_reduction
 		{
-			"ammo_clip_size"        "350"
-			"ammo_default_total"    "350"
-			"ammo_min_to_fire"      "350"
-			"ammo_per_shot"         "350"
-			"ammo_stockpile_max"    "350"
+			"ammo_clip_size"        "200"
+			"ammo_default_total"    "200"
+			"ammo_min_to_fire"      "200"
+			"ammo_per_shot"         "200"
+			"ammo_stockpile_max"    "200"
 		}
 
 		upgrade_tac_one
@@ -286,6 +286,29 @@ WeaponData
             "projectile_gravity_scale"						"1.0"
             "projectile_launch_speed"                       "500"
 		}
+
+       
+
+                                     
+   
+                                
+                                
+                                
+                                
+                                
+   
+
+                 
+   
+                                              
+                                                      
+                                                            
+                                                                        
+                                                                     
+                                                                          
+                                                 
+                                                                 
+   
 
         
 	}

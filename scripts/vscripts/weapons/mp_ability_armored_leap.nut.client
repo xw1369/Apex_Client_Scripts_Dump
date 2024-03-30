@@ -6805,6 +6805,10 @@ float function GetUpgradedArmoredLeapDistance()
 
 
 
+
+
+
+
 vector function CastleWall_OffsetDamageNumbers( entity shieldEnt, vector damageFlyoutPosition )
 {
 	vector flyoutPosition = ZERO_VECTOR

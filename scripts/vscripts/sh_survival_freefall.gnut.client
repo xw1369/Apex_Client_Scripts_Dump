@@ -1780,6 +1780,11 @@ SkyDiveTrailPackage function GetSkyDiveTrailPackageForPlayerWithOverrides( entit
 
 
 
+
+
+
+
+
 void function CL_AttemptDropEmote( entity player )
 {
 	printt( "CLIENT EMOTE" )

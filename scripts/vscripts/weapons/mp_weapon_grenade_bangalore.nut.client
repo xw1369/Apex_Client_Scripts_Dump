@@ -14,16 +14,16 @@ const asset FX_SMOKEGRENADE_TRAIL = $"P_SmokeScreen_FD_trail"
 const asset BANGALORE_SMOKE_MODEL = $"mdl/weapons/grenades/w_bangalore_canister_gas_projectile.rmdl"
 
 const float BANGALORE_SMOKE_MAX_SAFE_SPAWN_PELLET_DISTANCE = 32.0
-const float BANGALORE_SMOKE_DURATION = 10.0
+const float BANGALORE_SMOKE_DURATION = 8.6
 const float BANGALORE_SMOKE_MIN_EXPLODE_DIST_SQR = 512 * 512
 const float BANGALORE_SMOKE_DISPERSAL_TIME = 3.0
 const float BANGALORE_TACTICAL_AGAIN_TIME = 4.0
 
-const float UPGRADE_BANGALORE_SMOKE_HP_REGEN_RATE_PER_SEC = 3.0
-const float UPGRADE_BANGALORE_SMOKE_HP_REGEN_DELAY = 2.0
+const float UPGRADE_BANGALORE_SMOKE_HP_REGEN_RATE_PER_SEC = 3.5
+const float UPGRADE_BANGALORE_SMOKE_HP_REGEN_DELAY = 1.0
 
 
-const bool BANGALORE_SMOKE_EXPLOSIONS = true
+const bool BANGALORE_SMOKE_EXPLOSIONS = false
 const asset SMOKE_SCREEN_FX = $"P_screen_smoke_bangalore_FP"
 
 const asset FX_MUZZLE_FLASH_FP = $"P_wpn_mflash_bang_rocket_FP"
@@ -245,7 +245,7 @@ void function OnProjectileIgnite_weapon_grenade_bangalore( entity projectile )
 
 float function Bangalore_GetSmokeDuration( entity player )
 {
-	float duration = BANGALORE_SMOKE_DURATION
+	float duration = GetCurrentPlaylistVarFloat( "bangalore_smoke_lifetime", BANGALORE_SMOKE_DURATION )
 
 
 		if( PlayerHasPassive( player, ePassives.PAS_TAC_UPGRADE_TWO ) ) 

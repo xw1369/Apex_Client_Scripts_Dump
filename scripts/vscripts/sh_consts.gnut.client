@@ -45,6 +45,7 @@ global enum eDeathScreenPanel
 	SCOREBOARD,
 	SQUAD_SUMMARY,
 	SQUAD
+	KILLREPLAY,
 }
 
 global struct Cylinder
@@ -150,10 +151,14 @@ global const GAMEMODE_BANNERBOMB = "bannerbomb"
 
 
 
-
+global const GAMEMODE_TREASURE_HUNT = "treasure_hunt"
 
 
 global const GAMEMODE_THE_HUNT_20 = "the_hunt_20"
+
+
+
+global const GAMEMODE_APRIL_FOOLS_S20 = "aprilfools_s20"
 
 
 global const GAMEMODE_ARMED_AND_DANGEROUS = "armed_and_dangerous"
@@ -192,6 +197,9 @@ global const bool VERBOSE_DAMAGE_PRINTOUTS = false
 global const NETWORTH_VAR = "netWorth"
 
 global const TESTCONST = 99
+
+
+global const INTELLIJ_OUTLINE_SECTION_MARKER = false
 
 global const MAX_GAME_HISTORY = 20 
 
@@ -1010,7 +1018,6 @@ global enum eFeatureSuppressionFlags
 
 	
 	TRAINING_RETURN_TO_LOBBY			= 0x0400
-
 
 	ALL									= 0x07FF
 }
@@ -1909,8 +1916,6 @@ global enum eCommsAction
 
 	QUICKCHAT_SKYDIVE_ENEMIES_NEARBY,
 
-	NON_PINGABLE_SPAWN_LOCATION,
-
 
 		PING_CONTROL_OBJECTIVE_DEFEND,
 		PING_CONTROL_OBJECTIVE_ATTACK,
@@ -1954,7 +1959,7 @@ global enum eCommsAction
 
 
 
-
+		PING_WEAPON_MOZAMBIQUE_OLNESSIE,
 
 
 
@@ -2053,6 +2058,13 @@ global enum eCommsAction
 
 
 		PING_ENEMY_POI,
+
+
+		PING_MULTI_ENEMY_POI,
+
+
+
+		PING_TREASUREHUNT_OBJ_ATTACK,
 
 	_count
 }
@@ -2314,12 +2326,16 @@ global enum eFRSettingType
 	SHOWHITMARKS,			
 	SHOW3RDPERSON,			
 
+		LEGENDUPGRADESENABLED,
+
+
 	
 	
 	FRIENDLYFIRE,			
 	FRDUMMIEHELMETMATCHSHIELDS,	
 
 	DYNAMICDUMMIESON,	
+	DUMMIEHIGHLIGHTSON,	
 
 	
 	

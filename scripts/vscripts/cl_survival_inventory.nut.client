@@ -574,7 +574,19 @@ void function UIToClient_GroundlistOpened()
 		return
 
 	if ( IsAlive( player ) && GetGameState() >= eGameState.Prematch )
-		Remote_ServerCallFunction( "ClientCallback_DeathboxOpened" )
+	{
+
+
+
+
+
+
+
+
+		{
+			Remote_ServerCallFunction( "ClientCallback_DeathboxOpened" )
+		}
+	}
 }
 
 
@@ -1208,6 +1220,12 @@ void function UICallback_UpdateRequestButton( var button )
 
 
 
+
+
+
+
+
+
 }
 
 
@@ -1486,7 +1504,7 @@ void function EquipmentButtonInit( var button, string equipmentSlot, LootData lo
 		bool weaponEntIsValid = IsValid( weapon )
 		Assert( weaponEntIsValid, "Weapon entity must be valid if the equipment slot data is valid as well" )
 
-		string ammoTypeRef = GetWeaponAmmoType( lootData.ref )
+		string ammoTypeRef = AmmoType_GetRefFromIndex( weapon.GetWeaponAmmoPoolType() )
 		if ( GetWeaponInfoFileKeyField_GlobalBool( lootData.baseWeapon, "uses_ammo_pool" ) )
 		{
 			LootData ammoData = SURVIVAL_Loot_GetLootDataByRef( ammoTypeRef )
@@ -1569,11 +1587,11 @@ void function UICallback_OnEquipmentButtonAction( var button, int actionType, bo
 	SURVIVAL_UpdateStringForEquipmentAction( player, equipmentType, as, lootRef )
 	if ( ShouldStartExtendedUseForEquipmentAction( player, as.action, lootData.lootType, fromExtendedUse, equipmentType, equipmentRef ) )
 	{
-		RunUIScript( "ClientCallback_StartEquipmentExtendedUse", button, 0.4, actionType, true )
+		RunUIScript( "ClientCallback_StartEquipmentExtendedUse", button, 0.4, actionType, true, DoesPlayerHaveWeaponSling( player ) )
 	}
 	else
 	{
-		RunUIScript( "ClientCallback_StartEquipmentExtendedUse", button, 0.4, actionType, false )
+		RunUIScript( "ClientCallback_StartEquipmentExtendedUse", button, 0.4, actionType, false, DoesPlayerHaveWeaponSling( player ) )
 		bool didSomething = DispatchLootAction( eLootContext.EQUIPMENT, as.action, equipmentType )
 		if ( didSomething )
 			RunUIScript( "ClientToUI_SurvivalQuickInventory_MarkInventoryButtonUsed", button )
@@ -2536,14 +2554,15 @@ bool function ShouldShowHealHint( entity player )
 	if ( !Consumable_CanUseConsumable( player, kitType, false ) && !CanDeployHealDrone( player ) )
 		return false
 
-	PotentialHealData healData = Consumable_CreatePotentialHealData( player, kitType )
-	if ( healData.totalAppliedHeal < 75 && (healData.totalAppliedHeal > 25 && healData.overHeal >= 100) )
-		return false
+	
+	
 
-	if ( player.GetPlayerNetBool( "isHealing" ) )
-		return false
 
-	return true
+
+
+
+
+	return false
 
 
 	unreachable
@@ -3302,8 +3321,8 @@ void function TEMP_UpdatePlayerRui( var rui, entity player )
 			RunUIScript( "RTKLegendUpgradesArmorCore_UpdateArmorCoreDataModel" )
 
 			RuiSetInt( rui, "armorShieldCapacity", player.GetShieldHealthMax() )
-			RuiSetInt( rui, "playerExtraShield", player.GetPlayerNetInt( EXTRA_SHIELDS_NETINT ) )
-			RuiSetInt( rui, "playerExtraShieldTier", player.GetPlayerNetInt( EXTRA_SHIELDS_TIER_NETINT ) )
+			RuiSetInt( rui, "playerExtraShield", GetPlayerExtraShields( player ) )
+			RuiSetInt( rui, "playerExtraShieldTier", GetPlayerExtraShieldsTier( player ) )
 		}
 
 
@@ -3495,8 +3514,8 @@ void function TEMP_UpdateTeammateRui( var elem, bool isCompact )
 				UpgradeCore_UpdateXpRui( rui, ent )
 
 				RuiSetInt( rui, "armorShieldCapacity", ent.GetShieldHealthMax() )
-				RuiSetInt( rui, "playerExtraShield", ent.GetPlayerNetInt( EXTRA_SHIELDS_NETINT ) )
-				RuiSetInt( rui, "playerExtraShieldTier", ent.GetPlayerNetInt( EXTRA_SHIELDS_TIER_NETINT ) )
+				RuiSetInt( rui, "playerExtraShield", GetPlayerExtraShields( ent ) )
+				RuiSetInt( rui, "playerExtraShieldTier", GetPlayerExtraShieldsTier( ent ) )
 
 				vector shieldTierColor = GetKeyColor( COLORID_TEXT_LOOT_TIER0, GetPlayerExtraShieldsTier( player ) ) / 255.0
 				RuiSetFloat3( rui, "playerShieldTierColor", shieldTierColor )

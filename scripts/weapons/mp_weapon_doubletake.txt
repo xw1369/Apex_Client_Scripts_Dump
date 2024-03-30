@@ -1,10 +1,6 @@
 #base "_base_marksman_weapon.txt"
 #base "_base_mags_energy.txt"
 
-                    
-#base "_base_hopup_golden_horse_green.txt"
-      
-
 "WeaponData"
 {
 	// General
@@ -42,10 +38,6 @@
 	"OnProjectileCollision"                         "OnProjectileCollision_weapon_doubletake"
     "OnWeaponActivate"                              "OnWeaponActivate_weapon_doubletake"
     "OnWeaponDeactivate"                            "OnWeaponDeactivate_weapon_doubletake"
-                    
-	"OnWeaponReload"								"GoldenHorseGreen_OnWeaponReload"
-	"OnWeaponReloadFinished"                        "GoldenHorseGreen_OnWeaponReloadFinished"
-      
 
 	"charge_time" 									"0.0"
 	"charge_levels"									"0"
@@ -350,6 +342,10 @@
 	"viewmodel_ads_centerpoint_attachment"      "ADS_CENTER_SIGHT_TRIPLETAKE"
 
 	"player_overheat_per_bullet"        "28"
+
+	                                
+		"april_fools_force_scale"               "20.0"
+       
 
 	"Mods"
 	{

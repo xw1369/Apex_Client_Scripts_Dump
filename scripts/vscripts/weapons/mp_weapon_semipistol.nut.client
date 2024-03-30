@@ -20,6 +20,17 @@ void function OnWeaponActivate_weapon_semipistol( entity weapon )
 
 
 
+
+
+
+
+
+
+
+
+
+
+
 }
 
 void function OnWeaponDeactivate_weapon_semipistol( entity weapon )

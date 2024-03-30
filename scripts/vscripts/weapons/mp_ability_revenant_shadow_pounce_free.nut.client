@@ -689,7 +689,6 @@ void function ClearWallClimbStatusEffectAfterDelay_Thread( entity player )
 
 
 
-
 void function ShadowPounce_ChargeUI_Thread( entity player, entity weapon )
 {
 	Assert( IsNewThread(), "Must be threaded off" )

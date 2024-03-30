@@ -34,7 +34,7 @@ array< ItemFlavor > function GetAllMetaChallenges()
 StatTemplate function RegisterMetaChallengeStatref( ItemFlavor challengeFlav )
 {
 	string metaChallengeStatRef = MetaChallenge_GetStatRef( challengeFlav )
-	return RegisterExpensiveCalculatedStat_Int(null, metaChallengeStatRef, DELAY_WRITE_BACK_UNTIL_MATCH_END, CreateMetaChallengeStatCalc( challengeFlav ), [], eChallengeGameMode.NON_MODE)
+	return RegisterExpensiveCalculatedStat_Int(null, metaChallengeStatRef, CHALLENGES_CALC_DEPENDS, CreateMetaChallengeStatCalc( challengeFlav ), [], eChallengeGameMode.NON_MODE)
 }
 
 int functionref( entity, array< StatEntry >, int ) function GetChallengeCalcFunc( ItemFlavor challengeFlav )

@@ -1,0 +1,306 @@
+ImpactTable
+{
+	FX
+	{
+		"C" "P_artifact_impact_MOB" //Concrete, rock, porcelain, boulder, gravel, asphalt, brick, concrete_block, plaster
+		"D" "P_artifact_impact_MOB" //Dirt, slipperyslime, snow, carpet, cardboard, floatingstandable, ceiling_tile, papercup, lava_rock
+		"E" "P_artifact_impact_MOB" // metal_titan
+
+		"F" "P_artifact_impact_MOB" //flesh
+		"G" "P_artifact_impact_MOB" //metalgrate, chainlink, chain
+		"H" "P_artifact_impact_MOB" //alienflesh
+
+		"J" "P_artifact_impact_MOB" //grass
+		"K" "P_artifact_impact_MOB" //Mud
+		"L" "P_artifact_impact_MOB" //plastic_barrel, plastic_box, item, rubber, rubbertire, jeeptire, slidingrubbertire, brakingrubbertire, slidingrubbertire_front, slidingrubbertire_rear
+		"M" "P_artifact_impact_MOB" //Default, metal, metal_box, solidmetal, armorflesh, metal_bouncy, slippery_metal, shellcasing_small, shellcasing_large, metal_barrel, floating_metal_barrel, weapon
+		"N" "P_artifact_impact_MOB" //slime
+		"O" "P_artifact_impact_MOB" //Foliage
+		"P" "P_artifact_impact_MOB" //metal_spectre
+
+		"Q" "P_artifact_impact_MOB" //metalpanel, grenade, canister
+		"R" "P_artifact_impact_MOB" //metalpanel, grenade, canister
+		"S" "P_artifact_impact_MOB" //water, slime
+		"T" "P_artifact_impact_MOB" //tile
+		"U" "P_artifact_impact_MOB" // glass_breakable
+		"V" "P_artifact_impact_MOB" //Metal Vent
+		"W" "P_artifact_impact_MOB"//Wood, Wood_lowdensity, Wood_Box, Wood_Crate, Wood_Plank, Wood_Solid, Wood_Furniture, Wood_Panel watermelon
+
+		"X" "P_artifact_impact_MOB" //xo_shield
+
+		"Y" "P_artifact_impact_MOB" //glass, brokenglass, glassbottle, pottery
+		"Z" "P_artifact_impact_MOB" //sand
+
+		"0" "P_artifact_impact_MOB"
+		"1" "P_artifact_impact_MOB" //lava_flow
+		"2" "P_artifact_impact_MOB" //lava_rock_hot
+		"3" "P_artifact_impact_MOB"
+		"4" "P_artifact_impact_MOB"
+		"5" "P_artifact_impact_MOB"
+		"6" "P_artifact_impact_MOB"
+		"7" "P_artifact_impact_MOB"
+		"8" "P_artifact_impact_MOB"
+		"9" "P_artifact_impact_MOB"
+
+		"splash" "P_artifact_impact_MOB" //brush water
+		"slime_splash" "P_artifact_impact_MOB"
+		"airburst" ""
+		"shieldhit" "P_artifact_impact_MOB"
+		"critical_hit" "P_artifact_impact_MOB"
+	}
+
+	FX
+	{
+		"C" "P_melee_default" //Concrete, rock, porcelain, boulder, gravel, asphalt, brick, concrete_block, plaster
+		"D" "P_melee_dirt" //Dirt, slipperyslime, snow, carpet, cardboard, floatingstandable, ceiling_tile, papercup
+		"E" "P_melee_metal" // metal_titan
+
+		"F" "impact_flesh" //flesh
+		"G" "P_melee_metal" //metalgrate, chainlink, chain
+		"H" "P_melee_default" //alienflesh
+
+		"J" "P_melee_dirt" //grass
+		"K" "P_melee_dirt" //Mud
+		"L" "P_melee_default" //plastic_barrel, plastic_box, item, rubber, rubbertire, jeeptire, slidingrubbertire, brakingrubbertire, slidingrubbertire_front, slidingrubbertire_rear
+		"M" "P_melee_metal" //Default, metal, metal_box, solidmetal, armorflesh, metal_bouncy, slippery_metal, shellcasing_small, shellcasing_large, metal_barrel, floating_metal_barrel, weapon
+		"N" "P_impact_slime" //slime
+		"O" "P_melee_dirt"  //Foliage
+		"P" "P_melee_metal" //metal_spectre
+
+		"Q" "P_melee_snow"  //Snow
+		"R" "P_melee_ice" //Ice
+
+		"S" "P_impact_water" //water, slime
+		"T" "P_melee_default" //tile
+		"U" "P_melee_glass" // glass_breakable
+		"V" "P_melee_metal" //Metal Vent
+		"W" "P_melee_default"//Wood, Wood_lowdensity, Wood_Box, Wood_Crate, Wood_Plank, Wood_Solid, Wood_Furniture, Wood_Panel watermelon
+
+		"X" "P_impact_xo_shield_cp" //xo_shield
+
+		"Y" "P_melee_glass" //glass, brokenglass, glassbottle, pottery
+		"Z" "P_melee_dirt"  //sand
+
+//		"0" "openslot"
+		"1" "P_impact_lava_nodecal" //lava_flow
+		"2" "P_impact_lava" //lava_rock_hot
+//		"3" "openslot"
+//		"4" "openslot"
+		"5" "P_impact_digital_water_hrz_w_glass"
+//		"6" "openslot"
+//		"7" "openslot"
+//		"8" "openslot"
+//		"9" "openslot"
+
+		"splash" "P_impact_water" //brush water
+		"slime_splash" "P_impact_water"
+		"airburst" ""
+		"shieldhit" "P_armor_impact"
+		"critical_hit" "P_melee_default"
+	}
+
+	Sound
+	{
+		"C" "Generic_ArtifactMobster_Impact_3p_vs_3p" //Concrete, rock, porcelain, boulder, gravel, asphalt, brick, concrete_block, plaster
+		"D" "Generic_ArtifactMobster_Impact_Dirt_3p_vs_3p" //Dirt, slipperyslime, snow, carpet, cardboard, floatingstandable, ceiling_tile, papercup
+		"E" "Generic_ArtifactMobster_Impact_Metal_3p_vs_3p" //metal_titan
+
+		"F" "Victim_ArtifactMobster_Impact_3p_vs_3p" //flesh
+		"G" "Generic_ArtifactMobster_Impact_MetalGrate_3p_vs_3p" //metalgrate, chainlink, chain
+		"H" "Victim_ArtifactMobster_Impact_3p_vs_3p" //alienflesh
+
+		"J" "Generic_ArtifactMobster_Impact_Grass_3p_vs_3p" //grass
+		"K" "Generic_ArtifactMobster_Impact_Mud_3p_vs_3p" //Mud
+		"L" "Generic_ArtifactMobster_Impact_3p_vs_3p" //plastic_barrel, plastic_box, item, rubber
+		"M" "Generic_ArtifactMobster_Impact_Metal_3p_vs_3p" //Default, metal, metal_box, solidmetal
+		"N" "Generic_ArtifactMobster_Impact_Mud_3p_vs_3p" //slime
+		"O" "Generic_ArtifactMobster_Impact_Grass_3p_vs_3p" //Foliage
+		"P" "Victim_ArtifactMobster_Impact_3p_vs_3p" //metal_spectre
+
+		"Q" "Generic_ArtifactMobster_Impact_Dirt_3p_vs_3p" //snow
+		"R" "Generic_ArtifactMobster_Impact_3p_vs_3p" //Ice
+
+		"S" "Generic_ArtifactMobster_Impact_Water_3p_vs_3p" //water, slime
+		"T" "Generic_ArtifactMobster_Impact_Concrete_3p_vs_3p" //tile
+		"U" "Generic_ArtifactMobster_Impact_Glass_3p_vs_3p" //glass_breakable
+
+		"V" "Generic_ArtifactMobster_Impact_MetalGrate_3p_vs_3p" //Metal Vent
+		"W" "Generic_ArtifactMobster_Impact_Concrete_3p_vs_3p" //Wood
+
+		"Y" "Generic_ArtifactMobster_Impact_Glass_3p_vs_3p" //glass, brokenglass, glassbottle, pottery
+		"Z" "Generic_ArtifactMobster_Impact_Dirt_3p_vs_3p" //sand
+
+//		"0" "openslot"
+		"1" "Generic_ArtifactMobster_Impact_Dirt_3p_vs_3p" //lava_flow
+		"2" "Generic_ArtifactMobster_Impact_Dirt_3p_vs_3p" //lava_rock_hot
+//		"3" "openslot"
+//		"4" "openslot"
+		"5" "Generic_ArtifactMobster_Impact_Glass_3p_vs_3p" //glass
+//		"6" "openslot"
+//		"7" "openslot"
+//		"8" "openslot"
+//		"9" "openslot"
+
+		"splash" "Generic_ArtifactMobster_Impact_Mud_3p_vs_3p"
+		"slime_splash" "Generic_ArtifactMobster_Impact_Mud_3p_vs_3p"
+		"holohit" "Generic_ArtifactMobster_Impact_3p_vs_3p"
+
+		"airburst" ""
+		"shieldhit" "Generic_ArtifactMobster_Impact_3p_vs_3p"
+		"headshot_flesh" "Generic_ArtifactMobster_Impact_3p_vs_3p"
+		"headshot_mechanical" "Generic_ArtifactMobster_Impact_3p_vs_3p"
+	}
+
+	Sound_attacker
+	{
+		"C" "Generic_ArtifactMobster_Impact_1p_vs_3p" //Concrete, rock, porcelain, boulder, gravel, asphalt, brick, concrete_block, plaster
+		"D" "Generic_ArtifactMobster_Impact_Dirt_1p_vs_3p" //Dirt, slipperyslime, snow, carpet, cardboard, floatingstandable, ceiling_tile, papercup
+		"E" "Generic_ArtifactMobster_Impact_Metal_1p_vs_3p" //metal_titan
+
+		"F" "Victim_ArtifactMobster_Impact_1p_vs_3p" //flesh
+		"G" "Generic_ArtifactMobster_Impact_MetalGrate_1p_vs_3p" //metalgrate, chainlink, chain
+		"H" "Victim_ArtifactMobster_Impact_1p_vs_3p" //alienflesh
+
+		"J" "Generic_ArtifactMobster_Impact_Grass_1p_vs_3p" //grass
+		"K" "Generic_ArtifactMobster_Impact_Mud_1p_vs_3p" //Mud
+		"L" "Generic_ArtifactMobster_Impact_1p_vs_3p" //plastic_barrel, plastic_box, item, rubber
+		"M" "Generic_ArtifactMobster_Impact_Metal_1p_vs_3p" //Default, metal, metal_box, solidmetal
+		"N" "Generic_ArtifactMobster_Impact_Mud_1p_vs_3p" //slime
+		"O" "Generic_ArtifactMobster_Impact_Grass_1p_vs_3p" //Foliage
+		"P" "Victim_ArtifactMobster_Impact_1p_vs_3p" //metal_spectre
+
+		"Q" "Generic_ArtifactMobster_Impact_Dirt_1p_vs_3p" //snow
+		"R" "Generic_ArtifactMobster_Impact_1p_vs_3p" //Ice
+
+		"S" "Generic_ArtifactMobster_Impact_Water_1p_vs_3p" //water, slime
+		"T" "Generic_ArtifactMobster_Impact_Concrete_1p_vs_3p" //tile
+		"U" "Generic_ArtifactMobster_Impact_Glass_1p_vs_3p" //glass_breakable
+
+		"V" "Generic_ArtifactMobster_Impact_MetalGrate_1p_vs_3p" //Metal Vent
+		"W" "Generic_ArtifactMobster_Impact_Concrete_1p_vs_3p" //Wood
+
+		"Y" "Generic_ArtifactMobster_Impact_Glass_1p_vs_3p" //glass, brokenglass, glassbottle, pottery
+		"Z" "Generic_ArtifactMobster_Impact_Dirt_1p_vs_3p" //sand
+
+//		"0" "openslot"
+		"1" "Generic_ArtifactMobster_Impact_Dirt_1p_vs_3p" //lava_flow
+		"2" "Generic_ArtifactMobster_Impact_Dirt_1p_vs_3p" //lava_rock_hot
+//		"3" "openslot"
+//		"4" "openslot"
+		"5" "Generic_ArtifactMobster_Impact_Glass_1p_vs_3p" //glass
+//		"6" "openslot"
+//		"7" "openslot"
+//		"8" "openslot"
+//		"9" "openslot"
+
+		"splash" "Generic_ArtifactMobster_Impact_Mud_1p_vs_3p"
+		"slime_splash" "Generic_ArtifactMobster_Impact_Mud_1p_vs_3p"
+		"holohit" "Generic_ArtifactMobster_Impact_1p_vs_3p"
+
+		"airburst" ""
+		"shieldhit" "Victim_ArtifactMobster_ShieldImpact_1p_vs_3p"
+		"headshot_flesh" "Generic_ArtifactMobster_Impact_1p_vs_3p"
+		"headshot_mechanical" "Generic_ArtifactMobster_Impact_1p_vs_3p"
+	}
+
+	Sound_victim
+	{
+		"C" "Generic_ArtifactMobster_Impact_3p_vs_3p" //Concrete, rock, porcelain, boulder, gravel, asphalt, brick, concrete_block, plaster
+		"D" "Generic_ArtifactMobster_Impact_Dirt_3p_vs_3p" //Dirt, slipperyslime, snow, carpet, cardboard, floatingstandable, ceiling_tile, papercup
+		"E" "Generic_ArtifactMobster_Impact_Metal_3p_vs_3p" //metal_titan
+
+		"F" "Victim_ArtifactMobster_Impact_3p_vs_1p" //flesh
+		"G" "Generic_ArtifactMobster_Impact_MetalGrate_3p_vs_3p" //metalgrate, chainlink, chain
+		"H" "Victim_ArtifactMobster_Impact_3p_vs_1p" //alienflesh
+
+		"J" "Generic_ArtifactMobster_Impact_Grass_3p_vs_3p" //grass
+		"K" "Generic_ArtifactMobster_Impact_Mud_3p_vs_3p" //Mud
+		"L" "Generic_ArtifactMobster_Impact_3p_vs_3p" //plastic_barrel, plastic_box, item, rubber
+		"M" "Generic_ArtifactMobster_Impact_Metal_3p_vs_3p" //Default, metal, metal_box, solidmetal
+		"N" "Generic_ArtifactMobster_Impact_Mud_3p_vs_3p" //slime
+		"O" "Generic_ArtifactMobster_Impact_Grass_3p_vs_3p" //Foliage
+		"P" "Victim_ArtifactMobster_Impact_3p_vs_1p" //metal_spectre
+
+		"Q" "Generic_ArtifactMobster_Impact_Dirt_3p_vs_3p" //snow
+		"R" "Generic_ArtifactMobster_Impact_3p_vs_3p" //Ice
+
+		"S" "Generic_ArtifactMobster_Impact_Water_3p_vs_3p" //water, slime
+		"T" "Generic_ArtifactMobster_Impact_Concrete_3p_vs_3p" //tile
+		"U" "Generic_ArtifactMobster_Impact_Glass_3p_vs_3p" //glass_breakable
+
+		"V" "Generic_ArtifactMobster_Impact_MetalGrate_3p_vs_3p" //Metal Vent
+		"W" "Generic_ArtifactMobster_Impact_Concrete_3p_vs_3p" //Wood
+
+		"Y" "Generic_ArtifactMobster_Impact_Glass_3p_vs_3p" //glass, brokenglass, glassbottle, pottery
+		"Z" "Generic_ArtifactMobster_Impact_Dirt_3p_vs_3p" //sand
+
+//		"0" "openslot"
+		"1" "Generic_ArtifactMobster_Impact_Dirt_3p_vs_3p" //lava_flow
+		"2" "Generic_ArtifactMobster_Impact_Dirt_3p_vs_3p" //lava_rock_hot
+//		"3" "openslot"
+//		"4" "openslot"
+		"5" "Generic_ArtifactMobster_Impact_Glass_3p_vs_3p" //glass
+//		"6" "openslot"
+//		"7" "openslot"
+//		"8" "openslot"
+//		"9" "openslot"
+
+		"splash" "Generic_ArtifactMobster_Impact_Mud_3p_vs_3p"
+		"slime_splash" "Generic_ArtifactMobster_Impact_Mud_3p_vs_3p"
+		"holohit" "Generic_ArtifactMobster_Impact_3p_vs_3p"
+
+		"airburst" ""
+		"shieldhit" "humanshield_light_bulletimpact_3p_vs_1p"
+		"headshot_flesh" "Generic_ArtifactMobster_Impact_3p_vs_3p"
+		"headshot_mechanical" "Generic_ArtifactMobster_Impact_3p_vs_3p"
+	}
+
+	Sound_victim_from_AI
+	{
+		"C" "Victim_ArtifactMobster_Impact_3p_vs_1p"
+		"D" "Victim_ArtifactMobster_Impact_3p_vs_1p"
+		"E" "Victim_ArtifactMobster_Impact_3p_vs_1p"
+
+		"F" "Victim_ArtifactMobster_Impact_3p_vs_1p"
+		"G" "Victim_ArtifactMobster_Impact_3p_vs_1p"
+		"H" "Victim_ArtifactMobster_Impact_3p_vs_1p"
+
+		"J" "Victim_ArtifactMobster_Impact_3p_vs_1p"
+		"K" "Victim_ArtifactMobster_Impact_3p_vs_1p"
+		"L" "Victim_ArtifactMobster_Impact_3p_vs_1p"
+		"M" "Victim_ArtifactMobster_Impact_3p_vs_1p"
+		"N" "Victim_ArtifactMobster_Impact_3p_vs_1p"
+		"O" "Victim_ArtifactMobster_Impact_3p_vs_1p"
+		"P" "Victim_ArtifactMobster_Impact_3p_vs_1p"
+
+		"R" "Victim_ArtifactMobster_Impact_3p_vs_1p"
+		"S" "Victim_ArtifactMobster_Impact_3p_vs_1p"
+		"T" "Victim_ArtifactMobster_Impact_3p_vs_1p"
+		"U" "Victim_ArtifactMobster_Impact_3p_vs_1p"
+
+		"V" "Victim_ArtifactMobster_Impact_3p_vs_1p"
+		"W" "Victim_ArtifactMobster_Impact_3p_vs_1p"
+
+		"Y" "Victim_ArtifactMobster_Impact_3p_vs_1p"
+		"Z" "Victim_ArtifactMobster_Impact_3p_vs_1p"
+
+//		"0" "openslot"
+		"1" "Victim_ArtifactMobster_Impact_3p_vs_1p" //lava_flow
+		"2" "Victim_ArtifactMobster_Impact_3p_vs_1p" //lava_rock_hot
+//		"3" "openslot"
+//		"4" "openslot"
+		"5" "Victim_ArtifactMobster_Impact_3p_vs_1p"
+//		"6" "openslot"
+//		"7" "openslot"
+//		"8" "openslot"
+//		"9" "openslot"
+
+		"splash" "Victim_ArtifactMobster_Impact_3p_vs_1p"
+		"slime_splash" "Victim_ArtifactMobster_Impact_3p_vs_1p"
+		"holohit" "Victim_ArtifactMobster_Impact_3p_vs_1p"
+		"airburst" ""
+		"shieldhit" "Victim_ArtifactMobster_Impact_3p_vs_1p"
+		"headshot_flesh" "Victim_ArtifactMobster_Impact_3p_vs_1p"
+		"headshot_mechanical" "Victim_ArtifactMobster_Impact_3p_vs_1p"
+	}
+}

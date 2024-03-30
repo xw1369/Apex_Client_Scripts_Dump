@@ -1078,11 +1078,6 @@ void function CodeCallback_OnJetDriveWindowBegin( entity player, float windowTim
 
 
 
-		if( PlayerHasPassive( player, ePassives.PAS_REVENANT_REWORK ) )
-			return
-
-
-
 		if ( InPrediction() && IsFirstTimePredicted() )
 		{
 			if ( player == GetLocalViewPlayer() )

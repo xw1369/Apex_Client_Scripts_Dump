@@ -225,10 +225,8 @@ global enum eDamageSourceId
 	melee_horizon_heirloom
 	mp_weapon_horizon_heirloom_primary
 
-
 	melee_revenant_scythe_rt01
 	mp_weapon_revenant_scythe_rt01
-
 
 
 	melee_fuse_heirloom
@@ -313,6 +311,10 @@ global enum eDamageSourceId
 
 
 	mp_ability_conduit_shield_mines
+
+
+
+
 
 
 
@@ -522,12 +524,16 @@ global enum eDamageSourceId
 
 
 
+
+
 	mp_ability_shield_throw
 	mp_ability_armored_leap
 	mp_ability_castle_wall
 	mp_ability_sniper_ult
 	mp_weapon_ferro_wall
 	mp_ability_spike_strip
+
+
 
 
 
@@ -589,10 +595,6 @@ global enum eDamageSourceId
 
 
 
-	mp_ability_self_destruct
-	mp_ability_fire_wave
-
-
 	mp_ability_copycat_kit
 	mp_ability_copycat_kit_bloodhound_sonar
 	mp_ability_copycat_kit_horizon_elevator
@@ -615,8 +617,8 @@ global enum eDamageSourceId
 
 
 
-
-
+	melee_artifact_dagger
+	mp_weapon_artifact_dagger_primary
 
 
 
@@ -632,6 +634,11 @@ global enum eDamageSourceId
 
 	melee_octane_knife_rt01
 	mp_weapon_octane_knife_rt01_primary
+
+
+
+
+
 
 
 
@@ -724,8 +731,8 @@ void function DamageTypes_Init()
 			[ eDamageSourceId.spider_melee ] = "#DEATH_SPIDER_MELEE",
 			[ eDamageSourceId.spider_ranged ] = "#DEATH_SPIDER_RANGED",
 
-		[ eDamageSourceId.nessie_hug ] = "#GOLDEN_HORSE_NESSIE_TITLE",
-		[ eDamageSourceId.nessie_kiss ] = "#GOLDEN_HORSE_NESSIE_TITLE",
+		[ eDamageSourceId.nessie_hug ] = "#BABY_NESSIE_TITLE",
+		[ eDamageSourceId.nessie_kiss ] = "#BABY_NESSIE_TITLE",
 		[ eDamageSourceId.super_spectre_melee ] = "#DEATH_SUPER_SPECTRE",
 		[ eDamageSourceId.grunt_melee ] = "#DEATH_GRUNT_MELEE",
 
@@ -863,10 +870,8 @@ void function DamageTypes_Init()
 		[ eDamageSourceId.melee_horizon_heirloom ] = "#DEATH_MELEE_HORIZON_HEIRLOOM",
 		[ eDamageSourceId.mp_weapon_horizon_heirloom_primary] = "#DEATH_MELEE_HORIZON_HEIRLOOM",
 
-
-			[ eDamageSourceId.melee_revenant_scythe_rt01 ] = "#DEATH_MELEE_REVENANT_SCYTHE_RT01",
-			[ eDamageSourceId.mp_weapon_revenant_scythe_rt01] = "#DEATH_MELEE_REVENANT_SCYTHE_RT01",
-
+		[ eDamageSourceId.melee_revenant_scythe_rt01 ] = "#DEATH_MELEE_REVENANT_SCYTHE_RT01",
+		[ eDamageSourceId.mp_weapon_revenant_scythe_rt01] = "#DEATH_MELEE_REVENANT_SCYTHE_RT01",
 
 
 			[ eDamageSourceId.melee_fuse_heirloom ] = "#DEATH_MELEE_FUSE_HEIRLOOM",
@@ -957,8 +962,8 @@ void function DamageTypes_Init()
 
 
 
-
-
+			[ eDamageSourceId.melee_artifact_dagger] = "#DEATH_MELEE_ARTIFACT_DAGGER",
+			[ eDamageSourceId.mp_weapon_artifact_dagger_primary] = "#DEATH_MELEE_ARTIFACT_DAGGER",
 
 	}
 

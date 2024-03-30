@@ -6,7 +6,6 @@ global function OnWeaponDeactivate_melee_revenant_scythe
 const REV_SCY_FX_ATTACK_SWIPE_FP = $"P_scy_blade_swipe_FP"
 const REV_SCY_FX_ATTACK_SWIPE_3P = $"P_scy_blade_swipe_3P"
 
-
 const string ANIM_MELEE_SPRINT_SPIN = $"animseq/weapons/revenant_heirloom/ptpov_revenant_heirloom/melee_sprint_spin.rseq"
 const string ANIM_MELEE_SLIDE = $"animseq/weapons/revenant_heirloom/ptpov_revenant_heirloom/melee_sliding.rseq"
 const string ANIM_MELEE_JUMP = $"animseq/weapons/revenant_heirloom/ptpov_revenant_heirloom/melee_jump.rseq"
@@ -23,18 +22,13 @@ const REV_SCY_RT01_FX_ATTACK_SWIPE_SLIDE_3P = $"P_scy_rt01_blade_swipe_3p"
 const REV_SCY_RT01_FX_ATTACK_SWIPE_JUMP_1P = $"P_scy_rt01_blade_swipe_1p"
 const REV_SCY_RT01_FX_ATTACK_SWIPE_JUMP_3P = $"P_scy_rt01_blade_swipe_3p"
 
-
-
 void function MeleeRevenantScythe_Init()
 {
 	PrecacheParticleSystem( REV_SCY_FX_ATTACK_SWIPE_FP )
 	PrecacheParticleSystem( REV_SCY_FX_ATTACK_SWIPE_3P )
 
-
 	PrecacheParticleSystem( REV_SCY_RT01_FX_ATTACK_SWIPE_1P )
 	PrecacheParticleSystem( REV_SCY_RT01_FX_ATTACK_SWIPE_3P )
-
-
 }
 
 
@@ -49,7 +43,6 @@ void function OnWeaponActivate_melee_revenant_scythe( entity weapon )
 	{
 		weapon.PlayWeaponEffect( REV_SCY_FX_ATTACK_SWIPE_FP, REV_SCY_FX_ATTACK_SWIPE_3P, "blade_base_fx" )
 	}
-
 	else if ( meleeSkinName == "scythe_rt01" )
 	{
 		switch( seqName )
@@ -71,7 +64,6 @@ void function OnWeaponActivate_melee_revenant_scythe( entity weapon )
 		}
 	}
 
-
 }
 
 void function OnWeaponDeactivate_melee_revenant_scythe( entity weapon )
@@ -84,7 +76,6 @@ void function OnWeaponDeactivate_melee_revenant_scythe( entity weapon )
 	{
 		weapon.StopWeaponEffect( REV_SCY_FX_ATTACK_SWIPE_FP, REV_SCY_FX_ATTACK_SWIPE_3P )
 	}
-
 	else if ( meleeSkinName == "scythe_rt01" )
 	{
 		switch( seqName )
@@ -105,5 +96,4 @@ void function OnWeaponDeactivate_melee_revenant_scythe( entity weapon )
 				weapon.StopWeaponEffect( REV_SCY_RT01_FX_ATTACK_SWIPE_1P, REV_SCY_RT01_FX_ATTACK_SWIPE_3P )
 		}
 	}
-
 }

@@ -15,6 +15,7 @@ global function LootGoesInPack
 global function SetupSurvivalLoot
 global function SURVIVAL_Loot_QuickSwap
 global function SURVIVAL_Loot_UpdateRuiLastUseTime
+global function SURVIVAL_Loot_GetUniqueWeaponNames
 
 global function PlayLootPickupFeedbackFX
 
@@ -646,14 +647,47 @@ string function DeathBoxTextOverride( entity ent )
 
 	string hint = "#DEATHBOX_HINT_NAME"
 
-
-	if ( IsEnemyTeam( team, localViewPlayer.GetTeam() ) )
+	bool isEnemyTeam = IsEnemyTeam( team, localViewPlayer.GetTeam() )
+	if ( isEnemyTeam )
 		hint = "#DEATHBOX_HINT_ENEMY"
+
+
+
+
+
+
+
+
+
+
+
 
 	string localizedHint = Localize( hint, playerName )
 
 	if ( DeathboxNetwork_CanPlayerUse( localViewPlayer, ent ) )
 		localizedHint = Localize( "#PAS_ASH_ADDITIONAL_USE_PROMPT" ) + "\n" + localizedHint
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1517,14 +1551,7 @@ void function UpdateLootRuiWithData( entity player, var rui, LootData data, int 
 					}
 				}
 
-				array<string> uniqueNames
-				foreach ( index, weaponRef in attachmentTagData.weaponRefs )
-				{
-					string weaponName = GetWeaponInfoFileKeyField_GlobalString( weaponRef, "shortprintname" )
-					if ( uniqueNames.contains( weaponName ) )
-						continue
-					uniqueNames.append( weaponName )
-				}
+				array<string> uniqueNames = SURVIVAL_Loot_GetUniqueWeaponNames( attachmentTagData.weaponRefs )
 
 				for ( int i = 0; i < uniqueNames.len(); ++i )
 				{
@@ -1622,6 +1649,23 @@ void function UpdateLootRuiWithData( entity player, var rui, LootData data, int 
 		(s_customItemPromptUpdateCallbacks[data.ref])( player, rui, data, lootContext, lootRef, isInMenu )
 }
 
+
+array<string> function SURVIVAL_Loot_GetUniqueWeaponNames( array<string> weaponRefs )
+{
+	array<string> uniqueNames
+	foreach ( index, weaponRef in weaponRefs )
+	{
+		string baseWeapon = Weapon_GetBaseClassNameOrEmpty( weaponRef )
+		if ( baseWeapon != "" )
+			continue
+
+		string weaponName = GetWeaponInfoFileKeyField_GlobalString( weaponRef, "shortprintname" )
+		if ( uniqueNames.contains( weaponName ) )
+			continue
+		uniqueNames.append( weaponName )
+	}
+	return uniqueNames
+}
 
 bool function AttachesToAllWeaponsOfAmmoType( string attachmentRef )
 {

@@ -180,10 +180,22 @@ void function DeathBoxInsight_CreateInWorldMarker()
 	entity localViewPlayer = GetLocalViewPlayer()
 	var rui                = CreateFullscreenRui( $"ui/death_box_insight_icon.rpak", RuiCalculateDistanceSortKey( localViewPlayer.EyePosition(), <0,0,0> ) )
 
-	RuiSetFloat( rui, "minAlphaDist", 500 )
-	RuiSetFloat( rui, "maxAlphaDist", 1000 )
+
+
+
+
+
+
+
+
+	{
+		RuiSetFloat( rui, "minAlphaDist", 500 )
+		RuiSetFloat( rui, "maxAlphaDist", 1000 )
+	}
 	RuiSetFloat( rui, "upOffset", ICON_UP_OFFSET )
 
+	UISize screenSize = GetVirtualScreenSize( GetScreenSize().width, GetScreenSize().height )
+	RuiSetFloat2( rui, "actualRes", <float( screenSize.width ), float( screenSize.height ), 0> )
 	RuiSetGameTime( rui, "startTime", Time() )
 	RuiKeepSortKeyUpdated( rui, true, "pos" )
 	file.deathboxRui = rui
@@ -292,7 +304,17 @@ bool function DeathBoxInsight_UpdateLookatPing()
 	vector rightVector = player.GetViewRight()
 	array<entity> allBoxes = GetAllDeathBoxes()
 
-	array<entity> candidateBoxes = GetEntitiesFromArrayNearPos( allBoxes, playerEyePos, MAX_VISIBLE_DISTANCE )
+	float maxVisibleDist = MAX_VISIBLE_DISTANCE
+
+
+
+
+
+
+
+
+	array<entity> candidateBoxes = GetEntitiesFromArrayNearPos( allBoxes, playerEyePos, maxVisibleDist )
+	ArrayRemoveInvalid( candidateBoxes )
 	entity lookatEnt = null
 	int lookatIndex = -1
 	float pingDot = deg_cos( PING_DEGREES )
@@ -302,7 +324,7 @@ bool function DeathBoxInsight_UpdateLookatPing()
 	float bestBoxDistance
 	vector bestBoxOrigin
 
-	array<entity> enemies = GetPlayerArrayEx( TEAM_ANY, player.GetTeam(), playerEyePos, MAX_VISIBLE_DISTANCE )
+	array<entity> enemies = GetPlayerArrayEx( TEAM_ANY, player.GetTeam(), playerEyePos, maxVisibleDist )
 	bool enemyInView = false
 	foreach( entity enemy in enemies )
 	{
@@ -347,10 +369,23 @@ bool function DeathBoxInsight_UpdateLookatPing()
 			if( centerDotProduct < lookatDot || centerDotProduct < bestDot )
 				continue
 
-			
-			TraceResults trace = TraceLine( playerEyePos, box.GetWorldSpaceCenter(), null, TRACE_MASK_BLOCKLOS, TRACE_COLLISION_GROUP_NONE )
-			if ( !( trace.hitEnt == box || trace.fraction >= 0.99 ) )
-				continue
+
+
+
+
+
+
+
+
+
+
+
+			{
+				
+				TraceResults trace = TraceLine( playerEyePos, box.GetWorldSpaceCenter(), null, TRACE_MASK_BLOCKLOS, TRACE_COLLISION_GROUP_NONE )
+				if ( !( trace.hitEnt == box || trace.fraction >= 0.99 ) )
+					continue
+			}
 
 			bestDot = centerDotProduct
 			lookatEnt = box
@@ -398,6 +433,7 @@ bool function DeathBoxInsight_UpdateLookatPing()
 	}
 	
 	int lookatLootIndex = -1
+
 	if( file.currentLookat != null && DistanceSqr( playerEyePos, bestBoxOrigin ) < MAX_PING_DISTANCE * MAX_PING_DISTANCE && Perks_GetPerkPingInfo().ent == null )
 	{
 		float dist = Distance( playerEyePos, bestBoxOrigin )

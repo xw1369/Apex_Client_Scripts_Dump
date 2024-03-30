@@ -47,15 +47,6 @@ const float RUI_MAX_RANGE_UPGRADED_AMOUNT = 10.0
 
 const bool FORCE_TELEPORT_FAIL = false
 
-IntSet fallTriggerDamageSourceIdSet = {
-	[eDamageSourceId.fall] = IN_SET,
-	[eDamageSourceId.splat] = IN_SET,
-	[eDamageSourceId.submerged] = IN_SET,
-	[eDamageSourceId.turbine] = IN_SET,
-	[eDamageSourceId.lasergrid] = IN_SET,
-	[eDamageSourceId.damagedef_crush] = IN_SET,
-}
-
 
 
 

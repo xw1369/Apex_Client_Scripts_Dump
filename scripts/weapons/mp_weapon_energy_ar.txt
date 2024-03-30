@@ -1,10 +1,6 @@
 #base "_base_assault_rifle.txt"
 #base "_base_mags_energy.txt"
 
-                    
-#base "_base_hopup_golden_horse_red.txt"
-      
-
 WeaponData
 {
 	// General
@@ -293,6 +289,14 @@ WeaponData
 
 	Mods
 	{
+                     
+                   
+   
+                                                 
+                                                       
+   
+        
+
                         
                         
    

@@ -551,6 +551,22 @@ void function UpdateHudDataForMainWeapons( entity player, entity selectedWeapon 
 			activeWeaponTab = 1
 		}
 	}
+	else if ( player.Weapon_GetAllowHudSelectionWhileWeaponsDisabled() )
+	{
+		
+		if (  IsValid( weaponInSlot0 ) && player.GetLastCycleSlot() == 0 )
+		{
+			InitWeaponRuiTracks( rui, player, weaponInSlot0 )
+			isMainWeaponSelected = activeWeapon == weaponInSlot0 && selectedWeapon == null
+			activeWeaponTab = 0
+		}
+		else if (  IsValid( weaponInSlot1 ) && player.GetLastCycleSlot() == 1 )
+		{
+			InitWeaponRuiTracks( rui, player, weaponInSlot1 )
+			isMainWeaponSelected = activeWeapon == weaponInSlot1 && selectedWeapon == null
+			activeWeaponTab = 1
+		}
+	}
 	else
 	{
 		
@@ -1291,19 +1307,6 @@ void function PrimaryWeapon_UpdateFireSelectHUD( entity weapon )
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
 	else if ( weapon.HasMod( "hopup_energy_choke" ) )
 	 {
 		 if ( weapon.HasMod( "choke" ) )
@@ -1582,6 +1585,12 @@ bool function WeaponHasFireModeSelect( entity weapon )
 		return true
 	else if ( DoesModExist( weapon, "alt_ammo" ) ) 
 		return true
+
+
+
+
+
+
 	return false
 }
 
@@ -1682,6 +1691,16 @@ int function GetWeaponCurrentFireModeIndex( entity weapon )
 		else
 			return 0
 	}
+
+
+
+
+
+
+
+
+
+
 	return 0
 }
 
@@ -1907,7 +1926,20 @@ void function WeaponStatusSetWeaponInspect( bool inspect )
 
 	array<var> additionalWeaponInspectRuis
 	additionalWeaponInspectRuis.append( GetCryptoAnimatedTacticalRui() )
-	
+
+	foreach ( unitFrame in GetTeamUnitFrames() )
+	{
+		additionalWeaponInspectRuis.append( unitFrame.rui )
+	}
+
+	foreach ( unitFrame in GetTeamJIPUnitFrames() )
+	{
+		additionalWeaponInspectRuis.append( unitFrame.rui )
+	}
+
+		if ( GunGame_IsModeEnabled() )
+			additionalWeaponInspectRuis.append( GunGame_GetHUDRui() )
+
 
 	additionalWeaponInspectRuis.append( GetVantageTacticalRui() )
 	additionalWeaponInspectRuis.append( GetSlingPassiveRui() )

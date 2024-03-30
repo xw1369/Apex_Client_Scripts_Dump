@@ -52,6 +52,10 @@ const string SOUND_PORTAL_TRAVEL_3P_BREACH = "Ash_PhaseBreach_Travel_3p"
 
 
 
+
+
+
+
 global const string PHASETUNNEL_BLOCKER_SCRIPTNAME = "phase_tunnel_blocker"
 global const string PHASETUNNEL_PRE_BLOCKER_SCRIPTNAME = "pre_phase_tunnel_blocker"
 const string PHASETUNNEL_MOVER_SCRIPTNAME = "phase_tunnel_mover"
@@ -215,6 +219,8 @@ void function MpWeaponPhaseTunnel_Init()
 	PrecacheScriptString( PHASETUNNEL_MOVER_SCRIPTNAME )
 	PrecacheScriptString( PHASETUNNEL_BLOCKER_SCRIPTNAME )
 	PrecacheScriptString( PHASETUNNEL_PRE_BLOCKER_SCRIPTNAME )
+
+
 
 
 
@@ -431,6 +437,63 @@ var function OnWeaponPrimaryAttack_ability_phase_tunnel( entity weapon, WeaponPr
 
 	return weapon.GetWeaponSettingInt( eWeaponVar.ammo_per_shot )
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

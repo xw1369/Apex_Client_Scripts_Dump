@@ -393,6 +393,8 @@ bool function ShouldShowObituaryLineForPlayer( entity player )
 		return false
 	if ( !IsValid( GetLocalClientPlayer() ) )
 		return false
+	if ( IsWatchingKillReplay() ) 
+		return false
 
 	int playerTeam = player.GetTeam()
 	int localTeam = GetLocalClientPlayer().GetTeam()
@@ -539,6 +541,7 @@ void function Obituary_Print_Control_Ping( string localizedPrint, bool isAllianc
 
 
 
+
 void function Obituary_Print_Control_ObjectivePing( entity subjectEnt, string localizedPrint, vector altColor1 = <255,255,255>, vector altColor2 = <255,255,255>, vector altColor3 = <255,255,255>, vector backgroundColor = <255,255,255>, float backgroundAlpha = 0.0 )
 {
 	if ( !file.obituariesEnabled )
@@ -644,8 +647,8 @@ void function Obituary_Print_Control_ObjectivePing( entity subjectEnt, string lo
 
 int function Obituary_SortControlObjectivePingsByCount( entity objectivePingA, entity objectivePingB )
 {
-	int objectiveAPingCount = Control_GetPingCountForObjectiveForAlliance( objectivePingA.GetOwner(), AllianceProximity_GetAllianceFromTeam( objectivePingA.GetTeam() ) )
-	int objectiveBPingCount = Control_GetPingCountForObjectiveForAlliance( objectivePingB.GetOwner(), AllianceProximity_GetAllianceFromTeam( objectivePingB.GetTeam() ) )
+	int objectiveAPingCount = CaptureObjectivePing_GetPingCountForObjectiveForTeamOrAlliance( objectivePingA.GetOwner(), AllianceProximity_GetAllianceFromTeam( objectivePingA.GetTeam() ) )
+	int objectiveBPingCount = CaptureObjectivePing_GetPingCountForObjectiveForTeamOrAlliance( objectivePingB.GetOwner(), AllianceProximity_GetAllianceFromTeam( objectivePingB.GetTeam() ) )
 
 	if ( objectiveAPingCount > objectiveBPingCount )
 		return -1

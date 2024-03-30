@@ -1,4 +1,3 @@
-
 global function OnWeaponActivate_ability_shadow_form
 global function OnWeaponTossReleaseAnimEvent_ability_shadow_form
 global function OnWeaponAttemptOffhandSwitch_ability_shadow_form
@@ -84,7 +83,8 @@ const float SHADOW_FORM_SHIELD_REGEN_DELAY = 1.0
 const float SHADOW_FORM_EXPIRATION_WARNING_TIME = 3.0
 const vector SHADOW_FORM_SHIELD_ORIGIN_OFFSET= < 0, 0, -5 >
 const int SHADOW_FORM_ENABLE_SHIELD_RESET = 1
-const int SHADOW_FORM_ENABLE_TAC_RESET = 1
+const int SHADOW_FORM_ENABLE_TAC_RESET = 0
+const int SHADOW_FORM_ENABLE_TAC_COOLDOWN_REDUC = 0
 const int SHADOW_FORM_ENABLE_CARRYOVER_DMG = 1
 
 const int SHADOW_FORM_CHEST_FOCUS = 1
@@ -122,6 +122,7 @@ struct
 	float shieldRegenDelay
 	bool enableShieldReset
 	bool enableTacReset
+	bool enableTacCooldownReduc
 	bool enableCarryoverDmg
 } file
 
@@ -154,6 +155,7 @@ void function MpAbilityShadowForm_Init()
 	file.shieldRegenDelay = GetCurrentPlaylistVarFloat( "revenant_shadow_form_shield_regen_delay", SHADOW_FORM_SHIELD_REGEN_DELAY )
 	file.enableShieldReset = ( GetCurrentPlaylistVarInt( "revenant_shadow_form_enable_shield_reset", SHADOW_FORM_ENABLE_SHIELD_RESET ) > 0 )
 	file.enableTacReset = ( GetCurrentPlaylistVarInt( "revenant_shadow_form_enable_tactical_reset", SHADOW_FORM_ENABLE_TAC_RESET ) > 0 )
+	file.enableTacCooldownReduc = ( GetCurrentPlaylistVarInt( "revenant_shadow_form_enable_tactical_cd_reduc", SHADOW_FORM_ENABLE_TAC_COOLDOWN_REDUC ) > 0 )
 	file.enableCarryoverDmg = ( GetCurrentPlaylistVarInt( "revenant_shadow_form_enable_carryover_dmg", SHADOW_FORM_ENABLE_CARRYOVER_DMG ) > 0 )
 
 	RegisterNetworkedVariable( SHADOW_FORM_HEALTH_NETVAR, SNDC_PLAYER_GLOBAL, SNVT_FLOAT_RANGE, 0.0, 0.0, file.shieldHealth )
@@ -582,6 +584,12 @@ void function ShadowForm_Start( entity player, entity weapon )
 
 
 
+
+
+
+
+
+
 	while( StatusEffect_HasSeverity( player, eStatusEffect.shadow_form ) )
 	{
 
@@ -593,12 +601,6 @@ void function ShadowForm_Start( entity player, entity weapon )
 		WaitFrame()
 	}
 }
-
-
-
-
-
-
 
 
 
@@ -1433,4 +1435,3 @@ void function ColorCorrection_LerpWeight( int colorCorrection, float startWeight
 	ColorCorrection_SetWeight( colorCorrection, endWeight )
 }
 
-                            

@@ -1,10 +1,6 @@
 #base "_base_sniper.txt"
 #base "_base_optics_ranged.txt"
 
-                    
-#base "_base_hopup_golden_horse_red.txt"
-      
-
 "WeaponData"
 {
 

@@ -130,25 +130,16 @@ WeaponData
             }
             seer_heartbeat_sensor_active
             {
-                "move_speed_modifier"	                        "0.667308" //This mod is only applied when heartbeat sensor is active from melee.  Calculated to match move speed with tactical being held out, (260 sprint speed * move_speed_modifier = 173.5) we need to apply this to ensure bunny hop speeds between holding tac and ADS melee are consistent since bunny hop checks only take into account move speed.
-                "zoomed_convar_sensitivity_index"                "7"
-            }
-                                
-            seer_heartbeat_sensor_upgraded
-            {
-                // this is trying to acheive normal strafe speeds while ads'd
-                // because this was setup to scale ads move speed as well as normal move speed we can't just remove the modifier we have to add a different scaler
-                // we could look into simplifying this in the future, but note that this also affects vantage's ads move speed currently
-                "move_speed_modifier"	                        "0.767384"
+                "move_speed_modifier"	                        "0.767384" //This mod is only applied when heartbeat sensor is active from melee.  Calculated to match move speed with tactical being held out, (260 sprint speed * move_speed_modifier = 173.5) we need to apply this to ensure bunny hop speeds between holding tac and ADS melee are consistent since bunny hop checks only take into account move speed.
                 "zoomed_convar_sensitivity_index"               "7"
             }
-                  
 			vantage_ads_melee
 			{
 			    "zoom_effects"                                  "1"
                 "zoom_fov"				                        "26.2756" // 3x @ 70 "38.5907" // 2x @ 70
+                "zoomed_convar_sensitivity_index"               "2"
 
-			    "ads_move_speed_scale"							"0.95"
+			    "ads_move_speed_scale"							"0.5512544"
 
 			    "sound_zoom_in"									"Vantage_Passive_UA_ZoomIn_1p"
 			    "sound_zoom_out"								"Vantage_Passive_UA_ZoomOut_1p"

@@ -101,6 +101,8 @@ global function SetCustomReadyUpVoiceLine
 
 global function CharacterSelect_Menu_ShouldOpen
 
+global function ServerToClient_SetInitialSelection
+
 const string CAMERA_ENT_NAME = "target_char_sel_camera_new"
 const string CHARACTER_ENT_NAME = "target_char_sel_pilot_new"
 const string BACKGROUND_ENT_NAME = "target_char_sel_bg_new"
@@ -327,6 +329,9 @@ struct FileLevelStruct
 
 		string customVoiceLine = ""
 
+		bool hasSetEligible = false
+		var preFocusedButton = null
+
 }
 
 struct CharacterLists {
@@ -461,6 +466,8 @@ void function CharacterSelectMenu_Init()
 	Remote_RegisterServerFunction( "ClientCallback_UpdateCharacterSelectFocus", "int", INT_MIN, INT_MAX, "int", INT_MIN, INT_MAX )
 	Remote_RegisterServerFunction( REMOTE_SERVERCALL_ON_RESELECT_MENU_OPEN )
 	Remote_RegisterServerFunction( REMOTE_SERVERCALL_ON_RESELECT_MENU_CLOSE )
+
+	Remote_RegisterClientFunction( "ServerToClient_SetInitialSelection", "int", INT_MIN, INT_MAX )
 
 
 
@@ -2742,11 +2749,53 @@ void function UpdateForFocusOnButtonIndex( int buttonIndex )
 	Signal( fileLevel.signalDummy, "UpdateScene" )
 }
 
+void function ServerToClient_SetInitialSelection( int characterGUID )
+{
+	ItemFlavor startCharacter = GetItemFlavorByGUID( characterGUID )
+
+	int characterButtonIndex = -1
+	foreach( index, character in fileLevel.buttonIndexCharacterMap )
+	{
+		if ( ItemFlavor_GetCharacterRef( character ) == ItemFlavor_GetCharacterRef( startCharacter ) )
+		{
+			characterButtonIndex = index
+		}
+	}
+
+	if ( characterButtonIndex != -1 )
+	{
+		var button = fileLevel.characterButtons[characterButtonIndex]
+		Hud_SetFocused( button )
+		SetLoadoutButtonFocused( button )
+		fileLevel.preFocusedButton = button
+	}
+}
+
 void function OnLoadoutButton_Focused( var button )
 {
 	if ( fileLevel.isBrowseMode && ((Time() - fileLevel.isBrowseModeStartTime) < 0.1) )
 		return
 
+	SetLoadoutButtonFocused( button )
+
+	if ( !fileLevel.hasSetEligible && (Time() - fileLevel.isBrowseModeStartTime) > 0.25 ) 
+	{
+
+			if ( fileLevel.preFocusedButton != null )
+			{
+				OnLoadoutButton_LostFocus( fileLevel.preFocusedButton )
+				fileLevel.preFocusedButton = null
+			}
+
+
+		Remote_ServerCallFunction( "ClientCommand_Sur_MakeEligibleForJumpMaster" )
+		fileLevel.hasSetEligible = true
+	}
+}
+
+
+void function SetLoadoutButtonFocused( var button )
+{
 	int index = fileLevel.characterButtons.find( button )
 	if ( index >= 0 && index != fileLevel.currentCharacterIndex )
 	{
@@ -2757,20 +2806,19 @@ void function OnLoadoutButton_Focused( var button )
 	if (!GetLocalClientPlayer().GetPlayerNetBool( CHARACTER_SELECT_NETVAR_HAS_LOCKED_IN_CHARACTER ))
 	{
 #if PC_PROG_NX_UI
-		if ( IsNxHandheldMode() )
-		{
-			Hud_SetZ( button, 700 )
-			Hud_ScaleOverTime( button, 1.85, 1.85,0.1, INTERPOLATOR_DEACCEL )
-		}
-		else
-		{
-			Hud_ScaleOverTime( button, 1.15, 1.15,0.1, INTERPOLATOR_DEACCEL )
-		}
+			if ( IsNxHandheldMode() )
+			{
+				Hud_SetZ( button, 700 )
+				Hud_ScaleOverTime( button, 1.85, 1.85,0.1, INTERPOLATOR_DEACCEL )
+			}
+			else
+			{
+				Hud_ScaleOverTime( button, 1.15, 1.15,0.1, INTERPOLATOR_DEACCEL )
+			}
 #else
-		Hud_ScaleOverTime( button, 1.15, 1.15,0.1, INTERPOLATOR_DEACCEL )
+			Hud_ScaleOverTime( button, 1.15, 1.15,0.1, INTERPOLATOR_DEACCEL )
 #endif
 	}
-
 
 }
 
@@ -2783,7 +2831,7 @@ void function OnLoadoutButton_LostFocus( var button )
 	
 		Hud_ReturnToBaseScaleOverTime( button, 0.1, INTERPOLATOR_DEACCEL )
 #if PC_PROG_NX_UI
-		if ( IsNxHandheldMode() )	
+		if ( IsNxHandheldMode() )
 		{
 			Hud_SetZ( button, 1 )
 		}
@@ -2904,8 +2952,11 @@ void function LockCharacter()
 
 	thread FlashScreenWhite( 0.1, 0.3 )
 
-	
-	Remote_ServerCallFunction( "ClientCommand_Sur_MakeEligibleForJumpMaster" )
+	if ( !fileLevel.hasSetEligible )
+	{
+		Remote_ServerCallFunction( "ClientCommand_Sur_MakeEligibleForJumpMaster" )
+		fileLevel.hasSetEligible = true
+	}
 }
 
 void function Client_TryUnlockCharacter()
@@ -3417,7 +3468,7 @@ void function UpdateButtonStates()
 
 			RuiSetInt( playerRui, "playerTeamColorIndex", player.GetTeamMemberIndex() )
 
-			bool isJumpmaster = IsPlayerJumpMaster( player )
+			bool isJumpmaster = false 
 
 			if ( !(i in fileLevel.connectedPlayerNames) )
 			{

@@ -286,10 +286,10 @@ string function RewardCampaign_GetUnlockedLegendTooltipTitle( ItemFlavor event )
 	return GetGlobalSettingsString( ItemFlavor_GetAsset( event ), "tempUnlockCampaignTooltipTitle" )
 }
 
-string function RewardCampaign_GetUnlockedLegendTooltipDesc( ItemFlavor event )
+string function RewardCampaign_GetUnlockedLegendTooltipDesc( ItemFlavor event, bool isOwned )
 {
 	Assert( ItemFlavor_GetType( event ) == eItemType.calevent_reward_campaign )
-	return GetGlobalSettingsString( ItemFlavor_GetAsset( event ), "tempUnlockCampaignTooltipDesc" )
+	return isOwned ? GetGlobalSettingsString( ItemFlavor_GetAsset( event ), "tempUnlockCampaignTooltipDescOwned" ) : GetGlobalSettingsString( ItemFlavor_GetAsset( event ), "tempUnlockCampaignTooltipDesc" )
 }
 
 array<RewardCampaignTutorialData> function RewardCampaign_GetTutorialData( ItemFlavor event )

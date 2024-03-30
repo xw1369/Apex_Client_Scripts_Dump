@@ -133,6 +133,7 @@ void function SV_CL_Init()
 	ShSkydiveTrails_LevelInit()
 	ShPassives_Init()
 	ShCharacterAbilities_LevelInit()
+	InitAbilityScripts()
 
 		Perks_Init()
 		Perk_BeaconScan_Init()
@@ -206,12 +207,8 @@ void function SV_CL_Init()
 	ShMusic_LevelInit()
 	ShBattlePass_LevelInit()
 
+	ShCups_LevelInit()
 
-
-	PassiveMedic_Init()
-	ShLobaPassiveEyeForQuality_LevelInit()
-	LobaTacticalTranslocation_LevelInit()
-	LobaUltimateBlackMarket_LevelInit()
 
 	VendingMachine_LevelInit()
 
@@ -219,8 +216,6 @@ void function SV_CL_Init()
 
 
 
-	PassiveGrenadier_Init()
-	PassiveReinforce_Init()
 
 
 
@@ -239,12 +234,15 @@ void function SV_CL_Init()
 	MeleeShared_Init()
 	MeleeSyncedShared_Init()
 
+		ShArtifacts_LevelInit()
 
 
+	AllianceProximity_Init()
 	ShPing_Init()
 	ShQuickchat_Init()
 	ShChallenges_LevelInit_PreStats()
 	Sh_Challenge_Sets_Init()
+	AutogenStats_Init()
 
 	Sh_Kepler_Init()
 
@@ -258,7 +256,7 @@ void function SV_CL_Init()
 	ShStats_LevelInit()
 	ShChallenges_LevelInit_PostStats()
 
-
+		ShCups_LevelInit_PostStats()
 
 	Sh_Ranked_Init() 
 
@@ -293,20 +291,13 @@ void function SV_CL_Init()
 	ShFRC_Bow_Init()
 	ShFRC_p2020_Init()
 	PanicButton_Init()
-	ShGas_Init()
-	ShResin_Init()
 
 
 
 
-
-
-	ShShellShock_Init()
 	ShCarePackage_Init()
 	ShIncapShield_Init()
 	ShWeaponInspect_Init()
-	Sh_JumpPad_Init()
-	MpSpaceElevator_Init()
 	Consumable_Init()
 
 		ShWarpGates_Init()
@@ -425,6 +416,10 @@ void function SV_CL_Init()
 
 
 
+
+
+
+
 	Nessie_Init()
 
 
@@ -440,102 +435,8 @@ void function SV_CL_Init()
 
 
 	ShTutorial_Init()
-	Sh_PassiveVoices_Init()
-	ShPassiveWarlordsIre_Init()
-
-
-
-
-
-	ShPassiveSling_Init()
-
-
-		ShPassiveConduit_Init()
-
-
-
-		ExtraShields_Init()
-
-		ShPassiveUpgradeCore_Init()
-		ShPassiveTacCooldownExtra_Init()
-		ShPassiveExplosiveSpeedBoost_Init()
-		ShPassiveAirborneHealthRegen_Init()
-		ShPassiveBoostedHealthRegen_Init()
-		ShPassiveSquadwipeSquadCount_Init()
-		ShPassiveKnockShotgunAutoReload_Init()
-		ShPassiveZiplineShield_Init()
-		PhysicalOvershield_Init()
-		ShPassiveKnockTacReset_Init()
-
-		UpgradedClusterMissile_Init()
-		UpgradedJets_Init()
-
-		
-
-		UpgradeSelectionMenu_Init()
-
 
 	SURVIVAL_EquipmentSlot_InitShared()
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -574,9 +475,6 @@ void function SV_CL_Init()
 		HoverVehicle_Init()
 
 
-	PassiveGunner_Init()
-	PassiveOctane_Init()
-
 
 		ShGameModeExplore_Init()
 
@@ -589,7 +487,8 @@ void function SV_CL_Init()
 
 
 
-	PassiveHeartbeatSensor_Init()
+
+
 
 
 
@@ -626,7 +525,6 @@ void function SV_CL_Init()
 		ControlGunRackPanels_Init()
 
 
-	AllianceProximity_Init()
 	LoadoutSelection_Init()
 
 
@@ -634,7 +532,15 @@ void function SV_CL_Init()
 
 
 
+		AprilFools_S12_Mode_Init()
 
+
+
+		AprilFools_S16_Init()
+
+
+
+		AprilFools_S20_Init()
 
 
 
@@ -754,9 +660,19 @@ void function SV_CL_Init()
 
 
 	Odl_SmokeTestInit()
+	PerfMetrics_SmokeTestInit()
 
 	ThunderdomeSkull_Init()
+
+#if DEV
+		SpawnDebugger_Init()
+#endif
 }
+
+
+
+
+
 
 
 
@@ -1193,7 +1109,7 @@ void function Shared_Lobby_Init()
 	ShMusic_LevelInit()
 	ShBattlePass_LevelInit()
 
-
+	ShCups_LevelInit()
 
 
 
@@ -1207,12 +1123,13 @@ void function Shared_Lobby_Init()
 	MeleeShared_Init()
 	MeleeSyncedShared_Init()
 
-
+		ShArtifacts_LevelInit()
 
 	ShPing_Init()
 	ShQuickchat_Init()
 	ShChallenges_LevelInit_PreStats()
 	Sh_Challenge_Sets_Init()
+	AutogenStats_Init()
 
 
 
@@ -1230,7 +1147,7 @@ void function Shared_Lobby_Init()
 	ShStats_LevelInit()
 	ShChallenges_LevelInit_PostStats()
 
-
+		ShCups_LevelInit_PostStats()
 
 	Sh_Ranked_Init() 
 
@@ -1277,9 +1194,6 @@ void function Shared_Lobby_Init()
 
 
 	Sh_Mastery_Init()
-
-	
-	AcidWraith_SharedInit()
 }
 
 

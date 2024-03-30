@@ -627,6 +627,11 @@ float function AreaSonarScan_GetConeFOV()
 
 
 
+
+
+
+
+
 void function CreateViemodelSonarFlash( entity ent )
 {
 	EndSignal( ent, "OnDestroy" )

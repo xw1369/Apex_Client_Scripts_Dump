@@ -792,6 +792,7 @@ void function ClInitPathTTRingTVEntities()
 
 
 
+
 void function Cl_PathTT_MonitorIsPlayerInBoxingRing( entity trigger )
 {
 	entity player = GetLocalViewPlayer()
@@ -1013,6 +1014,22 @@ void function OnIsCrowdActiveChanged( entity player, bool new )
 		ambient.SetEnabled( new )
 	}
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

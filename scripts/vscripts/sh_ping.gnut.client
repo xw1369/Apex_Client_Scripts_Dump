@@ -18,6 +18,15 @@ global function MapPing_DistanceCheck_GetDistanceRange
 
 
 
+global function CaptureObjectivePing_IsUsingCaptureObjectivePings
+global function CaptureObjectivePing_GetObjectiveNameStringsArray
+global function CaptureObjectivePing_GetObjectiveIndexFromWaypoint
+global function CaptureObjectivePing_AddCallback_SetGetCaptureObjectiveIDFromWaypointFunction
+global function CaptureObjectivePing_AddCallback_SetIsCaptureObjectivePingObjectiveWaypoint
+global function CaptureObjectivePing_GetStarterPingsArray
+global function CaptureObjectivePing_GetPingCountForObjectiveForTeamOrAlliance
+
+
 
 global function DoubleTapEnemyPingEnabled
 global function Ping_SetMapWaypoint
@@ -30,9 +39,6 @@ global function Ping_GetSortModifier
 global function Ping_ExecutePendingNewPingWithOverride
 global function Ping_GetPendingNewPingTargetEnt
 global function Send_PingLoot
-
-global function Ping_SetControlObjective
-
 
 
 global function IsUpdatedCommsMenuActive
@@ -76,11 +82,27 @@ global function TryOnscreenPromptFunction
 global function AddCallback_OnPingSpawnRequest
 
 
+global function CaptureObjectivePing_GetObjectiveNameFromObjectiveID_Localized
+global function CaptureObjectivePing_AddCallback_SetIsCaptureObjectivePingCommsActionFunction
+global function CaptureObjectivePing_GetIsCaptureObjectivePingCommsAction
+global function ServerCallback_CaptureObjectivePing_UpdateLastPingedObjective
+global function ServerCallback_CaptureObjectivePing_UpdateObjectivePingCounts
+global function ServerCallback_CaptureObjectivePing_UpdateObjectivePingText
+global function CaptureObjectivePing_SetObjectivePing
+global function CaptureObjectivePing_AddCallback_SetGetObjectivesArrayFunction
+global function CaptureObjectivePing_GetLastPingedObjective
+global function CaptureObjectivePing_AddCallback_OnObjectivePingCoundChanged
+
+
 
 
 #if DEV
 global function DEV_PingAllLoot_Client
 #endif
+
+
+
+
 
 
 
@@ -437,10 +459,8 @@ global enum ePingType
 
 
 	NON_PINGABLE_SPAWN_LOCATION,
-
-		CONTROL_OBJECTIVE_DEFEND,
-		CONTROL_OBJECTIVE_ATTACK,
-
+	PING_CAPTURE_OBJECTIVE_DEFEND,
+	PING_CAPTURE_OBJECTIVE_ATTACK,
 
 
 		ENEMY_HEALING_HEALTH,
@@ -584,6 +604,9 @@ global enum ePingType
 		ENEMY_POI,
 
 
+		MULTI_ENEMY_POI,
+
+
 	_count
 }
 
@@ -626,10 +649,8 @@ global enum ePingReply
 	RECOVER_DEATHBOX,
 
 
-
-	CONTROL_OBJECTIVE_ACTION_DEFEND,
-	CONTROL_OBJECTIVE_ACTION_ATTACK,
-
+	CAPTURE_OBJECTIVE_PING_DEFEND,
+	CAPTURE_OBJECTIVE_PING_ATTACK,
 
 
 	CAREPACKAGE_INSIGHT_REPLY,
@@ -645,6 +666,28 @@ global enum ePingReply
 
 	_count
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -721,10 +764,25 @@ struct
 
 		array< void functionref( entity, entity ) > spawnWPFunctionCallbacks
 
+		
+		bool functionref( int, entity ) getIsCommsActionForCaptureObjectivePingFunction
+		array < void functionref( entity, int, int ) > onObjectivePingCountChangedCallbackFunctions
+		array < entity > functionref() getCaptureObjectivesArrayFunction
+		entity	lastLocalCaptureObjectivePing
 
 
 
 
+
+
+
+
+
+	
+	int functionref( entity ) getCaptureObjectiveIDFromWaypointFunction
+	bool functionref( entity ) getIsCaptureObjectivePingObjectiveWPFunction
+	array < table< entity, int > > objectiveToCaptureObjectivePingCountTableArray 
+	array<entity> captureObjectivePingStarterPings
 
 	bool devPrintsOn = false
 } file
@@ -758,9 +816,6 @@ const string CMDNAME_PING_NEW_LOOT_GRABBER = "ClientCallback_PingNewLootGrabber"
 const string CMDNAME_PING_NEW_LOOT_OUTSIDE_DEATHBOX = "ClientCallback_PingNewLootOutsideDeathbox"
 const string CMDNAME_PING_REPLY = "ClientCallback_PingReply"
 const string CMDNAME_CANCEL_PING_BY_TICKETID = "ClientCallback_CancelPingByTicketID"
-
-const string CMDNAME_PING_CONTROL_OBJECTIVE = "ClientCallback_PingControlObjective"
-
 
 const string IMC_ARMORY_PROXY_NAME = "mdl/tropics/spectre_shack_01_proxy.rmdl"
 global const string IMC_ARMORY_PANEL_SCRIPTNAME = "spectreshack_control_v4"
@@ -911,8 +966,23 @@ void function ShPing_Init()
 		Remote_RegisterServerFunction( CMDNAME_PING_REPLY, "typed_entity", "player_waypoint", "int", INT_MIN, INT_MAX )
 		Remote_RegisterServerFunction( CMDNAME_CANCEL_PING_BY_TICKETID, "int", INT_MIN, INT_MAX )
 
-			Remote_RegisterServerFunction( CMDNAME_PING_CONTROL_OBJECTIVE, "typed_entity", "player_waypoint" )
-
+		
+		if ( CaptureObjectivePing_IsUsingCaptureObjectivePings() )
+		{
+			bool isUsingAlliances = AllianceProximity_IsUsingAlliances()
+			int maxNumAlliances = AllianceProximity_GetMaxNumAlliances()
+			int pingCountMax = isUsingAlliances ? AllianceProximity_GetMaxNumPlayersPerAlliance() + 1 : GetExpectedSquadSize() + 1
+			int firstTeamOrAllianceIndex = isUsingAlliances ? ALLIANCE_A : TEAM_MULTITEAM_FIRST
+			int teamOrAllianceIndexMax = isUsingAlliances ? ALLIANCE_A + maxNumAlliances : TEAM_MULTITEAM_FIRST + MAX_TEAMS
+			Remote_RegisterClientFunction( "ServerCallback_CaptureObjectivePing_UpdateLastPingedObjective", "entity", "entity", "entity", "bool" )
+			Remote_RegisterClientFunction( "ServerCallback_CaptureObjectivePing_UpdateObjectivePingCounts", "entity", "int", firstTeamOrAllianceIndex, teamOrAllianceIndexMax, "int", 0, pingCountMax )
+			Remote_RegisterClientFunction( "ServerCallback_CaptureObjectivePing_UpdateObjectivePingText", "entity", "int", 0, ePingType._count, "int", 0, pingCountMax, "bool" )
+			Remote_RegisterServerFunction( "ClientCallback_CaptureObjectivePing_PingObjective", "typed_entity", "player_waypoint" )
+			if ( isUsingAlliances )
+				file.objectiveToCaptureObjectivePingCountTableArray.resize( maxNumAlliances )
+			else
+				file.objectiveToCaptureObjectivePingCountTableArray.resize( teamOrAllianceIndexMax )
+		}
 
 
 
@@ -929,6 +999,21 @@ void function ShPing_Init()
 
 		AddCallback_OnCommsMenuStateChanged( OnCommsMenuChanged )
 		AddCallback_OnPlayerLifeStateChanged( OnLifeStateChanged )
+
+		
+		if ( CaptureObjectivePing_IsUsingCaptureObjectivePings() )
+		{
+			AddCallback_OnFindFullMapAimEntity( CaptureObjectivePing_GetObjectiveUnderAim, CaptureObjectivePing_PingObjectiveUnderAim )
+			AddCreateCallback( PLAYER_WAYPOINT_CLASSNAME, CaptureObjectivePing_OnPlayerWaypointCreated )
+			AddDestroyCallback( PLAYER_WAYPOINT_CLASSNAME, CaptureObjectivePing_OnPlayerWaypointDestroyed )
+		}
+
+
+
+
+
+
+
 
 
 
@@ -1206,7 +1291,7 @@ PingTraceResults function DoPingTrace( entity player )
 	const int colGroup = TRACE_COLLISION_GROUP_NONE
 	
 	
-	const int colMask = TRACE_MASK_VISIBLE_AND_NPCS | CONTENTS_BLOCKLOS | CONTENTS_BLOCK_PING | CONTENTS_HITBOX | CONTENTS_PLAYERCLIP
+	const int colMask = TRACE_MASK_VISIBLE_AND_NPCS | CONTENTS_BLOCKLOS | CONTENTS_BLOCK_PING | CONTENTS_HITBOX
 
 	TraceResults tr = PingTraceForPlayer( player, PING_TRACE_DISTANCE, colMask, colGroup )
 
@@ -1547,35 +1632,38 @@ ReplyCommsActionInfo function Ping_GetCommsActionForWaypointReply( entity player
 			break
 
 
-
-		case ePingReply.CONTROL_OBJECTIVE_ACTION_DEFEND:
-			if ( Control_IsModeEnabled() )
+		case ePingReply.CAPTURE_OBJECTIVE_PING_DEFEND:
+			if ( CaptureObjectivePing_DidPlayerPingSameObjective( player, wp, wp.GetParent() ) )
 			{
-				if ( !Control_DidPlayerPingSameObjective( player, wp, wp.GetParent() ) )
-				{
-					result.commsAction = eCommsAction.PING_CONTROL_OBJECTIVE_DEFEND
-				}
-				else
-				{
-					result.commsAction = eCommsAction.CANCELED_PING
-				}
+				result.commsAction = eCommsAction.CANCELED_PING
+			}
+			else
+			{
+
+					if ( Control_IsModeEnabled() )
+						result.commsAction = eCommsAction.PING_CONTROL_OBJECTIVE_DEFEND
+
 			}
 			break
 
-		case ePingReply.CONTROL_OBJECTIVE_ACTION_ATTACK:
-			if ( Control_IsModeEnabled() )
+		case ePingReply.CAPTURE_OBJECTIVE_PING_ATTACK:
+			if ( CaptureObjectivePing_DidPlayerPingSameObjective( player, wp, wp.GetParent() ) )
 			{
-				if ( !Control_DidPlayerPingSameObjective( player, wp, wp.GetParent() ) )
-				{
-					result.commsAction = eCommsAction.PING_CONTROL_OBJECTIVE_ATTACK
-				}
-				else
-				{
-					result.commsAction = eCommsAction.CANCELED_PING
-				}
+				result.commsAction = eCommsAction.CANCELED_PING
+			}
+			else
+			{
+
+					if ( Control_IsModeEnabled() )
+						result.commsAction = eCommsAction.PING_CONTROL_OBJECTIVE_ATTACK
+
+
+
+					if ( TreasureHunt_IsModeEnabled() )
+						result.commsAction = eCommsAction.PING_TREASUREHUNT_OBJ_ATTACK
+
 			}
 			break
-
 
 
 		case ePingReply.CAREPACKAGE_INSIGHT_FUTURE_REPLY:
@@ -1854,9 +1942,9 @@ void function OnPingDown( entity player )
 	Assert( !HasPendingPing() )
 
 
-
-
-
+		
+		if ( IsAprilFools_S16() && AprilFools_S16_AttemptClientPingOverride_ReturnDidSucceedBool( player ) )
+			return
 
 
 	
@@ -1866,7 +1954,7 @@ void function OnPingDown( entity player )
 		if ( PlayerHasPassive( player, ePassives.PAS_VANTAGE ) && SniperRecon_IsTracking( player ) )
 		 {
 			 entity bestTarget = SniperRecon_GetBestTarget( player )
-			 if ( IsValid( bestTarget ) )
+			 if ( IsValid( bestTarget ) && bestTarget.IsPlayer() )
 			 {
 				 PingCommandExecuteEnemySpotted( bestTarget, -1 )
 				 spottedEnemy = bestTarget
@@ -2134,24 +2222,18 @@ void function OnPingDown( entity player )
 			}
 			else
 			{
-
 				
-				if ( Control_IsModeEnabled() )
+				if ( params.pingType == ePingType.PING_CAPTURE_OBJECTIVE_ATTACK || params.pingType == ePingType.PING_CAPTURE_OBJECTIVE_DEFEND )
 				{
-					if ( params.pingType == ePingType.CONTROL_OBJECTIVE_ATTACK || params.pingType == ePingType.CONTROL_OBJECTIVE_DEFEND )
+					if ( CaptureObjectivePing_GetStarterPingsArray().contains( params.hitEnt ) )
 					{
-						if ( Control_GetObjectiveStarterPings().contains( params.hitEnt ) )
-						{
-							SetPendingPingReply( params.hitEnt )
-							if ( Waypoint_ShowPingWheel( params.hitEnt ) )
-							{
-								CommsMenu_OpenMenuForPingReply( player, params.hitEnt )
-							}
-							return
-						}
+						SetPendingPingReply( params.hitEnt )
+						if ( Waypoint_ShowPingWheel( params.hitEnt ) )
+							CommsMenu_OpenMenuForPingReply( player, params.hitEnt )
+
+						return
 					}
 				}
-
 
 				SetPendingNewPing( params.pingType, tr.endPos, params.hitEnt, allowQuickPing, CommsMenu_GetMenuForNewPing(player) )
 				PingCommandQueueTrace()
@@ -2322,7 +2404,6 @@ array<int> function GetReplyOptionsForWaypoint( entity player, entity wp )
 					case ePingType.ASH_PASSIVE_ID_ATTACKER:
 
 					case ePingType.MAGGIE_WRECKING_BALL:
-					case ePingType.VANTAGE_COMPANION:
 					case ePingType.ABILITY_MOBILE_SHIELD:
 					case ePingType.ABILITY_CASTLE_WALL:
 
@@ -2507,17 +2588,13 @@ array<int> function GetReplyOptionsForWaypoint( entity player, entity wp )
 						results.append( ePingReply.I_CANNOT )
 						break
 
-
-					case ePingType.CONTROL_OBJECTIVE_DEFEND:
-						if ( Control_IsModeEnabled() )
-							results.append( ePingReply.CONTROL_OBJECTIVE_ACTION_DEFEND )
+					case ePingType.PING_CAPTURE_OBJECTIVE_DEFEND:
+							results.append( ePingReply.CAPTURE_OBJECTIVE_PING_DEFEND )
 						break
 
-					case ePingType.CONTROL_OBJECTIVE_ATTACK:
-						if ( Control_IsModeEnabled() )
-							results.append( ePingReply.CONTROL_OBJECTIVE_ACTION_ATTACK )
+					case ePingType.PING_CAPTURE_OBJECTIVE_ATTACK:
+							results.append( ePingReply.CAPTURE_OBJECTIVE_PING_ATTACK )
 						break
-
 
 
 
@@ -2597,17 +2674,18 @@ array<int> function GetReplyOptionsForWaypoint( entity player, entity wp )
 
 
 		case eWaypoint.CONTROL_OBJECTIVE:
-			if ( Control_IsModeEnabled() )
+
+
+		case eWaypoint.TREASUREHUNT_OBJECTIVE:
+
+			switch ( pingType )
 			{
-				switch ( pingType )
-				{
-					case ePingType.CONTROL_OBJECTIVE_DEFEND:
-						results.append( ePingReply.CONTROL_OBJECTIVE_ACTION_DEFEND )
-						break
-					case ePingType.CONTROL_OBJECTIVE_ATTACK:
-						results.append( ePingReply.CONTROL_OBJECTIVE_ACTION_ATTACK )
-						break
-				}
+				case ePingType.PING_CAPTURE_OBJECTIVE_DEFEND:
+					results.append( ePingReply.CAPTURE_OBJECTIVE_PING_DEFEND )
+					break
+				case ePingType.PING_CAPTURE_OBJECTIVE_ATTACK:
+					results.append( ePingReply.CAPTURE_OBJECTIVE_PING_ATTACK )
+					break
 			}
 			break
 
@@ -2764,7 +2842,7 @@ void function Ping_HandleSpecificPingCommand( entity player, string pingType )
 		if ( PlayerHasPassive(player, ePassives.PAS_VANTAGE ) && SniperRecon_IsTracking( player ) )
 		{
 			entity bestTarget = SniperRecon_GetBestTarget( player )
-			if ( IsValid( bestTarget ) )
+			if ( IsValid( bestTarget ) && bestTarget.IsPlayer() )
 			{
 				PingCommandExecuteEnemySpotted( bestTarget, -1 )
 				PingCommandQueueTrace()
@@ -4939,6 +5017,7 @@ PingCommandParams function GetPingParamsForHitEnt( entity hitEnt, entity player,
 
 		
 		{
+			
 			if ( hitEntData.scriptName == CONTROL_OBJECTIVE_SCRIPTNAME && IsValid( processedHitEnt ) && IsValid( processedHitEnt.GetOwner() ) )
 			{
 				result.hitEnt = processedHitEnt
@@ -4952,11 +5031,11 @@ PingCommandParams function GetPingParamsForHitEnt( entity hitEnt, entity player,
 
 				if ( objectiveOwner != -1 && IsTeamInAlliance( player.GetTeam(), objectiveOwner ) )
 				{
-					result.pingType = ePingType.CONTROL_OBJECTIVE_DEFEND
+					result.pingType = ePingType.PING_CAPTURE_OBJECTIVE_DEFEND
 				}
 				else
 				{
-					result.pingType = ePingType.CONTROL_OBJECTIVE_ATTACK
+					result.pingType = ePingType.PING_CAPTURE_OBJECTIVE_ATTACK
 				}
 				return result
 			}
@@ -5067,6 +5146,24 @@ PingCommandParams function GetPingParamsForHitEnt( entity hitEnt, entity player,
 
 
 
+
+
+
+	
+	{
+		
+		if ( hitEntData.scriptName == TREASUREHUNT_OBJECTIVE_SCRIPTNAME && IsValid( processedHitEnt ) && IsValid( processedHitEnt.GetOwner() ) )
+		{
+			result.hitEnt = processedHitEnt
+
+			entity objectiveStarterPing = TreasureHunt_GetStarterPingFromTraceBlockerPing( processedHitEnt, player.GetTeam() )
+			if ( objectiveStarterPing != null )
+				result.hitEnt = objectiveStarterPing
+
+			result.pingType = ePingType.PING_CAPTURE_OBJECTIVE_ATTACK
+			return result
+		}
+	}
 
 
 	if ( EntIsADynamicProp( processedHitEnt ) && processedHitEnt.GetTargetName() == "pathfinder_statue" )
@@ -5881,12 +5978,26 @@ int function GetCommsActionForPing( entity pingingPlayer, int pingType, entity p
 			return eCommsAction.PING_EXPLOSIVEHOLD_REQUEST
 
 
+		case ePingType.PING_CAPTURE_OBJECTIVE_DEFEND:
+		{
 
-		case ePingType.CONTROL_OBJECTIVE_DEFEND:
-			return eCommsAction.PING_CONTROL_OBJECTIVE_DEFEND
+				if ( Control_IsModeEnabled() )
+					return eCommsAction.PING_CONTROL_OBJECTIVE_DEFEND
 
-		case ePingType.CONTROL_OBJECTIVE_ATTACK:
-			return eCommsAction.PING_CONTROL_OBJECTIVE_ATTACK
+		}
+
+		case ePingType.PING_CAPTURE_OBJECTIVE_ATTACK:
+		{
+
+				if ( Control_IsModeEnabled() )
+					return eCommsAction.PING_CONTROL_OBJECTIVE_ATTACK
+
+
+
+				if ( TreasureHunt_IsModeEnabled() )
+					return eCommsAction.PING_TREASUREHUNT_OBJ_ATTACK
+
+		}
 
 		
 		case ePingType.NON_PINGABLE_SPAWN_LOCATION:
@@ -6031,6 +6142,10 @@ int function GetCommsActionForPing( entity pingingPlayer, int pingType, entity p
 
 		case ePingType.ENEMY_POI:
 			return eCommsAction.PING_ENEMY_POI
+
+
+		case ePingType.MULTI_ENEMY_POI:
+			return eCommsAction.PING_MULTI_ENEMY_POI
 
 	}
 
@@ -6370,6 +6485,8 @@ asset function Ping_RuiForPing_Hud( entity player, int pingType, entity pingedEn
 	{
 		case ePingType.NON_PINGABLE_SPAWN_LOCATION:
 		case ePingType.RESPAWN_CARD:
+		case ePingType.PING_CAPTURE_OBJECTIVE_DEFEND:
+		case ePingType.PING_CAPTURE_OBJECTIVE_ATTACK:
 			return $"ui/waypoint_ping_entpos.rpak"
 
 
@@ -6874,73 +6991,6 @@ void function Ping_SetMapWaypoint( entity player, vector origin, bool pingEnemy 
 
 	EmitSoundOnEntity( GetLocalViewPlayer(), PING_SOUND_LOCAL_CONFIRM )
 }
-
-
-void function Ping_SetControlObjective( entity player, entity objective )
-{
-	if ( !IsPingEnabledForPlayer( player ) )
-		return
-
-	Remote_ServerCallFunction( CMDNAME_PING_CONTROL_OBJECTIVE, objective )
-
-	EmitSoundOnEntity( GetLocalViewPlayer(), PING_SOUND_LOCAL_CONFIRM )
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -7621,115 +7671,115 @@ void function UpdateOnscreenPromptHintAfterDelay( float delay, string commandRef
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+const int INVALID_PING_TYPE = -1
+bool function AprilFools_S16_AttemptClientPingOverride_ReturnDidSucceedBool( entity player )
+{
+	bool shouldOverridePing = false
+	int expectedPingType = INVALID_PING_TYPE
+	entity pingEnt = null
+
+	
+	entity useEnt = GetPropSurvivalUseEntity( player )
+	entity crosshairEnt = GetCrosshairEntity( player )
+	if ( IsValid( useEnt ) && (!player.IsInputCommandHeld( IN_ZOOM ) || useEnt != player.GetUsePromptEntity()) )
+	{
+		expectedPingType = ePingType.LOOT
+		shouldOverridePing = AprilFools_S16_ShouldOverridePing( expectedPingType, useEnt )
+		pingEnt = useEnt
+	}
+	else if ( IsValid( crosshairEnt ) )
+	{
+		expectedPingType = ePingType.LOOT
+		shouldOverridePing = AprilFools_S16_ShouldOverridePing( expectedPingType, crosshairEnt )
+		pingEnt = crosshairEnt
+	}
+
+	
+	if ( expectedPingType == INVALID_PING_TYPE )
+	{
+		entity aaTarget = GetAimAssistCurrentTarget()
+		if ( PlayerHasPassive( player, ePassives.PAS_VANTAGE ) && SniperRecon_IsTracking( player ) )
+		{
+			entity bestTarget = SniperRecon_GetBestTarget( player )
+			if ( IsValid( bestTarget ) )
+			{
+				expectedPingType = ePingType.ENEMY_GENERAL
+				shouldOverridePing = AprilFools_S16_ShouldOverridePing( expectedPingType, bestTarget )
+				pingEnt = bestTarget
+			}
+		}
+		else if ( IsValid( aaTarget ) )
+		{
+			expectedPingType = ePingType.ENEMY_GENERAL
+			shouldOverridePing = AprilFools_S16_ShouldOverridePing( expectedPingType, aaTarget )
+			pingEnt = aaTarget
+		}
+	}
+
+	
+	if ( expectedPingType == INVALID_PING_TYPE )
+	{
+		entity focusedWp = GetFocusedWaypointEnt()
+		if ( IsValid( focusedWp ) && Waypoint_GetPingTypeForWaypoint( focusedWp ) == ePingType.ABILITY_ECHO_LOCATOR )
+		{
+			expectedPingType = ePingType.ABILITY_ECHO_LOCATOR
+			shouldOverridePing = AprilFools_S16_ShouldOverridePing( expectedPingType, focusedWp )
+			pingEnt = focusedWp
+		}
+	}
+
+	
+	if ( expectedPingType == INVALID_PING_TYPE )
+	{
+		entity ziplineEnt = GetZiplineUseEntity( player )
+		if ( IsValid( ziplineEnt ) )
+		{
+			expectedPingType = ePingType.ZIPLINE
+			shouldOverridePing = AprilFools_S16_ShouldOverridePing( expectedPingType, ziplineEnt )
+			pingEnt = ziplineEnt
+		}
+	}
+
+	
+	if ( expectedPingType == INVALID_PING_TYPE )
+	{
+		PingTraceResults tr = DoPingTrace( player )
+		if ( tr.success )
+		{
+			bool allowQuickPing      = expectedPingType != ePingType.ENEMY_GENERAL
+			PingCommandParams params = GetPingParamsForHitEnt( tr.hitEnt, player, tr )
+
+			if ( IsValid( params.hitEnt ) )
+			{
+				expectedPingType = params.pingType
+				shouldOverridePing = AprilFools_S16_ShouldOverridePing( expectedPingType, params.hitEnt )
+				pingEnt = params.hitEnt
+			}
+		}
+	}
+
+	if ( shouldOverridePing && expectedPingType != INVALID_PING_TYPE && IsValid( pingEnt ) )
+	{
+		AprilFools_S16_OverridePingOnServer( pingEnt, expectedPingType )
+
+#if DEV
+			if ( APRILFOOLS_S16_DISPLAY_DEBUG  )
+			{
+				string enumName = GetEnumString( "ePingType", expectedPingType )
+				printf("APRILFOOLS_S16: AprilFools_S16_AttemptClientPingOverride_ReturnDidSucceedBool going to try to override a ping, expectedPingType: " + enumName + " pingEnt: " + pingEnt )
+			}
+#endif
+	}
+	else
+	{
+#if DEV
+			if ( APRILFOOLS_S16_DISPLAY_DEBUG  )
+				printf("APRILFOOLS_S16: AprilFools_S16_AttemptClientPingOverride_ReturnDidSucceedBool decided NOT to override the Ping" )
+#endif
+	}
+
+	return shouldOverridePing
+}
 
 
 
@@ -7746,6 +7796,807 @@ void function AddCallback_OnPingSpawnRequest( void functionref( entity, entity )
 {
 	file.spawnWPFunctionCallbacks.append( func )
 }
+
+
+
+
+
+
+
+
+
+
+bool function CaptureObjectivePing_IsUsingCaptureObjectivePings()
+{
+	return GetCurrentPlaylistVarBool( "is_using_capture_objective_pings", false )
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+void function CaptureObjectivePing_OnPlayerWaypointCreated( entity wp )
+{
+	if ( IsValid( wp ) && wp.GetWaypointType() == eWaypoint.PING_LOCATION && IsValid( wp.GetOwner() ) )
+	{
+		entity objectiveWaypoint = wp.GetOwner()
+
+		if ( objectiveWaypoint.GetNetworkedClassName() != PLAYER_WAYPOINT_CLASSNAME )
+			return
+
+		if ( CaptureObjectivePing_GetIsCaptureObjectivePingObjectiveWaypoint( objectiveWaypoint ) && !file.captureObjectivePingStarterPings.contains( wp ) )
+			file.captureObjectivePingStarterPings.append( wp )
+	}
+}
+
+
+
+
+void function CaptureObjectivePing_OnPlayerWaypointDestroyed( entity wp )
+{
+	if ( IsValid( wp ) && wp.GetWaypointType() == eWaypoint.PING_LOCATION && IsValid( wp.GetOwner() ) && file.captureObjectivePingStarterPings.contains( wp ) )
+		file.captureObjectivePingStarterPings.fastremovebyvalue( wp )
+}
+
+
+
+
+array < entity > function CaptureObjectivePing_GetStarterPingsArray()
+{
+	return file.captureObjectivePingStarterPings
+}
+
+
+
+
+void function CaptureObjectivePing_AddCallback_SetIsCaptureObjectivePingObjectiveWaypoint( bool functionref( entity ) func )
+{
+	file.getIsCaptureObjectivePingObjectiveWPFunction = func
+}
+
+
+
+
+bool function CaptureObjectivePing_GetIsCaptureObjectivePingObjectiveWaypoint( entity waypoint )
+{
+	if ( file.getIsCaptureObjectivePingObjectiveWPFunction == null )
+	{
+		Assert( false, "CAPTURE OBJECTIVE PING: Running " + FUNC_NAME() + " with no function defined to check if a waypoint is an objective waypoint, make sure a function is set using CaptureObjectivePing_AddCallback_SetIsCaptureObjectivePingObjectiveWaypoint" )
+		return false
+	}
+
+	return file.getIsCaptureObjectivePingObjectiveWPFunction( waypoint )
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+void function CaptureObjectivePing_AddCallback_OnObjectivePingCoundChanged( void functionref( entity, int, int ) callBackFunc )
+{
+	Assert( !file.onObjectivePingCountChangedCallbackFunctions.contains( callBackFunc ), "Already added " + string( callBackFunc ) + " with " + FUNC_NAME() )
+	file.onObjectivePingCountChangedCallbackFunctions.append( callBackFunc )
+}
+
+
+
+
+bool function CaptureObjectivePing_DidPlayerPingSameObjective( entity player, entity wp, entity pingEnt )
+{
+	if ( !IsValid( pingEnt ) || !IsValid( player ) || !IsValid( wp ) )
+		return false
+
+	entity objectiveWaypoint = pingEnt.GetOwner()
+	if ( CaptureObjectivePing_GetIsCaptureObjectivePingObjectiveWaypoint( objectiveWaypoint ) )
+	{
+
+			entity oldPing = file.lastLocalCaptureObjectivePing
+			if ( IsValid( oldPing ) && oldPing == wp )
+				return true
+
+
+
+
+
+
+
+
+
+
+	}
+	return false
+}
+
+
+
+
+void function ServerCallback_CaptureObjectivePing_UpdateLastPingedObjective( entity pingingPlayer, entity wp, entity pingedEnt, bool isDestroying )
+{
+	entity localPlayer = GetLocalViewPlayer()
+
+	if ( !IsValid( wp ) || !IsValid( pingedEnt ) ||!IsValid( pingingPlayer ) || !IsValid( localPlayer ) )
+		return
+
+	if ( pingingPlayer != localPlayer )
+		return
+
+	entity objectiveWaypoint = pingedEnt.GetOwner()
+	if ( CaptureObjectivePing_GetIsCaptureObjectivePingObjectiveWaypoint( objectiveWaypoint ) )
+	{
+		if ( isDestroying )
+			file.lastLocalCaptureObjectivePing = null
+		else
+			file.lastLocalCaptureObjectivePing = wp
+	}
+}
+
+
+
+
+entity function CaptureObjectivePing_GetLastPingedObjective()
+{
+	return file.lastLocalCaptureObjectivePing
+}
+
+
+
+
+
+void function ServerCallback_CaptureObjectivePing_UpdateObjectivePingText( entity wp, int pingType, int pingCount, bool doesPlayerHavePingOnObjective )
+{
+	if ( IsValid( wp ) && IsValid( wp.wp.ruiHud ) && pingCount >= 0 )
+	{
+		if ( pingType == ePingType.PING_CAPTURE_OBJECTIVE_DEFEND || pingType == ePingType.PING_CAPTURE_OBJECTIVE_ATTACK )
+		{
+			
+			string promptText = ""
+
+			if ( pingCount <= 0 ) 
+			{
+				promptText = Localize( "#PROMPT_PING_CONTROL_OBJECTIVE" )
+			}
+			else 
+			{
+				if ( doesPlayerHavePingOnObjective )
+				{
+					if ( pingCount == 1 ) 
+					{
+						promptText = Localize( "#PROMPT_CANCELED_PING" )
+					}
+					else 
+					{
+						promptText = Localize( "#PROMPT_PING_CONTROL_OBJECTIVE_CANCEL", pingCount )
+					}
+				}
+				else 
+				{
+					promptText = Localize( "#PROMPT_PING_CONTROL_OBJECTIVE_JOIN", pingCount )
+				}
+			}
+
+			promptText = promptText + " `1%ping%`0"
+			RuiSetString( wp.wp.ruiHud, "pingPrompt", promptText )
+		}
+	}
+}
+
+
+
+
+void function ServerCallback_CaptureObjectivePing_UpdateObjectivePingCounts( entity objectiveWaypoint, int teamOrAlliance, int count )
+{
+	
+	Assert( file.objectiveToCaptureObjectivePingCountTableArray.len() > teamOrAlliance, "CAPTURE OBJECTIVE PING: " + FUNC_NAME() + " Tried to grab a table of objective pings to ping count for teamOrAlliance: " + teamOrAlliance + " but the array didn't contain the teamOrAlliance index" )
+	if ( file.objectiveToCaptureObjectivePingCountTableArray.len() <= teamOrAlliance )
+		return
+
+	
+	int pingCountMax = AllianceProximity_IsUsingAlliances() ? AllianceProximity_GetMaxNumPlayersPerAlliance() + 1 : GetExpectedSquadSize() + 1
+	if ( count < 0 || count > pingCountMax )
+		return
+
+	if ( CaptureObjectivePing_GetIsCaptureObjectivePingObjectiveWaypoint( objectiveWaypoint ) )
+	{
+		file.objectiveToCaptureObjectivePingCountTableArray[ teamOrAlliance ][ objectiveWaypoint ] <- count
+
+		foreach ( callbackFunc in file.onObjectivePingCountChangedCallbackFunctions )
+		{
+			callbackFunc( objectiveWaypoint, teamOrAlliance, count )
+		}
+	}
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+int function CaptureObjectivePing_GetPingCountForObjectiveForTeamOrAlliance( entity wp, int teamOrAlliance )
+{
+	int pingCount = 0
+
+	
+	Assert( file.objectiveToCaptureObjectivePingCountTableArray.len() > teamOrAlliance, "CAPTURE OBJECTIVE PING: " + FUNC_NAME() + " Tried to grab a table of objective pings to ping count for teamOrAlliance: " + teamOrAlliance + " but the array didn't contain the teamOrAlliance index" )
+	if ( file.objectiveToCaptureObjectivePingCountTableArray.len() <= teamOrAlliance )
+		return pingCount
+
+	if ( CaptureObjectivePing_GetIsCaptureObjectivePingObjectiveWaypoint( wp ) && wp in file.objectiveToCaptureObjectivePingCountTableArray[ teamOrAlliance ] )
+		pingCount = file.objectiveToCaptureObjectivePingCountTableArray[ teamOrAlliance ][ wp ]
+
+	return pingCount
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+void function CaptureObjectivePing_AddCallback_SetIsCaptureObjectivePingCommsActionFunction( bool functionref( int, entity ) func )
+{
+	file.getIsCommsActionForCaptureObjectivePingFunction = func
+}
+
+
+
+
+bool function CaptureObjectivePing_GetIsCaptureObjectivePingCommsAction( int commsAction, entity subjectEnt )
+{
+	if ( file.getIsCommsActionForCaptureObjectivePingFunction == null )
+		return false
+
+	return file.getIsCommsActionForCaptureObjectivePingFunction( commsAction, subjectEnt )
+}
+
+
+
+
+void function CaptureObjectivePing_AddCallback_SetGetCaptureObjectiveIDFromWaypointFunction( int functionref( entity ) func )
+{
+	file.getCaptureObjectiveIDFromWaypointFunction = func
+}
+
+
+
+
+const int INVALD_WAYPOINT_INDEX = -1
+int function CaptureObjectivePing_GetObjectiveIndexFromWaypoint( entity waypoint )
+{
+	if ( file.getCaptureObjectiveIDFromWaypointFunction == null )
+	{
+		Assert( false, "CAPTURE OBJECTIVE PING: Running " + FUNC_NAME() + " with no function defined to grab the objective ID, make sure a function is set using CaptureObjectivePing_AddCallback_SetGetCaptureObjectiveIDFromWaypointFunction" )
+		return INVALD_WAYPOINT_INDEX
+	}
+
+	return file.getCaptureObjectiveIDFromWaypointFunction( waypoint )
+}
+
+
+
+const array<string> CAPTUREOBJECTIVE_OBJECTIVE_NAME_STRINGS = ["#CONTROL_OBJECTIVE_A", "#CONTROL_OBJECTIVE_B", "#CONTROL_OBJECTIVE_C" ]
+
+
+array<string> function CaptureObjectivePing_GetObjectiveNameStringsArray()
+{
+	return CAPTUREOBJECTIVE_OBJECTIVE_NAME_STRINGS
+}
+
+
+
+
+string function CaptureObjectivePing_GetObjectiveNameFromObjectiveID_Localized( int objectiveID )
+{
+	return Localize( CaptureObjectivePing_GetObjectiveNameStringsArray()[objectiveID] )
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+void function CaptureObjectivePing_AddCallback_SetGetObjectivesArrayFunction( array < entity > functionref() func )
+{
+	file.getCaptureObjectivesArrayFunction = func
+}
+
+
+
+
+array < entity > function CaptureObjectivePing_GetGetObjectivesCloneArray()
+{
+	if ( file.getCaptureObjectivesArrayFunction == null )
+	{
+		Assert( false, "CAPTURE OBJECTIVE PING: Running " + FUNC_NAME() + " with no function defined to grab an array of objectives, make sure a function is set using CaptureObjectivePing_AddCallback_SetGetObjectivesArrayFunction" )
+		return []
+	}
+
+	return clone file.getCaptureObjectivesArrayFunction() 
+}
+
+
+
+
+entity function CaptureObjectivePing_GetObjectiveUnderAim( vector worldPos, float adjustedRange )
+{
+	float closestDistSqr = FLT_MAX
+	entity closestEnt
+	array<entity> objectiveArray = CaptureObjectivePing_GetGetObjectivesCloneArray()
+	foreach ( objective in objectiveArray )
+	{
+		if ( !IsValid( objective ) )
+			continue
+
+		vector objectiveOrigin = objective.GetOrigin()
+		if ( fabs( objectiveOrigin.x - worldPos.x ) > adjustedRange || fabs( objectiveOrigin.y - worldPos.y ) > adjustedRange )
+			continue
+
+		float distSqr = Distance2DSqr( objectiveOrigin, worldPos )
+		if ( distSqr < closestDistSqr )
+		{
+			closestDistSqr = distSqr
+			closestEnt     = objective
+		}
+	}
+
+	return closestEnt
+}
+
+
+
+
+bool function CaptureObjectivePing_PingObjectiveUnderAim( entity objective )
+{
+	entity player = GetLocalClientPlayer()
+
+	if ( !IsValid( player ) )
+		return false
+
+	CaptureObjectivePing_SetObjectivePing( player, objective )
+	return true
+}
+
+
+
+
+void function CaptureObjectivePing_SetObjectivePing( entity player, entity objective )
+{
+	if ( !IsPingEnabledForPlayer( player ) )
+		return
+
+	Remote_ServerCallFunction( "ClientCallback_CaptureObjectivePing_PingObjective", objective )
+
+	EmitSoundOnEntity( GetLocalViewPlayer(), PING_SOUND_LOCAL_CONFIRM )
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

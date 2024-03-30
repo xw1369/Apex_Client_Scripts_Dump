@@ -11,6 +11,7 @@ WeaponData
 
                
                                                     
+                                                               
                      
 
 	"ballistic_type"                "hitscan"

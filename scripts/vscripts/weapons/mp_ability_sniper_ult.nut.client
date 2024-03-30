@@ -138,6 +138,10 @@ void function OnWeaponActivate_ability_sniper_ult( entity weapon )
 
 
 
+
+
+		AprilFools_S20_ApplyWeaponGravityMod( weapon )
+
 }
 
 void function OnWeaponDeactivate_ability_sniper_ult( entity weapon )
@@ -358,6 +362,16 @@ float function SniperUlt_GetMarkedDuration()
 	float duration = GetCurrentPlaylistVarFloat( "sniperult_marked_duration", SNIPERULT_PLAYER_MARKED_DURATION )
 	return duration
 }
+
+
+
+
+
+
+
+
+
+
 
 
 

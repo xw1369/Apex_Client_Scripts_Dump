@@ -154,10 +154,7 @@ void function RemoveCapturedStillPIPCacheHandle( string name, string reason )
 				printf( "#CAPTURE_STREAMS %s() - name: %s; handle: %d; characterRef: %s; reason: %s", FUNC_NAME(), info.name, info.handle, info.characterRef, reason )
 			}
 
-			if ( GladCardCache_IsEnabled() )
-			{
-				GladCardCache_ClearCachedGladCard_ByHandle( info.handle )
-			}
+			GladCardCache_ClearCachedGladCard_ByHandle( info.handle )
 			file.capturedStillPIPs.remove( index )
 			break
 		}
@@ -195,24 +192,10 @@ void function ClPip_LevelInit()
 			file.freeMovingSlotCount++
 	}
 
-	AddCallback_GameStateEnter( eGameState.Prematch, OnPrematch )
-	AddCallback_GameStateEnter( eGameState.Postmatch, OnPostMatch )
+	ClearCache();
 }
 
-void function OnPrematch()
-{
-	if( GladCardCache_IsEnabled() )
-	{
-		if ( GladCardCache_Debugging_IsEnabled() )
-		{
-			printf( "#CAPTURE_STREAMS %s() - Pre-rendering PIP still captures of gladcards for all players in the match", FUNC_NAME() )
-		}
-
-		
-	}
-}
-
-void function OnPostMatch()
+void function ClearCache()
 {
 	if( GladCardCache_IsEnabled() )
 	{

@@ -18,6 +18,10 @@ global function SurvivalGroundList_LevelInit
 global function IsGroundListMenuOpen
 global function UpdateSurvivalGroundList
 
+
+
+
+
 global function UIToClient_SurvivalGroundListOpened
 global function UIToClient_SurvivalGroundListClosed
 global function UIToClient_SurvivalGroundList_UpdateQuickSwapItem
@@ -486,6 +490,13 @@ void function UIToClient_SurvivalGroundListOpened( var menu )
 	HudElem_SetRuiArg( fileLevel.backer, "headerBackgroundImageSize", headerBackgroundImageSize )
 	HudElem_SetRuiArg( fileLevel.backer, "isBlackMarket", isBlackMarket )
 
+
+
+
+
+
+
+
 	UIToClient_GroundlistOpened()
 
 	if ( DoesPlayerHaveWeaponSling( GetLocalViewPlayer() ) )
@@ -498,6 +509,22 @@ void function UIToClient_SurvivalGroundListOpened( var menu )
 
 	WeaponStatusSetDeathBoxMenuOpen( true )
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -569,6 +596,8 @@ void function UpdateSurvivalGroundList( SurvivalGroundListUpdateParams params )
 		RunUIScript( "CloseAllMenus" )
 		return
 	}
+
+
 
 
 
@@ -1721,13 +1750,32 @@ void function PerformItemAction( DeathBoxListPanelItem item, bool isAltAction, b
 	entity deathBox    = GetEntityFromEncodedEHandle( fileLevel.currentDeathBoxEEH )
 	bool isBlackMarket = false
 	bool needExtendedUse = false
-	if ( IsValid( deathBox ) && deathBox.GetNetworkedClassName() == "prop_loot_grabber")
+
+
+
+	if ( IsValid( deathBox ) )
 	{
-		isBlackMarket = true
-
-		if ( IsVendingMachineUnsafe( deathBox ) )
+		if ( deathBox.GetNetworkedClassName() == "prop_loot_grabber" )
 		{
-			needExtendedUse = false
+			isBlackMarket = true
+
+
+			if ( IsVendingMachineUnsafe( deathBox ) )
+			{
+				needExtendedUse = false
+			}
+
+
+
+
+
+
+
+			else
+
+			{
+				needExtendedUse = true
+			}
 		}
 
 
@@ -1735,16 +1783,14 @@ void function PerformItemAction( DeathBoxListPanelItem item, bool isAltAction, b
 
 
 
-
-		else
-
-		{
-			needExtendedUse = true
-		}
 	}
 
 	int count = SURVIVAL_GetInventorySlotCountForPlayer( player, entryData.lootFlav )
+
+
+
 	if ( entryData.lootFlav.lootType == eLootType.AMMO && !isBlackMarket )
+
 	{
 		int countToFillStack = SURVIVAL_GetCountToFillStack( player, entryData.lootFlav.ref )
 		if ( countToFillStack < count )

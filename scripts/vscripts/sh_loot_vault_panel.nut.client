@@ -1,5 +1,5 @@
+global function LootVault_Enabled
 global function Sh_Loot_Vault_Panel_Init
-global function GetVaultKeyPlayerNetBoolFromItemRef
 global function SetVaultPanelMinimapObj
 global function GetVaultPanelMinimapObj
 global function SetVaultPanelOpenMinimapObj
@@ -237,11 +237,22 @@ struct
 
 } file
 
+bool function LootVault_Enabled()
+{
+	return GetCurrentPlaylistVarBool( "loot_vaults_enabled", true )
+}
 
 void function Sh_Loot_Vault_Panel_Init()
 {
-	if ( GetCurrentPlaylistVarBool( "loot_vaults_enabled", true ) == false )
+	if ( !LootVault_Enabled() )
+	{
+
+
+
+
+
 		return
+	}
 
 	PrecacheParticleSystem( LOOT_VAULT_DATA.vaultAlarmVFX )
 
@@ -486,6 +497,14 @@ void function VaultPanelSpawned( entity panel )
 
 
 
+
+
+
+
+
+
+
+
 void function VaultDoorSpawned( entity door )
 {
 	if ( !IsVaultDoor( door ) )
@@ -508,6 +527,16 @@ void function VaultDoorSpawned( entity door )
 
 	file.vaultDoors.append( door )
 }
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -629,28 +658,22 @@ UniqueVaultData function GetVaultTypeByPanelData( VaultData panelData )
 
 bool function HasVaultKey( entity player )
 {
-	if ( player.GetPlayerNetBool( "hasDataKnife" ) )
-		return true
+	array< ConsumableInventoryItem > playerInventory = SURVIVAL_GetPlayerInventory( player )
+	foreach ( item in playerInventory )
+	{
+		LootData lootData = SURVIVAL_Loot_GetLootDataByIndex( item.type )
+		if ( lootData.lootType == eLootType.DATAKNIFE )
+		{
+			 return true
+		}
 
-	else if ( GetCurrentPlaylistVarBool( "loot_vaults_enabled", true ) && player.GetPlayerNetBool( "hasShipKeycard" ) )
-		return true
+		else if ( lootData.lootType == eLootType.SHIPKEYCARD &&  LootVault_Enabled() )
+		{
+			 return true
+		}
 
-
+	}
 	return false
-}
-
-string function GetVaultKeyPlayerNetBoolFromItemRef( string ref )
-{
-	string hasVaultKeyString
-
-	if ( ref == "data_knife" )
-		hasVaultKeyString = "hasDataKnife"
-
-	else if ( ref == "ship_keycard" )
-		hasVaultKeyString = "hasShipKeycard"
-
-
-	return hasVaultKeyString
 }
 
 
@@ -779,7 +802,6 @@ void function VaultPanelUseSuccess( entity panel, entity player, ExtendedUseSett
 {
 	VaultData panelData = GetVaultPanelDataFromEntity( panel )
 	UniqueVaultData data = GetUniqueVaultData( panel )
-
 
 
 

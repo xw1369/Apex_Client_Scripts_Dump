@@ -400,92 +400,6 @@ void function OnCharacterButtonPressed( entity player )
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 bool function OnWeaponAttemptOffhandSwitch_ability_ash_dataknife( entity weapon )
 {
 
@@ -704,21 +618,6 @@ bool function UseAlternatePassiveActivation()
 
 
 
-
-bool function PlayerIsLinkedToDeathbox( entity player, entity deathbox )
-{
-	array<entity> linkedEntArray = player.GetLinkEntArray()
-	foreach ( entity linkedEnt in linkedEntArray )
-	{
-		if ( linkedEnt.GetNetworkedClassName() != "prop_death_box" )
-			continue
-
-		if ( linkedEnt == deathbox )
-			return true
-	}
-
-	return false
-}
 
 
 

@@ -10,6 +10,9 @@ global function TDM_IsSWATLoadout
 global function TDM_SetIsRoundTransition
 global function TDM_GetIsRoundTransition
 
+const string TDM_VICTORY_SOUND = "TDM_UI_Victory"
+const string TDM_LOSS_SOUND = "TDM_UI_Loss"
+
 struct
 {
 	bool isRoundTransition = false
@@ -44,7 +47,11 @@ void function TDM_Init()
 		PakHandle pakHandle = RequestPakFile( "ui_arenas", TRACK_FEATURE_UI )
 		FreeDM_SetScoreboardSetupFunc( TDM_ScoreboardSetup() )
 
+
+	FreeDM_SetAudioEvent( eFreeDMAudioEvents.Victory_Sound, TDM_VICTORY_SOUND )
+	FreeDM_SetAudioEvent( eFreeDMAudioEvents.Defeat_Sound, TDM_LOSS_SOUND )
 }
+
 
 
 

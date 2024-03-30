@@ -1085,7 +1085,7 @@ bool function ShouldPlayerNameBeAnonymized( EHI playerEHI )
 		return ShouldPrivateMatchBeAnonymized()
 
 	
-	if ( IsViewingDeathScreen() )
+	if ( IsDeathScreenBypassingAnonymization() )
 		return false
 
 	if ( IsLobby() )
