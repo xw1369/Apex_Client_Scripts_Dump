@@ -67,7 +67,7 @@ bool function PlayHeadshotConfirmSound( entity attacker, entity victim, entity w
 	if ( victim.IsTitan() )
 		return false
 
-	bool isAndroid = ((IsAndroidNPC( victim ) || victim.IsMechanical()) && !IsFiringRangeGameMode())
+	bool isAndroid = ((IsAndroidNPC( victim ) || victim.IsMechanical()) && !GameModeVariant_IsActive( eGameModeVariants.SURVIVAL_FIRING_RANGE ))
 	bool isBiologicalNPC = IsBiologicalNPC( victim )
 
 	string aliasName

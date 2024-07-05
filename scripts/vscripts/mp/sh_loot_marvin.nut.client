@@ -150,7 +150,7 @@ struct
 
 void function ShLootMarvin_Init()
 {
-	if( !IsSurvivalMode() )
+	if( !GameMode_IsActive( eGameModes.SURVIVAL ) )
 	{
 
 
@@ -190,7 +190,7 @@ void function ShLootMarvin_Init()
 
 void function EntitiesDidLoad()
 {
-	if( !IsSurvivalMode() )
+	if( !GameMode_IsActive( eGameModes.SURVIVAL ) )
 		return
 
 	int maxNumMarvins      = GetCurrentPlaylistVarInt( "marvins_max_num", MAX_NUM_MARVINS )
@@ -248,6 +248,9 @@ void function EntitiesDidLoad()
 
 
 }
+
+
+
 
 
 
@@ -820,11 +823,17 @@ bool function IsPlayerPathfinder( entity player )
 
 
 
+
+
+
+
 void function InstanceMarvinCooldownCreatedWP( entity wp )
 {
 	entity marvin = wp.GetWaypointEntity( 0 )
 	marvin.ai.secondaryWaypoint = wp
 }
+
+
 
 
 

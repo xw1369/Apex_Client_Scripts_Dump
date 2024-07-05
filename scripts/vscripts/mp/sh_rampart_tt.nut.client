@@ -11,13 +11,11 @@ global function CheckRampartTTMuralLegends
 
 
 
-
 global function ServertoClientCallback_VendingMachineTimerDone
 global function ServertoClientCallback_PlayerUsedVendingMachine
 global function ServertoClientCallback_VendingMachineInUse
 global function ServertoClientCallback_RampartTT_SetCustomSpeakerIdx
 global function ServertoClientCallback_RampartTT_BroadcastSystemPlay
-
 
 
 
@@ -47,7 +45,6 @@ const string SFX_PANEL_LOOP = "survival_titan_linking_loop"
 const string SFX_PANEL_SPEAKER = "diag_mp_rampart_tt_vendMachine"
 const string SFX_VEND_POWERDOWN = "VendingMachine_Shield_PowerDown"
 const string SFX_VEND_SUSTAIN = "VendingMachine_Shield_Sustain"
-
 
 
 const int RUI_TRACK_INDEX_CAPTURE_END_TIME = 0 
@@ -96,7 +93,6 @@ const array <string> SFX_RAMPART_VO_PURCHASE = [ "diag_mp_rampart_tt_vendMachine
 
 
 const asset VFX_VEND_COMPLETE = $"P_Maude_Vending_Done"
-
 
 const string VFX_SHIELD_DISABLE = "P_rampart_vendit_shield_disable"
 const string VFX_ALARM_LIGHT = "P_vault_door_alarm_oly_mu1_sm"
@@ -150,18 +146,16 @@ struct
 
 	float vendPickupGracePeriod
 
+	table<entity, bool> isVending
+	table<entity, bool> hasPurchased
+	table<entity, bool> hasEntered
+	bool speakerOnCooldown
+	bool welcomeOnCooldown
 
-		table<entity, bool> isVending
-		table<entity, bool> hasPurchased
-		table<entity, bool> hasEntered
-		bool speakerOnCooldown
-		bool welcomeOnCooldown
+	int 	customQueueIdx
 
-		int 	customQueueIdx
-
-		float 	rampartLineFinishedPlayingTime = -1.0
-		array<entity> customSpeakers
-
+	float 	rampartLineFinishedPlayingTime = -1.0
+	array<entity> customSpeakers
 
 }file
 
@@ -198,13 +192,9 @@ void function Rampart_TT_Init()
 
 
 
-
-
-	AddCreateCallback( "prop_dynamic", OnPanelCreated )
-	AddCreateCallback( "prop_dynamic", OnLoreCreated )
-
+		AddCreateCallback( "prop_dynamic", OnPanelCreated )
+		AddCreateCallback( "prop_dynamic", OnLoreCreated )
 		AddCreateCallback( PLAYER_WAYPOINT_CLASSNAME, SetupVendWaypoint )
-
 
 }
 
@@ -214,13 +204,7 @@ void function EntitiesDidLoad()
 	if ( !IsRampartTTEnabled() )
 		return
 
-
-		RegisterCSVDialogue( RAMPART_TT_CSV_DIALOGUE )
-
-
-
-
-
+	RegisterCSVDialogue( RAMPART_TT_CSV_DIALOGUE )
 
 
 
@@ -266,18 +250,12 @@ bool function RampartHasStock()
 
 void function Rampart_TT_RegisterNetworking()
 {
-
-		Remote_RegisterClientFunction( "ServertoClientCallback_VendingMachineTimerDone", "entity" )
-		Remote_RegisterClientFunction( "ServertoClientCallback_PlayerUsedVendingMachine", "entity", "entity" )
-		Remote_RegisterClientFunction( "ServertoClientCallback_VendingMachineInUse", "entity" )
-		Remote_RegisterClientFunction( "ServertoClientCallback_RampartTT_SetCustomSpeakerIdx", "int", 0, NUM_TOTAL_DIALOGUE_QUEUES )
-		Remote_RegisterClientFunction( "ServertoClientCallback_RampartTT_BroadcastSystemPlay", "int", -1, SFX_RAMPART_VO_PURCHASE.len() - 1, "bool" )
-
+	Remote_RegisterClientFunction( "ServertoClientCallback_VendingMachineTimerDone", "entity" )
+	Remote_RegisterClientFunction( "ServertoClientCallback_PlayerUsedVendingMachine", "entity", "entity" )
+	Remote_RegisterClientFunction( "ServertoClientCallback_VendingMachineInUse", "entity" )
+	Remote_RegisterClientFunction( "ServertoClientCallback_RampartTT_SetCustomSpeakerIdx", "int", 0, NUM_TOTAL_DIALOGUE_QUEUES )
+	Remote_RegisterClientFunction( "ServertoClientCallback_RampartTT_BroadcastSystemPlay", "int", -1, SFX_RAMPART_VO_PURCHASE.len() - 1, "bool" )
 }
-
-
-
-
 
 
 
@@ -423,34 +401,32 @@ string function Vend_UseTextOverride( entity panel )
 	}
 
 	string str = Localize( "#RAMPART_TT_BUY", Vend_GetCost( panel ) )
+	if ( Crafting_IsDispenserCraftingEnabled() )
+	{
+		CustomUsePrompt_Show( panel )
+		CustomUsePrompt_SetSourcePos( panel.GetOrigin() + ( panel.GetScriptName() == VEND_PANEL ? < 0, 0, 30 > : <0,0,-20> ) )
+		CustomUsePrompt_SetLineColor( BIGMAUDE_DISPENSER_CRAFTING_COLOR )
 
-		if ( Crafting_IsDispenserCraftingEnabled() )
+		CustomUsePrompt_SetText( "" )
+		if ( panel in file.isVending )
 		{
-			CustomUsePrompt_Show( panel )
-			CustomUsePrompt_SetSourcePos( panel.GetOrigin() + ( panel.GetScriptName() == VEND_PANEL ? < 0, 0, 30 > : <0,0,-20> ) )
-			CustomUsePrompt_SetLineColor( BIGMAUDE_DISPENSER_CRAFTING_COLOR )
-
-			CustomUsePrompt_SetText( "" )
-			if ( panel in file.isVending )
-			{
-				CustomUsePrompt_SetText( Localize("#DISPENSERS_RAMPART_TT_VENDING") )
-			}
-			else if ( UseOneTimePurchaseVendingMachines() && ( player in file.hasPurchased ) )
-			{
-				CustomUsePrompt_SetText( Localize("#DISPENSERS_RAMPART_TT_PURCHASED") )
-			}
-			else
-			{
-				CustomUsePrompt_SetText( Localize("#DISPENSERS_RAMPART_TT_READY") )
-			}
-			if ( PlayerIsInADS( player ) )
-				CustomUsePrompt_ShowSourcePos( false )
-			else
-				CustomUsePrompt_ShowSourcePos( true )
-
-			return ""
+			CustomUsePrompt_SetText( Localize("#DISPENSERS_RAMPART_TT_VENDING") )
 		}
+		else if ( UseOneTimePurchaseVendingMachines() && ( player in file.hasPurchased ) )
+		{
+			CustomUsePrompt_SetText( Localize("#DISPENSERS_RAMPART_TT_PURCHASED") )
+		}
+		else
+		{
+			CustomUsePrompt_SetText( Localize("#DISPENSERS_RAMPART_TT_READY") )
+		}
+		if ( PlayerIsInADS( player ) )
+			CustomUsePrompt_ShowSourcePos( false )
+		else
+			CustomUsePrompt_ShowSourcePos( true )
 
+		return ""
+	}
 	return str
 }
 
@@ -476,36 +452,33 @@ void function Vend_OnUse( entity panel, entity player, int useInputFlags )
 
 void function Vend_UseThink_Thread( entity ent, entity playerUser )
 {
-
-		if ( Crafting_IsDispenserCraftingEnabled() )
+	if ( Crafting_IsDispenserCraftingEnabled() )
+	{
+		if ( ent in file.isVending )
 		{
-			if ( ent in file.isVending )
-			{
 
 
 
-				return
+			return
 
-			}
-
-			if ( UseOneTimePurchaseVendingMachines() && ( playerUser in file.hasPurchased ) )
-			{
-
-
-
-
-
-
-
-
-				return
-			}
 		}
 
+		if ( UseOneTimePurchaseVendingMachines() && ( playerUser in file.hasPurchased ) )
+		{
+
+
+
+
+
+
+
+
+			return
+		}
+	}
 
 	ExtendedUseSettings settings
 	settings.duration = 0.3
-
 
 	if ( Crafting_IsDispenserCraftingEnabled() )
 		settings.duration = 0.66
@@ -515,12 +488,11 @@ void function Vend_UseThink_Thread( entity ent, entity playerUser )
 
 
 
-
 	settings.icon = $""
 	settings.hint = Localize( "#RAMPART_TT_BUYING" )
 
-			if ( Crafting_IsDispenserCraftingEnabled() )
-				settings.hint = Localize("#DISPENSERS_RAMPART_TT_UNLOCK")
+	if ( Crafting_IsDispenserCraftingEnabled() )
+		settings.hint = Localize("#DISPENSERS_RAMPART_TT_UNLOCK")
 
 	settings.displayRui = $"ui/extended_use_hint.rpak"
 	settings.displayRuiFunc = Vend_DisplayRui
@@ -716,15 +688,6 @@ void function Vend_DisplayRui( entity ent, entity player, var rui, ExtendedUseSe
 
 
 
-
-
-
-
-
-
-
-
-
 bool function Vend_CostCheck( entity panel, entity player )
 {
 	if( Crafting_IsEnabled() && Crafting_GetPlayerCraftingMaterials( player ) >= Vend_GetCost( panel ) )
@@ -746,28 +709,22 @@ int function Vend_GetCost( entity panel )
 		case VEND_INST_BLUE:
 		{
 			value = 50
-
-				if ( Crafting_IsDispenserCraftingEnabled() )
-					value = 0
-
+			if ( Crafting_IsDispenserCraftingEnabled() )
+				value = 0
 			break
 		}
 		case VEND_INST_PURPLE:
 		{
 			value = 75
-
-				if ( Crafting_IsDispenserCraftingEnabled() )
-					value = 0
-
+			if ( Crafting_IsDispenserCraftingEnabled() )
+				value = 0
 			break
 		}
 		case VEND_INST_GOLD:
 		{
 			value = 100
-
-				if ( Crafting_IsDispenserCraftingEnabled() )
-					value = 0
-
+			if ( Crafting_IsDispenserCraftingEnabled() )
+				value = 0
 			break
 		}
 	}
@@ -1288,7 +1245,6 @@ bool function CheckRampartTTMuralLegends( entity player )
 	return false
 }
 
-
 bool function UseOneTimePurchaseVendingMachines()
 {
 	return GetCurrentPlaylistVarBool( "rampart_tt_single_use_vend", true )
@@ -1617,5 +1573,4 @@ void function ServertoClientCallback_RampartTT_BroadcastSystemPlay( int idxToPla
 	int dialogueFlags = eDialogueFlags.USE_CUSTOM_QUEUE | eDialogueFlags.USE_CUSTOM_SPEAKERS | eDialogueFlags.BLOCK_LOWER_PRIORITY_QUEUE_ITEMS
 	PlayDialogueOnCustomSpeakers( GetAnyAliasIdForName( lineToPlay ), dialogueFlags, file.customQueueIdx )
 }
-
 

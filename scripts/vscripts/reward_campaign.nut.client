@@ -6,6 +6,8 @@ global function RewardCampaign_GetActiveEvents
 global function RewardCampaign_GetActiveRewardCampaign
 global function RewardCampaign_GetCurrentTempUnlockChallenges
 global function RewardCampaign_GetMetaChallenge
+global function RewardCampaign_GetChallengeCollections
+global function RewardCampaign_GetChallengeCollection
 global function RewardCampaign_GetCollectionMetaChallenges
 global function RewardCampaign_GetMainChallenge
 global function RewardCampaign_GetStandaloneChallenges
@@ -130,14 +132,14 @@ array<ItemFlavor> function RewardCampaign_GetCurrentTempUnlockChallenges( entity
 		expect ItemFlavor( campaignEvent )
 		expect ItemFlavor( tempUnlockEvent )
 
-		ChallengeCollection ornull collection = ChallengeCollection_GetActiveCollection()
-
-		if ( collection == null )
+		array<ItemFlavor> collectionFlavs = RewardCampaign_GetChallengeCollections( campaignEvent )
+		if ( collectionFlavs.len() < 1 )
 		{
 			return challenges
 		}
 
-		expect ChallengeCollection( collection)
+		ChallengeCollection collection = ChallengeCollection_GetByGUID( collectionFlavs[0].guid )
+
 		foreach( ChallengeSet set in collection.challengeSets )
 		{
 			if ( CalEvent_GetStartUnixTime( set.itemFlav ) == CalEvent_GetStartUnixTime( tempUnlockEvent ) )
@@ -167,6 +169,36 @@ ItemFlavor function RewardCampaign_GetMetaChallenge( ItemFlavor rewardCampaignFl
 	Assert( ItemFlavor_GetType( rewardCampaignFlav ) == eItemType.calevent_reward_campaign )
 	asset metaChallengeAsset = GetGlobalSettingsAsset( ItemFlavor_GetAsset( rewardCampaignFlav ), "progressMetaChallenge" )
 	return GetItemFlavorByAsset( metaChallengeAsset )
+}
+
+array<ItemFlavor> function RewardCampaign_GetChallengeCollections( ItemFlavor rewardCampaignFlav )
+{
+	Assert( ItemFlavor_GetType( rewardCampaignFlav ) == eItemType.calevent_reward_campaign )
+	array<ItemFlavor> challengeCollections
+
+	foreach ( var collectionsBlock in IterateSettingsAssetArray( ItemFlavor_GetAsset( rewardCampaignFlav ), "challengeCollections" ) )
+	{
+		asset collectionAsset = GetSettingsBlockAsset( collectionsBlock, "challengeCollection" )
+		if ( IsValidItemFlavorSettingsAsset( collectionAsset ) )
+		{
+			ItemFlavor collectionFlav = GetItemFlavorByAsset( collectionAsset )
+			challengeCollections.append( collectionFlav )
+		}
+	}
+
+	return challengeCollections
+}
+
+ItemFlavor ornull function RewardCampaign_GetChallengeCollection( ItemFlavor rewardCampaignFlav )
+{
+	Assert( ItemFlavor_GetType( rewardCampaignFlav ) == eItemType.calevent_reward_campaign )
+	array<ItemFlavor> challengeCollectionFlavs = RewardCampaign_GetChallengeCollections( rewardCampaignFlav )
+
+	if ( challengeCollectionFlavs.len() > 0 )
+	{
+		return challengeCollectionFlavs[0]
+	}
+	return null
 }
 
 

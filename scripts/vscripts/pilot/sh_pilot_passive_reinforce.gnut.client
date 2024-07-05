@@ -7,6 +7,7 @@ global function IsRebuiltDoor
 
 
 
+
 global function PassiveReinforce_BlockControllerHolster
 
 
@@ -206,7 +207,10 @@ void function PassiveReinforce_ClientThread( entity player )
 				{
 					if( IsReinforceable( usePromptEnt ) )
 					{
-						hintText = Localize( "#ABL_REINFORCE_REBUILD" )
+						if( PlayerHasPassive( player, ePassives.PAS_PAS_UPGRADE_ONE ) ) 
+							hintText = Localize( "#ABL_REINFORCE_REBUILD_UPGRADE" )
+						else
+							hintText = Localize( "#ABL_REINFORCE_REBUILD" )
 					}
 					else if( !IsReinforced( usePromptEnt ) )
 					{
@@ -423,7 +427,7 @@ bool function CanPlayerReinforce( entity player )
 
 void function OnDoorSpawned( entity ent )
 {
-	AddEntityDestroyedCallback( ent, OnDoorDestroyed )
+	
 	AddCallback_OnUseEntity_ClientServer( ent, OnCodeDoorUsed )
 }
 
@@ -433,8 +437,6 @@ void function OnRebuiltDoorSpawned( entity ent )
 	AddCallback_OnUseEntity_ClientServer( ent, OnRebuiltDoorUsed )
 }
 
-void function OnDoorDestroyed( entity ent )
-{
 
 
 
@@ -470,7 +472,11 @@ void function OnDoorDestroyed( entity ent )
 
 
 
-}
+
+
+
+
+
 
 void function OnCodeDoorUsed( entity door, entity player, int useInputFlags )
 {
@@ -616,6 +622,27 @@ void function OnRebuiltDoorUsed( entity door, entity player, int useInputFlags )
 	}
 
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

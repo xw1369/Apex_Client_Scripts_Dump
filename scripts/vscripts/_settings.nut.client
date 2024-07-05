@@ -7,21 +7,17 @@
 
 global function Settings_Init
 
-global table<string, string> GAMETYPE_TEXT = {}
-
-global table<string, string> GAMETYPE_DESC = {}
 
 
 
 
-
-global table<string, array<int> > GAMETYPE_COLOR = {}
 
 global string GAMETYPE
+global int  GAMETYPE_ID
+
 global int MAX_TEAMS
 global int MAX_PLAYERS
 global int MAX_TEAM_PLAYERS
-global string GAMEDESC_CURRENT
 
 
 
@@ -359,6 +355,12 @@ void function Settings_Init()
 
 		GAMETYPE = GameRules_GetGameMode()
 		printl( "GAMETYPE: " + GAMETYPE )
+		GAMETYPE_ID = GameMode_FindByDevName( GAMETYPE )
+		GameMode_VerifyActiveMode()
+
+
+			RunUIScript( "GameMode_NotifyUIOfModeChange", GAMETYPE, GAMETYPE_ID )
+
 
 		MAX_TEAMS = GetCurrentPlaylistVarInt( "max_teams", 2 )
 		printl( "MAX_TEAMS: " + MAX_TEAMS )
@@ -368,9 +370,5 @@ void function Settings_Init()
 
 		MAX_TEAM_PLAYERS = GetMaxTeamPlayers()
 		printl( "MAX_TEAM_PLAYERS: " + MAX_TEAM_PLAYERS )
-
-		Assert( GAMETYPE in GAMETYPE_DESC, "Unsupported gamemode: '" + GAMETYPE + "' Check your mp_gamemode" )
-		Assert( GAMETYPE in GAMETYPE_TEXT, "Unsupported gamemode: '" + GAMETYPE + "' Check your mp_gamemode" )
-		GAMEDESC_CURRENT = GAMETYPE_DESC[GAMETYPE]
 
 }

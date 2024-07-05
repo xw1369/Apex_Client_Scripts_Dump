@@ -7,6 +7,7 @@ global function PassiveMedic_Init
 
 
 
+
 global function ServerToClient_DisplayCancelReviveHintForPlayer
 global function ServerToClient_RemoveCancelReviveHintForPlayer
 
@@ -112,6 +113,17 @@ void function PassiveMedic_Init()
 
 
 }
+
+
+
+
+
+
+
+
+
+
+
 
 
 

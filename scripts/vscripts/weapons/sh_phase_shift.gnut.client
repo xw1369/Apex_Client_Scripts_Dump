@@ -24,7 +24,7 @@ const SHIFTER_DISAPPEAR_FX_TITAN = $"P_phase_shift_main_XO"
 const SHIFTER_DASH_APPEAR_FX = $"P_phase_dash_end"
 const SHIFTER_DASH_DISAPPEAR_FX = $"P_phase_dash_start"
 
-
+const TRANSPORT_PORTAL_TRAILS_FX = $"P_alter_ulti_warp_trail"
 
 const SHIFTER_DASH_DISAPPEAR_ON_WRAITH_FX = $"P_phase_dash_start_mdl"
 
@@ -35,7 +35,8 @@ const SHIFTER_GATE_DISAPPEAR_FX = $"P_wrth_tt_dash_3P"
 
 
 const SHIFTER_SCREEN_FX = $"P_phase_shift_screen"
-const SHIFTER_PERSONAL_FX = $"P_phase_shift_player"
+const SHIFTER_PERSONAL_FX = $"P_phase_shift_player_noghosts"
+const SHIFTER_PERSONAL_WRAITH_FX = $"P_phase_shift_player"
 const SHIFTER_SCREEN_FX_START = $"P_phase_shift_screen_start"
 const SHIFTER_COLORCORRECTION = "materials/correction/fx_phase_shift.raw_hdr"
 
@@ -60,17 +61,17 @@ const SHIFTER_END_SOUND_3P_BREACH     = "Ash_PhaseBreach_End_3p"
 
 
 
+const SHIFTER_END_SOUND_1P_TRANSPORT  = "Alter_Ult_Teleport_VoidExit_1p"
+const SHIFTER_END_SOUND_3P_TRANSPORT  = "Alter_Ult_Teleport_VoidExit_3p"
+const SHIFTER_LOOP_SOUND_1P_TRANSPORT = "Alter_Ult_Teleport_VoidTravel_1p"
+const SHIFTER_LOOP_SOUND_3P_TRANSPORT = "Alter_Ult_Teleport_VoidTravel_3p"
 
 
 
-
-
-
-
-
-
-
-
+const SHIFTER_END_SOUND_1P_DOOR  	= "Alter_Tac_Portal_VoidExit_1p"
+const SHIFTER_END_SOUND_3P_DOOR  	= "Alter_Tac_Portal_VoidExit_3p"
+const SHIFTER_LOOP_SOUND_1P_DOOR	= "Alter_Tac_Portal_VoidTravel_1p"
+const SHIFTER_LOOP_SOUND_3P_DOOR 	= "Alter_Tac_Portal_VoidTravel_3p"
 
 
 const GATE_PRE_SOUND_1P 			= "Olympus_phaseshift_preactivate_1p"
@@ -167,12 +168,13 @@ void function MpAbilityShifter_Init()
 	PrecacheParticleSystem( SHIFTER_LOOP_FX )
 	PrecacheParticleSystem( SHIFTER_DISAPPEAR_FX_TITAN )
 	PrecacheParticleSystem( SHIFTER_PERSONAL_FX )
+	PrecacheParticleSystem( SHIFTER_PERSONAL_WRAITH_FX )
 	PrecacheParticleSystem( SHIFTER_SCREEN_FX )
 	PrecacheParticleSystem( SHIFTER_SCREEN_FX_START )
 	PrecacheParticleSystem( SHIFTER_DASH_APPEAR_FX )
 	PrecacheParticleSystem( SHIFTER_DASH_DISAPPEAR_FX )
 
-
+		PrecacheParticleSystem( TRANSPORT_PORTAL_TRAILS_FX )
 
 	PrecacheParticleSystem( SHIFTER_DASH_DISAPPEAR_ON_WRAITH_FX )
 
@@ -201,13 +203,13 @@ void function MpAbilityShifter_Init()
 
 }
 
-int function PhaseShift( entity ent, float warmupTime, float duration, int shiftStyle = PHASETYPE_DEFAULT, bool fxOnly = false )
+bool function PhaseShift( entity ent, float warmupTime, float duration, int shiftStyle = PHASETYPE_DEFAULT, bool fxOnly = false )
 {
 	if ( !IsAlive( ent ) )
-		return 0
+		return false
 
 	if ( ent.IsPhaseShifted() )
-		return 0
+		return false
 
 	
 	
@@ -223,7 +225,7 @@ int function PhaseShift( entity ent, float warmupTime, float duration, int shift
 			&& !( IsEntNewcastleReviver( ent ) )
 			&& !( IsEntNewcastleReviveTarget( ent ) ) )
 		{
-			return 0
+			return false
 		}
 
 		bool seeOtherNonShifters = false
@@ -236,19 +238,35 @@ int function PhaseShift( entity ent, float warmupTime, float duration, int shift
 				break
 
 			case PHASETYPE_GATE:
-
-			case PHASETYPE_BREACH:
-			case PHASETYPE_TUNNEL:
 				StatusEffect_AddTimed( ent, eStatusEffect.speed_boost, 0.05, duration, 0.25 )
 				break
 
+			case PHASETYPE_BREACH:
 
+				if ( IsVoidVisionEnabled_PhaseBreach() )
+				{
+					seeOtherNonShifters = true
+				}
 
+				StatusEffect_AddTimed( ent, eStatusEffect.speed_boost, 0.05, duration, 0.25 )
+				break
+			case PHASETYPE_TUNNEL:
 
+				if ( IsVoidVisionEnabled_PhaseTunnel() )
+				{
+					seeOtherNonShifters = true
+				}
 
+				StatusEffect_AddTimed( ent, eStatusEffect.speed_boost, 0.05, duration, 0.25 )
+				break
 
-
-
+			case PHASETYPE_TRANSPORT:
+				StatusEffect_AddTimed( ent, eStatusEffect.speed_boost, 0.05, duration, 0.25 )
+				seeOtherNonShifters = true
+				break
+			case PHASETYPE_DOOR:
+				seeOtherNonShifters = true
+				break
 
 			case PHASETYPE_DASH:
 
@@ -257,12 +275,6 @@ int function PhaseShift( entity ent, float warmupTime, float duration, int shift
 			default:
 				break
 		}
-
-
-
-
-
-
 
 		ent.SetSeeOtherNonShifters( seeOtherNonShifters )
 
@@ -276,7 +288,7 @@ int function PhaseShift( entity ent, float warmupTime, float duration, int shift
 			thread ClientPhaseShiftWarmupThread( ent, warmupTime, shiftStyle )
 
 
-		return 1
+		return true
 	}
 	else
 	{
@@ -288,12 +300,11 @@ int function PhaseShift( entity ent, float warmupTime, float duration, int shift
 
 
 
-		return 1
+		return true
 	}
 
 	unreachable
 }
-
 
 
 
@@ -826,14 +837,14 @@ void function ClientPhaseShiftFirstPersonFXThread()
 						EmitSoundOnEntity( ourPlayer, GATE_END_SOUND_1P )
 					}
 
-
-
-
-
-
-
-
-
+					else if ( phaseShiftType == PHASETYPE_DOOR )
+					{
+						
+					}
+					else if ( phaseShiftType == PHASETYPE_TRANSPORT )
+					{
+						
+					}
 
 					else
 					{
@@ -845,8 +856,8 @@ void function ClientPhaseShiftFirstPersonFXThread()
 					StopSoundOnEntity( ourPlayer, SHIFTER_LOOP_SOUND_1P_TITAN )
 					StopSoundOnEntity( ourPlayer, SHIFTER_LOOP_SOUND_1P_BREACH )
 
-
-
+					StopSoundOnEntity( ourPlayer, SHIFTER_LOOP_SOUND_1P_TRANSPORT )
+					StopSoundOnEntity( ourPlayer, SHIFTER_LOOP_SOUND_1P_DOOR )
 
 				}
 
@@ -870,7 +881,15 @@ void function ClientPhaseShiftFirstPersonFXThread()
 			{
 				
 				{
-					int fxIndex   = GetParticleSystemIndex( SHIFTER_PERSONAL_FX )
+					int fxIndex
+					if ( localViewPlayer.HasPassive( ePassives.PAS_VOICES ) )
+					{
+						fxIndex = GetParticleSystemIndex( SHIFTER_PERSONAL_WRAITH_FX )
+					}
+					else
+					{
+						fxIndex = GetParticleSystemIndex( SHIFTER_PERSONAL_FX )
+					}
 					int attachIdx = localViewPlayer.LookupAttachment( "CHESTFOCUS" )
 					effectSparkles = StartParticleEffectOnEntity( localViewPlayer, fxIndex, FX_PATTACH_POINT_FOLLOW, attachIdx )
 				}
@@ -923,16 +942,16 @@ void function ClientPhaseShiftFirstPersonFXThread()
 					EmitSoundOnEntity( localViewPlayer, SHIFTER_LOOP_SOUND_1P_BREACH )
 				}
 
-
-
-
-
-
-
-
-
-
-
+				else if ( localViewPlayer.GetPhaseShiftType() == PHASETYPE_TRANSPORT )
+				{
+					
+					EmitSoundOnEntity( localViewPlayer, SHIFTER_LOOP_SOUND_1P_TRANSPORT )
+				}
+				else if ( localViewPlayer.GetPhaseShiftType() == PHASETYPE_DOOR )
+				{
+					
+					EmitSoundOnEntity( localViewPlayer, SHIFTER_LOOP_SOUND_1P_DOOR )
+				}
 
 				else
 				{

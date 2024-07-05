@@ -27,6 +27,8 @@ global function ShouldMuteCommsActionForCooldown
 global function SetCommsDialogueEnabled
 global function PlaySoundForCommsAction
 
+global function ClientCodeCallback_GetPlayerThreatLevel
+
 
 
 
@@ -513,19 +515,24 @@ array<string> function GetSubjectNamesForCommsAction( int commsAction, entity su
 
 
 
-		if ( IsShadowRoyaleMode() || IsFallLTM() )
+	bool halloweenMode = false
+
+
+
+
+		halloweenMode = halloweenMode || GameModeVariant_IsActive( eGameModeVariants.SURVIVAL_SHADOW_ARMY )
+
+	if ( halloweenMode )
+	{
+		if ( commsAction == eCommsAction.PING_LOOT_CREEP_INFECTED )
 		{
-			if ( commsAction == eCommsAction.PING_LOOT_CREEP_INFECTED )
-			{
-				return [Localize( "#LOOT_CREEP_INFECTED_UI_TITLE" )]
-			}
-
-			if ( commsAction == eCommsAction.PING_LOOT_CREEP_SPIDER )
-			{
-				return [Localize( "#LOOT_CREEP_SPIDER_UI_TITLE" )]
-			}
+			return [Localize( "#LOOT_CREEP_INFECTED_UI_TITLE" )]
 		}
-
+			if ( commsAction == eCommsAction.PING_LOOT_CREEP_SPIDER )
+		{
+			return [Localize( "#LOOT_CREEP_SPIDER_UI_TITLE" )]
+		}
+	}
 
 
 	if ( CaptureObjectivePing_GetIsCaptureObjectivePingCommsAction( commsAction, subjectEnt ) )
@@ -563,7 +570,7 @@ vector function GetSubjectColorForCommsAction( entity subjectEnt, string itemRef
 
 
 		case PLAYER_WAYPOINT_CLASSNAME:
-			if ( Control_IsModeEnabled() && subjectEnt.GetWaypointType() == eWaypoint.CONTROL_OBJECTIVE )
+			if ( GameMode_IsActive( eGameModes.CONTROL ) && subjectEnt.GetWaypointType() == eWaypoint.CONTROL_OBJECTIVE )
 			{
 				if ( subjectEnt.GetWaypointInt( CONTROL_INT_OBJ_ALLIANCE_OWNER ) == ALLIANCE_NONE )
 				{
@@ -623,7 +630,7 @@ vector function GetSecondarySubjectColorForCommsAction( entity subjectEnt, entit
 	{
 
 		case PLAYER_WAYPOINT_CLASSNAME:
-			if ( Control_IsModeEnabled() && subjectEnt.GetWaypointType() == eWaypoint.CONTROL_OBJECTIVE )
+			if ( GameMode_IsActive( eGameModes.CONTROL ) && subjectEnt.GetWaypointType() == eWaypoint.CONTROL_OBJECTIVE )
 			{
 				if ( subjectEnt.GetWaypointInt( CONTROL_INT_OBJ_ALLIANCE_OWNER ) == ALLIANCE_NONE )
 				{
@@ -718,12 +725,11 @@ bool function PlayerIsInCombat( entity player )
 	if ( Bleedout_IsBleedingOut( player ) )
 		return true
 
-	
 	if ( GetEffectiveDeltaSince( player.GetLastTimeDamagedByOtherPlayer() ) < LAST_DAMAGED_BY_PLAYER_OR_NPC )
 	{
 #if DEV
 		if ( DEBUG_PLAYER_IS_IN_COMBAT )
-			printt( "Urgent [YES] <- Last damaged by other player" )
+			printt( "PlayerIsInCombat: [YES] <- Player was damaged by other player within " + LAST_DAMAGED_BY_PLAYER_OR_NPC + "s" )
 #endif
 		return true
 	}
@@ -732,7 +738,7 @@ bool function PlayerIsInCombat( entity player )
 	{
 #if DEV
 		if ( DEBUG_PLAYER_IS_IN_COMBAT )
-			printt( "Urgent [YES] <- Last damaged by NPC" )
+			printt( "PlayerIsInCombat: [YES] <- Player was last damaged by NPC within " + LAST_DAMAGED_BY_PLAYER_OR_NPC + "s" )
 #endif
 		return true
 	}
@@ -742,7 +748,7 @@ bool function PlayerIsInCombat( entity player )
 	{
 #if DEV
 		if ( DEBUG_PLAYER_IS_IN_COMBAT )
-			printt( "Urgent [YES] <- Last did damage to other player" )
+			printt( "PlayerIsInCombat: [YES] <- This player did damage to another player within " + LAST_DID_DAMAGE_TO_PLAYER_OR_NPC + "s" )
 #endif
 		return true
 	}
@@ -751,7 +757,7 @@ bool function PlayerIsInCombat( entity player )
 	{
 #if DEV
 		if ( DEBUG_PLAYER_IS_IN_COMBAT )
-			printt( "Urgent [YES] <- Last did damage to NPC" )
+			printt( "PlayerIsInCombat: [YES] <- This player did damage to NPC within " + LAST_DID_DAMAGE_TO_PLAYER_OR_NPC + "s" )
 #endif
 		return true
 	}
@@ -765,7 +771,7 @@ bool function PlayerIsInCombat( entity player )
 	{
 #if DEV
 		if ( DEBUG_PLAYER_IS_IN_COMBAT )
-			printt( "Urgent [YES] <- Any teammate near spotted enemy" )
+			printt( "PlayerIsInCombat [YES] <- A teammate is near spotted enemy" )
 #endif
 		return true
 	}
@@ -775,15 +781,20 @@ bool function PlayerIsInCombat( entity player )
 
 
 
+const bool DEBUG_PLAYER_DELIVERY = false
+const float SUBJECT_NEAR_SPOTTED_ENEMY = 1024.0
+
 bool function PlayerDeliveryShouldBeUrgent( entity player, vector subjectPos, int commsFlags = eCommsFlags.NONE )
 {
 	const float TEAMMATE_NEAR_PLAYER = 2048.0
 	const float TEAMMATE_NEAR_SUBJECT_POS = 1024.0
-	const float SUBJECT_NEAR_SPOTTED_ENEMY = 1024.0
 
 	if ( IsBitFlagSet( commsFlags, eCommsFlags.FORCE_URGENT ) )
 	{
-		printt( "Urgent [YES] <- eCommsFlags.FORCE_URGENT" )
+#if DEV
+			if ( DEBUG_PLAYER_DELIVERY )
+				printt( "PlayerDeliveryShouldBeUrgent: [YES] <- eCommsFlags.FORCE_URGENT" )
+#endif
 		return true
 	}
 
@@ -811,7 +822,10 @@ bool function PlayerDeliveryShouldBeUrgent( entity player, vector subjectPos, in
 	if ( Waypoint_AnyEnemySpottedNearPoint( subjectPos, SUBJECT_NEAR_SPOTTED_ENEMY ) )
 
 	{
-		printt( "Urgent [YES] <- Waypoint near spotted enemy" )
+#if DEV
+			if ( DEBUG_PLAYER_DELIVERY )
+				printt( "PlayerDeliveryShouldBeUrgent: [YES] <- Waypoint near spotted enemy" )
+#endif
 		return true
 	}
 
@@ -821,7 +835,10 @@ bool function PlayerDeliveryShouldBeUrgent( entity player, vector subjectPos, in
 		float stormDist = DeathField_PointDistanceFromFrontier( eyePos, player.DeathFieldIndex() )
 		if ( stormDist < START_PLAYING_DIST )
 		{
-			printt( "Urgent [YES] <- Inside deathfield" )
+#if DEV
+				if ( DEBUG_PLAYER_DELIVERY )
+					printt( "PlayerDeliveryShouldBeUrgent: [YES] <- Inside deathfield" )
+#endif
 			return true
 		}
 	}
@@ -830,13 +847,37 @@ bool function PlayerDeliveryShouldBeUrgent( entity player, vector subjectPos, in
 	float stim = StatusEffect_GetSeverity( player, eStatusEffect.stim_visual_effect )
 	if ( stim > 0.001 )
 	{
-		printf( "Urgent [YES] <- Stim (%0.2f)", stim )
+#if DEV
+			if ( DEBUG_PLAYER_DELIVERY )
+				printf( "PlayerDeliveryShouldBeUrgent: [YES] <- Stim (%0.2f)", stim )
+#endif
 		return true
 	}
 
 	return false
 }
 
+
+
+float function ClientCodeCallback_GetPlayerThreatLevel( entity player )
+{
+	if ( DeathField_IsActive( player.DeathFieldIndex() ) )
+	{
+		const float START_PLAYING_DIST = -30.0        
+		float stormDist = DeathField_PointDistanceFromFrontier( player.EyePosition(), player.DeathFieldIndex() )
+		if ( stormDist < START_PLAYING_DIST )
+		{
+			return 80
+		}
+	}
+
+	if ( Waypoint_AnyEnemySpottedNearPoint( player.GetOrigin(), SUBJECT_NEAR_SPOTTED_ENEMY ) )
+	{
+		return 50
+	}
+
+	return 0
+}
 
 
 
@@ -902,7 +943,7 @@ bool function ShouldMuteCommsActionForCooldown( entity player, int commsAction, 
 	bool isEnemyNearbyComm = commsAction == eCommsAction.QUICKCHAT_SKYDIVE_ENEMIES_NEARBY
 
 
-		if ( IsShadowArmyGamemode() )
+		if ( GameModeVariant_IsActive( eGameModeVariants.SURVIVAL_SHADOW_ARMY ) )
 			isEnemyNearbyComm = commsAction == eCommsAction.QUICKCHAT_SKYDIVE_ENEMIES_NEARBY || commsAction == eCommsAction.QUICKCHAT_SKYDIVE_REV_NEARBY || commsAction == eCommsAction.QUICKCHAT_SKYDIVE_SKINBAG_NEARBY
 
 
@@ -973,7 +1014,7 @@ void function HandleBroadcastCommsAction( entity player, int commsAction, entity
 
 		
 		bool isControlObjectivePing = false
-		if ( Control_IsModeEnabled() )
+		if ( GameMode_IsActive( eGameModes.CONTROL ) )
 		{
 			if ( !IsValid( player ) || !IsValid( GetLocalViewPlayer() ) )
 				return
@@ -1062,7 +1103,8 @@ void function HandleBroadcastCommsAction( entity player, int commsAction, entity
 		else
 		{
 			
-			if ( !IsValid( subjectEnt ) || subjectEnt.GetModelName() != CRAFTED_BANNER_MODEL_NAME || GetEntityFromEncodedEHandle( subjectEnt.GetSurvivalProperty() ).GetTeam() == player.GetTeam() )
+			if ( !IsValid( subjectEnt ) || subjectEnt.GetModelName() != CRAFTED_BANNER_MODEL_NAME ||
+					( IsValid( GetEntityFromEncodedEHandle( subjectEnt.GetSurvivalProperty() ) ) && GetEntityFromEncodedEHandle( subjectEnt.GetSurvivalProperty() ).GetTeam() == player.GetTeam() ) )
 			{
 				PlaySoundForCommsAction( player, subjectEnt, act, opt,  secondaryCommsAction > 0 ? GetNameForCommsAction( secondaryCommsAction ) : "", selector)
 			}
@@ -1099,7 +1141,7 @@ void function HandleBroadcastCommsAction( entity player, int commsAction, entity
 
 
 			
-			if ( Control_IsModeEnabled() )
+			if ( GameMode_IsActive( eGameModes.CONTROL ) )
 			{
 				
 				if ( isControlObjectivePing )
@@ -1123,7 +1165,7 @@ void function HandleBroadcastCommsAction( entity player, int commsAction, entity
 
 
 			
-			if ( TreasureHunt_IsModeEnabled() )
+			if ( GameModeVariant_IsActive( eGameModeVariants.FREEDM_LOCKDOWN ) )
 			{
 				
 				if ( commsAction == eCommsAction.PING_TREASUREHUNT_OBJ_ATTACK && IsValid( subjectEnt ) && IsValid( subjectEnt.GetOwner() ) )
@@ -1139,6 +1181,26 @@ void function HandleBroadcastCommsAction( entity player, int commsAction, entity
 						subjectTier = ""
 				}
 			}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 		if ( commsAction == eCommsAction.PING_VANTAGE_ENEMY_SPOTTED_1 ||
@@ -1213,7 +1275,7 @@ void function HandleBroadcastCommsAction( entity player, int commsAction, entity
 
 
 				
-				if ( Control_IsModeEnabled() )
+				if ( GameMode_IsActive( eGameModes.CONTROL ) )
 				{
 					if ( isControlObjectivePing )
 					{
@@ -1272,6 +1334,7 @@ void function PlaySoundForCommsAction( entity player, entity subjectEnt, CommsAc
 		
 		
 		var soundHandle = EmitSoundOnEntityWithSelector( player, sound, selector )
+		SetPlayThroughPOVTransitions( soundHandle )
 
 		if ( opt.pauseQueue )
 			thread SuspendMainDialogueQueueForDurationOfSound( player, soundHandle )
@@ -1573,7 +1636,7 @@ string function GetPlayerDialogSound( entity player, entity subjectEnt, CommsAct
 		return ""
 
 
-		if ( IsShadowRoyaleMode() && IsPlayerShadowZombie( player ) )
+		if ( GameModeVariant_IsActive( eGameModeVariants.SURVIVAL_SHADOW_ARMY ) && IsPlayerShadowZombie( player ) )
 			return GetShadowDialogSoundForAction( act, options )
 
 

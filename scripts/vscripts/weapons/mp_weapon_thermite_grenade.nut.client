@@ -176,6 +176,9 @@ void function ExplodeFunc( entity projectile, ProximityExplodeParams ep )
 
 
 
+
+
+
 }
 
 
@@ -201,6 +204,10 @@ void function FadeModelIntensityOverTime( entity model, float duration, int star
 	model.kv.rendercolor = endColor + " " + endColor + " " + endColor
 	model.kv.renderamt   = 255
 }
+
+
+
+
 
 
 

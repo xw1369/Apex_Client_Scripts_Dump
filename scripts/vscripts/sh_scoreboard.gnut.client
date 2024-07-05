@@ -185,7 +185,7 @@ void function OnScoreboardButtonPressed( entity localPlayer )
 
 bool function ShouldShowCharSelectForScoreboard()
 {
-	if ( IsFiringRangeGameMode() && FiringRange_IsCharacterSwitchingEnabled() )
+	if ( GameModeVariant_IsActive( eGameModeVariants.SURVIVAL_FIRING_RANGE ) && FiringRange_IsCharacterSwitchingEnabled() )
 		return true
 
 #if DEV
@@ -201,7 +201,7 @@ bool function ShouldShowCharSelectForScoreboard()
 
 void function ClientToUI_ToggleScoreboard()
 {
-	if ( IsSurvivalTraining() )
+	if ( GameModeVariant_IsActive( eGameModeVariants.SURVIVAL_TRAINING ) )
 	{
 		printf( "%s() - Aborting, because we're in Training.", FUNC_NAME() )
 		return
@@ -275,7 +275,7 @@ bool function ShouldShowScoreboard()
 	else if ( !FiringRange_IsCharacterSwitchingEnabled() )
 		return false
 
-	else if ( Control_IsModeEnabled() && IsValid( player ) )
+	else if ( GameMode_IsActive( eGameModes.CONTROL ) && IsValid( player ) )
 	{
 		if( !IsAlive( player ) )
 			return false

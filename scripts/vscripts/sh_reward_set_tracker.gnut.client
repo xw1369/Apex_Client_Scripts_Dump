@@ -1,5 +1,3 @@
-
-
 global function ShRewardSetTracker_LevelInit
 
 global function RewardSetTracker_GetDisplayImageAsset
@@ -111,5 +109,3 @@ array<ItemFlavor> function FilterRewardSetItemsFromPackList( ItemFlavor trackerF
 	return filteredPackList
 }
 
-
-                          

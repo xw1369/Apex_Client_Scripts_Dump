@@ -1,6 +1,7 @@
 global function MapZones_SharedInit
 global function MapZones_RegisterNetworking
 global function MapZones_RegisterDataTable
+global function MapZones_GetCount
 global function GetZoneNameForZoneId
 global function MapZones_AddMinimapLevelLabel
 global function GetZoneMiniMapNameForZoneId
@@ -18,6 +19,7 @@ global function SCB_OnPlayerEntersMapZone
 global function MapZones_ZoneIntroText
 global function MapZones_ZoneIntroTextFullscreenWithSubtext
 global function MapZones_GetChromaBackgroundForZoneId
+global function MapZones_ShowEnterZoneName
 
 
 
@@ -166,6 +168,16 @@ void function MapZones_RegisterDataTable( asset dataTableAsset )
 	file.mapZonesDataTable   = GetDataTable( dataTableAsset )
 	file.mapZonesInitialized = true
 }
+
+
+int function MapZones_GetCount()
+{
+	if ( !file.mapZonesInitialized )
+		return 0
+
+	return GetDataTableRowCount( file.mapZonesDataTable )
+}
+
 
 
 
@@ -1183,10 +1195,6 @@ string function MapZones_GetNormalZoneName( string zoneName )
 
 
 
-
-
-
-
 var s_zoneIntroRui = null
 void function MapZones_ZoneIntroText_( entity player, string zoneDisplayName, int zoneTier, string zoneDisplaySubText, bool doFullscreenRui )
 {
@@ -1233,6 +1241,13 @@ void function SCB_OnPlayerEntersMapZone( int zoneId, int zoneTier )
 	int ceFlags = player.GetCinematicEventFlags()
 	if ( IsBitFlagSet( ceFlags, (CE_FLAG_HIDE_MAIN_HUD | CE_FLAG_INTRO ) ) )
 		return
+
+	MapZones_ShowEnterZoneName( zoneId, zoneTier )
+}
+
+void function MapZones_ShowEnterZoneName( int zoneId, int zoneTier )
+{
+	entity player = GetLocalViewPlayer()
 
 	string zoneDisplayName = GetZoneNameForZoneId( zoneId )
 	if ( s_lastZoneDisplayNames.contains( zoneDisplayName ) )

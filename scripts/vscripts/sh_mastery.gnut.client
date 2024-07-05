@@ -3004,6 +3004,14 @@ int function Mastery_SortTrialQueryResult( MasteryWeapon_TrialQueryResult a, Mas
 
 
 
+
+
+
+
+
+
+
+
 int function Mastery_GetStatValue( entity player, string statRef )
 {
 	if ( !fileLevel.isMasteryEnabled )

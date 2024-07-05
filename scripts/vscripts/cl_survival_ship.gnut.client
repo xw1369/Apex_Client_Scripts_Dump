@@ -381,6 +381,8 @@ void function __PlayerPlaneStatusChanged( entity statusChangePlayer )
 
 
 
+
+
 void function PlayDoorsOpenTimerSounds( entity player )
 {
 	Signal( player, "CreateSquadLeaderBox" )

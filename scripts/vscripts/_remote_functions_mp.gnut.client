@@ -137,6 +137,9 @@ void function RemoteFunctions_Init_Begin()
 		Remote_RegisterClientFunction( "ServerToClient_PlayLootRarityFXOnDeathboxDrop", "entity" )
 
 
+	Remote_RegisterClientFunction( "Flyer_ServerToClient_DisplayFlyerDeathboxPrompt" )
+	Remote_RegisterServerFunction( "Flyer_ClientToServer_PingFlyerDeathbox" )
+
 	RegisterNetworkedVariable( "lootRarity", SNDC_DEATH_BOX, SNVT_INT, -1 )
 	RegisterNetworkedVariable( "ownerEHI", SNDC_DEATH_BOX, SNVT_BIG_INT, -1 )
 
@@ -297,36 +300,12 @@ void function RemoteFunctions_Init_Begin()
 
 
 
-			Gamemode_ShadowRoyale_RegisterNetworking()
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 			Ability_Shadow_Zombie_RegisterNetworking()
 
 
 
 
-
-
-
-
 			RollingRespawn_RegisterNetworking()
-
-
-
-			ShGameModeExplore_RegisterNetworking()
 
 
 
@@ -364,8 +343,6 @@ void function RemoteFunctions_Init_Begin()
 			Remote_RegisterClientFunction( "ServerCallback_PlayerBootsOnGround" )
 
 			Remote_RegisterClientFunction( "ServerCallback_AutoReloadComplete", "entity" )
-
-			Remote_RegisterClientFunction( "ServerCallback_SetLaserSightVMLaserEnabled", "entity" , "bool")
 
 			Remote_RegisterUIFunction( "ServerCallback_OpenSurvivalExitMenu", "bool" )
 			
@@ -434,8 +411,7 @@ void function RemoteFunctions_Init_Begin()
 
 
 
-			Remote_RegisterUIFunction( "ServerCallback_MilestoneEvent_MilestoneRewardCeremonyIsDue" )
-			Remote_RegisterUIFunction( "ServerCallback_MilestoneEvent_TryDisplayMilestoneRewardCeremonyForAutoOpenPacks" )
+			Remote_RegisterUIFunction( "ServerCallback_MilestoneEvent_MilestoneRewardCeremonyIsDue", "int", 0, 255 )
 
 
 			Remote_RegisterUIFunction( "ServerCallback_UpdatePlayerLastLoggedInTimestamp", "int", 0, INT_MAX )
@@ -448,7 +424,7 @@ void function RemoteFunctions_Init_Begin()
 
 			
 
-			bool shouldRegisterFullTeamVar = IsRankedGame()
+			bool shouldRegisterFullTeamVar = GameModeVariant_IsActive( eGameModeVariants.SURVIVAL_RANKED )
 
 			if( GamemodeUtility_GetMixtapeAbandonPenaltyActive() )
 				shouldRegisterFullTeamVar = true
@@ -462,7 +438,7 @@ void function RemoteFunctions_Init_Begin()
 			if ( shouldRegisterFullTeamVar )
 				RegisterNetworkedVariable( "rankedDidPlayerEverHaveAFullTeam", SNDC_PLAYER_GLOBAL, SNVT_BOOL, false )
 
-			bool shouldRegisterRankedVars = IsRankedGame()
+			bool shouldRegisterRankedVars = GameModeVariant_IsActive( eGameModeVariants.SURVIVAL_RANKED )
 
 
 
@@ -473,7 +449,7 @@ void function RemoteFunctions_Init_Begin()
 			if ( shouldRegisterRankedVars )
 			{
 				
-				if( IsRankedGame() )
+				if( GameModeVariant_IsActive( eGameModeVariants.SURVIVAL_RANKED ) )
 					RegisterNetworkedVariable( "kill_participation", SNDC_PLAYER_GLOBAL, SNVT_INT, 0 )
 
 				RegisterNetworkedVariable( "inMatchRankScoreProgress", SNDC_PLAYER_EXCLUSIVE, SNVT_BIG_INT, -1 )
@@ -536,84 +512,11 @@ void function RemoteFunctions_Init_Begin()
 
 
 
-
-
-
-
-			WinterExpress_RegisterNetworking()
-
-
-
-			Campfire_RegisterNetworking()
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-			Control_RegisterNetworking()
-
-
-
-			FreeDM_RegisterNetworking()
-
-
 		LoadoutSelection_RegisterNetworking()
-		AirdropExtravaganza_RegisterNetworking()
 		GamemodeUtility_RegisterNetworking()
 
 
 
-
-
-
-
-
-
-
-			ShGameMode_Valentines_S15_RegisterNetworking()
-
-
-
-			Sh_Survival_Hardcore_RegisterNetworking()
-
-
-
-			Sh_Heatwave_RegisterNetworking()
-
-
-
-
-
-
-
-
-
-
-
-			ShGameMode_ShadowArmy_RegisterNetworking()
-			ShadowArmy_RespawnBeacon_RegisterNetworking()
-
-
-
-			TreasureHunt_RegisterNetworking()
 
 
 
@@ -669,16 +572,26 @@ void function RemoteFunctions_Init_Begin()
 	}
 
 
+
+		foreach ( string platform in PLATFORM_LIST )
+		{
+			RegisterNetworkedVariable( "nv_currentRankedLadderPosition_" + platform, SNDC_PLAYER_GLOBAL, SNVT_BIG_INT, -2 )
+		}
+		if ( IsLobby() )
+		{
+
+				RankedRumble_RegisterNetworkFunctions()
+
+		}
+
+
+
 		MapMetrics_RegisterNetworking()
 
 
 	Remote_RegisterClientFunction( "ServerCallback_NessyMessage", "int", 0, 50 )
 
 	Remote_RegisterClientFunction( "ServerCallback_PlayPassiveVoice", "int", 0, 50 )
-
-
-
-
 
 
 
@@ -761,7 +674,15 @@ void function RemoteFunctions_Init_Begin()
 
 
 
+
+
+
+
 		CrowdNoiseMeter_RegisterNetworking()
+
+
+
+
 
 
 
@@ -770,7 +691,6 @@ void function RemoteFunctions_Init_Begin()
 
 	
 	Remote_RegisterClientFunction( "ServerCallback_PlayScreenFXWarpJump" )
-	Remote_RegisterClientFunction( "ServerCallback_GameModeAnnouncement" )
 
 	Remote_RegisterClientFunction( "ServerCallback_ScoreEventNoEnt", "int", -1, INT_MAX, "int", 0, 1 << eEventDisplayType.len() - 1, "float", 0.0, FLT_MAX, 32 )
 	Remote_RegisterClientFunction( "ServerCallback_ScoreEvent", "int", -1, INT_MAX, "int", 0, 1 << eEventDisplayType.len() - 1, "entity", "float", 0.0, FLT_MAX, 32 )
@@ -871,6 +791,7 @@ void function RemoteFunctions_Init_Begin()
 
 
 	Remote_RegisterServerFunction( "ClientCallback_ViewedCupsAboutDialog" )
+	Remote_RegisterServerFunction( "ClientCallback_ViewedActiveCup", "int", 0, INT_MAX )
 
 	Remote_RegisterServerFunction( "ClientCallback_ViewingMainLobbyPage" )
 	Remote_RegisterServerFunction( "ClientCallback_MarkHeirloomShopPopupAsSeen" )
@@ -928,10 +849,6 @@ void function RemoteFunctions_Init_Begin()
 	Remote_RegisterClientFunction( "ServerCallback_PlayerPerformPodiumScreenFlourish", "int", INT_MIN, INT_MAX )
 
 	
-	Remote_RegisterServerFunction( "ClientCallback_InitializeCraftingAtWorkbench", "int", 0, 32 )
-	Remote_RegisterServerFunction( "ClientCallback_ClosedCraftingMenu" )
-
-	
 	Remote_RegisterServerFunction( "ClientCallback_newness_clear", "int", INT_MIN, INT_MAX )
 	Remote_RegisterServerFunction( "ClientCallback_temp_newness_mark", "int", INT_MIN, INT_MAX )
 
@@ -957,7 +874,6 @@ void function RemoteFunctions_Init_Begin()
 	Remote_RegisterClientFunction( "ServerCallback_DisplayJumpPadHint" )
 	Remote_RegisterClientFunction( "ServerCallback_HideJumpPadHint" )
 
-	Remote_RegisterServerFunction ( "ClientCallback_RefreshEventChallenges" )
 	Remote_RegisterServerFunction ( "ClientCallback_UpdateMythicChallenges" )
 	Remote_RegisterServerFunction ( "ClientCallback_ToggleFavoriteChallenge", "int", INT_MIN, INT_MAX )
 
@@ -980,7 +896,7 @@ void function RemoteFunctions_Init_Begin()
 	GibraltarShield_RegisterNetworkFunctions()
 
 
-
+		ShPassiveBattleSense_RegisterNetworking()
 
 
 	MobileHMG_RegisterNetworkFunctions()
@@ -1007,11 +923,7 @@ void function RemoteFunctions_Init_Begin()
 		Remote_RegisterServerFunction( "ClientCallback_MigrateMeTransferPersistence", "typed_entity", "player" )
 
 	
-	Remote_RegisterClientFunction( "ServertoClient_LTM_AnnouncementSplash")
-
-
-	CombatRange_RegisterRemoteFunctions()
-
+	Remote_RegisterClientFunction( "ServertoClient_LTM_AnnouncementSplash" )
 
 
 	if ( !IsLobby() )
@@ -1051,7 +963,11 @@ void function RemoteFunctions_Init_Begin()
 
 
 	Remote_RegisterUIFunction( "ServerCallback_GamemodeSelectorInitialize" )
-	Remote_RegisterServerFunction( "ClientCallback_GamemodeSelectorDismiss", "int", INT_MIN, INT_MAX )
+	Remote_RegisterServerFunction( "ClientCallback_GamemodeSelectorDismiss", "int", 0, GAMEMODE_MAX_SEEN_INDEX )
+
+
+
+
 
 
 	Remote_RegisterServerFunction( "ClientCallback_RequestPlayerLastRank" )

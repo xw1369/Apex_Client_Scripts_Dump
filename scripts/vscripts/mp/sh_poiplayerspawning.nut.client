@@ -41,8 +41,6 @@ global enum eTurboBRTeamType
 const string 	CUSTOMDROPSHIP_ANIM_FLYIN_NAME = "dropship_classic_mp_flyin"
 const string	CUSTOMDROPSHIP_SOUND_NAME = "goblin_imc_evac_hover"
 
-const string 	CURATED_SPAWNPOINT_CLASSNAME 		= "info_poispawning_squadspawn"
-const string 	CURATED_SPAWNPOINT_SCRIPTNAME 		= "poispawning_curated_spawn"
 const float 	POISPAWN_SQUADS_MINDISTANCE 		= 3937.01 * 2.0 
 const float 	POISPAWN_CURATEDSPAWNS_MINDISTANCE 	= 3937.01 * 1.0 
 const int 		POISPAWN_MAX_SPAWNPOINTS_PER_ZONE 	= 2
@@ -809,8 +807,6 @@ void function POIPlayerSpawning_Init()
 	RegisterSignal( "POISpawn_TeamLanded" )
 	RegisterSignal( "POISpawn_CustomDropship_CameraZoom" )
 }
-
-
 
 
 

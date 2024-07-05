@@ -162,9 +162,9 @@ const float FERRO_WALL_PILLAR_DELAY_FORWARD = 0.05
 const float FERRO_WALL_PILLAR_DELAY_HORIZONTAL = FERRO_WALL_PILLAR_DELAY_FORWARD * 2
 const float FERRO_WALL_PILLAR_SCALE_TIME = 0.6
 const float FERRO_WALL_PILLAR_DESCALE_TIME = 0.85
-const int FERRO_WALL_NUM_PILLARS_FORWARD = 18
+const int FERRO_WALL_NUM_PILLARS_FORWARD = 20
 
-const int UPGRADE_FERRO_WALL_NUM_PILLARS_FORWARD = 24
+const int UPGRADE_FERRO_WALL_NUM_PILLARS_FORWARD = 27
 
 const int FERRO_WALL_NUM_PILLARS_HORIZONTAL_PER_SIDE = 8
 const float FERRO_WALL_PILLAR_HEALTH = 125
@@ -721,17 +721,17 @@ vector function GetProjectileVelocity_weapon_ferro_wall( entity projectile, floa
 bool function FerroWall_BlockScan( vector startPos, vector endPos )
 {
 
+	TraceResults traceResult = TraceLine( startPos, endPos, [], CONTENTS_BLOCKSCAN, TRACE_COLLISION_GROUP_NONE, null, true )
+
+	bool retVal = ( traceResult.fraction < 1.0 )
+
+	return retVal
 
 
 
 
 
 
-	entity ent = TraceGetTargetNameEntAlongLine( FERRO_WALL_SEGMENT_TARGET_NAME, startPos, endPos )
-	if ( IsValid( ent ) )
-		return ent.GetTargetName() == FERRO_WALL_SEGMENT_TARGET_NAME
-
-	return false
 
 }
 
@@ -2122,6 +2122,11 @@ void function FerroWallDarkVision_StartVisualEffect( entity ent, int statusEffec
 		GfxDesaturateOn()
 
 	thread FerroWallDarkVision_UpdatePlayerScreenVFX_Thread( ent, statusEffect )
+
+	
+	int contextId = HighlightContext_GetId( "always_on_enemy_assist" )
+
+	HighlightContext_SetParam( contextId, 1, < 85, 0, 0 > )
 }
 
 void function FerroWallDarkVision_StopVisualEffect( entity ent, int statusEffect, bool actuallyChanged )
@@ -2140,7 +2145,11 @@ void function FerroWallDarkVision_StopVisualEffect( entity ent, int statusEffect
 	thread FerroWallDarkVision_FadePlayerScreenVFX_Thread( ent, fadeTime, file.darkVisionFXID, file.darkVisionLimit0FX, file.darkVisionLimit1FX, file.darkVisionLimit2FX, file.darkVisionLimit3FX, file.darkVisionFXAlpha, file.flashlightFXAlpha, true, statusEffect )
 	thread FerroWallDarkVision_ClearPlayerScreenFX_Thread( ent, fadeTime)
 
+	
 
+	int contextId = HighlightContext_GetId( "always_on_enemy_assist" )
+
+	HighlightContext_SetParam( contextId, 1, < 85, 1.5, 0 > )
 }
 
 void function FerroWallDarkVision_ClearPlayerScreenFX_Thread( entity ent, float fadeTime )

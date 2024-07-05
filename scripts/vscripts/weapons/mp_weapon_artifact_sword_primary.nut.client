@@ -28,9 +28,7 @@ void function OnWeaponActivate_weapon_artifact_sword_primary( entity weapon )
 
 	weapon.PlayWeaponEffect( GH_SWORD_IDLE_FX_1P, GH_SWORD_IDLE_FX_3P, "blade_base" )
 
-
-
-
+	Melee_SetModsForLegendAbilities( player )
 
 	if ( meleeSkinName == "heirloom" )
 	{
@@ -51,10 +49,7 @@ void function OnWeaponDeactivate_weapon_artifact_sword_primary( entity weapon )
 
 	weapon.StopWeaponEffect( GH_SWORD_IDLE_FX_1P, GH_SWORD_IDLE_FX_3P )
 
-
-
-
-
+	Melee_RemoveModsForLegendAbilities( player )
 
 	if ( meleeSkinName == "heirloom" )
 	{

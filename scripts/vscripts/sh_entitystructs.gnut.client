@@ -52,6 +52,10 @@ global struct EHIScriptStruct
 
 		array<int> netVarsLastSeenValuesMap
 		string obfuscatedID = ""
+		string uid
+		string unspoofedUid
+		string playerEAID
+		string hardware
 
 
 
@@ -72,6 +76,7 @@ global struct EHIScriptStruct
 	
 	int rankScore = -1 
 	int rankedLadderPosition = -1 
+	table< string, int > platformLadderPosition = {}
 
 	int rankScorePrevSeason = -1 
 	int rankedLadderPositionPrevSeason = -1 

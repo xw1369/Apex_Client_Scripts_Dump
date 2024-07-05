@@ -1202,7 +1202,12 @@ void function UpdateScreensContent( array<ApexScreenState> screenList )
 
 	entity localViewPlayer = GetLocalViewPlayer()
 	bool isCrypto          = PlayerHasPassive( localViewPlayer, ePassives.PAS_CRYPTO )
-	bool inCamera          = IsPlayerInCryptoDroneCameraView( localViewPlayer )
+
+	bool activeCamera      = IsValid( localViewPlayer.p.cryptoActiveCamera )
+
+
+
+
 	foreach ( ApexScreenState screen in screenList )
 	{
 		bool shouldShow = true
@@ -1290,7 +1295,11 @@ void function UpdateScreensContent( array<ApexScreenState> screenList )
 		int desiredTransitionStyle                = masterState.transitionStyle
 		EHI desiredPlayerEHI                      = masterState.playerEHI
 
-		if ( desiredCommenceTime == screen.commenceTime && !inCamera )
+
+		if ( desiredCommenceTime == screen.commenceTime && !activeCamera )
+
+
+
 			continue
 
 		if ( isCrypto )
@@ -1298,7 +1307,11 @@ void function UpdateScreensContent( array<ApexScreenState> screenList )
 		else
 			RuiSetFloat( screen.rui, "cryptoHintAlpha", 0.0 )
 
-		if ( inCamera )
+
+		if ( activeCamera )
+
+
+
 		{
 			desiredMode = eApexScreenMode.CAMERA_VIEW
 			desiredTransitionStyle = eApexScreenTransitionStyle.NONE

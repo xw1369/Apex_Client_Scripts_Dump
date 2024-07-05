@@ -81,6 +81,11 @@ void function GunShieldTogglePressed( entity player )
 	if ( !IsValid( activeWeapon ) )
 		return
 
+
+
+
+
+
 	if ( activeWeapon.IsWeaponAdsButtonPressed() || activeWeapon.IsWeaponInAds() )
 		Remote_ServerCallFunction( "ClientCallback_ToggleGibraltarShield" )
 }
@@ -134,6 +139,11 @@ bool function WeaponAllowsShield( entity weapon )
 	var allowShield = weapon.GetWeaponInfoFileKeyField( "allow_gibraltar_shield" )
 	if ( allowShield != null && allowShield == 0 )
 		return false
+
+
+
+
+
 
 	return true
 }
@@ -242,7 +252,14 @@ bool function OnWeaponAttemptOffhandSwitch_ability_gibraltar_shield( entity weap
 
 	entity mainWeapon = player.GetActiveWeapon( eActiveInventorySlot.mainHand )
 	if ( !WeaponAllowsShield( mainWeapon ) )
+	{
+
+
+
+
+
 		return false
+	}
 
 	return PlayerHasPassive( player, ePassives.PAS_ADS_SHIELD )
 }

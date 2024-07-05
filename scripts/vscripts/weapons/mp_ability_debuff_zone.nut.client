@@ -37,7 +37,7 @@ const int DEBUFF_ZONE_RADIUS = 150
 const float AOE_TIMEOUT = 5.0
 const float AOE_HIT_EFFECT_TIMER = 0.5
 const float AOE_SPAWN_DELAY = 1.0
-const float DEBUFF_AOE_DAMAGE = 5.0
+const float DEBUFF_AOE_DAMAGE = 10.0
 const float DIRECT_HIT_BUFF_DURATION = 12.0
 
 const float MAX_DEBUFF_OVERHEAT = 100.0
@@ -120,7 +120,7 @@ const string BALLISTIC_HAS_LOCKON_TARGET_NETVAR = "hasBallisticLockonTarget"
 const string BALLISTIC_IS_BEING_TARGETED_NETVAR = "ballisticIsBeingTargeted"
 
 
-const float FOLLOW_UP_SPEED_BOOST_DURATION = 1.0
+const float FOLLOW_UP_SPEED_BOOST_DURATION = 2.0
 
 struct FollowUpStatusEffectIndexes
 {
@@ -528,6 +528,8 @@ void function DebuffZone_OnPlayerOverheat( entity player, entity weapon )
 
 	weapon.PlayWeaponEffect( DEBUFF_EXPLOSION, $"", "muzzle_flash" )
 }
+
+
 
 
 

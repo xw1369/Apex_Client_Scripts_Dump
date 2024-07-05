@@ -1,0 +1,448 @@
+
+
+
+global function StatsRegister_S21
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+void function StatsRegister_S21()
+{
+	CAREER_STATS.s21alter_complete_all_challenges = RegisterExpensiveCalculatedStat_Int( null, "s21alter_complete_all_challenges", CHALLENGES_CALC_DEPENDS, SetupS21AlterCompleteAllChallenges, [], eChallengeGameMode.NON_MODE )
+	CAREER_STATS.s21exp_play_game_x_legends_any_mode = RegisterBitfieldStat_Int( null, "s21exp_play_game_x_legends_any_mode", CHALLENGES_CALC_DEPENDS, SetupS21EXPGamePlayedAnyMode, [], eChallengeGameMode.ANY )
+
+
+		CAREER_STATS.gamemode_solo_games_played = RegisterAccumulatedStat_Int( null, "gamemode_solo_games_played", eChallengeGameMode.BATTLE_ROYALE, CHALLENGES_CALC_DEPENDS )
+		CAREER_STATS.gamemode_solo_kills = RegisterAccumulatedStat_Int( null, "gamemode_solo_kills", eChallengeGameMode.BATTLE_ROYALE, CHALLENGES_CALC_DEPENDS )
+		CAREER_STATS.gamemode_solo_damage_done = RegisterAccumulatedStat_Int( null, "gamemode_solo_damage_done", eChallengeGameMode.BATTLE_ROYALE, CHALLENGES_CALC_DEPENDS )
+		CAREER_STATS.gamemode_solo_games_wins = RegisterAccumulatedStat_Int( null, "gamemode_solo_games_wins", eChallengeGameMode.BATTLE_ROYALE, CHALLENGES_CALC_DEPENDS )
+		CAREER_STATS.gamemode_solo_placement_top_10_with_10_legends = RegisterBitfieldStat_Int( null, "gamemode_solo_placement_top_10_with_10_legends", CHALLENGES_CALC_DEPENDS, SetupS21SoloPlacementTop10With10Legends, [], eChallengeGameMode.BATTLE_ROYALE )
+		CAREER_STATS.gamemode_solo_complete_all_challenges = RegisterExpensiveCalculatedStat_Int( null, "gamemode_solo_complete_all_challenges", CHALLENGES_CALC_DEPENDS, SetupS21SoloCompleteAllChallenges, [], eChallengeGameMode.NON_MODE )
+
+
+	CAREER_STATS.s21ce01_buffet_points = RegisterAccumulatedStat_Int( null, "s21ce01_buffet_points", eChallengeGameMode.NON_MODE, CHALLENGES_CALC_DEPENDS )
+	CAREER_STATS.s21me02_event_currency_total = RegisterAccumulatedStat_Int( null, "s21me02_event_currency_total", eChallengeGameMode.NON_MODE, CHALLENGES_CALC_DEPENDS )
+
+
+		CAREER_STATS.gamemode_quad_games_played = RegisterAccumulatedStat_Int( null, "gamemode_quad_games_played", eChallengeGameMode.BATTLE_ROYALE, CHALLENGES_CALC_DEPENDS )
+		CAREER_STATS.gamemode_quad_damage_done = RegisterAccumulatedStat_Int( null, "gamemode_quad_damage_done", eChallengeGameMode.BATTLE_ROYALE, CHALLENGES_CALC_DEPENDS )
+		CAREER_STATS.gamemode_quad_kills = RegisterAccumulatedStat_Int( null, "gamemode_quad_kills", eChallengeGameMode.BATTLE_ROYALE, CHALLENGES_CALC_DEPENDS )
+		CAREER_STATS.gamemode_quad_placement_top_5 = RegisterAccumulatedStat_Int( null, "gamemode_quad_placement_top_5", eChallengeGameMode.BATTLE_ROYALE, CHALLENGES_CALC_DEPENDS )
+		CAREER_STATS.gamemode_quad_premade_win = RegisterAccumulatedStat_Int( null, "gamemode_quad_premade_win", eChallengeGameMode.BATTLE_ROYALE, CHALLENGES_CALC_DEPENDS )
+		CAREER_STATS.gamemode_quad_placement_top_5_with_10_legends = RegisterBitfieldStat_Int( null, "gamemode_quad_placement_top_5_with_10_legends", CHALLENGES_CALC_DEPENDS, SetupS21QuadPlacementTop5With10Legends, [], eChallengeGameMode.BATTLE_ROYALE )
+		CAREER_STATS.gamemode_quad_knockdowns = RegisterAccumulatedStat_Int( null, "gamemode_quad_knockdowns", eChallengeGameMode.BATTLE_ROYALE, CHALLENGES_CALC_DEPENDS )
+		CAREER_STATS.gamemode_quad_damage_done_max_in_one_game = RegisterAccumulatedStat_Int( null, "gamemode_quad_damage_done_max_in_one_game", eChallengeGameMode.BATTLE_ROYALE, CHALLENGES_CALC_DEPENDS )
+		CAREER_STATS.gamemode_quad_complete_all_challenges = RegisterExpensiveCalculatedStat_Int( null, "gamemode_quad_complete_all_challenges", CHALLENGES_CALC_DEPENDS, SetupS21QuadCompleteAllChallenges, [], eChallengeGameMode.NON_MODE )
+
+
+
+		CAREER_STATS.gamemode_bigtdm_games_played = RegisterAccumulatedStat_Int( null, "gamemode_bigtdm_games_played", eChallengeGameMode.FTDM, CHALLENGES_CALC_DEPENDS )
+
+}
+
+StatCalcFuncInfo function SetupS21AlterCompleteAllChallenges( StatEntry calcEntry, array< StatTemplate > sourceTemplate )
+{
+	StatCalcFuncInfo info
+
+	info.calcFunc_Int = ( int function( entity player, array< StatEntry > sourceEntries, int when ) {
+		array< ItemFlavor > challenges = [
+			GetItemFlavorByAsset( $"settings/itemflav/challenge/alter/damage_done.rpak" ),
+			GetItemFlavorByAsset( $"settings/itemflav/challenge/alter/deathbox_items_seized.rpak" ),
+			GetItemFlavorByAsset( $"settings/itemflav/challenge/alter/surfaces_breached.rpak" ),
+			GetItemFlavorByAsset( $"settings/itemflav/challenge/alter/allies_regrouped.rpak" ),
+			GetItemFlavorByAsset( $"settings/itemflav/challenge/alter/breach_killer.rpak" ),
+		]
+
+		return Challenge_CountComplete( player, challenges )
+	} )
+
+	return info
+}
+
+StatCalcFuncInfo function SetupS21EXPGamePlayedAnyMode( StatEntry calcEntry, array< StatTemplate > sourceTemplate )
+{
+	StatCalcFuncInfo info
+
+	info.calcFunc_Int = ( int function( entity player, array< StatEntry > sourceEntries, int when ) {
+		return Stats_CountSetBitsInCharacterBitfield( GetStat_Int( player, ResolveStatEntry( CAREER_STATS.s21exp_play_game_x_legends_any_mode ), eStatGetWhen.CURRENT, eStatFetchMode.BITFIELD_RAW ) )
+	} )
+
+	return info
+}
+
+StatCalcFuncInfo function SetupS21SoloPlacementTop10With10Legends( StatEntry calcEntry, array< StatTemplate > sourceTemplate )
+{
+	StatCalcFuncInfo info
+
+	info.calcFunc_Int = ( int function( entity player, array< StatEntry > sourceEntries, int when ) {
+		return Stats_CountSetBitsInCharacterBitfield( GetStat_Int( player, ResolveStatEntry( CAREER_STATS.gamemode_solo_placement_top_10_with_10_legends ), eStatGetWhen.CURRENT, eStatFetchMode.BITFIELD_RAW ) )
+	} )
+
+	return info
+}
+
+StatCalcFuncInfo function SetupS21SoloCompleteAllChallenges( StatEntry calcEntry, array< StatTemplate > sourceTemplate )
+{
+	StatCalcFuncInfo info
+
+	info.calcFunc_Int = ( int function( entity player, array< StatEntry > sourceEntries, int when ) {
+		array< ItemFlavor > challenges = [
+			GetItemFlavorByAsset( $"settings/itemflav/challenge/solos/damage_done.rpak" ),
+			GetItemFlavorByAsset( $"settings/itemflav/challenge/solos/damage_done_match.rpak" ),
+			GetItemFlavorByAsset( $"settings/itemflav/challenge/solos/games_played.rpak" ),
+			GetItemFlavorByAsset( $"settings/itemflav/challenge/solos/kills.rpak" ),
+			GetItemFlavorByAsset( $"settings/itemflav/challenge/solos/kills_match.rpak" ),
+			GetItemFlavorByAsset( $"settings/itemflav/challenge/solos/placement_top_10_with_10_legends.rpak" ),
+			GetItemFlavorByAsset( $"settings/itemflav/challenge/solos/win_match.rpak" ),
+		]
+
+		return Challenge_CountComplete( player, challenges )
+	} )
+
+	return info
+}
+
+
+StatCalcFuncInfo function SetupS21QuadPlacementTop5With10Legends( StatEntry calcEntry, array< StatTemplate > sourceTemplates )
+{
+	StatCalcFuncInfo info
+
+	info.calcFunc_Int = ( int function( entity player, array< StatEntry > sourceEntries, int when ) {
+		return Stats_CountSetBitsInCharacterBitfield( GetStat_Int( player, ResolveStatEntry( CAREER_STATS.gamemode_quad_placement_top_5_with_10_legends ), eStatGetWhen.CURRENT, eStatFetchMode.BITFIELD_RAW ) )
+	} )
+
+	return info
+}
+
+StatCalcFuncInfo function SetupS21QuadCompleteAllChallenges( StatEntry calcEntry, array< StatTemplate > sourceTemplates )
+{
+	StatCalcFuncInfo info
+
+	info.calcFunc_Int = ( int function( entity player, array< StatEntry > sourceEntries, int when ) {
+		array< ItemFlavor > requiredChallenges = [
+			GetItemFlavorByAsset( $"settings/itemflav/challenge/quads/damage_done_match.rpak" ),
+			GetItemFlavorByAsset( $"settings/itemflav/challenge/quads/damage_done.rpak" ),
+			GetItemFlavorByAsset( $"settings/itemflav/challenge/quads/games_played.rpak" ),
+			GetItemFlavorByAsset( $"settings/itemflav/challenge/quads/kills.rpak" ),
+			GetItemFlavorByAsset( $"settings/itemflav/challenge/quads/placement_top_5.rpak" ),
+			GetItemFlavorByAsset( $"settings/itemflav/challenge/quads/placement_top_5_with_10_legends.rpak" ),
+			GetItemFlavorByAsset( $"settings/itemflav/challenge/quads/premade_win.rpak" ),
+		]
+
+		return Challenge_CountComplete( player, requiredChallenges )
+	} )
+	return info
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                          

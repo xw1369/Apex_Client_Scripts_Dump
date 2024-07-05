@@ -208,7 +208,11 @@ void function OnWeaponActivate_void_ring( entity weapon )
 
 		if ( !InPrediction() ) 
 			return
-		RunUIScript( "CloseSurvivalInventoryMenu" )
+
+		if ( ownerPlayer == GetLocalViewPlayer() )
+		{
+			RunUIScript( "CloseSurvivalInventoryMenu" )
+		}
 
 
 }

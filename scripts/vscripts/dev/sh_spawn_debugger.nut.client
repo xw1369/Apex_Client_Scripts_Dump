@@ -22,7 +22,7 @@ const vector DEBUG_BOX_CENTER_OFFSET = < 0, 0, 16 >
 const float MAX_SPAWNPOINT_HEIGHT_FROM_NAVMESH = 16.01 
 const float TRACE_LENGTH = 80 
 const float DEBUG_SPHERE_RADIUS = 8.0
-const float DEBUG_DRAW_DURATION = 120.0
+const float DEBUG_DRAW_DURATION = 300.0
 
 const int MAX_SPAWNPOINT_TO_DEBUG_DRAW = 20 
 
@@ -51,10 +51,15 @@ void function SpawnDebugger_Init()
 void function DEV_EnableSpawnPointTesting( bool enabled)
 {
 	entity player = GP()
-	Assert( IsValid( player ), "Unable to find a local player: DEV_EnableSpawnPointTesting" )
+	Assert( IsValid( player ), "[SPAWN DEBUGGER] Unable to find a local player: DEV_EnableSpawnPointTesting" )
 
 	if ( enabled )
 	{
+
+
+
+
+
 
 
 
@@ -64,7 +69,7 @@ void function DEV_EnableSpawnPointTesting( bool enabled)
 			player.ClientCommand( "bind KP_LEFTARROW \"script DEV_ForceSpawnAtPreviousSpawnPoint()\"" )
 			player.ClientCommand( "bind KP_DOWNARROW \"script DEV_PrintSpawnPointLocationToFile()\"" )
 			player.ClientCommand( "bind KP_5 \"script DEV_SaveSpawnPointLocation()\"" )
-			printt( "Enabled Spawn Point Testing" )
+			printt( "[SPAWN DEBUGGER] Enabled Spawn Point Testing" )
 
 
 		file.mapName = GetMapName().tolower()
@@ -81,7 +86,7 @@ void function DEV_EnableSpawnPointTesting( bool enabled)
 			player.ClientCommand( "unbind KP_LEFTARROW" )
 			player.ClientCommand( "unbind KP_DOWNARROW" )
 			player.ClientCommand( "unbind KP_5" )
-			printt( "Disabled Spawn Point Testing" )
+			printt( "[SPAWN DEBUGGER] Disabled Spawn Point Testing" )
 
 
 		file.spawnPointPosArray.clear()

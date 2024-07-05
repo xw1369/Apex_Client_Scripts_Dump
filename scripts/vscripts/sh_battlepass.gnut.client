@@ -12,6 +12,13 @@ global function GetBattlePassLevelForXP
 global function GetBattlePassXPForLevel
 global function GetPlayerBattlePassLevel
 global function GetBattlePassLevelRewards
+
+
+
+
+
+
+
 global function GetBattlePassPremiumRewards
 global function GetBattlePassBaseRewards
 global function GetBattlePassXPEventValue
@@ -45,10 +52,12 @@ global function BattlePassPurchasedXP_GetXPAmount
 global function GetPlayerBattlePassEarnedXP
 global function GetPlayerBattlePassPurchasedXP
 global function GetPlayerBattlePassLastSeenPremium
+global function GetPlayerBattlePassLastSeenElite
 global function GetPlayerBattlePassPurchasedLevels
 global function GetPlayerBattlePassLastSeenXP
 
 global function DoesPlayerOwnBattlePass
+global function DoesPlayerOwnEliteBattlePass
 global function GetCurrentBattlePassWeek
 global function GetCurrentBattlePassWeekExpirationTime
 global function GetBattlePassProgressBadge
@@ -87,9 +96,11 @@ global function CanPlayerPurchaseBattlePassLevelsWithLegendTokens
 
 
 
+
 #if DEV
 global function DEV_BattlePass
 #endif
+
 
 
 
@@ -107,16 +118,33 @@ global const int BATTLEPASS_MAX_LEVEL = 110
 
 global const int BATTLEPASS_BUNDLE_LEVELS = 25
 
+
+
+
+
+
+
+
+
+
 global struct BattlePassReward
 {
 	ItemFlavor& flav
 	int         quantity
 	int         level
 	bool        isPremium
+	bool        isElite
 	bool		isEventReward = false
 	string		eventName = ""
 	bool 		isOwned = false 
 	bool 		isTall = false 
+	bool 		isRumble = false
+	int			tier = 0
+
+
+
+
+
 }
 
 
@@ -153,6 +181,7 @@ FileStruct_LifetimeLevel& fileLevel
 
 global const asset CHALLENGE_REWARD_MODEL = $"mdl/menu/challenge_reward_star/challenge_reward_star.rmdl"
 global const asset BATTLEPASS_STAR_REWARD_MODEL = $"mdl/menu/reward_star.rmdl"
+global const asset BATTLEPASS_MODEL_BOOST = $"mdl/menu/xp_badge.rmdl"
 global const asset BATTLEPASS_MODEL_APEX_COINS = $"mdl/menu/coin.rmdl"
 global const asset BATTLEPASS_MODEL_LEVEL_BADGE = $"mdl/menu/bp_badge.rmdl"
 global const asset BATTLEPASS_MODEL_CRAFTING_METALS = $"mdl/currency/crafting/currency_crafting_epic.rmdl"
@@ -174,6 +203,7 @@ void function ShBattlePass_LevelInit()
 
 
 	Remote_RegisterServerFunction( "ClientCallback_UpdateBattlePassLastInfo", "int", INT_MIN, INT_MAX )
+
 
 
 
@@ -255,7 +285,7 @@ void function ShBattlePass_LevelInit()
 				Assert( !dupeCheck.contains( chAsset ) )
 				dupeCheck.append( chAsset )
 
-			ItemFlavor ornull challenge = RegisterChallengeFromAsset( chAsset )
+			ItemFlavor ornull challenge = RegisterItemFlavorFromSettingsAsset( chAsset )
 				if ( challenge != null )
 					passData.challenges[ eChallengeTimeSpanKind.DAILY ][-1].append( expect ItemFlavor( challenge ) )
 			}
@@ -274,7 +304,7 @@ void function ShBattlePass_LevelInit()
 				Assert( !dupeCheck.contains( chAsset ) )
 				dupeCheck.append( chAsset )
 
-			ItemFlavor ornull challenge = RegisterChallengeFromAsset( chAsset )
+			ItemFlavor ornull challenge = RegisterItemFlavorFromSettingsAsset( chAsset )
 				if ( challenge != null )
 				{
 					expect ItemFlavor( challenge )
@@ -347,7 +377,7 @@ void function ShBattlePass_LevelInit()
 					Assert( !dupeCheck.contains( chAsset ) )
 					dupeCheck.append( chAsset )
 
-					ItemFlavor ornull challenge = RegisterChallengeFromAsset( chAsset )
+					ItemFlavor ornull challenge = RegisterItemFlavorFromSettingsAsset( chAsset )
 					if ( challenge != null )
 					{
 						expect ItemFlavor( challenge )
@@ -536,6 +566,14 @@ bool function DoesPlayerOwnBattlePass( entity player, ItemFlavor pass )
 
 
 
+bool function DoesPlayerOwnEliteBattlePass( entity player, ItemFlavor pass )
+{
+	return false 
+}
+
+
+
+
 int function GetPlayerBattlePassXPProgress( EHI playerEHI, ItemFlavor pass, bool getPreviousProgress = false )
 {
 	Assert( ItemFlavor_GetType( pass ) == eItemType.battlepass )
@@ -547,6 +585,12 @@ int function GetPlayerBattlePassXPProgress( EHI playerEHI, ItemFlavor pass, bool
 		if ( DEV_ShouldIgnorePersistence() )
 			return 0
 #endif
+
+	if ( !( pass in fileLevel.battlePassMap ) )
+	{
+		Assert( false, format( "Requested BP is not in map: %s", string( ItemFlavor_GetAsset( pass ) ) ) )
+		return 0
+	}
 
 	entity player = FromEHI( playerEHI )
 
@@ -639,6 +683,21 @@ bool function GetPlayerBattlePassLastSeenPremium( EHI playerEHI, ItemFlavor pass
 }
 
 
+
+bool function GetPlayerBattlePassLastSeenElite( EHI playerEHI, ItemFlavor pass )
+{
+	Assert( ItemFlavor_GetType( pass ) == eItemType.battlepass )
+
+		Assert( playerEHI == LocalClientEHI() )
+
+
+#if DEV
+		if ( DEV_ShouldIgnorePersistence() )
+			return false
+#endif
+
+	return FromEHI( playerEHI ).GetPersistentVarAsInt( format( "battlePasses[%s].lastSeenEliteState", ItemFlavor_GetGUIDString( pass ) ) ) != 0
+}
 
 
 
@@ -858,6 +917,75 @@ array<BattlePassReward> function GetBattlePassBaseRewards( ItemFlavor pass )
 {
 	return GetBattlePassLevelRewards( pass, 0 )
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1171,6 +1299,28 @@ var function BattlePass_GetScheduleDatatable( ItemFlavor pass )
 
 
 
+bool function BattlePassV2_IsV2BattlePass( ItemFlavor pass )
+{
+	Assert( ItemFlavor_GetType( pass ) == eItemType.battlepass )
+	asset rewardScheduleAsset = GetGlobalSettingsAsset( ItemFlavor_GetAsset( pass ), "rewardScheduleDatatableV2" )
+
+	return rewardScheduleAsset != $""
+}
+
+
+
+var function BattlePassV2_GetScheduleDatatable( ItemFlavor pass )
+{
+	Assert( ItemFlavor_GetType( pass ) == eItemType.battlepass )
+
+	asset rewardScheduleAsset = GetGlobalSettingsAsset( ItemFlavor_GetAsset( pass ), "rewardScheduleDatatableV2" )
+	Assert ( rewardScheduleAsset != $"", format( "Battlepass flav (%s) must define a V2 reward schedule (null/not found).", string( ItemFlavor_GetAsset( pass ) ) ) )
+
+	return GetDataTable( rewardScheduleAsset )
+}
+
+
+
 var function BattlePass_GetMilestoneDatatable( ItemFlavor pass )
 {
 	Assert( ItemFlavor_GetType( pass ) == eItemType.battlepass )
@@ -1199,6 +1349,169 @@ int function BattlePassPurchasedXP_GetXPAmount( ItemFlavor purchasedXPFlav )
 
 	return GetGlobalSettingsInt( ItemFlavor_GetAsset( purchasedXPFlav ), "xpAmount" )
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1592,6 +1905,7 @@ ItemFlavor function DEV_BattlePass( EHI playerEHI = EHI_null )
 
 
 
+
 int function GetPlayerBattlePassPurchasableLevels( EHI playerEHI, ItemFlavor pass )
 {
 	int currentLevel      = GetPlayerBattlePassLevel( FromEHI( playerEHI ), pass, false )
@@ -1682,6 +1996,7 @@ asset function GetBattlePassDisplayBadge( int levelIndex )
 
 	return badgeImage
 }
+
 
 
 

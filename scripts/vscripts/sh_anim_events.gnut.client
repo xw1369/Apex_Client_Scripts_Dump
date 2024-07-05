@@ -317,7 +317,14 @@ int function ClientCodeCallback_GetScriptAnimSkinIndex( entity captureModel, ent
 	if ( meleeFlavor == null )
 		return INVALID_SKIN_INDEX
 
-	return createdProp.GetSkinIndexByName( MeleeSkin_GetSkinName( expect ItemFlavor( meleeFlavor ) ) )
+	expect ItemFlavor( meleeFlavor )
+	if ( ItemFlavor_GetType( meleeFlavor ) != eItemType.melee_skin ) 
+	{
+		Assert( ItemFlavor_GetType( meleeFlavor ) == Artifacts_Loadouts_GetMeleeSkinNetVarOverrideType( false ) )
+		return INVALID_SKIN_INDEX
+	}
+
+	return createdProp.GetSkinIndexByName( MeleeSkin_GetSkinName( meleeFlavor ) )
 }
 
 

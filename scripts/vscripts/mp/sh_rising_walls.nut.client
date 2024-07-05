@@ -339,6 +339,7 @@ entity function RisingWalls_SetupWallBrushes( entity mover )
 
 
 
+
 void functionref( entity panel, entity player, int useInputFlags ) function CreateRisableWallPanelFunc( RisableWallData data, entity helper )
 {
 	return void function( entity panel, entity player, int useInputFlags ) : ( data, helper )

@@ -73,6 +73,7 @@ struct
 		string metricsDataBuffer
 		array<string> metricsDataCategories
 		bool metricsOutputRSON
+		float stabilityThreshold
 
 		bool oldDvsEnable
 		bool oldPerfMetricsDrawingEnabled
@@ -107,7 +108,7 @@ void function MapMetrics_RegisterNetworking()
 	Remote_RegisterClientFunction( "MapMetrics_ClientEndMapMetrics" )
 	Remote_RegisterClientFunction( "MapMetrics_ClientRecordDataPoint", "entity", "vector", -32000.0, 32000.0, 32, "vector", -200.0, 200.0, 32, "int", -100, 100 )
 
-	Remote_RegisterServerFunction( "MapMetrics_OnClientRecordMetricsData", "int", 0, 600 )
+	Remote_RegisterServerFunction( "MapMetrics_OnClientRecordMetricsData", "int", 0, INT_MAX )
 	Remote_RegisterServerFunction( "MapMetrics_OnClientTakeScreenshot" )
 }
 
@@ -402,7 +403,8 @@ const string METRICS_NET_OUT = "Network Bandwidth Out (KiB/s)"
 void function MapMetrics_InitFile( int fpsThreshold, int gridSize, array<string> metricsCategories )
 {
 	string mapName = GetMapName()
-	string hardware = GetConsoleName()
+	string hardware = GetPlatformName()
+	string buildType = GetBuildType()
 	string buildString = GetGameVersion()
 
 	int buildNum = buildString.slice( buildString.find( "#" ) + 1 ).tointeger()
@@ -435,7 +437,7 @@ void function MapMetrics_InitFile( int fpsThreshold, int gridSize, array<string>
 		}
 		file.metricsDataBuffer += "\n"
 
-		file.metricsDataBuffer += format( "%s,%s,%s,%i,%i", hardware, buildString, mapName, fpsThreshold, gridSize )
+		file.metricsDataBuffer += format( "%s,%s,%s,%i,%i", hardware, buildString + " (" + buildType + ")", mapName, fpsThreshold, gridSize )
 		foreach( string category in metricsCategories )
 		{
 			file.metricsDataBuffer += ","
@@ -540,6 +542,7 @@ void function MapMetrics_ClientBeginMapMetrics( int gridSize )
 	file.exitOnCompletion = GetCurrentPlaylistVarBool( "map_metrics_exit_on_completion", false ) || Dev_CommandLineHasParm( "-mapmetricsexitoncompletion" )
 	file.metricsOutputRSON = GetCurrentPlaylistVarBool( "map_metrics_output_rson", false ) || Dev_CommandLineHasParm( "-mapmetricsrson" )
 	file.fpsThreshold = GetCurrentPlaylistVarInt( "map_metrics_fps_threshold", FPS_THRESHOLD_DEFAULT_VALUE )
+	file.stabilityThreshold = GetCurrentPlaylistVarFloat( "map_metrics_stability_threshold", FRAME_TIME_STDEV_TOLERANCE )
 	bool adaptiveScalingOn = GetCurrentPlaylistVarBool( "map_metrics_adaptive_scaling", false )
 
 	array<string> metricsLabels = [ METRICS_FPS, METRICS_MEMORY, METRICS_VIEWPORT_SCALE, METRICS_NET_IN, METRICS_NET_OUT ]
@@ -591,7 +594,8 @@ void function WaitForFPSToSettle()
 	{
 		float variance = CalculateFloatArrayVarianceWithGivenPercentile( frameTimeBuffer, 1.0 )
 		float stdev = sqrt( variance )
-		if ( stdev < FRAME_TIME_STDEV_TOLERANCE )
+		bool isStable = stdev < file.stabilityThreshold;
+		if ( isStable )
 			break
 
 		frameTimeBuffer.fastremove( 0 )

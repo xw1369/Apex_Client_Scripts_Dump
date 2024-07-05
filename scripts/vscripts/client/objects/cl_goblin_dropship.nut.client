@@ -42,15 +42,17 @@ void function ClGoblinDropship_ModelFX_Init()
 		ModelFX_AddTagHealthFX( 0.20, "R_exhaust_rear_2", $"xo_health_smoke_black", false )
 	ModelFX_EndData()
 
-	
-	ModelFX_BeginData( "thrusters", $"mdl/vehicle/goblin_dropship/goblin_dropship_flying_static.rmdl", "all", true )
-		
-		
-		
-		ModelFX_AddTagSpawnFX( "L_exhaust_rear_1", $"P_veh_dropship_jet_full" )
-		ModelFX_AddTagSpawnFX( "L_exhaust_rear_2", $"P_veh_dropship_jet_full" )
 
-		ModelFX_AddTagSpawnFX( "R_exhaust_rear_1", $"P_veh_dropship_jet_full" )
-		ModelFX_AddTagSpawnFX( "R_exhaust_rear_2", $"P_veh_dropship_jet_full" )
-	ModelFX_EndData()
+
+
+
+
+
+
+
+
+
+
+
+
 }

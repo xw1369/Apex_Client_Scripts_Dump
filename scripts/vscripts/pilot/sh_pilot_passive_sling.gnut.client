@@ -6,7 +6,12 @@ global function CanPlayerEquipWeaponRefToSling
 global function IsPlayerWeaponSlingEmpty
 global function IsPlayerHoldingSlingWeapon
 global function IsPlayerSwitchingToSlingWeapon
-global function ModeUsesLoadoutWeapons
+
+	global function GetSlingWeaponRefForPlayerUpgradeLevel
+
+
+
+
 
 
 
@@ -34,12 +39,23 @@ const string BALLISTIC_SLING_EQUIPPING_SLING_WEAPON_1P = "Ballistic_Passive_Equi
 struct
 {
 
+
+
+
+
 		var slingPassiveRui
 
 } file
 
 void function ShPassiveSling_Init()
 {
+
+
+
+
+
+
+
 
 
 
@@ -52,13 +68,6 @@ void function ShPassiveSling_Init()
 
 
 	AddCallback_OnPassiveChanged( ePassives.PAS_WEAPON_SLING, PassiveSling_OnPassiveChanged )
-
-
-
-
-
-
-
 	Remote_RegisterServerFunction( "ClientCallback_Sur_SlingToMainWeaponSlot", "int", 0, WEAPON_INVENTORY_SLOT_PRIMARY_1 )
 }
 
@@ -105,16 +114,8 @@ bool function CanPlayerEquipWeaponRefToSling( entity player, string ref, bool do
 	if ( data.lootType != eLootType.MAINWEAPON )
 		return false
 
-	if( data.tier >= 4 )
+	if( data.tier > 4 )
 		return false
-
-	if( data.tier > 1 && !ModeUsesLoadoutWeapons() )
-		return false
-
-
-
-
-
 
 	return true
 }
@@ -125,24 +126,6 @@ bool function IsPlayerWeaponSlingEmpty( entity player )
 		return false
 
 	return true
-}
-
-bool function ModeUsesLoadoutWeapons()
-{
-	if( IsUsingLoadoutSelectionSystem() )
-		return true
-
-
-	if ( GetCurrentPlaylistVarBool( "is_gamemode_battle_rush", false ))
-		return true
-
-
-
-	if ( IsShadowArmyGamemode() )
-		return true
-
-
-	return false
 }
 
 bool function IsPlayerHoldingSlingWeapon( entity player )
@@ -161,6 +144,30 @@ bool function IsPlayerSwitchingToSlingWeapon( entity player )
 	return player.IsSwitching( eActiveInventorySlot.mainHand ) && !IsPlayerWeaponSlingEmpty( player ) && player.GetSelectedWeapon( eActiveInventorySlot.mainHand ) == GetPlayerSlingWeapon( player )
 }
 
+
+string function GetSlingWeaponRefForPlayerUpgradeLevel( entity player, string baseWeaponRef )
+{
+	if( !IsValid( player ) )
+		return baseWeaponRef
+
+	string retString = baseWeaponRef
+
+	if( PlayerHasPassive( player, ePassives.PAS_PAS_UPGRADE_ONE ) )
+ 	{
+		int curLevel = UpgradeCore_GetPlayerLevel( player )
+	 	if( curLevel >= 2 && SURVIVAL_Loot_IsRefValid( baseWeaponRef + WEAPON_LOCKEDSET_SUFFIX_PURPLESET ) )
+	 	{
+			retString = baseWeaponRef + WEAPON_LOCKEDSET_SUFFIX_PURPLESET
+	 	}
+	 	else if( curLevel == 1 )
+	 	{
+			retString = baseWeaponRef + WEAPON_LOCKEDSET_SUFFIX_BLUESET
+	 	}
+ 	}
+	return retString
+}
+
+
 void function PassiveSling_OnPassiveChanged( entity player, int passive, bool didHave, bool nowHas )
 {
 	if( didHave )
@@ -177,8 +184,67 @@ void function PassiveSling_OnPassiveChanged( entity player, int passive, bool di
 
 
 
+
+
 	}
+
+
+
+
+
+
+
+
+
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -588,7 +654,7 @@ void function InitSlingPassiveRui( entity player )
 {
 	bool isVisible = true
 
-		isVisible = !GunGame_IsModeEnabled()
+		isVisible = !GameModeVariant_IsActive( eGameModeVariants.FREEDM_GUNGAME )
 
 	RuiSetBool( file.slingPassiveRui, "isVisible", isVisible )
 	RuiSetBool( file.slingPassiveRui, "isGroundListOpen", Survival_IsGroundlistOpen() )

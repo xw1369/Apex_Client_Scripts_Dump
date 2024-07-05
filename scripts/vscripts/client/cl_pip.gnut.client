@@ -61,44 +61,59 @@ struct
 
 bool function IsStillPIPCaptureCached( string name )
 {
-	foreach( CapturedStillPIPInfo info in file.capturedStillPIPs )
+	if ( GladCardCache_Debugging_IsEnabled() )
+	{
+		printf( "#CAPTURE_STREAMS %s() Checking for name: %s", FUNC_NAME(), name )
+	}
+
+	bool retVal = false
+	bool found = false
+
+	foreach( int index, CapturedStillPIPInfo info in file.capturedStillPIPs )
 	{
 		if ( info.name == name )
 		{
+			found = true
 			if ( GladCardCache_IsGladCardCachedByHandle( info.handle ) )
 			{
 				if ( GladCardCache_Debugging_IsEnabled() )
 				{
-					printf( "#CAPTURE_STREAMS %s() - Cache ready - name: %s; handle: %d; characterRef: %s", FUNC_NAME(), info.name, info.handle, info.characterRef )
+					printf( "#CAPTURE_STREAMS %s() - Cache ready - name: %s; handle: %d; characterRef: %s; index: %d", FUNC_NAME(), info.name, info.handle, info.characterRef, index )
 				}
-				return true
+				retVal = true
 			}
 			else if ( GladCardCache_Debugging_IsEnabled() )
 			{
-				printf( "#CAPTURE_STREAMS %s() - Cache not ready - name: %s; handle: %d; characterRef: %s", FUNC_NAME(), info.name, info.handle, info.characterRef )
-				return false
+				printf( "#CAPTURE_STREAMS %s() - Cache not ready - name: %s; handle: %d; characterRef: %s; index: %d", FUNC_NAME(), info.name, info.handle, info.characterRef, index )
+				retVal = false
 			}
 		}
 	}
-	if ( GladCardCache_Debugging_IsEnabled() )
+
+	if ( !found && GladCardCache_Debugging_IsEnabled() )
 	{
 		printf( "#CAPTURE_STREAMS %s() - No cache entry - name: " + name, FUNC_NAME() )
 	}
 
-	return false
+	return retVal
 }
 
 int function GetCapturedStillPIPCacheHandle( string name )
 {
+	if ( GladCardCache_Debugging_IsEnabled() )
+	{
+		printf( "#CAPTURE_STREAMS %s() Checking for name: %s", FUNC_NAME(), name )
+	}
+
 	Assert( IsStillPIPCaptureCached( name ), "#CAPTURE_STREAMS Failed to find existing capture stream for name: " + name + "" )
 
-	foreach( CapturedStillPIPInfo info in file.capturedStillPIPs )
+	foreach( int index, CapturedStillPIPInfo info in file.capturedStillPIPs )
 	{
 		if ( info.name == name )
 		{
 			if ( GladCardCache_Debugging_IsEnabled() )
 			{
-				printf( "#CAPTURE_STREAMS %s() Found - name: %s; handle: %d; characterRef: %s", FUNC_NAME(), info.name, info.handle, info.characterRef )
+				printf( "#CAPTURE_STREAMS %s() Found - name: %s; handle: %d; characterRef: %s; index: %d", FUNC_NAME(), info.name, info.handle, info.characterRef, index )
 			}
 
 			return info.handle
@@ -110,13 +125,13 @@ int function GetCapturedStillPIPCacheHandle( string name )
 
 string ornull function GetCapturedStillPIPCacheCharacterName( string name )
 {
-	foreach( CapturedStillPIPInfo info in file.capturedStillPIPs )
+	foreach( int index, CapturedStillPIPInfo info in file.capturedStillPIPs )
 	{
 		if ( info.name == name )
 		{
 			if ( GladCardCache_Debugging_IsEnabled() )
 			{
-				printf( "#CAPTURE_STREAMS %s() Found - name: %s; handle: %d; characterRef: %s", FUNC_NAME(), info.name, info.handle, info.characterRef )
+				printf( "#CAPTURE_STREAMS %s() Found - name: %s; handle: %d; characterRef: %s; index: %d", FUNC_NAME(), info.name, info.handle, info.characterRef, index )
 			}
 
 			return info.characterRef
@@ -128,6 +143,11 @@ string ornull function GetCapturedStillPIPCacheCharacterName( string name )
 
 void function StoreCapturedStillPIPCacheHandle( string name, int handle, string ornull characterRef = null )
 {
+	if ( GladCardCache_Debugging_IsEnabled() )
+	{
+		printf( "#CAPTURE_STREAMS %s() entered - name: %s; handle: %d; characterRef: %s;", FUNC_NAME(), name, handle, characterRef )
+	}
+
 	Assert( !IsStillPIPCaptureCached( name ), "#CAPTURE_STREAMS Unexpectedly found existing capture stream for name: " + name + "" )
 
 	CapturedStillPIPInfo info
@@ -139,29 +159,39 @@ void function StoreCapturedStillPIPCacheHandle( string name, int handle, string 
 
 	if ( GladCardCache_Debugging_IsEnabled() )
 	{
-		printf( "#CAPTURE_STREAMS %s() - name: %s; handle: %d; characterRef: %s", FUNC_NAME(), info.name, info.handle, info.characterRef )
+		printf( "#CAPTURE_STREAMS %s() completed - name: %s; handle: %d; characterRef: %s; index %d;", FUNC_NAME(), info.name, info.handle, info.characterRef, file.capturedStillPIPs.len() - 1 )
 	}
 }
 
 void function RemoveCapturedStillPIPCacheHandle( string name, string reason )
 {
+	if ( GladCardCache_Debugging_IsEnabled() )
+	{
+		printf( "#CAPTURE_STREAMS %s() entered - Removing name: %s reason: %s", FUNC_NAME(), name, reason )
+	}
+
 	foreach( int index, CapturedStillPIPInfo info in file.capturedStillPIPs )
 	{
 		if ( info.name == name )
 		{
 			if ( GladCardCache_Debugging_IsEnabled() )
 			{
-				printf( "#CAPTURE_STREAMS %s() - name: %s; handle: %d; characterRef: %s; reason: %s", FUNC_NAME(), info.name, info.handle, info.characterRef, reason )
+				printf( "#CAPTURE_STREAMS %s() - Found name: %s at index %d; handle: %d; characterRef: %s; reason: %s", FUNC_NAME(), info.name, index, info.handle, info.characterRef, reason )
+			}
+
+			file.capturedStillPIPs.remove( index )
+			if ( GladCardCache_Debugging_IsEnabled() )
+			{
+				printf( "#CAPTURE_STREAMS %s() - Removed: %s from script array at index %d; handle: %d", FUNC_NAME(), info.name, index, info.handle )
 			}
 
 			GladCardCache_ClearCachedGladCard_ByHandle( info.handle )
-			file.capturedStillPIPs.remove( index )
-			break
+			if ( GladCardCache_Debugging_IsEnabled() )
+			{
+				printf( "#CAPTURE_STREAMS %s() - Removed: %s from C++ cache; handle: %d", FUNC_NAME(), info.name, info.handle )
+			}
 		}
 	}
-	
-	
-	
 }
 
 void function RemoveAllCapturedStillPIPCacheHandles()

@@ -2,8 +2,6 @@
 
 global function FreeDM_GamemodeInitShared
 global function FreeDM_GetOtherTeam
-global function FreeDM_IsActiveGameMode
-global function FreeDM_RegisterNetworking
 global function FreeDM_SetAudioEvent
 
 #if DEV
@@ -16,6 +14,7 @@ global function FreeDM_SetAudioEvent
 global function DEV_ScoreTrackAnimateIn
 
 #endif
+
 
 
 
@@ -67,6 +66,18 @@ const float FREEDM_INTRO_MUSIC_TIME            = 5.0
 const float FREEDM_POST_ROUND_MUSIC_STOP_DELAY = 2.0
 const int FREEDM_MUSIC_START_ON_KILLS_LEFT     = 5
 
+
+
+
+
+
+
+
+
+
+
+
+
 const string FREEDM_MUSIC_GAMEPLAY = "Music_GunGame_Gameplay"
 const string FREEDM_MUSIC_VICTORY  = "Music_GunGame_Victory"
 const string FREEDM_MUSIC_LOSS     = "Music_GunGame_Loss"
@@ -75,7 +86,6 @@ const string FREEDM_FIREBALL_SFX_PODIUM   = "TDM_Podium_Pyro_FlameBurst_Sequence
 const string FREEDM_SPARKS_SFX_PODIUM   = "TDM_Podium_Pyro_Sparklers"
 
 const float FREEDM_SCORE_VO_BC_DELAY = 6.0 
-const int FREEDM_NEAR_ENDSCORE_DELTA = 5
 
 const string FREEDM_VICTORY_SOUND = "UI_InGame_GunGame_Victory"
 const string FREEDM_DEFEAT_SOUND = "UI_InGame_GunGame_Defeat"
@@ -219,6 +229,10 @@ void function FreeDM_GamemodeInitShared()
 	SetScoreEventOverrideFunc( FreeDM_SetScoreEventOverride )
 	GamemodeSurvivalShared_Init()
 
+	TimedEvents_Init()
+
+
+
 
 
 
@@ -335,29 +349,8 @@ void function FreeDM_GamemodeInitShared()
 	FreeDM_SetAudioEvent( eFreeDMAudioEvents.Victory_Sound, FREEDM_VICTORY_SOUND )
 	FreeDM_SetAudioEvent( eFreeDMAudioEvents.Defeat_Sound, FREEDM_DEFEAT_SOUND )
 
-
-
-
-
-
-
-
-		GunGame_Init()
-
-
-		TDM_Init()
-
-
-
-
-
-		TreasureHunt_Init()
-
-
-
-
+	FreeDM_RegisterNetworking()
 }
-
 
 
 
@@ -665,6 +658,15 @@ void function FreeDM_SetAudioEvent( int event, string eventString )
 
 	file.audioEvents[ event ] <- eventString
 }
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1603,6 +1605,17 @@ const int FramesToWait = 60
 
 
 
+
+
+
+
+
+
+
+
+
+
+
 const string FREEDM_AIRDROP_ANIMATION = "droppod_loot_drop_lifeline"
 
 
@@ -1707,7 +1720,7 @@ void function ServerCallback_FreeDM_AirdropNotification()
 
 	string announcementText
 
-	announcementText = Localize( "#FREEDM_INCOMING_AIRDROPS" )
+	announcementText = Localize( "#FREEDM_INCOMING_AIRDROP" )
 
 	vector announcementColor = <0, 0, 0>
 	Obituary_Print_Localized( announcementText, announcementColor )
@@ -1728,7 +1741,7 @@ void function ServerCallback_FreeDM_AirdropNotification()
 
 const string FREEDM_DEFAULT_AIRDROP_CONTENTS = "arenas_red_airdrop_weapons arenas_gold_airdrop_weapons arenas_gold_airdrop_weapons"
 
-const string FREEDM_AF_AIRDROP_CONTENTS = "af_airdrop_weapons af_airdrop_weapons af_airdrop_weapons"
+
 
 
 
@@ -1834,6 +1847,8 @@ void function FreeDM_GamemodeInitClient()
 
 	
 	ClGamemodeSurvival_Init()
+	FreeDM_ScoreboardSetup()
+
 	AddCallback_GameStateEnter( eGameState.Playing, Client_OnGameStatePlaying )
 	AddCallback_GameStateEnter( eGameState.Prematch, Client_OnPrematchInit )
 	AddCallback_GameStateEnter( eGameState.WinnerDetermined, Client_OnWinnerDetermined )
@@ -1853,7 +1868,7 @@ void function Client_OnPrematchInit()
 	RunUIScript( "UICodeCallback_CloseAllMenus" )
 
 
-		if ( TDM_IsModeEnabled())
+		if ( GameModeVariant_IsActive( eGameModeVariants.FREEDM_TDM ) )
 		{
 			file.introCountdownRUI = CreateFullscreenPostFXRui( $"ui/freedm_countdown_timer.rpak" )
 			RuiSetGameTime( file.introCountdownRUI, "timerStartTime", GetGameStartTime() - roundStartTime )
@@ -1892,7 +1907,7 @@ void function _CountdownIntroSoundThread()
 
 	string countdownSound = GUNGAME_COUNTDOWN_SOUND
 
-		countdownSound = TDM_IsModeEnabled() ? TDM_COUNTDOWN_SOUND : GUNGAME_COUNTDOWN_SOUND
+		countdownSound = GameModeVariant_IsActive( eGameModeVariants.FREEDM_TDM ) ? TDM_COUNTDOWN_SOUND : GUNGAME_COUNTDOWN_SOUND
 
 
 	
@@ -1919,6 +1934,24 @@ void function Client_OnGameStatePlaying()
 		Warning( "FreeDM displayScoreThread is null! No score HUD will be displayed" )
 
 	thread _DelayedDestroyCountdownRUI( )
+
+
+		if ( BigTDM_IsModeEnabled() )
+		{
+			AnnouncementData announcement = Announcement_Create( Localize("#BTDM_NAME") )
+			Announcement_SetSubText( announcement, Localize("#BTDM_ANNOUNCEMENT") )
+			Announcement_SetHideOnDeath( announcement, true )
+			Announcement_SetDuration( announcement, 7.0 )
+			Announcement_SetPurge( announcement, true )
+			Announcement_SetStyle( announcement, ANNOUNCEMENT_STYLE_SWEEP )
+			Announcement_SetSoundAlias( announcement, SFX_HUD_ANNOUNCE_QUICK )
+			Announcement_SetTitleColor( announcement, <0, 0, 0> )
+			Announcement_SetIcon( announcement, $"" )
+			Announcement_SetLeftIcon( announcement, $"rui/rui_screens/apex_logo_tdm_big" )
+			Announcement_SetRightIcon( announcement, $"rui/rui_screens/apex_logo_tdm_big" )
+			AnnouncementFromClass( GetLocalClientPlayer(), announcement )
+		}
+
 }
 
 
@@ -2106,17 +2139,23 @@ array< string > function FreeDM_GetPlayerScores( entity player )
 
 
 
-array< entity > function FreeDM_SortPlayersByScore( array< entity > teamPlayers, ScoreboardData gameData )
+array< TeamsScoreboardPlayer > function FreeDM_SortPlayersByScore( array< TeamsScoreboardPlayer > players )
 {
-	teamPlayers.sort( int function( entity a, entity b )
+	players.sort( int function( TeamsScoreboardPlayer a, TeamsScoreboardPlayer b )
 	{
+		entity playerA = FromEHI( a.playerEHI )
+		entity playerB = FromEHI( b.playerEHI )
+
+		if( !IsValid( playerA ) || !IsValid( playerB ) )
+			return 0
+
 		
-		int aKills = a.GetPlayerNetInt( "kills" )
-		int bKills = b.GetPlayerNetInt( "kills" )
-		int aAssists = a.GetPlayerNetInt( "assists" )
-		int bAssists = b.GetPlayerNetInt( "assists" )
-		int aDamage = a.GetPlayerNetInt( "damageDealt" )
-		int bDamage = b.GetPlayerNetInt( "damageDealt" )
+		int aKills = playerA.GetPlayerNetInt( "kills" )
+		int bKills = playerB.GetPlayerNetInt( "kills" )
+		int aAssists = playerA.GetPlayerNetInt( "assists" )
+		int bAssists = playerB.GetPlayerNetInt( "assists" )
+		int aDamage = playerA.GetPlayerNetInt( "damageDealt" )
+		int bDamage = playerB.GetPlayerNetInt( "damageDealt" )
 
 		if ( aKills > bKills ) return -1
 		else if ( aKills < bKills ) return 1
@@ -2135,7 +2174,7 @@ array< entity > function FreeDM_SortPlayersByScore( array< entity > teamPlayers,
 	}
 	)
 
-	return teamPlayers
+	return players
 }
 
 
@@ -2175,7 +2214,7 @@ void function ServerCallback_FreeDM_AnnounceRoundWonLost( int winningTeamOrAllia
 		if ( isLocalPlayerOnWinningTeamOrAlliance )
 		{
 
-				if ( TDM_IsModeEnabled())
+				if ( GameModeVariant_IsActive( eGameModeVariants.FREEDM_TDM ) )
 					TDMAnnouncementRoundWon(Localize( "#GAMEMODE_ROUND_WIN"))
 				else
 					AnnouncementMessageSweep( localPlayer, Localize( "#GAMEMODE_ROUND_WIN"))
@@ -2240,7 +2279,7 @@ void function FreeDM_DelayedShowScoreboard()
 	wait FREEDM_ROUND_WIN_ANNOUNCMENT_TIME
 
 
-		if (TDM_IsModeEnabled())
+		if ( GameModeVariant_IsActive( eGameModeVariants.FREEDM_TDM ))
 		{
 			wait FREEDM_POST_ROUND_SCOREBOARD_TIME
 			RunUIScript( "TDM_ShowScoreboard" )
@@ -2311,8 +2350,8 @@ void function AnnouncementMessageWarning( entity player, string messageText, vec
 void function UICallback_FreeDM_OpenCharacterSelect()
 {
 	
-	Assert( FreeDM_IsActiveGameMode() )
-	if ( !FreeDM_IsActiveGameMode() )
+	Assert( GameMode_IsActive( eGameModes.FREEDM ) )
+	if ( !GameMode_IsActive( eGameModes.FREEDM ) )
 		return
 
 	entity clientPlayer = GetLocalClientPlayer()
@@ -2332,7 +2371,7 @@ void function UICallback_FreeDM_OpenCharacterSelect()
 
 void function FreeDM_CloseCharacterSelect()
 {
-	if ( !FreeDM_IsActiveGameMode() )
+	if ( !GameMode_IsActive( eGameModes.FREEDM ) )
 		return
 
 	HideScoreboard()
@@ -2432,11 +2471,6 @@ int function FreeDM_GetCratesPerAirDrop()
 	return GetCurrentPlaylistVarInt( "freedm_airdrops_crates_per_airdrop", 1 )
 }
 
-bool function FreeDM_IsActiveGameMode()
-{
-    return GameRules_GetGameMode() == GAMEMODE_FREEDM
-}
-
 float function GetDroppedLootLifetime()
 {
 	return GetCurrentPlaylistVarFloat( "freedm_dropped_loot_persist_time", -1.0 )
@@ -2460,6 +2494,45 @@ bool function GetShouldShuffleLoadoutsRounds()
 {
 	return GetCurrentPlaylistVarBool( "round_shuffle_loadouts", false )
 }
+
+int function GetPlayMusicOnScore()
+{
+	return GetCurrentPlaylistVarInt( "start_music_and_vo_on_kills_remaining", FREEDM_MUSIC_START_ON_KILLS_LEFT )
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 #if DEV

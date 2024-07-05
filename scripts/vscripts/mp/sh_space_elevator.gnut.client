@@ -23,7 +23,8 @@ const asset FX_PROJECTILE_DESTROYED = $"P_projectile_melted"
 
 
 const string SPACEELEVATOR_SOUND_NEWT_IDLE_LOOP = "Nova_Tac_Upper_Active"
-const float SPACEELEVATOR_SOUND_NEWT_IDLE_Z_OFFSET = 600
+const float SPACEELEVATOR_SOUND_NEWT_IDLE_Z_START = 600
+const float SPACEELEVATOR_SOUND_NEWT_IDLE_Z_END = 1200
 const string SPACEELEVATOR_SOUND_NEWT_DESTROY = "Nova_Ultimate_Destroy"
 const string SPACEELEVATOR_SOUND_NEWT_DAMAGE = "Nova_Ultimate_NewT_Damage"
 
@@ -49,6 +50,7 @@ const float SPACEELEVATOR_TUNING_RADIUS = 70
 const int SPACEELEVATOR_TUNING_HEIGHT = 1200
 
 const float SPACEELEVATOR_TUNING_UP_SPEED = 300
+const float SPACEELEVATOR_TUNING_UP_ACCEL = 100000
 const float SPACEELEVATOR_TUNING_HORIZ_SPEED = 170
 const float SPACEELEVATOR_TUNING_HORIZ_ACCEL = 2000
 const float SPACEELEVATOR_TUNING_TO_CENTER_SPEED = 50
@@ -199,6 +201,10 @@ float function GetSpaceElevatorLifetime( entity player )
 
 	return result
 }
+
+
+
+
 
 
 

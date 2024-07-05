@@ -1,4 +1,3 @@
-global function IsRecruitMode
 global function CanRecruitOrRevivePlayer
 
 
@@ -8,18 +7,11 @@ global function CanRecruitOrRevivePlayer
 
 
 global function CL_RecruitModeUnitFrames_Init
-global function Recruit_OnPlayerTeamChanged
 
 struct
 {
 	array<var>    recruitModeRuis
 } file
-
-
-bool function IsRecruitMode()
-{
-	return GetCurrentPlaylistVarInt( "recruit_mode", 0 ) == 1
-}
 
 
 bool function CanRecruitOrRevivePlayer( entity reviver, entity target )
@@ -54,9 +46,7 @@ void function OnPlayerCreated( entity player )
 	
 	
 	Recruit_OnPlayerTeamChanged( player, TEAM_UNASSIGNED, player.GetTeam() ) 
-
-	if ( IsRecruitMode() && GetLocalClientPlayer() == player )
-		CreateRecruitModeRuis()
+	CreateRecruitModeRuis()
 }
 
 void function Recruit_OnPlayerTeamChanged( entity player, int oldTeam, int newTeam )

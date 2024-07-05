@@ -1,11 +1,4 @@
-
-
-
 global function CollectionEvents_Init
-
-
-
-
 global function GetActiveCollectionEvent
 global function CollectionEvent_GetChallenges 
 global function CollectionEvent_GetFrontPageRewardBoxTitle
@@ -47,8 +40,6 @@ global function CollectionEvent_GetAboutPageSpecialTextCol
 global function CollectionEvent_GetHeaderIcon 
 
 
-
-
 global function HeirloomEvent_GetItemCount
 global function HeirloomEvent_GetCurrentRemainingItemCount
 global function HeirloomEvent_GetPrimaryCompletionRewardItem
@@ -77,19 +68,7 @@ global function HeirloomEvent_IsRewardMythicSkin
 
 
 
-
-
-
-
 global function CollectionEvent_GetFrontTabText
-
-
-
-
-
-
-
-
 
 
 
@@ -187,8 +166,6 @@ void function CollectionEvents_Init()
 
 
 
-
-
 ItemFlavor ornull function GetActiveCollectionEvent( int t )
 {
 	Assert( IsItemFlavorRegistrationFinished() )
@@ -239,6 +216,26 @@ string function CollectionEvent_GetFrontPageRewardBoxTitle( ItemFlavor event )
 	Assert( ItemFlavor_GetType( event ) == eItemType.calevent_collection )
 	return GetGlobalSettingsString( ItemFlavor_GetAsset( event ), "frontPageRewardBoxTitle" )
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -329,12 +326,11 @@ string function HeirloomEvent_GetCompletionSequenceName( ItemFlavor event )
 
 
 
-string function CollectionEvent_GetFrontPageGRXOfferLocation( ItemFlavor event )
+string function CollectionEvent_GetFrontPageGRXOfferLocation( ItemFlavor event, bool isRestricted = false )
 {
 	Assert( ItemFlavor_GetType( event ) == eItemType.calevent_collection )
-	return GetGlobalSettingsString( ItemFlavor_GetAsset( event ), "frontGRXOfferLocation" )
+	return GetGlobalSettingsString( ItemFlavor_GetAsset( event ), "frontGRXOfferLocation" ) 
 }
-
 
 
 
@@ -361,7 +357,6 @@ array<CollectionEventRewardGroup> function CollectionEvent_GetRewardGroups( Item
 	}
 	return groups
 }
-
 
 
 
@@ -618,9 +613,6 @@ vector function CollectionEvent_GetAboutPageSpecialTextCol( ItemFlavor event )
 
 
 
-
-
-
 asset function CollectionEvent_GetBGPatternImage( ItemFlavor event )
 {
 	Assert( ItemFlavor_GetType( event ) == eItemType.calevent_collection )
@@ -643,42 +635,6 @@ asset function CollectionEvent_GetHeaderIcon( ItemFlavor event )
 	Assert( ItemFlavor_GetType( event ) == eItemType.calevent_collection )
 	return GetGlobalSettingsAsset( ItemFlavor_GetAsset( event ), "headerIcon" )
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -846,6 +802,30 @@ int function HeirloomEvent_GetItemCount( ItemFlavor event, bool onlyOwned, entit
 
 	return count
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

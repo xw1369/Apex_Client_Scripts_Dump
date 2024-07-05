@@ -211,12 +211,6 @@ void function Lifesteal_Init()
 
 
 
-
-
-
-
-
-
 const float HEAL_VFX_DURATION = 1
 const float HEAL_HUD_LINGER = 1.5
 void function ServerToClient_ShowLifesteal( bool onlyShields, int amount )

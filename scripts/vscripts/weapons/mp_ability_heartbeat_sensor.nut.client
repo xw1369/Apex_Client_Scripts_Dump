@@ -7,6 +7,10 @@ global function ActivateHeartbeatSensor
 global function DeactivateHeartbeatSensor
 global function GetHeartbeatSensorRange
 
+
+
+
+
 global function InitializeHeartbeatSensorUI
 global function GeneratePlayersInViewInfo
 
@@ -156,6 +160,11 @@ void function PassiveHeartbeatSensor_Init()
 	AddCallback_OnPassiveChanged( ePassives.PAS_PARIAH, HeartbeatSensor_OnPassiveChanged )
 	AddCallback_OnPlayerZoomIn( PlayerZoomInCallback )
 	AddCallback_OnPlayerZoomOut( PlayerZoomOutCallback )
+
+
+
+
+
 }
 
 
@@ -260,11 +269,32 @@ void function PlayerZoomInCallback( entity player )
 		
 		
 		entity turret = player.GetTurret()
-		if ( IsValid( turret ) )
-		{
-			ActivateHeartbeatSensor( player, false )
-			thread TurretHeartbeatSensor_Thread( player )
-		}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+			if ( IsValid( turret ) )
+			{
+					ActivateHeartbeatSensor( player, false )
+					thread TurretHeartbeatSensor_Thread( player )
+			}
+
 	}
 
 
@@ -429,6 +459,12 @@ bool function OnWeaponAttemptOffhandSwitch_ability_heartbeat_sensor( entity weap
 
 	if( !IsValid( player ) )
 		return false
+
+
+
+
+
+
 
 	return PlayerHasPassive( player, ePassives.PAS_PARIAH )
 }
@@ -1089,7 +1125,7 @@ void function ManageVictims_Thread( entity player )
 
 		
 		
-		if ( IsFiringRangeGameMode() )
+		if ( GameModeVariant_IsActive( eGameModeVariants.SURVIVAL_FIRING_RANGE ) )
 		{
 			array<entity> dummies = GetEntArrayByScriptName( FIRING_RANGE_DUMMIE_SCRIPT_NAME )
 
@@ -1666,3 +1702,51 @@ float function GetHeartbeatSensor_Range_Sqr( entity player )
 
 	return result
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      

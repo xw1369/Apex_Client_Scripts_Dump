@@ -249,9 +249,6 @@ bool function TitanSword_Launcher_VictimHitOverride( entity weapon, entity attac
 		{
 			float velZ = GetWeaponInfoFileKeyField_GlobalFloat( TITAN_SWORD_WEAPON_REF, "launcher_vel_z" )
 			TitanSword_LaunchEntity( victim, <0, 0, velZ> )
-
-
-
 			return true
 		}
 	}

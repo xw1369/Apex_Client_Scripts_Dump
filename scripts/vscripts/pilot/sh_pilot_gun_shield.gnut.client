@@ -217,6 +217,13 @@ global function TrackFirstPersonGunShield
 
 
 
+
+
+
+
+
+
+
 void function TrackFirstPersonGunShield( entity vortexWeapon, asset shieldEffect, string attachment )
 {
 	thread TrackFirstPersonGunShield_Thread( vortexWeapon, shieldEffect, attachment )
@@ -226,6 +233,7 @@ void function TrackFirstPersonGunShield_Thread( entity vortexWeapon, asset shiel
 {
 	vortexWeapon.EndSignal( "OnDestroy" )
 	vortexWeapon.EndSignal( "OnChargeEnd" )
+	vortexWeapon.EndSignal( "GunShieldDeactivate" )
 
 	table<string,int> e
 	e["fxHandle"] <- -1

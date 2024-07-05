@@ -9,6 +9,7 @@ global function DamageOverlayUpdate
 global function PilotEMP_Internal
 global function HealthHUD_ClearFX
 global function PlayShieldOverlayFX
+global function ShieldOverlayUpdate
 
 global function SetHealthDisplayRange
 
@@ -221,7 +222,7 @@ void function HealthHUD_Update( entity player )
 
 
 		
-		if ( Control_IsModeEnabled() && player.GetPlayerNetBool( "control_IsPlayerOnSpawnSelectScreen" ) )
+		if ( GameMode_IsActive( eGameModes.CONTROL ) && player.GetPlayerNetBool( "control_IsPlayerOnSpawnSelectScreen" ) )
 			return
 
 
@@ -272,7 +273,7 @@ void function HealthHUD_Update( entity player )
 		{
 
 				
-				if ( Control_IsModeEnabled() )
+				if ( GameMode_IsActive( eGameModes.CONTROL ) )
 					break
 
 			
@@ -428,6 +429,13 @@ void function PlayShieldOverlayFX( entity player, int particleSystemIdx )
 	int fxHandle = StartParticleEffectOnEntity( cockpit, particleSystemIdx, FX_PATTACH_ABSORIGIN_FOLLOW, ATTACHMENTID_INVALID )
 
 	int armorTier = maxint( 1, EquipmentSlot_GetEquipmentTier( GetLocalViewPlayer(), "armor" ) )
+
+
+
+
+
+
+
 
 	vector shieldColor = GetFXRarityColorForTier( armorTier )
 

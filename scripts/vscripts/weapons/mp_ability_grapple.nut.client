@@ -55,10 +55,6 @@ void function GrappleWeaponInit()
 
 
 
-
-
-
-
 }
 
 void function OnWeaponActivate_ability_grapple( entity weapon )
@@ -397,50 +393,6 @@ bool function CodeCallback_GrappleDetachFromNPC( entity player, entity npc )
 
 	return false
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

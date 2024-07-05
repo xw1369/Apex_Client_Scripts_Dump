@@ -16,6 +16,7 @@ global function SkydiveTrail_GetPackageForIndex
 
 
 global function ClientCodeCallback_OnSkydiveStateChanged
+global function SkydiveTrail_AddOnSkydiveStateChangedClientCallback
 global function UpdatePlayerSkydiveTrailFriendlyEnemyFX
 global function StartFriendlyEnemySkydiveTrailFXForPlayer
 global function CleanupFriendlyEnemySkydiveTrailFXForPlayer
@@ -107,6 +108,13 @@ global struct SkyDiveTrailPackage
 	string InGameFlightLandStop3P
 	string DropSequenceCameraTransition1P
 }
+
+struct
+{
+
+		array< void functionref( entity ) > OnSkydiveStateChangedClientCallbacks
+
+}file
 
 
 
@@ -471,6 +479,11 @@ SkyDiveTrailPackage function SkydiveTrail_GetPackageForIndex( int skydiveTrailIn
 void function ClientCodeCallback_OnSkydiveStateChanged( entity skyDivingPlayer )
 {
 	UpdatePlayerSkydiveTrailFriendlyEnemyFX( skyDivingPlayer )
+
+	foreach ( callbackFunc in file.OnSkydiveStateChangedClientCallbacks )
+	{
+		callbackFunc( skyDivingPlayer )
+	}
 }
 
 void function UpdatePlayerSkydiveTrailFriendlyEnemyFX( entity player )
@@ -636,6 +649,12 @@ void function CleanupFriendlyEnemySkydiveTrailFXForPlayer( entity skyDivingPlaye
 	}
 
 	Signal( skyDivingPlayer, "Skydivetrail_DestroyProp" )
+}
+
+void function SkydiveTrail_AddOnSkydiveStateChangedClientCallback( void functionref( entity ) callbackFunc )
+{
+	Assert( !file.OnSkydiveStateChangedClientCallbacks.contains( callbackFunc ), "Already added " + string( callbackFunc ) + " with " + FUNC_NAME() )
+	file.OnSkydiveStateChangedClientCallbacks.append( callbackFunc )
 }
 
 

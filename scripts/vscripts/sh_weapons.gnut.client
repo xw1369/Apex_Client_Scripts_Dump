@@ -21,6 +21,7 @@ global function GetAllMeleeWeapons
 global function MainWeapon_GetIsShippingWeapon
 global function MainWeapon_GetLoadoutOverviewOffset
 global function MainWeapon_GetLoadoutOverviewRotation
+global function MainWeapon_GetLoadoutSkinsOffset
 
 
 global function ShowDefaultBodygroupsOnFakeWeapon
@@ -302,6 +303,12 @@ vector function MainWeapon_GetLoadoutOverviewRotation( ItemFlavor flavor )
 	return GetGlobalSettingsVector( ItemFlavor_GetAsset( flavor ), "loadoutOverviewRotation" )
 }
 
+vector function MainWeapon_GetLoadoutSkinsOffset( ItemFlavor flavor )
+{
+	Assert( ItemFlavor_GetType( flavor ) == eItemType.loot_main_weapon )
+
+	return GetGlobalSettingsVector( ItemFlavor_GetAsset( flavor ), "loadoutSkinsOffset" )
+}
 
 
 void function ShowDefaultBodygroupsOnFakeWeapon( entity ent, string weaponClassName )

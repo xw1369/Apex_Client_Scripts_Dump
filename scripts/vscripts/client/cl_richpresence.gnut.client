@@ -2,7 +2,7 @@ global function ClientCodeCallback_GetPresenceState
 
 string function GetGamemodeLocKey()
 {
-	if (IsRankedGame())
+	if ( GameModeVariant_IsActive( eGameModeVariants.SURVIVAL_RANKED ) )
 		return "#PL_Ranked_Leagues"
 
 
@@ -13,22 +13,24 @@ string function GetGamemodeLocKey()
 
 
 
-	if (GetCurrentPlaylistVarBool("is_elite_game", false))
+
+
+	if ( GetCurrentPlaylistVarBool( "is_elite_game", false ) )
 		return "#CAN_ELITE"
 
 
-	if (Control_IsModeEnabled())
+	if ( GameMode_IsActive( eGameModes.CONTROL ) )
 		return "#GAME_MODE_CONTROL"
 
 
-	string matchType = GetCurrentPlaylistVarString("pin_match_type", "survival")
-	if (matchType == "survival")
+	string matchType = GetCurrentPlaylistVarString( "pin_match_type", "survival" )
+	if ( matchType == "survival" )
 		return "#PL_TRIO"
 
-	if (matchType == "duo")
+	if ( matchType == "duo" )
 		return "#PL_DUO"
 
-	return GetCurrentPlaylistVarString("name", "none")
+	return GetCurrentPlaylistVarString( "name", "none" )
 }
 
 bool presenceIsInit = false
@@ -86,13 +88,13 @@ PresenceState function ClientCodeCallback_GetPresenceState( string mapName )
 		return state
 	}
 
-	if ( IsSurvivalTraining() )
+	if ( GameModeVariant_IsActive( eGameModeVariants.SURVIVAL_TRAINING ) )
 	{
 		state.layout = "#PL_TRAINING"
 		return state
 	}
 
-	if ( IsFiringRangeGameMode() )
+	if ( GameModeVariant_IsActive( eGameModeVariants.SURVIVAL_FIRING_RANGE ) )
 	{
 		state.layout = "#PL_FIRINGRANGE"
 		return state
@@ -113,7 +115,7 @@ PresenceState function ClientCodeCallback_GetPresenceState( string mapName )
 
 
 
-		if ( Control_IsModeEnabled() )
+		if ( GameMode_IsActive( eGameModes.CONTROL ) )
 		{
 			int playerTeam = GetLocalClientPlayer().GetTeam()
 			int playerAlliance = AllianceProximity_GetAllianceFromTeam( playerTeam )
@@ -136,7 +138,7 @@ PresenceState function ClientCodeCallback_GetPresenceState( string mapName )
 
 	}
 
-	if (GameRules_GetGameMode() == SURVIVAL)
+	if ( GameMode_IsActive( eGameModes.SURVIVAL ) )
 	{
 		state.survival_squadsRemaining = GetNumTeamsRemaining()
 		if (state.survival_squadsRemaining > 1)

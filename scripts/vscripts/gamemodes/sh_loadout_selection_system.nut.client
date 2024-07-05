@@ -30,6 +30,7 @@ global function LoadoutSelection_Init
 
 global function LoadoutSelection_RegisterNetworking
 global function LoadoutSelection_GetWeaponLootTierForMenu
+global function ModeUsesLoadoutWeapons
 
 
 
@@ -117,17 +118,27 @@ const asset LOADOUTSELECTION_LOADOUTS_DATATABLE = $"datatable/loadoutselection_s
 const asset LOADOUTSELECTION_WEAPON_DATA_DATATABLE = $"datatable/loadoutselection_weapon_data.rpak"
 
 
+const table<string, asset> CUSTOM_VARIANT_ROTATIONS_DATATABLE = {
 
-const asset WINTEREXPRESS_ROTATIONS_DATATABLE = $"datatable/gamemode_winterexpress_loadout_rotations.rpak"
-const asset WINTEREXPRESS_LOADOUTS_DATATABLE = $"datatable/gamemode_winterexpress_selectable_loadouts.rpak"
+		[ "WINTER_EXPRESS" ] = $"datatable/gamemode_winterexpress_loadout_rotations.rpak",
 
 
-const asset TDM_ROTATIONS_DATATABLE = $"datatable/gamemode_tdm_loadout_rotations.rpak"
-const asset TDM_LOADOUTS_DATATABLE = $"datatable/gamemode_tdm_selectable_loadouts.rpak"
+		[ "TDM" ] = $"datatable/gamemode_tdm_loadout_rotations.rpak",
+		[ "SWAT" ] = $"datatable/gamemode_tdm_swat_loadout_rotations.rpak",
+		[ "SHOTTYSNIPERS" ] = $"datatable/gamemode_tdm_shottysnipers_loadout_rotations.rpak",
 
-const asset TDM_SWAT_ROTATIONS_DATATABLE = $"datatable/gamemode_tdm_swat_loadout_rotations.rpak"
-const asset TDM_SWAT_LOADOUTS_DATATABLE = $"datatable/gamemode_tdm_swat_selectable_loadouts.rpak"
+}
 
+const table<string, asset> CUSTOM_VARIANT_LOADOUTS_DATATABLE = {
+
+		[ "WINTER_EXPRESS" ] = $"datatable/gamemode_winterexpress_selectable_loadouts.rpak",
+
+
+		[ "TDM" ] = $"datatable/gamemode_tdm_selectable_loadouts.rpak",
+		[ "SWAT" ] = $"datatable/gamemode_tdm_swat_selectable_loadouts.rpak",
+		[ "SHOTTYSNIPERS" ] = $"datatable/gamemode_tdm_shottysnipers_selectable_loadouts.rpak",
+
+}
 
 global const string NETVAR_LOADOUT_CURRENT_MANUAL_ROTATION_INDEX_NAME = "manualLoadoutCurrentRotationIndex" 
 global const string NETVAR_TIME_SINCE_EVENT_STARTED_NAME = "timeSinceEventStarted" 
@@ -325,6 +336,11 @@ bool function LoadoutSelection_ShouldAvoidDuplicateWeaponsInLoadoutRotation()
 
 
 
+string function GetCustomLoadoutName()
+{
+	return GetCurrentPlaylistVarString( "loadoutselection_custom_loadout", "" )
+}
+
 
 
 
@@ -335,28 +351,34 @@ void function LoadoutSelection_SetDatatableAssets()
 	
 
 
-		if ( WinterExpress_IsModeEnabled() )
+		if ( GameModeVariant_IsActive( eGameModeVariants.SURVIVAL_WINTEREXPRESS ) )
 		{
-			file.rotationsDatatable = WINTEREXPRESS_ROTATIONS_DATATABLE
-			file.loadoutsDatatable = WINTEREXPRESS_LOADOUTS_DATATABLE
+			file.rotationsDatatable = GetCustomLoadoutRotationsDatatable_Asset( "WINTER_EXPRESS" )
+			file.loadoutsDatatable = GetCustomLoadoutDatatable_Asset( "WINTER_EXPRESS" )
 		}
 
 
 
-	if ( TDM_IsModeEnabled())
+	if ( GameModeVariant_IsActive( eGameModeVariants.FREEDM_TDM ) )
 	{
-		if ( TDM_IsSWATLoadout() )
+		string customLoadoutName = GetCustomLoadoutName()
+		if ( customLoadoutName != "" )
 		{
-			file.rotationsDatatable = TDM_SWAT_ROTATIONS_DATATABLE
-			file.loadoutsDatatable  = TDM_SWAT_LOADOUTS_DATATABLE
-		}
-		else
-		{
-			file.rotationsDatatable = TDM_ROTATIONS_DATATABLE
-			file.loadoutsDatatable  = TDM_LOADOUTS_DATATABLE
+			asset customLoadoutRotation = GetCustomLoadoutRotationsDatatable_Asset( customLoadoutName )
+			asset customLoadout = GetCustomLoadoutDatatable_Asset( customLoadoutName )
+			file.rotationsDatatable = GetCustomLoadoutRotationsDatatable_Asset( customLoadoutName )
+			file.loadoutsDatatable = GetCustomLoadoutDatatable_Asset( customLoadoutName )
 		}
 	}
 
+}
+
+asset function GetCustomLoadoutRotationsDatatable_Asset( string customName ) {
+	return CUSTOM_VARIANT_ROTATIONS_DATATABLE[ customName ]
+}
+
+asset function GetCustomLoadoutDatatable_Asset( string customName ) {
+	return CUSTOM_VARIANT_LOADOUTS_DATATABLE[ customName ]
 }
 
 
@@ -1181,6 +1203,24 @@ int function LoadoutSelection_GetWeaponLootTierForMenu( LootData data )
 {
 	bool isLockedSet = data.baseMods.contains( "crate" ) || SURVIVAL_Weapon_IsAttachmentLocked( data.ref ) || data.baseMods.contains( "hopup_april_fools_light" ) || data.baseMods.contains( "hopup_april_fools_heavy" ) || data.baseMods.contains( "hopup_april_fools_sniper" ) || data.baseMods.contains( "hopup_april_fools_energy" )
 	return isLockedSet ? data.tier : 0
+}
+
+bool function ModeUsesLoadoutWeapons()
+{
+	if( IsUsingLoadoutSelectionSystem() )
+		return true
+
+
+	if ( GameModeVariant_IsActive( eGameModeVariants.SURVIVAL_BATTLE_RUSH ) )
+		return true
+
+
+
+	if ( GameModeVariant_IsActive( eGameModeVariants.SURVIVAL_SHADOW_ARMY ) )
+		return true
+
+
+	return false
 }
 
 

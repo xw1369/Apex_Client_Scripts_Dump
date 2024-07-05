@@ -82,6 +82,7 @@ void function ExtendedUse( entity ent, entity player, ExtendedUseSettings settin
 	if ( shouldSetBusy )
 		ent.e.isBusy = true
 	player.p.isInExtendedUse = true
+	player.p.lastExtededUseEnt = ent
 
 	if ( settings.startFunc != null )
 		settings.startFunc( ent, player, settings )
@@ -280,10 +281,10 @@ void function ExtendedUse_TrackContinuousUse( entity player, entity useTarget, f
 		bool checkMoveDistance = !IsBitFlagSet(useTarget.GetUsableValue(), USABLE_FROM_EXTENDED_RANGE)
 
 
-
-
-
-
+			if ( !checkMoveDistance && useTarget.GetNetworkedClassName() == "prop_death_box"  )
+			{
+				checkMoveDistance = IsPlayerWithinStandardDeathBoxUseDistance( player, useTarget )
+			}
 
 		if ( checkMoveDistance )
 		{

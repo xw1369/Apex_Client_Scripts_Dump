@@ -438,6 +438,9 @@ void function PassiveRevenantRework_OnPassiveChanged( entity player, int passive
 
 
 
+
+
+
 bool function DoesPlayerPassExecutionerChecks( entity player, entity target )
 {
 	if ( !IsAlive( target ) )

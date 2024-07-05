@@ -121,27 +121,6 @@ global function GetRegisteredStatEnumStruct
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 global function ShStats_GenerateStatLocStringFromStatRef
 global function ShStats_GenerateStatLocStringFromStatRef_Long
 
@@ -253,6 +232,7 @@ void function ShStats_LevelInit()
 
 	ShStats_Beginner_LevelInit()
 	ShStats_Gameplay_LevelInit()
+	ShStatsDefs_Init()
 }
 
 
@@ -382,38 +362,6 @@ void function RegisterAllStats()
 
 
 	
-	
-	CAREER_STATS.s19aw_event_currency_total = RegisterAccumulatedStat_Int( null, "s19aw_event_currency_total", eChallengeGameMode.NON_MODE, CHALLENGES_CALC_DEPENDS )
-	CAREER_STATS.s19aw_revives_any_mode = RegisterAccumulatedStat_Int( null, "s19aw_revives_any_mode", eChallengeGameMode.ANY, CHALLENGES_CALC_DEPENDS )
-
-
-		CAREER_STATS.s19gh_event_currency_total = RegisterAccumulatedStat_Int( null, "s19gh_event_currency_total", eChallengeGameMode.NON_MODE, CHALLENGES_CALC_DEPENDS )
-
-		CAREER_STATS.s19gh_games_played = RegisterAccumulatedStat_Int( null, "s19gh_games_played", eChallengeGameMode.BATTLE_ROYALE, CHALLENGES_CALC_DEPENDS )
-		CAREER_STATS.s19gh_titan_sword_damage = RegisterAccumulatedStat_Int( null, "s19gh_titan_sword_damage", eChallengeGameMode.BATTLE_ROYALE, CHALLENGES_CALC_DEPENDS )
-		CAREER_STATS.s19gh_titan_sword_kills = RegisterAccumulatedStat_Int( null, "s19gh_titan_sword_kills", eChallengeGameMode.BATTLE_ROYALE, CHALLENGES_CALC_DEPENDS )
-		CAREER_STATS.s19gh_titan_sword_launcher = RegisterAccumulatedStat_Int( null, "s19gh_titan_sword_launcher", eChallengeGameMode.BATTLE_ROYALE, CHALLENGES_CALC_DEPENDS )
-		CAREER_STATS.s19gh_titan_sword_supers = RegisterAccumulatedStat_Int( null, "s19gh_titan_sword_supers", eChallengeGameMode.BATTLE_ROYALE, CHALLENGES_CALC_DEPENDS )
-		CAREER_STATS.s19gh_titan_sword_blocked = RegisterAccumulatedStat_Int( null, "s19gh_titan_sword_blocked", eChallengeGameMode.BATTLE_ROYALE, CHALLENGES_CALC_DEPENDS )
-		CAREER_STATS.s19gh_hopup_red_summons = RegisterAccumulatedStat_Int( null, "s19gh_hopup_red_summons", eChallengeGameMode.BATTLE_ROYALE, CHALLENGES_CALC_DEPENDS )
-		CAREER_STATS.s19gh_hopup_blue_healing = RegisterAccumulatedStat_Int( null, "s19gh_hopup_blue_healing", eChallengeGameMode.BATTLE_ROYALE, CHALLENGES_CALC_DEPENDS )
-		CAREER_STATS.s19gh_hopup_green_damage = RegisterAccumulatedStat_Int( null, "s19gh_hopup_green_damage", eChallengeGameMode.BATTLE_ROYALE, CHALLENGES_CALC_DEPENDS )
-		CAREER_STATS.s19gh_hopup_purple_damage = RegisterAccumulatedStat_Int( null, "s19gh_hopup_purple_damage", eChallengeGameMode.BATTLE_ROYALE, CHALLENGES_CALC_DEPENDS )
-		CAREER_STATS.s19gh_hopup_yellow_time = RegisterAccumulatedStat_Int( null, "s19gh_hopup_yellow_time", eChallengeGameMode.BATTLE_ROYALE, CHALLENGES_CALC_DEPENDS )
-
-
-	
-	
-
-		CAREER_STATS.s19ce01_01_buffet_points = RegisterAccumulatedStat_Int( null, "s19ce01_01_buffet_points", eChallengeGameMode.NON_MODE, CHALLENGES_CALC_DEPENDS )
-		CAREER_STATS.s19ce01_02_buffet_points = RegisterAccumulatedStat_Int( null, "s19ce01_02_buffet_points", eChallengeGameMode.NON_MODE, CHALLENGES_CALC_DEPENDS )
-		CAREER_STATS.s19ce01_03_buffet_points = RegisterAccumulatedStat_Int( null, "s19ce01_03_buffet_points", eChallengeGameMode.NON_MODE, CHALLENGES_CALC_DEPENDS )
-		CAREER_STATS.s19ce01_04_buffet_points = RegisterAccumulatedStat_Int( null, "s19ce01_04_buffet_points", eChallengeGameMode.NON_MODE, CHALLENGES_CALC_DEPENDS )
-
-		CAREER_STATS.s19ce01_wins_any_mode	  = RegisterAccumulatedStat_Int( null, "s19ce01_wins_any_mode", eChallengeGameMode.ANY, CHALLENGES_CALC_DEPENDS )
-
-
-	
 	CAREER_STATS.clubs_games_played_with_club = RegisterAccumulatedStat_Int( null, "clubs_games_played_with_club", eChallengeGameMode.BATTLE_ROYALE, BADGES_UNLOCK_NEED )
 	CAREER_STATS.clubs_placements_win_with_club = RegisterAccumulatedStat_Int( null, "clubs_placements_win_with_club", eChallengeGameMode.BATTLE_ROYALE, BADGES_UNLOCK_NEED )
 	CAREER_STATS.clubs_placements_win_with_club_squad_alive = RegisterAccumulatedStat_Int( null, "clubs_placements_win_with_club_squad_alive", eChallengeGameMode.BATTLE_ROYALE, BADGES_UNLOCK_NEED )
@@ -437,19 +385,20 @@ void function RegisterAllStats()
 	StatsRegister_Ranked()
 	StatsRegister_Beginner()
 
-
-		StatsRegister_ApexCups()
-
-
 	
-	StatsRegister_S20()
+	StatsRegister_S21()
 
 	StatsRegister_MetaChallenges()
 
 		CAREER_STATS.gamemode_treasurehunt_objectives_captured = RegisterAccumulatedStat_Int( null, "gamemode_treasurehunt_objectives_captured", eChallengeGameMode.TREASURE_HUNT, CHALLENGES_CALC_DEPENDS )
 
 
+
+
+
+
 	StatsRegister_Autogen()
+	StatsRegister_EventShopStats()
 }
 
 
@@ -477,112 +426,6 @@ void function RegisterAllStats()
 
 
  
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -3568,13 +3411,24 @@ StatCalcFuncInfo function SetupGetCountOfCharactersWithTenWinsForStat( StatEntry
 
 
 
+string function GetStatsStringWithoutGamemode( string originalString )
+{
+	int start = originalString.find( "MODES[" )
+	int end = originalString.find( "]." )
+	if ( start < 0 || end < 0 )
+		return originalString
+
+	string modeString = originalString.slice( start, end + 2 ) 
+	return replace( originalString, modeString, "" )
+}
+
 string function ShStats_GenerateStatLocStringFromStatRef( string statRef )
 {
 	int index = statRef.find( "." )
 	if ( index >= 0 )
 		statRef = statRef.slice( index + 1, statRef.len() )
 
-	return "#STAT_REF_" + statRef.toupper()
+	return "#STAT_REF_" + GetStatsStringWithoutGamemode( statRef.toupper() )
 }
 
 string function ShStats_GenerateStatLocStringFromStatRef_Long( string statRef )
@@ -3583,7 +3437,7 @@ string function ShStats_GenerateStatLocStringFromStatRef_Long( string statRef )
 	if ( index >= 0 )
 		statRef = statRef.slice( index + 1, statRef.len() )
 
-	return "#STAT_REF_LONG_" + statRef.toupper()
+	return "#STAT_REF_LONG_" + GetStatsStringWithoutGamemode( statRef.toupper() )
 }
 
 
@@ -3656,4 +3510,12 @@ int function ArenasRanked_GetHistoricalPeakLadderPosition( entity player )
 
 
 
-      
+
+
+
+
+
+
+
+
+

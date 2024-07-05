@@ -365,6 +365,8 @@ global enum eSurvivalCommentaryBucket
 	TH_OBJECTIVE_CAPTURED,
 
 
+	FREEDM_VO_OVERIDE_TEAM_NEAR_WINNING,
+
 	_count
 }
 
@@ -1144,7 +1146,7 @@ bool function CanPlayerSpeak( entity player )
 
 
 			
-			if ( !IsShadowArmyGamemode() )
+			if ( !GameModeVariant_IsActive( eGameModeVariants.SURVIVAL_SHADOW_ARMY ) )
 
 			{
 				if ( IsPlayerShadowZombie( player ) )
@@ -1187,7 +1189,13 @@ bool function ShouldPlayBattleChatter( string conversationType, entity listening
 		return false
 
 	if ( !IsAlive( listeningPlayer ) )
-		return false
+	{
+		if ( !GetConVarBool( "sound_spectator_dialogue") )
+			return false
+
+		if ( !listeningPlayer.IsObserver() || listeningPlayer.GetObserverTarget() != speakingPlayer )
+			return false
+	}
 
 	if ( !IsAlive( speakingPlayer ) )
 		return false

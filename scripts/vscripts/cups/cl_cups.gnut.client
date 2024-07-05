@@ -20,6 +20,9 @@ global function Cups_GetVisibleEvents
 
 
 
+
+
+
 #if DEV
 global function Cups_GrantAllCupRewards
 global function Cups_UnregisterFromCup
@@ -34,6 +37,9 @@ global function DEV_Cups_ClearCupsLastMatchPlayedData
 #endif
 
 const int CUPS_MMR_BUCKET_INVALID = -1
+
+
+
 
 
 
@@ -139,6 +145,74 @@ array< SettingsAssetGUID > function Cups_GetVisibleEvents()
 	}
 	return result
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

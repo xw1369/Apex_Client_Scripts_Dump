@@ -20,7 +20,6 @@ global function SupportBin_EntityIsSupportBin
 
 
 
-
 global function Perk_SupportBin_SupportBinHasHudMarker
 global function Perk_SupportBin_ServerToClient_DisplayOpenedSupportBoxPrompt
 
@@ -28,11 +27,7 @@ global function Perk_SupportBin_ServerToClient_DisplayOpenedSupportBoxPrompt
 
 
 
-
-global const string LOOT_BIN_SUPPORT_SKIN = "Blue_Turbo"
-
-
-
+global const string LOOT_BIN_SUPPORT_SKIN = "SecretLoot"
 global const string LOOT_BIN_DEFAULT_SKIN = "(default)"
 
 global const float SURVIVAL_ASSISTANCE_COOLDOWN_DURATION = 10.0
@@ -97,6 +92,7 @@ enum SurvivalStatusType
 {
 	SURIVIAL_LOOT_HAS_MRB,
 	SURIVIAL_LOOT_HAS_HS,
+	SURIVIAL_LOOT_HAS_EVAC,
 	SURIVIAL_LOOT_HAS_NONE
 }
 
@@ -187,19 +183,21 @@ void function Perk_SupportLootbin_Init()
 
 bool function SupportBin_ShouldSpawnSupportBins()
 {
-	if(GetCurrentPlaylistVarBool("survival_block_lootbin_creation", false ))
-		return false
-
-	if(WinterExpress_IsModeEnabled() )
+	if( GetCurrentPlaylistVarBool("survival_block_lootbin_creation", false ) )
 		return false
 
 
-	if(GunGame_IsModeEnabled())
+	if( GameModeVariant_IsActive( eGameModeVariants.SURVIVAL_WINTEREXPRESS ) )
 		return false
 
 
 
-		if(Control_IsModeEnabled())
+	if( GameModeVariant_IsActive( eGameModeVariants.FREEDM_GUNGAME ) )
+		return false
+
+
+
+		if( GameMode_IsActive( eGameModes.CONTROL ) )
 			return false
 
 
@@ -304,7 +302,6 @@ int function SupportBin_HeatShieldAssistanceMax()
 	return ( GetCurrentPlaylistVarInt("supportbin_heatshield_assistance_max", 3 ) )
 }
 
-
 bool function SupportBin_RotatingLoot_Refill_SecretLoot()
 {
 	return ( GetCurrentPlaylistVarBool("supportbin_dispenses_rotatingloot_only_secret_compartment", false ) )
@@ -320,7 +317,6 @@ bool function SupportBin_RotatingLoot_MainLoot_AllowGearSpawns()
 	return ( GetCurrentPlaylistVarBool("supportbin_dispenses_rotatingloot_main_compartment_spawns_gear", true ) )
 }
 
-
 bool function SupportBin_AllowArmorLootInBins()
 {
 	return ( GetCurrentPlaylistVarBool("supportbin_enable_armor_loot", false ) )
@@ -334,6 +330,11 @@ bool function SupportBin_ResepectGroundLootRotation()
 bool function SupportBin_ValidateSurvivalNeedAgainstTeamInvetory( )
 {
 	return ( GetCurrentPlaylistVarBool("supportbin_validate_survival_using_team_inventory", false ) )
+}
+
+bool function SupportBin_RemoveSurvivalItemsFromBaseRoll()
+{
+	return ( GetCurrentPlaylistVarBool("supportbin_remove_survival_items", true ) )
 }
 
 
@@ -1693,6 +1694,13 @@ void function Perk_SupportBin_RuiThinkThread( var rui, entity ent )
 	RuiSetFloat( rui, "minAlphaDist", 1500 )
 	RuiSetFloat( rui, "maxAlphaDist", 2000 )
 }
+
+
+
+
+
+
+
 
 
 

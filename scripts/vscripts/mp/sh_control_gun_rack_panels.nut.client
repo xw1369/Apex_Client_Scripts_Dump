@@ -24,7 +24,7 @@ struct
 
 void function ControlGunRackPanels_Init()
 {
-	if ( !Control_IsModeEnabled() || !GetCurrentPlaylistVarBool( "control_enable_gunracks", false ) || GetCurrentPlaylistVarBool( "control_gunracks_self_replenish", false ) || GetCurrentPlaylistVarBool( "control_gunracks_reset_all_group_loot_on_pickup", false ) )
+	if ( !GameMode_IsActive( eGameModes.CONTROL ) || !GetCurrentPlaylistVarBool( "control_enable_gunracks", false ) || GetCurrentPlaylistVarBool( "control_gunracks_self_replenish", false ) || GetCurrentPlaylistVarBool( "control_gunracks_reset_all_group_loot_on_pickup", false ) )
 	{
 
 

@@ -520,7 +520,7 @@ void function CLWarpinEffect( asset model, string animation, vector origin, vect
 	
 	Point start = __GetWarpinPosition( model, animation, origin, angles )
 
-	__WarpInEffectShared( start.origin, start.angles, sfx )
+	__WarpInEffectShared( start.origin, start.angles, sfx, GetLocalViewPlayer() )
 }
 
 Point function __GetWarpinPosition( asset model, string animation, vector origin, vector angles )

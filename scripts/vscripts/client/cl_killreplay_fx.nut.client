@@ -29,7 +29,7 @@ void function ClientCodeCallback_GameTimescaleChanged( float newTimescale )
 
 void function ServerCallback_PreKillReplaySounds()
 {
-	var killreplayBeginSoundHandle = EmitUISound( "KillCam_UI_LeadIn_Stinger" )
+	var killreplayBeginSoundHandle = EmitSoundOnEntity( GetLocalClientPlayer(), "KillCam_UI_LeadIn_Stinger" )
 	SetPlayThroughKillReplay( killreplayBeginSoundHandle )
 	SetPlayThroughPOVTransitions( killreplayBeginSoundHandle )
 }
@@ -102,7 +102,7 @@ void function ClKillReplayFX_ReplayEnd()
 	}
 	else
 	{
-		file.killreplayEndUntilRespawnSound = EmitUISound( "duck_for_death_killcam_midgame" )
+		file.killreplayEndUntilRespawnSound = EmitSoundOnEntity( GetLocalClientPlayer(), "duck_for_death_killcam_midgame" )
 		SetPlayThroughKillReplay( file.killreplayEndUntilRespawnSound )
 		SetPlayThroughPOVTransitions( file.killreplayEndUntilRespawnSound )
 	}

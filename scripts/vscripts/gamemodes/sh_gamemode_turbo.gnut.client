@@ -1,14 +1,5 @@
 
-
-
-
-
 global function Sh_Survival_BattleRush_Init
-global function Sh_Survival_BattleRush_RegisterNetworking
-
-
-
-
 
 
 
@@ -70,20 +61,11 @@ struct
 	entity musicEntity 
 	int musicRampUpLevel = MUSIC_RAMPUP_LEVEL_NOT_SET
 
-
-
-
-
-
-
 } file
 
 
 void function Sh_Survival_BattleRush_Init()
 {
-	if( !IsBattleRushGamemode() )
-		return
-
 	Sh_Survival_BattleRush_RegisterNetworking()
 
 
@@ -110,9 +92,6 @@ void function Sh_Survival_BattleRush_Init()
 
 void function Sh_Survival_BattleRush_RegisterNetworking()
 {
-	if( !IsBattleRushGamemode() )
-		return
-
 	Remote_RegisterClientFunction( "BattleRush_ServerCallback_PlayGameplayMusic" )
 	Remote_RegisterClientFunction( "BattleRush_ServerCallback_PlayMatchEndMusic", "bool" )
 	Remote_RegisterClientFunction( "BattleRush_ServerCallback_UpdateMusicRampLevel", "int", MUSIC_RAMP_MIN, MUSIC_RAMP_MAX )

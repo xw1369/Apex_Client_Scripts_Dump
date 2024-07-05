@@ -279,12 +279,12 @@ void function MessageThink( MessageData messageData )
 asset function GetScoreMessageRuiAssetForMode()
 {
 
-	if ( GameRules_GetGameMode() == GAMEMODE_CONTROL )
+	if ( GameMode_IsActive( eGameModes.CONTROL ) )
 		return $"ui/control_score_info.rpak"
 
 
 
-	if ( GameRules_GetGameMode() == GAMEMODE_FREEDM && GetCurrentPlaylistVarBool( "freedm_treasure_hunt_active", false ) )
+	if ( GameModeVariant_IsActive( eGameModeVariants.FREEDM_LOCKDOWN ) )
 		return $"ui/lockdown_score_info.rpak"
 
 
@@ -547,8 +547,16 @@ void function DamageFlyout( float damageAmount, vector damagePosition, entity vi
 		if( isExtraShieldShot )
 		{
 			vector armorColor = GetFXRarityColorForTier( GetPlayerExtraShieldsTier( victim ) ) / 255.0
+			RuiSetImage( rui, "shieldBorderIcon", $"rui/hud/gametype_icons/survival/sur_armor_icon" )
 			RuiSetColorAlpha( rui, "shieldBorderColor", armorColor, 1.0 )
 		}
+
+
+
+
+
+
+
 		else
 		{
 			RuiSetColorAlpha( rui, "shieldBorderColor", <0.0,0.0,0.0>, 0.0 )
@@ -581,7 +589,7 @@ void function DamageFlyout( float damageAmount, vector damagePosition, entity vi
 	else
 		file.entityDamageFlyouts[victim] <- flyoutData
 
-	bool initNewStackingDamageText = Time() - flyoutData.lastDamageFlyoutTime > FDT_STACK_THRESHOLD || flyoutData.viewEntity != GetLocalViewPlayer() || flyoutData.replayDelay != GetReplayDelay() || !showStackingDamageText
+	bool initNewStackingDamageText = Time() - flyoutData.lastDamageFlyoutTime > FDT_STACK_THRESHOLD || flyoutData.viewEntity != GetLocalViewPlayer() || flyoutData.replayDelay != GetReplayDelay() || !showStackingDamageText || !RuiIsAlive( flyoutData.stackingDamageRui )
 	if ( initNewStackingDamageText )
 	{
 		flyoutData.lastDamageFlyoutTime = Time()
@@ -642,9 +650,17 @@ void function DamageFlyout( float damageAmount, vector damagePosition, entity vi
 
 		if( isExtraShieldShot )
 		{
+			RuiSetImage( stackingRui, "shieldBorderIcon", $"rui/hud/gametype_icons/survival/sur_armor_icon" )
 			vector armorColor = GetFXRarityColorForTier( GetPlayerExtraShieldsTier( victim ) ) / 255.0
 			RuiSetColorAlpha( stackingRui, "shieldBorderColor", armorColor, 1.0 )
 		}
+
+
+
+
+
+
+
 		else
 		{
 			RuiSetColorAlpha( stackingRui, "shieldBorderColor", <0.0,0.0,0.0>, 0.0 )
@@ -778,7 +794,7 @@ bool function ShouldShowProjectileHitDot( int damageType, entity weapon )
 
 bool function ShouldShowTrainingHitIndicators ()
 {
-	if (!IsFiringRangeGameMode())
+	if ( !GameModeVariant_IsActive( eGameModeVariants.SURVIVAL_FIRING_RANGE ) )
 		return false
 
 	if (!showTrainingHitIndicators)

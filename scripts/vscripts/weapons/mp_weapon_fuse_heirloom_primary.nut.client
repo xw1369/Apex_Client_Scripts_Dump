@@ -1,5 +1,3 @@
-
-
 global function MpWeaponFuseHeirloomPrimary_Init
 global function OnWeaponActivate_weapon_fuse_heirloom_primary
 global function OnWeaponDeactivate_weapon_fuse_heirloom_primary
@@ -64,4 +62,3 @@ void function OnWeaponDeactivate_weapon_fuse_heirloom_primary( entity weapon )
 
 
 }
-                         

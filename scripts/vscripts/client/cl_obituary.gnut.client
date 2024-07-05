@@ -16,6 +16,8 @@ global function Obituary_Print_Control_ObjectivePing
 global function Obituary_Print_Control_Ping
 
 
+global function ClientCodeCallback_Observer_SetObituaryFilter
+
 const NUM_OBITUARY_LINES = 4		
 const obituaryTextBoxWidth = 500
 const obituaryTextBoxHeight = 20
@@ -42,6 +44,7 @@ struct
 		table< entity, ObituaryData > controlObjectiveToObituaryDataTable
 
 
+	int obituaryFilter = 0
 } file
 
 struct ObitEntityInfo
@@ -337,11 +340,11 @@ void function Obituary( entity attacker, string attackerClass, entity victim, in
 
 	if ( weaponIcon == $"" )
 	{
-		Obituary_Print_PlayerDeath( attackerString, weaponIcon, Localize( sourceDisplayName ), modifierIcon, victimString, badgeInfo, attackerInfo.displayColor, victimInfo.displayColor, <255, 255, 255>, false )
+		Obituary_Print_PlayerDeath( attackerString, weaponIcon, Localize( sourceDisplayName ), modifierIcon, victimString, badgeInfo, attackerInfo.displayColor, victimInfo.displayColor, <255, 255, 255>, false, obitFlags )
 	}
 	else
 	{
-		Obituary_Print_PlayerDeath( attackerString, weaponIcon, "", modifierIcon, victimString, badgeInfo, attackerInfo.displayColor, victimInfo.displayColor, <255, 255, 255>, isMainWeapon )
+		Obituary_Print_PlayerDeath( attackerString, weaponIcon, "", modifierIcon, victimString, badgeInfo, attackerInfo.displayColor, victimInfo.displayColor, <255, 255, 255>, isMainWeapon, obitFlags )
 	}
 }
 
@@ -384,7 +387,7 @@ bool function ShouldShowRankBadges ( entity attacker, bool isDownShot )
 		return false
 	}
 
-	return IsRankedGame()
+	return GameModeVariant_IsActive( eGameModeVariants.SURVIVAL_RANKED )
 }
 
 bool function ShouldShowObituaryLineForPlayer( entity player )
@@ -415,9 +418,12 @@ bool function ShouldShowObituaryLineForPlayer( entity player )
 }
 
 
-void function Obituary_Print_Localized( string localizedPrint, vector altColor1 = <255,255,255>, vector altColor2 = <255,255,255>, vector altColor3 = <255,255,255>, vector backgroundColor = <255,255,255>, float backgroundAlpha = 0.0, bool bCheckForDuplicateEntry = false )
+void function Obituary_Print_Localized( string localizedPrint, vector altColor1 = <255,255,255>, vector altColor2 = <255,255,255>, vector altColor3 = <255,255,255>, vector backgroundColor = <255,255,255>, float backgroundAlpha = 0.0, bool bCheckForDuplicateEntry = false, int obitFlags = 0 )
 {
 	if ( !file.obituariesEnabled )
+		return
+
+	if ( GetCurrentPlaylistVarBool( "obituary_filters_enabled", true ) && file.obituaryFilter > 0 && ( file.obituaryFilter & obitFlags ) == 0 )
 		return
 
 	bool bFoundDuplicateEntry = false
@@ -464,9 +470,12 @@ void function Obituary_Print_Localized( string localizedPrint, vector altColor1 
 	}
 }
 
-void function Obituary_Print_PlayerDeath( string attackerString, asset weaponIcon, string weaponDisplayName, asset modifierIcon,  string victimString, ObitRankBadgeInfo badgeInfo, vector attackerColor = <255,255,255>, vector victimColor = <255,255,255>, vector weaponColor = <255,255,255>, bool tempIsMainWeapon = false )
+void function Obituary_Print_PlayerDeath( string attackerString, asset weaponIcon, string weaponDisplayName, asset modifierIcon,  string victimString, ObitRankBadgeInfo badgeInfo, vector attackerColor = <255,255,255>, vector victimColor = <255,255,255>, vector weaponColor = <255,255,255>, bool tempIsMainWeapon = false, int obitFlags = 0 )
 {
 	if ( !file.obituariesEnabled )
+		return
+
+	if ( GetCurrentPlaylistVarBool( "obituary_filters_enabled", true ) && file.obituaryFilter > 0 && ( file.obituaryFilter & obitFlags ) == 0 )
 		return
 
 	var rui = CreatePermanentCockpitPostFXRui( $"ui/obituary_crawl_player_death.rpak" )
@@ -507,9 +516,12 @@ void function Obituary_Print_PlayerDeath( string attackerString, asset weaponIco
 
 
 
-void function Obituary_Print_Control_Ping( string localizedPrint, bool isAlliancePing = false, vector altColor1 = <255,255,255>, vector altColor2 = <255,255,255>, vector altColor3 = <255,255,255>, vector backgroundColor = <255,255,255>, float backgroundAlpha = 0.0 )
+void function Obituary_Print_Control_Ping( string localizedPrint, bool isAlliancePing = false, vector altColor1 = <255,255,255>, vector altColor2 = <255,255,255>, vector altColor3 = <255,255,255>, vector backgroundColor = <255,255,255>, float backgroundAlpha = 0.0, int obitFlags = 0 )
 {
 	if ( !file.obituariesEnabled )
+		return
+
+	if ( GetCurrentPlaylistVarBool( "obituary_filters_enabled", true ) && file.obituaryFilter > 0 && ( file.obituaryFilter & obitFlags ) == 0 )
 		return
 
 	var rui = CreatePermanentCockpitPostFXRui( $"ui/obituary_crawl_localized.rpak", HUD_Z_BASE )
@@ -542,15 +554,18 @@ void function Obituary_Print_Control_Ping( string localizedPrint, bool isAllianc
 
 
 
-void function Obituary_Print_Control_ObjectivePing( entity subjectEnt, string localizedPrint, vector altColor1 = <255,255,255>, vector altColor2 = <255,255,255>, vector altColor3 = <255,255,255>, vector backgroundColor = <255,255,255>, float backgroundAlpha = 0.0 )
+void function Obituary_Print_Control_ObjectivePing( entity subjectEnt, string localizedPrint, vector altColor1 = <255,255,255>, vector altColor2 = <255,255,255>, vector altColor3 = <255,255,255>, vector backgroundColor = <255,255,255>, float backgroundAlpha = 0.0, int obitFlags = 0 )
 {
 	if ( !file.obituariesEnabled )
 		return
 
-	if ( !Control_IsModeEnabled() )
+	if ( !GameMode_IsActive( eGameModes.CONTROL ) )
 		return
 
 	if ( !IsValid( subjectEnt ) || !IsValid( subjectEnt.GetOwner() ) || subjectEnt.GetOwner().GetWaypointType() != eWaypoint.CONTROL_OBJECTIVE )
+		return
+
+	if ( GetCurrentPlaylistVarBool( "obituary_filters_enabled", true ) && file.obituaryFilter > 0 && ( file.obituaryFilter & obitFlags ) == 0 )
 		return
 
 	entity objectiveWaypoint = subjectEnt.GetOwner()
@@ -727,7 +742,7 @@ entity function Obituary_GetControlObjectivePingFromObituaryDataOrNull( Obituary
 
 void function Obituary_CleanupControlObjectivePingData( ObituaryData obitData )
 {
-	if ( Control_IsModeEnabled() )
+	if ( GameMode_IsActive( eGameModes.CONTROL ) )
 	{
 		if ( Obituary_IsObituaryDataForControlObjectivePing( obitData ) )
 		{
@@ -753,7 +768,7 @@ void function UpdateObituaryQueue()
 
 
 		
-		if ( Control_IsModeEnabled() )
+		if ( GameMode_IsActive( eGameModes.CONTROL ) )
 		{
 			if ( file.obituaryQueue.len() > 1 )
 			{
@@ -890,4 +905,11 @@ void function Obituary_SetVerticalOffset( int offset )
 bool function ObituaryHudIsDisabled()
 {
 	return GetCurrentPlaylistVarBool( "hide_ui_obituary", false )
+}
+
+void function ClientCodeCallback_Observer_SetObituaryFilter(int obitFlags, string message )
+{
+	file.obituaryFilter = 0 
+	Obituary_Print_Localized( message )
+	file.obituaryFilter = obitFlags
 }

@@ -33,6 +33,10 @@ global const float DOT_85DEGREE =	0.0871557427477
 
 
 
+
+
+
+
 global const string WHITESPACE_CHARACTERS = "\r\n\t " 
 
 #if DEV
@@ -185,6 +189,7 @@ global struct WallToTopResults
 	bool found
 	vector pos
 	vector normal
+	entity hitEnt
 }
 
 struct
@@ -218,6 +223,13 @@ void function ShUtilityAll_Init()
 		PrecacheParticleSystem( $"P_ghurka_amb_plasma_3P" )
 		PrecacheParticleSystem( $"P_ghurka_plasma_mdl" )
 		PrecacheParticleSystem( $"P_ghurka_plasma_mdl_3P" )
+		PrecacheParticleSystem( $"P_wpn_ghurka_rt01_swipe_FP" )
+		PrecacheParticleSystem( $"P_wpn_ghurka_rt01_swipe_3P" )
+		PrecacheParticleSystem( $"P_ghurka_rt01_amb_plasma_FP" )
+		PrecacheParticleSystem( $"P_ghurka_rt01_amb_plasma_3P" )
+		PrecacheParticleSystem( $"P_ghurka_rt01_plasma_mdl" )
+		PrecacheParticleSystem( $"P_ghurka_rt01_plasma_mdl_3P" )
+		
 		
 		PrecacheParticleSystem( $"P_ash_HL_NC_Impact" )
 		
@@ -226,6 +238,11 @@ void function ShUtilityAll_Init()
 		PrecacheParticleSystem( $"test_death_box_mdl" )
 		PrecacheParticleSystem( $"P_death_box_artifact_mdl" )
 		PrecacheParticleSystem( $"P_death_box_artifact_stech" )
+		PrecacheParticleSystem( $"P_death_box_artifact_steampunk" )
+		PrecacheParticleSystem( $"P_death_box_hisoc_artifact_mdl" )
+
+		PrecacheParticleSystem( $"P_PODIUM_SPOTLIGHT" )
+
 
 
 
@@ -262,6 +279,23 @@ void function CancelTimeoutIfAlive( Timeout to )
 
 
 
+
+void function print_dev( ... )
+{
+#if DEV
+		if ( vargc <= 0 )
+			return
+
+		local msg = vargv[0]
+		if ( PREFIX_PRINTT )
+			msg = "<" + getstackinfos( 2 ).func + "> " + msg
+
+		for ( int i = 1; i < vargc; i++ )
+			msg = (msg + " " + vargv[i] )
+
+		printl( msg )
+#endif
+}
 
 void function PrintObject( obj, int indent, int depth, int maxDepth )
 {
@@ -627,6 +661,14 @@ bool function IsOrientationMatch()
 
 
 
+
+
+
+
+
+
+
+
 bool function Is2TeamPvPGame()
 
 {
@@ -687,12 +729,6 @@ bool function IsDuoMode()
 }
 
 
-bool function IsSoloMode()
-{
-	return GetCurrentPlaylistVarBool( "solo_mode", false )
-}
-
-
 bool function IsLastPlaylistSolo( entity player )
 {
 	return GetPersistentLastGameTypeFlag( player, eGameType.SOLO )
@@ -715,12 +751,6 @@ bool function IsSpawnOnSquadMode()
 {
 	return GetCurrentPlaylistVarBool( "spawn_on_squad_mode", false )
 }
-
-bool function IsShadowRoyaleMode()
-{
-	return GetCurrentPlaylistVarBool( "shadow_royale_mode", false )
-}
-
 
 bool function UseNightAnnouncer()
 {
@@ -754,8 +784,6 @@ bool function IsNightMap()
 
 	return false
 }
-
-
 
 bool function IsPVEMode()
 {
@@ -800,68 +828,29 @@ bool function IsDummieMode()
 	return GetCurrentPlaylistVarBool( "dummie_mode", false )
 }
 
-bool function IsRingCollapseGameMode()
-{
-	return GetCurrentPlaylistVarBool( "is_ring_collapse", false )
-}
-
-bool function IsFinishTheFightGameMode()
-{
-	return GetCurrentPlaylistVarBool( "is_finish_the_fight", false )
-}
-
-bool function IsACETakeOverGameMode()
-{
-	return GetCurrentPlaylistVarBool( "is_ace_takeover", false )
-}
-
-bool function IsAprilFools_S8_Mode()
-{
-	return GetCurrentPlaylistVarBool( "is_april_fools_s8", false )
-}
-
 bool function HasBoundaryWall()
 {
 	return GetCurrentPlaylistVarBool( "has_boundary_wall", false )
 }
 
-bool function Control_IsModeEnabled()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+bool function BigTDM_IsModeEnabled()
 {
-	return GetCurrentPlaylistVarBool( "is_control_game", false )
-}
-
-
-bool function TDM_IsModeEnabled()
-{
-	return GetCurrentPlaylistVarBool( "freedm_tdm_active", false)
-}
-
-
-
-bool function Halloween18_IsModeEnabled()
-{
-	return GetCurrentPlaylistVarBool( "halloween_18_active", false)
-}
-
-
-
-
-
-
-
-
-
-
-bool function GunGame_IsModeEnabled()
-{
-	return GetCurrentPlaylistVarBool( "freedm_gun_game_active", false)
-}
-
-
-
-bool function TreasureHunt_IsModeEnabled()
-{
-	return GetCurrentPlaylistVarBool( "freedm_treasure_hunt_active", false)
+	return GetCurrentPlaylistVarBool( "freedm_big_tdm_active", false )
 }
 
 
@@ -889,19 +878,9 @@ bool function UseLTMPodiumBanner()
 
 
 
-bool function WinterExpress_IsModeEnabled()
-{
-	return GetCurrentPlaylistVarBool( "is_winter_express_game", false )
-}
-
-
-
 bool function IsCurrentModeMixtape()
 {
-	if ( GameRules_GetGameMode() == GAMEMODE_FREEDM || GameRules_GetGameMode() == GAMEMODE_CONTROL )
-		return true
-
-	return false
+	return GameMode_IsActive( eGameModes.CONTROL ) || GameMode_IsActive( eGameModes.FREEDM )
 }
 
 
@@ -1488,12 +1467,39 @@ float function Clamp( float value, float minValue, float maxValue )
 }
 
 
+float function ClampFloor( float value, float floor )
+{
+	return max( value, floor )
+}
+
+
+float function ClampCeiling( float value, float ceiling )
+{
+	return min( value, ceiling )
+}
+
 int function ClampInt( int value, int minValue, int maxValue )
 {
 	return maxint( minint( value, maxValue ), minValue )
 }
 
 
+int function ClampFloorInt( int value, int floor )
+{
+	return maxint( value, floor )
+}
+
+
+int function ClampCeilingInt( int value, int ceiling )
+{
+	return minint( value, ceiling )
+}
+
+
+bool function IsValidArrayIndex( int index, int arrayLen )
+{
+	return (index >= 0) && (index < arrayLen)
+}
 
 void function RemoveDupesFromSorted_String( array<string> data )
 {
@@ -2138,67 +2144,114 @@ WallToTopResults function TraceFromWallToTop(vector wallPos, vector wallNormal, 
 	vector flattenedNormal = FlattenNormalizeVec( wallNormal )
 	
 	
-	vector traceUpStart = wallPos + (wallNormal * checkBackDistance / 2.0)
+	vector traceUpStart = wallPos + (wallNormal * checkBackDistance )
 	vector traceUpEnd = traceUpStart + (UP_VECTOR * checkUpDistance )
-	TraceResults trUp = TraceLine( traceUpStart, traceUpEnd, ignoreEnts, traceMask , collisionGroup )
+
+	TraceResults trUp
+	if ( doHullTrace )
+		trUp = TraceHull( traceUpStart, traceUpEnd, hullBoundsMin, hullBoundsMax, ignoreEnts, traceMask, collisionGroup)
+	else
+		trUp = TraceLine( traceUpStart, traceUpEnd, ignoreEnts, traceMask , collisionGroup )
 
 #if DEV
 		if ( DEBUG_DRAW_TIME > 0.0 )
 		{
 			DebugDrawArrow( traceUpStart, trUp.endPos, 10, COLOR_ORANGE, false, DEBUG_DRAW_TIME )
+			DebugDrawText( trUp.endPos, string(checkUpDistance), false, DEBUG_DRAW_TIME )
+			if( doHullTrace )
+			{
+				if ( !trUp.startSolid )
+					DebugDrawBox( traceUpStart, hullBoundsMin, hullBoundsMax, COLOR_ORANGE, 1, DEBUG_DRAW_TIME )
+
+				vector endColor = trUp.fraction < 1.0 ?  COLOR_LIGHT_RED : COLOR_LIGHT_GREEN
+				DebugDrawBox( trUp.endPos, hullBoundsMin, hullBoundsMax, endColor, 1, DEBUG_DRAW_TIME )
+			}
 		}
 #endif
 
-	if ( trUp.fraction > 0.99 )
+	
 	{
 
 		
 		
 		vector traceBackStart = trUp.endPos
-		vector traceBackEnd = traceBackStart - (flattenedNormal * checkBackDistance * 1.5 )
-		TraceResults trBack = TraceLine( traceBackStart, traceBackEnd, ignoreEnts, traceMask , collisionGroup )
+		vector traceBackEnd = traceBackStart - (flattenedNormal * checkBackDistance * 2 )
+		TraceResults trBack
+		if ( doHullTrace )
+			trBack = TraceHull( traceBackStart, traceBackEnd, hullBoundsMin, hullBoundsMax, ignoreEnts, traceMask, collisionGroup)
+		else
+			trBack = TraceLine( traceBackStart, traceBackEnd, ignoreEnts, traceMask , collisionGroup )
 
 #if DEV
 
 			if ( DEBUG_DRAW_TIME > 0.0 )
 			{
 				DebugDrawArrow( traceBackStart, trBack.endPos, 10, COLOR_YELLOW, false, DEBUG_DRAW_TIME )
+				if( doHullTrace )
+				{
+					if ( !trUp.startSolid )
+						DebugDrawBox( traceBackStart, hullBoundsMin, hullBoundsMax, COLOR_ORANGE, 1, DEBUG_DRAW_TIME )
+
+					vector endColor = trBack.fraction < 1.0 ?  COLOR_LIGHT_RED : COLOR_LIGHT_GREEN
+					DebugDrawBox( trBack.endPos, hullBoundsMin, hullBoundsMax, endColor, 1, DEBUG_DRAW_TIME )
+				}
 			}
 #endif
 
-		if ( trBack.fraction > 0.99 )
+		if ( trBack.fraction > 0.5 )
 		{
-			vector ledgeStartTrace = trBack.endPos 
-			vector ledgeEndTrace = ledgeStartTrace - (UP_VECTOR * checkUpDistance * 2)
+			vector ledgeStartTrace = trBack.endPos + (flattenedNormal * checkBackDistance*(1.5-trBack.fraction)/2.0)
+			vector ledgeEndTrace = ledgeStartTrace - (UP_VECTOR * checkUpDistance * 1.25)
 
-			TraceResults trLedge
+			TraceResults trDownToLedge
 			if ( doHullTrace )
-				trLedge = TraceHull( ledgeStartTrace, ledgeEndTrace, hullBoundsMin, hullBoundsMax, ignoreEnts, traceMask, collisionGroup)
+				trDownToLedge = TraceHull( ledgeStartTrace, ledgeEndTrace, hullBoundsMin, hullBoundsMax, ignoreEnts, traceMask, collisionGroup)
 			else
-				trLedge = TraceLine( ledgeStartTrace, ledgeEndTrace, ignoreEnts, traceMask , collisionGroup )
+				trDownToLedge = TraceLine( ledgeStartTrace, ledgeEndTrace, ignoreEnts, traceMask , collisionGroup )
+
+			if ( trDownToLedge.fraction >= 1.0 )
+			{
+				ledgeStartTrace = trBack.endPos
+				ledgeEndTrace = ledgeStartTrace - (UP_VECTOR * checkUpDistance * 1.25)
+				if ( doHullTrace )
+					trDownToLedge = TraceHull( ledgeStartTrace, ledgeEndTrace, hullBoundsMin, hullBoundsMax, ignoreEnts, traceMask, collisionGroup)
+				else
+					trDownToLedge = TraceLine( ledgeStartTrace, ledgeEndTrace, ignoreEnts, traceMask , collisionGroup )
+			}
+
 
 #if DEV
 
 				if ( DEBUG_DRAW_TIME > 0.0 )
 				{
-					DebugDrawArrow( ledgeStartTrace, trLedge.endPos, 10, COLOR_LIGHT_GREEN, false, DEBUG_DRAW_TIME )
+					DebugDrawArrow( ledgeStartTrace, trDownToLedge.endPos, 10, COLOR_LIGHT_GREEN, false, DEBUG_DRAW_TIME )
+					if( doHullTrace )
+					{
+						if ( !trUp.startSolid )
+							DebugDrawBox( ledgeStartTrace, hullBoundsMin, hullBoundsMax, COLOR_ORANGE, 1, DEBUG_DRAW_TIME )
+
+						vector endColor = trDownToLedge.fraction < 1.0 ?  COLOR_LIGHT_RED : COLOR_LIGHT_GREEN
+						DebugDrawBox( trDownToLedge.endPos, hullBoundsMin, hullBoundsMax, endColor, 1, DEBUG_DRAW_TIME )
+					}
 				}
 #endif
 
-			if ( !trLedge.startSolid && trLedge.fraction < 0.99 )
+			if ( !trDownToLedge.startSolid && trDownToLedge.fraction < 1.0 && IsNormalVertical(trDownToLedge.surfaceNormal) )
 			{
 				
 #if DEV
 					if ( DEBUG_DRAW_TIME > 0.0 )
 					{
-						DebugDrawText( trLedge.endPos,"CornerPos", false, DEBUG_DRAW_TIME )
+						DebugDrawSphere( trDownToLedge.endPos, 2,COLOR_LIGHT_GREEN,false, DEBUG_DRAW_TIME )
+						DebugDrawText( trDownToLedge.endPos + <0,0,10>,"CornerPos Found", false, DEBUG_DRAW_TIME )
 						
 					}
 #endif
 
 				results.found = true
-				results.pos = trLedge.endPos
-				results.normal = trLedge.surfaceNormal
+				results.pos = trDownToLedge.endPos - (FLT_EPSILON*UP_VECTOR)
+				results.normal = trDownToLedge.surfaceNormal
+				results.hitEnt = trDownToLedge.hitEnt
 			}
 		}
 	}
@@ -2206,6 +2259,16 @@ WallToTopResults function TraceFromWallToTop(vector wallPos, vector wallNormal, 
 	return results
 }
 
+
+
+bool function IsNormalVertical( vector normal )
+{
+	float dot = DotProduct( normal, UP_VECTOR )
+	if ( dot > DOT_45DEGREE )	
+		return true
+
+	return false
+}
 
 
 
@@ -2319,65 +2382,38 @@ void function WaitForever()
 bool function IsLobbyEvent1Active()
 {
 #if DEV
+		
 		int devLobby = GetCurrentPlaylistVarInt( "dev_force_lobby", -1 )
 		if ( devLobby != -1 )
-		{
-			if ( devLobby == 1 )
-				return true
-			else
-				return false
-		}
+			return ( devLobby == 1 )
 #endif
 
-
-	if ( IsMobsterEventActive() )
-		return true
-
-
-	return false
+	return IsMTXEvent1Active()
 }
 
 bool function IsLobbyEvent2Active()
 {
-
 #if DEV
+		
 		int devLobby = GetCurrentPlaylistVarInt( "dev_force_lobby", -1 )
 		if ( devLobby != -1 )
-		{
-			if ( devLobby == 2 )
-				return true
-			else
-				return false
-		}
+			return ( devLobby == 2 )
 #endif
 
-
-	if ( IsUrbanAssaultEventActive() )
-		return true
-
-
-	return false
+	return IsMTXEvent2Active()
 }
 
-
-bool function IsMobsterEventActive()
+bool function IsMTXEvent1Active()
 {
-	ItemFlavor event = GetItemFlavorByAsset( $"settings/itemflav/calevent/s20me01/event_shop.rpak" )
-	if ( CalEvent_IsActive( event, GetUnixTimestamp() ) )
-		return true
-
-	return false
+	ItemFlavor event = GetItemFlavorByAsset( $"settings/itemflav/calevent/s21ce01/collection.rpak" )
+	return CalEvent_IsActive( event, GetUnixTimestamp() )
 }
 
-bool function IsUrbanAssaultEventActive()
+bool function IsMTXEvent2Active()
 {
-	ItemFlavor event = GetItemFlavorByAsset( $"settings/itemflav/calevent/s20ce04/collection.rpak" )
-	if ( CalEvent_IsActive( event, GetUnixTimestamp() ) )
-		return true
-
-	return false
+	ItemFlavor event = GetItemFlavorByAsset( $"settings/itemflav/calevent/s21me02/milestone.rpak" )
+	return CalEvent_IsActive( event, GetUnixTimestamp() )
 }
-
 
 bool function IsT1Active()
 {
@@ -2393,7 +2429,7 @@ bool function IsT1Active()
 
 bool function IsMatchmakingFromMatchEnabled()
 {
-	return GetConVarBool( "matchmake_from_match_enabled" ) && GetCurrentPlaylistVarBool( "matchmake_from_match", false )
+	return GetConVarBool( "matchmake_from_match_enabled" ) && GetCurrentPlaylistVarBool( "matchmake_from_match", false ) && ( GetCurrentPlaylistVarBool( "private_match", false ) == false )
 }
 
 bool function IsMatchmakingFromMatchAllowed( entity player )
@@ -2430,24 +2466,12 @@ bool function IsMatchmakingFromMatchAllowed( entity player )
 
 
 
+
+
+
 bool function IsVDUDialogueEnabled()
 {
 	return GetCurrentPlaylistVarBool( "enable_vdu_dialogue", false )
-}
-
-bool function IsSurvivalTraining()
-{
-	return GetCurrentPlaylistVarBool( "survival_training", false )
-}
-
-bool function IsFiringRangeGameMode()
-{
-	return GetCurrentPlaylistVarBool( "survival_firingrange", false )
-}
-
-bool function IsTraining()
-{
-	return( GetCurrentPlaylistVarBool( "survival_training", false ))
 }
 
 bool function IsEventFinale()
@@ -2508,8 +2532,8 @@ bool function UpgradeCore_IsCorrectGameState()
 {
 	bool isGameStateCorrect =
 			(
-					( !IsFiringRangeGameMode() && ( GetGameState() == eGameState.Playing ) ) ||
-					( IsFiringRangeGameMode() && ( GetGameState() == eGameState.WaitingForPlayers ))
+					( !GameModeVariant_IsActive( eGameModeVariants.SURVIVAL_FIRING_RANGE ) && ( GetGameState() == eGameState.Playing ) ) ||
+					( GameModeVariant_IsActive( eGameModeVariants.SURVIVAL_FIRING_RANGE ) && ( GetGameState() == eGameState.WaitingForPlayers ))
 			)
 
 	return isGameStateCorrect
@@ -2550,6 +2574,19 @@ int function SortByScriptId( var a, var b )
 	if ( aId > bId )
 		return 1
 	else if ( bId > aId )
+		return -1
+
+	return 0
+}
+
+
+
+int function AlphabeticalPlayerSort( entity a, entity b )
+{
+	if ( a.GetPlayerName() > b.GetPlayerName() )
+		return 1
+
+	if ( a.GetPlayerName() < b.GetPlayerName() )
 		return -1
 
 	return 0
@@ -2750,12 +2787,35 @@ vector function LinearToSrgb( vector inputColor )
 
 
 
-
 int function ConvertStringToInt( string str )
 {
 	Assert( str.isnumeric() )
 	return int( str )
 }
+
+const int DST_2024_START = 1710064800 
+const int DST_2024_END = 1730628000 
+const int DST_2025_START = 1741514400 
+const int DST_2025_END = 1762077600 
+const int DST_2026_START = 1772964000 
+const int DST_2026_END = 1793527200 
+const int DST_2027_START = 1805018400 
+const int DST_2027_END = 1825581600 
+const int DST_2028_START = 1836468000 
+const int DST_2028_END = 1857031200 
+const array< int > DST_TIMESTAMPS = [
+	
+	DST_2024_START,
+	DST_2024_END,
+	DST_2025_START,
+	DST_2025_END,
+	DST_2026_START,
+	DST_2026_END,
+	DST_2027_START,
+	DST_2027_END,
+	DST_2028_START,
+	DST_2028_END,
+]
 
 int ornull function DateTimeStringToUnixTimestamp( string str )
 {
@@ -2780,9 +2840,53 @@ int ornull function DateTimeStringToUnixTimestamp( string str )
 	parts.second = ConvertStringToInt(str.slice(17, 19))
 	int timezoneOffsetHours = ( str.slice(20, 21) == "-" ? -1 : 1 ) * ConvertStringToInt( str.slice(21, 23) )
 
-	
 
-	return GetUnixTimeFromParts( parts, timezoneOffsetHours ) 
+
+
+
+	
+	int convertedUnixTime = GetUnixTimeFromParts( parts, timezoneOffsetHours ) 
+
+
+
+
+
+	foreach ( int idx, int timestamp in DST_TIMESTAMPS )
+	{
+		if ( timestamp > convertedUnixTime )
+		{
+			if ( idx == 0 )
+				break 
+
+
+
+
+
+
+
+			if ( idx % 2 == 0 && timezoneOffsetHours != -8 ) 
+			{
+				Warning( format( "Updating DST offset for %s to -08:00", str ) )
+				timezoneOffsetHours = -8
+			}
+			else if ( idx % 2 == 1 && timezoneOffsetHours != -7 ) 
+			{
+				Warning( format( "Updating DST offset for %s to -07:00", str ) )
+				timezoneOffsetHours = -7
+			}
+
+			convertedUnixTime = GetUnixTimeFromParts( parts, timezoneOffsetHours )
+			break
+		}
+		else if ( idx == DST_TIMESTAMPS.len() - 1 )
+		{
+
+
+
+		}
+	}
+
+	return convertedUnixTime
 }
 
 
@@ -2799,6 +2903,38 @@ int function GetUnixTimePDT()
 	int unixTime = GetUnixTimestamp()
 	unixTime += (PDT_TIME_ZONE_OFFSET * SECONDS_PER_HOUR)
 	return unixTime
+}
+
+
+string function GetDebugTimeString()
+{
+	
+
+	if ( GetDeveloperLevel() == 0 )
+		return ""
+
+	bool dst 		  = GetIsDSTActive()
+	int utTime        = dst ? GetUnixTimePDT() : GetUnixTimePST()
+	string timeString = GetDateTimeString( utTime, 0 )
+	string dayName    = GetDayOfWeekName( GetDayOfWeek( utTime ) )
+
+
+
+
+	string localDayName = Localize( dayName )
+
+
+	return format( "%s, %s %s", localDayName, timeString, dst ? "PDT" : "PST" )
+}
+
+
+void function PrintDebugTimeDetails()
+{
+	printt( FUNC_NAME() )
+
+	string debugTime = GetDebugTimeString()
+	printt( "DebugTime =", debugTime )
+	PrintFakeTime()
 }
 
 
@@ -2904,6 +3040,7 @@ DisplayTime function SecondsToDHMS( int seconds )
 	return dt
 }
 
+
 string function GetDaysHoursRemainingLoc(int days, int hours)
 {
 	string dateFormat = "#DAYS_HOURS_REMAINING"
@@ -2970,12 +3107,12 @@ string function GetTimeString( int unixTime )
 	return format( "%02i:%02i:%02i", timeParts.hour, timeParts.minute, timeParts.second )
 }
 
+
 string function GetDateTimeStringDayMonthYear( int unixTime, int timezoneOffsetHours = 0 )
 {
 	TimeParts timeParts = GetUnixTimeParts( unixTime, timezoneOffsetHours )
 	return format( "%02i-%02i-%04i",  timeParts.day, timeParts.month, timeParts.year )
 }
-
 
 
 int function GetStartOfDay( int unixTime )
@@ -3637,9 +3774,6 @@ void function _UIToClient_MenuExtendedUseEnded( bool success )
 
 
 
-
-
-
 bool function IsInfiniteAmmoEnabled()
 {
 #if DEV
@@ -3680,6 +3814,18 @@ string function GetMergedPlatformIdForPlayer( entity player )
 	Assert( platformId != "" )
 	return platformId
 }
+
+
+bool function IsPCPlatform( int hardwareID )
+{
+	if ( hardwareID == HARDWARE_PC || hardwareID == HARDWARE_PC_STEAM )
+	{
+		return true
+	}
+
+	return false
+}
+
 
 
 bool function IsUserOnSamePlatform( string hardware )
@@ -3752,9 +3898,7 @@ string function PlatformIDToIconString( int platformID )
 		switch ( platformID )
 		{
 			case HARDWARE_PC:
-
 			case HARDWARE_PC_STEAM:
-
 				return Localize( "#CROSSPLAY_ICON_PC" )
 
 			case HARDWARE_PS4:
@@ -3777,9 +3921,7 @@ string function PlatformIDToIconString( int platformID )
 		switch ( platformID )
 		{
 			case HARDWARE_PC:
-
 			case HARDWARE_PC_STEAM:
-
 				return Localize( "#CROSSPLAY_ICON_PC" )
 
 			case HARDWARE_PS4:
@@ -4198,6 +4340,10 @@ float function InchesToMeters( float inches )
 
 
 
+
+
+
+
 bool function IsPlayerOneOfCharacters( entity player, array< string > charactersCheck )
 {
 	ItemFlavor character = LoadoutSlot_GetItemFlavor( ToEHI( player ), Loadout_Character() )
@@ -4313,8 +4459,8 @@ float function GetNearestAspectRatio( int width, int height )
 
 
 
-bool function IsBattleRushGamemode()
-{
-	return GetCurrentPlaylistVarBool( "is_gamemode_battle_rush", false )
-}
-                                  
+
+
+
+
+      

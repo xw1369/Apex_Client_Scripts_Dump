@@ -275,10 +275,8 @@ void function StatsRegister_Gameplay()
 
 	CAREER_STATS.modes_weapon_damage_done = RegisterAccumulatedStat_Int( modes_weapon_SES, "damage_done", MODE_SPECIFIC, CHALLENGES_CALC_DEPENDS )
 	CAREER_STATS.modes_weapon_dooms = RegisterAccumulatedStat_Int( modes_weapon_SES, "dooms", MODE_SPECIFIC, CHALLENGES_CALC_DEPENDS )
-
-		CAREER_STATS.modes_weapon_headshots = RegisterAccumulatedStat_Int( modes_weapon_SES, "headshots", MODE_SPECIFIC, DELAY_WRITE_BACK_UNTIL_MATCH_END )
-		CAREER_STATS.modes_weapon_kills = RegisterAccumulatedStat_Int( modes_weapon_SES, "kills", MODE_SPECIFIC, DELAY_WRITE_BACK_UNTIL_MATCH_END )
-
+	CAREER_STATS.modes_weapon_headshots = RegisterAccumulatedStat_Int( modes_weapon_SES, "headshots", MODE_SPECIFIC, DELAY_WRITE_BACK_UNTIL_MATCH_END )
+	CAREER_STATS.modes_weapon_kills = RegisterAccumulatedStat_Int( modes_weapon_SES, "kills", MODE_SPECIFIC, DELAY_WRITE_BACK_UNTIL_MATCH_END )
 
 	
 	StatEnumStruct modes_weaponcategory_SES = GetRegisteredStatEnumStruct( eStatEnumStructRefs.MODE_WEWAPONCATEGORY )
@@ -290,23 +288,21 @@ void function StatsRegister_Gameplay()
 	temp_statTemplateReference                    = CAREER_STATS.modes_weapon_dooms
 	CAREER_STATS.modes_weaponcategory_dooms       = RegisterExpensiveCalculatedStat_Int( modes_weaponcategory_SES, "dooms", CHALLENGES_CALC_DEPENDS, SetupModesWeaponCategoryStatSumEntryFunc_Int, [temp_statTemplateReference], MODE_SPECIFIC )
 
+	StatTemplate tempBr = CAREER_STATS.weapon_damage_done
+	StatTemplate tempNonBr = CAREER_STATS.modes_weapon_damage_done
+	CAREER_STATS.weapon_damage_done_all_modes = RegisterExpensiveCalculatedStat_Int( weapon_SES, "damage_done_all_modes", CHALLENGES_CALC_DEPENDS, SetupAllModesWeaponStatSumEntryFunc_Int, [tempBr, tempNonBr], eChallengeGameMode.ANY )
 
-		StatTemplate tempBr = CAREER_STATS.weapon_damage_done
-		StatTemplate tempNonBr = CAREER_STATS.modes_weapon_damage_done
-		CAREER_STATS.weapon_damage_done_all_modes = RegisterExpensiveCalculatedStat_Int( weapon_SES, "damage_done_all_modes", CHALLENGES_CALC_DEPENDS, SetupAllModesWeaponStatSumEntryFunc_Int, [tempBr, tempNonBr], eChallengeGameMode.ANY )
+	tempBr = CAREER_STATS.weapon_dooms
+	tempNonBr = CAREER_STATS.modes_weapon_dooms
+	CAREER_STATS.weapon_dooms_all_modes = RegisterExpensiveCalculatedStat_Int( weapon_SES, "dooms_all_modes", CHALLENGES_CALC_DEPENDS, SetupAllModesWeaponStatSumEntryFunc_Int, [tempBr, tempNonBr], eChallengeGameMode.ANY )
 
-		tempBr = CAREER_STATS.weapon_dooms
-		tempNonBr = CAREER_STATS.modes_weapon_dooms
-		CAREER_STATS.weapon_dooms_all_modes = RegisterExpensiveCalculatedStat_Int( weapon_SES, "dooms_all_modes", CHALLENGES_CALC_DEPENDS, SetupAllModesWeaponStatSumEntryFunc_Int, [tempBr, tempNonBr], eChallengeGameMode.ANY )
+	tempBr = CAREER_STATS.weapon_kills
+	tempNonBr = CAREER_STATS.modes_weapon_kills
+	CAREER_STATS.weapon_kills_all_modes = RegisterExpensiveCalculatedStat_Int( weapon_SES, "kills_all_modes", CHALLENGES_CALC_DEPENDS, SetupAllModesWeaponStatSumEntryFunc_Int, [tempBr, tempNonBr], eChallengeGameMode.ANY )
 
-		tempBr = CAREER_STATS.weapon_kills
-		tempNonBr = CAREER_STATS.modes_weapon_kills
-		CAREER_STATS.weapon_kills_all_modes = RegisterExpensiveCalculatedStat_Int( weapon_SES, "kills_all_modes", CHALLENGES_CALC_DEPENDS, SetupAllModesWeaponStatSumEntryFunc_Int, [tempBr, tempNonBr], eChallengeGameMode.ANY )
-
-		tempBr = CAREER_STATS.weapon_headshots
-		tempNonBr = CAREER_STATS.modes_weapon_headshots
-		CAREER_STATS.weapon_headshots_all_modes = RegisterExpensiveCalculatedStat_Int( weapon_SES, "headshots_all_modes", CHALLENGES_CALC_DEPENDS, SetupAllModesWeaponStatSumEntryFunc_Int, [tempBr, tempNonBr], eChallengeGameMode.ANY )
-
+	tempBr = CAREER_STATS.weapon_headshots
+	tempNonBr = CAREER_STATS.modes_weapon_headshots
+	CAREER_STATS.weapon_headshots_all_modes = RegisterExpensiveCalculatedStat_Int( weapon_SES, "headshots_all_modes", CHALLENGES_CALC_DEPENDS, SetupAllModesWeaponStatSumEntryFunc_Int, [tempBr, tempNonBr], eChallengeGameMode.ANY )
 
 	
 	StatEnumStruct weaponcategory_SES = GetRegisteredStatEnumStruct( eStatEnumStructRefs.WEAPON_CATEGORY )
@@ -444,6 +440,9 @@ void function StatsRegister_Gameplay()
 	CAREER_STATS.mirror_legend_kills_any_mode = RegisterAccumulatedStat_Int( null, "mirror_legend_kills_any_mode", eChallengeGameMode.ANY, CHALLENGES_CALC_DEPENDS ) 
 	CAREER_STATS.equipped_attachment = RegisterAccumulatedStat_Int( null, "equipped_attachment", eChallengeGameMode.BATTLE_ROYALE, CHALLENGES_CALC_DEPENDS ) 
 	CAREER_STATS.character_placements_top_10 = RegisterAccumulatedStat_Int( character_SES, "placements_top_10", eChallengeGameMode.BATTLE_ROYALE, CHALLENGES_CALC_DEPENDS ) 
+
+	
+	CAREER_STATS.lastGameParticipationScore = RegisterVariableStat_Int( null, "lastGameParticipationScore", eChallengeGameMode.NON_MODE, DELAY_WRITE_BACK_UNTIL_MATCH_END )
 }
 
 StatCalcFuncInfo function SetupModesWeaponCategoryStatSumEntryFunc_Int( StatEntry calcEntry, array<StatTemplate> sourceTemplates )
@@ -466,7 +465,6 @@ StatCalcFuncInfo function SetupModesWeaponCategoryStatSumEntryFunc_Int( StatEntr
 
 	return info
 }
-
 
 StatCalcFuncInfo function SetupAllModesWeaponStatSumEntryFunc_Int( StatEntry calcEntry, array<StatTemplate> sourceTemplates )
 {
@@ -491,7 +489,6 @@ StatCalcFuncInfo function SetupAllModesWeaponStatSumEntryFunc_Int( StatEntry cal
 
 	return info
 }
-
 
 StatCalcFuncInfo function SetupWeaponCategoryStatSumEntryFunc_Int( StatEntry calcEntry, array<StatTemplate> sourceTemplates )
 {

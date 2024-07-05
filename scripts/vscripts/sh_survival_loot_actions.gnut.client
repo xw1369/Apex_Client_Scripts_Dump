@@ -12,6 +12,10 @@ global function PickupBackpackItem
 
 global function RegisterCustomItemPickupAction
 
+
+
+
+
 global enum eLootAction
 {
 	NONE
@@ -441,7 +445,6 @@ bool function TryPickupSlingWeapon( int action, entity pickup, entity player, in
 
 
 
-
 		var slingPassiveRui = GetSlingPassiveRui()
 		if ( slingPassiveRui != null )
 			RuiSetBool( slingPassiveRui, "hasMainWeapon", true )
@@ -642,8 +645,11 @@ bool function PickupAmmo( entity ammoPickup, entity player, int pickupFlags, ent
 	int numToPickup = pickupCount
 
 	bool isAutoPickup = (pickupFlags & PICKUP_FLAG_AUTO) > 0
-	if ( isAutoPickup && SURVIVAL_GetCountToFillStack( player, data.ref ) == data.inventorySlotCount )
-		return false
+
+		
+		if ( isAutoPickup && SURVIVAL_GetCountToFillStack( player, data.ref ) == data.inventorySlotCount )
+			return false
+
 
 	if ( desiredCount != null )
 		numToPickup = minint( numToPickup, expect int(desiredCount) )
@@ -653,6 +659,7 @@ bool function PickupAmmo( entity ammoPickup, entity player, int pickupFlags, ent
 	int ammoType  = AmmoType_GetTypeFromRef( data.ref )
 	int poolMax   = player.AmmoPool_GetCapacity()
 	int poolCount = player.AmmoPool_GetCount( ammoType )
+
 	if ( !IsInfiniteAmmoEnabled() )
 		numToPickup = minint( numToPickup, poolMax - poolCount )
 
@@ -660,6 +667,32 @@ bool function PickupAmmo( entity ammoPickup, entity player, int pickupFlags, ent
 		return false
 
 	int numPickedUp = numToPickup
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -847,8 +880,11 @@ bool function PickupBackpackItem( entity pickup, entity player, int pickupFlags,
 		numToPickup = minint( numToPickup, expect int(desiredCount) )
 
 	bool isAutoPickup = (pickupFlags & PICKUP_FLAG_AUTO) > 0
-	if ( isAutoPickup && SURVIVAL_GetCountToFillStack( player, data.ref ) == data.inventorySlotCount )
-		return false
+
+		
+		if ( isAutoPickup && SURVIVAL_GetCountToFillStack( player, data.ref ) == data.inventorySlotCount )
+			return false
+
 
 	int numPickedUp = SURVIVAL_AddToPlayerInventory( player, data.ref, numToPickup )
 
@@ -866,9 +902,91 @@ bool function PickupBackpackItem( entity pickup, entity player, int pickupFlags,
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 	Assert( numPickedUp <= pickupCount )
 	return numPickedUp == pickupCount
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

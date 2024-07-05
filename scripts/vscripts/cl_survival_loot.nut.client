@@ -116,7 +116,10 @@ void function Cl_Survival_LootInit()
 	RegisterConCommandTriggeredCallback( "+offhand2", AttemptCancelHeal )
 	RegisterConCommandTriggeredCallback( "+attack", AttemptCancelHeal )
 	RegisterConCommandTriggeredCallback( "+melee", AttemptCancelHeal )
+
+
 	RegisterConCommandTriggeredCallback( "+speed", AttemptCancelHeal )
+
 	RegisterConCommandTriggeredCallback( "+scriptCommand4", UseSelectedHealthPickupType )
 	RegisterConCommandTriggeredCallback( "scoreboard_toggle_focus", UseSelectedHealthPickupType )
 	RegisterConCommandTriggeredCallback( "+use_alt", TryHolsterWeapon )
@@ -140,6 +143,8 @@ void function Cl_Survival_LootInit()
 	AddCreateCallback( "prop_death_box", OnDeathBoxCreated )
 
 	AddCallback_EntitiesDidLoad( SurvivalLoot_EntitiesDidLoad )
+
+	AddOnSpectatorTargetChangedCallback( OnSpectatorTargetChanged )
 
 #if LOOT_GROUND_VERTICAL_LINES
 		for ( int i = 0; i < VERTICAL_LINE_COUNT; i++ )
@@ -396,7 +401,6 @@ void function ServerToClient_OnStartedUsingHealthPack( int kitType )
 	RuiSetGameTime( file.healthUseProgressRui, "endTime", Time() + waitTime )
 }
 
-
 void function AttemptCancelHeal( entity player )
 {
 	if ( Survival_IsPlayerHealing( player ) )
@@ -411,6 +415,14 @@ void function AttemptCancelHeal( entity player )
 			Remote_ServerCallFunction( "ClientCallback_Sur_CancelHeal" )
 		}
 	}
+
+		TransportPortal_CancelUse()
+
+
+
+
+
+
 
 
 
@@ -451,7 +463,6 @@ void function OnDeathBoxCreated( entity ent )
 	{
 		AddEntityCallback_GetUseEntOverrideText( ent, DeathBoxTextOverride )
 		ent.SetDoDestroyCallback( true )
-		
 
 		if ( ent.GetOwner() == GetLocalClientPlayer() )
 		{
@@ -460,26 +471,6 @@ void function OnDeathBoxCreated( entity ent )
 		DeathBoxTextOverride( ent )  
 	}
 }
-
-
-void function AttachCoverToDeathBox( entity ent )
-{
-	ent.EndSignal( "OnDestroy" )
-
-	entity plane = CreateClientSidePropDynamic( ent.GetOrigin() + <0, 0, MAGIC_DEATHBOX_Z_OFFSET>, ent.GetAngles(), DEATH_BOX_FLAT_PLANE )
-	plane.SetParent( ent )
-
-	OnThreadEnd(
-		function() : ( plane )
-		{
-			if ( IsValid( plane ) )
-				plane.Destroy()
-		}
-	)
-
-	WaitForever()
-}
-
 
 void function CreateDeathBoxRui( entity deathBox )
 {
@@ -507,9 +498,15 @@ void function CreateDeathBoxRui( entity deathBox )
 	vector right     = <0, 1, 0> * height * 0.5 * direction
 	vector fwd       = <1, 0, 0> * width * 0.5 * direction * -1.0
 
-	vector org = <0.5, 0, deathBox.GetBoundingMaxs().z + MAGIC_DEATHBOX_Z_OFFSET - 0.9>
+	int attachmentIndex = deathBox.LookupAttachment( "BANNER_FRAME" )
 
-	var topo = RuiTopology_CreatePlane( org - right * 0.5 - fwd * 0.5, fwd, right, true )
+	Assert( attachmentIndex > 0, "Couldn't find BANNER_FRAME attachment on the deathbox to place the banner" )
+	if ( attachmentIndex <= 0 )
+		return
+
+	vector localOrigin = WorldPosToLocalPos( deathBox.GetAttachmentOrigin( attachmentIndex ), deathBox )
+
+	var topo = RuiTopology_CreatePlane( localOrigin - right * 0.5 - fwd * 0.5, fwd, right, true )
 	RuiTopology_SetParent( topo, deathBox )
 
 	NestedGladiatorCardHandle ornull nestedGCHandleOrNull = null
@@ -551,7 +548,7 @@ void function CreateDeathBoxRui( entity deathBox )
 		}
 	)
 
-	entity plane = CreateClientSidePropDynamic( deathBox.GetOrigin() + <0, 0, MAGIC_DEATHBOX_Z_OFFSET>, deathBox.GetAngles(), DEATH_BOX_FLAT_PLANE )
+	entity plane = CreateClientSidePropDynamic( deathBox.GetAttachmentOrigin( attachmentIndex ), deathBox.GetAttachmentAngles( attachmentIndex ), DEATH_BOX_FLAT_PLANE )
 	plane.SetParent( deathBox )
 
 	OnThreadEnd(
@@ -566,6 +563,10 @@ void function CreateDeathBoxRui( entity deathBox )
 	WaitForever()
 }
 
+void function OnSpectatorTargetChanged( entity player, entity prevTarget, entity newTarget )
+{
+	CustomUsePrompt_Hide()
+}
 
 string function DeathBoxTextOverride( entity ent )
 {
@@ -652,13 +653,13 @@ string function DeathBoxTextOverride( entity ent )
 		hint = "#DEATHBOX_HINT_ENEMY"
 
 
-
-
-
-
-
-
-
+		bool remoteInteracting = IsPlayerOutsideStandardDeathBoxUseDistanceButRemoteInteractAllowed( localViewPlayer, ent )
+		if ( remoteInteracting )
+		{
+			hint = "#VOID_REACH_HINT_NAME"
+			if ( isEnemyTeam )
+				hint = "#VOID_REACH_HINT_ENEMY"
+		}
 
 
 
@@ -678,25 +679,25 @@ string function DeathBoxTextOverride( entity ent )
 
 
 
+		if ( remoteInteracting )
+		{
+			CustomUsePrompt_Show( ent )
+			CustomUsePrompt_SetSourcePos( ent.GetOrigin() + < 0, 0, 25 > )
+			CustomUsePrompt_SetText( localizedHint )
+			CustomUsePrompt_SetHintImage( $"" )
+			int lootRarity = ent.GetNetInt( "maxLootTier" )
+			CustomUsePrompt_SetLineColor( GetSurvialPropColorFromRarity( lootRarity ) )
+			if ( PlayerIsInADS( localViewPlayer ) )
+				CustomUsePrompt_ShowSourcePos( false )
+			else
+				CustomUsePrompt_ShowSourcePos( true )
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+			localizedHint = " "
+		}
+		else
+		{
+			CustomUsePrompt_Hide()
+		}
 
 
 	if ( ShouldUseAltInteractForArmorSwap() )
@@ -1133,12 +1134,9 @@ void function UpdateLootRuiWithData( entity player, var rui, LootData data, int 
 				useAltTextColor = true
 				RuiSetFloat3( rui, "altTextColor", SrgbToLinear( < 194, 142, 221 > / 255.0 ) )
 				break
-
-
-
-
-
-
+			case 7:
+				color = <192, 84, 255>
+				break
 
 		}
 		RuiSetFloat3( rui, "customLootColor", SrgbToLinear( color / 255.0 ) )
@@ -1598,7 +1596,7 @@ void function UpdateLootRuiWithData( entity player, var rui, LootData data, int 
 		array<entity> weapons = SURVIVAL_GetPrimaryWeaponsSorted( player )
 
 
-			if ( IsFiringRangeGameMode() && GetCurrentPlaylistVarBool( "has_infinite_clips", false ) )
+			if ( GameModeVariant_IsActive( eGameModeVariants.SURVIVAL_FIRING_RANGE ) && GetCurrentPlaylistVarBool( "has_infinite_clips", false ) )
 				RuiSetString( rui, "subText", "#INFINITE_CLIPS_IN_SETTINGS" )
 
 
@@ -1630,7 +1628,7 @@ void function UpdateLootRuiWithData( entity player, var rui, LootData data, int 
 				{
 					LootData weaponData = SURVIVAL_Loot_GetLootDataByRef( weaponRef )
 
-					if ( IsFiringRangeGameMode() && GetCurrentPlaylistVarBool( "has_infinite_clips", false ) )
+					if ( GameModeVariant_IsActive( eGameModeVariants.SURVIVAL_FIRING_RANGE ) && GetCurrentPlaylistVarBool( "has_infinite_clips", false ) )
 						RuiSetImage( rui, "attachWeapon1Icon",  $"" )
 					else
 						RuiSetImage( rui, "attachWeapon1Icon", weaponData.hudIcon )
@@ -1773,7 +1771,7 @@ bool function ShouldLootHintBeVisible( entity prop )
 
 
 
-		if ( Control_IsModeEnabled() && IsScoreboardShown() )
+		if ( GameMode_IsActive( eGameModes.CONTROL ) && IsScoreboardShown() )
 			return false
 
 
@@ -2135,6 +2133,14 @@ void function TrackLootToPing( entity player )
 			}
 
 
+
+
+
+
+
+
+
+
 			if ( player.ContextAction_IsInVehicle() )
 				loot = GetSurvivalLootNearbyPos( player.EyePosition(), LOOT_PING_DISTANCE * GetFovScalar( player ), false, false, false, player )
 			else
@@ -2453,6 +2459,9 @@ string function CreateLootDevDisplayString( LootData data )
 		displayString = "[PURPLE]/ PURPLE " + displayString
 	if ( data.baseMods.contains( WEAPON_LOCKEDSET_MOD_PAINTBALL ) )
 		displayString = "[GOLD PAINTBALL]/ GOLD " + displayString
+
+
+
 
 	return displayString
 }

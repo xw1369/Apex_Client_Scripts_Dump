@@ -23,6 +23,7 @@ global function MusicPack_GetLobbyIntoCharacterSelectMusic
 global function MusicPack_GetCharacterSelectMusic_Squad
 global function MusicPack_GetCharacterSelectMusic_Duo
 global function MusicPack_GetCharacterSelectMusic_Solo
+global function MusicPack_GetCharacterSelectMusic_Quad
 global function MusicPack_GetSkydiveMusic
 global function MusicPack_GetWinMusic
 global function MusicPack_GetLossMusic
@@ -342,6 +343,15 @@ string function MusicPack_GetCharacterSelectMusic_Solo( ItemFlavor flavor )
 	Assert( ItemFlavor_GetType( flavor ) == eItemType.music_pack )
 
 	return GetGlobalSettingsString( ItemFlavor_GetAsset( flavor ), "musicCharacterSelectSolo" )
+}
+
+
+
+string function MusicPack_GetCharacterSelectMusic_Quad( ItemFlavor flavor )
+{
+	Assert( ItemFlavor_GetType( flavor ) == eItemType.music_pack )
+
+	return GetGlobalSettingsString( ItemFlavor_GetAsset( flavor ), "musicCharacterSelectQuad" )
 }
 
 

@@ -9,6 +9,27 @@ global function RespawnChamberOnUse
 global function GetStartingRespawnCount
 global function ShouldRestoreKittedWeapons
 
+global function RespawnEquipped_DontResetInventory
+
+global function Get_RespawnStatus_String_ForPlayer
+
+global function RespawnBeacon_PLV_NoBanners
+global function Player_Banners_Enabled
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -86,6 +107,8 @@ global function GetRespawnStatus
 global function CountTeammatesWaitingToBeRespawned
 global function HasTeammatesToRespawn
 global function ShouldFastBannerPickup
+global function HasInterruptableBannerPickup
+
 
 
 
@@ -119,6 +142,8 @@ global const float RESPAWN_DNA_LIFETIME = 90.0
 const float RESPAWN_DROP_TIME = 10.0
 global const float RESPAWN_BEACON_RESPAWN_TIME = 5.0
 global const int RESPAWN_BEACON_MAX_NUM_POSITIONS_ON_DROPSHIP = 4
+
+global const int DROPSHIP_ANIM_HEIGHT_OFFSET = 2897
 
 global const string RESPAWN_BEACON_SUCCESS_SOUND = "Survival_RespawnChamber_Activate"
 global const string RESPAWN_BEACON_LOOP_SOUND = "Survival_RespawnBeacon_Linking_loop"
@@ -183,6 +208,7 @@ global struct DropshipAltFlyinData
 
 struct sRestoreWeaponInfo
 {
+	entity ent
 	string weaponRef = ""
 	array< string > modRefs = []
 }
@@ -191,10 +217,14 @@ struct respawnLoadout
 {
 	array< sRestoreWeaponInfo > restoreWeaponInfos
 
+
+
+
+
 	ArmorData armorData
 	string helmetRef
 
-	bool wasDeathNoRestoreEquipped
+	bool wasDeath_Suicide
 }
 
 
@@ -209,6 +239,11 @@ struct
 		table<entity, int> chamberToBeamFX
 
 		bool mobileRespawnSpawnInProgress
+
+
+
+
+
 
 
 
@@ -268,13 +303,18 @@ void function Sh_RespawnBeacon_Init()
 		Remote_RegisterServerFunction( "ClientCallback_PingNearestRespawn", "vector", -FLT_MAX, FLT_MAX, 32 )
 		Remote_RegisterServerFunction( FUNCNAME_PingBeaconFromMap, "typed_entity", "prop_script" )
 
+		if ( HasInterruptableBannerPickup() )
+		{
+			Remote_RegisterServerFunction( "ClientToServer_CancelBannerPickupAnim" )
+		}
+
 
 
 		RegisterSignal( "ReviveRuiThread" )
 		RegisterSignal( "SpectatorShowRespawnRui" )
 
 
-			if ( !IsShadowArmyGamemode() )
+			if ( !GameModeVariant_IsActive( eGameModeVariants.SURVIVAL_SHADOW_ARMY ) )
 
 			{
 				AddCreateCallback( "prop_dynamic", RespawnEntitySpawned )
@@ -284,8 +324,16 @@ void function Sh_RespawnBeacon_Init()
 		AddCreateCallback( PLAYER_WAYPOINT_CLASSNAME, PlayerWaypoint_CreateCallback )
 		AddDestroyCallback( PLAYER_WAYPOINT_CLASSNAME, PlayerWaypoint_DestroyCallback )
 
+		if ( HasInterruptableBannerPickup() )
+		{
+			RegisterConCommandTriggeredCallback( "+attack", AttemptCancelBannerPickup )
+			RegisterConCommandTriggeredCallback( "+melee", AttemptCancelBannerPickup )
 
-			if ( !IsShadowArmyGamemode() )
+			RegisterConCommandTriggeredCallback( "+speed", AttemptCancelBannerPickup )
+		}
+
+
+			if ( !GameModeVariant_IsActive( eGameModeVariants.SURVIVAL_SHADOW_ARMY ) )
 
 			{
 				RegisterMinimapPackages()
@@ -299,6 +347,8 @@ void function Sh_RespawnBeacon_Init()
 
 		if ( (GetRespawnStyle() == eRespawnStyle.RESPAWN_CHAMBERS) && RespawnBeaconsAreEnabled() && !RespawnBeacons_ShouldEnableBeaconsInNonBeaconRespawnMode() )
 			SetMapFeatureItem( 1100, "#RESPAWN_BEACON", "#RESPAWN_BEACON_DESC", RESPAWN_BEACON_ICON )
+
+
 
 
 
@@ -521,7 +571,7 @@ bool function RespawnBeacons_ShouldEnableBeaconsInNonBeaconRespawnMode()
 
 
 
-		if ( IsShadowArmyGamemode() )
+		if ( GameModeVariant_IsActive( eGameModeVariants.SURVIVAL_SHADOW_ARMY ) )
 			return true
 
 
@@ -548,6 +598,11 @@ bool function ShouldFastBannerPickup()
 	return GetCurrentPlaylistVarBool( "fast_banner_pickup", true )
 }
 
+bool function HasInterruptableBannerPickup()
+{
+	return GetCurrentPlaylistVarBool( "cancelable_banner_pickup_enabled", true )
+}
+
 bool function ShouldRestoreKittedWeapons()
 {
 	bool isKittedWeaponsGameMode = false
@@ -557,7 +612,11 @@ bool function ShouldRestoreKittedWeapons()
 
 
 
-		isKittedWeaponsGameMode = isKittedWeaponsGameMode || IsShadowArmyGamemode()
+		isKittedWeaponsGameMode = isKittedWeaponsGameMode || GameModeVariant_IsActive( eGameModeVariants.SURVIVAL_SHADOW_ARMY )
+
+
+
+
 
 
 	return isKittedWeaponsGameMode
@@ -1561,6 +1620,216 @@ void function AddBeaconEntToRespawnBeaconsArray( entity beacon )
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 bool function IsNotBusy( entity player, entity ent, int useFlags )
 {
 	if ( Bleedout_IsBleedingOut( player ) )
@@ -1587,21 +1856,104 @@ bool function IsNotBusy( entity player, entity ent, int useFlags )
 
 bool function Has_BR_Respawn_WithArmor()
 {
-	bool hasRespawnWithArmor = IsSurvivalMode() && GetCurrentPlaylistVarBool( "has_br_respawn_witharmor", true )
+	bool hasRespawnWithArmor = GameMode_IsActive( eGameModes.SURVIVAL ) && GetCurrentPlaylistVarBool( "has_br_respawn_witharmor", true )
 
 
-	if (IsStrikeoutGamemode())
+	if ( GameModeVariant_IsActive( eGameModeVariants.SURVIVAL_STRIKEOUT ) )
 		hasRespawnWithArmor = true
 
 
 	return( hasRespawnWithArmor )
 }
 
+bool function RespawnEquipped_PLV_DontResetInventory()
+{
+	return( GetCurrentPlaylistVarBool( "respawnequipped_dontresetinventory", false ) )
+}
+
+bool function RespawnEquipped_DontResetInventory()
+{
+	bool result = RespawnEquipped_PLV_DontResetInventory()
+
+
+
+
+
+	return result
+}
+
+bool function RespawnEquipped_PLV_EnsureMin_Weapon()
+{
+	
+	return( GetCurrentPlaylistVarBool( "respawnequipped_ensuremin_weapon", true ) )
+}
+
+bool function RespawnEquipped_PLV_EnsureMin_Consumables()
+{
+	
+	return( GetCurrentPlaylistVarBool( "respawnEquipped_ensuremin_consumables", true ) )
+}
+
 bool function Has_BR_Respawn_Restore_NoSuicide()
 {
-	bool hasPreventSuicideExploit = IsSurvivalMode() && GetCurrentPlaylistVarBool( "has_br_respawn_restore_nosuicide", true )
+	bool hasPreventSuicideExploit = GameMode_IsActive( eGameModes.SURVIVAL ) && GetCurrentPlaylistVarBool( "has_br_respawn_restore_nosuicide", false )
 	return( hasPreventSuicideExploit )
 }
+
+
+bool function RespawnBeacon_PLV_NoBanners()
+{
+	return( GetCurrentPlaylistVarBool( "RespawnBeacon_NoBanners", false ) )
+}
+
+
+
+
+
+
+
+
+bool function Player_Banners_Enabled()
+{
+	bool has_banners 	 = !RespawnBeacon_PLV_NoBanners()
+	bool no_auto_banners = !GetCurrentPlaylistVarBool( "has_auto_banners", false )
+	return( has_banners && no_auto_banners )
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1621,15 +1973,31 @@ bool function Has_BR_Respawn_Restore_NoSuicide()
 
 bool function Has_BR_Respawn_WithWeapons()
 {
-	bool hasRespawnWithWeapons = IsSurvivalMode() && GetCurrentPlaylistVarBool( "has_br_respawn_withweapons", true )
+	bool hasRespawnWithWeapons = GameMode_IsActive( eGameModes.SURVIVAL ) && GetCurrentPlaylistVarBool( "has_br_respawn_withweapons", true )
 	return( hasRespawnWithWeapons )
 }
 
 bool function Has_Restore_Attachments()
 {
 	
-	return(  GetCurrentPlaylistVarBool( "has_br_respawn_withattachments", false ))
+	return( GetCurrentPlaylistVarBool( "has_br_respawn_withattachments", true ))
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 const string DEFAULT_CONSUMABLES = "health_pickup_health_small:2 health_pickup_combo_small:2"
 string function GetBRConsumableLoadoutString()
@@ -1813,9 +2181,9 @@ string function RespawnChamber_TextOverride_BaseString( entity ent )
 
 
 
-		if ( ShouldDoMunitionsDropFromEnt( ent, player ) )
-			return "#BEACON_PASSIVE_HINT"
-		else
+
+
+
 
 			return "#HINT_RESPAWN_NEED"
 	}
@@ -1895,6 +2263,9 @@ void function RespawnChamberOnUse_Common( entity pickup, entity player, float st
 	ExtendedUseSettings settings
 	settings.successSound = RESPAWN_BEACON_SUCCESS_SOUND
 
+	
+	settings.serverStartTime = startTime
+
 
 		settings.loopSound = RESPAWN_BEACON_LOOP_SOUND
 		settings.displayRui = $"ui/health_use_progress.rpak"
@@ -1902,9 +2273,9 @@ void function RespawnChamberOnUse_Common( entity pickup, entity player, float st
 		settings.icon = $""
 
 
-		if ( CountTeammatesWaitingToBeRespawned( player.GetTeam() ) == 0 && ShouldDoMunitionsDropFromEnt( pickup, player ) )
-			settings.hint = "#MUNITIONS_SPAWNING"
-		else
+
+
+
 
 
 
@@ -1917,7 +2288,6 @@ void function RespawnChamberOnUse_Common( entity pickup, entity player, float st
 
 		settings.hint = "#HINT_RESPAWNING"
 		settings.icon = RESPAWN_BEACON_ICON
-		settings.serverStartTime = startTime
 
 		if ( pickup.GetTargetName() == MOBILE_RESPAWN_BEACON_TARGETNAME )
 		{
@@ -2147,6 +2517,25 @@ void function DisplayRuiForRespawnChamber_Internal( var rui, asset icon, float s
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 array< entity > function GetPlayersToRespawn( int team )
 {
 	array<entity> playersToSpawn
@@ -2194,7 +2583,7 @@ string function RespawnBeacon_TextOverride( entity ent )
 
 int function GetRespawnStatus( entity player )
 {
-	if ( !IsValid( player ) )
+	if ( !IsValid( player ) || !player.IsPlayer() )
 		return eRespawnStatus.NONE
 
 	return player.GetPlayerNetInt( "respawnStatus" )
@@ -2220,6 +2609,15 @@ int function GetRespawnStyle()
 	Assert( respawnStyleFound, "Playlist Respawn Style '" + playlistRespawnStyle + "' is not a specified enumerator." )
 
 	return respawnStyle
+}
+
+string function Get_RespawnStatus_String_ForPlayer( entity player )
+{
+	Assert( IsValid( player ) && player.IsPlayer(), FUNC_NAME() + "(): Given Player Arg is invalid." )
+
+	int respawnStatus = player.GetPlayerNetInt( "respawnStatus" )
+	string respawnStatusString = respawnStatus_EnumToStringMap[ respawnStatus ]
+	return( respawnStatusString )
 }
 
 const int INFINITE_RESPAWNS = -1
@@ -2322,6 +2720,146 @@ void function ServerCallback_RespawnDNAHint()
 
 
 }
+
+void function AttemptCancelBannerPickup( entity player )
+{
+	if ( !HasInterruptableBannerPickup() )
+		return
+
+	if ( !IsValid( player ) || !player.IsPlayer() )
+		return
+
+	if ( !IsPlayingBannerPickupAnim( player ) )
+		return
+
+	Remote_ServerCallFunction( "ClientToServer_CancelBannerPickupAnim" )
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -3485,8 +4023,6 @@ void function TryPingRespawnItem( entity player )
 
 
 
-
-
 bool function IsRespawnStationPingType( int pingType )
 {
 	switch( pingType )
@@ -3615,8 +4151,8 @@ void function ServerCallback_RespawnBeaconStop()
 
 	entity player = GetLocalViewPlayer()
 
-	if ( CanDoMunitionsDrop( player ) )
-		OnEndPlacingCarePackage( player )
+
+
 
 }
 
@@ -3656,6 +4192,29 @@ void function RespawnSuccessClient_Mobile( entity ent, entity playerUser, Extend
 		UpdateRespawnChamberRuis( rui, waitingToBeRespawned )
 	}
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

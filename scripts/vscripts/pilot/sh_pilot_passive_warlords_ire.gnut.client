@@ -7,6 +7,9 @@ global function ServerCallback_WarlordsIre_HighlightTargetRemote
 
 const float WARLORDS_IRE_DURATION_BASE 			= 0.8
 const float WARLORDS_IRE_DURATION_EXPLOSION 	= 0.4
+
+const float WARLORDS_IRE_DURATION_FUSE_UPGRADE 	= 1.0
+
 const float WARLORDS_IRE_SPEEDUP_INFO_DURATION 	= 3.0
 
 global const string WARLORDS_IRE_MOD_NAME = "breacher"
@@ -21,6 +24,9 @@ struct
 
 	float balance_warlordsIreHighlightDurationBase
 	float balance_warlordsIreHighlightDurationExplode
+
+		float balance_warlordsIreHighlightDurationFuseUpgrade
+
 } file
 
 void function ShPassiveWarlordsIre_Init()
@@ -39,6 +45,8 @@ void function ShPassiveWarlordsIre_Init()
 
 	file.balance_warlordsIreHighlightDurationBase 		= GetCurrentPlaylistVarFloat( "warlordsire_duration_base_override", WARLORDS_IRE_DURATION_BASE )
 	file.balance_warlordsIreHighlightDurationExplode 	= GetCurrentPlaylistVarFloat( "warlordsire_duration_explosion_override", WARLORDS_IRE_DURATION_EXPLOSION )
+
+		file.balance_warlordsIreHighlightDurationFuseUpgrade 	= GetCurrentPlaylistVarFloat( "warlordsire_duration_fuse_upgrade_override", WARLORDS_IRE_DURATION_FUSE_UPGRADE )
 
 	Remote_RegisterClientFunction( "ServerCallback_WarlordsIre_HighlightTargetRemote", "entity", "entity", "int", INT_MIN, INT_MAX )
 }
@@ -92,13 +100,28 @@ void function PassiveWarlordsIre_OnPassiveChanged( entity player, int passive, b
 
 
 
+
+
+
+
+
 void function PassiveWarlordsIre_OnLocalPlayerDidDamage( entity attacker, entity target, vector damagePosition, int damageType, float damageAmount )
 {
 	if ( !PassiveWarlordsIre_ValidWarlordsIreHighlightPostDamage( attacker, target ) )
 		return
 
 	float highlightDuration = GetWarlordsIreHighlightDurationBase( attacker )
-	highlightDuration += IsBitFlagSet( damageType, DF_EXPLOSION ) ? file.balance_warlordsIreHighlightDurationExplode : 0.0
+
+
+	if ( PlayerHasPassive( attacker, ePassives.PAS_FUSE ) )
+	{
+		if( IsBitFlagSet( damageType, DF_EXPLOSION ) )
+			highlightDuration = file.balance_warlordsIreHighlightDurationFuseUpgrade
+		else return
+	}
+	else
+
+		highlightDuration += IsBitFlagSet( damageType, DF_EXPLOSION ) ? file.balance_warlordsIreHighlightDurationExplode : 0.0
 
 	if ( (target in file.playerHighlightEndTime) )
 		file.playerHighlightEndTime[ target ] <- ( Time() + highlightDuration )
@@ -203,6 +226,7 @@ void function OnPrimaryWeaponStatusUpdate( entity selectedWeapon, var weaponRui 
 			RuiSetBool( weaponRui, "showPassiveBonusWeaponInfo", true )
 			RuiSetString( weaponRui, "passiveBonusWeaponInfoText", Localize( "#PAS_WARLORDS_IRE_HUD" ) )
 			RuiSetWallTimeWithOffset( weaponRui, "fadeBonusWeaponInfoStartTime", WARLORDS_IRE_SPEEDUP_INFO_DURATION )
+			RuiSetImage( weaponRui, "passiveBonusWeaponInfoFrame", $"rui/hud/character_abilities/madmaggie_passive_frame" )
 			file.displayedWeapons.append( selectedWeapon )
 		}
 		else
@@ -215,12 +239,17 @@ void function OnPrimaryWeaponStatusUpdate( entity selectedWeapon, var weaponRui 
 	}
 	else if ( ( IsValid( lastSelectedWeapon ) && !lastSelectedWeapon.HasMod( WARLORDS_IRE_MOD_NAME ) ) || noWeapon )
 	{
-		RuiSetBool( weaponRui, "showPassiveBonusWeaponInfo", false )
-		RuiSetString( weaponRui, "passiveBonusWeaponInfoText", "" )
-		RuiSetWallTimeBad( weaponRui, "fadeBonusWeaponInfoStartTime" )
 
-		RuiSetBool( weaponRui, "showPassiveBonusIconWeapon", false )
-		RuiSetImage( weaponRui, "passiveBonusIconWeapon", $"" )
+
+
+		{
+			RuiSetBool( weaponRui, "showPassiveBonusWeaponInfo", false )
+			RuiSetString( weaponRui, "passiveBonusWeaponInfoText", "" )
+			RuiSetWallTimeBad( weaponRui, "fadeBonusWeaponInfoStartTime" )
+
+			RuiSetBool( weaponRui, "showPassiveBonusIconWeapon", false )
+			RuiSetImage( weaponRui, "passiveBonusIconWeapon", $"" )
+		}
 	}
 }
 

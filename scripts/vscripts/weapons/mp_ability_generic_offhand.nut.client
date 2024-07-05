@@ -58,7 +58,7 @@ void function ActivateGenericOffhand( entity player)
 		return
 
 
-	if (!IsHeatwaveMode())
+	if ( !GameModeVariant_IsActive( eGameModeVariants.SURVIVAL_HEATWAVE ) )
 	{
 		
 		weapon.RemoveMod( "sunglasses" )
@@ -74,7 +74,7 @@ void function __ActivateGenericOffhand( entity player )
 	player.TrySelectOffhand( GENERIC_OFFHAND_INDEX )
 
 
-	if (IsHeatwaveMode())
+	if ( GameModeVariant_IsActive( eGameModeVariants.SURVIVAL_HEATWAVE ) )
 		thread Thread_GenericOffhand_PlaySunglassesVFX(player)
 
 

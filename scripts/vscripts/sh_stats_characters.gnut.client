@@ -125,6 +125,14 @@ global function StatsRegister_Characters
 
 
 
+
+
+
+
+
+
+
+
 void function StatsRegister_Characters()
 {
 	CAREER_STATS.bloodhound_tactical_enemies_detected = RegisterAccumulatedStat_Int( null, "bloodhound_tactical_enemies_detected", eChallengeGameMode.ANY, CHALLENGES_CALC_DEPENDS )
@@ -239,7 +247,54 @@ void function StatsRegister_Characters()
 	CAREER_STATS.revenant_passive_marked_enemies = RegisterAccumulatedStat_Int( null, "revenant_passive_marked_enemies", eChallengeGameMode.ANY, CHALLENGES_CALC_DEPENDS )
 	CAREER_STATS.revenant_tactical_distance = RegisterAccumulatedStat_Int( null, "revenant_tactical_distance", eChallengeGameMode.ANY, CHALLENGES_CALC_DEPENDS )
 	CAREER_STATS.revenant_ultimate_knocks_kills = RegisterAccumulatedStat_Int( null, "revenant_ultimate_knocks_kills", eChallengeGameMode.ANY, CHALLENGES_CALC_DEPENDS )
+
+
+		CAREER_STATS.alter_surfaces_breached = RegisterAccumulatedStat_Int( null, "alter_surfaces_breached", eChallengeGameMode.ANY, CHALLENGES_CALC_DEPENDS )
+		CAREER_STATS.alter_allies_regrouped = RegisterAccumulatedStat_Int( null, "alter_allies_regrouped", eChallengeGameMode.ANY, CHALLENGES_CALC_DEPENDS )
+		CAREER_STATS.alter_deathbox_items_seized = RegisterAccumulatedStat_Int( null, "alter_deathbox_items_seized", eChallengeGameMode.ANY, CHALLENGES_CALC_DEPENDS )
+		CAREER_STATS.alter_breach_killer = RegisterAccumulatedStat_Int( null, "alter_breach_killer", eChallengeGameMode.ANY, CHALLENGES_CALC_DEPENDS )
+		CAREER_STATS.alter_breaches_used = RegisterAccumulatedStat_Int( null, "alter_breaches_used", eChallengeGameMode.ANY, CHALLENGES_CALC_DEPENDS )
+
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

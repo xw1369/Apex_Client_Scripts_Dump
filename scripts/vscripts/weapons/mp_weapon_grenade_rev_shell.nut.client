@@ -211,33 +211,35 @@ var function Grenade_OnWeaponTossReleaseAnimEvent_RevShell( entity weapon, Weapo
 	return weapon.GetAmmoPerShot()
 }
 
-void function OnRevShellDamaged( entity grenadeProxy, var damageInfo )
-{
-	float damage = DamageInfo_GetDamage( damageInfo )
 
-	entity grenade = grenadeProxy.GetParent()
 
-	entity attacker = DamageInfo_GetAttacker( damageInfo )
 
-	if ( IsValid( attacker ) )
-	{
-		if ( grenadeProxy.GetTeam() == attacker.GetTeam() )
-			return
-	}
 
-	if ( IsValid( grenade ) )
-	{
-		if ( (grenadeProxy.GetHealth() - damage) <= 175.0 )
-		{
-			Signal( grenade, "RevShellEnd" )
-			int fxIndex = GetParticleSystemIndex( VFX_REV_SHELL_DESTROY )
-			EmitSoundAtPosition( TEAM_ANY, grenade.GetOrigin(), REV_SHELL_DESTROY_SOUND )
-			StartParticleEffectInWorld( fxIndex, grenade.GetOrigin(), < 0, 0, 0 > )
-			grenadeProxy.Destroy()
-			grenade.Destroy()
-		}
-	}
-}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 void function OnRevShellPostDamaged( entity grenadeProxy, var damageInfo )
 {

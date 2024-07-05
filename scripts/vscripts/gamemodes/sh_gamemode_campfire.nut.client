@@ -1,7 +1,11 @@
 
+
+
+
+
+
 global function Campfire_Init
-global function Campfire_RegisterNetworking
-global function Campfire_IsModeActive
+
 
 
 
@@ -42,6 +46,8 @@ struct CampfireData
 }
 
 struct {
+	bool enabled
+
 	array<entity>					campfireList
 
 
@@ -68,8 +74,7 @@ struct {
 
 void function Campfire_Init()
 {
-	if ( !GetCurrentPlaylistVarBool( "is_campfire_mode", false ) )
-		return
+	file.enabled = true
 
 	PrecacheParticleSystem( CAMPFIRE_RADIUS_FX )
 	PrecacheParticleSystem( CAMPFIRE_HOLO_FX )
@@ -108,15 +113,9 @@ void function Campfire_Init()
 
 }
 
-void function Campfire_RegisterNetworking()
+bool function Campfire_IsEnabled()
 {
-	if ( !GetCurrentPlaylistVarBool( "is_campfire_mode", false ) )
-		return
-}
-
-bool function Campfire_IsModeActive()
-{
-	return GetCurrentPlaylistVarBool( "is_campfire_mode", false )
+	return file.enabled
 }
 
 
@@ -811,8 +810,15 @@ void function Campfire_3PSoundThread()
 }
 
 
+float function GetPlaylistVar_CampfireHealthPerSec()
+{
+	return GetCurrentPlaylistVarFloat( "campfire_health_per_sec", 7.0 )
+}
 
-
+float function GetPlaylistVar_CampfireRegenDelay()
+{
+	return GetCurrentPlaylistVarFloat( "campfire_health_regen_delay", 0.5 )
+}
 
 
       

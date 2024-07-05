@@ -5,6 +5,10 @@ global function GetLootTypeData
 
 global function RegisterCustomItemGroundAction
 
+
+
+
+
 global const bool AUTOEQUIP_ATTACHMENTS = true
 
 global struct LootTypeData
@@ -829,6 +833,26 @@ int function EquipmentCharacterAction2_ForWeapons( entity player )
 
 	return eLootAction.NONE
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

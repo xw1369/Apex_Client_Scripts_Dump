@@ -29,6 +29,12 @@ global function StatsRegister_Beginner
 
 
 
+
+
+
+
+
+
 struct FileStruct_FileLevel
 {
 
@@ -41,6 +47,12 @@ void function ShStats_Beginner_LevelInit()
 {
 	FileStruct_FileLevel newFileLevel
 	fileLevel = newFileLevel
+
+
+
+
+
+
 
 
 
@@ -93,9 +105,44 @@ void function StatsRegister_Beginner()
 
 
 
+
+
+
 		CAREER_STATS.graduated_bot_queue = RegisterExpensiveCalculatedStat_Int( null, "graduated_bot_queue", TRACKERS_NEED, SetupGraduatedBotQueueStat, [], eChallengeGameMode.NON_MODE )
 
+		CAREER_STATS.ftue_damage_done = RegisterAccumulatedStat_Int( null, "ftue_damage_done", eChallengeGameMode.BATTLE_ROYALE, CHALLENGES_CALC_DEPENDS )
+		CAREER_STATS.ftue_ring_closings_survived = RegisterAccumulatedStat_Int( null, "ftue_ring_closings_survived", eChallengeGameMode.BATTLE_ROYALE, CHALLENGES_CALC_DEPENDS )
+		CAREER_STATS.ftue_placements_top_10 = RegisterAccumulatedStat_Int( null, "ftue_placements_top_10", eChallengeGameMode.BATTLE_ROYALE, CHALLENGES_CALC_DEPENDS )
+		CAREER_STATS.ftue_equipped_attachment = RegisterAccumulatedStat_Int( null, "ftue_equipped_attachment", eChallengeGameMode.BATTLE_ROYALE, CHALLENGES_CALC_DEPENDS )
+		CAREER_STATS.ftue_health_restored_any_mode = RegisterAccumulatedStat_Int( null, "ftue_health_restored_any_mode", eChallengeGameMode.ANY, CHALLENGES_CALC_DEPENDS )
+		CAREER_STATS.ftue_shield_restored = RegisterAccumulatedStat_Int( null, "ftue_shield_restored", eChallengeGameMode.BATTLE_ROYALE, CHALLENGES_CALC_DEPENDS )
+		CAREER_STATS.ftue_slide_count = RegisterAccumulatedStat_Int( null, "ftue_slide_count", eChallengeGameMode.ANY, CHALLENGES_CALC_DEPENDS )
+
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -238,6 +285,132 @@ StatCalcFuncInfo function SetupGraduatedBotQueueStat( StatEntry calcEntry, array
 
 	return info
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

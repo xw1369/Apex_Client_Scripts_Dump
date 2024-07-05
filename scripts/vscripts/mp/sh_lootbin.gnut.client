@@ -67,7 +67,6 @@ global function AddCallback_CanOpenLootBin
 
 
 
-
 global function CL_LootBinOpening
 
 
@@ -76,12 +75,7 @@ global function CL_LootBinOpening
 
 
 
-
-global const string SUPPORT_LOOT_BIN_SKIN_NAME = "Blue_Turbo"
-
-
-
-
+global const string SUPPORT_LOOT_BIN_SKIN_NAME = "SecretLoot"
 
 global const string LOOT_BIN_DELAY_LOOT_SPAWNING_PLAYLIST_VAR = "survival_lootbin_delay_loot_spawning"
 
@@ -261,6 +255,8 @@ void function ShLootBin_Init()
 	PrecacheScriptString( LOOT_BIN_SCRIPTNAME )
 	PrecacheParticleSystem( LOOT_BIN_OPEN_REGULAR_FX )
 	PrecacheParticleSystem( LOOT_BIN_OPEN_SECRET_FX )
+
+
 
 
 
@@ -888,8 +884,6 @@ void function AddCallback_OnLootBinOpening( OnLootBinOpeningCallbackType callbac
 
 
 
-
-
 bool function LootBin_HasSecretCompartment( entity lootBin )
 {
 
@@ -902,12 +896,21 @@ bool function LootBin_HasSecretCompartment( entity lootBin )
 
 
 
+	bool isSupportBin = lootBin.GetSkin() == lootBin.GetSkinIndexByName( LOOT_BIN_SUPPORT_SKIN )
+	bool isMunitionsBin = lootBin.GetSkin() == lootBin.GetSkinIndexByName( MUNITIONS_BOX_LOOT_BIN_SKIN_NAME )
+
+
 	if( lootBin.GetSkin() == lootBin.GetSkinIndexByName( SUPPORT_LOOT_BIN_SKIN_NAME ) )
 		return true
 
 
-	if( lootBin.GetSkin() == lootBin.GetSkinIndexByName( MUNITIONS_BOX_LOOT_BIN_SKIN_NAME ) )
+	if( isMunitionsBin )
 		return true
+
+
+
+
+
 
 
 
@@ -1573,6 +1576,48 @@ array<entity> function LootBin_GetSpawnedLoot( entity lootBin, bool includeRegul
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 void function CL_LootBinOpening( entity lootBin, int sequenceType )
 {
 	foreach ( OnLootBinOpeningCallbackType cb in file.onLootBinOpeningCallbacks )
@@ -1585,8 +1630,8 @@ void function CL_LootBinOpening( entity lootBin, int sequenceType )
 bool function CanAccessSecretCompartments( entity lootBin, entity player )
 {
 	
-	if ( !LootBin_HasSecretCompartment( lootBin ) )
-		return false
+	if (!LootBin_HasSecretCompartment( lootBin ))
+        return false
 
 	if ( !IsValid( player ) )
 		return false
@@ -1595,18 +1640,23 @@ bool function CanAccessSecretCompartments( entity lootBin, entity player )
 
 
 		
-		bool canOpenCompartment
+		bool canOpenCompartment = false
 
-		if(lootBin.GetSkin() == lootBin.GetSkinIndexByName( MUNITIONS_BOX_LOOT_BIN_SKIN_NAME ) && Perks_DoesPlayerHavePerk( player, ePerkIndex.MUNITIONS_BOX ))
+		bool isSupportBin = SupportBin_EntityIsSupportBin( lootBin )
+		bool isMunitionsBin = Perk_MunitionsBox_IsEntMunitionsBox( lootBin ) 
+
+		if( isMunitionsBin && Perks_DoesPlayerHavePerk( player, ePerkIndex.MUNITIONS_BOX ) )
 			canOpenCompartment = true
-		else if(lootBin.GetSkin() == lootBin.GetSkinIndexByName( LOOT_BIN_SUPPORT_SKIN ) && Perks_DoesPlayerHavePerk( player, ePerkIndex.EXTRA_BIN_LOOT ))
+		else if( isSupportBin && Perks_DoesPlayerHavePerk( player, ePerkIndex.EXTRA_BIN_LOOT ) )
 			canOpenCompartment = true
 
 
 
 
-		else
-			canOpenCompartment = false
+
+
+
+
 
 
 
@@ -1793,6 +1843,10 @@ string function GetLootBinUseTextOverride( entity lootBin )
 	}
 	return ""
 }
+
+
+
+
 
 
 

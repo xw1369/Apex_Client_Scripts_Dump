@@ -130,6 +130,9 @@ global enum eDamageSourceId
 
 	mp_weapon_throwingknife
 
+
+
+
 	mp_extreme_environment
 	mp_weapon_shotgun_pistol
 
@@ -228,9 +231,12 @@ global enum eDamageSourceId
 	melee_revenant_scythe_rt01
 	mp_weapon_revenant_scythe_rt01
 
-
 	melee_fuse_heirloom
 	mp_weapon_fuse_heirloom_primary
+
+
+
+
 
 
 
@@ -502,6 +508,10 @@ global enum eDamageSourceId
 
 
 
+
+
+
+
 	mp_weapon_stun_mine
 	mp_weapon_cluster_bomb_launcher
 
@@ -532,6 +542,7 @@ global enum eDamageSourceId
 	mp_ability_sniper_ult
 	mp_weapon_ferro_wall
 	mp_ability_spike_strip
+
 
 
 
@@ -616,10 +627,8 @@ global enum eDamageSourceId
 	golden_horse_green
 
 
-
 	melee_artifact_dagger
 	mp_weapon_artifact_dagger_primary
-
 
 
 	melee_artifact_sword
@@ -634,6 +643,23 @@ global enum eDamageSourceId
 
 	melee_octane_knife_rt01
 	mp_weapon_octane_knife_rt01_primary
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -873,10 +899,8 @@ void function DamageTypes_Init()
 		[ eDamageSourceId.melee_revenant_scythe_rt01 ] = "#DEATH_MELEE_REVENANT_SCYTHE_RT01",
 		[ eDamageSourceId.mp_weapon_revenant_scythe_rt01] = "#DEATH_MELEE_REVENANT_SCYTHE_RT01",
 
-
-			[ eDamageSourceId.melee_fuse_heirloom ] = "#DEATH_MELEE_FUSE_HEIRLOOM",
-			[ eDamageSourceId.mp_weapon_fuse_heirloom_primary] = "#DEATH_MELEE_FUSE_HEIRLOOM",
-
+		[ eDamageSourceId.melee_fuse_heirloom ] = "#DEATH_MELEE_FUSE_HEIRLOOM",
+		[ eDamageSourceId.mp_weapon_fuse_heirloom_primary] = "#DEATH_MELEE_FUSE_HEIRLOOM",
 
 
 			[ eDamageSourceId.melee_artifact_sword] = "#DEATH_MELEE_ARTIFACT_SWORD",
@@ -891,6 +915,11 @@ void function DamageTypes_Init()
 
 			[ eDamageSourceId.melee_octane_knife_rt01 ] = "#DEATH_MELEE_OCTANE_KNIFE_RT01",
 			[ eDamageSourceId.mp_weapon_octane_knife_rt01_primary ] = "#DEATH_MELEE_OCTANE_KNIFE_RT01",
+
+
+
+
+
 
 
 
@@ -917,6 +946,10 @@ void function DamageTypes_Init()
 
 
 			[ eDamageSourceId.mp_ability_conduit_shield_mines ] = "#ABL_CONDUIT_ULTIMATE",
+
+
+
+
 
 
 
@@ -961,9 +994,19 @@ void function DamageTypes_Init()
 
 
 
+		[ eDamageSourceId.melee_artifact_dagger] = "#DEATH_MELEE_ARTIFACT_DAGGER",
+		[ eDamageSourceId.mp_weapon_artifact_dagger_primary] = "#DEATH_MELEE_ARTIFACT_DAGGER",
 
-			[ eDamageSourceId.melee_artifact_dagger] = "#DEATH_MELEE_ARTIFACT_DAGGER",
-			[ eDamageSourceId.mp_weapon_artifact_dagger_primary] = "#DEATH_MELEE_ARTIFACT_DAGGER",
+
+
+
+
+
+
+
+
+
+
 
 	}
 

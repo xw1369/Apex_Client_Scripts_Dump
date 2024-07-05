@@ -108,9 +108,6 @@ global enum ePassives
 
 
 
-
-
-
 	PAS_GUNNER,
 	PAS_LOBA_EYE_FOR_QUALITY,
 
@@ -171,6 +168,7 @@ global enum ePassives
 
 
 
+		PAS_BATTLE_SENSE,
 
 
 
@@ -189,6 +187,7 @@ global enum ePassives
 	PAS_LARGE_AMMO_STACKS,
 	PAS_EXTRA_ULT_CHARGE,
 	PAS_DEATHBOX_BATTERY_COUNT,
+	PAS_BATTERY_STACK,
 
 	
 	PAS_UPGRADE_CAREPACKAGE_INSIGHT,
@@ -277,6 +276,11 @@ global enum ePassives
 
 	
 
+
+
+
+
+
 	
 	
 	
@@ -325,6 +329,9 @@ global enum ePassives
 
 
 
+		PAS_ALTER,
+		PAS_ALTER_UPGRADE_ULT_DURATION,
+		PAS_ALTER_UPGRADE_TAC_SCAN,
 
 
 
@@ -334,14 +341,7 @@ global enum ePassives
 
 
 
-
-
-
-
-
-
-
-
+		PAS_REMOTE_DEATHBOX_INTERACT,
 
 
 
@@ -359,6 +359,10 @@ global enum ePassives
 		PAS_KNOCK_ADRENALINE,
 		PAS_SQUADWIPE,
 		PAS_ORDNANCE_HIGHLIGHT,
+
+
+
+
 
 
 
@@ -621,6 +625,11 @@ void function CodeCallback_OnPassiveChanged( entity player, int passiveIdx )
 	foreach ( callback in file.passiveChangedCallbackListMap[passiveIdx] )
 		callback( player, passiveIdx, didHavePassive, nowHasPassive )
 }
+
+
+
+
+
 
 
 

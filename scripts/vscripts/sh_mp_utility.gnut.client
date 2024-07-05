@@ -20,21 +20,16 @@ struct
 
 int function GetRoundScoreLimit_FromPlaylist()
 {
-	if ( !GameMode_IsDefined( GAMETYPE ) )
-		return GetCurrentPlaylistVarInt( "roundscorelimit", 10 )
-
-	return GameMode_GetRoundScoreLimit( GAMETYPE )
+	return GetCurrentPlaylistVarInt( "roundscorelimit", 10 )
 }
 
 int function GetScoreLimit_FromPlaylist()
 {
+	
 	if ( GameMode_HasMapSpecificScoreLimits( GAMETYPE ) )
 		return GameMode_GetMapSpecificScoreLimit( GAMETYPE )
 
-	if ( !GameMode_IsDefined( GAMETYPE ) )
-		return GetCurrentPlaylistVarInt( "scorelimit", 10 )
-
-	return GameMode_GetScoreLimit( GAMETYPE )
+	return GetCurrentPlaylistVarInt( "scorelimit", 10 )
 }
 
 bool function GameMode_HasMapSpecificScoreLimits( string gameType )
@@ -60,18 +55,7 @@ void function GameMode_SetMapSpecificScoreLimit( table<string,int> mapModeScoreT
 
 bool function IsSuddenDeathGameMode()
 {
-	return GameMode_GetSuddenDeathEnabled( GameRules_GetGameMode() )
-}
-
-IntFromEntityCompare function GetScoreboardCompareFunc()
-{
-	return ScoreboardCompareFuncForGamemode( GameRules_GetGameMode() )
-}
-
-IntFromEntityCompare function ScoreboardCompareFuncForGamemode( string gamemode )
-{
-	IntFromEntityCompare func = GameMode_GetScoreCompareFunc( gamemode )
-	return func
+	return false 
 }
 
 bool function IsRoundWinningKillReplayEnabled()

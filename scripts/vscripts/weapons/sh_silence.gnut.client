@@ -322,6 +322,29 @@ void function MpAbilitySharedSilence_Init()
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 void function Silenced_WeaponStatusCheck( entity player, var rui, int slot )
 {
 	switch ( slot )

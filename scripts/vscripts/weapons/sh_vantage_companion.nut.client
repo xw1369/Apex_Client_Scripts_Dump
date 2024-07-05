@@ -73,7 +73,7 @@ const float LAUNCH_TARGET_FWD_OFFSET = 0 * METERS_TO_INCHES
 
 
 
-const float VANTAGE_COMPANION_BASE_SPEED = 800
+const float VANTAGE_COMPANION_BASE_SPEED = 1200
 
 
 const float VANTAGE_COMPANION_ANG_ACCEL_LOW_SPEED = 180 
@@ -539,6 +539,46 @@ OrderPosData function FindEchoOrderPos( entity player )
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 	Assert( orderPosData.orderType != eOrderType.NONE, "FindEchoOrderPos: Tried to find a position but orderType was NONE" )
 
 #if DEV
@@ -935,7 +975,6 @@ void function DebugDrawCompanion( entity echoEnt )
 	if ( IsValid( echoEnt ) )
 	{
 		DebugDrawBox( echoEnt.GetOrigin(), VANTAGE_COMPANION_BOUND_MINS, VANTAGE_COMPANION_BOUND_MAXS, <255,150,0>, 50, 2*UPDATE_RATE )
-
 		DebugDrawSphere( echoEnt.GetOrigin(), 4, <0, 100, 255>, false, 2*UPDATE_RATE )
 	}
 }
@@ -990,6 +1029,26 @@ vector function Launch_CalcLaunchToPos( entity player, entity echoEnt )
 
 	return finalLaunchToPos
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

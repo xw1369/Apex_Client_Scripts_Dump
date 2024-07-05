@@ -1,0 +1,363 @@
+global function IsBattleSenseEnabled
+
+
+global function ShPassiveBattleSense_Init
+global function ShPassiveBattleSense_RegisterNetworking
+
+
+
+
+
+
+
+global function BattleSense_ServerCallback_UpdateStart
+global function BattleSense_ServerCallback_UpdateEnd
+global function DEV_BattleSense_ServerCallback_DebugStart
+global function DEV_BattleSense_ServerCallback_DebugEnd
+
+
+
+
+
+
+
+const string PVAR_BATTLE_SENSE_DISTANCE = "battle_sense_distance"
+const string PVAR_BATTLE_SENSE_ENABLED = "battle_sense_enabled"
+const float PVAR_BATTLE_SENSE_DISTANCE_DEFAULT = 768.0
+const bool PVAR_BATTLE_SENSE_ENABLED_DEFAULT = false
+
+const string NETFUNC_UPDATE_START = "BattleSense_ServerCallback_UpdateStart"
+const string NETFUNC_UPDATE_END = "BattleSense_ServerCallback_UpdateEnd"
+const string NETFUNC_DEBUG_START = "DEV_BattleSense_ServerCallback_DebugStart"
+const string NETFUNC_DEBUG_END = "DEV_BattleSense_ServerCallback_DebugEnd"
+
+const string SIG_BATTLE_SENSE_END = "BattleSense_End"
+
+
+
+const string SFX_BATTLE_SENSE_ACTIVATE = "SoloBR_UI_InGame_BattleSense_1P"
+
+const float TIME_STEP_BATTLE_SENSE_CHECK = 0.5
+
+const vector COLOR_DEBUG_TEXT_RED = < 255, 0, 0 >
+
+
+#if DEV
+const string FLAG_DEBUG = "Battle_Sense_Debug"
+#endif
+
+struct
+{
+
+		bool previousState
+		var nestedBattleSenseRui
+
+} file
+
+
+
+void function ShPassiveBattleSense_RegisterNetworking()
+{
+	if ( !IsBattleSenseEnabled() )
+	{
+		return
+	}
+
+	Remote_RegisterClientFunction( NETFUNC_UPDATE_START )
+	Remote_RegisterClientFunction( NETFUNC_UPDATE_END )
+	Remote_RegisterClientFunction( NETFUNC_DEBUG_START )
+	Remote_RegisterClientFunction( NETFUNC_DEBUG_END )
+
+	RegisterSignal( SIG_BATTLE_SENSE_END )
+
+#if DEV
+	FlagInit( FLAG_DEBUG )
+#endif
+}
+
+
+
+void function ShPassiveBattleSense_Init()
+{
+	if( !IsBattleSenseEnabled() )
+	{
+		return
+	}
+
+
+
+
+
+
+
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+void function BattleSense_ServerCallback_UpdateStart()
+{
+	thread BattleSense_Update_Thread()
+}
+
+
+
+void function BattleSense_ServerCallback_UpdateEnd()
+{
+	BattleSense_DestroyUI_RUI()
+	entity player = GetLocalViewPlayer()
+	player.Signal( SIG_BATTLE_SENSE_END )
+}
+
+
+
+void function DEV_BattleSense_ServerCallback_DebugStart()
+{
+#if DEV
+	FlagSet( FLAG_DEBUG )
+
+	BattleSense_Activate()
+#endif
+}
+
+
+
+void function DEV_BattleSense_ServerCallback_DebugEnd()
+{
+#if DEV
+	thread DEV_BattleSense_ServerCallback_DebugEnd_Thread()
+#endif
+}
+
+
+
+void function DEV_BattleSense_ServerCallback_DebugEnd_Thread()
+{
+#if DEV
+	BattleSense_Deactivate()
+
+	wait TIME_STEP_BATTLE_SENSE_CHECK
+
+	FlagClear( FLAG_DEBUG )
+#endif
+}
+
+
+
+void function BattleSense_Update_Thread()
+{
+	Assert( IsNewThread(), "Must be threaded off" )
+
+	entity player = GetLocalViewPlayer()
+	player.EndSignal( "OnDeath" )
+	player.EndSignal( "OnDestroy" )
+	player.EndSignal( SIG_BATTLE_SENSE_END )
+
+	OnThreadEnd( function() : () {
+		BattleSense_Deactivate()
+	} )
+
+	while( GetGameState() < eGameState.WinnerDetermined )
+	{
+#if DEV
+		FlagWaitClear( FLAG_DEBUG )
+#endif
+
+		if ( BattleSense_ShouldBeActivated( player ) )
+		{
+			BattleSense_Activate()
+		}
+		else
+		{
+			BattleSense_Deactivate()
+		}
+
+		wait TIME_STEP_BATTLE_SENSE_CHECK
+	}
+}
+
+
+
+bool function BattleSense_ShouldBeActivated( entity player )
+{
+	array< entity > allEnemies = GetPlayerArrayOfEnemies_Alive( player.GetTeam() )
+	vector playerPos = player.GetOrigin()
+	float senseDistance = GetPlaylistVar_BattleSenseDistance()
+
+	array< entity > nearbyEnemies = GetEntitiesFromArrayNearPos( allEnemies, playerPos, senseDistance )
+
+	return ( nearbyEnemies.len() > 0 )
+}
+
+
+
+void function BattleSense_DisplayUI_RUI( bool isVisible )
+{
+	var gamestateRui = ClGameState_GetRui()
+	if ( gamestateRui != null && RuiIsAlive( gamestateRui ) && file.nestedBattleSenseRui == null || !RuiIsAlive( file.nestedBattleSenseRui ) )
+	{
+		RuiDestroyNestedIfAlive( gamestateRui, "battleSenseHudHandle" )
+		file.nestedBattleSenseRui = RuiCreateNested( gamestateRui, "battleSenseHudHandle", $"ui/survival_solos_battle_sense.rpak" )
+	}
+
+	if ( file.nestedBattleSenseRui != null && RuiIsAlive( file.nestedBattleSenseRui ) )
+	{
+		RuiSetBool( file.nestedBattleSenseRui, "isVisible", isVisible )
+		float senseDistance = GetPlaylistVar_BattleSenseDistance()
+		RuiSetInt( file.nestedBattleSenseRui, "senseDistance", int( senseDistance * 2.54 / 100 ) ) 
+	}
+}
+
+
+
+void function BattleSense_DestroyUI_RUI()
+{
+	var gamestateRui = ClGameState_GetRui()
+	if ( gamestateRui != null && file.nestedBattleSenseRui != null && RuiIsAlive( gamestateRui ) )
+	{
+		RuiDestroyNestedIfAlive( gamestateRui, "battleSenseHudHandle" )
+	}
+	file.nestedBattleSenseRui = null
+}
+
+
+
+void function BattleSense_Activate()
+{
+	if ( file.previousState )
+	{
+		return
+	}
+
+	BattleSense_DisplayUI_RUI( true )
+
+	entity player = GetLocalViewPlayer()
+	EmitSoundOnEntity( player, SFX_BATTLE_SENSE_ACTIVATE )
+
+	file.previousState = true
+}
+
+
+
+void function BattleSense_Deactivate()
+{
+	if ( !file.previousState )
+	{
+		return
+	}
+
+	BattleSense_DisplayUI_RUI( false )
+
+	file.previousState = false
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+float function GetPlaylistVar_BattleSenseDistance()
+{
+	return GetCurrentPlaylistVarFloat( PVAR_BATTLE_SENSE_DISTANCE, PVAR_BATTLE_SENSE_DISTANCE_DEFAULT )
+}
+
+bool function IsBattleSenseEnabled()
+{
+	return GetCurrentPlaylistVarBool( PVAR_BATTLE_SENSE_ENABLED, PVAR_BATTLE_SENSE_ENABLED_DEFAULT )
+}

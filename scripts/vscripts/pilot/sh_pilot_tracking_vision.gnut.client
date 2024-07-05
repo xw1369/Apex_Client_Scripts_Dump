@@ -10,6 +10,9 @@ global function TrackingVision_GetOffsetForPOI
 
 
 
+
+
+
 global function TrackingVision_DisplayEnemyDirection_ServerCallback
 global function ServerToClient_ActivateWhiteRavenIconRUI
 global function ServerToClient_ActivateWhiteRavenPerchedFX
@@ -68,7 +71,7 @@ const float WHITE_RAVEN_REFRESH_DISTANCE 					= WHITE_RAVEN_PERCH_MAX_SPAWN_RANG
 const bool WHITE_RAVEN_GIVES_TAC_CHARGE 					= true
 const bool WHITE_RAVEN_GIVES_ULT_CHARGE 					= true
 const float WHITE_RAVEN_TACTICAL_REFUND_FRAC 				= 0.25
-const float WHITE_RAVEN_ULTIMATE_REFUND_FRAC 				= 0.25
+const float WHITE_RAVEN_ULTIMATE_REFUND_FRAC 				= 0.20
 
 const float WHITE_RAVEN_FLIGHT_TIME 						= 7.5
 const float WHITE_RAVEN_PING_DELAY 							= 5.0
@@ -275,9 +278,10 @@ global enum eTrackingVisionNetworkedPOITypes
 
 
 
-
-
-
+	PLAYER_ABILITY_ALTER_ULTIMATE_PLACED,
+	PLAYER_ABILITY_ALTER_ULTIMATE_USED,
+	PLAYER_ABILITY_ALTER_TACTICAL_USED,
+	PLAYER_ABILITY_ALTER_PASSIVE_USED,
 
 
 	_count,
@@ -444,8 +448,8 @@ int function TrackingVision_GetPriorityForPOIType( int poiEventID )
 		case eTrackingVisionNetworkedPOITypes.PLAYER_HEAL:
 		case eTrackingVisionNetworkedPOITypes.PLAYER_STARTBLEEDOUT:
 
-
-
+		case eTrackingVisionNetworkedPOITypes.PLAYER_ABILITY_ALTER_TACTICAL_USED:
+		case eTrackingVisionNetworkedPOITypes.PLAYER_ABILITY_ALTER_ULTIMATE_USED:
 
 			return eTrackingPOIPriority.VERY_HIGH
 
@@ -468,7 +472,7 @@ int function TrackingVision_GetPriorityForPOIType( int poiEventID )
 		case eTrackingVisionNetworkedPOITypes.PLAYER_ABILITY_ASH_ENEMY_TETHERED:
 		case eTrackingVisionNetworkedPOITypes.PLAYER_ABILITY_ASH_DATAKNIFE_USED:
 
-
+		case eTrackingVisionNetworkedPOITypes.PLAYER_ABILITY_ALTER_ULTIMATE_PLACED:
 
 			return eTrackingPOIPriority.HIGH
 
@@ -501,6 +505,9 @@ int function TrackingVision_GetPriorityForPOIType( int poiEventID )
 		case eTrackingVisionNetworkedPOITypes.PLAYER_LOOT_DROP_INCAPSHIELD:
 		case eTrackingVisionNetworkedPOITypes.PLAYER_ABILITY_VALK_PASSIVE_START:
 		case eTrackingVisionNetworkedPOITypes.PLAYER_ABILITY_VALK_PASSIVE_END:
+
+		case eTrackingVisionNetworkedPOITypes.PLAYER_ABILITY_ALTER_PASSIVE_USED:
+
 			return eTrackingPOIPriority.NORMAL
 
 		case eTrackingVisionNetworkedPOITypes.PLAYER_TRAVERSAL_MANTLE:
@@ -572,7 +579,7 @@ vector function TrackingVision_GetOffsetForPOI( int poiEventID )
 		case eTrackingVisionNetworkedPOITypes.PLAYER_ABILITY_DEPLOYABLE_MEDIC:
 		case eTrackingVisionNetworkedPOITypes.PLAYER_ABILITY_ASH_ENEMY_TETHERED:
 
-
+		case eTrackingVisionNetworkedPOITypes.PLAYER_ABILITY_ALTER_TACTICAL_USED:
 
 			return <0,0,0>
 
@@ -635,9 +642,6 @@ vector function TrackingVision_GetOffsetForPOI( int poiEventID )
 
 		case eTrackingVisionNetworkedPOITypes.PLAYER_ABILITY_DIRTY_BOMB:
 		case eTrackingVisionNetworkedPOITypes.PLAYER_ABILITY_BLACK_MARKET:
-
-
-
 			return < 0, 0, 54.0 >
 
 
@@ -689,8 +693,9 @@ vector function TrackingVision_GetOffsetForPOI( int poiEventID )
 
 
 
-
-
+		case eTrackingVisionNetworkedPOITypes.PLAYER_ABILITY_ALTER_ULTIMATE_PLACED:
+		case eTrackingVisionNetworkedPOITypes.PLAYER_ABILITY_ALTER_ULTIMATE_USED:
+		case eTrackingVisionNetworkedPOITypes.PLAYER_ABILITY_ALTER_PASSIVE_USED:
 
 			return < 0, 0, 24.0 >
 
@@ -2783,6 +2788,20 @@ void function TrackingVision_CreateChevron_Thread( entity player, vector nextChe
 
 	wait TRACKING_VISION_DIRECTION_LIFETIME
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

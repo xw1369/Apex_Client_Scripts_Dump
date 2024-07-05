@@ -19,6 +19,14 @@ global function Perks_GetSettingsInfoForClassRole
 global function Perks_GetSettingsInfoForPerk
 
 
+
+
+
+
+
+
+
+
 global function Perks_DoesPlayerHavePerk
 global function Perks_AddMinimapEntityForPerk
 global function Perks_GetIconForPerk
@@ -58,7 +66,6 @@ global enum ePerkIndex
 	INVALID = -1,
 	BEACON_SCAN,
 	EXTRA_BIN_LOOT,
-	DEFENSIVE_EVO_BOOST,
 	EXTRA_FIREPOWER,
 	KILL_BOOST_ULT,
 	BEACON_ENEMY_SCAN,
@@ -67,6 +74,21 @@ global enum ePerkIndex
 	WEAPON_INFUSION,
 	MUNITIONS_BOX,
 	BANNER_CRAFTING,
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 	COUNT	
 }
 
@@ -107,6 +129,11 @@ global struct ClassRoleSettingsInfo
 	string shortDescription
 	vector uiColor
 	asset icon
+
+
+
+
+
 }
 
 global struct PerkSettingsInfo
@@ -224,6 +251,13 @@ void function OnItemFlavorRegistered_Class( ItemFlavor characterClass )
 		}
 	}
 
+
+
+
+
+
+
+
 	ClassRoleSettingsInfo settingsInfo
 	settingsInfo.perks = perks
 
@@ -236,6 +270,11 @@ void function OnItemFlavorRegistered_Class( ItemFlavor characterClass )
 	settingsInfo.icon = icon
 	settingsInfo.name = name
 	settingsInfo.uiColor = color
+
+
+
+
+
 
 
 	int role = eCharacterClassRole[GetGlobalSettingsString( classAsset, "role" )]
@@ -278,6 +317,25 @@ PerkSettingsInfo function Perks_GetSettingsInfoForPerk( int perk )
 {
 	return file.perkToPerkSettingsTable[perk]
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 int function Perks_GetPerkIndex( ItemFlavor flavor )
 {

@@ -74,7 +74,7 @@ const float[2] WEAPON_BASE_ROTATION_DELTA = [-35.2458, -14.5691]
 const float STORE_ITEM_ROTATE_SPEED = 1.5
 const float[2] STORE_ITEM_BASE_ROTATION_DELTA = [0.0, 0.0]
 
-global const vector EVENT_LOBBY_OFFSET = <0, 0, 1350>
+global const vector EVENT_LOBBY_OFFSET = <0, 0, 0>
 
 global struct MenuCharacterDef
 {
@@ -142,6 +142,9 @@ enum eCameraTargetNames
 	collection_event_camera_target,
 	store_inspect_camera_target,
 	club_landing_camera_target,
+
+	play_camera_quads_target,
+
 	weapon_mastery_inspect_camera_target
 }
 
@@ -171,7 +174,11 @@ struct PresentationDef
 	void functionref() startFunc
 	void functionref() endFunc
 
-	int cameraTargetName = eCameraTargetNames.play_camera_target
+
+	int cameraTargetName = eCameraTargetNames.play_camera_quads_target
+
+
+
 }
 
 struct LightDef
@@ -223,6 +230,7 @@ struct
 		entity storeInspectCameraTarget
 		entity weaponOverviewCameraTarget
 
+		entity customizeWeaponRefEnt
 		entity storeInspectRefEnt
 		entity weaponOverviewRefEnt
 		entity meleeInspectRefEnt
@@ -530,10 +538,17 @@ bool function MenuMapEntitiesExist()
 	[
 		"default_camera_target",
 
-		"play_camera_target",
-		"play_character_ref",
-		"play_teammate1_ref",
-		"play_teammate2_ref",
+		"play_camera_quads_target",
+		"play_character_quads_ref",
+		"play_teammate1_quads_ref",
+		"play_teammate2_quads_ref",
+		"play_teammate3_quads_ref",
+
+
+
+
+
+
 
 		"close_character_camera_target",
 
@@ -564,10 +579,18 @@ bool function MenuMapEntitiesExist()
 void function ApplyEventPositioning()
 {
 	array<entity> ents
-	ents.append( GetEntByScriptName( "play_camera_target" ) )
-	ents.append( GetEntByScriptName( "play_character_ref" ) )
-	ents.append( GetEntByScriptName( "play_teammate1_ref" ) )
-	ents.append( GetEntByScriptName( "play_teammate2_ref" ) )
+
+	ents.append( GetEntByScriptName( "play_camera_quads_target" ) )
+	ents.append( GetEntByScriptName( "play_character_quads_ref" ) )
+	ents.append( GetEntByScriptName( "play_teammate1_quads_ref" ) )
+	ents.append( GetEntByScriptName( "play_teammate2_quads_ref" ) )
+	ents.append( GetEntByScriptName( "play_teammate3_quads_ref" ) )
+
+
+
+
+
+
 	ents.append( GetEntByScriptName( "battlepass_camera_target" ) )
 	ents.append( GetEntByScriptName( "battlepass_3_camera_target" ) )
 	ents.append( GetEntByScriptName( "collection_event_camera_target" ) )
@@ -1081,6 +1104,15 @@ void function InitPresentationData()
 		pd.startFunc = StartPresentation_WEAPON_TRIAL_CELEBRATIONS
 		pd.endFunc = EndPresentation_WEAPON_TRIAL_CELEBRATIONS
 	}
+
+
+	{
+		PresentationDef pd = file.presentationData[ePresentationType.PLAY_QUADS]
+		pd.modelData = file.playCharacter
+		pd.startFunc = StartPresentation_PLAY
+		pd.endFunc = EndPresentation_PLAY
+	}
+
 
 	Menu_InitPresentationDataFromCameraSettings()
 }
@@ -1723,7 +1755,8 @@ void function EnableLobbyMenuCameraZoom()
 			case eItemType.weapon_skin:
 				ItemFlavor weaponFlavor = WeaponSkin_GetWeaponFlavor( itemFlav )
 				ItemFlavor categoryFlavor = WeaponItemFlavor_GetCategory( weaponFlavor )
-				focalPoint = model.GetAttachmentOrigin( model.LookupAttachment( "MENU_ROTATE" ) )
+				if( model != null && IsValid( model ) )
+					focalPoint = model.GetAttachmentOrigin( model.LookupAttachment( "MENU_ROTATE" ) )
 				maxZoomDistance = ZOOM_DISTANCE_INSPECT_WEAPON_SKIN
 				break
 
@@ -1844,8 +1877,14 @@ void function InitMenuEntities()
 	InitPresentationData()
 	InitMenuModelFlashData()
 
-	InitTeammatePosition( "play_teammate1_ref", "ACT_MP_MENU_LOBBY_LEFT_IDLE" )
-	InitTeammatePosition( "play_teammate2_ref", "ACT_MP_MENU_LOBBY_RIGHT_IDLE" )
+
+	InitTeammatePosition( "play_teammate1_quads_ref", "ACT_MP_MENU_LOBBY_LEFT_IDLE" )
+	InitTeammatePosition( "play_teammate2_quads_ref", "ACT_MP_MENU_LOBBY_RIGHT_IDLE" )
+	InitTeammatePosition( "play_teammate3_quads_ref", "ACT_MP_MENU_LOBBY_LEFT_IDLE" )
+
+
+
+
 
 	file.cameraZoomData.mover = CreateClientsideScriptMover( $"mdl/dev/empty_model.rmdl", <0, 0, 0>, <0, 0, 0> )
 
@@ -1878,7 +1917,11 @@ void function InitMenuEntities()
 	entity model
 	float[2] baseRotationDelta
 
-	refEnt = GetEntByScriptName( "play_character_ref" )
+
+	refEnt = GetEntByScriptName( "play_character_quads_ref" )
+
+
+
 	ModelData_SetBaseOrigin( file.playCharacter, refEnt.GetOrigin() )
 	ModelData_SetBaseAngles( file.playCharacter, refEnt.GetAngles() )
 	model = CreateMenuModel( file.playCharacter, $"mdl/dev/empty_model.rmdl" )
@@ -1906,6 +1949,7 @@ void function InitMenuEntities()
 	model.SetAlive( true )
 
 	refEnt = GetEntByScriptName( "customize_weapon_ref" )
+	file.customizeWeaponRefEnt = refEnt
 	ModelData_SetBaseOrigin( file.customizeWeapon, refEnt.GetOrigin() )
 	ModelData_SetBaseAngles( file.customizeWeapon, WEAPON_BASE_ANGLES )
 	ModelData_SetBaseRotationDelta( file.customizeWeapon, WEAPON_BASE_ROTATION_DELTA )
@@ -2829,6 +2873,16 @@ void function TellUIToUpdateInviteButtons()
 	string rightSpotName     = ""
 	bool rightSpotInMatch    = false
 
+
+	string fourthSpotUID      = ""
+	string fourthSpotEAID     = ""
+	string fourthSpotHardware = ""
+	string fourthSpotUnspoofedUID = ""
+	string fourthSpotUnspoofedHardware = ""
+	string fourthSpotName     = ""
+	bool fourthSpotInMatch    = false
+
+
 	
 	foreach ( string partyMemberUid, PartyMemberDisplayThreadData partyMemberDisplayThreadData in file.partyMemberUidCharacterDataMap )
 	{
@@ -2852,10 +2906,27 @@ void function TellUIToUpdateInviteButtons()
 			rightSpotName = partyMemberDisplayThreadData.partyMemberInfo.name
 			rightSpotInMatch = PartyMemberInMatch( partyMemberDisplayThreadData.partyMemberInfo )
 		}
+
+		else if ( partyMemberDisplayThreadData.posRef == file.teammateRefEnts[2] && file.teammateRefEntsUsedMap[file.teammateRefEnts[2]] )
+		{
+			fourthSpotUID = partyMemberUid
+			fourthSpotEAID = partyMemberDisplayThreadData.partyMemberInfo.eaid
+			fourthSpotHardware = partyMemberDisplayThreadData.partyMemberInfo.hardware
+			fourthSpotUnspoofedUID = partyMemberDisplayThreadData.partyMemberInfo.unspoofedUID
+			fourthSpotUnspoofedHardware = partyMemberDisplayThreadData.partyMemberInfo.unspoofedHardware
+			fourthSpotName = partyMemberDisplayThreadData.partyMemberInfo.name
+			fourthSpotInMatch = PartyMemberInMatch( partyMemberDisplayThreadData.partyMemberInfo )
+		}
+
 	}
 
 	RunUIScript( "ClientToUI_PartyMemberJoinedOrLeft", leftSpotUID, leftSpotEAID, leftSpotHardware, leftSpotUnspoofedUID, leftSpotUnspoofedHardware, leftSpotName, leftSpotInMatch,
-		                                               rightSpotUID, rightSpotEAID, rightSpotHardware, rightSpotUnspoofedUID, rightSpotUnspoofedHardware, rightSpotName, rightSpotInMatch )
+		                                               rightSpotUID, rightSpotEAID, rightSpotHardware, rightSpotUnspoofedUID, rightSpotUnspoofedHardware, rightSpotName, rightSpotInMatch,
+													   fourthSpotUID, fourthSpotEAID, fourthSpotHardware, fourthSpotUnspoofedUID, fourthSpotUnspoofedHardware, fourthSpotName, fourthSpotInMatch )
+
+
+
+
 
 	
 	
@@ -2975,9 +3046,13 @@ void function UIToClient_PreviewWeaponSkin( int skinFlavorGUID, int charmFlavorG
 
 	ItemFlavor charmFlavor = GetItemFlavorByGUID( charmFlavorGUID )
 
+	ItemFlavor weapon = WeaponSkin_GetWeaponFlavor( weaponSkin )
+	entity refEnt = file.customizeWeaponRefEnt
+
+	vector origin = refEnt.GetOrigin() + MainWeapon_GetLoadoutSkinsOffset( weapon )
+
 	entity weaponModel = ModelData_GetModel( file.customizeWeapon )
 	entity weaponMover = ModelData_GetMover( file.customizeWeapon )
-
 	
 	WeaponCosmetics_Apply( weaponModel, weaponSkin, charmFlavor )
 
@@ -3014,6 +3089,11 @@ void function UIToClient_PreviewWeaponSkin( int skinFlavorGUID, int charmFlavorG
 	
 	bool shouldZoomIn = file.currentPresentationType == ePresentationType.WEAPON_CHARMS && !file.cameraZoomedToGunCharm
 
+	if( file.currentPresentationType != ePresentationType.WEAPON_CHARMS )
+	{
+		ModelData_SetBaseOrigin( file.customizeWeapon, origin )
+		weaponMover.SetOrigin( ModelData_GetBaseOrigin( file.customizeWeapon ) )
+	}
 	
 	bool shouldZoomOut = file.currentPresentationType == ePresentationType.WEAPON_SKIN && file.cameraZoomedToGunCharm
 
@@ -3133,6 +3213,32 @@ void function UpdateStoreItemDisplay_WeaponSkin( ItemFlavor item )
 		ShowDefaultBodygroupsOnFakeWeapon( model, WeaponItemFlavor_GetClassname( weapon ) )
 }
 
+void function UpdateStoreItemDisplay_WeaponVideo( ItemFlavor item )
+{
+	Assert( ItemFlavor_GetType( item ) == eItemType.weapon_skin )
+
+	entity refEnt        = file.storeInspectRefEnt
+	vector origin        = refEnt.GetOrigin() + <0, 0, 31>
+	vector angles        = refEnt.GetAngles()
+	vector placardAngles = AnglesCompose( angles, <0, 180, 0> )
+
+	const asset ruiAsset = $"ui/finisher_video.rpak"
+	const float ruiAspectRatio = 1920.0 / 1080.0
+	const float ruiHeight = 52
+	const float ruiWidth = ruiHeight * ruiAspectRatio
+
+	var topo         = CreateRUITopology_Worldspace( origin, placardAngles, ruiWidth, ruiHeight )
+	var rui          = RuiCreate( ruiAsset, topo, RUI_DRAW_VIEW_MODEL, 0 )
+	int videoChannel = ReserveVideoChannel()
+
+	RuiSetInt( rui, "channel", videoChannel )
+	StartVideoOnChannel( videoChannel, WeaponSkin_GetVideo( item ), true, 0.0 )
+
+	file.topo         = topo
+	file.rui          = rui
+	file.videoChannel = videoChannel
+}
+
 void function UpdateWeaponOverviewDisplay_WeaponSkin( ItemFlavor item )
 {
 	Assert( ItemFlavor_GetType( item ) == eItemType.weapon_skin )
@@ -3210,40 +3316,27 @@ void function UpdateMeleeInspectDisplay( ItemFlavor item )
 	model.SetLocalOrigin( originOffset )
 	model.SetLocalAngles( extraRotation )
 
-
 	if ( Artifacts_Loadouts_IsConfigPointerItemFlavor( item ) )
 	{
-		EHI lcEHI     = ToEHI( GetLocalClientPlayer() )
-		int configIdx = Artifacts_Loadouts_GetConfigIndex( item )
-		LoadoutEntry bladeEntry   = Artifacts_Loadouts_GetEntryForConfigIndexAndType( configIdx, eArtifactComponentType.BLADE )
-		ItemFlavor bladeComponent = LoadoutSlot_GetItemFlavor( lcEHI, bladeEntry )
-		LoadoutEntry powerSourceEntry   = Artifacts_Loadouts_GetEntryForConfigIndexAndType( configIdx, eArtifactComponentType.POWER_SOURCE )
-		ItemFlavor powerSourceComponent = LoadoutSlot_GetItemFlavor( lcEHI, powerSourceEntry )
-		LoadoutEntry themeEntry   = Artifacts_Loadouts_GetEntryForConfigIndexAndType( configIdx, eArtifactComponentType.THEME )
-		ItemFlavor themeComponent = LoadoutSlot_GetItemFlavor( lcEHI, themeEntry )
+		entity lcPlayer = GetLocalClientPlayer()
 
-		int setIndex = eArtifactSetIndex._EMPTY
-		if ( !Artifacts_IsEmptyComponent( themeComponent ) )
-			setIndex = Artifacts_GetSetIndex( themeComponent )
-		else
-			setIndex = Artifacts_GetSetIndex( bladeComponent )
-
-
-		bladeComponent = bladeEntry.validItemFlavorList.len() > 1 ? bladeEntry.validItemFlavorList[1] : bladeComponent
-		powerSourceComponent = powerSourceEntry.validItemFlavorList.len() > 1 ? powerSourceEntry.validItemFlavorList[1] : powerSourceComponent
-		themeComponent = themeEntry.validItemFlavorList.len() > 1 ? themeEntry.validItemFlavorList[1] : themeComponent
-		setIndex = eArtifactSetIndex.MOB
-
-
-		
-		if ( setIndex == eArtifactSetIndex._EMPTY )
+		if ( lcPlayer.p.artifactConfig == null )
 			return
 
-		Artifacts_Loadouts_ApplyModelForSet( model, setIndex )
-		Artifacts_Loadouts_PreviewBladeAndPowerSource( model, bladeComponent, powerSourceComponent )
-		Artifacts_Loadouts_PreviewTheme( model, themeComponent )
-	}
+		ArtifactConfig artifactConfig = expect ArtifactConfig( lcPlayer.p.artifactConfig )
 
+		int setIndex = eArtifactSetIndex._EMPTY
+		if ( !Artifacts_IsEmptyComponent( artifactConfig.theme ) )
+			setIndex = Artifacts_GetSetIndex( artifactConfig.theme )
+		else
+			setIndex = Artifacts_GetSetIndex( artifactConfig.blade )
+
+		Assert( setIndex != eArtifactSetIndex._EMPTY )
+
+		Artifacts_Loadouts_ApplyModelForSet( model, setIndex )
+		Artifacts_Loadouts_PreviewBladeAndPowerSource( model, artifactConfig.blade, artifactConfig.powerSource )
+		Artifacts_Loadouts_PreviewTheme( model, artifactConfig.theme )
+	}
 
 	asset animSeq = MeleeSkin_GetMenuAnimSeq( item )
 	if ( animSeq != $"" )
@@ -3449,8 +3542,10 @@ void function UpdateStoreItemDisplay_Finisher( ItemFlavor item )
 {
 	Assert( ItemFlavor_GetType( item ) == eItemType.character_execution )
 
+	UISize screenSize = GetScreenSize()
+	float nearestAspectRatio = GetNearestAspectRatio( screenSize.width, screenSize.height )
 	entity refEnt = file.storeInspectRefEnt
-	vector origin = refEnt.GetOrigin() + <25.3, 50, 41>
+	vector origin = refEnt.GetOrigin() + <(( nearestAspectRatio == 1.6 )? 16.3: 25.3), 50, 41>
 	vector angles = refEnt.GetAngles()
 	vector placardAngles = AnglesCompose( angles, <0, 180, 0> )
 
@@ -3475,8 +3570,10 @@ void function UpdateStoreItemDisplay_SkydiveTrail( ItemFlavor item )
 {
 	Assert( ItemFlavor_GetType( item ) == eItemType.skydive_trail )
 
+	UISize screenSize = GetScreenSize()
+	float nearestAspectRatio = GetNearestAspectRatio( screenSize.width, screenSize.height )
 	entity refEnt = file.storeInspectRefEnt
-	vector origin = refEnt.GetOrigin() + <25.3, 50, 41>
+	vector origin = refEnt.GetOrigin() + <(( nearestAspectRatio == 1.6 )? 16.3: 25.3), 50, 41>
 	vector angles = refEnt.GetAngles()
 	vector placardAngles = AnglesCompose( angles, <0, 180, 0> )
 
@@ -3825,7 +3922,23 @@ void function UIToClient_UnloadItemInspectPakFile()
 
 void function UpdateStoreItemDisplay_MeleeSkin( ItemFlavor item )
 {
-	Assert( ItemFlavor_GetType( item ) == eItemType.melee_skin )
+	Assert( ItemFlavor_GetType( item ) == eItemType.melee_skin || ItemFlavor_GetType( item ) == eItemType.artifact_component_blade ||
+			ItemFlavor_GetType( item ) == eItemType.artifact_component_power_source || ItemFlavor_GetType( item ) == eItemType.artifact_component_theme )
+
+	bool isArtifact = false
+	int setIndex = -1
+	array< ItemFlavor > setItems = []
+	array< ItemFlavor > emptySetItems = Artifacts_GetSetItems( eArtifactSetIndex._EMPTY )
+	bool isBlade = ItemFlavor_GetType( item ) == eItemType.artifact_component_blade
+	bool isPowerSource = ItemFlavor_GetType( item ) == eItemType.artifact_component_power_source
+	bool isTheme = ItemFlavor_GetType( item ) == eItemType.artifact_component_theme
+	if ( isBlade || isPowerSource || isTheme )
+	{
+		setIndex = Artifacts_GetSetIndex( item )
+		setItems = Artifacts_GetSetItems( setIndex )
+		item = GetItemFlavorByGUID( ARTIFACT_CONFIGURATION_PTR_0_GUID )
+		isArtifact = true
+	}
 
 	entity refEnt = file.storeInspectRefEnt
 	vector origin = refEnt.GetOrigin() + <0, 0, 28.75> + MeleeSkin_GetItemInspectOffset( item )
@@ -3841,6 +3954,21 @@ void function UpdateStoreItemDisplay_MeleeSkin( ItemFlavor item )
 	vector originOffset = GetAttachmentOriginOffset( model, "MENU_ROTATE", extraRotation )
 	model.SetLocalOrigin( originOffset )
 	model.SetLocalAngles( extraRotation )
+
+	if ( isArtifact )
+	{
+		
+		
+		
+
+		ItemFlavor bladeComponent = setItems[ eArtifactComponentType.BLADE ] 
+		ItemFlavor themeComponent = isBlade ? emptySetItems[ eArtifactComponentType.THEME ] : setItems[ eArtifactComponentType.THEME ] 
+		ItemFlavor powerSourceComponent = isPowerSource ? setItems[ eArtifactComponentType.POWER_SOURCE ] :  emptySetItems[ eArtifactComponentType.POWER_SOURCE ] 
+
+		Artifacts_Loadouts_ApplyModelForSet( model, setIndex )
+		Artifacts_Loadouts_PreviewBladeAndPowerSource( model, bladeComponent, powerSourceComponent )
+		Artifacts_Loadouts_PreviewTheme( model, themeComponent )
+	}
 
 	asset animSeq = MeleeSkin_GetMenuAnimSeq( item )
 	if ( animSeq != $"" )
@@ -3935,9 +4063,9 @@ void function UpdateStoreItemDisplay_Sticker( ItemFlavor item )
 }
 
 
-void function UpdateStoreItemDisplay_Deathbox( ItemFlavor item )
+void function UpdateStoreItemDisplay_ArtifactBink( ItemFlavor item )
 {
-	Assert( ItemFlavor_GetType( item ) == eItemType.artifact_component_deathbox )
+	Assert( ItemFlavor_GetType( item ) == eItemType.artifact_component_deathbox || ItemFlavor_GetType( item ) == eItemType.artifact_component_activation_emote )
 
 	entity refEnt = file.storeInspectRefEnt
 	vector origin = refEnt.GetOrigin() + <0, 0, 31>
@@ -3954,7 +4082,24 @@ void function UpdateStoreItemDisplay_Deathbox( ItemFlavor item )
 	int videoChannel = ReserveVideoChannel()
 
 	RuiSetInt( rui, "channel", videoChannel )
-	StartVideoOnChannel( videoChannel, Deathbox_GetVideo( item ), true, 0.0 )
+
+	asset video
+	switch( ItemFlavor_GetType( item ) )
+	{
+		case eItemType.artifact_component_deathbox:
+			video = Deathbox_GetVideo( item )
+			break
+
+		case eItemType.artifact_component_activation_emote:
+			video = Artifacts_ActivationEmote_GetVideo( item )
+			break
+
+		default:
+			Assert( false )
+			return
+	}
+
+	StartVideoOnChannel( videoChannel, video, true, 0.0 )
 
 	file.topo = topo
 	file.rui = rui
@@ -3996,7 +4141,11 @@ void function UIToClient_PreviewStoreItem( SettingsAssetGUID itemFlavorGUID, boo
 			break
 
 		case eItemType.weapon_skin:
-			UpdateStoreItemDisplay_WeaponSkin( item )
+			asset video = WeaponSkin_GetVideo( item )
+			if ( video != $"" )
+				UpdateStoreItemDisplay_WeaponVideo( item ) 
+			else
+				UpdateStoreItemDisplay_WeaponSkin( item )
 			break
 
 		case eItemType.weapon_charm:
@@ -4069,6 +4218,9 @@ void function UIToClient_PreviewStoreItem( SettingsAssetGUID itemFlavorGUID, boo
 			UpdateStoreItemDisplay_MusicPack( item )
 			break
 
+		case eItemType.artifact_component_blade:
+		case eItemType.artifact_component_power_source:
+		case eItemType.artifact_component_theme:
 		case eItemType.melee_skin:
 			UpdateStoreItemDisplay_MeleeSkin( item )
 			break
@@ -4121,14 +4273,17 @@ void function UIToClient_PreviewStoreItem( SettingsAssetGUID itemFlavorGUID, boo
 			UpdateStoreItemDisplay_Sticker( item )
 			break
 
-
+		case eItemType.artifact_component_activation_emote:
 		case eItemType.artifact_component_deathbox:
 			autoRotate = false
 			DisableModelTurn()
 			EnableTurnLockout()
-			UpdateStoreItemDisplay_Deathbox( item )
+			UpdateStoreItemDisplay_ArtifactBink( item )
 			break
 
+		default:
+			Assert( false, "Item Type not supported" )
+			break
 	}
 
 	ModelData_ResetRotation( file.storeInspectModelData )
@@ -4347,6 +4502,8 @@ void function ClearMeleeInspectItem()
 
 	if ( IsValid( file.meleeInspectModelData.model ) )
 	{
+		Artifacts_ClearMenuEffects()
+
 		foreach ( entity ent in GetEntityAndAllChildren( file.meleeInspectModelData.model ) )
 		{
 			if ( IsValid( ent ) )
@@ -4926,7 +5083,8 @@ void function SetPresentationTypeThread( entity player, int desiredPresentationT
 			SetMenuCamera( player, desiredPresentationType, interpolate )
 	}
 
-	if ( file.presentationTypeInitialized && desiredPresentationType == file.currentPresentationType )
+	bool changingPresentation = desiredPresentationType != file.currentPresentationType
+	if ( file.presentationTypeInitialized && !changingPresentation )
 		return
 
 	if ( file.presentationData[ file.currentPresentationType ].endFunc != null )
@@ -4957,8 +5115,19 @@ void function SetPresentationTypeThread( entity player, int desiredPresentationT
 	MenuModelData ornull lastActiveModelData = file.activeModelData
 	file.activeModelData = file.presentationData[ desiredPresentationType ].modelData
 
-	if ( lastActiveModelData != null )
-		ModelData_ResetRotation( expect MenuModelData( lastActiveModelData ) )
+	if ( changingPresentation && lastActiveModelData != null )
+	{
+		MenuModelData modelData = expect MenuModelData( lastActiveModelData )
+		ModelData_ResetRotation( modelData )
+
+		entity model = ModelData_GetModel( modelData )
+		if ( IsValid( model ) )
+		{
+			
+			model.Anim_Stop()
+			StopAllSoundsOnEntity( model )
+		}
+	}
 }
 
 void function SetMenuCamera( entity player, int presentationType, bool interpolate )
@@ -5571,16 +5740,8 @@ void function FlashMenuModel( entity model, int flashType, vector flashColor, bo
 	}
 
 	MenuModelFlashDef fd = file.menuModelFlashData[flashType]
-	int fill    = HIGHLIGHT_FILL_MENU_MODEL_REVEAL
-	int outline = HIGHLIGHT_OUTLINE_MENU_MODEL_REVEAL
 
-	if ( depthDiscard )
-	{
-		fill    = HIGHLIGHT_FILL_MENU_MODEL_REVEAL_DEPTH_DISCARD
-		outline = HIGHLIGHT_OUTLINE_MENU_MODEL_REVEAL_DEPTH_DISCARD
-	}
-
-	int contextId = HIGHLIGHT_CLIENT_ONLY_INDEX +  eHighlightContextClientOnly.FLASH_MENU_MODEL
+	int contextId = HighlightContext_GetId( "flash_menu_model" )
 	HighlightContext_SetRadius( contextId, fd.outlineRadius )
 	HighlightContext_SetParam( contextId, 0, flashColor )
 	HighlightContext_SetParam( contextId, 1, <fd.fillIntensityScalar, fd.outlineIntensityScalar, 0> )
@@ -5606,7 +5767,7 @@ void function FlashMenuModel( entity model, int flashType, vector flashColor, bo
 		{
 			childEnt.Highlight_ResetFlags()
 			childEnt.Highlight_SetVisibilityType( HIGHLIGHT_VIS_ALWAYS )
-			contextId = HIGHLIGHT_CLIENT_ONLY_INDEX +  eHighlightContextClientOnly.FLASH_MENU_MODEL
+			contextId = HighlightContext_GetId( "flash_menu_model" )
 			childEnt.Highlight_SetCurrentContext( contextId )
 			childEnt.Highlight_SetFadeInTime( fd.fadeInTime )
 			childEnt.Highlight_SetFadeOutTime( fd.fadeOutTime )
@@ -5621,7 +5782,7 @@ void function MenuModelHighlightInMatch( entity model )
 {
 	model.Highlight_ResetFlags()
 	model.Highlight_SetVisibilityType( HIGHLIGHT_VIS_ALWAYS )
-	model.Highlight_SetCurrentContext( HIGHLIGHT_CLIENT_ONLY_INDEX +  eHighlightContextClientOnly.MENU_MODEL_IN_MATCH )
+	model.Highlight_SetCurrentContext( HighlightContext_GetId( "menu_model_in_match" ) )
 	model.Highlight_SetFadeInTime( 0.0 )
 	model.Highlight_SetFadeOutTime( 0.0 )
 	model.Highlight_StartOn()

@@ -28,8 +28,6 @@ global function ServerCallback_AnnounceDevRespawn
 
 global function ServerCallback_AutoReloadComplete
 
-global function ServerCallback_SetLaserSightVMLaserEnabled
-
 global function CreateQuickchatFunction
 
 global function AddCallback_OnUpdateShowButtonHints
@@ -135,6 +133,7 @@ global function Dev_SpoofMatchData
 global function CircleAnnouncementsEnable
 global function CircleBannerAnnouncementsEnable
 global function Survival_SetVictorySoundPackageFunction
+global function GetAnnouncementSubtextString
 
 global function GetVictorySquadFormationActivity
 
@@ -153,6 +152,28 @@ global function Cl_GetPlaylistUIRules
 
 global function SetEvoArmorModifier
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+global function UseDynamicSquadTag
+global function SquadTag_GetOrCreateRui
+global function SquadTag_Destroy
+global function SquadTag_SetVisibility
+global function SquadTag_SetRuiArgs
 
 global struct NextCircleDisplayCustomData
 {
@@ -232,6 +253,18 @@ global const string ORDNANCEMENU_BIND_COMMAND = "+strafe"
 global const string GADGETSLOT_BIND_COMMAND = "+scriptCommand6"
 
 const asset SOLO_DEATH_SCREEN_RUI = $"ui/header_data_solo.rpak"
+
+
+
+
+
+
+
+global const vector UNITFRAME_SIZE = <260, 50, 0>
+global const vector UNITFRAME_SIZE_NX = <383, 80, 0>
+global const float UNITFRAME_SPACING = 16
+
+const float LOCALCLIENT_UNITFRAME_VERTICAL_OFFSET = 130.0 
 
 global struct SummaryDisplayData
 {
@@ -368,10 +401,45 @@ struct
 	void functionref( SquadSummaryPlayerData ) getSquadSummaryDisplayStringsCallback
 
 	float lastSavedCircleStartTime = 0
+
+	array<vector> podiumOffsetPointsLargeTeam = [
+		<-25, 0, -8>,
+		<-56, -35, -8>,
+		<-87, -70, -8>,
+		<25, 0, -8>,
+		<56, -35, -8>,
+		<87, -70, -8>,
+		<-110, 0, -8>,
+		<-141, -35, -8>,
+		<-172, -70, -8>,
+		<110, 0, -8>,
+		<141, -35, -8>,
+		<172, -70, -8>,
+	]
+
+
+	array<vector> quadsPodiumPositions = [
+		<25, 0, -8>,
+		<-25, 0, -8>,
+		<75, -28, -8>,
+		<-75, -28, -8>,
+	]
+
+
+
+
+
+
+	var dynamicSquadTagRui
 } file
 
 void function ClGamemodeSurvival_Init()
 {
+	if ( GameMode_IsActive( eGameModes.SURVIVAL ) )
+	{
+		Fullmap_SetupScoreboard()
+	}
+
 	Sh_ArenaDeathField_Init()
 	ClSurvivalCommentary_Init()
 	ObjectiveResourceSystem_Init()
@@ -543,9 +611,6 @@ void function ClGamemodeSurvival_Init()
 
 	AddCallback_OnEquipSlotTrackingIntChanged( "backpack", BackpackChanged )
 
-	if ( IsSoloMode() )
-		SetCommsDialogueEnabled( false ) 
-
 	AddCallback_OnSettingsUpdated( OnSettingsUpdated )
 }
 
@@ -684,9 +749,23 @@ void function Cl_Survival_AddClient( entity player )
 	if ( GetCurrentPlaylistVarBool( "compass_flat_enabled", true ) )
 	{
 
-		file.compassRui = CreatePermanentCockpitRui( $"ui/compass_flat.rpak", HUD_Z_BASE )
-		RuiTrackFloat3( file.compassRui, "playerAngles", player, RUI_TRACK_CAMANGLES_FOLLOW )
-		RuiTrackInt( file.compassRui, "gameState", null, RUI_TRACK_SCRIPT_NETWORK_VAR_GLOBAL_INT, GetNetworkedVariableIndex( "gameState" ) )
+
+
+
+
+
+
+
+
+
+
+
+
+		{
+			file.compassRui = CreatePermanentCockpitRui( $"ui/compass_flat.rpak", HUD_Z_BASE )
+			RuiTrackFloat3( file.compassRui, "playerAngles", player, RUI_TRACK_CAMANGLES_FOLLOW )
+			RuiTrackInt( file.compassRui, "gameState", null, RUI_TRACK_SCRIPT_NETWORK_VAR_GLOBAL_INT, GetNetworkedVariableIndex( "gameState" ) )
+		}
 	}
 
 
@@ -1003,7 +1082,19 @@ void function Survival_MinimapPackage_ObjectiveAreaInit( entity ent, var rui )
 		case "surveyZone":
 			RuiSetBool( rui, "blink", false )
 			RuiSetColorAlpha( rui, "objColor", SrgbToLinear( TEAM_COLOR_PARTY / 255.0 ), SAFE_ZONE_ALPHA )  
+
+
+
+
 			break
+
+
+
+
+
+
+
+
 
 
 
@@ -1162,7 +1253,6 @@ void function Survival_MinimapPackage_ObjectiveAreaInit( entity ent, var rui )
 			break
 	}
 }
-
 
 void function CLSurvival_RegisterNetworkFunctions()
 {
@@ -1331,7 +1421,7 @@ void function SquadLeader_UpdateUnitFrameRui( entity player, var rui )
 	bool isTeamLeader = false
 	float scale = 1.0
 
-		if( Control_IsModeEnabled() )
+		if( GameMode_IsActive( eGameModes.CONTROL ) )
 		{
 			isTeamLeader = GradeFlagsHas( player, eTargetGrade.EXP_LEADER )
 			icon = $"rui/hud/gametype_icons/control/control_ratings"
@@ -1339,14 +1429,14 @@ void function SquadLeader_UpdateUnitFrameRui( entity player, var rui )
 		}
 
 
-		if ( GunGame_IsModeEnabled() )
+		if ( GameModeVariant_IsActive( eGameModeVariants.FREEDM_GUNGAME ) )
 		{
 			isTeamLeader = GunGame_IsPlayerAhead( player )
 			icon = $"rui/gamemodes/tdm/gungame_squad_mvp_icon"
 		}
 
 
-		if ( IsFiringRangeGameMode() )
+		if ( GameModeVariant_IsActive( eGameModeVariants.SURVIVAL_FIRING_RANGE ) )
 		{
 			isTeamLeader = RangeMaster_CL_Get() == player
 			icon = $"rui/hud/gametype_icons/firingrange_leader_icon"
@@ -1382,7 +1472,7 @@ void function Status_UpdatePlayerUnitFrameRui( entity player, var rui )
 	float alpha = 0
 
 
-	if (IsHeatwaveMode())
+	if ( GameModeVariant_IsActive( eGameModeVariants.SURVIVAL_HEATWAVE ) )
 	{
 		icon = Heatwave_getHeatStatusIcon()
 		bgColor = SrgbToLinear(Heatwave_getHeatStatusColor())
@@ -1532,6 +1622,11 @@ void function UpdateDpadHud( entity player )
 		maxAmmoCount = lootData.inventorySlotCount
 
 		entity gadgetWeapon = player.GetNormalWeapon( WEAPON_INVENTORY_SLOT_GADGET )
+		if ( !IsValid( gadgetWeapon ) )
+		{
+			
+			gadgetWeapon = player.GetOffhandWeapon( WEAPON_INVENTORY_SLOT_GADGET )
+		}
 		if ( IsValid( gadgetWeapon ) )
 		{
 			ammo = gadgetWeapon.GetWeaponPrimaryClipCount()
@@ -1792,7 +1887,7 @@ void function NextCircleStartTimeChanged( entity player, float new )
 	if ( !CircleAnnouncementsEnabled() )
 		return
 
-	if ( IsStrikeoutGamemode() ) 
+	if ( GameModeVariant_IsActive( eGameModeVariants.SURVIVAL_STRIKEOUT ) ) 
 	{
 		if ( new <= file.lastSavedCircleStartTime + 0.5 ) 
 			return
@@ -2222,12 +2317,6 @@ void function ToggleFireSelect( entity player )
 
 	if ( weapon.GetWeaponClassName() == "mp_weapon_car")
 		Weapon_CAR_TryApplyAmmoSwap( player, weapon )
-
-
-
-
-
-
 
 
 	
@@ -2758,7 +2847,7 @@ void function UpdateWaitingForPlayersMuteHint()
 		return
 
 	string muteString = ""
-	if ( SquadMuteIntroEnabled() && !IsSoloMode() )
+	if ( SquadMuteIntroEnabled() && !GameModeVariant_IsActive( eGameModeVariants.SURVIVAL_SOLOS ) )
 		muteString = Localize( IsSquadMuted() ? "#CHAR_SEL_BUTTON_UNMUTE" : "#CHAR_SEL_BUTTON_MUTE" )
 	RuiSetString( s_overlayRui, "squadMuteHint", muteString )
 }
@@ -2790,7 +2879,7 @@ void function Survival_RunCharacterSelection_Thread()
 	FlagWait( "ClientInitComplete" )
 
 
-		if ( IsShadowArmyGamemode() )
+		if ( GameModeVariant_IsActive( eGameModeVariants.SURVIVAL_SHADOW_ARMY ) )
 			FlagWait( "AllianceAssignmentComplete" )
 
 
@@ -2868,12 +2957,10 @@ void function Survival_RunCharacterSelection_Thread()
 
 	TryStartIntroPodiumSequence()
 
+	bool shouldResetCameras = GetCurrentPlaylistVarBool( "survival_is_using_podiums", false )
 
-
-
-
-
-
+	if ( shouldResetCameras )
+		CharacterSelect_RestorePlayerView()
 }
 
 void function TryStartIntroPodiumSequence()
@@ -2890,11 +2977,16 @@ void function TryStartIntroPodiumSequence()
 		
 		bool shouldDisplaySetTeamOrAlliance = GetCurrentPlaylistVarBool( "podium_intro_screen_use_set_team_or_alliance", false )
 		
+		bool shouldPickChampionSquad = GetCurrentPlaylistVarBool( "survival_is_using_podiums", false )
+		bool isChampionTeam = false
+		
 		int teamOrAllianceToDisplay = AllianceProximity_IsUsingAlliances() ?  AllianceProximity_GetAllianceFromTeamWithObserverCorrection( player.GetTeam() ) : player.GetTeam()
 		array < int > availableTeamsOrAlliances = AllianceProximity_IsUsingAlliances() ? AllianceProximity_GetAllAlliances() : GetAllTeams()
 
 		for ( int index = 0; index < introPodiumSequenceCount; index++ )
 		{
+			isChampionTeam = false
+
 			if ( shouldDisplaySetTeamOrAlliance ) 
 			{
 				if ( availableTeamsOrAlliances.len() > 0 )
@@ -2916,12 +3008,27 @@ void function TryStartIntroPodiumSequence()
 				{
 					if ( availableTeamsOrAlliances.len() > 0 )
 					{
-						teamOrAllianceToDisplay = availableTeamsOrAlliances.pop()
+						if (shouldPickChampionSquad)
+						{
+							entity championPlayer = FromEHI( GetGlobalNetInt( "championEEH" ) )
+
+							if (IsValid( championPlayer ))
+							{
+								teamOrAllianceToDisplay = championPlayer.GetTeam()
+								isChampionTeam = true
+								if ( availableTeamsOrAlliances.contains( teamOrAllianceToDisplay ) ) 
+								{
+									availableTeamsOrAlliances.fastremovebyvalue( teamOrAllianceToDisplay )
+								}
+							}
+							else
+								teamOrAllianceToDisplay = INVALID_TEAM_OR_ALLIANCE
+						}
+						else
+							teamOrAllianceToDisplay = availableTeamsOrAlliances.pop()
 					}
 					else
-					{
 						teamOrAllianceToDisplay = INVALID_TEAM_OR_ALLIANCE
-					}
 				}
 			}
 
@@ -2931,7 +3038,7 @@ void function TryStartIntroPodiumSequence()
 				break
 			}
 
-			thread ShowMatchStartSequence(  teamOrAllianceToDisplay, introPodiumDuration )
+			thread ShowMatchStartSequence(  teamOrAllianceToDisplay, introPodiumDuration, false, false, isChampionTeam )
 
 			wait introPodiumDuration
 
@@ -2979,7 +3086,7 @@ void function OnGameStateChanged( int newVal )
 	RuiSetBool( gamestateRui, "gamestateIsPlaying", gamestateIsPlaying )
 	RuiSetBool( gamestateRui, "gamestateWaitingForPlayers", gamestateWaitingForPlayers )
 	RuiSetInt( gamestateRui, "gamestate", gamestate )
-	RuiSetBool( gamestateRui, "isFiringRange", IsFiringRangeGameMode() || IsSurvivalTraining() || IsEventFinale() )
+	RuiSetBool( gamestateRui, "isFiringRange", GameModeVariant_IsActive( eGameModeVariants.SURVIVAL_FIRING_RANGE ) || GameModeVariant_IsActive( eGameModeVariants.SURVIVAL_TRAINING ) || IsEventFinale() )
 
 	if ( file.pilotRui != null )
 	{
@@ -3000,8 +3107,7 @@ void function OnGameStateChanged( int newVal )
 		if ( gamestate > eGameState.Playing )
 			graphAlpha = 0.0
 
-		string currentPlaylist = GetCurrentPlaylistName()
-		if ( currentPlaylist == "survival_training" || currentPlaylist == "survival_firingrange" )
+		if ( GameModeVariant_IsActive( eGameModeVariants.SURVIVAL_FIRING_RANGE ) || GameModeVariant_IsActive( eGameModeVariants.SURVIVAL_TRAINING ) )
 			graphAlpha = 1.0
 
 		RuiSetFloat( netGraphRui, "graphAlpha", graphAlpha )
@@ -3016,7 +3122,7 @@ void function OnGamestatePrematch()
 	Minimap_UpdateMinimapVisibility( GetLocalClientPlayer() )
 
 	
-	if ( IsSoloMode() )
+	if ( GameModeVariant_IsActive( eGameModeVariants.SURVIVAL_SOLOS ) )
 		DeathScreen_SetDataRuiAssetForGamemode( SOLO_DEATH_SCREEN_RUI )
 }
 
@@ -3053,7 +3159,7 @@ void function ChangeHUDVisibilityWhenInCryptoDrone( bool isInCryptoDrone = false
 
 	RuiSetBool( GetUltimateRui(), "isVisible", isInCryptoDrone ? false : GetHudDefaultVisibility() )
 
-	if (IsHardcoreSurvival())
+	if ( GameModeVariant_IsActive( eGameModeVariants.SURVIVAL_HARDCORE ) )
 		return
 
 	RuiSetBool( GetWeaponRui(), "isVisible", isInCryptoDrone ? false : GetHudDefaultVisibility() )
@@ -3097,7 +3203,12 @@ void function ServerCallback_AnnounceCircleClosing()
 	float duration            = 4.0
 	string circleClosingSound = "survival_circle_close_alarm_02"
 
-		if ( IsFallLTM() || IsShadowRoyaleMode() )
+
+
+
+
+
+		if ( GameModeVariant_IsActive( eGameModeVariants.SURVIVAL_SHADOW_ARMY ) )
 			circleClosingSound = "survival_circle_close_alarm_02_ss"
 
 
@@ -3121,7 +3232,7 @@ void function Sur_OnBleedoutStarted( entity victim, float endTime )
 
 	bool isDownedInfinite = false
 
-		isDownedInfinite = IsStrikeoutGamemode()
+		isDownedInfinite = GameModeVariant_IsActive( eGameModeVariants.SURVIVAL_STRIKEOUT )
 
 
 	RuiSetBool( file.pilotRui, "isDownedInfinite", isDownedInfinite )
@@ -3482,7 +3593,6 @@ void function SetVictorySequenceSunSkyIntensity( float sunIntensity, float skyIn
 	file.victorySkyIntensity = skyIntensity
 }
 
-
 void function ServerCallback_MatchEndAnnouncement( bool victory, int winningTeam )
 {
 	clGlobal.levelEnt.Signal( "SquadEliminated" )
@@ -3495,7 +3605,9 @@ void function ServerCallback_MatchEndAnnouncement( bool victory, int winningTeam
 	bool isPureSpectator = clientPlayer.GetTeam() == TEAM_SPECTATOR
 
 	
-	if ( clientPlayer.GetTeam() == winningTeam || IsAlive( clientPlayer ) || isPureSpectator )
+	
+	
+	if ( !GamemodeUtility_IsPlacementPopupEnabled() || ( clientPlayer.GetTeam() == winningTeam || IsAlive( clientPlayer ) || isPureSpectator ) )
 		ShowChampionVictoryScreen( winningTeam )
 }
 
@@ -3568,13 +3680,13 @@ void function ShowChampionVictoryScreen( int winningTeam )
 	bool shouldPlayChampionScreenSound = true
 
 		
-		if ( Control_IsModeEnabled() )
+		if ( GameMode_IsActive( eGameModes.CONTROL ) )
 			shouldPlayChampionScreenSound = false
 
 
 
 		
-		if ( GameRules_GetGameMode() == GAMEMODE_FREEDM )
+		if ( GameMode_IsActive( eGameModes.FREEDM ) )
 			shouldPlayChampionScreenSound = false
 
 
@@ -3741,7 +3853,7 @@ void function OnGamestateResolution()
 		return
 
 
-	if ( ShGameModeExplore_IsActive() )
+	if ( GameModeVariant_IsActive( eGameModeVariants.SURVIVAL_EXPLORE ) )
 		return
 
 
@@ -3881,7 +3993,7 @@ int function VictorySequence_GetPlayerTeamFromEHI( EHI playerEHI )
 	return playerTeam
 }
 
-void function ShowMatchStartSequence( int teamOrAlliance, float camera_move_duration = DEFAULT_PODIUM_DURATION, bool placementMode = false, bool isDevTest = false )
+void function ShowMatchStartSequence( int teamOrAlliance, float camera_move_duration = DEFAULT_PODIUM_DURATION, bool placementMode = false, bool isDevTest = false, bool isChampionTeam = false )
 {
 #if !DEV
 		placementMode = false
@@ -3907,13 +4019,26 @@ void function ShowMatchStartSequence( int teamOrAlliance, float camera_move_dura
 	entity player 				= GetLocalClientPlayer()
 	int playerTeam 				= player.GetTeam()
 	bool isSpectator 			= playerTeam == TEAM_SPECTATOR || playerTeam == TEAM_UNASSIGNED
-	int playerAlliance 			= AllianceProximity_GetAllianceFromTeamWithObserverCorrection( playerTeam )
 	int playerEncodedEHandle 	= player.GetEncodedEHandle()
 
-	bool isFriendly = AllianceProximity_IsUsingAlliances() ? playerAlliance == teamOrAlliance : playerTeam == teamOrAlliance
+	
+	bool isFriendly = AllianceProximity_IsUsingAlliances() ? AllianceProximity_GetAllianceFromTeamWithObserverCorrection( playerTeam ) == teamOrAlliance : ( playerTeam == teamOrAlliance )
+
+	array<int> offsetArray
 
 
 
+
+
+
+		if ( BigTDM_IsModeEnabled() )
+		{
+			offsetArray = [
+				80, 84, 76,
+				80, 84, 76,
+				73, 80, 86,
+				73, 80, 86 ]
+		}
 
 
 	
@@ -3980,10 +4105,8 @@ void function ShowMatchStartSequence( int teamOrAlliance, float camera_move_dura
 	
 	VictoryPlatformModelData victoryPlatformModelData = GetVictorySequencePlatformModel()
 	entity platformModel
-	int maxTotalPlayers = GetCurrentPlaylistVarInt( "max_players", MAX_PLAYERS )
-	int maxTeams = GetCurrentPlaylistVarInt( "max_teams", MAX_TEAMS )
-	int squadSize = maxTotalPlayers / maxTeams
-	int maxPlayersToShow = GetCurrentPlaylistVarInt( "podium_max_players_to_show", squadSize )
+	int squadSize = GetExpectedSquadSize()
+	int maxPlayersToShow = GamemodeUtility_GetMaxPlayersToShowOnPodium()
 
 	if ( IsValid ( player ) )
 	{
@@ -4031,8 +4154,10 @@ void function ShowMatchStartSequence( int teamOrAlliance, float camera_move_dura
 		RuiSetString( file.introPodiumRui, "gameModeString", GetCurrentPlaylistVarString( "name", "#PLAYLIST_UNAVAILABLE" ) )
 		RuiSetString( file.introPodiumRui, "mapNameString", GetCurrentPlaylistVarString( "map_name", "#PLAYLIST_UNAVAILABLE" ) )
 
-		string podiumTitle = ( isFriendly )? Localize( "#THE_ALLIANCE"): Localize( "#THE_ENEMY_TEAM")
-		string podiumDesc = ( isFriendly )? Localize( "#THE_ALLIANCE_DESC"): Localize( "#THE_ENEMY_TEAM_DESC")
+		bool isSurvivalUsingPodium = GetCurrentPlaylistVarBool( "survival_is_using_podiums", false )
+
+		string podiumTitle = ( isFriendly && !isChampionTeam )? Localize( "#THE_ALLIANCE"): isSurvivalUsingPodium ? Localize( "#GLADIATOR_CARD_INTRO_CHAMPION_SQUAD") : Localize( "#THE_ENEMY_TEAM")
+		string podiumDesc = ( isFriendly && !isChampionTeam )? Localize( "#THE_ALLIANCE_DESC"): isSurvivalUsingPodium ? Localize( "#GLADIATOR_CARD_INTRO_SLAYER_BOUNTY", XpEventTypeData_GetAmount( eXPType.KILL_CHAMPION_MEMBER )) : Localize( "#THE_ENEMY_TEAM_DESC")
 
 		if( isSpectator )
 		{
@@ -4072,7 +4197,12 @@ void function ShowMatchStartSequence( int teamOrAlliance, float camera_move_dura
 			}
 #endif
 
-		entity mvp = PickMVP(localTeamPlayersArray)
+		entity mvp
+
+		if (isChampionTeam)
+			mvp = FromEHI( GetGlobalNetInt( "championEEH" ) )
+		else
+			mvp = PickMVP(localTeamPlayersArray)
 
 		foreach ( int i, entity teamPlayer in localTeamPlayersArray )
 		{
@@ -4153,15 +4283,21 @@ void function ShowMatchStartSequence( int teamOrAlliance, float camera_move_dura
 			characterModel.Anim_Play( victoryAnim )
 			characterModel.Anim_EnableUseAnimatedRefAttachmentInsteadOfRootMotion()
 
-			if ( IsFallLTM() || IsShadowRoyaleMode() )
+			bool halloweenMode = false
+
+
+
+
+				halloweenMode = halloweenMode || GameModeVariant_IsActive( eGameModeVariants.SURVIVAL_SHADOW_ARMY )
+
+
+			if ( halloweenMode )
 			{
 				
 				float duration    = characterModel.GetSequenceDuration( victoryAnim )
 				float initialTime = RandomFloatRange( 0, duration )
 				characterModel.Anim_SetInitialTime( initialTime )
 			}
-
-
 
 #if DEV
 				if ( GetBugReproNum() == 1111 || GetBugReproNum() == 2222 )
@@ -4187,6 +4323,17 @@ void function ShowMatchStartSequence( int teamOrAlliance, float camera_move_dura
 				int offset = 78
 
 
+					if ( BigTDM_IsModeEnabled() )
+					{
+						if ( offsetArray.len() > squadFormationIndex )
+						{
+							offset = offsetArray[squadFormationIndex]
+						}
+					}
+
+
+
+
 
 
 
@@ -4197,12 +4344,15 @@ void function ShowMatchStartSequence( int teamOrAlliance, float camera_move_dura
 				RuiTrackFloat3( overheadRui, "position", overheadEnt, RUI_TRACK_ABSORIGIN_FOLLOW )
 				overHeadRuis.append( overheadRui )
 
-				if ( teamPlayer == mvp )
+				if ( !isSurvivalUsingPodium || isChampionTeam )
 				{
-					var overheadMVPRui = RuiCreate( $"ui/mvp_banner_podium_screen.rpak", clGlobal.topoFullScreen, RUI_DRAW_HUD, 0 )
-					RuiTrackFloat3( overheadMVPRui, "position", overheadEnt, RUI_TRACK_ABSORIGIN_FOLLOW )
-					RuiSetBool(overheadMVPRui, "isFriendly", isFriendly)
-					overHeadRuis.append( overheadMVPRui )
+					if ( teamPlayer == mvp )
+					{
+						var overheadMVPRui = RuiCreate( $"ui/mvp_banner_podium_screen.rpak", clGlobal.topoFullScreen, RUI_DRAW_HUD, 0 )
+						RuiTrackFloat3( overheadMVPRui, "position", overheadEnt, RUI_TRACK_ABSORIGIN_FOLLOW )
+						RuiSetBool(overheadMVPRui, "isFriendly", isFriendly)
+						overHeadRuis.append( overheadMVPRui )
+					}
 				}
 			}
 
@@ -4365,10 +4515,8 @@ void function ShowVictorySequence( bool placementMode = false, bool isDevTest = 
 	
 	VictoryPlatformModelData victoryPlatformModelData = GetVictorySequencePlatformModel()
 	entity platformModel
-	int maxTotalPlayers = GetCurrentPlaylistVarInt( "max_players", MAX_PLAYERS )
-	int maxTeams = GetCurrentPlaylistVarInt( "max_teams", MAX_TEAMS )
-	int squadSize = maxTotalPlayers / maxTeams
-	int maxPlayersToShow = GetCurrentPlaylistVarInt( "podium_max_players_to_show", squadSize )
+	int squadSize = GetExpectedSquadSize()
+	int maxPlayersToShow = GamemodeUtility_GetMaxPlayersToShowOnPodium()
 
 	if ( IsValid ( player ) )
 	{
@@ -4524,15 +4672,20 @@ void function ShowVictorySequence( bool placementMode = false, bool isDevTest = 
 			characterModel.Anim_Play( victoryAnim )
 			characterModel.Anim_EnableUseAnimatedRefAttachmentInsteadOfRootMotion()
 
-			if ( IsFallLTM() || IsShadowRoyaleMode() )
+			bool halloweenMode = false
+
+
+
+
+				halloweenMode = halloweenMode || GameModeVariant_IsActive( eGameModeVariants.SURVIVAL_SHADOW_ARMY )
+
+			if ( halloweenMode )
 			{
 				
 				float duration    = characterModel.GetSequenceDuration( victoryAnim )
 				float initialTime = RandomFloatRange( 0, duration )
 				characterModel.Anim_SetInitialTime( initialTime )
 			}
-
-
 
 #if DEV
 				if ( GetBugReproNum() == 1111 || GetBugReproNum() == 2222 )
@@ -4808,22 +4961,10 @@ VictorySoundPackage function GetVictorySoundPackage()
 	if ( file.victorySoundPackageCallback != null )
 		return file.victorySoundPackageCallback()
 
-
-	if ( IsNightMap() && GetCurrentPlaylistVarBool( "UseNocAnnouncerAtNight", true ) )
-	{
-		victorySoundPackage.youAreChampPlural = "diag_ap_nocNotify_victorySquad_04_3p"
-		victorySoundPackage.youAreChampSingular = "diag_ap_nocNotify_victorySolo_04_3p"
-		victorySoundPackage.theyAreChampPlural = "diag_ap_nocNotify_victorySolo_01_3p"
-		victorySoundPackage.theyAreChampSingular = "diag_ap_nocNotify_victorySquad_04_3p"
-	}
-	else
-
-	{
-		victorySoundPackage.youAreChampPlural = "diag_ap_aiNotify_winnerFound_07" 
-		victorySoundPackage.youAreChampSingular = "diag_ap_aiNotify_winnerFound_10" 
-		victorySoundPackage.theyAreChampPlural = "diag_ap_aiNotify_winnerFound_08" 
-		victorySoundPackage.theyAreChampSingular = "diag_ap_ainotify_introchampion_01_02" 
-	}
+	victorySoundPackage.youAreChampPlural = "diag_ap_aiNotify_winnerFound_07" 
+	victorySoundPackage.youAreChampSingular = "diag_ap_aiNotify_winnerFound_10" 
+	victorySoundPackage.theyAreChampPlural = "diag_ap_aiNotify_winnerFound_08" 
+	victorySoundPackage.theyAreChampSingular = "diag_ap_ainotify_introchampion_01_02" 
 
 	return victorySoundPackage
 }
@@ -4859,7 +5000,15 @@ VictoryCameraPackage function GetVictoryCameraPackage()
 
 	if ( numAlliances > 0 )
 	{
-		if ( numPlayers / numAlliances > 6)
+		if ( GamemodeUtility_GetMaxPlayersToShowOnPodium() > MIN_PLAYERS_FOR_PODIUM_SCALING )
+		{
+			
+			victoryCameraPackage.camera_offset_start = <0, 480, 108>
+			victoryCameraPackage.camera_offset_end   = <0, 420, 88>
+			victoryCameraPackage.camera_focus_offset = <0, 0, 56>
+			victoryCameraPackage.camera_fov          = 35.5
+		}
+		else if ( numPlayers / numAlliances > 6)
 		{
 			
 			victoryCameraPackage.camera_offset_start = <0, 480, 108>
@@ -4878,11 +5027,23 @@ VictoryCameraPackage function GetVictoryCameraPackage()
 	}
 	else
 	{
-		
-		victoryCameraPackage.camera_offset_start = <0, 320, 68>
-		victoryCameraPackage.camera_offset_end = <0, 200, 48>
-		victoryCameraPackage.camera_focus_offset = <0, 0, 36>
-		victoryCameraPackage.camera_fov = 35.5
+
+			if( GameModeVariant_IsActive( eGameModeVariants.SURVIVAL_QUADS ) )
+			{
+				victoryCameraPackage.camera_offset_start = <0, 380, 80>
+				victoryCameraPackage.camera_offset_end = <0, 300, 65>
+				victoryCameraPackage.camera_focus_offset = <0, 0, 36>
+				victoryCameraPackage.camera_fov = 35.5
+			}
+			else
+
+			{
+				
+				victoryCameraPackage.camera_offset_start = <0, 320, 68>
+				victoryCameraPackage.camera_offset_end = <0, 200, 48>
+				victoryCameraPackage.camera_focus_offset = <0, 0, 36>
+				victoryCameraPackage.camera_fov = 35.5
+			}
 	}
 
 	return victoryCameraPackage
@@ -4891,8 +5052,19 @@ VictoryCameraPackage function GetVictoryCameraPackage()
 
 vector function GetVictorySquadFormationPosition( vector mainPosition, vector angles, int index )
 {
-	if ( index == 0 )
-		return mainPosition - <0, 0, 8>
+	
+	int maxPlayersOnPodium = GamemodeUtility_GetMaxPlayersToShowOnPodium()
+	bool isLargeTeam = maxPlayersOnPodium > MIN_PLAYERS_FOR_PODIUM_SCALING
+
+	if ( index == 0 && !isLargeTeam )
+	{
+
+		if ( !GameModeVariant_IsActive( eGameModeVariants.SURVIVAL_QUADS ) )
+
+		{
+			return mainPosition - <0, 0, 8>
+		}
+	}
 
 	float offset_side = 48.0
 	float offset_back = -28.0
@@ -4942,16 +5114,17 @@ vector function GetVictorySquadFormationPosition( vector mainPosition, vector an
 
 
 	
-	int maxPlayersToShow = GetCurrentPlaylistVarInt( "podium_max_players_to_show", GetExpectedSquadSize() )
-
-	if ( maxPlayersToShow > MIN_PLAYERS_FOR_PODIUM_SCALING )
+	if ( isLargeTeam )
 	{
-		offset_side = 31.0
-		offset_back = -28.0
+		if ( index >= 0 && index < maxPlayersOnPodium )
+		{
+			vector podiumOffsetPoint = file.podiumOffsetPointsLargeTeam[index]
+			return OffsetPointRelativeToVector( mainPosition, podiumOffsetPoint, AnglesToForward( angles ) )
+		}
 	}
 
 
-		if ( Control_IsModeEnabled() )
+		if ( GameMode_IsActive( eGameModes.CONTROL ) )
 		{
 			int groupOffsetIndex = index / 3
 			int internalGroupOffsetIndex = index % 3
@@ -4970,6 +5143,17 @@ vector function GetVictorySquadFormationPosition( vector mainPosition, vector an
 			vector offset = < finalOffsetSide, finalOffsetBack, -8 >
 			return OffsetPointRelativeToVector( mainPosition, offset, AnglesToForward( angles ) )
 		}
+
+
+
+	if ( GameModeVariant_IsActive( eGameModeVariants.SURVIVAL_QUADS ) )
+	{
+		if ( index >= 0 && index < GetExpectedSquadSize() )
+		{
+			vector quadsPodiumOffsetPoint = file.quadsPodiumPositions[index]
+			return OffsetPointRelativeToVector( mainPosition, quadsPodiumOffsetPoint, AnglesToForward( angles ) )
+		}
+	}
 
 
 	int countBack = (index + 1) / 2
@@ -4995,7 +5179,7 @@ string function GetVictorySquadFormationActivity( entity characterModel, int eHa
 
 
 
-				shouldGetShadowAnim = IsShadowRoyaleMode() && IsPlayerShadowZombie( playerEnt )
+				shouldGetShadowAnim = GameModeVariant_IsActive( eGameModeVariants.SURVIVAL_SHADOW_ARMY ) && IsPlayerShadowZombie( playerEnt )
 
 
 			if ( shouldGetShadowAnim )
@@ -5053,7 +5237,7 @@ void function HealthkitButton_Down( entity player )
 
 
 
-	if ( !IsFiringRangeGameMode() )
+	if ( !GameModeVariant_IsActive( eGameModeVariants.SURVIVAL_FIRING_RANGE ) )
 	{
 		int ms = PlayerMatchState_GetFor( player )
 		if ( ms < ePlayerMatchState.NORMAL )
@@ -5119,7 +5303,28 @@ void function OrdnanceMenu_Down( entity player )
 	if ( Bleedout_IsBleedingOut( player ) )
 		return
 
-	CommsMenu_OpenMenuTo( player, eChatPage.ORDNANCE_LIST, eCommsMenuStyle.ORDNANCE_MENU, false )
+	int chatPage = eChatPage.ORDNANCE_LIST
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+	CommsMenu_OpenMenuTo( player, chatPage, eCommsMenuStyle.ORDNANCE_MENU, false )
 }
 
 
@@ -5251,13 +5456,13 @@ void function UICallback_OpenCharacterSelectMenu()
 	if ( IsAlive( player ) && player.ContextAction_IsMeleeExecution() )
 		return
 
-	if( IsFiringRangeGameMode() && !FiringRange_IsCharacterSwitchingEnabled() )
+	if( GameModeVariant_IsActive( eGameModeVariants.SURVIVAL_FIRING_RANGE ) && !FiringRange_IsCharacterSwitchingEnabled() )
 		return
 
 	if( !CharacterSelect_Menu_ShouldOpen( player ) )
 		return
 
-	if ((( GetGameState() < eGameState.PickLoadout && !IsSurvivalTraining()) || IsCharacterReselectEnabled() ) &&
+	if ((( GetGameState() < eGameState.PickLoadout && !GameModeVariant_IsActive( eGameModeVariants.SURVIVAL_TRAINING )) || IsCharacterReselectEnabled() ) &&
 		   !player.ContextAction_IsMeleeExecution())
 	{
 		OpenCharacterSelectMenu( true, IsCharacterReselectEnabled() )
@@ -5272,7 +5477,7 @@ void function UICallback_QueryPlayerCanBeRespawned()
 
 	int penaltyLength = 0
 	bool penaltyMayBeActive
-	if ( IsRankedGame() )
+	if ( GameModeVariant_IsActive( eGameModeVariants.SURVIVAL_RANKED ) )
 	{
 		penaltyMayBeActive = Ranked_IsPlayerAbandoning( player ) 
 		penaltyLength = SharedRanked_GetAbandonPenaltyLength( player )
@@ -5326,7 +5531,7 @@ void function UICallback_DieAndChangeCharacters()
 	entity player = GetLocalClientPlayer()
 
 
-		if ( Control_IsModeEnabled() )
+		if ( GameMode_IsActive( eGameModes.CONTROL ) )
 		{
 			
 			if ( player.GetPlayerNetBool( "control_IsPlayerOnSpawnSelectScreen" )  )
@@ -5428,7 +5633,7 @@ void function ServerCallback_PromptSayThanks( entity playerBeingAddressed )
 {
 
 		
-		if ( Valentines_S15_ILoveYouEasterEggEnabled() )
+		if ( GameModeVariant_IsActive( eGameModeVariants.SURVIVAL_VALENTINES_S15 ) && Valentines_S15_ILoveYouEasterEggEnabled() )
 		{
 			if ( !ShouldMuteCommsActionForCooldown( GetLocalViewPlayer(), eCommsAction.REPLY_LOVE_YOU, null ) )
 				AddOnscreenPromptFunction( "quickchat", CreateQuickchatFunction( eCommsAction.REPLY_LOVE_YOU, playerBeingAddressed ), 6.0, Localize( "#PING_SAY_LOVE_YOU", playerBeingAddressed.GetPlayerName() ) )
@@ -5446,7 +5651,7 @@ void function ServerCallback_PromptSayThanksRevive( entity playerBeingAddressed 
 {
 
 		
-		if ( Valentines_S15_ILoveYouEasterEggEnabled() )
+		if ( GameModeVariant_IsActive( eGameModeVariants.SURVIVAL_VALENTINES_S15 ) && Valentines_S15_ILoveYouEasterEggEnabled() )
 		{
 			if ( !ShouldMuteCommsActionForCooldown( GetLocalViewPlayer(), eCommsAction.REPLY_LOVE_YOU, null ) )
 				AddOnscreenPromptFunction( "quickchat", CreateQuickchatFunction( eCommsAction.REPLY_LOVE_YOU, playerBeingAddressed ), 6.0, Localize( "#PING_SAY_LOVE_YOU", playerBeingAddressed.GetPlayerName() ) )
@@ -5647,6 +5852,17 @@ void function ManageDeathboxHighlights( entity box )
 	string highlight = SURVIVAL_GetHighlightForTier( maxTier, longerHighlightDist )
 
 
+	string remoteDeathboxHighlight = GetRemoteDeathboxHighlight( box, maxTier )
+	if ( remoteDeathboxHighlight != "" )
+	{
+		highlight = remoteDeathboxHighlight
+	}
+
+
+
+
+
+
 
 
 
@@ -5744,17 +5960,6 @@ void function ServerCallback_AutoReloadComplete( entity weapon )
 		RuiSetGameTime( rui, "passiveActivationTime", Time() )
 		RuiSetFloat( rui, "passiveHoldTime", 3.0 )
 	}
-}
-
-void function ServerCallback_SetLaserSightVMLaserEnabled( entity weapon, bool enabled )
-{
-	if ( !IsValid( weapon ) )
-		return
-
-	if(!weapon.IsWeaponX())
-		return
-
-	weapon.SetTargetingLaserEnabled( enabled )
 }
 
 bool function CircleAnnouncementsEnabled()
@@ -5896,4 +6101,231 @@ string function Cl_GetPlaylistUIRules()
 {
 	string playlist = GetCurrentPlaylistName()
 	return GetPlaylistVarString( playlist, "ui_rules", "" )
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+bool function UseDynamicSquadTag()
+{
+	return GetCurrentPlaylistVarBool( SURVIVAL_HUD_SQUADTAG_PVAR, false )
+}
+
+var function SquadTag_GetOrCreateRui()
+{
+	if ( file.dynamicSquadTagRui == null || !RuiIsAlive( file.dynamicSquadTagRui ) )
+	{
+		file.dynamicSquadTagRui = CreatePermanentCockpitPostFXRui( SURVIVAL_HUD_SQUADTAG, HUD_Z_BASE )
+	}
+
+	return file.dynamicSquadTagRui
+}
+
+void function SquadTag_Destroy()
+{
+	if ( file.dynamicSquadTagRui != null )
+		RuiDestroyIfAlive( file.dynamicSquadTagRui )
+
+	file.dynamicSquadTagRui = null
+}
+
+void function SquadTag_SetVisibility( bool isVisible )
+{
+	var squadTagRui = SquadTag_GetOrCreateRui()
+	RuiSetBool( squadTagRui, "isVisible", isVisible )
+}
+
+void function SquadTag_SetRuiArgs()
+{
+	entity player
+	string teamName
+	asset teamIcon
+	bool isUsingAlliances = AllianceProximity_IsUsingAlliances()
+	bool show = false
+
+	if( IsPrivateMatch() )
+	{
+		entity clientPlayer = GetLocalClientPlayer()
+		entity currentObserverTarget = clientPlayer.GetObserverTarget()
+
+		if ( clientPlayer.GetTeam() != TEAM_SPECTATOR )
+			return
+
+		if ( !IsValid( currentObserverTarget ) || currentObserverTarget.GetTeam() == TEAM_SPECTATOR )
+			return
+
+		teamName = PrivateMatch_GetTeamName( currentObserverTarget.GetTeam() )
+		player = currentObserverTarget
+		show = true
+	}
+	else
+	{
+		player = GetLocalViewPlayer()
+		int team
+
+		if ( isUsingAlliances )
+			team = AllianceProximity_GetAllianceFromTeam( player.GetTeam() )
+		else
+			team = player.GetTeam() - TEAM_IMC
+
+		if ( !IsValid( player ) || player.GetTeam() == TEAM_SPECTATOR )
+			return
+
+		teamIcon = Teams_GetTeamIcon( team )
+		teamName = Teams_GetTeamName( team )
+		show = UseDynamicSquadTag()
+	}
+
+	var squadTagRui = SquadTag_GetOrCreateRui()
+
+	if( show )
+	{
+		RuiSetString( squadTagRui, "teamNameString", teamName )
+		RuiSetImage( squadTagRui, "teamNameIcon", teamIcon )
+		RuiSetBool( squadTagRui, "shouldShowTeamName", true )
+
+		if( GameMode_IsActive( eGameModes.SURVIVAL ) )
+			RuiSetColorAlpha( squadTagRui, "teamColor", <244,244,244>/255, 1.0 )
+		else
+			RuiSetColorAlpha( squadTagRui, "teamColor", Teams_GetTeamColor( player.GetTeam() ), 1.0 )
+
+		
+		float verticalOffset = LOCALCLIENT_UNITFRAME_VERTICAL_OFFSET 
+
+
+
+
+
+
+
+		
+		float unitframeSlotSize = UNITFRAME_SIZE.y + UNITFRAME_SPACING
+#if PC_PROG_NX_UI
+		unitframeSlotSize = UNITFRAME_SIZE_NX.y + UNITFRAME_SPACING
+#endif
+
+		int teamId = player.GetTeam()
+		array<entity> teamPlayers = GetPlayerArrayOfTeam( teamId )
+		verticalOffset -= ( unitframeSlotSize * ( teamPlayers.len() - 1 ) )
+
+		RuiSetFloat( squadTagRui, "verticalOffset", verticalOffset )
+		SquadTag_SetVisibility( true )
+	}
+	else
+	{
+		RuiSetBool( squadTagRui, "shouldShowTeamName", false )
+		SquadTag_SetVisibility( false )
+	}
 }

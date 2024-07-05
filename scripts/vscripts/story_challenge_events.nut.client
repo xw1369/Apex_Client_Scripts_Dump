@@ -595,7 +595,7 @@ int function StoryEvent_GetChaptersProgress( entity player, ItemFlavor event )
 					if ( challengeFlavOrNull != null )
 					{
 						ItemFlavor challengeFlav = expect ItemFlavor( challengeFlavOrNull )
-						if( DoesPlayerHaveChallenge( player, challengeFlav ))
+						if( Challenge_IsAssigned( player, challengeFlav ))
 						{
 							if ( Challenge_IsComplete( player, challengeFlav ) )
 								completedChallenges++
@@ -653,7 +653,7 @@ int function StoryEvent_GetActiveChapter( entity player, ItemFlavor event )
 					if ( challengeFlavOrNull != null )
 					{
 						ItemFlavor challengeFlav = expect ItemFlavor( challengeFlavOrNull )
-						if( DoesPlayerHaveChallenge( player, challengeFlav ) )
+						if( Challenge_IsAssigned( player, challengeFlav ) )
 						{
 							if ( Challenge_IsComplete( player, challengeFlav ) )
 								completedChallenges++

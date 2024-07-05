@@ -74,11 +74,6 @@ global function AllianceProximity_GetAllianceColorFromTeam
 
 
 struct {
-	bool isUsingAllianceProximity
-	bool isMidMatchAllianceSwitchEnabled = false
-	int maxAlliances
-	int maxPlayersPerAlliance
-	float maxDistAllianceProximity
 	array < int > allAlliances
 	array < int > allAllianceTeams
 
@@ -112,11 +107,8 @@ void function AllianceProximity_Init()
 		printt( "ALLIANCE PROXIMITY: Running ", FUNC_NAME() )
 #endif
 
-	
-	file.maxAlliances = GetCurrentPlaylistVarInt( "max_alliances", 0 )
-
 #if DEV
-		Assert( file.maxAlliances <= 0 || file.maxAlliances <= GetCurrentPlaylistVarInt( "max_teams", 0 ), "ALLIANCE PROXIMITY: Trying to use Alliances but have set more alliances ( " + file.maxAlliances + " ) than squads ( " + GetCurrentPlaylistVarInt( "max_teams", 0 ) + " )" )
+		Assert( AllianceProximity_GetMaxNumAlliances() <= 0 || AllianceProximity_GetMaxNumAlliances() <= GetCurrentPlaylistVarInt( "max_teams", 0 ), "ALLIANCE PROXIMITY: Trying to use Alliances but have set more alliances ( " + AllianceProximity_GetMaxNumAlliances() + " ) than squads ( " + GetCurrentPlaylistVarInt( "max_teams", 0 ) + " )" )
 #endif
 
 	
@@ -132,14 +124,9 @@ void function AllianceProximity_Init()
 	
 	
 
-	file.isMidMatchAllianceSwitchEnabled = GetCurrentPlaylistVarBool( "allow_mid_match_alliance_switching", false )
-	Remote_RegisterClientFunction( "AllianceProximity_ServerCallback_SetTeamToAllianceOnClient", "int", TEAM_MULTITEAM_FIRST, TEAM_MULTITEAM_LAST, "int", ALLIANCE_NONE, file.maxAlliances + 1 )
+	Remote_RegisterClientFunction( "AllianceProximity_ServerCallback_SetTeamToAllianceOnClient", "int", TEAM_MULTITEAM_FIRST, TEAM_MULTITEAM_LAST, "int", ALLIANCE_NONE, AllianceProximity_GetMaxNumAlliances() + 1 )
 	Remote_RegisterClientFunction( "AllianceProximity_MuteAllianceOnMatchEndReassignment" )
 
-	file.isUsingAllianceProximity = GetCurrentPlaylistVarBool( "use_proximity_alliance_members", false )
-	file.maxDistAllianceProximity = GetCurrentPlaylistVarFloat( "max_dist_proximity_alliance_members", 0.0 )
-	int maxPlayers = GetCurrentPlaylistVarInt( "max_players", 0 )
-	file.maxPlayersPerAlliance = AllianceProximity_ShouldAllTeamsStartOnTheSameAlliance() ? maxPlayers : maxPlayers / file.maxAlliances
 	file.allAllianceTeams = GetAllTeams() 
 
 	
@@ -174,21 +161,21 @@ void function AddCallback_AllianceProximity_OnTeamPutIntoAlliance( void function
 
 bool function AllianceProximity_IsUsingAlliances()
 {
-	return file.maxAlliances > 0
+	return AllianceProximity_GetMaxNumAlliances() > 0 && !IsLobby()
 }
 
 
 
 bool function AllianceProximity_IsUsingAllianceProximity()
 {
-	return file.isUsingAllianceProximity
+	return GetCurrentPlaylistVarBool( "use_proximity_alliance_members", false )
 }
 
 
 
 bool function AllianceProximity_IsUsingAllianceProximityDistanceChecks()
 {
-	return file.maxDistAllianceProximity > 0.0 && AllianceProximity_IsUsingAllianceProximity()
+	return AllianceProximity_GetMaxDistForProximity() > 0.0 && AllianceProximity_IsUsingAllianceProximity()
 }
 
 
@@ -252,14 +239,36 @@ bool function AllianceProximity_ShouldAllTeamsStartOnTheSameAlliance()
 
 int function AllianceProximity_GetMaxNumAlliances()
 {
-	return file.maxAlliances
+	return GetCurrentPlaylistVarInt( "max_alliances", 0 )
 }
 
 
 int function AllianceProximity_GetMaxNumPlayersPerAlliance()
 {
-	return file.maxPlayersPerAlliance
+	int maxPlayers = GetCurrentPlaylistVarInt( "max_players", 0 )
+
+	if ( maxPlayers <= 0 )
+		return 0
+
+
+
+
+		bool tooEarlyToCheckMaxNumAlliances = !Flag( "EntitiesDidLoad" ) || GetGameState() < eGameState.Playing
+
+
+	if ( tooEarlyToCheckMaxNumAlliances && AllianceProximity_ShouldAllTeamsStartOnTheSameAlliance() )
+		return maxPlayers
+
+	return maxPlayers / AllianceProximity_GetMaxNumAlliances()
 }
+
+
+
+
+
+
+
+
 
 
 
@@ -395,7 +404,7 @@ array < int > function AllianceProximity_GetAllTeamsInAlliances( bool playerTeam
 
 int function AllianceProximity_GetOtherAlliance( int alliance )
 {
-	Assert( file.maxAlliances == 2, "ALLIANCE PROXIMITY: Running " + FUNC_NAME() + " in a mode with maxAlliances not equal to 2, you probably want to use AllianceProximity_GetOtherAlliances" )
+	Assert( AllianceProximity_GetMaxNumAlliances() == 2, "ALLIANCE PROXIMITY: Running " + FUNC_NAME() + " in a mode with maxAlliances not equal to 2, you probably want to use AllianceProximity_GetOtherAlliances" )
 	return alliance == ALLIANCE_A ? ALLIANCE_B : ALLIANCE_A
 }
 
@@ -433,7 +442,7 @@ int function AllianceProximity_GetOriginalPlayerTeam_FromPlayerEHI( EHI playerEH
 
 float function AllianceProximity_GetMaxDistForProximity()
 {
-	return file.maxDistAllianceProximity
+	return GetCurrentPlaylistVarFloat( "max_dist_proximity_alliance_members", 0.0 )
 }
 
 
@@ -964,7 +973,7 @@ void function AllianceProximity_SetTeamToAlliance_Internal( int team, int allian
 		return
 	}
 
-	if ( alliance >= file.maxAlliances )
+	if ( alliance >= AllianceProximity_GetMaxNumAlliances() )
 	{
 #if DEV
 			Assert( false, "ALLIANCE PROXIMITY: " + FUNC_NAME() + " is trying to put team: " + team + " into an invalid alliance: " + alliance )

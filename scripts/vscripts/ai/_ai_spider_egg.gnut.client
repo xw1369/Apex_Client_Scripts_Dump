@@ -186,7 +186,6 @@ const string SFX_SPIDER_EGG_IDLE = "SpdrJungle_EggIdle"
 
 
 
-
 void function SpiderEgg_Init()
 {
 

@@ -266,7 +266,7 @@ void function HopupGoldenHorse_Init()
 {
 	
 	
-	if ( !IsGoldenHorse() )
+	if ( !GameModeVariant_IsActive( eGameModeVariants.SURVIVAL_GOLDEN_HORSE ) )
 	{
 		HopupGoldenHorse_DisableAll()
 		return
@@ -312,7 +312,7 @@ void function HopupGoldenHorse_DisableAll()
 
 void function HopupGoldenHorse_Switcheroo( LootData wData )
 {
-	if ( !IsGoldenHorse() )
+	if ( !GameModeVariant_IsActive( eGameModeVariants.SURVIVAL_GOLDEN_HORSE ) )
 		return
 
 	
@@ -371,7 +371,7 @@ void function HopupGoldenHorse_Switcheroo( LootData wData )
 
 void function HopupGoldenHorse_Switcheroo_LockedSets( LootData wData )
 {
-	if ( !IsGoldenHorse() )
+	if ( !GameModeVariant_IsActive( eGameModeVariants.SURVIVAL_GOLDEN_HORSE ) )
 		return
 
 	if ( wData.baseWeapon == wData.ref )
@@ -420,7 +420,7 @@ void function HopupGoldenHorse_Switcheroo_LockedSets( LootData wData )
 
 string function HopupGoldenHorse_EditWeaponDescription( string lootRef, entity player, string originalDesc )
 {
-	if ( !IsGoldenHorse() )
+	if ( !GameModeVariant_IsActive( eGameModeVariants.SURVIVAL_GOLDEN_HORSE ) )
 		return originalDesc
 
 	array<string> hopups = GetAttachmentsForPoint( "hopup", lootRef )
@@ -985,7 +985,6 @@ void function GoldenHorseGreen_OnWeaponReloadFinished( entity weapon )
 
 
 
-
 void function GoldenHorseGreen_CockpitExplodeVFX()
 {
 	entity player = GetLocalViewPlayer()
@@ -1009,7 +1008,6 @@ void function GoldenHorseYellow_Init()
 
 
 }
-
 
 
 
@@ -1160,7 +1158,6 @@ bool function GoldenHorsePurple_HasMod( entity weapon )
 {
 	return HasMod( weapon, GOLDEN_HORSE_MOD, GH_PURPLE )
 }
-
 
 
 
@@ -1341,8 +1338,6 @@ bool function HasSummonCooldown( entity player )
 {
 	return StatusEffect_HasSeverity( player, eStatusEffect.golden_horse_red )
 }
-
-
 
 
 

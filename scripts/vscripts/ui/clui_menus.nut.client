@@ -500,7 +500,7 @@ string function LocalizeAndShortenNumber_Float( float number, int maxDisplayInte
 	for ( int i = integralString.len(); i > 0; i-- )
 	{
 		string num = integralString.slice( i - 1, i )
-		if ( ( separatedIntegralString.len() - integralsAdded ) % 3 == 0 && separatedIntegralString.len() > 0 )
+		if ( ( separatedIntegralString.len() - integralsAdded ) % 3 == 0 && separatedIntegralString.len() > 0 && num != "-")
 		{
 			integralsAdded++
 			separatedIntegralString = num + thousandsSeparator + separatedIntegralString

@@ -205,7 +205,7 @@ string function HealingItem_GetHighlightString( LootData lootData )
 	if( HealingItemFilter( lootData ) )
 	{
 		if ( lootData.tier == eRarityTier.EPIC )
-			return "survival_item_rare_vision"
+			return "survival_item_rare_no_los_check"
 		else if ( lootData.tier == eRarityTier.RARE )
 			return "survival_item_common_no_los_check"
 	}
@@ -220,12 +220,12 @@ bool function HealingItemFilter( LootData lootData )
 
 string function UltAccel_GetHighlightString( LootData lootData )
 {
-	return UltAccelItemFilter( lootData ) ? "survival_item_rare_vision" : ""
+	return UltAccelItemFilter( lootData ) ? "survival_item_rare_no_los_check" : ""
 }
 
 string function SurvivalSlot_GetHighlightString( LootData lootData )
 {
-	return SurvivalSlotItemFilter( lootData ) ?  "survival_item_rare_vision" : ""
+	return SurvivalSlotItemFilter( lootData ) ?  "survival_item_rare_no_los_check" : ""
 }
 
 string function Optic_GetHighlightString( LootData lootData )
@@ -237,7 +237,7 @@ string function Optic_GetHighlightString( LootData lootData )
 		else if ( lootData.tier - 1 == eRarityTier.EPIC )
 			return "survival_item_epic_no_los_check"
 		else
-			return "survival_item_rare_vision"
+			return "survival_item_rare_no_los_check"
 	}
 	return ""
 }

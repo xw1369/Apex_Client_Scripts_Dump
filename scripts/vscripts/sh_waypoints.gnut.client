@@ -111,6 +111,7 @@ global function GetPingedEntForLocWaypoint
 
 
 
+
 global function Waypoint_GetQuantityForWaypoint
 
 
@@ -213,14 +214,22 @@ global enum eWaypoint
 
 	ABILITY_ECHO_LOCATOR,
 
-
-
-
-
 	SKYDIVE_EMOTE_ICON,
 
 
 		TREASUREHUNT_OBJECTIVE,
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 	_count
@@ -423,18 +432,11 @@ void function PlayerWaypoint_CreateCallback( entity wp )
 
 		case eWaypoint.OBJECTIVE_ENT:
 		case eWaypoint.OBJECTIVE_POS:
-
-
-
 			InstanceWP_Objective( wp )
 			break
-
 		case eWaypoint.TRACK_ENT:
 			InstanceWP_TrackEnt( wp )
 			break
-
-
-
 
 
 
@@ -461,6 +463,18 @@ void function PlayerWaypoint_CreateCallback( entity wp )
 		case eWaypoint.TREASUREHUNT_OBJECTIVE:
 			TreasureHunt_InstanceObjectivePing( wp )
 			break
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 	}
@@ -799,6 +813,9 @@ bool function Waypoint_AnyEnemySpottedNearPoint( vector origin, float range )
 
 
 
+
+
+
 bool function Waypoint_ShowPingWheel( entity wp )
 {
 
@@ -827,6 +844,8 @@ entity function Waypoint_FindPingByTicketID( entity owner, int ticketID )
 	foreach ( entity wp in s_activeLocationPings )
 
 	{
+		if ( !IsValid( wp ) )
+			continue
 		if ( owner != wp.GetOwner() )
 			continue
 		if ( ticketID == GetTicketIDForWaypoint( wp ) )
@@ -967,11 +986,7 @@ void function CreateRUIsForObjectiveWP( entity wp )
 	vector iconScale        = <1, 1, 0>
 	bool noCreateForMinimap = ((wp.GetWaypointGroupFlags() & WPGF_NO_CREATE_MINIMAP_ICONS) != 0)
 
-
-
-
 	if ( wpType == eWaypoint.OBJECTIVE_ENT )
-
 	{
 		entity targ0 = wp.GetWaypointEntity( 0 )
 
@@ -1241,7 +1256,6 @@ void function InstanceWP_Button( entity wp )
 	RuiSetFloat3( newRui, "offset", offset )
 }
 
-
 void function InstanceWP_TrackEnt( entity wp )
 {
 	var newRui = CreateWaypointRui( $"ui/waypoint_basic_entpos.rpak", 200 )
@@ -1261,8 +1275,40 @@ void function InstanceWP_TrackEnt( entity wp )
 
 	vector offset = wp.GetWaypointVector( 0 )
 	RuiSetFloat3( newRui, "targetOffset", offset )
+
+	bool ignoreCenterFade = wp.GetWaypointInt( 0 ) > 0 ? true : false
+	RuiSetBool( newRui, "ignoreCenterFade", ignoreCenterFade )
+
+	float minDistance  = wp.GetWaypointFloat( 0 )
+	if ( minDistance > 0 )
+		thread Update_TrackEnt_THREAD( wp, newRui )
+
 }
 
+void function Update_TrackEnt_THREAD( entity wp, var rui )
+{
+	wp.EndSignal( "OnDestroy" )
+
+
+	while( true )
+	{
+		WaitFrame()
+
+		entity player = GetLocalViewPlayer()
+		if ( !IsValid( player ) )
+			continue
+
+		float minDistance  = wp.GetWaypointFloat( 0 )
+		if ( minDistance <= 0.0 )
+			break
+
+		float distanceSqr = DistanceSqr( player.GetOrigin(), wp.GetOrigin() )
+		float minDistanceSqr = minDistance * minDistance
+		bool shouldHide = distanceSqr < minDistanceSqr
+		RuiSetBool( rui, "isHidden", shouldHide )
+
+	}
+}
 
 
 
@@ -1332,23 +1378,6 @@ void function InstanceWP_WinterExpress_Train( entity wp )
 	RuiTrackGameTime( wRui, "fadeOutEndTime", wp, RUI_TRACK_WAYPOINT_GAMETIME, 0 )
 	RuiTrackGameTime( fRui, "fadeOutEndTime", wp, RUI_TRACK_WAYPOINT_GAMETIME, 0 )
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -2314,6 +2343,10 @@ void function InstanceLocationPing_Thread( entity wp )
 
 	switch( pingType )
 	{
+
+
+
+
 		case ePingType.SURVEYBEACON:
 		case ePingType.MUNITIONS_BOX:
 		case ePingType.ENCRYPTED_CONSOLE:
@@ -2336,7 +2369,7 @@ void function InstanceLocationPing_Thread( entity wp )
 
 
 			
-			isSpecialCasePingType = pingType == ePingType.NON_PINGABLE_SPAWN_LOCATION && Control_IsModeEnabled()
+			isSpecialCasePingType = pingType == ePingType.NON_PINGABLE_SPAWN_LOCATION && GameMode_IsActive( eGameModes.CONTROL )
 
 
 		if ( AllianceProximity_IsTeamInAnAlliance( waypointTeam ) && !isSpecialCasePingType && waypointTeam != viewPlayerTeam )
@@ -2505,7 +2538,7 @@ void function InstanceLocationPing_Thread( entity wp )
 
 			bool isCountdownInfinite = false
 
-				isCountdownInfinite = IsStrikeoutGamemode()
+				isCountdownInfinite = GameModeVariant_IsActive( eGameModeVariants.SURVIVAL_STRIKEOUT )
 
 
 			RuiSetBool( rui, "isCountdownInfinite", isCountdownInfinite )
@@ -2522,6 +2555,20 @@ void function InstanceLocationPing_Thread( entity wp )
 		case ePingType.MARK_MY_LAST_DEATH_BOX:
 			RuiSetString( rui, "topLabelText", Localize( "" ).toupper() )
 			RuiSetString( rui, "promptText", Localize( "#PROMPT_MARK_MY_LAST_DEATHBOX_SHORT").toupper() )
+			RuiSetFloat( rui, "iconSize", 56.0 )
+			RuiSetFloat( rui, "iconSizePinned", 72.0 )
+			RuiSetBool( rui, "completeADSFade", false )
+			RuiSetBool( rui, "useInactiveScalar", true )
+			RuiSetImage( rui, "animImage", $"" )
+			RuiSetBool( rui, "hideIcon", false )
+			iconScale = <0.5, 0.5, 0>
+			break
+
+
+
+		case ePingType.MARK_MY_LAST_DEATH_LOCATION:
+			RuiSetString( rui, "topLabelText", Localize( "" ).toupper() )
+			RuiSetString( rui, "promptText", Localize( "#PROMPT_MARK_MY_LAST_DEATH_LOCATION_SHORT" ).toupper() )
 			RuiSetFloat( rui, "iconSize", 56.0 )
 			RuiSetFloat( rui, "iconSizePinned", 72.0 )
 			RuiSetBool( rui, "completeADSFade", false )
@@ -4064,6 +4111,75 @@ array<entity> function Waypoints_GetActiveLootPings()
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 entity function Waypoint_GetLootPingDibsPlayer( entity wp )
 {
 	int wpType = wp.GetWaypointType()
@@ -4108,6 +4224,31 @@ void function TogglePlayerWaypointMute( entity player )
 
 	file.mutedPlayers[ player ] = !file.mutedPlayers[ player ]
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

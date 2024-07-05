@@ -1,0 +1,61 @@
+global function StatsRegister_EventShopStats
+global function EventShopStats_GetCurrencyTotal
+
+
+
+
+
+void function StatsRegister_EventShopStats()
+{
+	CAREER_STATS.eventshop_currency_total = RegisterAccumulatedStat_Int( null, "eventshop_currency_total", eChallengeGameMode.NON_MODE, CHALLENGES_CALC_DEPENDS )
+	CAREER_STATS.eventshop_current_guid   = RegisterVariableStat_Int( null, "eventshop_current_guid", eChallengeGameMode.NON_MODE, CHALLENGES_CALC_DEPENDS )
+}
+
+int function EventShopStats_GetCurrencyTotal( entity player )
+{
+	ItemFlavor ornull currentEventShop = EventShop_GetCurrentActiveEventShop()
+	if ( currentEventShop == null )
+	{
+		return 0
+	}
+
+	expect ItemFlavor( currentEventShop )
+	int currentEventShopGUID = ItemFlavor_GetGUID( currentEventShop )
+	int lastEventShopGUID = GetStat_Int( player, ResolveStatEntry( CAREER_STATS.eventshop_current_guid ) )
+
+	if ( currentEventShopGUID != lastEventShopGUID )
+	{
+		return 0
+	}
+
+	return GetStat_Int( player, ResolveStatEntry ( CAREER_STATS.eventshop_currency_total ) )
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

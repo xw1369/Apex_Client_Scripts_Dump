@@ -212,6 +212,8 @@ struct
 	float trophy_shieldRegenInterval
 	float trophy_shieldRegenDelayOnDamage
 
+	bool alwaysReminderVersion
+
 
 	table< entity, float >			trophyLastConvertTime
 	table< entity, array<entity> > 	trophy_ConvertedArcStars
@@ -246,6 +248,8 @@ function MpWeaponTrophy_Init()
 	file.trophy_shieldRegenInterval 		= GetCurrentPlaylistVarFloat( "wattson_trophy_shieldRegenTick", TROPHY_SHIELD_REPAIR_INTERVAL_UPDATE )
 	file.trophy_shieldRegenDelayOnDamage	= GetCurrentPlaylistVarFloat( "wattson_trophy_shieldRegenDelayOnDamage", TROPHY_SHIELD_DAMAGED_DELAY )
 	file.trophy_maxCount 					= GetCurrentPlaylistVarInt( "wattson_trophy_max_count", TROPHY_DEPLOY_COUNT_UPDATE )
+
+	file.alwaysReminderVersion = GetCurrentPlaylistVarBool( "wattson_trophy_always_reminder", false )
 
 	file.trophy_interceptProjectileRangeSqr = file.trophy_interceptProjectileRange * file.trophy_interceptProjectileRange
 	file.trophy_interceptProjectileRangeMinSqr = file.trophy_interceptProjectileRangeMin * file.trophy_interceptProjectileRangeMin
@@ -2619,6 +2623,249 @@ void function OnCreateClientOnlyModel_weapon_trophy_defense_system( entity weapo
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 void function Trophy_OnWeaponStatusUpdate( entity player, var rui, int slot )
 {
 	if ( slot != OFFHAND_TACTICAL )
@@ -2956,10 +3203,6 @@ int function GetTrophySystem_MaxShieldCapacity( entity trophy )
 	if ( IsValid( owner ) && PlayerHasPassive( owner, ePassives.PAS_BATTERY_POWERED ) && PlayerHasPassive( owner, ePassives.PAS_ULT_UPGRADE_TWO ) ) 
 	{
 		maxCapacity *= 2
-	}
-		if ( IsValid( owner ) && PlayerHasPassive( owner, ePassives.PAS_BATTERY_POWERED ) && PlayerHasPassive( owner, ePassives.PAS_ULT_UPGRADE_ONE ) ) 
-	{
-		maxCapacity /= 2
 	}
 
 	return maxCapacity

@@ -5,6 +5,7 @@ untyped
 
 
 
+global function GetMapBloomSettings
 global function ClientCodeCallback_MapSpawn
 global function ClientCodeCallback_RunClientConnectScripts
 global function ClientCodeCallback_FullUpdate
@@ -28,6 +29,26 @@ global function CreateFullscreenTopology
 global var Hud = null
 
 global bool TITAN_CORE_ENABLED = true
+
+global struct MapBloomSettings
+{
+	float characterSelect	= 1.0
+	float podium 			= 1.0
+	float dropship			= -1.0 
+	float winterExpress 	= -1.0
+	float deathScreen		= -1.0
+	float control			= 0.0
+}
+
+struct
+{
+	MapBloomSettings bloomSettings
+} file
+
+MapBloomSettings function GetMapBloomSettings()
+{
+	return file.bloomSettings
+}
 
 UISize function GetVirtualScreenSize( int width, int height )
 {
@@ -131,17 +152,17 @@ void function PrecacheResFiles()
 	if ( IsLobby() )
 		return
 
-	PrecacheRes( "vgui_icon" )
-	PrecacheRes( "vgui_binding" )
-	PrecacheRes( "vgui_jump_quest" )
-	PrecacheRes( "vgui_xpbar" )
-	PrecacheRes( "vgui_fullscreen_titan" )
-	PrecacheRes( "vgui_fullscreen_pilot" )
-	PrecacheRes( "vgui_enemy_announce" )
-	PrecacheRes( "Coop_TeamScoreEventNotification" )
-	PrecacheRes( "control_panel_generic_screen" )
 
-	PrecacheRes( "vgui_callsign_menu" )
+
+
+
+
+
+
+
+
+
+
 }
 
 

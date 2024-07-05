@@ -479,7 +479,7 @@ void function CharacterSkin_Apply( entity ent, ItemFlavor skin )
 {
 	Assert( ItemFlavor_GetType( skin ) == eItemType.character_skin )
 
-	if ( IsFiringRangeGameMode() )
+	if ( GameModeVariant_IsActive( eGameModeVariants.SURVIVAL_FIRING_RANGE ) )
 	{
 		printt( "FiringRangeDebug: ApplyAppropriateCharacterSkin called for " + ent )
 	}

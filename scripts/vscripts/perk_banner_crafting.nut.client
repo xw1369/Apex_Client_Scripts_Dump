@@ -557,17 +557,13 @@ bool function Perk_CanExpiredBannerBeRecovered( entity player )
 
 
 
-
-
 void function ServerCallback_Perk_ShowPlayerCraftingBannerGuidance()
 {
-
 	if ( Crafting_IsDispenserCraftingEnabled() )
 	{
 		AddPlayerHint( 10.0, 1.0, $"", "#DISPENSERS_EXPIRED_BANNER_HINT" )
 	}
 	else
-
 
 	AddPlayerHint( 10.0, 1.0, $"", "#CRAFT_EXPIRED_BANNER_HINT" )
 

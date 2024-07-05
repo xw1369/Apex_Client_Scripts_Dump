@@ -13,6 +13,9 @@ global function UICallback_BlockSquadMate
 global function UICallback_PopulatePlayerStatsRui
 global function GetTeammateAtIndex
 
+global function Cl_Squad_GetTeammates
+global function CL_Squad_GetPlayerInfo
+
 global struct PlayerInfo
 {
 	EHI ehi
@@ -65,15 +68,7 @@ void function OnPlayerTeamChanged( entity player, int oldTeam, int newTeam )
 	{
 		if ( !( ehi in file.teammates ) )
 		{
-			PlayerInfo info
-			info.player = player
-			info.uid = player.GetUserID()
-			info.eaid = player.GetEadpUserIdStr()
-			info.hardware = player.GetUnspoofedHardware()
-			info.unspoofedUid = player.GetUnspoofedPlatformUserIdStr()
-			info.team = player.GetTeam()
-			info.ehi = ehi
-			info.lastTimeActive = Time()
+			PlayerInfo info = CL_Squad_GetPlayerInfo( player )
 
 			file.teammates[ ehi ] <- info
 		}
@@ -83,6 +78,21 @@ void function OnPlayerTeamChanged( entity player, int oldTeam, int newTeam )
 		if ( ehi in file.teammates )
 			delete file.teammates[ ehi ]
 	}
+}
+
+PlayerInfo function CL_Squad_GetPlayerInfo( entity player )
+{
+	PlayerInfo info
+	info.player = player
+	info.uid = player.GetUserID()
+	info.eaid = player.GetEadpUserIdStr()
+	info.hardware = player.GetUnspoofedHardware()
+	info.unspoofedUid = player.GetUnspoofedPlatformUserIdStr()
+	info.team = player.GetTeam()
+	info.ehi = ToEHI( player )
+	info.lastTimeActive = Time()
+
+	return info
 }
 
 void function UICallback_DestroyAllClientGladCardData()
@@ -129,6 +139,32 @@ void function UICallback_UpdateGladCardVisibility( var panel, var elem, int team
 
 
 	}
+}
+
+array< PlayerInfo > function Cl_Squad_GetTeammates( bool includeLocalPlayer = false )
+{
+	PlayerInfo localClientPlayerInfo = CL_Squad_GetPlayerInfo( GetLocalClientPlayer() )
+
+	array< PlayerInfo > teammates
+
+	foreach ( data in file.teammates )
+	{
+		teammates.push( data )
+	}
+
+	teammates.sort( int function( PlayerInfo a, PlayerInfo b ) {
+		if ( a.lastTimeActive > b.lastTimeActive )
+			return -1
+		if ( b.lastTimeActive > a.lastTimeActive )
+			return 1
+
+		return 0
+	} )
+
+	if( includeLocalPlayer )
+		teammates.insert( 0, localClientPlayerInfo )
+
+	return teammates
 }
 
 PlayerInfo ornull function GetTeammateAtIndex( int teamMemberIndex )
@@ -206,7 +242,16 @@ void function UICallback_PopulateClientGladCard( var panel, var elem, var muteBu
 
 	if ( displayType == eGladCardPresentation.FULL_BOX )
 	{
-		bool ranked = IsRankedGame() || IsArenasRankedGame()
+		bool ranked = false
+		if ( GameModeVariant_IsActive( eGameModeVariants.SURVIVAL_RANKED ) )
+			ranked = true
+
+
+
+
+
+
+
 		float scale = float( GetScreenSize().height ) / 1080.0
 		if ( muteButton != null )
 		{

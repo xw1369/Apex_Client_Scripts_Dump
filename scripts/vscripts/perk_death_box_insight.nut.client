@@ -31,6 +31,7 @@ const float ICON_UP_OFFSET = 40.0
 const float ALPHA_LERP_MULTIPLIER = 5.0
 const float PING_DEGREES = 3
 const float LOOKAT_DEGREES = 30
+const int MAX_DEATHBOX_ICONS = 3
 
 
 void function Perk_DeathBoxInsight_Init()
@@ -42,7 +43,7 @@ void function Perk_DeathBoxInsight_Init()
 		RegisterSignal( "DeathBoxInsightPassiveChanged" )
 
 		AddShouldSeeEntityCallbackForPassive( ePassives.PAS_AMMUVISION, Ammuvision_ShouldSeeLoot )
-		AddShouldSeeEntityCallbackForPassive( ePassives.PAS_HEALING_ITEM_VISION , HealingItemVision_ShouldSeeLoot )
+		AddShouldSeeEntityCallbackForPassive( ePassives.PAS_HEALING_ITEM_VISION, HealingItemVision_ShouldSeeLoot )
 		AddShouldSeeEntityCallbackForPassive( ePassives.PAS_ORDNANCE_HIGHLIGHT, OrdnanceHighlight_ShouldSeeLoot )
 		AddShouldSeeEntityCallbackForPassive( ePassives.PAS_ULTACCEL_HIGHLIGHT, UltAccelHighlight_ShouldSeeLoot )
 
@@ -52,7 +53,47 @@ void function Perk_DeathBoxInsight_Init()
 		AddCallback_OnPassiveChanged( ePassives.PAS_DEATHBOX_BATTERY_COUNT, OnPassiveChanged )
 		AddCallback_OnPassiveChanged( ePassives.PAS_ULTACCEL_HIGHLIGHT, OnPassiveChanged )
 
+
+
+
+
+
+
+
+
+
+
+
+
+
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 void function OnPassiveChanged( entity player, int passive, bool didHave, bool nowHas )
@@ -181,12 +222,12 @@ void function DeathBoxInsight_CreateInWorldMarker()
 	var rui                = CreateFullscreenRui( $"ui/death_box_insight_icon.rpak", RuiCalculateDistanceSortKey( localViewPlayer.EyePosition(), <0,0,0> ) )
 
 
-
-
-
-
-
-
+	if ( PlayerHasPassive( localViewPlayer, ePassives.PAS_ALTER ) )
+	{
+		RuiSetFloat( rui, "minAlphaDist", 2500 )
+		RuiSetFloat( rui, "maxAlphaDist", 3000 )
+	}
+	else
 
 	{
 		RuiSetFloat( rui, "minAlphaDist", 500 )
@@ -209,8 +250,11 @@ struct DeathboxContentsInfo
 
 DeathboxContentsInfo function GetContentsToDisplayFromDeathbox( entity box )
 {
-	entity localPlayer = GetLocalViewPlayer()
 	DeathboxContentsInfo result
+	if( !IsValid( box ) )
+		return result
+
+	entity localPlayer = GetLocalViewPlayer()
 	
 	if ( localPlayer.HasPassive( ePassives.PAS_DEATHBOX_BATTERY_COUNT ) )
 	{
@@ -272,13 +316,13 @@ void function UpdateBoxContentsDisplay( entity box, var rui, DeathboxContentsInf
 	}
 	else
 	{
-		for( int i=0; i < contents.contents.len(); i++ )
+		for( int i=0; i < contents.contents.len() && i < MAX_DEATHBOX_ICONS; i++ )
 		{
 			string ruiImageVal = "image" + i
 			LootData data = SURVIVAL_Loot_GetLootDataByIndex( contents.contents[i] )
 			RuiSetImage( rui, ruiImageVal, data.hudIcon )
 		}
-		RuiSetInt( rui, "visibleCount", contents.contents.len() )
+		RuiSetInt( rui, "visibleCount", minint( MAX_DEATHBOX_ICONS, contents.contents.len() ) )
 		RuiSetInt( rui, "leftCount", 0 )
 	}
 	file.numSlotsInCurrentLookat = contents.contents.len()
@@ -306,12 +350,12 @@ bool function DeathBoxInsight_UpdateLookatPing()
 
 	float maxVisibleDist = MAX_VISIBLE_DISTANCE
 
-
-
-
-
-
-
+	bool hasRemoteDeathboxInteract = false
+	if ( PlayerHasPassive( player, ePassives.PAS_ALTER ) )
+	{
+		hasRemoteDeathboxInteract = true
+		maxVisibleDist = GetRemoteDeathboxInteractRangeForAlter( player )
+	}
 
 	array<entity> candidateBoxes = GetEntitiesFromArrayNearPos( allBoxes, playerEyePos, maxVisibleDist )
 	ArrayRemoveInvalid( candidateBoxes )
@@ -341,6 +385,8 @@ bool function DeathBoxInsight_UpdateLookatPing()
 		array<entity> activeWps = Waypoints_GetActiveLootPings()
 		foreach( wp in activeWps )
 		{
+			if( !IsValid( wp ) )
+				continue
 			entity pingedEnt =  Waypoint_GetItemEntForLootWaypoint( wp )
 			entity pingedParent = pingedEnt.GetParent()
 			if( IsValid( pingedParent ) && candidateBoxes.contains( pingedParent ) )
@@ -370,15 +416,15 @@ bool function DeathBoxInsight_UpdateLookatPing()
 				continue
 
 
+			bool canRemoteInteractWithBox = false
+			if ( hasRemoteDeathboxInteract )
+			{
+				canRemoteInteractWithBox = CanPlayerRemoteInteractWithDeathbox( player, box )
 
-
-
-
-
-
-
-
-
+				if ( !canRemoteInteractWithBox && !IsPlayerWithinStandardDeathBoxUseDistance( player, box ))
+					continue
+			}
+			if ( !canRemoteInteractWithBox )
 
 			{
 				

@@ -5,6 +5,7 @@ global function Create_DamageIndicatorHUD
 global function GrenadeArrowThink
 global function RumbleForTitanDamage
 global function DamageIndicators
+global function ShowDamageArrow
 
 global function ServerCallback_PlayerTookDamage
 global function ServerCallback_PlayerTookDamage_NoAttacker
@@ -34,6 +35,10 @@ struct {
 	float        damageArrowTime = 0.0
 	vector       damageArrowAngles = <0, 0, 0>
 	vector       damageArrowPointCenter = <0, 0, 0>
+
+
+
+
 
 	table whizByFX = {
 		small = null,
@@ -351,8 +356,20 @@ void function DamageIndicators( vector origin, entity attacker, int damageSource
 	if ( show2DIndicator )
 		thread DamageIndicatorRui( origin, arrowType )
 
-	if ( show3DIndicator )
-		ShowDamageArrow( localViewPlayer, origin, arrowType, attacker )
+
+
+
+
+
+
+
+	{
+		if ( show3DIndicator )
+		{
+			ShowDamageArrow( localViewPlayer, origin, arrowType, attacker )
+		}
+	}
+
 }
 
 
@@ -683,8 +700,16 @@ void function GrenadeArrowThink( entity player, entity grenade, float damageRadi
 
 			vector damageArrowAngles = AnglesInverse( player.EyeAngles() )
 			vector vecToDamage       = ( grenade.GetOrigin() + visualOffset ) - (player.EyePosition() + (player.GetViewVector() * 20.0))
+			vector arrowOffsetAngles = AnglesCompose(damageArrowAngles, VectorToAngles(vecToDamage) )
+			arrow.SetAttachOffsetAngles( arrowOffsetAngles )
 
-			arrow.SetAttachOffsetAngles( damageArrowAngles.AnglesCompose( vecToDamage.VectorToAngles() ) )
+
+			if ( grenadeModel == GRENADE_INDICATOR_PHASE_DOOR )
+			{
+				
+				mdl.SetAttachOffsetAngles( AnglesCompose(<0,180,0>, <0, -arrowOffsetAngles.y, -arrowOffsetAngles.x > ) )
+			}
+
 
 
 
@@ -797,8 +822,8 @@ asset function GetIndicatorModel( entity grenade )
 
 
 
-
-
+		if ( grenade.GetScriptName() == PHASE_DOOR_THREAT_INDICATOR_SCRIPTNAME )
+			return GRENADE_INDICATOR_PHASE_DOOR
 
 
 
@@ -844,6 +869,12 @@ asset function GetIndicatorModel( entity grenade )
 			case eThreatIndicatorID.GRENADE_INDICATOR_ONLY_ARROW:
 				return EMPTY_MODEL
 				break
+
+
+			case eThreatIndicatorID.GRENADE_INDICATOR_PHASE_DOOR:
+				return GRENADE_INDICATOR_PHASE_DOOR
+				break
+
 
 			default:
 				return GRENADE_INDICATOR_FRAG_MODEL
@@ -989,12 +1020,26 @@ void function ShowDamageArrow( entity player, vector damageOrigin, int arrowType
 	if ( file.damageArrows.len() == 0 ) 
 		return
 
-	table arrowData = file.damageArrows[file.currentDamageArrow]
-	entity arrow    = expect entity( arrowData.arrow )
+	table arrowData
 
-	file.currentDamageArrow++
-	if ( file.currentDamageArrow >= file.numDamageArrows )
-		file.currentDamageArrow = 0
+
+
+
+
+
+
+
+	{
+		arrowData = file.damageArrows[file.currentDamageArrow]
+
+		file.currentDamageArrow++
+		if ( file.currentDamageArrow >= file.numDamageArrows )
+		{
+			file.currentDamageArrow = 0
+		}
+	}
+
+	entity arrow = expect entity( arrowData.arrow )
 
 	float time = Time()
 
@@ -1031,6 +1076,36 @@ void function ShowDamageArrow( entity player, vector damageOrigin, int arrowType
 	UpdateDamageArrowVars( player )
 	UpdateDamageArrowAngle( arrowData )
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 void function PulseDamageArrow( entity arrow, int arrowType )

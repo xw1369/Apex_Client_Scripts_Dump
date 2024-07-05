@@ -576,12 +576,12 @@ void function UIToClient_GroundlistOpened()
 	if ( IsAlive( player ) && GetGameState() >= eGameState.Prematch )
 	{
 
-
-
-
-
-
-
+		entity deathbox = Survival_GetDeathBox()
+		if ( IsValid( deathbox ) && deathbox.GetNetworkedClassName() == "prop_death_box" && !IsPlayerWithinStandardDeathBoxUseDistance( player, deathbox ) )
+		{
+			Remote_ServerCallFunction( "ClientCallback_DeathboxOpenedRemotely", deathbox )
+		}
+		else
 
 		{
 			Remote_ServerCallFunction( "ClientCallback_DeathboxOpened" )
@@ -737,9 +737,7 @@ void function SurvivalMenu_Internal( entity player, string uiScriptFuncName, ent
 	ServerCallback_ClearHints()
 	player.ClientCommand( "-zoom" )
 
-
 	if ( !Crafting_IsPlayerCrafting() && !Crafting_Access_Inventory_Enabled() )
-
 	{
 		CommsMenu_Shutdown( false )
 	}
@@ -1240,6 +1238,10 @@ int function GetWeaponCurrentAmmo( entity weapon )
 
 
 
+
+
+
+
 			ammoCount = weapon.GetWeaponPrimaryClipCount()
 
 
@@ -1421,9 +1423,9 @@ void function UICallback_UpdateEquipmentButton( var button )
 					}
 				}
 
-				if ( IsValidItemFlavorGUID( weapon.GetWeaponCharmGUID(), eValidation.DONT_ASSERT ) )
+				if ( IsValidItemFlavorGUID( weapon.GetWeaponCharmOrArtifactBladeGUID(), eValidation.DONT_ASSERT ) )
 				{
-					ItemFlavor weaponCharm              = GetItemFlavorByGUID( weapon.GetWeaponCharmGUID() )
+					ItemFlavor weaponCharm              = GetItemFlavorByGUID( weapon.GetWeaponCharmOrArtifactBladeGUID() )
 					ItemFlavor ornull weaponCharmOrNull = LoadoutSlot_GetItemFlavor( ToEHI( player ), Loadout_WeaponCharm( weaponItemOrNull ) )
 					if ( weaponCharmOrNull != null && weaponCharmOrNull != weaponCharm )
 					{
@@ -2754,7 +2756,7 @@ void function TryCloseSurvivalInventoryFromDamage( float damage, vector damageOr
 {
 	if ( GetLocalClientPlayer() == GetLocalViewPlayer() )
 	{
-		if ( GetConVarBool( "player_setting_damage_closes_deathbox_menu" ) && !GetCurrentPlaylistVarBool( "survival_firingrange", false ))
+		if ( GetConVarBool( "player_setting_damage_closes_deathbox_menu" ) && !GameModeVariant_IsActive( eGameModeVariants.SURVIVAL_FIRING_RANGE ) )
 		{
 			if ( IsValid( attacker ) && ( attacker.IsPlayer() || attacker.IsNPC()) )
 			{
@@ -3112,7 +3114,7 @@ void function UICallback_UpdateTeammateInfo( var elem, bool isCompact )
 			return
 		}
 
-		entity ent = team[teammateIndex]
+		entity ent = ( teammateIndex < 0 )? player: team[ teammateIndex ]
 
 		thread SetUnitFrameDataFromOwner( rui, ent, player )
 	}
@@ -3147,7 +3149,7 @@ void function UICallback_UpdateTeammateUpgrades( var elem, int upgradeIndex )
 	if ( teammateIndex >= team.len() )
 		return
 
-	entity teammate = team[teammateIndex]
+	entity teammate = ( teammateIndex < 0 )? player: team[ teammateIndex ]
 	array<UpgradeCoreChoice> selectedUpgrades = UpgradeCore_GetSelectedUpgrades( teammate )
 
 	if ( upgradeIndex < selectedUpgrades.len() )
@@ -3352,7 +3354,7 @@ void function TEMP_UpdateTeammateRui( var elem, bool isCompact )
 		return
 
 
-		if ( Control_IsModeEnabled())
+		if ( GameMode_IsActive( eGameModes.CONTROL ) )
 		{
 			player.EndSignal( "Control_PlayerHasChosenRespawn" )
 		}
@@ -3387,7 +3389,7 @@ void function TEMP_UpdateTeammateRui( var elem, bool isCompact )
 			Hud_SetHeight( elem, Hud_GetBaseHeight( elem ) )
 			Hud_Show( elem )
 
-			entity ent = team[teammateIndex]
+			entity ent = ( teammateIndex < 0 )? player: team[ teammateIndex ]
 			ItemFlavor character = LoadoutSlot_WaitForItemFlavor( ToEHI( ent ), Loadout_Character() )
 			asset legendIcon      = CharacterClass_GetGalleryPortrait( character )
 			RuiSetImage( rui, "icon", legendIcon )
@@ -3510,6 +3512,13 @@ void function TEMP_UpdateTeammateRui( var elem, bool isCompact )
 			if( UpgradeCore_IsEnabled() )
 			{
 				RuiSetBool( rui, "showProgressMeter",  UpgradeCore_ArmorTiedToUpgrades() && UpgradeCore_ShowUpgradesUnitframe() )
+
+
+
+
+
+
+
 				RuiSetBool( rui, "showProgressBar", true )
 				UpgradeCore_UpdateXpRui( rui, ent )
 
@@ -3524,7 +3533,7 @@ void function TEMP_UpdateTeammateRui( var elem, bool isCompact )
 
 			bool showBleedoutTimer = true
 
-				showBleedoutTimer = !IsStrikeoutGamemode()
+				showBleedoutTimer = !GameModeVariant_IsActive( eGameModeVariants.SURVIVAL_STRIKEOUT )
 
 			RuiSetBool( rui, "showBleedoutTimer", showBleedoutTimer )
 
@@ -3532,7 +3541,7 @@ void function TEMP_UpdateTeammateRui( var elem, bool isCompact )
 		}
 		else
 		{
-			if( GamemodeUtility_IsJIPEnabled() && !IsFiringRangeGameMode() && !IsPrivateMatch() && !IsEventFinale() )
+			if( GamemodeUtility_IsJIPEnabled() && !GameModeVariant_IsActive( eGameModeVariants.SURVIVAL_FIRING_RANGE ) && !IsPrivateMatch() && !IsEventFinale() && GetMaxTeamSizeForPlaylist( GetCurrentPlaylistName() ) - 1 > teammateIndex )
 			{
 				Hud_SetHeight( elem, Hud_GetBaseHeight( elem ) )
 				Hud_Show( elem )

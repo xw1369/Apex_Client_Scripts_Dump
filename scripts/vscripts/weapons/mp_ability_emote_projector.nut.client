@@ -844,7 +844,7 @@ void function OnFirstPersonSpectateStarted( entity player, entity currentTarget 
 
 void function EnableEmoteProjector( bool enable )
 {
-	if ( IsFiringRangeGameMode() )
+	if ( GameModeVariant_IsActive( eGameModeVariants.SURVIVAL_FIRING_RANGE ) )
 		file.enabledView = enable
 	else
 		Warning( "Called EnableEmoteProjector() from a map other firing range. Currently not supported to turn off emotes outside."  )
@@ -1020,7 +1020,7 @@ int function GetEmoteProjectorLimit()
 {
 	int playerCount = GetPlayerArray().len()
 
-	if ( IsFiringRangeGameMode() )
+	if ( GameModeVariant_IsActive( eGameModeVariants.SURVIVAL_FIRING_RANGE ) )
 		return 1
 
 	if ( playerCount > 30 )

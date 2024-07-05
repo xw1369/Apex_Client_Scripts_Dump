@@ -119,6 +119,12 @@ void function Sh_InitToolTips()
 
 
 
+
+
+
+
+
+
 	style = eTooltipStyle.CLUB_MEMBER
 	file.tooltipInfos[ style ].ruiAsset = $"ui/club_member_tooltip.rpak"
 	file.tooltipInfos[ style ].hasActionText = true

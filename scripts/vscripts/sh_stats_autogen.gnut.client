@@ -4,6 +4,10 @@ global function AutogenChallenge_GetAutogenSlotFromGUID
 global function AutogenChallenge_GetChallengeFlavAtSlot
 
 
+
+
+
+
 global enum eAutogenStatSlots
 {
 	SLOT_00,
@@ -21,11 +25,18 @@ global enum eAutogenStatSlots
 	LIMIT,
 }
 
+
+global enum eAutogenStatHooks
+{
+	ON_PLAYER_WIN,
+}
+
 struct FileLevel_Lifetime
 {
 	array< ItemFlavor > eventsWithPotentialAutogenChallenges
 	array< ItemFlavor > autogenChallenges
 	table<int, int> autogenGUIDToSlotMap
+	table<int, array< int > > autogenHookToGUIDMap
 }
 FileLevel_Lifetime& file
 
@@ -33,6 +44,11 @@ void function AutogenStats_Init()
 {
 	FileLevel_Lifetime fileStruct
 	file = fileStruct
+
+	foreach ( string hookName, int hookId in eAutogenStatHooks )
+	{
+		file.autogenHookToGUIDMap[ hookId ] <- []
+	}
 
 	AddCallback_OnItemFlavorRegistered( eItemType.calevent_buffet, OnItemFlavorRegistered_AddCalEventForAutogenCheck )
 	AddCallback_OnItemFlavorRegistered( eItemType.calevent_event_shop, OnItemFlavorRegistered_AddCalEventForAutogenCheck )
@@ -138,7 +154,32 @@ void function OnAllItemFlavorsRegistered_SetupAutogenChallenges()
 		usedSlots.append( requestedSlot )
 
 		printt( format( "added challenge %s to autogen slot %d", string( ItemFlavor_GetAsset( challenge ) ), requestedSlot ) )
+
+		int requestedHook = Challenge_GetScriptHookForAutogenChallenge( challenge )
+		Assert( requestedHook in file.autogenHookToGUIDMap, format( "attempted to map challenge %s to hook id %d, but hook id doesn't exist!", string( ItemFlavor_GetAsset( challenge ) ), requestedHook ) )
+
+		file.autogenHookToGUIDMap[ requestedHook ].append( ItemFlavor_GetGUID( challenge ) )
 	}
+
+#if DEV
+		printt( "*** completed autogen statref challenge setup ***" )
+
+		printt( "guid -> autogenslots mapping:" )
+		foreach ( int guid, int slot in file.autogenGUIDToSlotMap )
+		{
+			printt( format( "\t%s (%d) -> %s", string( ItemFlavor_GetAsset( GetItemFlavorByGUID( guid ) ) ), guid, GetSlotRefFromValue( slot ) ) )
+		}
+
+		printt( "hook -> guid mapping:" )
+		foreach( int hook, array< int > mappingArray in file.autogenHookToGUIDMap )
+		{
+			printt( format( "%s (%d) ---", GetHookRefFromValue( hook ), hook ) )
+			foreach ( int guid in mappingArray )
+			{
+				printt( format( "\t%s (%d)", string( ItemFlavor_GetAsset( GetItemFlavorByGUID( guid ) ) ), guid ) )
+			}
+		}
+#endif
 }
 
 void function StatsRegister_Autogen()
@@ -161,6 +202,36 @@ bool function IsGUIDInAutogenMap( int guid )
 	return guid in file.autogenGUIDToSlotMap
 }
 
+string function GetSlotRefFromValue( int matchingValue )
+{
+	foreach ( string slotRef, int value in eAutogenStatSlots )
+	{
+		if ( value == matchingValue )
+		{
+			return slotRef
+		}
+	}
+
+	Assert( false, format( "Attempted to get slot ref string that was unknown or undefined: %d", matchingValue ) )
+	unreachable
+}
+
+#if DEV
+string function GetHookRefFromValue( int matchingValue )
+{
+	foreach ( string hookRef, int value in eAutogenStatHooks )
+	{
+		if ( value == matchingValue )
+		{
+			return hookRef
+		}
+	}
+
+	Assert( false, format( "Attempted to get hook ref string that was unknown or undefined: %d", matchingValue ) )
+	unreachable
+}
+#endif
+
 void function AddAutogenChallengesToKnownList( array< ItemFlavor > potentials )
 {
 	foreach ( ItemFlavor potentialChallenge in potentials )
@@ -174,7 +245,7 @@ void function AddAutogenChallengesToKnownList( array< ItemFlavor > potentials )
 
 int function AutogenChallenge_GetAutogenSlotFromGUID( int guid )
 {
-	Assert( !IsGUIDInAutogenMap( guid ), "autogen map does not contain guid: " + guid )
+	Assert( IsGUIDInAutogenMap( guid ), "autogen map does not contain guid: " + guid )
 	return file.autogenGUIDToSlotMap[ guid ]
 }
 
@@ -190,4 +261,30 @@ ItemFlavor ornull function AutogenChallenge_GetChallengeFlavAtSlot( int slot )
 
 	return null
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 

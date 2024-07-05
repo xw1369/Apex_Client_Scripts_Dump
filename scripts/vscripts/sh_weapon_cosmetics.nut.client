@@ -767,6 +767,23 @@ void function WeaponCosmetics_ApplyModelAndSkin( entity ent, ItemFlavor skin )
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 	Assert( ent.IsClientOnly(), ent + " isn't client only" )
 	Assert( ent.GetCodeClassName() == "dynamicprop", ent + " has classname \"" + ent.GetCodeClassName() + "\" instead of \"dynamicprop\"" )
 	ent.SetModel( WeaponSkin_GetViewModel( skin ) ) 

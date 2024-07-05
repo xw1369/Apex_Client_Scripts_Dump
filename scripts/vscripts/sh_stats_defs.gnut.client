@@ -1,3 +1,13 @@
+global function ShStatsDefs_Init
+
+global function StatsDefs_GetCharacterGUIDToBitmaskMap
+
+struct FileLevel_Lifetime
+{
+	table< string, int > characterGUIDToBitmask
+}
+FileLevel_Lifetime& file
+
 global struct CareerStats
 {
 	StatTemplate& account_level
@@ -105,15 +115,13 @@ global struct CareerStats
 	StatTemplate& modes_weaponcategory_damage_done
 	StatTemplate& modes_weaponcategory_dooms
 
+	StatTemplate& modes_weapon_headshots
+	StatTemplate& modes_weapon_kills
 
-		StatTemplate& modes_weapon_headshots
-		StatTemplate& modes_weapon_kills
-
-		StatTemplate& weapon_damage_done_all_modes
-		StatTemplate& weapon_dooms_all_modes
-		StatTemplate& weapon_kills_all_modes
-		StatTemplate& weapon_headshots_all_modes
-
+	StatTemplate& weapon_damage_done_all_modes
+	StatTemplate& weapon_dooms_all_modes
+	StatTemplate& weapon_kills_all_modes
+	StatTemplate& weapon_headshots_all_modes
 
 	StatTemplate& all_modes_games_played
 	StatTemplate& all_modes_damage_done
@@ -416,6 +424,14 @@ global struct CareerStats
 	StatTemplate& revenant_passive_marked_enemies
 	StatTemplate& revenant_tactical_distance
 	StatTemplate& revenant_ultimate_knocks_kills
+
+
+		StatTemplate& alter_surfaces_breached
+		StatTemplate& alter_allies_regrouped
+		StatTemplate& alter_deathbox_items_seized
+		StatTemplate& alter_breach_killer
+		StatTemplate& alter_breaches_used
+
 
 
 		StatTemplate& assault_games_played
@@ -743,70 +759,74 @@ global struct CareerStats
 	StatTemplate& s13_flash_01_buffet_points
 
 	
-	
-	
-	StatTemplate& s19aw_event_currency_total
-	StatTemplate& s19aw_revives_any_mode
 
+		StatTemplate& s21alter_complete_all_challenges
 
-		StatTemplate& s19gh_event_currency_total
+		StatTemplate& s21exp_play_game_x_legends_any_mode
 
-		StatTemplate& s19gh_games_played
-		StatTemplate& s19gh_titan_sword_damage
-		StatTemplate& s19gh_titan_sword_kills
-		StatTemplate& s19gh_titan_sword_launcher
-		StatTemplate& s19gh_titan_sword_supers
-		StatTemplate& s19gh_titan_sword_blocked
-		StatTemplate& s19gh_hopup_red_summons
-		StatTemplate& s19gh_hopup_blue_healing
-		StatTemplate& s19gh_hopup_green_damage
-		StatTemplate& s19gh_hopup_purple_damage
-		StatTemplate& s19gh_hopup_yellow_time
+		
+		StatTemplate& s21ce01_buffet_points
+
+		
+		StatTemplate& s21me02_event_currency_total
 
 
 	
 	
 
-		StatTemplate& s19ce01_01_buffet_points
-		StatTemplate& s19ce01_02_buffet_points
-		StatTemplate& s19ce01_03_buffet_points
-		StatTemplate& s19ce01_04_buffet_points
-
-		StatTemplate& s19ce01_wins_any_mode
-
-
-	
-
-		StatTemplate& s20ce01_hidden_wins_mixtape
-		StatTemplate& s20ce01_hidden_legend_upgrades
-		StatTemplate& s20ce01_hidden_combined
-
-		StatTemplate& s20ce01_gifting_campaign_total_count
-
-		StatTemplate& s20ce01_buffet_points
+		StatTemplate& gamemode_solo_games_played
+		StatTemplate& gamemode_solo_kills
+		StatTemplate& gamemode_solo_damage_done
+		StatTemplate& gamemode_solo_placement_top_10_with_10_legends
+		StatTemplate& gamemode_solo_games_wins
+		StatTemplate& gamemode_solo_complete_all_challenges
 
 
 	
 
-		StatTemplate& s20ce02_collect_hunt
-		StatTemplate& s20ce02_survive_hunt
-		StatTemplate& s20ce02_complete_hunt
+		StatTemplate& gamemode_quad_games_played
+		StatTemplate& gamemode_quad_damage_done
+		StatTemplate& gamemode_quad_kills
+		StatTemplate& gamemode_quad_placement_top_5
+		StatTemplate& gamemode_quad_premade_win
+		StatTemplate& gamemode_quad_placement_top_5_with_10_legends
+		StatTemplate& gamemode_quad_knockdowns
+		StatTemplate& gamemode_quad_damage_done_max_in_one_game
+		StatTemplate& gamemode_quad_complete_all_challenges
 
-		StatTemplate& s20ce02_hidden_combined
-
-		StatTemplate& s20ce02_buffet_points
 
 
-	
+		StatTemplate& gamemode_bigtdm_games_played
 
-		StatTemplate& s20me01_currency_total
 
-		StatTemplate& s20me01_wins_any_mode
 
-		StatTemplate& s20ce04_revives_any_mode
-		StatTemplate& s20ce04_hidden_combined
 
-		StatTemplate& s20ce04_buffet_points
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -874,7 +894,19 @@ global struct CareerStats
 
 
 
+
+
+
 		StatTemplate& graduated_bot_queue
+
+		StatTemplate& ftue_damage_done
+		StatTemplate& ftue_ring_closings_survived
+		StatTemplate& ftue_placements_top_10
+		StatTemplate& ftue_equipped_attachment
+		StatTemplate& ftue_health_restored_any_mode
+		StatTemplate& ftue_shield_restored
+		StatTemplate& ftue_slide_count
+
 
 
 
@@ -884,6 +916,12 @@ global struct CareerStats
 	table< int, StatTemplate > meta_challenge_stats
 
 	StatTemplate& autogen_challenges
+
+	
+	StatTemplate& eventshop_currency_total
+	StatTemplate& eventshop_current_guid
+
+	StatTemplate& lastGameParticipationScore
 } 
 
 global CareerStats CAREER_STATS
@@ -919,7 +957,11 @@ global const array<string> STATS_ALTERNATE_MODE_REFS = [
 
 
 
-		"aprilfools_s20",
+
+
+
+
+
 
 ]
 
@@ -951,7 +993,11 @@ global const array<string> STATS_MATCH_TYPES = [
 
 
 
-		"aprilfools_s20",
+
+
+
+
+
 
 
 	
@@ -993,7 +1039,11 @@ global enum eChallengeGameMode
 
 
 
-	APRILFOOLS_S20,
+
+
+
+
+
 
 }
 
@@ -1026,7 +1076,11 @@ global const table<int, string> GAME_MODE_TO_STAT_REF_MAP =
 
 
 
-		[eChallengeGameMode.APRILFOOLS_S20] = "aprilfools_s20",
+
+
+
+
+
 
 }
 
@@ -1044,4 +1098,53 @@ global enum eArenasPurchaseData
 	UPGRADE,
 	WEAPON,
 	ORDNANCE,
+}
+
+
+global enum eGunShopPurchaseData
+{
+	UPGRADE,
+	WEAPON,
+	ORDNANCE,
+	QUICK_UPGRADE
+}
+
+global int MAX_BIT_FIELD_SIZE = 32
+const int BITFIELD_SAFETY_WARNING_THRESHOLD = 3
+
+void function ShStatsDefs_Init()
+{
+	FileLevel_Lifetime fileStruct
+	file = fileStruct
+
+	
+	
+
+	foreach ( int index, string guid in GetAllCharacterGUIDStringsForStats() )
+	{
+		Assert( !( guid in file.characterGUIDToBitmask ), printf("Duplicate character GUID found: %s", guid) )
+		Assert( index < MAX_BIT_FIELD_SIZE, "Bitfield requested is too big! -- Please see Jira: https://jiratf.rspn.ad.ea.com/browse/R5DEV-587155" )
+		Assert( index < MAX_BIT_FIELD_SIZE - BITFIELD_SAFETY_WARNING_THRESHOLD, "Bitfield is nearing maximum supported size!! -- Please see Jira: https://jiratf.rspn.ad.ea.com/browse/R5DEV-587155")
+
+#if DEV
+			printf("adding character guid %s to bitmask index %d", guid, index)
+#endif
+
+		file.characterGUIDToBitmask[ guid ] <- 1 << index
+	}
+
+#if DEV
+		
+		print("CHARACTER_GUID_TO_BITMASK_MAP contents:\n")
+		foreach ( string guid, int bitmask in file.characterGUIDToBitmask )
+		{
+			printf("guid: %s | bitmask: %d\n", guid, bitmask)
+		}
+		printf("total entries: %d/%d\n", file.characterGUIDToBitmask.len(), MAX_BIT_FIELD_SIZE)
+#endif
+}
+
+table< string, int > function StatsDefs_GetCharacterGUIDToBitmaskMap()
+{
+	return file.characterGUIDToBitmask
 }

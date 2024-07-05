@@ -1,5 +1,4 @@
 global function PassiveVantage_Init
-global function PassiveVantage_isCompatibleOptic
 global function PassiveVantage_IsInCompatibleWeaponConfig
 
 
@@ -10,8 +9,24 @@ global function PlayVantageSpottedPingSounds
 
 
 
-const float PASSIVE_MAX_FOV = 40                
+const float PASSIVE_MAX_FOV = 70
 const float PASSIVE_SCOPE_TRACKING_FOV = 3        
+
+
+const float PASSIVE_RANGED_TRACKING_TIME_MAX = 10
+const float PASSIVE_RANGED_TRACKING_TIME_MIN = 2
+const float PASSIVE_RANGED_TRACKING_RANGE = 100 * METERS_TO_INCHES 
+const float PASSIVE_RANGED_TRACKING_RANGE_SQR = PASSIVE_RANGED_TRACKING_RANGE * PASSIVE_RANGED_TRACKING_RANGE
+const asset PASSIVE_RANGED_TRACKING_ICON = $"rui/hud/character_abilities/vantage_gun_mark"
+
+
+
+
+
+
+
+
+
 
 global table < entity, array <entity> > vantageTargetTrackingList
 
@@ -191,6 +206,88 @@ string function Vantage_EditScopesLootDesc( string lootRef, entity player, strin
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 void function ScopeTrackingConditional( entity player, entity weapon, float trackingFOV, bool lockMode, bool fromTac, array <entity> targetExcludeList )
 {
 	player.EndSignal( "OnDeath" )
@@ -252,12 +349,24 @@ void function ScopeTrackingConditional( entity player, entity weapon, float trac
 
 bool function PassiveVantage_isCompatibleOptic( string opticRef )
 {
-	if (opticRef == "optic_cq_hcog_bruiser" ||
-		opticRef == "optic_ranged_hcog" ||
-		opticRef == "optic_ranged_aog_variable" ||
-		opticRef == "optic_sniper" ||
-		opticRef == "optic_sniper_variable" ||
-		opticRef == "optic_sniper_threat")
+	if ( opticRef == "" )
+		return false
+
+
+
+
+
+
+
+
+
+
+	if ( 	opticRef == "optic_cq_hcog_bruiser" || 		
+			opticRef == "optic_ranged_hcog" ||			
+			opticRef == "optic_ranged_aog_variable" || 	
+			opticRef == "optic_sniper" ||				
+			opticRef == "optic_sniper_variable" ||		
+			opticRef == "optic_sniper_threat")			
 	{
 		return true
 	}

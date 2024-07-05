@@ -14,9 +14,7 @@
 
 
 
-global function ShGameModeExplore_IsActive
 global function ShGameModeExplore_Init
-global function ShGameModeExplore_RegisterNetworking
 
 const string EXPLOREMODE_MOVER_SCRIPTNAME 		= "exploremode_mover"
 
@@ -66,20 +64,8 @@ struct
 	int planePassMax
 }file
 
-
-bool function ShGameModeExplore_IsActive()
-{
-	return GetCurrentPlaylistVarBool( "survival_explore_mode", false )
-}
-
-
 void function ShGameModeExplore_Init()
 {
-	if ( !ShGameModeExplore_IsActive() )
-		return
-
-	printf( "ShGameModeExplore_Init()" )
-
 	file.planePassMax = GetCurrentPlaylistVarInt( "max_plane_passes", 3 )
 
 
@@ -95,17 +81,14 @@ void function ShGameModeExplore_Init()
 
 		AddCallback_GameStateEnter( eGameState.Resolution, OnGamestateResolution )
 
+
+	ShGameModeExplore_RegisterNetworking()
 }
 
 
 
 void function ShGameModeExplore_RegisterNetworking()
 {
-	if ( !ShGameModeExplore_IsActive() )
-		return
-
-	printf( "ShGameModeExplore_RegisterNetworking()" )
-
 	Remote_RegisterClientFunction( "ShGameModeExplore_ServerCallbackAnnouncementSplash", "int", 0, eGameModeExploreAnnounceType._count, "int", 0, 10 )
 	Remote_RegisterClientFunction( "ShGameModeExplore_ServerCallbackClearAnnouncement" )
 	Remote_RegisterClientFunction( "ShGameModeExplore_UpdateDeathfieldUI" )

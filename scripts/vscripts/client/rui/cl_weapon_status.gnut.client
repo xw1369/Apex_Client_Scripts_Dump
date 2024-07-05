@@ -1937,7 +1937,7 @@ void function WeaponStatusSetWeaponInspect( bool inspect )
 		additionalWeaponInspectRuis.append( unitFrame.rui )
 	}
 
-		if ( GunGame_IsModeEnabled() )
+		if ( GameModeVariant_IsActive( eGameModeVariants.FREEDM_GUNGAME ) )
 			additionalWeaponInspectRuis.append( GunGame_GetHUDRui() )
 
 
@@ -1983,6 +1983,13 @@ void function InitWeaponRuiTracks( var rui, entity player, entity weapon )
 		RuiSetBool( rui, "showPassiveBonusIconWeapon", true )
 		RuiSetImage( rui, "passiveBonusIconWeapon", $"rui/hud/character_abilities/vantage_passive_weapon_hud_dongle" )
 	}
+
+
+
+
+
+
+
 	else
 	{
 		RuiSetBool( rui, "showPassiveBonusIconWeapon", false )
@@ -2368,7 +2375,7 @@ void function TrackPlayerDebuffInfo( entity player, var rui )
 			debuffQueue.append( debuff )
 		}
 
-		
+
 
 
 

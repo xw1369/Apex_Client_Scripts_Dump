@@ -16,12 +16,12 @@
 
 
 
-
 global function CLUI_Ranked_Init
 global function PopulateRuiWithRankedBadgeDetails
 global function PopulateRuiWithPreviousSeasonRankedBadgeDetails
 global function CreateNestedRankedRui
 global function SharedRanked_FillInRuiEmblemText
+global function Ranked_PartyMeetsRankedDifferenceRequirements
 
 
 
@@ -42,7 +42,7 @@ struct
 void function CLUI_Ranked_Init()
 {
 
-		if ( !IsRankedGame() )
+		if ( !GameModeVariant_IsActive( eGameModeVariants.SURVIVAL_RANKED ) )
 			return
 
 		AddCallback_OnScoreboardCreated( OnScoreboardCreated )
@@ -56,7 +56,7 @@ void function CLUI_Ranked_Init()
 
 void function ShRanked_RegisterNetworkFunctions()
 {
-	if ( !IsRankedGame() )
+	if ( !GameModeVariant_IsActive( eGameModeVariants.SURVIVAL_RANKED ) )
 		return
 
 	RegisterNetVarIntChangeCallback( "nv_currentRankedScore", OnRankedScoreChanged )
@@ -132,12 +132,18 @@ void function OnGameStateChanged( int newVal )
 	if ( IsLobby() )
 		return
 
-	Assert( IsRankedGame() )
+	Assert( GameModeVariant_IsActive( eGameModeVariants.SURVIVAL_RANKED ) )
 
 	var rui       = ClGameState_GetRui()
 	int gameState = newVal
 	if ( gameState >= eGameState.Prematch )
 	{
+		bool isRankedRumble = false
+
+			isRankedRumble = RankedRumble_IsLatestGameRankedRumble( GetLocalClientPlayer() )
+
+		RuiSetBool( rui, "isRankedRumble", isRankedRumble )
+
 		RuiSetBool( rui, "showRanked", true )
 		OnScoreboardCreated()
 	}
@@ -192,60 +198,6 @@ void function Ranked_OnSpectateTargetChanged( entity spectatingPlayer, entity pr
 	if ( IsValid( newSpectatorTarget ) && newSpectatorTarget.IsPlayer() )
 		SetRankedIcon( GetPlayerRankScore( newSpectatorTarget ), Ranked_GetLadderPosition( newSpectatorTarget ) )
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -972,6 +924,60 @@ void function SharedRanked_FillInRuiEmblemText( var rui, SharedRankedDivisionDat
 			break
 		}
 	}
+
+	RuiSetImage( rui, "rankedIconOverlay", $"" )
+
+		if ( RankedRumble_IsLatestGameRankedRumble( GetLocalClientPlayer() ) )
+		{
+			RuiSetString( rui, "emblemText" + ruiArgumentPostFix, "" )
+			RuiSetImage( rui, "rankedIconOverlay", $"rui/menu/ranked/rank_rumble_icon" )
+		}
+
+}
+
+bool function Ranked_PartyMeetsRankedDifferenceRequirements()
+{
+	if ( !IsFullyConnected() )
+		return false
+
+	if ( GetCurrentPlaylistVarBool( RANKED_DEV_PLAYTEST_PLAYLIST_VAR, false ) )
+		return true
+
+	if ( GetCurrentPlaylistVarBool( RANKED_IGNORE_MAX_TIER_DIFFERENTIAL_PLAYLIST_VAR, false ) )
+		return true
+
+	Party party = GetParty()
+	if ( party.members.len() == 0 )
+		return true
+
+
+
+
+	string selectedRankedPlaylist = GetCurrentPlaylistName()
+
+
+	if ( GetPartySize() >= GetPlaylistVarInt( selectedRankedPlaylist, "max_team_size", MAX_TEAM_SIZE ) && GetPlaylistVarBool( selectedRankedPlaylist, RANKED_PARTY_IGNORE_MAX_TIER_DIFFERENTIAL_PLAYLIST_VAR, false ) )
+		return true
+
+	int partyMaxTier = 0
+	int partyMinTier = INT_MAX
+	foreach ( member in party.members )
+	{
+		CommunityUserInfo ornull userInfoOrNull = GetUserInfo( member.hardware, member.uid )
+		if ( userInfoOrNull != null )
+		{
+			CommunityUserInfo userInfo = expect CommunityUserInfo( userInfoOrNull )
+			SharedRankedTierData tierData = GetCurrentRankedDivisionFromScore( userInfo.rankScore ).tier
+			if ( tierData.index < partyMinTier )
+				partyMinTier = tierData.index
+
+			if ( tierData.index > partyMaxTier )
+				partyMaxTier = tierData.index
+		}
+	}
+
+	Assert( (partyMaxTier - partyMinTier) >= 0 )
+	return (partyMaxTier - partyMinTier) < Ranked_RankedPartyMaxTierDifferential()
 }
 
 

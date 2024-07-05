@@ -6,13 +6,12 @@ global function ToggleHighlightOnRadioPlayProp
 global function DEV_SetLobbyBannerSkin
 #endif
 
-const asset MARVIN_MDL = $"mdl/robots/marvin/marvin_base_v2.rmdl"
-const asset MARVIN_TRAY_MDL = $"mdl/props/marvin_tray/marvin_tray.rmdl"
-#if DEV
-global function MarvinTriggerAnimThread
-global function DEV_PlayMarvinAnim
-global function SetupRadioPlayProp
-#endif
+
+
+
+
+
+
 
 global function Lobby_OnReadyFX
 
@@ -24,7 +23,21 @@ const int LOBBY_BANNER_LTM_SKIN_INDEX = 2
 const int LOBBY_EVENT1_SKIN_OFFSET = 3
 const int LOBBY_EVENT2_SKIN_OFFSET = 6
 
-const asset CAMERA_FLASH_READY_UP_EFFECT = $"P_lobby_s20_cameraflash"
+
+const asset P_S21_PORTAL_1_EFFECT = $"P_S21_portal_01"
+const asset P_S21_PORTAL_2_EFFECT = $"P_S21_portal_02"
+const asset P_S21_PORTAL_IMAGE_EFFECT = $"P_S21_portal_radio_image_01"
+const asset P_S21_PORTAL_FRAME_EFFECT = $"P_S21_portal_frame"
+const asset P_S21_PORTAL_BP_EFFECT = $"P_S21_portal_01_BP"
+
+
+const asset P_S21_RT_PORTAL_1_EFFECT = $"P_S21_portal_01_RT"
+const asset P_S21_RT_PORTAL_2_EFFECT = $"P_S21_portal_02_RT"
+const asset P_S21_IMAGE_PORTAL_2_EFFECT = $"P_image_portal_02_RT"
+
+
+const asset P_KOTV_PORTAL_1_EFFECT = $"P_KotV_portal_01"
+const asset P_KOTV_PORTAL_2_EFFECT = $"P_KotV_portal_02"
 
 struct
 {
@@ -35,11 +48,6 @@ struct
 #if DEV
 		bool overrideLobbyBanner = false
 #endif
-
-	entity marvin
-	bool specificAnimPlaying = false
-	float specificAnimCooldown = 0
-	entity cameraEffectEnt
 
 	array< entity > radioPlayProps
 
@@ -62,8 +70,6 @@ void function Lobby_AddLocalPlayer()
 	SetStandardAbilityBindingsForPilot( player )
 	RefreshPresentationType()
 
-	RegisterSignal("MarvinKillIdleThread")
-
 
 	
 	
@@ -84,11 +90,9 @@ void function Lobby_AddLocalPlayer()
 	SetupEventProps()
 	SetupEventBase()
 
-	PrecacheModel( MARVIN_MDL )
-	PrecacheModel( MARVIN_TRAY_MDL )
 
-	SetupMarvin()
-	SetupRadioPlayProp()
+
+
 
 	RunUIScript( "MaybeSendPINSettingsEvent" )
 }
@@ -105,23 +109,27 @@ void function CacheLobbyBannerEnt()
 	file.lobbyBanners     = GetEntArrayByScriptName( "lobby_banner" )
 	file.lobbyReskinProps = GetEntArrayByScriptName( "event_skin_prop" )
 
-	PrecacheParticleSystem( CAMERA_FLASH_READY_UP_EFFECT )
-
-	array<entity> camereEffectEnts = GetEntArrayByScriptName( "readyup_effect" )
-
-	if ( camereEffectEnts.len() == 1 )
-		file.cameraEffectEnt = camereEffectEnts[0]
-
 	if ( IsLobbyEvent1Active() )
 	{
-		file.readyUpCooldownTime = 60
+		PrecacheParticleSystem( P_S21_RT_PORTAL_1_EFFECT )
+		PrecacheParticleSystem( P_S21_RT_PORTAL_2_EFFECT )
+		PrecacheParticleSystem( P_S21_IMAGE_PORTAL_2_EFFECT )
 	}
 
-	
+	if ( IsLobbyEvent2Active() )
+	{
+		PrecacheParticleSystem( P_KOTV_PORTAL_1_EFFECT )
+		PrecacheParticleSystem( P_KOTV_PORTAL_2_EFFECT )
+	}
 
-
-
-
+	if ( !IsLobbyEvent1Active() || !IsLobbyEvent2Active() )
+	{
+		PrecacheParticleSystem( P_S21_PORTAL_1_EFFECT )
+		PrecacheParticleSystem( P_S21_PORTAL_2_EFFECT )
+		PrecacheParticleSystem( P_S21_PORTAL_IMAGE_EFFECT )
+		PrecacheParticleSystem( P_S21_PORTAL_FRAME_EFFECT )
+		PrecacheParticleSystem( P_S21_PORTAL_BP_EFFECT )
+	}
 }
 
 void function Lobby_OnReadyFX( bool isReady )
@@ -135,12 +143,6 @@ void function Lobby_OnReadyFX( bool isReady )
 		return
 
 	file.readyUpCooldown = now
-
-	if ( IsT1Active() && ( RandomFloat( 1.0 ) > GetCurrentPlaylistVarFloat("t1_chance", 0.8 ) ) )
-	{
-		thread MarvinTriggerAnimThread( "mrvn_lobby_s20_drink_stolen", true )
-		return
-	}
 
 	if ( IsLobbyEvent1Active() )
 	{
@@ -158,22 +160,14 @@ void function Lobby_OnReadyFX( bool isReady )
 
 void function NonEventLobbyReadyUp()
 {
-	if ( !IsValid(file.cameraEffectEnt) )
-		return
-
-	StartParticleEffectInWorld( GetParticleSystemIndex ( CAMERA_FLASH_READY_UP_EFFECT ) , file.cameraEffectEnt.GetOrigin(),  file.cameraEffectEnt.GetAngles() )
-
-	thread MarvinTriggerAnimThread( "mrvn_lobby_s20_idle_surprised" )
 }
 
 void function Event1ReadyFX()
 {
-	thread MarvinTriggerAnimThread( "mrvn_lobby_s20_surprised_bullet", true )
 }
 
 void function Event2ReadyFX()
 {
-	thread MarvinTriggerAnimThread( "mrvn_lobby_s20_surprised_star", true )
 }
 
 void function Lobby_SetBannerSkin( string playlist )
@@ -253,6 +247,10 @@ void function SetupEventBase()
 		skinName = "event_2_skin"
 	}
 
+	
+	if ( !IsLobbyEvent1Active() && !IsLobbyEvent2Active() )
+		SetupBaseFX()
+
 	if ( skinName == "" )
 		return
 
@@ -263,6 +261,26 @@ void function SetupEventBase()
 			lobbyReskinProp.SetSkin(lobbyReskinProp.GetSkinIndexByName(skinName))
 		}
 	}
+}
+
+void function SetupBaseFX()
+{
+	array< entity > event_portal_group_1 = GetEntArrayByScriptName( "event_portal_group_1" )
+	SetupParticleEffectOnEntities( event_portal_group_1, P_S21_PORTAL_1_EFFECT, FX_PATTACH_ABSORIGIN, ATTACHMENTID_INVALID )
+
+	array< entity > event_portal_group_2 = GetEntArrayByScriptName( "event_portal_group_2" )
+	array< entity > event_portal_front = GetEntArrayByScriptName( "event_portal_front" )
+	event_portal_group_2.extend( event_portal_front )
+	SetupParticleEffectOnEntities( event_portal_group_2, P_S21_PORTAL_2_EFFECT, FX_PATTACH_ABSORIGIN, ATTACHMENTID_INVALID )
+
+	array< entity > event_portal_image = GetEntArrayByScriptName( "event_portal_image" )
+	SetupParticleEffectOnEntities( event_portal_image, P_S21_PORTAL_IMAGE_EFFECT, FX_PATTACH_ABSORIGIN, ATTACHMENTID_INVALID )
+
+	array< entity > event_portal_frame = GetEntArrayByScriptName( "event_portal_frame" )
+	SetupParticleEffectOnEntities( event_portal_frame, P_S21_PORTAL_FRAME_EFFECT, FX_PATTACH_ABSORIGIN, ATTACHMENTID_INVALID )
+
+	array< entity > event_portal_bp = GetEntArrayByScriptName( "event_portal_bp" )
+	SetupParticleEffectOnEntities( event_portal_bp, P_S21_PORTAL_BP_EFFECT, FX_PATTACH_ABSORIGIN, ATTACHMENTID_INVALID )
 }
 
 void function SetupEventProps()
@@ -286,12 +304,20 @@ void function SetupEvent1Props()
 	}
 
 	
-	
+	array< entity > event_portal_group_1 = GetEntArrayByScriptName( "event_portal_group_1" )
+	array< entity > event_portal_bp = GetEntArrayByScriptName( "event_portal_bp" )
+	event_portal_group_1.extend( event_portal_bp )
+	SetupParticleEffectOnEntities( event_portal_group_1, P_S21_RT_PORTAL_1_EFFECT, FX_PATTACH_ABSORIGIN, ATTACHMENTID_INVALID )
 
+	array< entity > event_portal_front = GetEntArrayByScriptName( "event_portal_front" )
+	SetupParticleEffectOnEntities( event_portal_front, P_S21_RT_PORTAL_2_EFFECT, FX_PATTACH_ABSORIGIN, ATTACHMENTID_INVALID )
 
-
-
-
+	array< entity > event_portal_group_2 = GetEntArrayByScriptName( "event_portal_group_2" )
+	array< entity > event_portal_image = GetEntArrayByScriptName( "event_portal_image" )
+	array< entity > event_portal_frame = GetEntArrayByScriptName( "event_portal_frame" )
+	event_portal_group_2.extend( event_portal_image )
+	event_portal_group_2.extend( event_portal_frame )
+	SetupParticleEffectOnEntities( event_portal_group_2, P_S21_IMAGE_PORTAL_2_EFFECT, FX_PATTACH_ABSORIGIN, ATTACHMENTID_INVALID )
 }
 
 void function SetupEvent2Props()
@@ -309,139 +335,78 @@ void function SetupEvent2Props()
 	}
 
 	
-	
+	array< entity > event_portal_group_1 = GetEntArrayByScriptName( "event_portal_group_1" )
+	array< entity > event_portal_bp = GetEntArrayByScriptName( "event_portal_bp" )
+	event_portal_group_1.extend( event_portal_bp )
+	SetupParticleEffectOnEntities( event_portal_group_1, P_KOTV_PORTAL_1_EFFECT, FX_PATTACH_ABSORIGIN, ATTACHMENTID_INVALID )
 
-
-
-
-
+	array< entity > event_portal_group_2 = GetEntArrayByScriptName( "event_portal_group_2" )
+	array< entity > event_portal_front = GetEntArrayByScriptName( "event_portal_front" )
+	array< entity > event_portal_image = GetEntArrayByScriptName( "event_portal_image" )
+	array< entity > event_portal_frame = GetEntArrayByScriptName( "event_portal_frame" )
+	event_portal_group_2.extend( event_portal_front )
+	event_portal_group_2.extend( event_portal_image )
+	event_portal_group_2.extend( event_portal_frame )
+	SetupParticleEffectOnEntities( event_portal_group_2, P_KOTV_PORTAL_2_EFFECT, FX_PATTACH_ABSORIGIN, ATTACHMENTID_INVALID )
 }
 
-void function SetupMarvin( vector origin = <-92, 686.679016, -0.625>, vector angles = <0,-90,0> )
+void function SetupParticleEffectOnEntities( array< entity > entities,  asset effectAsset, int attachType, int attachmentIndex )
 {
-	array<entity> lobbyMarvins = GetEntArrayByScriptName("LobbyMarvin")
-	if ( lobbyMarvins.len() > 0  )
-		return
-
-
-	if ( IsEventLobbyActive() )
-		origin += EVENT_LOBBY_OFFSET
-
-	file.marvin = CreateClientSidePropDynamic( origin, angles, MARVIN_MDL )
-	file.marvin.SetScriptName( "LobbyMarvin" )
-	thread MarvinIdleThread()
-}
-
-void function MarvinIdleThread()
-{
-	Signal( file.marvin, "MarvinKillIdleThread" )
-	EndSignal( file.marvin, "MarvinKillIdleThread" )
-	EndSignal( file.marvin, "OnDestroy" )
-
-	file.specificAnimPlaying = false
-	bool animChanged = true
-
-	while( true )
+	print_dev( "SDROVIE - " + FUNC_NAME() + " - " + entities.len() )
+	foreach ( effect in entities )
 	{
-		float dice = RandomFloat( 1.0 )
-
-		if ( dice >= 0.8 )
-		{
-			file.marvin.Anim_Play( "mrvn_lobby_s20_idle_twitch" )
-			wait file.marvin.GetSequenceDuration( "mrvn_lobby_s20_idle_twitch" )
-			animChanged = true
-		}
-
-		if ( animChanged )
-			file.marvin.Anim_Play( "mrvn_lobby_s20_idle" )
-
-		animChanged = false
-
-		wait file.marvin.GetSequenceDuration( "mrvn_lobby_s20_idle" )
+		print_dev( "SDROVIE - " + effect.GetScriptName() )
+		
+			StartParticleEffectOnEntity( effect, GetParticleSystemIndex( effectAsset ), attachType, attachmentIndex )
 	}
 }
-
-void function MarvinTriggerAnimThread( string anim, bool requireReEnter = false )
-{
-	if ( file.specificAnimPlaying )
-		return
-
-	Signal( file.marvin, "MarvinKillIdleThread" )
-
-	file.specificAnimPlaying = true
-	file.marvin.Anim_Play( anim )
-	wait file.marvin.GetSequenceDuration( anim )
-
-	if ( requireReEnter )
-	{
-		wait 15.0
-		file.marvin.Anim_Play( "mrvn_lobby_s20_enter" )
-		wait file.marvin.GetSequenceDuration( "mrvn_lobby_s20_enter" )
-	}
-
-	thread MarvinIdleThread()
-}
-
-#if DEV
-void function DEV_PlayMarvinAnim( string anim, bool stopAnim = true )
-{
-	array<entity> lobbyMarvins = GetEntArrayByScriptName("LobbyMarvin")
-	if ( lobbyMarvins.len() != 1 )
-		return
-
-	if ( stopAnim )
-		lobbyMarvins[0].Anim_Stop()
-
-	lobbyMarvins[0].Anim_Play( anim )
-}
-#endif
 
 void function OnPartyMemberAdded()
 {
-	thread MarvinTriggerAnimThread( "mrvn_lobby_s20_idle_wave" )
 }
 
-void function SetupRadioPlayProp()
-{
-	if ( file.radioPlayPropsSetup )
-		return
-
- 	int latestMissionIndex = SeasonQuestMission_GetLatestTimeUnlockedMission()
-	array< string > scriptNames = [ "branthium", "octane_heirloom", "forge_medallion", "battery", "gauntlet" ]
-
-	if ( latestMissionIndex == -1 )
-		return
-
-	if ( latestMissionIndex >= scriptNames.len() )
-		return
-
-	string propScriptName = scriptNames[latestMissionIndex]
-
-	file.radioPlayProps = GetEntArrayByScriptName( propScriptName )
-	scriptNames.fastremove( latestMissionIndex )
 
 
-	foreach ( string scriptName in scriptNames )
-	{
-		array<entity> entsToDelete = GetEntArrayByScriptName( scriptName )
-		foreach ( ent in entsToDelete )
-			ent.Destroy()
 
-		array<entity> cardEntsToDelete = GetEntArrayByScriptName( scriptName +  "_card" )
-		foreach ( ent in cardEntsToDelete )
-			ent.Destroy()
-	}
 
-	array<entity> cardEnts = GetEntArrayByScriptName( propScriptName +  "_card" )
-	foreach ( ent in cardEnts )
-	{
-		ent.SetModelScale( 0.5 )
-		ent.SetOrigin( ent.GetOrigin() + <-5.1, 0.6, 22.74> )
-	}
 
-	file.radioPlayPropsSetup = true
 
-}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 void function ToggleHighlightOnRadioPlayProp( bool focus )
 {

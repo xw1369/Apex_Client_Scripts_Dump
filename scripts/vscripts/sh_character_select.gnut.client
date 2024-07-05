@@ -166,8 +166,6 @@ global function IsCharacterReselectEnabled
 
 
 
-
-
 #if DEV
 global function Dev_CharacterSelectClearCamera
 global function Dev_CharacterSelectRefreshLighting
@@ -500,6 +498,8 @@ void function CharacterSelectMenu_Init()
 
 		fileLevel.colorCorrection = ColorCorrection_Register( COLOR_CORRECTION )
 
+		AddClientCallback_OnResolutionChanged( CharacterSelectMenu_OnResolutionChanged )
+
 
 
 
@@ -587,25 +587,9 @@ bool function CharacterSelect_Menu_ShouldOpen( entity player )
 
 	if ( !IsWatchingReplay() )
 	{
-		
-		
-		array< string > legendsToLockCharSelDuringUlt = [ "#character_newcastle_NAME" ]
-		int playerEHI = ToEHI( player )
-		ItemFlavor legendFlavor = LoadoutSlot_GetItemFlavor( playerEHI, Loadout_Character() )
-		string legendName = ItemFlavor_GetLongName( legendFlavor )
-
-#if DEV
-			printt( "DEV-RYEH: Legend Trying to Open Character Select Menu == ", legendName )
-#endif
-
-		if( legendsToLockCharSelDuringUlt.contains( legendName ) )
-		{
-			entity ultimateWeapon = player.GetOffhandWeapon( OFFHAND_ULTIMATE )
-			if( IsValid( ultimateWeapon ) && ultimateWeapon.GetWeaponPrimaryClipCount() == 0 )
-				return false
-		}
+		if ( GetCurrentArmoredLeapPhase( player ) != PLAYER_ARMORED_LEAP_PHASE_NONE )
+			return false
 	}
-
 
 	if( player.ContextAction_IsEmoting() ) 
 		return false
@@ -728,7 +712,7 @@ void function PanAwayCharacterSelect()
 	NotifyCharacterSelectBeginEnd( false )
 
 
-	if (IsBattleRushGamemode())
+	if ( GameModeVariant_IsActive( eGameModeVariants.SURVIVAL_BATTLE_RUSH ) )
 	{
 		BattleRush_StopCharSelectMusic()
 		BattleRush_ServerCallback_PlayJumpMusic()
@@ -794,6 +778,9 @@ entity function PickMVP( array<entity> players )
 			mostDamage = damage
 		}
 	}
+
+	if ( champion == null )
+		return players.len() > 0 ? players[0] : null 
 
 	return champion
 }
@@ -952,21 +939,22 @@ void function DoSquadCardsPresentation( string endTime, bool showTitleFrame )
 
 	array<entity> teammates = GetPlayerSquad()
 	ArrayRemoveInvalid( teammates )
-	foreach( entity teammate in teammates )
-	{
-		int index = teammate.GetPlayerNetInt( CHARACTER_SELECT_NETVAR_LOCK_STEP_PLAYER_INDEX )
-		if ( index < 0 )
-			continue
 
-		if ( index >= offsets.len() )
-			break
+	entity localViewPlayer = GetLocalViewPlayer()
+	bool morePlayersThanOffsets = teammates.len() > offsets.len()
+	if ( morePlayersThanOffsets )
+		teammates.fastremovebyvalue( localViewPlayer )
+
+	for ( int i = 0; i < min( teammates.len(), offsets.len() ); i++ )
+	{
+		entity teammate = teammates[i]
 
 		
 		var gladCardsRui = CreateFullscreenRui( $"ui/round_end_squad_member_gcard.rpak", -100 )
 		fileLevel.gCardRuiHandles.append( gladCardsRui )
 		NestedGladiatorCardHandle nestedGCHandle = CreateNestedGladiatorCard( gladCardsRui, "card", eGladCardDisplaySituation.GAME_INTRO_MY_SQUAD_ANIMATED, eGladCardPresentation.FULL_BOX )
 		ChangeNestedGladiatorCardOwner( nestedGCHandle, ToEHI( teammate ), null, eGladCardLifestateOverride.ALIVE )
-		RuiSetFloat( gladCardsRui, "offset", offsets[index] )
+		RuiSetFloat( gladCardsRui, "offset", offsets[i] )
 		RuiSetFloat (gladCardsRui, "elementScale", 1.0)
 		fileLevel.nestedGladiatorCardHandles.append( nestedGCHandle )
 
@@ -988,7 +976,7 @@ void function DoSquadCardsPresentation( string endTime, bool showTitleFrame )
 		
 		var playerStatsRui = CreateFullscreenPostFXRui( $"ui/round_end_squad_member_stats.rpak", 2 )
 		fileLevel.gCardRuiHandles.append( playerStatsRui )
-		RuiSetFloat( playerStatsRui, "offset", offsets[index] )
+		RuiSetFloat( playerStatsRui, "offset", offsets[i] )
 		RuiSetBool( playerStatsRui, "showStats", false )
 		RuiSetString( playerStatsRui, "playerName", teammate.GetPlayerName() )
 		RuiSetFloat( playerStatsRui, "playerNameFontScale", 2.0 )
@@ -1005,7 +993,7 @@ void function DoSquadCardsPresentation( string endTime, bool showTitleFrame )
 
 	
 	var borderRui = CreateFullscreenPostFXRui( $"ui/round_end_squads_border.rpak", 3 )
-	if ( IsSoloMode() )
+	if ( GameModeVariant_IsActive( eGameModeVariants.SURVIVAL_SOLOS ) )
 	{
 		RuiSetString( borderRui, "headerText", "#SOLO_HEADER_YOU_SELECTION" )
 	}
@@ -1021,7 +1009,7 @@ void function DoSquadCardsPresentation( string endTime, bool showTitleFrame )
 
 
 
-			case IsValentinesS15():
+			case GameModeVariant_IsActive( eGameModeVariants.SURVIVAL_VALENTINES_S15 ):
 				headerText = "#SQUAD_HEADER_YOUR_SQUAD_DATE_NIGHT"
 				break
 
@@ -1151,7 +1139,6 @@ void function DoMVPSquadCardsPresentation( string endTime )
 			MVPPlayer.append(mvp)
 			MVPPlayerHandle.append(mvp.GetEncodedEHandle())
 		}
-
 	}
 
 	EmitSoundOnEntity( GetLocalClientPlayer(), "UI_Survival_Intro_GladiatorCard_Appear" )
@@ -1281,6 +1268,19 @@ void function DoChampionSquadCardsPresentation( string endTime )
 	}
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
 	if ( !didPopulateChamptionSquad )
 	{
 		championEHI			= GetGlobalNetInt( "championEEH" )
@@ -1304,7 +1304,7 @@ void function DoChampionSquadCardsPresentation( string endTime )
 
 
 
-		if ( IsShadowArmyGamemode() )
+		if ( GameModeVariant_IsActive( eGameModeVariants.SURVIVAL_SHADOW_ARMY ) )
 			shouldPlayChampionVO = false
 
 
@@ -1349,9 +1349,9 @@ void function DoChampionSquadCardsPresentation( string endTime )
 	
 	var rui = CreateFullscreenRui( $"ui/gladiator_card_intro_screen.rpak", RUI_SORT_SCREENFADE - 1 )
 	string topHeader
-	bool showBottomText = !IsRankedGame()
+	bool showBottomText = !GameModeVariant_IsActive( eGameModeVariants.SURVIVAL_RANKED )
 
-	if ( IsSoloMode() )
+	if ( GameModeVariant_IsActive( eGameModeVariants.SURVIVAL_SOLOS ) )
 		topHeader = "#GLADIATOR_CARD_INTRO_CHAMPION_SOLO"
 
 
@@ -1365,7 +1365,7 @@ void function DoChampionSquadCardsPresentation( string endTime )
 
 
 
-	else if (IsValentinesS15())
+	else if ( GameModeVariant_IsActive( eGameModeVariants.SURVIVAL_VALENTINES_S15 ) )
 		topHeader = "#GLADIATOR_CARD_INTRO_CHAMPION_SQUAD_DATE_NIGHT"
 
 
@@ -1480,7 +1480,7 @@ bool function ShouldPlayIntroQuip()
 
 
 	
-		if ( IsShadowRoyaleMode() )
+		if ( GameModeVariant_IsActive( eGameModeVariants.SURVIVAL_SHADOW_ARMY ) )
 			return false
 
 
@@ -2212,6 +2212,9 @@ void function SetPerkLayoutNav (array<ItemFlavor> orderedCharacters)
 
 
 
+
+
+
 const float CHARACTER_SELECT_FADE_HOLD_TIME = 1.0
 
 void function CloseCharacterSelectMenuAtTime( float closeTimeStamp )
@@ -2749,6 +2752,11 @@ void function UpdateForFocusOnButtonIndex( int buttonIndex )
 	Signal( fileLevel.signalDummy, "UpdateScene" )
 }
 
+void function CharacterSelectMenu_OnResolutionChanged()
+{
+	fileLevel.preFocusedButton = null
+}
+
 void function ServerToClient_SetInitialSelection( int characterGUID )
 {
 	ItemFlavor startCharacter = GetItemFlavorByGUID( characterGUID )
@@ -2884,11 +2892,23 @@ void function OnLoadoutButton_Activate( var button )
 		if ( GetCurrentArmoredLeapPhase( player ) != PLAYER_ARMORED_LEAP_PHASE_NONE )
 			return
 
+		if ( GameModeVariant_IsActive( eGameModeVariants.SURVIVAL_FIRING_RANGE ) )
+		{
+			if ( player.IsPhaseShifted() )
+				return
+
+			if( IsAlive( player ) && player.ContextAction_IsMeleeExecution() )
+				return
+
+			if( Bleedout_IsBleedingOut( player ) )
+				return
+		}
+
 		ItemFlavor currentCharacter = LoadoutSlot_GetItemFlavor( ToEHI( player ), Loadout_Character() )
 		ItemFlavor currentSkin = LoadoutSlot_GetItemFlavor( ToEHI( player ), Loadout_CharacterSkin( currentCharacter ) )
 		if ( (character == currentCharacter) && ((skinOrNull == null) || (skinOrNull == currentSkin)) )
 		{
-			if ( IsFiringRangeGameMode() )
+			if ( GameModeVariant_IsActive( eGameModeVariants.SURVIVAL_FIRING_RANGE ) )
 				Remote_ServerCallFunction( "ClientToServer_FiringRange_ResetHealthOnSameCharacterSelect" )
 			EmitSoundOnEntity( player, "ui_menu_back" )
 			CloseCharacterSelectMenu()
@@ -3358,7 +3378,7 @@ void function UpdateButtonStates()
 		RuiSetInt( buttonRui, "teamSelectedIndex", -1 )
 		RuiSetInt( buttonRui, "teamSelectedTeamColorIndex", -1 )
 
-		for ( int k = 0 ; k < MAX_TEAM_FOCUS_INDEX ; k++ )
+		for ( int k = 0 ; k <= MAX_TEAM_FOCUS_INDEX ; k++ )
 			RuiSetBool( buttonRui, "teamFocused" + k, false )
 
 		if ( IsValid( localPlayer ) )
@@ -3389,6 +3409,20 @@ void function UpdateButtonStates()
 		{
 			RuiSetBool( buttonRui, "isTempUnlocked", true )
 		}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 		if ( fileLevel.disabledButtonIndexes.contains( i ) )
 		{
@@ -3589,7 +3623,7 @@ void function UpdateButtonStates()
 	string bottomString = ""
 	if ( currentLockStepIndex >= 0 && currentLockStepIndex < MAX_TEAM_PLAYERS )
 	{
-		if ( SquadMuteLegendSelectEnabled() && !IsSoloMode() )
+		if ( SquadMuteLegendSelectEnabled() && !GameModeVariant_IsActive( eGameModeVariants.SURVIVAL_SOLOS ) )
 			topString = Localize( IsSquadMuted() ? "#CHAR_SEL_BUTTON_UNMUTE" : "#CHAR_SEL_BUTTON_MUTE" )
 
 		if ( currentLockStepIndex == fileLevel.localClientLockstepIndex )
@@ -3602,25 +3636,15 @@ void function UpdateButtonStates()
 	}
 	else if ( SquadMuteLegendSelectEnabled() )
 	{
+		bottomString = ""
 
-			if ( WinterExpress_IsModeEnabled() && GetGameState() == eGameState.Playing )
-			{
+			if ( GameModeVariant_IsActive( eGameModeVariants.SURVIVAL_WINTEREXPRESS ) && GetGameState() == eGameState.Playing )
 				bottomString = Localize( "#CHAR_SEL_BUTTON_HINT_SELECT_DETAILS" )
-			}
-			else if ( !IsSoloMode() )
-			{
-				bottomString = Localize( IsSquadMuted() ? "#CHAR_SEL_BUTTON_UNMUTE" : "#CHAR_SEL_BUTTON_MUTE" )
-			}
-			else
-			{
-				bottomString = ""
-			}
 
-
-
-
-
-
+		if ( !GameModeVariant_IsActive( eGameModeVariants.SURVIVAL_SOLOS ) )
+		{
+			bottomString = Localize( IsSquadMuted() ? "#CHAR_SEL_BUTTON_UNMUTE" : "#CHAR_SEL_BUTTON_MUTE" )
+		}
 	}
 	else if( isTempUnlocked )
 	{
@@ -4698,7 +4722,7 @@ bool function CharacterSelect_GetIsBrowseMode()
 
 bool function IsPlayerJumpMaster( entity player )
 {
-	if( GameRules_GetGameMode() == SURVIVAL )
+	if( GameMode_IsActive( eGameModes.SURVIVAL ) )
 		return player == GetLastPickingPlayer()
 
 	return false
@@ -5140,18 +5164,6 @@ bool function IsCharacterReselectEnabled()
 {
 	return GetCurrentPlaylistVarBool( "character_reselect_enabled", false )
 }
-
-
-
-
-
-
-
-
-
-
-
-
 
 #if DEV
 void function Dev_CharacterSelectClearCamera()

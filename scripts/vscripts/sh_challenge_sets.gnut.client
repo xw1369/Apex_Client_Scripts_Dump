@@ -1,9 +1,8 @@
 global function Sh_Challenge_Sets_Init
 global function ChallengeCollection_IsEnabled
-global function ChallengeCollection_IsActive
+global function ChallengeCollection_GetActiveState
 global function ChallengeCollection_GetRegisteredCollections
 global function ChallengeCollection_GetActiveCollections
-global function ChallengeCollection_GetActiveCollection
 global function ChallengeCollection_GetByGUID
 global function ChallengeCollection_GetAllChallengeSets
 global function ChallengeCollection_GetMainChallenge
@@ -44,6 +43,14 @@ global struct ChallengeCollection
 	array< ChallengeSet > challengeSets
 
 	int baseAvailabilitySeconds = 0
+}
+
+global enum eChallengeCollectionActiveState
+{
+	ACTIVE,
+	INACTIVE_AVAILABILITY_SECONDS,
+	INACTIVE_CALEVENT,
+	INACTIVE_KEPLER
 }
 
 
@@ -145,7 +152,7 @@ bool function ChallengeCollection_IsEnabled()
 	return isEnabled
 }
 
-bool function ChallengeCollection_IsActive( entity player, ChallengeCollection challengeCollection )
+int function ChallengeCollection_GetActiveState( entity player, ChallengeCollection challengeCollection )
 {
 	int currentTime = GetUnixTimestamp()
 	int firstViewedTime = ChallengeCollection_GetFirstViewedTime( player, challengeCollection )
@@ -153,15 +160,25 @@ bool function ChallengeCollection_IsActive( entity player, ChallengeCollection c
 	int availabilitySeconds = ChallengeCollection_GetAvailabilitySeconds( challengeCollection )
 	if ( availabilitySeconds > 0 && firstViewedTime > 0 )
 	{
-		return currentTime - firstViewedTime < availabilitySeconds
+		if ( currentTime - firstViewedTime < availabilitySeconds )
+		{
+			return eChallengeCollectionActiveState.ACTIVE
+		}
+
+		return eChallengeCollectionActiveState.INACTIVE_AVAILABILITY_SECONDS
 	}
 
 	if ( !CalEvent_IsActive( challengeCollection.itemFlav, currentTime ) )
 	{
-		return false
+		return eChallengeCollectionActiveState.INACTIVE_CALEVENT
 	}
 
-	return Kepler_IsPlayerEligibleForItemFlavor( player, challengeCollection.itemFlav )
+	if ( !Kepler_IsPlayerEligibleForItemFlavor( player, challengeCollection.itemFlav ) )
+	{
+		return eChallengeCollectionActiveState.INACTIVE_KEPLER
+	}
+
+	return eChallengeCollectionActiveState.ACTIVE
 }
 
 table< int, ChallengeCollection > function ChallengeCollection_GetRegisteredCollections()
@@ -184,17 +201,6 @@ array< ChallengeCollection > function ChallengeCollection_GetActiveCollections()
 		}
 	}
 	return activeChallengeCollections
-}
-
-ChallengeCollection ornull function ChallengeCollection_GetActiveCollection()
-{
-	ChallengeCollection ornull collection = null
-	array< ChallengeCollection > collections = ChallengeCollection_GetActiveCollections()
-	if ( collections.len() > 0 )
-	{
-		collection = collections[0]
-	}
-	return collection
 }
 
 
@@ -277,19 +283,12 @@ bool function ChallengeCollection_HasChallenges( ChallengeCollection challengeCo
 }
 
 
-ItemFlavor ornull function ChallengeCollection_GetCharacterUnlockChallenge( ItemFlavor characterFlav )
+
+ItemFlavor ornull function ChallengeCollection_GetCharacterUnlockChallenge( ItemFlavor characterFlav, ChallengeCollection challengeCollection )
 {
 	Assert( ItemFlavor_GetType( characterFlav ) == eItemType.character )
 
-	
-	ChallengeCollection ornull activeCollection = ChallengeCollection_GetActiveCollection()
-	if ( activeCollection == null )
-	{
-		return null
-	}
-
-	expect ChallengeCollection( activeCollection )
-	array< ItemFlavor > challenges = ChallengeCollection_GetAllChallenges( activeCollection )
+	array< ItemFlavor > challenges = ChallengeCollection_GetAllChallenges( challengeCollection )
 	foreach ( ItemFlavor challenge in challenges )
 	{
 		ItemFlavorBag rewards = Challenge_GetRewards( challenge, 0 ) 

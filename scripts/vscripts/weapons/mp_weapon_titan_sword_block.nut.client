@@ -13,7 +13,6 @@ const string TITAN_SWORD_BLOCK_MOD = "blocking"
 const string SIG_TITAN_SWORD_BLOCK_DEACTIVATE = "TitanSword_DeactivateBlock"
 
 
-const asset VFX_TITAN_SWORD_BLOCK = $"P_xo_sword_block"
 const asset VFX_TITAN_SWORD_BLOCK_HIT_1P = $"P_xo_sword_block_hit"
 const asset VFX_TITAN_SWORD_BLOCK_HIT_3P = $"P_xo_sword_block_hit_3P"
 const asset VFX_TITAN_SWORD_BLOCK_BULLET_HIT = $"P_pilot_sword_block_bullet"
@@ -71,8 +70,6 @@ bool function TitanSword_Block_IsBlocking( entity weapon )
 {
 	return weapon.IsWeaponInAds()
 }
-
-
 
 
 

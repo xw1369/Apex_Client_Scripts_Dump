@@ -1,6 +1,7 @@
 global function MpAbilityPhaseWalk_Init
 
 global function OnWeaponActivate_ability_phase_walk
+global function OnWeaponAttemptOffhandSwitch_ability_phase_walk
 global function OnWeaponChargeBegin_ability_phase_walk
 global function OnWeaponChargeEnd_ability_phase_walk
 
@@ -53,6 +54,14 @@ void function OnWeaponActivate_ability_phase_walk( entity weapon )
 	}
 }
 
+bool function OnWeaponAttemptOffhandSwitch_ability_phase_walk( entity weapon )
+{
+	entity player = weapon.GetWeaponOwner()
+	if ( IsValid( player ) && player.IsPhaseShifted() )
+		return false
+
+	return true
+}
 
 
 
@@ -140,6 +149,16 @@ bool function OnWeaponChargeBegin_ability_phase_walk( entity weapon )
 
 	return true
 }
+
+
+
+
+
+
+
+
+
+
 
 
 

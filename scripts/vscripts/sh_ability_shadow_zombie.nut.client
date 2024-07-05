@@ -84,16 +84,31 @@ void function ShAbilityShadowZombie_Init()
 
 }
 
+bool function ShadowZombie_IsEnabled()
+{
+
+		if ( GameModeVariant_IsActive( eGameModeVariants.SURVIVAL_SHADOW_ARMY ) )
+			return true
+
+
+
+
+
+
+
+
+		if ( GameModeVariant_IsActive( eGameModeVariants.SURVIVAL_SHADOW_ROYALE ) )
+			return true
+
+
+	return false
+}
+
 
 bool function IsPlayerShadowZombie( entity player )
 {
-
-	if ( !IsShadowRoyaleMode() && !IsFallLTM() && !IsShadowArmyGamemode() )
+	if ( !ShadowZombie_IsEnabled() )
 		return false
-
-
-
-
 
 	if ( !IsValid( player ) )
 		return false
@@ -108,13 +123,8 @@ bool function IsPlayerShadowZombie( entity player )
 
 void function Ability_Shadow_Zombie_RegisterNetworking()
 {
-
-		if ( !IsShadowRoyaleMode() && !IsShadowArmyGamemode() )
-			return
-
-
-
-
+	if ( !ShadowZombie_IsEnabled() )
+		return
 
 	RegisterNetworkedVariable( "isPlayerShadowZombie", SNDC_PLAYER_GLOBAL, SNVT_BOOL, false )
 	Remote_RegisterClientFunction( "ServerCallback_ShadowAbilitiesClientEffectsEnable", "entity", "bool" )
@@ -137,7 +147,7 @@ void function OnServerVarChanged_IsPlayerShadowZombie( entity player, bool new )
 {
 
 		
-		if ( IsShadowArmyGamemode() )
+		if ( GameModeVariant_IsActive( eGameModeVariants.SURVIVAL_SHADOW_ARMY ) )
 			return
 
 
@@ -841,10 +851,6 @@ void function ShadowAbilitiesClientEffectsEnable( entity player, bool enableFx, 
 
 
 
-
-
-
-
 bool function AreTeammatesShadowZombiesOrRespawning( entity player )
 {
 
@@ -865,6 +871,17 @@ bool function AreTeammatesShadowZombiesOrRespawning( entity player )
 
 	return true
 
+}
+
+
+float function GetPlaylistVar_ShadowHealthRegenPerSec()
+{
+	return GetCurrentPlaylistVarFloat( "shadow_health_regen_rate_multiplier", 2.0 )
+}
+
+float function GetPlaylistVar_ShadowHealthRegenDelay()
+{
+	return GetCurrentPlaylistVarFloat( "shadow_health_regen_delay", 6.0 )
 }
 
 

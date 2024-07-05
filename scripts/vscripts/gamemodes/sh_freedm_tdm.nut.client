@@ -21,8 +21,10 @@ file
 
 void function TDM_Init()
 {
-	if( !TDM_IsModeEnabled() )
-		return
+
+
+
+
 
 
 

@@ -19,7 +19,9 @@ global function ShFlyers_Init
 
 
 
+
 global function ServerToClient_PlayLootRarityFXOnDeathboxDrop
+global function Flyer_ServerToClient_DisplayFlyerDeathboxPrompt
 
 
 global function Flyers_GetAllFlyers
@@ -119,6 +121,10 @@ struct
 	table< entity, CagedFlyerDataStruct >    cagedFlyerToDataStructTable 
 	int fliersToSpawn = 0
 
+
+
+
+
 #if DEV
 		int                               currentTestFlyerSpawnIndex = -1 
 		array< TestFlyerSpawnDataStruct > testflyerSpawnData
@@ -147,6 +153,7 @@ void function ShFlyers_Init()
 	RegisterSignal( "StopFlyerIdle" )
 	RegisterSignal( "RecalculateFlyerState" )
 	RegisterSignal( "CagedFlyerSetPainParameter"  )
+	RegisterSignal( "FlyerDroppedDeathbox" )
 
 
 
@@ -1384,6 +1391,39 @@ bool function EvilFlyersEnabled()
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 void function ServerToClient_PlayLootRarityFXOnDeathboxDrop( entity deathBox  )
 {
 	thread PlayLootRarityFXOnDeathboxDrop_threaded( deathBox  )
@@ -1451,9 +1491,15 @@ void function OnEvilFlyerCreated( entity ent )
 }
 
 
+void function Flyer_ServerToClient_DisplayFlyerDeathboxPrompt()
+{
+	AddOnscreenPromptFunction( "quickchat", InvokePingFlyerDeathbox, 6.0, Localize( "#PING_FLYER_DEATHBOX" ) )
+}
 
-
-
+void function InvokePingFlyerDeathbox( entity player )
+{
+	Remote_ServerCallFunction( "Flyer_ClientToServer_PingFlyerDeathbox" )
+}
 
 
 

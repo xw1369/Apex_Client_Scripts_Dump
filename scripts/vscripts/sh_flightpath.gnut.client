@@ -227,7 +227,7 @@ void function FlightpathShared_Init()
 	level.spawnPointsInUse <- {}
 	level.disallowedTitanfalls <- {}
 
-	AddCallback_EntitiesDidLoad( EntitiesDidLoad )
+	AddCallback_EntitiesDidLoad( EntitiesDidLoad, eEntitiesDidLoadPriority.HIGH )
 }
 
 
@@ -667,7 +667,7 @@ void function MaskTester( int mask )
 	Table[" CONTENTS_EMPTY				"] <- CONTENTS_EMPTY
 	Table[" CONTENTS_SOLID				"] <- CONTENTS_SOLID
 	Table[" CONTENTS_WINDOW				"] <- CONTENTS_WINDOW
-	Table[" CONTENTS_AUX				"] <- CONTENTS_AUX
+	Table[" CONTENTS_BLOCK_THRAET_VISION"] <- CONTENTS_BLOCK_THREAT_VISION
 	Table[" CONTENTS_GRATE				"] <- CONTENTS_GRATE
 	Table[" CONTENTS_SLIME				"] <- CONTENTS_SLIME
 	Table[" CONTENTS_WATER				"] <- CONTENTS_WATER

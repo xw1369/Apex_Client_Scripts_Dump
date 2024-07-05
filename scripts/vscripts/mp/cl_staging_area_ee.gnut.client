@@ -70,7 +70,7 @@ struct
 
 void function CL_Staging_Area_EE_Init()
 {
-	if ( !IsFiringRangeGameMode() )
+	if ( !GameModeVariant_IsActive( eGameModeVariants.SURVIVAL_FIRING_RANGE ) )
 		return
 
 	AddCreateCallback( "prop_dynamic", OnSpawnPropDynamic )

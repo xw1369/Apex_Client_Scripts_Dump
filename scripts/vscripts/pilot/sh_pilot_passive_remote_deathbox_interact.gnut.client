@@ -1,0 +1,656 @@
+global function PassiveRemoteDeathboxInteract_Init
+
+global function IsRemoteDeathboxInteractEnabled
+
+global function GetAbsMaxRemoteDeathboxInteractRange
+global function GetRemoteDeathboxInteractRangeForAlter
+global function GetRemoteDeathboxInteractSqrRangeForAlter
+
+global function CanPlayerRemoteInteractWithDeathbox
+
+global function RemoteDeathboxInteractAllowTakingArmor
+global function RemoteDeathboxInteractAllowTakingGuns
+global function RemoteDeathboxInteractAllowGrabbingBanners
+
+
+
+
+
+global function ServerToClient_RemoteDeathbox_ConsumeUse
+global function RemoteDeathboxInteractOnOpenDeathbox
+global function GetRemoteDeathboxHighlight
+global function IsDeathboxAccessedByEnemyAlter
+
+
+
+const string REMOTE_DEATHBOX_INVENTORY_CLOSED = "RemoteDeathboxInventoryClosed"
+
+global const string REMOTE_DEATHBOX_ALTER_ACCESS_NETVAR = "alterDeathbox"
+
+
+const asset TAKE_ITEM_ROPE_FX = $"P_alter_pas_item_warp"
+
+
+const string REMOTE_DEATHBOX_TAKE_PLAYER_SOUND_3P = "Alter_Passive_ItemWarp_Player_3p"
+const string REMOTE_DEATHBOX_TAKE_DEATHBOX_SOUND_3P = "Alter_Passive_ItemWarp_Box_3p"
+
+const bool REMOTE_DEATHBOX_INTERACT_DEBUG = false
+
+struct
+{
+	float maxUseDist = 75.0
+	float maxUseDistSqrDist
+
+
+
+
+
+	bool allowTakingArmor = false
+	bool allowTakingGuns = true
+	bool allowGrabbingBanners = false
+
+	bool limitUses = true
+} tuning
+
+struct
+{
+
+
+
+
+		table< entity, var > deathboxUIs
+		table< entity, bool > deathboxIsHighlighted
+		EntitySet checkedDeathboxes
+		bool hasSetupClient = false
+
+} file
+
+
+
+void function PassiveRemoteDeathboxInteract_Init()
+{
+	if ( !IsRemoteDeathboxInteractEnabled() )
+		return
+
+	SetupTuning()
+
+	AddGetExtendedRangeUseEntityCallback( GetExtendedRangeUseEntityCallbackForPlayer )
+
+	Remote_RegisterClientFunction( "ServerToClient_RemoteDeathbox_ConsumeUse", "entity" )
+
+	PrecacheParticleSystem( TAKE_ITEM_ROPE_FX )
+
+	RegisterNetworkedVariable( REMOTE_DEATHBOX_ALTER_ACCESS_NETVAR, SNDC_PLAYER_GLOBAL, SNVT_ENTITY )
+
+
+
+
+
+
+
+
+
+
+
+		AddCreateCallback( "prop_death_box", OnDeathBoxCreated )
+
+		AddCallback_CreatePlayerPassiveRui( SetupHighlightsAndRuiOnExistingDeathboxes )
+		AddCallback_DestroyPlayerPassiveRui( CleanupHighlightsAndRuis )
+
+}
+
+void function SetupTuning()
+{
+	tuning.maxUseDist = GetCurrentPlaylistVarFloat( "alter_remote_deathbox_maxUseDist", tuning.maxUseDist ) * METERS_TO_INCHES
+	tuning.maxUseDistSqrDist = tuning.maxUseDist * tuning.maxUseDist
+
+
+
+
+
+
+	tuning.allowTakingArmor = GetCurrentPlaylistVarBool( "alter_remote_deathbox_allowTakingArmor", tuning.allowTakingArmor )
+	tuning.allowTakingGuns = GetCurrentPlaylistVarBool( "alter_remote_deathbox_allowTakingGuns", tuning.allowTakingGuns )
+	tuning.allowGrabbingBanners = GetCurrentPlaylistVarBool( "alter_remote_deathbox_allowGrabbingBanners", tuning.allowGrabbingBanners )
+
+	tuning.limitUses = GetCurrentPlaylistVarBool( "alter_remote_deathbox_limitUses", tuning.limitUses )
+}
+
+bool function IsRemoteDeathboxInteractEnabled()
+{
+	return GetCurrentPlaylistVarBool( "alter_remote_deathbox_interact_enabled", true )
+}
+
+bool function RemoteDeathboxInteractAllowTakingArmor()
+{
+	return tuning.allowTakingArmor
+}
+
+bool function RemoteDeathboxInteractAllowTakingGuns()
+{
+	return tuning.allowTakingGuns
+}
+bool function RemoteDeathboxInteractAllowGrabbingBanners()
+{
+	return tuning.allowGrabbingBanners
+}
+
+float function GetAbsMaxRemoteDeathboxInteractRange()
+{
+
+
+
+	return tuning.maxUseDist
+
+}
+
+float function GetRemoteDeathboxInteractRangeForAlter( entity player )
+{
+	Assert( PlayerHasPassive( player, ePassives.PAS_ALTER ), "This function should only be called if you have alter's passive" )
+
+
+
+
+
+
+
+	return tuning.maxUseDist
+}
+
+float function GetRemoteDeathboxInteractSqrRangeForAlter( entity player )
+{
+	Assert( PlayerHasPassive( player, ePassives.PAS_ALTER ), "This function should only be called if you have alter's passive" )
+
+
+
+
+
+
+
+	return tuning.maxUseDistSqrDist
+}
+
+bool function CanPlayerRemoteInteractWithDeathbox( entity player, entity deathbox )
+{
+	if ( !IsRemoteDeathboxInteractEnabled() )
+		return false
+
+	if ( !IsValid( deathbox ) )
+		return false
+
+	return !PlayerIsLinkedToDeathbox( player, deathbox )
+}
+
+void function OnDeathBoxCreated( entity ent )
+{
+
+#if REMOTE_DEATHBOX_INTERACT_DEBUG
+	printf( "OnDeathBoxCreated has passive " + " has setup : " + file.hasSetupClient )
+#endif
+
+	if ( !file.hasSetupClient )
+		return
+
+	if ( PlayerHasPassive( GetLocalViewPlayer(), ePassives.PAS_ALTER ) )
+		AlterPassive_CreateInWorldMarker( ent )
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+}
+
+
+void function AlterPassive_CreateInWorldMarker ( entity ent )
+{
+	entity localViewPlayer = GetLocalViewPlayer()
+
+	if (!CanPlayerRemoteInteractWithDeathbox( localViewPlayer, ent ))
+		return
+
+#if REMOTE_DEATHBOX_INTERACT_DEBUG
+	printf( GetStack( 2 ) )
+#endif
+
+	if (ent in file.deathboxUIs)
+		return
+
+	vector pos             = ent.GetOrigin()
+	var rui                = CreateFullscreenRui( $"ui/death_box_alter_passive_icon.rpak", RuiCalculateDistanceSortKey( localViewPlayer.EyePosition(), pos ) )
+
+	RuiSetFloat( rui, "minAlphaDist", 2500 )
+	RuiSetFloat( rui, "maxAlphaDist", 3000 )
+
+	RuiSetFloat( rui, "upOffset", 15.0 )
+
+	UISize screenSize = GetVirtualScreenSize( GetScreenSize().width, GetScreenSize().height )
+	RuiSetFloat2( rui, "actualRes", <float( screenSize.width ), float( screenSize.height ), 0> )
+	RuiSetGameTime( rui, "startTime", Time() )
+	RuiSetFloat3( rui, "pos", pos )
+	RuiKeepSortKeyUpdated( rui, true, "pos" )
+
+	file.deathboxUIs[ent] <- rui
+	file.deathboxIsHighlighted[ent] <- false
+	thread UpdateDeathboxHighlightAndRui_Thread( ent, rui )
+}
+
+void function SetupHighlightsAndRuiOnExistingDeathboxes( entity player )
+{
+#if REMOTE_DEATHBOX_INTERACT_DEBUG
+	printf( "SetupHighlightsAndRuiOnExistingDeathboxes has passive " + PlayerHasPassive( player, ePassives.PAS_ALTER ) + " has setup : " + file.hasSetupClient )
+#endif
+
+	if ( PlayerHasPassive( player, ePassives.PAS_ALTER ) )
+	{
+		if ( file.hasSetupClient )
+			return
+
+		file.hasSetupClient = true
+
+		array<entity>  existingDeathboxes = GetAllDeathBoxes()
+
+		foreach ( ent in existingDeathboxes )
+		{
+			AlterPassive_CreateInWorldMarker( ent )
+		}
+	}
+}
+
+void function CleanupHighlightsAndRuis( entity player )
+{
+#if REMOTE_DEATHBOX_INTERACT_DEBUG
+	printf( "RemoteDeathboxInteract_CleanupHighlightsAndRui has passive " + PlayerHasPassive( player, ePassives.PAS_ALTER )  + " has setup : " + file.hasSetupClient )
+#endif
+
+	if ( !PlayerHasPassive( player, ePassives.PAS_ALTER ) )
+	{
+		file.hasSetupClient = false
+
+		foreach ( deathboxUI in file.deathboxUIs )
+		{
+			RuiDestroyIfAlive( deathboxUI )
+		}
+
+		file.deathboxUIs.clear()
+		file.checkedDeathboxes.clear()
+
+		table< entity, bool > deathboxIsHighlighted = clone( file.deathboxIsHighlighted )
+
+		file.deathboxIsHighlighted.clear()
+
+		foreach( entity deathbox, bool isHighlighted in deathboxIsHighlighted )
+		{
+			if ( isHighlighted )
+			{
+				ManageDeathboxHighlights( deathbox )
+			}
+		}
+
+	}
+}
+
+void function UpdateDeathboxHighlightAndRui_Thread( entity deathbox, var rui )
+{
+	deathbox.EndSignal( "OnDestroy" )
+
+	OnThreadEnd(
+		function() : ( deathbox )
+		{
+#if REMOTE_DEATHBOX_INTERACT_DEBUG
+				printf("ALTER PAS - killing thread")
+#endif
+			if ( deathbox in file.deathboxUIs )
+			{
+				if ( file.deathboxUIs[deathbox] != null )
+					RuiDestroyIfAlive( file.deathboxUIs[deathbox] )
+
+				delete file.deathboxUIs[deathbox]
+			}
+
+			if ( deathbox in file.deathboxIsHighlighted )
+			{
+				bool isHighlighted = file.deathboxIsHighlighted[deathbox]
+
+				delete file.deathboxIsHighlighted[deathbox]
+
+				if ( isHighlighted && IsValid( deathbox ) )
+				{
+					ManageDeathboxHighlights( deathbox )
+				}
+
+			}
+		}
+	)
+
+	bool wasVisible = false
+
+	float useRangeSqr = GetRemoteDeathboxInteractSqrRangeForAlter( GetLocalViewPlayer() )
+	while( RuiIsAlive( rui ) )
+	{
+		entity localPlayer = GetLocalViewPlayer()
+		bool isVisible = false
+		if( localPlayer.IsEntAlive() )
+		{
+			isVisible = DistanceSqr( localPlayer.GetOrigin(), deathbox.GetOrigin() ) < useRangeSqr
+
+			if ( isVisible )
+			{
+				isVisible = ((deathbox.GetUsableValue() & USABLE_BY_PILOTS) != 0)
+			}
+
+			if( isVisible )
+			{
+				vector pos = deathbox.GetOrigin()
+				RuiSetFloat3( rui, "pos", pos )
+				if ( !wasVisible )
+				{
+					file.deathboxIsHighlighted[deathbox] = true
+					ManageDeathboxHighlights( deathbox )
+					wasVisible = true
+				}
+			}
+			else if ( wasVisible )
+			{
+				file.deathboxIsHighlighted[deathbox] = false
+				ManageDeathboxHighlights( deathbox )
+				wasVisible = false
+			}
+		}
+
+		if ( isVisible && ( deathbox in file.checkedDeathboxes ) )
+		{
+			isVisible = false
+		}
+
+		RuiSetBool ( rui, "isVisible", isVisible )
+
+		WaitFrame()
+	}
+}
+
+
+void function GetExtendedRangeUseEntityCallbackForPlayer( entity player, array<entity> outEnts )
+{
+	if ( !IsRemoteDeathboxInteractEnabled() )
+		return
+
+	if ( PlayerHasPassive( player, ePassives.PAS_ALTER ) )
+	{
+		array<entity> closeEnoughDeathboxes = GetEntitiesFromArrayNearPos( GetAllDeathBoxes(), player.GetOrigin(), GetRemoteDeathboxInteractRangeForAlter( player )  )
+		foreach( entity deathbox in closeEnoughDeathboxes )
+		{
+			Assert( IsValid( deathbox ) )
+
+			if ( !PlayerIsLinkedToDeathbox( player, deathbox ) )
+			{
+				outEnts.append( deathbox )
+			}
+		}
+	}
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+void function ServerToClient_RemoteDeathbox_ConsumeUse( entity deathbox )
+{
+	if ( !IsRemoteDeathboxInteractEnabled() )
+		return
+
+#if REMOTE_DEATHBOX_INTERACT_DEBUG
+		printf("ALTER PAS CONSUMING FOR ")
+#endif
+
+#if REMOTE_DEATHBOX_INTERACT_DEBUG
+		printf("ALTER PAS " + deathbox + " linked: " + PlayerIsLinkedToDeathbox( GetLocalViewPlayer(), deathbox ))
+		printf("ALTER PAS LINKS: " + GetLocalViewPlayer().GetLinkEntArray().len())
+#endif
+
+	
+	if ( deathbox in file.deathboxUIs )
+	{
+		if ( file.deathboxUIs[deathbox] != null )
+			RuiDestroyIfAlive( file.deathboxUIs[deathbox] )
+
+		delete file.deathboxUIs[deathbox]
+	}
+
+	if ( deathbox in file.deathboxIsHighlighted )
+	{
+		bool isHighlighted = file.deathboxIsHighlighted[deathbox]
+
+		delete file.deathboxIsHighlighted[deathbox]
+
+		if ( isHighlighted && IsValid( deathbox ) )
+		{
+			ManageDeathboxHighlights( deathbox )
+		}
+	}
+}
+
+
+
+string function GetRemoteDeathboxHighlight( entity deathbox, int lootTier )
+{
+	if ( !IsRemoteDeathboxInteractEnabled() )
+		return ""
+
+	string highlight = ""
+
+	entity player = GetLocalViewPlayer()
+	if ( IsValid(player) && IsAlive(player) && PlayerHasPassive( player, ePassives.PAS_ALTER ) && (deathbox in file.deathboxIsHighlighted) )
+	{
+		if ( file.deathboxIsHighlighted[deathbox] )
+		{
+			if ( lootTier - 1 == eRarityTier.MYTHIC )
+				highlight = "survival_item_heirloom_no_los_check"
+			else if ( lootTier - 1 == eRarityTier.LEGENDARY )
+				highlight = "survival_item_legendary_no_los_check"
+			else if ( lootTier - 1 == eRarityTier.EPIC )
+				highlight = "survival_item_epic_no_los_check"
+			else if ( lootTier - 1 == eRarityTier.RARE )
+				highlight = "survival_item_rare_no_los_check"
+			else if ( lootTier - 1 == eRarityTier.COMMON )
+				highlight = "survival_item_common_no_los_check"
+		}
+	}
+#if REMOTE_DEATHBOX_INTERACT_DEBUG
+	printf("ALTER PAS deathbox " + deathbox + ". " + GetLocalClientPlayer() + " is getting highlight " + highlight + " for " + player + " who has passive: " + PlayerHasPassive( player, ePassives.PAS_ALTER ))
+#endif
+
+	return highlight
+}
+
+
+
+void function RemoteDeathboxInteractOnOpenDeathbox( entity deathbox )
+{
+	if ( file.hasSetupClient )
+	{
+		file.checkedDeathboxes[deathbox] <- IN_SET
+	}
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+bool function IsDeathboxAccessedByEnemyAlter( entity deathbox )
+{
+	entity self = GetLocalViewPlayer()
+	if ( !IsValid( self ) )
+		return false
+
+	int selfTeam = self.GetTeam()
+
+	foreach ( entity player in GetPlayerArray_AliveConnected() )
+	{
+		if ( player == self )
+			continue
+
+		if ( player.GetPlayerNetEnt( REMOTE_DEATHBOX_ALTER_ACCESS_NETVAR ) == deathbox )
+		{
+			if ( IsEnemyTeam( player.GetTeam(), selfTeam ) )
+			{
+				return true
+			}
+		}
+	}
+
+	return false
+}
+
+

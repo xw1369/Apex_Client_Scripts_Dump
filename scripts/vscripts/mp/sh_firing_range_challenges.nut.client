@@ -150,7 +150,7 @@ void function ShFiringRangeChallenges_Init()
 	if ( GetMapName() != "mp_rr_canyonlands_staging" ) 
 		return
 
-	if ( !IsFiringRangeGameMode() )
+	if ( !GameModeVariant_IsActive( eGameModeVariants.SURVIVAL_FIRING_RANGE ) )
 		return
 
 	AddCallback_EntitiesDidLoad( EntitiesDidLoad )

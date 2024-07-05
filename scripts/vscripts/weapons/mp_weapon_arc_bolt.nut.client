@@ -52,6 +52,8 @@ const asset ARC_BOLT_ZAP_FX = $"P_ash_arcbolt_tether"
 const asset ARC_BOLT_TETHER_RADIUS_FX = $"P_ash_arcbolt_tether_radius" 
 const asset ARC_BOLT_TETHER_SCREEN_FX = $"P_ash_tether_screen_edge"    
 const asset ARC_BOLT_TETHER_INDICATOR_FX = $"P_ash_tether_indicator_cp10"  
+const asset ARC_BOLT_TETHER_BREAK_CORE = $"P_emp_body_human"
+const asset ARC_BOLT_TETHER_BREAK_SNAP = $"P_tesla_trap_dmg"
 
 const asset ARC_BOLT_TETHER_ANCHOR = $"mdl/weapons_r5/misc_ash_glaive/ash_glaive_solo_fx.rmdl"
 
@@ -60,7 +62,8 @@ const string SIGNAL_TETHER_CREATED = "ArcBolt_TetherCreated"
 const string SIGNAL_TETHER_REMOVED = "ArcBolt_TetherRemoved"
 const string SIGNAL_KILL_CRAWL_FX = "ArcBolt_ArcEffectCreated"
 
-const bool DEBUG_CONNECT_POINT = false  
+const bool DEBUG_CONNECT_POINT 	= false  
+const bool DEBUG_PLANT_POINT	= false
 
 const string FUNCNAME_NEW_TETHER = "ArcBolt_ServerToClient_NewTetherAdded"
 const string FUNCNAME_REMOVED_TETHER = "ArcBolt_ServerToClient_TetherRemoved"
@@ -77,16 +80,26 @@ const float TETHER_DURATION_DEFAULT = 5.0
 const float TETHER_DURATION_UPGRADE = 15.0
 
 const float SHIELD_SCALE_DAMAGE_MULT_DEFAULT = 2.0
-const float TETHER_RADIUS_DEFAULT = 190
+
 const float TETHER_MAX_PULL_VELOCITY_DEFAULT = 100.0
 const float TETHER_DEFAULT_STRENGTH = 80.0
 const float TETHER_STRENGTH_HEALTH_SCALE = 0.6
-const float TETHER_MAX_STRETCH_DAMAGE_DEFAULT = 4.0    
 const float TETHER_HEALTH_BASE = 1000.0
-const float TETHER_HEALTH_DRAIN_PER_SEC_DEFAULT = 250
+
+
+
+
+
+
+
+const float TETHER_RADIUS_DEFAULT = 190
+const float TETHER_HEALTH_DRAIN_PER_SEC_DEFAULT = 250.0
+const float TETHER_MAX_STRETCH_DAMAGE_DEFAULT = 4.0    
+const float TETHER_HEALTH_STRETCH_DAMAGE_SCALE_DEFAULT = 0.11
+
 const float TETHER_HEALTH_DRAIN_DELAY = 1.0
 const float TETHER_HEALTH_DRAIN_CUTOFF_PCT = 0.0
-const float TETHER_HEALTH_STRETCH_DAMAGE_SCALE_DEFAULT = 0.11
+
 const float TETHER_HEALTH_VELOCITY_DAMAGE_SCALE_DEFAULT = 0.011
 
 const float TETHER_GRAV_DMG_FRAC_PER_SEC = 0.5
@@ -135,6 +148,10 @@ struct
 
 
 
+
+
+
+
 		var        tetherRui
 		array<int> affectedTethers
 
@@ -158,6 +175,10 @@ void function MpWeaponArcBolt_Init()
 	PrecacheParticleSystem( ARC_BOLT_ZAP_CONNECT_FX )
 	PrecacheParticleSystem( ARC_BOLT_TETHER_INDICATOR_FX )
 	PrecacheParticleSystem( ARC_BOLT_TETHER_RADIUS_FX_UPGRADED )
+
+
+
+
 
 	PrecacheModel( ARC_BOLT_TETHER_ANCHOR )
 	PrecacheScriptString( TETHER_TRAP_SCRIPTNAME )
@@ -381,6 +402,9 @@ void function OnProjectileCollision_arc_bolt( entity projectile, vector pos, vec
 
 
 
+
+
+
 }
 
 float function GetBoltLifetime( entity player )
@@ -396,6 +420,65 @@ float function GetBoltLifetime( entity player )
 
 	return result
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

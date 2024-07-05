@@ -28,14 +28,7 @@ void function OnWeaponActivate_weapon_seer_heirloom_primary( entity weapon )
 	entity player = weapon.GetWeaponOwner()
 	string meleeSkinName = MeleeSkin_GetSkinNameFromPlayer( player )
 
-
-
-
-
-
-
-
-
+	Melee_SetModsForLegendAbilities( player )
 
 	if ( meleeSkinName == "heirloom" )
 	{
@@ -59,15 +52,7 @@ void function OnWeaponDeactivate_weapon_seer_heirloom_primary( entity weapon )
 	entity player = weapon.GetWeaponOwner()
 	string meleeSkinName = MeleeSkin_GetSkinNameFromPlayer( player )
 
-
-
-
-
-
-
-
-
-
+	Melee_RemoveModsForLegendAbilities( player )
 
 	if ( meleeSkinName == "heirloom" )
 	{

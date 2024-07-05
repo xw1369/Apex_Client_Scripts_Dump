@@ -1,12 +1,10 @@
 global function HealthRegen_Init
 global function HealthRegen_RegisterNetworking
 
+global function HealthRegen_IsOctane
 
-global function HealthRegen_ServerCallback_RegenCancelEvent
-
-
-global const float REGEN_START_DELAY_DEFAULT = 0.5
-global const float REGEN_DAMAGE_DELAY_DEFAULT = 6.0
+global function GetPlaylistVar_HealthRegenDelay
+global function GetPlaylistVar_HealthRegenPerSec
 
 
 
@@ -21,6 +19,9 @@ global const float REGEN_DAMAGE_DELAY_DEFAULT = 6.0
 
 
 
+const string NETVAR_PLAYER_REGEN_DAMAGE_TIME = "HealthRegen_PlayerRegenDamageTime"
+const string NETVAR_PLAYER_REGEN_START_DELAY = "HealthRegen_PlayerRegenStartDelay"
+const float  TIME_PLAYER_REGEN_START_INVALID = -1.0
 
 
 
@@ -38,7 +39,6 @@ global const float REGEN_DAMAGE_DELAY_DEFAULT = 6.0
 
 
 
-struct {
 
 
 
@@ -49,10 +49,40 @@ struct {
 
 
 
-		var healthRegenRui
-		float healthRegenDelayTime
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+const string SIGNAL_PLAYER_REGEN_START_TIME_UPDATED = "HealthRegen_RegenTimeUpdated"
+const string SIGNAL_PLAYER_REGEN_RUI_DESTROYED = "HealthRegen_RuiDestroyed"
+
+
+struct
+{
+
+
+
+
+
+
+
+
+
+	var healthRegenRui
 
 } file
+
 
 void function HealthRegen_Init()
 {
@@ -62,572 +92,833 @@ void function HealthRegen_Init()
 
 
 
-	if ( !GetIsModeHealthRegenActive() )
-		return
-
-	RegisterSignal( "HealthRegen_OnDamaged" )
-	RegisterSignal( "HealthRegen_OnDisconnect" )
 
 
-	file.healthRegenDelayTime = GetCurrentPlaylistVarFloat( "mode_health_regen_delay", REGEN_DAMAGE_DELAY_DEFAULT )
-	AddCallback_OnPlayerDisconnected( HealthRegen_OnPlayerDisconnected )
-	AddCallback_LocalClientPlayerSpawned( HealthRegen_OnPlayerSpawned )
-	AddCallback_GameStateEnter( eGameState.Postmatch, HealthRegen_OnGameState_Ending )
-	AddLocalPlayerTookDamageCallback( HealthRegen_OnLocalPlayerDamaged )
 
+
+
+
+
+
+	if ( GetPlaylistVar_IsModeRegenActive() )
+	{
+
+		RegisterSignal( SIGNAL_PLAYER_REGEN_START_TIME_UPDATED )
+		RegisterSignal( SIGNAL_PLAYER_REGEN_RUI_DESTROYED )
+
+		AddCallback_OnClientScriptInit( HealthRegen_InitClient )
+		AddCallback_GameStateEnter( eGameState.Postmatch, HealthRegen_OnGameState_Ending ) 
+
+	}
 }
 
 void function HealthRegen_RegisterNetworking()
 {
-	if ( !GetIsModeHealthRegenActive() )
-		return
+	RegisterNetworkedVariable( NETVAR_PLAYER_REGEN_DAMAGE_TIME, SNDC_PLAYER_EXCLUSIVE, SNVT_TIME, TIME_PLAYER_REGEN_START_INVALID )
+	RegisterNetworkedVariable( NETVAR_PLAYER_REGEN_START_DELAY, SNDC_PLAYER_EXCLUSIVE, SNVT_TIME, TIME_PLAYER_REGEN_START_INVALID )
 
-	Remote_RegisterClientFunction( "HealthRegen_ServerCallback_RegenCancelEvent" )
+
+	RegisterNetVarTimeChangeCallback( NETVAR_PLAYER_REGEN_DAMAGE_TIME, void function( entity player, float newVal ) : ()
+	{
+		Signal( clGlobal.signalDummy, SIGNAL_PLAYER_REGEN_START_TIME_UPDATED )
+	} )
+	RegisterNetVarTimeChangeCallback( NETVAR_PLAYER_REGEN_START_DELAY, void function( entity player, float newVal ) : ()
+	{
+		Signal( clGlobal.signalDummy, SIGNAL_PLAYER_REGEN_START_TIME_UPDATED )
+	} )
+
 }
 
-bool function IsHealActive( entity player )
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+void function HealthRegen_InitClient( entity player )
 {
-	return StatusEffect_HasSeverity( player, eStatusEffect.stim_visual_effect )
+	if ( !GetPlaylistVar_IsModeRegenActive() )
+		return
+
+	HealthRegen_RUICreate()
+	thread HealthRegen_RunClientLifetime_Thread()
 }
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-void function HealthRegen_OnLocalPlayerDamaged( float damage, vector damageOrigin, int damageType, int damageSourceId, entity attacker )
-{
-	entity player = GetLocalClientPlayer()
-	if ( !IsValid( player ) )
-		return
-
-	if ( !IsAlive( player ) || Bleedout_IsBleedingOut( player ) )
-		return
-
-	if ( player.GetHealth() == player.GetMaxHealth() )
-		return
-
-	thread HealthRegen_RegenTriggerNotice_Thread( false )
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-void function HealthRegen_OnPlayerDisconnected( entity player )
-{
-	if ( !IsValid( player ) )
-		return
-
-	player.Signal( "HealthRegen_OnDisconnect" )
-}
-
-
-
-void function HealthRegen_CreateRUI()
+void function HealthRegen_RUICreate()
 {
 	if ( file.healthRegenRui != null )
 		return
 
-	file.healthRegenRui = CreateCockpitPostFXRui( $"ui/armor_shieldregen.rpak" , MINIMAP_Z_BASE )
-	RuiSetFloat( file.healthRegenRui, "maxRegenDelay", file.healthRegenDelayTime )
+	file.healthRegenRui = CreateCockpitPostFXRui( $"ui/armor_shieldregen.rpak", MINIMAP_Z_BASE )
+
+	RuiSetFloat( file.healthRegenRui, "maxRegenDelay", GetPlaylistVar_HealthRegenDelay() )
+	RuiSetBool( file.healthRegenRui, "upgradeCoreEnabled", UpgradeCore_IsEnabled() )
+	RuiSetImage( file.healthRegenRui, "typeIcon", $"rui/hud/unitframes/healthRegen_icon" )
+	RuiSetFloat3( file.healthRegenRui, "armorColor", SrgbToLinear( <166, 72, 71> / 255.0 ) )
+	RuiSetBool( file.healthRegenRui, "isHealthRegen", true )
+	RuiSetBool( file.healthRegenRui, "isDamaged", false )
 }
 
 
 
 void function HealthRegen_OnGameState_Ending()
 {
+	Signal( clGlobal.signalDummy, SIGNAL_PLAYER_REGEN_RUI_DESTROYED )
+
 	if ( file.healthRegenRui == null )
 		return
 
@@ -637,76 +928,65 @@ void function HealthRegen_OnGameState_Ending()
 
 
 
-void function HealthRegen_ServerCallback_RegenCancelEvent()
+void function HealthRegen_RunClientLifetime_Thread()
 {
-	entity player = GetLocalClientPlayer()
-	if ( !IsValid( player ) )
-		return
+	EndSignal( clGlobal.signalDummy, SIGNAL_PLAYER_REGEN_RUI_DESTROYED )
 
-	player.Signal( "HealthRegen_OnDamaged" )
-}
+	while ( true )
+	{
+		WaitSignal( clGlobal.signalDummy, SIGNAL_PLAYER_REGEN_START_TIME_UPDATED )
 
+		if ( file.healthRegenRui == null )
+			continue
 
+		entity player = GetLocalViewPlayer()
+		float damageTime = player.GetPlayerNetTime( NETVAR_PLAYER_REGEN_DAMAGE_TIME )
+		float regenStartDelay = player.GetPlayerNetTime( NETVAR_PLAYER_REGEN_START_DELAY )
 
-void function HealthRegen_OnPlayerSpawned( entity player )
-{
-	if ( player == GetLocalClientPlayer() )
-		HealthRegen_CreateRUI()
-}
-
-
-
-void function HealthRegen_RegenTriggerNotice_Thread( bool skipDelay )
-{
-	entity player = GetLocalClientPlayer()
-	if ( !IsValid( player ) )
-		return
-
-	player.Signal("HealthRegen_OnDamaged")
-	player.EndSignal( "OnDestroy" )
-	player.EndSignal( "HealthRegen_OnDamaged" )
-	player.EndSignal( "HealthRegen_OnDisconnect" )
-
-	OnThreadEnd( function() : ( ) {
-		if( file.healthRegenRui != null )
+		if ( regenStartDelay == TIME_PLAYER_REGEN_START_INVALID )
 		{
 			RuiSetBool( file.healthRegenRui, "isDamaged", false )
-			RuiSetFloat( file.healthRegenRui, "regenDelay", 0.0 )
+			continue
 		}
-	} )
 
-	float regenDelay = 0.0
-	if ( !skipDelay )
-		regenDelay = file.healthRegenDelayTime
-
-	 
-
-	if( file.healthRegenRui != null )
-	{
-		RuiSetImage(file.healthRegenRui, "typeIcon", $"rui/hud/unitframes/healthRegen_icon")
-		RuiSetBool( file.healthRegenRui, "isHealthRegen", true )
 		RuiSetBool( file.healthRegenRui, "isDamaged", true )
-		RuiSetGameTime( file.healthRegenRui, "lastDamageTime", Time() )
-		RuiSetFloat( file.healthRegenRui, "regenDelay", regenDelay )
-
-		RuiSetFloat3( file.healthRegenRui, "armorColor", SrgbToLinear( <166, 72, 71> / 255.0 ))
-	}
-
-	if ( !skipDelay )
-		wait( regenDelay - 0.25 ) 
-
-	while ( player.GetHealth() != player.GetMaxHealth())
-	{
-		WaitFrame()
-	}
-	if( file.healthRegenRui != null )
-	{
-		RuiSetBool( file.healthRegenRui, "isDamaged", false )
+		RuiSetGameTime( file.healthRegenRui, "lastDamageTime", damageTime )
+		RuiSetFloat( file.healthRegenRui, "regenDelay", regenStartDelay )
 	}
 }
 
 
-bool function GetIsModeHealthRegenActive()
+bool function HealthRegen_IsOctane( entity player )
+{
+	return ( player.GetPlayerSettings() == $"settings/player/mp/pilot_survival_stim.rpak" )
+}
+
+bool function HealthRegen_IsWattson( entity player )
+{
+	return ( player.GetPlayerSettings() == $"settings/player/mp/pilot_survival_barricade.rpak" )
+}
+
+bool function GetPlaylistVar_OtherHealingStartsRegen()
+{
+	return GetCurrentPlaylistVarBool( "mode_health_regen_starts_from_heal", false )
+}
+
+float function GetPlaylistVar_HealthRegenDelay()
+{
+	return GetCurrentPlaylistVarFloat( "mode_health_regen_delay", 6.0 )
+}
+
+float function GetPlaylistVar_HealthRegenPerSec()
+{
+	return GetCurrentPlaylistVarFloat( "mode_health_regen_amount", 10.0 )
+}
+
+bool function GetPlaylistVar_KillStartsRegen()
+{
+	return GetCurrentPlaylistVarBool( "mode_health_regen_starts_from_kill", false )
+}
+
+bool function GetPlaylistVar_IsModeRegenActive()
 {
 	return GetCurrentPlaylistVarBool( "mode_health_regen_active", false )
 }

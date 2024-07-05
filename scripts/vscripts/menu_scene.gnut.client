@@ -1225,7 +1225,7 @@ void function UpdateRefCoords( MenuSceneConfig cfg, MenuSceneState state, bool i
 
 void function HighlightSubject( MenuSceneHighlightConfig cfg, entity subject )
 {
-	int contextId = HIGHLIGHT_CLIENT_ONLY_INDEX + eHighlightContextClientOnly.MENU_SCENE
+	int contextId = HighlightContext_GetId( "menu_scene" )
 	HighlightContext_SetRadius( contextId, cfg.radius )
 	HighlightContext_SetParam( contextId, 0, cfg.color )
 	HighlightContext_SetParam( contextId, 1, <cfg.intensityScalar, 1, 0> )

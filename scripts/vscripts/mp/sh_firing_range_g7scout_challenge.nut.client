@@ -29,7 +29,7 @@ void function ShFRC_G7Scout_Init()
 	if ( GetMapName() != "mp_rr_canyonlands_staging" ) 
 		return
 
-	if ( !IsFiringRangeGameMode() )
+	if ( !GameModeVariant_IsActive( eGameModeVariants.SURVIVAL_FIRING_RANGE ) )
 		return
 
 	if ( !FRC_IsEnabled() )

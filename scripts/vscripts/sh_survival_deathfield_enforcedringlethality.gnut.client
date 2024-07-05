@@ -768,6 +768,37 @@ bool function SimplifiedRingLethality_ShouldShowWarning( entity player )
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 bool function RingLethality_Is_Player_InDeathfield( entity player )
 {
 	if( !IsValid( player ) )
@@ -802,6 +833,9 @@ void function CL_Manage_RingOutLoopSound_Thread()
 {
 	entity player = GetLocalViewPlayer()
 
+	if( !IsValid( player ) )
+		return
+
 	player.Signal( "RingoutLoop_Sound_Stop" )
 	EndSignal( player, "RingoutLoop_Sound_Stop" )
 
@@ -829,7 +863,8 @@ void function CL_Manage_RingOutLoopSound_Thread()
 		{
 			file.snd_RingWarnLoopPlaying = true
 			wait 0.5 
-			EmitSoundOnEntity( player, SIMPLIFIEDRINGLETHALITY_SOUND_RINGOUT_LOOP )
+			if( IsValid( player ) )
+				EmitSoundOnEntity( player, SIMPLIFIEDRINGLETHALITY_SOUND_RINGOUT_LOOP )
 
 			
 			
@@ -839,7 +874,9 @@ void function CL_Manage_RingOutLoopSound_Thread()
 		else if ( !shouldWarn && file.snd_RingWarnLoopPlaying )
 		{
 			file.snd_RingWarnLoopPlaying = false
-			StopSoundOnEntity( player, SIMPLIFIEDRINGLETHALITY_SOUND_RINGOUT_LOOP )
+
+			if( IsValid( player ) )
+				StopSoundOnEntity( player, SIMPLIFIEDRINGLETHALITY_SOUND_RINGOUT_LOOP )
 
 			
 			

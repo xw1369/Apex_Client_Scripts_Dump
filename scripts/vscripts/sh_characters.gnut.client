@@ -413,12 +413,6 @@ void function OnItemFlavorRegistered_Character( ItemFlavor character )
 
 
 		string characterName = ItemFlavor_GetCharacterRef( character )
-
-		if( S16_PathfinderSkirmisherPassiveActive() && characterName.find( "character_pathfinder" ) >= 0 )
-		{
-			file.characterRoleOverride[character] <- eCharacterClassRole.SKIRMISHER
-		}
-
 		string overrideString = GetCurrentPlaylistVarString( "role_override_recon", "" )
 		if ( overrideString.find( characterName ) >= 0 )
 			file.characterRoleOverride[ character ] <- eCharacterClassRole.RECON

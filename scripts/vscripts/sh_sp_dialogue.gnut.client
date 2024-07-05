@@ -129,7 +129,7 @@ global struct QueueItem
 	int    entHandle = -1
 	float  timeAdded = -1
 	bool   active = false
-	string debugRef = ""
+	string milesAlias = ""
 	bool   success = true
 	int    serialNum = -1
 	bool   shouldBlockLowerPriorityItems = false
@@ -1061,7 +1061,7 @@ string function GetAnyDialogueAliasFromName( string name )
 
 
 int s_queueItemNextNum = 0
-QueueItem function QueueAndWait( int priority, QueueData queueData, int dialogueFlags, int entHandle = -1, string debugRef = "" )
+QueueItem function QueueAndWait( int priority, QueueData queueData, int dialogueFlags, int entHandle, string milesAlias )
 {
 	
 
@@ -1070,7 +1070,7 @@ QueueItem function QueueAndWait( int priority, QueueData queueData, int dialogue
 	queueItem.priority = priority
 	queueItem.timeAdded = Time()
 	queueItem.entHandle = entHandle
-	queueItem.debugRef = debugRef
+	queueItem.milesAlias = milesAlias
 	queueItem.serialNum = s_queueItemNextNum
 	queueItem.shouldBlockLowerPriorityItems = IsBitFlagSet( dialogueFlags, eDialogueFlags.BLOCK_LOWER_PRIORITY_QUEUE_ITEMS ) ? true : false
 
@@ -1089,7 +1089,13 @@ QueueItem function QueueAndWait( int priority, QueueData queueData, int dialogue
 	{
 		foreach ( QueueItem alreadyAddedItem in queueData.queue )
 		{
-			if ( alreadyAddedItem.priority > queueItem.priority && alreadyAddedItem.shouldBlockLowerPriorityItems )
+			if ( !GetCurrentPlaylistVarBool( "requeue_identical_vo", false ) && alreadyAddedItem.milesAlias == milesAlias && alreadyAddedItem.entHandle == entHandle )
+			{
+				queueItem.success = false
+				return queueItem
+			}
+
+			if ( alreadyAddedItem.shouldBlockLowerPriorityItems && alreadyAddedItem.priority > queueItem.priority )
 			{
 				queueItem.success = false
 				return queueItem
@@ -1260,9 +1266,9 @@ void function QueueThink( QueueData queueData )
 				foreach ( int i, QueueItem queueItem in queue )
 				{
 					if ( queueItem.active )
-						printt( "  ", i, queueItem.timeAdded, "PRIORITY", queueItem.priority, queueItem.debugRef, "ACTIVE!" )
+						printt( "  ", i, queueItem.timeAdded, "PRIORITY", queueItem.priority, queueItem.milesAlias, "ACTIVE!" )
 					else
-						printt( "  ", i, queueItem.timeAdded, "PRIORITY", queueItem.priority, queueItem.debugRef )
+						printt( "  ", i, queueItem.timeAdded, "PRIORITY", queueItem.priority, queueItem.milesAlias )
 				}
 			}
 			WaitFrame()
@@ -1586,12 +1592,6 @@ void function PlayClientDialogue_Internal( int aliasID, int dialogueFlags, array
 		specificImage = ccd.portraitImage
 	}
 
-	if ( DEBUG_QUEUE_PRINTS )
-	{
-		printt( "Dialogue Added to Queue" )
-		printt( "  name:", data.group.groupName )
-	}
-
 	int speakerEHandle = -1
 	if ( speakers.len() == 1 && IsValid( speakers[0] ) )
 		speakerEHandle = speakers[0].GetEncodedEHandle()
@@ -1605,6 +1605,12 @@ void function PlayClientDialogue_Internal( int aliasID, int dialogueFlags, array
 	
 	if ( !queueItem.success )
 		return
+
+	if ( DEBUG_QUEUE_PRINTS )
+	{
+		printt( "Dialogue Added to Queue" )
+		printt( "  name:", data.group.groupName )
+	}
 
 	bool isDevText = ((data.alias == "") && (data.dialogueText != ""))
 	printf( "Playing Dialogue - '%s'#%d -> '%s', priority:%d, from:'%s'  %s", data.group.groupName, data.indexInGroup, milesAlias, data.priority, string( data.group.sourceDataTable ), (isDevText ? " (dev text)" : "") )
@@ -1719,6 +1725,8 @@ void function PlayClientDialogue_Internal( int aliasID, int dialogueFlags, array
 				{
 					file.currentDialoguePlayingHandle = EmitSoundOnEntityWithSelector( speaker, milesAlias, selector )
 					file.currentDialoguePlayingName = data.name
+
+					SetPlayThroughPOVTransitions( file.currentDialoguePlayingHandle )
 				}
 			}
 			else if ( pos != <0, 0, 0> )

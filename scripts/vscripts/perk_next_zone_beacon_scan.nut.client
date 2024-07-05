@@ -27,6 +27,8 @@ global function Perk_NextZoneSurveyBeacon_GetNextZoneBeaconForEntHit
 
 
 
+
+
 void function Perk_NextZoneBeaconScan_Init()
 {
 	if ( !(GetCurrentPlaylistVarBool( "disable_perk_beacon_scan", false ) ) )
@@ -62,6 +64,11 @@ void function Perk_NextZoneBeaconScan_Init()
 		PrecacheParticleSystem( $"P_ring_console_pulse" )
 
 	}
+
+
+
+
+
 
 }
 
@@ -204,6 +211,10 @@ bool function Recon_CanUseBeacon( entity player, entity beacon )
 
 	return true
 }
+
+
+
+
 
 
 

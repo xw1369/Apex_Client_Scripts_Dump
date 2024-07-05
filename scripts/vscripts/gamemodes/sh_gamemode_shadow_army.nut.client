@@ -15,8 +15,6 @@
 
 
 global function ShadowArmy_Init
-global function ShGameMode_ShadowArmy_RegisterNetworking
-global function IsShadowArmyGamemode
 global function IsShadowArmyGamemodeCineVersion
 global function ShadowArmy_GetNumRevSquadsForMatchStart
 
@@ -344,9 +342,6 @@ struct
 
 void function ShadowArmy_Init()
 {
-	if ( !IsShadowArmyGamemode() )
-		return
-
 
 
 
@@ -462,13 +457,11 @@ void function ShadowArmy_Init()
 		RegisterDisabledBattleChatterEvents( SHADOWARMY_DISABLED_BATTLE_CHATTER_EVENTS )
 
 
+	ShGameMode_ShadowArmy_RegisterNetworking()
 }
 
 void function ShGameMode_ShadowArmy_RegisterNetworking()
 {
-	if ( !IsShadowArmyGamemode() )
-		return
-
 	
 	Remote_RegisterClientFunction( "ShadowArmy_ServerCallback_ShowAnnouncementMessage", "int", 0, eShadowArmyMessageIndex._count, "int", 0, eShadowArmyMessageType._count )
 	Remote_RegisterClientFunction( "ShadowArmy_ServerCallback_ShowHinttMessage", "int", 0, eShadowArmyMessageIndex._count, "int", 0, INT_MAX, "int", 0, INT_MAX )
@@ -498,11 +491,6 @@ void function ShGameMode_ShadowArmy_RegisterNetworking()
 
 
 
-
-bool function IsShadowArmyGamemode()
-{
-	return GetCurrentPlaylistVarBool( "is_shadow_army_gamemode", false )
-}
 
 bool function IsShadowArmyGamemodeCineVersion()
 {
@@ -1662,7 +1650,7 @@ bool function ShadowArmy_IsPlayerOnShadowArmy( entity player )
 
 bool function ShadowArmy_ShouldEnterBleedout( entity player )
 {
-	if ( IsShadowArmyGamemode() && ShadowArmy_IsPlayerOnShadowArmy( player ) )
+	if ( ShadowArmy_IsPlayerOnShadowArmy( player ) )
 		return false
 
 	return true
@@ -3772,9 +3760,6 @@ void function ObjectiveEvac_ManageHUDMessaging_Thread()
 		RuiSetBool( rui, "shouldShowEvacTimer", false )
 	}
 }
-
-
-
 
 
 

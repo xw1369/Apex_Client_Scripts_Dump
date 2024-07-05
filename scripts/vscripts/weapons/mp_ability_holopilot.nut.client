@@ -218,8 +218,6 @@ void function Decoy_Init()
 
 
 
-
-
 void function CodeCallback_PlayerDecoyStateChange( entity decoy, int previousState, int currentState )
 {
 	

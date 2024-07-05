@@ -150,7 +150,8 @@ bool function IsValidSyncedMeleeTarget( entity attacker, entity meleeInputWeapon
 	if ( !IsHumanSized( target ) && target.GetScriptName() != CRYPTO_DRONE_SCRIPTNAME )
 		return false
 
-	if ( target.IsInvulnerable() )
+	
+	if ( target.IsInvulnerable() && !Bleedout_AreFinishersEnabledDuringDeathPrevention() )			
 		return false
 
 	
@@ -327,6 +328,63 @@ void function ServerCallback_SyncedMeleeDone()
 
 	Signal( player, "SyncedMeleeOver_Client" )
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

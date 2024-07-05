@@ -581,7 +581,7 @@ void function CanisterSwitch_TrapActivate_Inverted_Thread( entity player )
 	bool useDefaultSFX = true
 
 
-		if ( Control_IsModeEnabled() )
+		if ( GameMode_IsActive( eGameModes.CONTROL ) )
 			useDefaultSFX = false
 
 

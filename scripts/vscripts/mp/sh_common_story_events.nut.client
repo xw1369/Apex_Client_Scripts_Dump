@@ -97,12 +97,9 @@ struct
 
 
 
-
-
 void function ClCommonStoryEvents_Init()
 {
 	AddCallback_EntitiesDidLoad( EntitiesDidLoad )
-
 
 	if ( IsNightMap() && GetCurrentPlaylistVarBool( "EnableBWScreen", true ))
 	{
@@ -110,8 +107,6 @@ void function ClCommonStoryEvents_Init()
 		AddCallback_GameStateEnter( eGameState.PickLoadout, OnPickLoadout_Client )
 		AddCallback_OnPlayerDisconnected( OnPlayerDisconnected )
 	}
-
-
 }
 
 
@@ -134,12 +129,10 @@ void function ParseBalloonPlaylist()
 
 void function EntitiesDidLoad()
 {
-
-		if ( IsNightMap() && GetCurrentPlaylistVarBool( "UseNocAnnouncerAtNight", true ) )
-		{
-			SurvivalCommentary_SetHost( eSurvivalHostType.NOC )
-		}
-
+	if ( IsNightMap() && GetCurrentPlaylistVarBool( "UseNocAnnouncerAtNight", true ) )
+	{
+		SurvivalCommentary_SetHost( eSurvivalHostType.NOC )
+	}
 
 
 
@@ -185,7 +178,6 @@ void function EntitiesDidLoad()
 
 
 }
-
 
 
 
@@ -232,7 +224,6 @@ void function OnPlayerDisconnected( entity player )
 {
 	StopUISoundByName( "NightMaps_Intro_Static" )
 }
-
 
 
 

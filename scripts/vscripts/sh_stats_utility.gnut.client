@@ -14,12 +14,14 @@ global function Stats_CurrentModeIsSurvival
 global function CalcStatSum_Int
 global function FindMaxStat_Int
 
+global function Stats_CountSetBitsInCharacterBitfield
+
 bool function Stats_IsValidMapForStats()
 {
-	if ( IsSurvivalTraining() )
+	if ( GameModeVariant_IsActive( eGameModeVariants.SURVIVAL_TRAINING ) )
 		return false
 
-	if ( IsFiringRangeGameMode() )
+	if ( GameModeVariant_IsActive( eGameModeVariants.SURVIVAL_FIRING_RANGE ) )
 		return false
 
 	if ( IsLobby() )
@@ -181,4 +183,23 @@ int function FindMaxStat_Int( entity player, array<StatEntry> sourceEntries, int
 			max = temp
 	}
 	return max
+}
+
+int function Stats_CountSetBitsInCharacterBitfield( int input )
+{
+	int count = 0
+
+	
+	
+
+	
+	foreach ( string guid, int characterBitmask in StatsDefs_GetCharacterGUIDToBitmaskMap() )
+	{
+		if ( IsBitFlagSet( input, characterBitmask ) )
+		{
+			count += 1
+		}
+	}
+
+	return count
 }

@@ -278,9 +278,6 @@ void function GetWeaponNames (entity player)
 
 void function ShSurvivalTraining_Init()
 {
-	if ( !IsSurvivalTraining() )
-		return
-
 	RegisterNetworkedVariable( "TrainingEndTime", SNDC_PLAYER_EXCLUSIVE, SNVT_TIME, -1 )
 	RegisterNetworkedVariable( "tutorialContext", SNDC_PLAYER_EXCLUSIVE, SNVT_INT, -1 )
 

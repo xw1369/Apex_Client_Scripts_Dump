@@ -374,9 +374,6 @@ struct
 
 void function FiringRangeGameMode_Init()
 {
-	if ( !IsFiringRangeGameMode() )
-		return
-
 	
 	Assert( GetMapName() == "mp_rr_canyonlands_staging_mu1", "Invalid: the firing range playlist only supports mp_rr_canyonlands_staging_mu1" )
 
@@ -569,29 +566,29 @@ void function FR_Init_NetVars_And_PVars()
 	
 	frIntSettings_NetVars	[ eFRSettingType.TARGETSPEED ] 		<- "frsetting_targetspeed"
 	frIntSettings_PVars		[ eFRSettingType.TARGETSPEED ] 		<- "FRSettingsPVars.targetspeed"
-	frIntSettings_Mins		[ eFRSettingType.TARGETSPEED ] 		<- 1
-	frIntSettings_Maxs		[ eFRSettingType.TARGETSPEED ] 		<- 4
-	frIntSettings_Defaults	[ eFRSettingType.TARGETSPEED ] 		<- 2
+	frIntSettings_Mins		[ eFRSettingType.TARGETSPEED ] 		<- eTarget_Selector_Speeds.CROUCHWALK
+	frIntSettings_Maxs		[ eFRSettingType.TARGETSPEED ] 		<- eTarget_Selector_Speeds.ZIPLINE
+	frIntSettings_Defaults	[ eFRSettingType.TARGETSPEED ] 		<- eTarget_Selector_Speeds.WALK
 
 	
 	frIntSettings_NetVars	[ eFRSettingType.FRDUMMIESHIELDLVL ] <- "frsetting_dummieshieldlvl"
 	frIntSettings_PVars		[ eFRSettingType.FRDUMMIESHIELDLVL ] <- "FRSettingsPVars.dummieshieldlvl"
-	frIntSettings_Mins		[ eFRSettingType.FRDUMMIESHIELDLVL ]	<- 1
-	frIntSettings_Maxs		[ eFRSettingType.FRDUMMIESHIELDLVL ]	<- FR_RANDOM_SHIELD_SETTING	
-	frIntSettings_Defaults	[ eFRSettingType.FRDUMMIESHIELDLVL ] <- 3
+	frIntSettings_Mins		[ eFRSettingType.FRDUMMIESHIELDLVL ] <- eDummie_Selector_Shields.WHITE	
+	frIntSettings_Maxs		[ eFRSettingType.FRDUMMIESHIELDLVL ] <- eDummie_Selector_Shields.RANDOM 
+	frIntSettings_Defaults	[ eFRSettingType.FRDUMMIESHIELDLVL ] <- eDummie_Selector_Shields.PURPLE	
 
 	
 	frIntSettings_NetVars	[ eFRSettingType.FRDUMMIESPEED ] 	<- "frsetting_dummiespeed"
 	frIntSettings_PVars		[ eFRSettingType.FRDUMMIESPEED ] 	<- "FRSettingsPVars.dummiespeed"
-	frIntSettings_Mins		[ eFRSettingType.FRDUMMIESPEED ] 	<- 1
-	frIntSettings_Maxs		[ eFRSettingType.FRDUMMIESPEED ] 	<- 3
-	frIntSettings_Defaults	[ eFRSettingType.FRDUMMIESPEED ] 	<- 2
+	frIntSettings_Mins		[ eFRSettingType.FRDUMMIESPEED ] 	<- eDummie_Selector_Speeds.WALK
+	frIntSettings_Maxs		[ eFRSettingType.FRDUMMIESPEED ] 	<- eDummie_Selector_Speeds.RANDOM
+	frIntSettings_Defaults	[ eFRSettingType.FRDUMMIESPEED ] 	<- eDummie_Selector_Speeds.RUN
 
 	
 	frIntSettings_NetVars	[ eFRSettingType.FRDUMMIEMOVEMENT ] 	<- "frsetting_dummiemovement"
 	frIntSettings_PVars		[ eFRSettingType.FRDUMMIEMOVEMENT ] 	<- "FRSettingsPVars.dummiemovement"
 	frIntSettings_Mins		[ eFRSettingType.FRDUMMIEMOVEMENT ] 	<- eDummie_Selector_Movements.STAYINPLACE
-	frIntSettings_Maxs		[ eFRSettingType.FRDUMMIEMOVEMENT ] 	<- eDummie_Selector_Movements.COUNT_
+	frIntSettings_Maxs		[ eFRSettingType.FRDUMMIEMOVEMENT ] 	<- ( eDummie_Selector_Movements.COUNT_ - 1 )
 	frIntSettings_Defaults	[ eFRSettingType.FRDUMMIEMOVEMENT ] 	<- eDummie_Selector_Movements.STAYINPLACE
 	FRDummie_Movements_Settings_Init()
 
@@ -599,7 +596,7 @@ void function FR_Init_NetVars_And_PVars()
 	frIntSettings_NetVars	[ eFRSettingType.FRDUMMIESTANCE ] 	<- "frsetting_dummiestate"
 	frIntSettings_PVars		[ eFRSettingType.FRDUMMIESTANCE ] 	<- "FRSettingsPVars.dummiestate"
 	frIntSettings_Mins		[ eFRSettingType.FRDUMMIESTANCE ] 	<- eDummie_Selector_States.STAND
-	frIntSettings_Maxs		[ eFRSettingType.FRDUMMIESTANCE ] 	<- eDummie_Selector_States.COUNT_
+	frIntSettings_Maxs		[ eFRSettingType.FRDUMMIESTANCE ] 	<- ( eDummie_Selector_States.COUNT_ - 1 )
 	frIntSettings_Defaults	[ eFRSettingType.FRDUMMIESTANCE ] 	<- eDummie_Selector_States.STAND
 	FRDummie_Stances_Settings_Init()
 
@@ -1618,15 +1615,15 @@ bool function FiringRange_IsCharacterSwitchingEnabled()
 
 void function FiringRange_CharacterMenuOpened()
 {
-	if ( IsFiringRangeGameMode() )
+	if ( GameModeVariant_IsActive( eGameModeVariants.SURVIVAL_FIRING_RANGE ) )
 	{
 		entity player = GetLocalClientPlayer()
 
-		if( PlayerHasPassive( player, ePassives.PAS_VALK ))
+		if( PlayerHasPassive( player, ePassives.PAS_VALK ) )
 		{
 			Remote_ServerCallFunction( "ClientToServer_FiringRange_StopValkPassive" )
 		}
-		if( PlayerHasPassive( player, ePassives.PAS_CRYPTO ))
+		if( PlayerHasPassive( player, ePassives.PAS_CRYPTO ) )
 		{
 			Remote_ServerCallFunction( "ClientToServer_FiringRange_MenuIsOn" )
 		}
@@ -1636,11 +1633,11 @@ void function FiringRange_CharacterMenuOpened()
 
 void function FiringRange_CharacterMenuClosed()
 {
-	if ( IsFiringRangeGameMode() )
+	if ( GameModeVariant_IsActive( eGameModeVariants.SURVIVAL_FIRING_RANGE ) )
 	{
 		entity player = GetLocalClientPlayer()
 
-		if ( PlayerHasPassive( player, ePassives.PAS_CRYPTO ))
+		if ( PlayerHasPassive( player, ePassives.PAS_CRYPTO ) )
 		{
 			Remote_ServerCallFunction( "ClientToServer_FiringRange_MenuIsOff" )
 		}
@@ -3971,30 +3968,7 @@ void function DynStats_OnWeaponFired( entity player, entity weapon, string weapo
 	}
 
 	
-	if ( weaponName == "mp_weapon_bow" && weapon.GetScriptInt0() == eShatterRoundsTypes.SHATTER_TRI ) 	
-	{
-		file.shotsFired+=7
-	}
-
-	else if ( weaponName == "mp_weapon_mastiff" || weaponName == "mp_weapon_shotgun") 
-	{
-		file.shotsFired+=8
-	}
-
-	else if ( weaponName == "mp_weapon_shotgun_pistol" || weaponName == "mp_weapon_doubletake" ) 
-	{
-		file.shotsFired+=3
-	}
-
-	else if ( weaponName == "mp_weapon_energy_shotgun" ) 
-	{
-		file.shotsFired+=11
-	}
-	
-
-	
-	else
-		file.shotsFired++
+	file.shotsFired+= weapon.GetProjectilesPerShot()
 
 	DynStats_UpdateStats_RUI (
 		file.shotsFired,
@@ -4751,7 +4725,7 @@ void function SCB_Broadcast_FRBehavior_Change( entity playerThatChanged, int beh
 	string onOff = isOn ? Localize( "#FRSETTING_ON" ) : Localize( "#FRSETTING_OFF" )
 	vector valueColor  = isOn ? FRIENDLY_COLOR : ENEMY_COLOR
 
-	Assert( (( behaviorType <= eDummieBehaviorType.COUNT_ ) && ( behaviorType >= 0 )), format( "%s(): Behavior Type Out of Range.", FUNC_NAME() ) )
+	Assert( (( behaviorType < eDummieBehaviorType.COUNT_ ) && ( behaviorType >= 0 )), format( "%s(): Behavior Type Out of Range.", FUNC_NAME() ) )
 
 	
 	table< int, string > settingNamesByType

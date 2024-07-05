@@ -86,7 +86,13 @@ void function MpWeaponMountedTurretWeapon_Init()
 void function OnWeaponActivate_weapon_mounted_turret_weapon( entity weapon )
 {
 	OnWeaponActivate_weapon_basic_bolt( weapon )
-	weapon.SetTargetingLaserEnabled( false )
+
+
+	if ( InPrediction() && IsFirstTimePredicted() )
+
+	{
+		weapon.SetTargetingLaserEnabled( false )
+	}
 
 
 
@@ -127,6 +133,12 @@ void function OnWeaponActivate_weapon_mounted_turret_weapon( entity weapon )
 			RuiTrackFloat( GetCompassRui(), "viewConeMax", weapon.GetOwner(), RUI_TRACK_VIEWCONE_MAXYAW )
 		}
 	}
+
+
+
+
+
+
 
 }
 
@@ -194,7 +206,19 @@ void function OnWeaponDeactivate_weapon_mounted_turret_weapon( entity weapon )
 
 
 	weaponOwner.Signal( "DeactivateMountedTurret" )
-	weapon.SetTargetingLaserEnabled( false )
+
+
+	if ( InPrediction() && IsFirstTimePredicted() )
+
+	{
+		weapon.SetTargetingLaserEnabled( false )
+	}
+
+
+
+
+
+
 }
 
 
@@ -224,7 +248,11 @@ void function OnWeaponStartZoomIn_weapon_mounted_turret_weapon( entity weapon )
 
 
 
-	weapon.SetTargetingLaserEnabled( true )
+	if ( InPrediction() && IsFirstTimePredicted() )
+
+	{
+		weapon.SetTargetingLaserEnabled( true )
+	}
 }
 
 void function OnWeaponStartZoomOut_weapon_mounted_turret_weapon( entity weapon )
@@ -258,7 +286,12 @@ void function OnWeaponStartZoomOut_weapon_mounted_turret_weapon( entity weapon )
 
 	}
 
-	weapon.SetTargetingLaserEnabled( false )
+
+	if ( InPrediction() && IsFirstTimePredicted() )
+
+	{
+		weapon.SetTargetingLaserEnabled( false )
+	}
 }
 
 var function OnWeaponPrimaryAttack_weapon_mounted_turret_weapon( entity weapon, WeaponPrimaryAttackParams attackParams )

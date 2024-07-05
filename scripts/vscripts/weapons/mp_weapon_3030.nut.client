@@ -253,7 +253,10 @@ void function OnWeaponReadyToFire_weapon_3030( entity weapon )
 		if ( !weapon.IsReloading() )
 		{
 			weapon.RemoveMod( "segmented_speed_load" )
-			weapon.SetScriptInt0( 0 )
 		}
+	}
+	if ( !weapon.IsReloading() )
+	{
+		weapon.SetScriptInt0( 0 )
 	}
 }

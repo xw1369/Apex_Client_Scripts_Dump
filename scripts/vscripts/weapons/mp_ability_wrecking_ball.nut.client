@@ -259,6 +259,7 @@ void function MpAbilityWreckingBall_Init()
 
 
 		RegisterSignal( "WreckingBall_Throw" )
+		AddCreateCallback( "prop_rollingthunder", WreckingBall_SetupProjectileKillreplay )
 
 
 
@@ -1952,4 +1953,14 @@ void function WreckingBall_SpeedupHudThread( entity viewPlayer, int fxHandle, in
 
 
 
+
+
+
+void function WreckingBall_SetupProjectileKillreplay( entity ball )
+{
+	if ( ball.GetScriptName() != WRECKING_BALL_BALL_SCRIPT_NAME )
+		return
+
+	SetAllowForKillreplayProjectileCam( ball )
+}
 

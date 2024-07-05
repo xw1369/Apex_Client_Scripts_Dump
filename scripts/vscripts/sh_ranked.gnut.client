@@ -15,7 +15,6 @@ global function Ranked_GetRankedLevelRequirement
 global function Ranked_GetTiers
 global function Ranked_GetCostForEntry
 
-
 global function Ranked_GetRankedDivisionDataForTier
 global function Ranked_GetNextTierData
 global function Ranked_GetLadderPosition
@@ -28,6 +27,7 @@ global function Ranked_GetHistoricalFirstSplitRankScore
 global function Ranked_GetHistoricalRankedDivisionFromScore
 global function Ranked_GetHighestHistoricalRankedTierData 
 global function Ranked_GetHistoricalRankedDivisionFromScoreAndLadderPosition
+global function Ranked_GetHistoricalRankedTiers
 global function Ranked_GetHistoricalLadderPosition
 global function Ranked_GetHistoricalLadderOnlyDivision
 global function Ranked_GetNewDivisionForNewSeasonOrSplitReset
@@ -48,9 +48,10 @@ global function Ranked_GetCurrentActiveRankedPeriod
 global function Ranked_GetAllRanked2Pt0Periods
 global function Ranked_GetSeasonForRanked2Pt0Period
 global function Ranked_GetAllRankedPeriodsInAscendingChronologicalOrder
+global function Ranked_HasActiveLadderOnlyDivision
+global function Ranked_GetActiveLadderOnlyDivisionData
 
 
-global function IsRankedGame
 global function Ranked_IsPlayerAbandoning
 global function SharedRanked_DidPlayerEverHaveAFullTeam
 global function SharedRanked_GetAbandonPenaltyLength
@@ -59,9 +60,8 @@ global function SharedRanked_GetAbandonPenaltyLength
 
 global function Ranked_GetHistoricalRankScoreAcrossSplitsForPlayer
 global function Ranked_GetHistoricalRankedPersistenceData
-global function Ranked_HasActiveLadderOnlyDivision
-global function Ranked_GetActiveLadderOnlyDivisionData
-global function Ranked_GetTierOfThresholdForRankedPartyDifferences
+global function Ranked_RankedPartyMaxTierDifferential
+global function Ranked_ShowRankedSummary
 
 
 
@@ -101,6 +101,11 @@ global function Ranked_GetTierOfThresholdForRankedPartyDifferences
 
 global function Ranked_IsRankedV2FirstSplit
 global function Ranked_IsRankedV2SecondSplit
+global function Ranked_IsDisablePointGain
+
+
+
+
 
 global const int SHARED_RANKED_LEVEL_REQUIREMENT = (20 - 1) 
 
@@ -130,6 +135,8 @@ global const string RANKED_2PT0_PERIOD_19_GUIDSTRING = "SAID01234567890"
 global const int RANKED_2PT0_NON_SPLIT = 0
 global const int RANKED_2PT0_SPLIT1 = 1
 global const int RANKED_2PT0_SPLIT2 = 2
+
+global const int DEMOTION_BUFFER_MAX = 3
 
 global const asset RANKED_PLACEMENT_BADGE = $"ui/ranked_badge_placement.rpak"
 global const asset RANKED_PLACEMENT_ICON = $"ui_image/rui/menu/ranked/rank_emblem_placement.rpak"
@@ -170,6 +177,17 @@ global const string XPROG_PERSISTENCE_RANKED_STRUCT_NAME = "xProgRanked"
 global const string XPROG_PERSISTENCE_PREFIX_FORMAT_STRING = XPROG_PERSISTENCE_MERGED_PLAT_STRUCT_NAME + "[ %s ]." + XPROG_PERSISTENCE_RANKED_STRUCT_NAME + "." 
 global const string XPROG_PERSISTENCE_FORMAT_STRING = XPROG_PERSISTENCE_PREFIX_FORMAT_STRING + "%s" 
 
+
+global const string RANKED_IGNORE_MAX_TIER_DIFFERENTIAL_PLAYLIST_VAR = "ranked_ignore_party_rank_difference"
+global const string RANKED_PARTY_IGNORE_MAX_TIER_DIFFERENTIAL_PLAYLIST_VAR = "ranked_ignore_full_party_rank_difference"
+
+global const string RANKED_DEV_PLAYTEST_PLAYLIST_VAR = "ranked_dev_playtest"
+const string RANKED_PARTY_MAX_TIER_DIFFERENTIAL_PLAYLIST_VAR = "ranked_party_max_tier_differential"
+const int RANKED_PARTY_MAX_TIER_DIFFERENTIAL = 3
+global const int MAX_TEAM_SIZE = 3
+
+global const float RANKED_LEAVER_PENALTY_TIME_LIMIT_SEC = 60.0
+
 const array<string> RANKED_2PT0_PERSISTENCE_FIELDS = [
 	RANKED_CURRENT_SCORE_PERSISTENCE_VAR_NAME,
 	"highestRankedScore",
@@ -184,6 +202,8 @@ global enum emblemDisplayMode
 	DISPLAY_LADDER_POSITION,
 	NONE,
 }
+
+
 
 
 
@@ -420,7 +440,7 @@ void function Sh_Ranked_Init()
 		Remote_RegisterClientFunction ( "ServerToClient_Ranked_UpdatePlayerPrevRankedScore" , "entity", "int", -1, INT_MAX )
 		Remote_RegisterClientFunction ( "ServerToClient_Ranked_UpdatePlayerPrevLadderPos" , "entity", "int", -1, INT_MAX )
 
-		if ( !IsRankedGame() )
+		if ( !GameModeVariant_IsActive( eGameModeVariants.SURVIVAL_RANKED ) )
 			return
 
 
@@ -543,7 +563,6 @@ void function OnRankedPeriodRegistered( ItemFlavor rp )
 	
 	for ( int i = 0; i < tierData.len(); i++ )
 	{
-		SharedRankedTierData data = tierData[i]
 		tierData[i].isTopEnd = GetPlaylistVarBool( "defaults", "ranked_tier_isTopEnd_" + i, tierData[i].isTopEnd )
 	}
 
@@ -1198,16 +1217,23 @@ SharedRankedTierData function Ranked_GetHighestHistoricalRankedTierData( entity 
 }
 
 
-int function Ranked_GetTierOfThresholdForRankedPartyDifferences()
+int function Ranked_RankedPartyMaxTierDifferential()
 {
-	array<SharedRankedTierData> tiers = Ranked_GetTiers()
-	foreach ( rankTier in tiers )
-	{
-		if ( rankTier.name == "#RANKED_TIER_PLATINUM" )
-			return rankTier.index
-	}
+	return GetCurrentPlaylistVarInt( RANKED_PARTY_MAX_TIER_DIFFERENTIAL_PLAYLIST_VAR, RANKED_PARTY_MAX_TIER_DIFFERENTIAL )
+}
 
-	return tiers.len() + 1 
+
+bool function Ranked_ShowRankedSummary()
+{
+
+
+
+
+	bool rpGainDisabled = false
+
+		rpGainDisabled = RankedRumble_IsLatestGameRankedRumble( GetLocalClientPlayer() )
+
+	return !rpGainDisabled && Ranked_GetXProgMergedPersistenceData( GetLocalClientPlayer(), RANKED_SHOW_RANKED_SUMMARY_PERSISTENCE_VAR_NAME ) != 0
 }
 
 
@@ -1225,6 +1251,10 @@ SharedRankedDivisionData function Ranked_GetHistoricalRankedDivisionFromScoreAnd
 	unreachable
 }
 
+array<SharedRankedTierData> function Ranked_GetHistoricalRankedTiers( string rankedSeasonGUID )
+{
+	return file.historicalRankedTiers[rankedSeasonGUID]
+}
 
 int function Ranked_GetHistoricalLadderPosition( entity player, string rankedSeasonGUID, bool forFirstSplit = false )
 {
@@ -1494,18 +1524,12 @@ int function GetPlayerRankScore( entity player )
 
 
 
-bool function IsRankedGame()
-{
-	return GetMatchRankedMode() == MATCHRANKEDMODE_RANKED && !IsLobby() 
-}
-
-
 
 
 bool function Ranked_IsPlayerAbandoning( entity player )
 
 {
-	if ( !IsRankedGame() )
+	if ( !GameModeVariant_IsActive( eGameModeVariants.SURVIVAL_RANKED ) )
 		return false
 
 	if ( !GetCurrentPlaylistVarBool( "ranked_match_abandon_penalty", true ) )
@@ -1521,7 +1545,7 @@ bool function Ranked_IsPlayerAbandoning( entity player )
 	if ( Ranked_IsMatchOverForPlayer( player ) )
 		return false
 
-	if ( Ranked_HasPlayerWaitedTooLongAfterBannerWasPickedUp( player ) )
+	if ( Ranked_IsDeadAndCanExitWithoutPenalty( player ) )
 		return false
 
 	if ( GetGameState() >= eGameState.Prematch && !SharedRanked_DidPlayerEverHaveAFullTeam( player ) ) 
@@ -1642,11 +1666,12 @@ bool function Ranked_IsMatchOverForPlayer( entity player )
 		switch ( player.GetPlayerNetInt( "respawnStatus" ) )
 		{
 			case eRespawnStatus.PICKUP_DESTROYED:
+
+				if ( Perk_CanTeammateCraftPlayerBanner( player ) )
+					return false
+
 			case eRespawnStatus.SQUAD_ELIMINATED: 
 				return true
-
-			default:
-				break
 		}
 	}
 
@@ -1655,6 +1680,64 @@ bool function Ranked_IsMatchOverForPlayer( entity player )
 
 
 
+
+bool function Ranked_IsDeadAndCanExitWithoutPenalty( entity player )
+{
+	if ( IsAlive( player ) )
+		return false
+
+	if ( PlayerMatchState_GetFor( player ) < ePlayerMatchState.NORMAL )
+		return false
+
+	
+	
+	
+	
+	
+	
+
+	int respawnStatus = player.GetPlayerNetInt( "respawnStatus" )
+	float abandonPenaltyWaitPeriod = GetCurrentPlaylistVarFloat( "ranked_respawn_banner_pickedup_timeout", RANKED_LEAVER_PENALTY_TIME_LIMIT_SEC )
+	float timeOfDeath = player.GetDeathTime()
+
+	bool bannerCanBeCrafted = Perk_CanTeammateCraftPlayerBanner( player )
+
+
+
+	float exitWithoutAbandonTime = 0.0
+
+	
+	
+	if ( respawnStatus == eRespawnStatus.PICKUP_DESTROYED )
+	{
+		if ( !bannerCanBeCrafted )
+			return true
+
+		exitWithoutAbandonTime = timeOfDeath + RESPAWN_DNA_LIFETIME + abandonPenaltyWaitPeriod
+		return Time() > exitWithoutAbandonTime
+	}
+
+	
+	
+	if ( respawnStatus == eRespawnStatus.WAITING_FOR_DELIVERY )
+	{
+		float timeBannerRecovered = player.GetPlayerNetTime( "respawnBannerPickedUpTime" )
+		Assert( timeBannerRecovered > -1 )
+
+		bool bannerRecoveredBeforeBoxTimerExpired = ( timeBannerRecovered - timeOfDeath ) <= RESPAWN_DNA_LIFETIME
+
+		if ( bannerRecoveredBeforeBoxTimerExpired )
+			exitWithoutAbandonTime = timeBannerRecovered + abandonPenaltyWaitPeriod
+		else
+			exitWithoutAbandonTime = timeOfDeath + RESPAWN_DNA_LIFETIME + abandonPenaltyWaitPeriod
+
+		return Time() > exitWithoutAbandonTime
+	}
+
+	
+	
+	return false
+}
 
 bool function Ranked_HasPlayerWaitedTooLongAfterBannerWasPickedUp( entity player )
 {
@@ -2555,6 +2638,56 @@ bool function Ranked_IsRankedV2SecondSplit( ItemFlavor rankPeriodItemFlav )
 {
 	return Ranked_GetRankedV2SplitStatus( rankPeriodItemFlav ) == RANKED_2PT0_SPLIT2
 }
+
+bool function Ranked_IsDisablePointGain( entity player )
+{
+
+	return RankedRumble_IsLatestGameRankedRumble( player ) || GetConVarBool( "ranked_disable_point_gain" )
+
+
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

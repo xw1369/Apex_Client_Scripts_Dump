@@ -286,7 +286,17 @@ void function SmartAmmo_LockedOntoWarningHUD_Update()
 
 		else if ( StatusEffect_HasSeverity( player, eStatusEffect.perk_survey_beacon_enemies_scanned_visual ) )
 		{
-			RuiSetString( file.lockon_hud, "lockMessage", "#SURVEY_ENEMY_ALLY_SCANNED_HINT" )
+
+
+
+
+
+
+
+
+			{
+				RuiSetString( file.lockon_hud, "lockMessage", "#SURVEY_ENEMY_ALLY_SCANNED_HINT" )
+			}
 			RuiSetGameTime( file.lockon_hud, "lockEndTime", RUI_BADGAMETIME )
 			RuiSetBool( file.lockon_hud, "isVisible", true )
 			RuiSetBool( file.lockon_hud, "northLock", false )
@@ -330,18 +340,18 @@ void function SmartAmmo_LockedOntoWarningHUD_Update()
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
+		else if ( IsPlayersBeingWarnedAboutNexus( player ) )
+		{
+			RuiSetString( file.lockon_hud, "lockMessage", "#TRANSPORT_PORTAL_NEARBY_WARNING" )
+			RuiSetGameTime( file.lockon_hud, "lockEndTime", RUI_BADGAMETIME )
+			RuiSetBool( file.lockon_hud, "isVisible", true )
+			RuiSetBool( file.lockon_hud, "northLock", false )
+			RuiSetBool( file.lockon_hud, "southLock", false )
+			RuiSetBool( file.lockon_hud, "westLock", false )
+			RuiSetBool( file.lockon_hud, "eastLock", false )
+			RuiSetImage( file.lockon_hud, "characterIcon", $"rui/hud/ultimate_icons/ultimate_alter" )
+			RuiSetFloat3( file.lockon_hud, "borderColor", < .576, .439, .859 > ) 
+		}
 
 
 		else if ( (StatusEffect_HasSeverity( player, eStatusEffect.camera_detected )

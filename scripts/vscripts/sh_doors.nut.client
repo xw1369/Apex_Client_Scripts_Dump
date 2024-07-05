@@ -38,6 +38,7 @@ global function IsDoorLocked
 
 
 
+
 global function ShDoors_Init
 global function IsDoor
 global function IsCodeDoor
@@ -76,6 +77,7 @@ struct DoorData
 
 struct
 {
+
 
 
 
@@ -2276,6 +2278,9 @@ vector arcCornerIn, float arcRadius, float arcStartAng, float arcEndAng )
 
 
 
+
+
+
 bool function ShDoors_IsDoorGoalToOpen( entity door )
 {
 	if ( door.GetNetworkedClassName() != "door_mover" )
@@ -2894,6 +2899,20 @@ bool function IsDoorLocked( entity door )
 
 	return false
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

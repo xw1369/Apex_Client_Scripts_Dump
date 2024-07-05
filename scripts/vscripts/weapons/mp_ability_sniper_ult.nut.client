@@ -15,6 +15,7 @@ global function SniperUlt_GetMarkedDuration
 
 
 
+
 global function OnClientAnimEvent_ability_sniper_ult
 
 
@@ -71,26 +72,25 @@ const string SNIPERULT_ZOOM_OUT = "weapon_vantageUlt_ads_out"
 
 
 
+struct
+{
 
+		float timeLastUltHint = 0
+
+
+} file
 
 const bool SNIPERULT_DEBUG_DRAW = false
 
 void function SniperUlt_Init()
 {
 	
-	
-	
-	
-	
-
 	PrecacheParticleSystem( FX_SNIPER_ULT_MARK )
 	PrecacheParticleSystem( FX_SNIPER_ULT_MARK_WHIZ_BY )
 	PrecacheParticleSystem( FX_SNUPER_ULT_MUZZLE_FLASH_1P )
 	PrecacheParticleSystem( FX_SNUPER_ULT_MUZZLE_FLASH_3P )
 
-	
-	
-	
+
 
 
 
@@ -115,6 +115,9 @@ void function SniperUlt_Init()
 
 		RegisterSignal( "SniperUlt_Mark_StopSignal" )
 
+
+
+
 		
 		StatusEffect_RegisterEnabledCallback( eStatusEffect.sonar_round_embedded, SniperUlt_Mark_Client_Start )
 		StatusEffect_RegisterDisabledCallback( eStatusEffect.sonar_round_embedded, SniperUlt_Mark_Client_Stop )
@@ -130,6 +133,7 @@ void function OnWeaponActivate_ability_sniper_ult( entity weapon )
 		weapon.SetTargetingLaserEnabled( false )
 	}
 
+	entity weaponOwner = weapon.GetOwner()
 
 
 
@@ -140,12 +144,28 @@ void function OnWeaponActivate_ability_sniper_ult( entity weapon )
 
 
 
-		AprilFools_S20_ApplyWeaponGravityMod( weapon )
+
+
+
+
+
+
+
+
+
+
+
 
 }
 
 void function OnWeaponDeactivate_ability_sniper_ult( entity weapon )
 {
+
+
+
+
+
+
 
 
 
@@ -710,6 +730,23 @@ float function SniperUlt_GetMarkedDuration()
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 void function OnClientAnimEvent_ability_sniper_ult( entity weapon, string name )
 {
 	GlobalClientEventHandler( weapon, name )
@@ -855,5 +892,44 @@ void function SniperUlt_Mark_Client_Stop( entity ent, int statusEffect, bool act
 	
 	ent.Signal( "SniperUlt_Mark_StopSignal" )
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 

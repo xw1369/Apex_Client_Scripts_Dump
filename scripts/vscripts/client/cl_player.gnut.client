@@ -11,7 +11,6 @@ global function ClientCodeCallback_PlayerSpawned
 global function ClientCodeCallback_HUDThink
 global function Player_AddPlayer
 global function Player_AddClient
-global function ServerCallback_GameModeAnnouncement
 
 global function ServerCallback_ResetReconnectParametersAsync
 global function ClientCodeCallback_PlayerDisconnected
@@ -241,13 +240,6 @@ bool function ConditionNoTitan()
 
 void function Player_AddClient( entity player )
 {
-	
-	
-	
-	
-
-	
-
 	if ( !IsLobby() )
 	{
 		player.EnableHealthChangedCallback()
@@ -271,19 +263,6 @@ void function Player_AddPlayer( entity player )
 	player.p.classActuallyChanged = true
 }
 
-
-function Pressed_RequestTitanfall( entity player )
-{
-	if ( !IsTitanAvailable( player ) )
-		return
-
-#if DEV
-		printt( player.GetEntIndex(), "Requested replacement Titan from eye pos " + player.EyePosition() + " view angles " + player.EyeAngles() + " player origin " + player.GetOrigin() + " map " + GetMapName() )
-#endif
-
-	player.ClientCommand( "ClientCommand_RequestTitan" ) 
-	Rumble_Play( "rumble_titanfall_request", {} )
-}
 
 
 void function ClientCodeCallback_HUDThink()
@@ -1174,7 +1153,7 @@ void function ServerCallback_OnPlayerOrNpcKilled( entity attacker, entity victim
 	if ( (victim.IsTitan()) && (!victim.IsPlayer()) )
 		return
 
-	int obitFlags
+	int obitFlags = OBIT_FLAG_KILL
 	if ( isHeadShot )
 		obitFlags = obitFlags | OBIT_FLAG_HEADSHOT
 
@@ -1778,8 +1757,8 @@ vector function GetShieldEffectCurrentColor( float shieldHealthFrac )
 
 string function GetPlayerDeathSound1P()
 {
-	if ( IsFiringRangeGameMode() )
-		return "player_death_begin_survival_firingrange"
+	if ( GamemodeUtility_GetKillReplayActive() )
+		return GetCurrentPlaylistVarString( "player_death_sound_killreplay", "player_death_begin_killcam_noduck" )
 
 	return GetCurrentPlaylistVarString( "player_death_sound", "player_death_begin_survival" )
 }
@@ -1919,53 +1898,6 @@ void function EnableDoDeathCallback( entity ent )
 {
 	ent.DoDeathCallback( true )
 }
-
-
-void function ServerCallback_GameModeAnnouncement()
-{
-	entity player   = GetLocalClientPlayer()
-	string gameMode = GameRules_GetGameMode()
-
-	if ( GameMode_GetCustomIntroAnnouncement( gameMode ) != null )
-	{
-		void functionref(entity) func = GameMode_GetCustomIntroAnnouncement( gameMode )
-		func( player )
-		return
-	}
-
-	int team = player.GetTeam()
-
-	float totalDuration = 0.0
-
-	AnnouncementData announcement
-
-	if ( GetGameState() == eGameState.Resolution )
-	{
-		
-		announcement = Announcement_Create( "#GAMEMODE_EPILOGUE" )
-	}
-	else
-	{
-		announcement = Announcement_Create( GAMETYPE_TEXT[gameMode] )
-		announcement.announcementStyle = ANNOUNCEMENT_STYLE_BIG
-
-		
-		Announcement_SetSubText( announcement, GAMEDESC_CURRENT )
-
-		if ( GameMode_IsDefined( gameMode ) )
-		{
-			if ( GameMode_GetAttackDesc( gameMode ) != "" && team == GetGlobalNetInt( "attackingTeam" ) )
-				Announcement_SetSubText( announcement, GameMode_GetAttackDesc( gameMode ) )
-
-			if ( GameMode_GetDefendDesc( gameMode ) != "" && team != GetGlobalNetInt( "attackingTeam" ) )
-				Announcement_SetSubText( announcement, GameMode_GetDefendDesc( gameMode ) )
-		}
-	}
-
-
-	AnnouncementFromClass( player, announcement ) 
-}
-
 
 bool function GetHideCrosshairHitIndicatorOverride()
 {

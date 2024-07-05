@@ -31,7 +31,7 @@ global const int ANNOUNCEMENT_STYLE_TDM_ROUND_WON = 15
 
 
 
-
+	global const int ANNOUNCEMENT_STYLE_REMAINING_RESPAWNS = 22
 
 
 global const int ANNOUNCEMENT_POSITION_ZONE_NONE = 0
@@ -59,6 +59,7 @@ global struct AnnouncementData
 	string        messageText = "#EMPTY_STRING"
 	string        subText = "#EMPTY_STRING"
 	string        headerText = ""
+	string        additionalText = "" 
 	array<string> leftText = ["", "", "", "", "", ""]
 	array<string> rightText = ["", "", "", "", "", ""]
 	vector        titleColor = <0.5, 0.5, 0.5>
@@ -94,7 +95,7 @@ struct
 	bool announcementsEnabled = true
 
 
-
+		var functionref( AnnouncementData ) onSetupAnnouncement_RemainingRespawns = null
 
 } file
 
@@ -157,6 +158,10 @@ void function Announcement_SetHeaderText( AnnouncementData announcement, string 
 	announcement.headerText = headerText
 }
 
+void function Announcement_SetAdditionalText( AnnouncementData announcement, string additionalText )
+{
+	announcement.additionalText = additionalText
+}
 
 void function Announcement_SetStyle( AnnouncementData announcement, int style )
 {
@@ -681,6 +686,8 @@ void function AnnouncementMessage_DisplayOnHud( AnnouncementData announcement )
 			RuiSetString( rui, "messageSubText", Localize( announcement.subText, Localize( optionalSubTextArgs[0] ), Localize( optionalSubTextArgs[1] ), Localize( optionalSubTextArgs[2] ), Localize( optionalSubTextArgs[3] ), Localize( optionalSubTextArgs[4] ) ) )
 			RuiSetString( rui, "messageHeaderText", Localize( announcement.headerText ) )
 
+			RuiSetString( rui, "additionalMessage", Localize( announcement.additionalText ) )
+
 			RuiSetGameTime( rui, "displayEndTime", announcement.displayEndTime )
 
 			RuiSetInt( rui, "verticalOffset", announcement.verticalOffset )
@@ -692,7 +699,7 @@ void function AnnouncementMessage_DisplayOnHud( AnnouncementData announcement )
 		case ANNOUNCEMENT_STYLE_KILL_LEADER:
 			customAnnouncement = true
 			rui = RuiCreate( $"ui/kill_leader_noti.rpak", clGlobal.topoFullScreen, RUI_DRAW_POSTEFFECTS, 0 )
-			if (IsValentinesS15())
+			if ( GameModeVariant_IsActive( eGameModeVariants.SURVIVAL_VALENTINES_S15 ) )
 				rui = RuiCreate( $"ui/kill_leader_datenight_noti.rpak", clGlobal.topoFullScreen, RUI_DRAW_POSTEFFECTS, 0 )
 			RuiSetFloat( rui, "startTime", Time() )
 			RuiSetFloat( rui, "duration", announcement.duration )
@@ -762,11 +769,11 @@ void function AnnouncementMessage_DisplayOnHud( AnnouncementData announcement )
 			break
 
 
+		case ANNOUNCEMENT_STYLE_REMAINING_RESPAWNS:
+			if ( file.onSetupAnnouncement_RemainingRespawns != null )
+				rui = file.onSetupAnnouncement_RemainingRespawns( announcement )
 
-
-
-
-
+			break
 
 
 		default:
@@ -830,7 +837,7 @@ int function Announcement_GetActivePositionZone()
 		case ANNOUNCEMENT_STYLE_GOT_TREASURE_PACK:
 		case ANNOUNCEMENT_STYLE_GENERIC_WARNING:
 
-
+		case ANNOUNCEMENT_STYLE_REMAINING_RESPAWNS:
 
 			return ANNOUNCEMENT_POSITION_ZONE_TOP_CENTER
 			break
@@ -893,6 +900,10 @@ void function ServertoClient_LTM_AnnouncementSplash()
 	asset emblemImage             = ASSET_ANNOUNCEMENT_ICON
 	float duration                = ANNOUNCEMENT_DURATION
 	string messageText            = GetCurrentPlaylistVarString( "name", "#GAMEMODE_ANNOUNCE_NONE" )
+
+		if ( GameModeVariant_IsActiveForPlaylist( playlistName, eGameModeVariants.SURVIVAL_RANKED ) && RankedRumble_IsLatestGameRankedRumble( player ) )
+			messageText = Localize("#RANKED_RUMBLE")
+
 	string subText                = GetCurrentPlaylistVarString( "announce_desc", "#GAMEMODE_ANNOUNCE_SUBTEXT_NONE" )
 	int subTextCount              = GetCurrentPlaylistVarInt( "announce_count", 1 )
 	vector titleColor             = <0, 0, 0>
@@ -925,8 +936,8 @@ void function ServertoClient_LTM_AnnouncementSplash()
 }
 
 
-
-
-
-
+void function Announcements_SetOnSetupAnnouncement_RemainingRespawns( var functionref( AnnouncementData announcement ) setupAnnouncementCallback )
+{
+	file.onSetupAnnouncement_RemainingRespawns = setupAnnouncementCallback
+}
 

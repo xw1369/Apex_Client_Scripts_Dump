@@ -69,8 +69,10 @@ void function ClUnitFrames_Init()
 	AddCallback_GameStateEnter( eGameState.Playing, OnGameStateEnterPlaying )
 	AddCallback_GameStateEnter( eGameState.Resolution, OnGameStateEnterResolution )
 
-	if ( IsRecruitMode() )
+	if ( GameModeVariant_IsActive( eGameModeVariants.SURVIVAL_RECRUIT ) )
+	{
 		CL_RecruitModeUnitFrames_Init()
+	}
 }
 
 void function ClientCodeCallback_OnMatchJipChanged()
@@ -99,12 +101,29 @@ void function OnPlayerTeamChanged( entity player, int oldTeam, int newTeam )
 	if ( GetCurrentPlaylistVarBool( "minimal_mic_hud_enabled", false ) )
 		RefreshMinimalMicRui()
 
-	UnitFrames_ToggleTeamName()
+
+
+
+
+
+
+	if ( UseDynamicSquadTag() )
+		SquadTag_SetRuiArgs()
+	else
+		UnitFrames_ToggleTeamName()
 }
 
 void function OnPlayerAllianceChanged( int team, int newAlliance )
 {
-	UnitFrames_ToggleTeamName()
+
+
+
+
+
+	if ( UseDynamicSquadTag() )
+		SquadTag_SetRuiArgs()
+	else
+		UnitFrames_ToggleTeamName()
 }
 
 
@@ -164,7 +183,15 @@ void function OnGameStateEnterPlaying()
 	if ( GetCurrentPlaylistVarBool( "minimal_mic_hud_enabled", false ) )
 		CreateMinimalMicRui()
 
-	UnitFrames_ToggleTeamName()
+
+
+
+
+
+	if ( UseDynamicSquadTag() )
+		SquadTag_SetRuiArgs()
+	else
+		UnitFrames_ToggleTeamName()
 }
 
 void function OnGameStateEnterResolution()
@@ -183,7 +210,15 @@ void function OnSpectatorTargetChanged( entity spectator, entity prevTarget, ent
 
 	if ( IsValid( newTarget ) && newTarget.IsPlayer() && (newTarget != prevTarget) )
 	{
-		UnitFrames_ToggleTeamName()
+
+
+
+
+
+		if ( UseDynamicSquadTag() )
+			SquadTag_SetRuiArgs()
+		else
+			UnitFrames_ToggleTeamName()
 	}
 }
 
@@ -194,7 +229,15 @@ void function OnViewPlayerChanged( entity newViewPlayer )
 	RefreshUnitframesForPlayer( newViewPlayer )
 	UpdateFullmapRuiTracks()
 
-	UnitFrames_ToggleTeamName()
+
+
+
+
+
+	if ( UseDynamicSquadTag() )
+		SquadTag_SetRuiArgs()
+	else
+		UnitFrames_ToggleTeamName()
 }
 
 
@@ -589,6 +632,7 @@ void function SetUnitFrameDataFromOwner( var rui, entity ent, entity localPlayer
 	RuiTrackFloat( rui, "reviveEndTime", ent, RUI_TRACK_SCRIPT_NETWORK_VAR, GetNetworkedVariableIndex( "reviveEndTime" ) )
 	RuiTrackInt( rui, "reviveType", ent, RUI_TRACK_SCRIPT_NETWORK_VAR_INT, GetNetworkedVariableIndex( "reviveType" ) )
 	RuiTrackFloat( rui, "bleedoutEndTime", ent, RUI_TRACK_SCRIPT_NETWORK_VAR, GetNetworkedVariableIndex( "bleedoutEndTime" ) )
+	RuiTrackFloat( rui, "hackStartTime", ent, RUI_TRACK_SCRIPT_NETWORK_VAR, GetNetworkedVariableIndex( "hackStartTime" ) )
 	RuiTrackBool( rui, "isJumpmaster", ent, RUI_TRACK_SCRIPT_NETWORK_VAR_BOOL, GetNetworkedVariableIndex( "isJumpmaster" ) )
 	RuiTrackInt( rui, "respawnStatus", ent, RUI_TRACK_SCRIPT_NETWORK_VAR_INT, GetNetworkedVariableIndex( "respawnStatus" ) )
 	RuiTrackFloat( rui, "respawnStatusEndTime", ent, RUI_TRACK_SCRIPT_NETWORK_VAR, GetNetworkedVariableIndex( "respawnStatusEndTime" ) )
@@ -643,7 +687,7 @@ void function SetUnitFrameDataFromOwner( var rui, entity ent, entity localPlayer
 
 	bool showBleedoutTimer = true
 
-		showBleedoutTimer = !IsStrikeoutGamemode()
+		showBleedoutTimer = !GameModeVariant_IsActive( eGameModeVariants.SURVIVAL_STRIKEOUT )
 
 
 	RuiSetBool( rui, "showBleedoutTimer", showBleedoutTimer )
@@ -890,6 +934,15 @@ void function DestroyTeamUnitFrame( entity player )
 
 	UpdateUnitFrameIndices()
 	UpdateJIPUnitFrames()
+
+
+
+
+
+
+
+	if ( UseDynamicSquadTag() )
+		SquadTag_SetRuiArgs()
 }
 
 
@@ -943,11 +996,11 @@ bool function PlayerShouldHaveUnitFrame( entity player )
 	if ( playerTeam != viewer.GetTeam() )
 		return false
 	
-	if ( GetCurrentPlaylistVarBool( "is_hardcore_mode", false ))
+	if ( GameModeVariant_IsActive( eGameModeVariants.SURVIVAL_HARDCORE ) )
 		return false
 
 	int gameState = GetGameState()
-	if ( gameState < eGameState.Playing && !IsFiringRangeGameMode() )
+	if ( gameState < eGameState.Playing && !GameModeVariant_IsActive( eGameModeVariants.SURVIVAL_FIRING_RANGE ) )
 	{
 		if( !( gameState == eGameState.Prematch && GetCurrentPlaylistVarBool( "show_teamunitframes_in_prematch", false ) ) )
 			return false
@@ -1264,7 +1317,7 @@ void function UnitFrames_ToggleTeamName()
 		RuiSetImage( rui, "teamNameIcon", teamIcon )
 		RuiSetBool( rui, "shouldShowTeamName", true )
 
-		if( IsSurvivalMode() )
+		if( GameMode_IsActive( eGameModes.SURVIVAL ) )
 			RuiSetColorAlpha( rui, "teamColor", <244,244,244>/255, 1.0 )
 		else
 			RuiSetColorAlpha( rui, "teamColor", Teams_GetTeamColor( player.GetTeam() ), 1.0 )
@@ -1278,7 +1331,7 @@ void function UnitFrames_ToggleTeamName()
 bool function UnitFrames_ShouldShowTeamName()
 {
 
-	if ( GunGame_IsModeEnabled() )
+	if ( GameModeVariant_IsActive( eGameModeVariants.FREEDM_GUNGAME ) )
 		return true
 
 

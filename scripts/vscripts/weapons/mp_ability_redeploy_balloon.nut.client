@@ -281,7 +281,10 @@ void function OnWeaponActivate_redeploy_balloon( entity weapon )
 			RedployBalloon_BeginPlacement( ownerPlayer )
 #endif
 
-		RunUIScript( "CloseSurvivalInventoryMenu" )
+		if ( ownerPlayer == GetLocalViewPlayer() )
+		{
+			RunUIScript( "CloseSurvivalInventoryMenu" )
+		}
 
 		if ( !InPrediction() )
 			return

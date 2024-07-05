@@ -126,7 +126,7 @@ void function ValkTeammateStartTracking( entity valk )
 		array<entity> decoyArray 	= GetPlayerDecoyArray()
 		decoyArray.extend( GetEntArrayByScriptName( MIRAGE_DECOY_DROP_SCRIPTNAME ) )
 
-		if ( IsFiringRangeGameMode() )
+		if ( GameModeVariant_IsActive( eGameModeVariants.SURVIVAL_FIRING_RANGE ) )
 		{
 			array<entity> dummies = GetEntArrayByScriptName( FIRING_RANGE_DUMMIE_SCRIPT_NAME )
 			dummies.extend( GetEntArrayByScriptName( FIRING_RANGE_COMBAT_DUMMIE_SCRIPT_NAME ) )
@@ -249,7 +249,7 @@ bool function ValkThreatVisionShouldRevealEnemy( entity enemy )
 		string scriptName = enemy.GetScriptName()
 		if( scriptName == MIRAGE_DECOY_DROP_SCRIPTNAME )
 			return true
-		else if ( IsFiringRangeGameMode() && ( scriptName == FIRING_RANGE_DUMMIE_SCRIPT_NAME || scriptName == FIRING_RANGE_COMBAT_DUMMIE_SCRIPT_NAME ) )
+		else if ( GameModeVariant_IsActive( eGameModeVariants.SURVIVAL_FIRING_RANGE ) && ( scriptName == FIRING_RANGE_DUMMIE_SCRIPT_NAME || scriptName == FIRING_RANGE_COMBAT_DUMMIE_SCRIPT_NAME ) )
 			return true
 		else
 			return false
@@ -353,13 +353,13 @@ void function _ValkFlightReveal( entity victim )
 
 	int attachment = victim.LookupAttachment( "CHESTFOCUS" )
 	RuiTrackFloat3( rui, "pos", victim, RUI_TRACK_POINT_FOLLOW, attachment )
-	bool isChampion   = IsFiringRangeGameMode() && victim.IsNPC() ? false : GradeFlagsHas( victim, eTargetGrade.CHAMPION )
-	bool isKillLeader = IsFiringRangeGameMode() && victim.IsNPC() ? false : GradeFlagsHas( victim, eTargetGrade.CHAMP_KILLLEADER )
+	bool isChampion   = GameModeVariant_IsActive( eGameModeVariants.SURVIVAL_FIRING_RANGE ) && victim.IsNPC() ? false : GradeFlagsHas( victim, eTargetGrade.CHAMPION )
+	bool isKillLeader = GameModeVariant_IsActive( eGameModeVariants.SURVIVAL_FIRING_RANGE ) && victim.IsNPC() ? false : GradeFlagsHas( victim, eTargetGrade.CHAMP_KILLLEADER )
 	RuiSetBool( rui, "isChampion", isChampion )
 	RuiSetBool( rui, "isKillLeader", isKillLeader )
 
 
-		if ( Control_IsModeEnabled() )
+		if ( GameMode_IsActive( eGameModes.CONTROL ) )
 		{
 			bool isEXPLeader = GradeFlagsHas( victim, eTargetGrade.EXP_LEADER )
 			RuiSetBool( rui, "isEXPLeader", isEXPLeader )
@@ -380,14 +380,14 @@ void function _ValkFlightReveal( entity victim )
 		}
 	)
 
+		while( true )
+		{
+			bool scanBlocked = FerroWall_BlockScan( player.EyePosition(), victim.GetWorldSpaceCenter() )
+			RuiSetBool( rui, "isVisible", !scanBlocked )
+			WaitFrame()
+		}
 
 
-
-
-
-
-
-		WaitForever()
 
 }
 

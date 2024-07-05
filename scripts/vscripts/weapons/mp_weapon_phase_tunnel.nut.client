@@ -31,6 +31,7 @@ global function OnWeaponPrimaryAttack_ability_phase_tunnel
 
 
 
+
 global function PhaseTunnel_IsPortalExitPointValid
 
 global const float PHASE_TUNNEL_CROUCH_HEIGHT = 48
@@ -48,8 +49,8 @@ const string SOUND_PORTAL_TRAVEL_3P = "Wraith_phasegate_Travel_3p"
 const string SOUND_PORTAL_TRAVEL_1P_BREACH = "Ash_PhaseBreach_Travel_1p"
 const string SOUND_PORTAL_TRAVEL_3P_BREACH = "Ash_PhaseBreach_Travel_3p"
 
-
-
+const string SOUND_PORTAL_TRAVEL_1P_TRANSPORT = "Alter_Ult_Teleport_VoidEnter_1p"
+const string SOUND_PORTAL_TRAVEL_3P_TRANSPORT = "Alter_Ult_Teleport_VoidEnter_3p"
 
 
 
@@ -2154,6 +2155,60 @@ var function OnWeaponPrimaryAttack_ability_phase_tunnel( entity weapon, WeaponPr
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 entity function GetDoorForHitEnt( entity hitEnt )
 {
 	if ( IsDoor( hitEnt ) )
@@ -2229,7 +2284,12 @@ bool function PhaseTunnel_IsPortalExitPointValid( entity player, vector testOrg,
 	if ( result.startSolid || result.fraction < 1 || result.surfaceNormal != <0, 0, 0> )
 	{
 		if ( DEBUG_DRAW )
-			DebugDrawBox( result.endPos, mins, maxs, COLOR_RED, 1, 20.0 )
+		{
+			if ( result.startSolid )
+				DebugDrawBox( testOrg, mins, maxs, COLOR_RED, 1, 0.1 )
+
+			DebugDrawBox( result.endPos, mins, maxs, COLOR_RED, 1, 0.1 )
+		}
 
 		if ( !onlyCheckWorld )
 			return false
@@ -2239,7 +2299,7 @@ bool function PhaseTunnel_IsPortalExitPointValid( entity player, vector testOrg,
 	}
 
 	if ( DEBUG_DRAW )
-		DebugDrawBox( result.endPos, mins, maxs, COLOR_GREEN, 1, 20.0 )
+		DebugDrawBox( result.endPos, mins, maxs, COLOR_GREEN, 1, 0.1 )
 
 	return true
 }

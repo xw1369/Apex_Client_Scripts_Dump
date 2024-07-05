@@ -15,6 +15,7 @@ global function GetItemFlavorOrNullByGUID
 global function IsValidItemFlavorSettingsAsset
 global function GetItemFlavorByAsset
 global function IsValidItemFlavorType
+global function DescribeItemFlavorType
 #if DEV
 global function GetAllItemFlavors
 global function DEV_IsValidItemFlavorHumanReadableRef_Slow
@@ -33,7 +34,9 @@ global function ItemFlavor_GetHumanReadableRefForPIN_Slow
 global function ItemFlavor_GetCleanDownloadAssetPath_Slow
 global function ItemFlavor_GetType
 global function ItemFlavor_GetAsset
+global function ItemFlavor_GetAssetString
 global function ItemFlavor_GetAssetName
+global function ItemFlavor_GetAssetShortName
 global function ItemFlavor_GetSettingsBlock
 global function ItemFlavor_SortByTier
 global function ItemFlavor_GetSourceIcon 
@@ -180,6 +183,7 @@ global enum eItemType
 	calevent_challenge_collection
 	calevent_challenge_set
 	calevent_reward_campaign
+	calevent_challenge_tile
 	_CALEVENT_RANGE_END
 
 	
@@ -229,34 +233,28 @@ global enum eItemType
 
 	image_2d
 	battlepass_presale_voucher
-
-		reward_set_tracker
-
+	reward_set_tracker
 
 
 		character_class
 		character_perk
 
 
+	artifact_component_START
+	
+	
+	artifact_component_deathbox
+	artifact_component_blade 
+	artifact_component_activation_emote
+	artifact_component_power_source
+	artifact_component_theme
+	artifact_component_END
+
 	
 	__loot_start
 	loot_main_weapon
 	melee_weapon
 	__loot_end
-
-
-	artifact_component_START
-	
-	
-	artifact_component_deathbox
-
-	artifact_component_blade 
-	artifact_component_activation_emote
-	artifact_component_power_source
-	artifact_component_theme
-
-	artifact_component_END
-
 
 	
 	ping
@@ -266,9 +264,7 @@ global enum eItemType
 	club_logo_element
 	club_search_tag
 
-
 	kepler_scenario
-
 
 	mythic_bundle 
 	lore
@@ -312,15 +308,11 @@ table<int, int> itemTypeUICategoryMap = {
 	[eItemType.gladiator_card_badge] = eItemTypeUICategory.CHARACTER,
 	[eItemType.loot_main_weapon] = eItemTypeUICategory.NONE,
 	[eItemType.melee_weapon] = eItemTypeUICategory.NONE,
-
 	[eItemType.artifact_component_deathbox] = eItemTypeUICategory.CHARACTER,
-
 	[eItemType.artifact_component_blade] = eItemTypeUICategory.CHARACTER,
 	[eItemType.artifact_component_theme] = eItemTypeUICategory.CHARACTER,
 	[eItemType.artifact_component_activation_emote] = eItemTypeUICategory.CHARACTER,
 	[eItemType.artifact_component_power_source] = eItemTypeUICategory.CHARACTER,
-
-
 	[eItemType.battlepass_purchased_xp] = eItemTypeUICategory.NONE,
 	[eItemType.skydive_emote] = eItemTypeUICategory.CHARACTER,
 	[eItemType.calevent_season] = eItemTypeUICategory.CAL_EVENT,
@@ -364,15 +356,11 @@ global table<int, string> itemTypeNameMap = {
 	[eItemType.gladiator_card_badge] = "#itemtype_gladiator_card_badge_NAME",
 	[eItemType.loot_main_weapon] = "#itemtype_loot_main_weapon_NAME",
 	[eItemType.melee_weapon] = "#itemtype_melee_weapon_NAME",
-
 	[eItemType.artifact_component_deathbox] = "#itemtype_artifact_component_deathbox_NAME",
-
 	[eItemType.artifact_component_blade] = "#itemtype_artifact_component_blade_NAME",
 	[eItemType.artifact_component_theme] = "#itemtype_artifact_component_theme_NAME",
 	[eItemType.artifact_component_activation_emote] = "#itemtype_artifact_component_activation_emote_NAME",
 	[eItemType.artifact_component_power_source] = "#itemtype_artifact_component_power_source_NAME",
-
-
 	[eItemType.battlepass_purchased_xp] = "#itemtype_battlepass_purchased_xp_NAME",
 	[eItemType.skydive_emote] = "#itemtype_skydive_emote_NAME",
 	[eItemType.radio_play] = "#itemtype_radio_play_NAME",
@@ -425,6 +413,10 @@ global struct ItemFlavor
 	int               grxMode   = -1 
 	int               grxIndex  = -1 
 
+
+
+
+
 	array<int> ornull grxOwnershipTargettedBy = null 
 	table<string, string> ornull metaData = null 
 }
@@ -444,7 +436,7 @@ global struct ItemFlavorBag
 {
 	array<ItemFlavor>     flavors
 	array<int>            quantities
-	int                   associatedError = -1
+	int                   associatedError = GRX_INVENTORYERROR_NONE
 }
 
 global typedef ItemFlavorSet table< ItemFlavor, void >
@@ -457,8 +449,10 @@ global const string CHALLENGE_TIER_STAT_ALT_REF = "tier%d_stat_alt%d"
 
 global const string HAS_MYTHIC_PREREQ = "has_mythic_prereq"
 
-global const string ITEM_FLAV_PREFIX = "settings/itemflav/"
-global const string ITEM_FLAV_SUFFIX = ".rpak"
+global const string	ITEM_FLAV_PREFIX		= "settings/itemflav/"
+global const string	ITEM_FLAV_SUFFIX		= ".rpak"
+global const int	ITEM_FLAV_PREFIX_LEN	= 18
+global const int	ITEM_FLAV_SUFFIX_LEN	= 5
 
 
 
@@ -524,6 +518,9 @@ void function ShItems_LevelInit_Begin()
 {
 	FileStruct_LifetimeLevel newFileLevel
 	fileLevel = newFileLevel
+
+	Assert( ITEM_FLAV_PREFIX.len() == ITEM_FLAV_PREFIX_LEN )
+	Assert( ITEM_FLAV_SUFFIX.len() == ITEM_FLAV_SUFFIX_LEN )
 
 #if DEV
 
@@ -846,6 +843,18 @@ bool function IsValidItemFlavorType( int typeIndex, int validationBehavior = eVa
 	return good
 }
 
+
+string function DescribeItemFlavorType( int itemType )
+{
+	if ( IsValidItemFlavorType( itemType, eValidation.ASSERT ) )
+	{
+		return GetEnumString( "eItemType", itemType )
+	}
+
+	return "InvalidItemType"
+}
+
+
 array< ItemFlavor > function GetAllLegendaryItems()
 {
 	return fileLevel.legendaryItemFlavors
@@ -860,11 +869,13 @@ array<ItemFlavor> function GetAllItemFlavors()
 }
 #endif
 
+
 array<ItemFlavor> function GetAllItemFlavorsCosmetic()
 {
 	Assert( fileLevel.isItemRegistrationFinished )
 	return fileLevel.itemFlavorListCosmetic
 }
+
 
 array<ItemFlavor> function GetAllItemFlavorsOfType( int typeIndex )
 {
@@ -910,8 +921,37 @@ asset function ItemFlavor_GetAsset( ItemFlavor flavor )
 	return GetSettingsAssetForUniqueId( flavor.guid )
 }
 
+
+string function ItemFlavor_GetAssetString( ItemFlavor flavor )
+{
+	
+
+	asset flavAsset = ItemFlavor_GetAsset( flavor )
+	return string( flavAsset )
+}
+
+
 string function ItemFlavor_GetAssetName( ItemFlavor flavor )
 {
+	
+
+	string fullAsset = ItemFlavor_GetAssetString( flavor )
+
+	
+	Assert( fullAsset.slice( 0, ITEM_FLAV_PREFIX_LEN ) == ITEM_FLAV_PREFIX )
+
+	
+	Assert( fullAsset.slice( -ITEM_FLAV_SUFFIX_LEN ) == ITEM_FLAV_SUFFIX )
+
+	string rv = fullAsset.slice( ITEM_FLAV_PREFIX_LEN, -ITEM_FLAV_SUFFIX_LEN )
+	return rv
+}
+
+
+string function ItemFlavor_GetAssetShortName( ItemFlavor flavor )
+{
+	
+
 	array< string > splitStrings = split( string( ItemFlavor_GetAsset( flavor ) ), "/." )
 	return splitStrings[splitStrings.len() - 2]
 }
@@ -924,6 +964,7 @@ var function ItemFlavor_GetSettingsBlock( ItemFlavor flavor )
 }
 
 
+
 int function ItemFlavor_GetTypeUICategory( ItemFlavor flavor )
 {
 	Assert( IsItemFlavorStructValid( flavor.guid, eValidation.ASSERT ) )
@@ -932,6 +973,7 @@ int function ItemFlavor_GetTypeUICategory( ItemFlavor flavor )
 
 	return eItemTypeUICategory.NONE
 }
+
 
 
 
@@ -1325,7 +1367,10 @@ int function ItemFlavor_GetQuality( ItemFlavor flavor, int ornull fallbackValue 
 		if ( fallbackValue != null )
 			return expect int(fallbackValue)
 		else
-			Assert( false, format( "Item flavor %s has no quality.", string(ItemFlavor_GetAsset( flavor )) ) )
+		{
+			printf( "Item flavor %s has no quality.", string(ItemFlavor_GetAsset( flavor )) )
+			return eRarityTier.NONE
+		}
 	}
 	Assert( enumKey in eRarityTier, "Invalid eQuality enum value: " + enumKey )
 
@@ -1773,6 +1818,10 @@ ItemFlavor ornull function RegisterItemFlavorFromSettingsAsset( asset settingsAs
 	
 	ShGRX_RegisterItemFlavor( flavor )
 
+
+
+
+
 	if ( IsItemFlavorTypeCosmetic( flavor.typeIndex ) )
 	{
 		fileLevel.itemFlavorListCosmetic.append( flavor )
@@ -1963,7 +2012,7 @@ bool function ItemFlavorBag_HasSameContents( ItemFlavorBag first, ItemFlavorBag 
 string function DEV_DescribeItemFlavorBag( ItemFlavorBag bag )
 {
 	string out = ""
-	if ( bag.associatedError != -1 )
+	if ( bag.associatedError != GRX_INVENTORYERROR_NONE )
 	{
 		out += format( "(ERROR:%d) ", bag.associatedError )
 	}
@@ -2386,6 +2435,7 @@ bool function ItemTypeHasRandom( int itemType )
 
 bool function ItemTypeAlphabetizable( int itemType )
 {
+	
 	switch ( itemType )
 	{
 		case eItemType.gladiator_card_intro_quip:

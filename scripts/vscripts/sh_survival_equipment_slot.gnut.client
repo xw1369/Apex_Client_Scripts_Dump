@@ -107,6 +107,9 @@ global const table<string, asset> emptyAttachmentSlotImages = {
 		hopup_golden_horse_purple = $"rui/pilot_loadout/mods/empty_hopup_golden_horse_purple"
 		hopup_golden_horse_red = $"rui/pilot_loadout/mods/empty_hopup_golden_horse_red"
 
+
+
+
 }
 
 
@@ -788,6 +791,11 @@ int function EmptyCommsAction_AttachmentForParent( string equipmentSlot, string 
 
 						case "hopup_kinetic_loader":
 							return eCommsAction.INVENTORY_NEED_HOPUP_KINETIC_FEEDER
+
+
+
+
+
 					}
 				}
 
@@ -1198,6 +1206,14 @@ LootData function EquipmentSlot_GetEquippedLootDataForSlot( entity player, strin
 	if ( SURVIVAL_Loot_IsRefValid( ref ) )
 		lootData = SURVIVAL_Loot_GetLootDataByRef( ref )
 
+	
+	if( es.weaponSlot >= 0 )
+	{
+		entity weapon = player.GetNormalWeapon( es.weaponSlot )
+		if( IsValid( weapon ) )
+			lootData.hudIcon = weapon.GetWeaponSettingAsset( eWeaponVar.hud_icon )
+	}
+
 	return lootData
 }
 
@@ -1218,7 +1234,7 @@ string function GetEquippedRefBasedOnTrackingNetInt( entity player, string equip
 {
 	EquipmentSlot es = Survival_GetEquipmentSlotDataByRef( equipmentSlot )
 
-	if ( !IsValid( player ) )
+	if ( !IsValid( player ) || player.IsNPC() )
 		return ""
 
 	if ( es.trackingNetInt == "" )
@@ -1260,6 +1276,14 @@ string function GetEquippedAttachmentOnWeaponForPlayer( entity player, string eq
 
 	return GetInstalledWeaponAttachmentForPoint( weapon, es.attachmentPoint )
 }
+
+
+
+
+
+
+
+
 
 
 

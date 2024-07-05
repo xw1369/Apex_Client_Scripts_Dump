@@ -3,7 +3,6 @@
 global function PlaylistVar_CRng_Spawning
 
 global function CombatRange_Init
-global function CombatRange_RegisterRemoteFunctions
 global function GetCombatRangeRealm
 
 #if DEV
@@ -222,14 +221,6 @@ void function CombatRange_Init()
 		printt( format( "%s(): Map Name == %s" , FUNC_NAME(), mapName ))
 #endif
 
-	if( !IsFiringRangeGameMode() )
-	{
-#if DEV
-			printt( format( "%s(): Playlist is not Combat Range Compatible. Combat Range intialization exiting." , FUNC_NAME()))
-#endif
-		return
-	}
-
 #if DEV
 		DEV_CombatRangePrint( format( " ***** %s", FUNC_NAME()) )
 #endif
@@ -254,6 +245,8 @@ void function CombatRange_Init()
 
 
 
+
+	CombatRange_RegisterRemoteFunctions()
 }
 
 

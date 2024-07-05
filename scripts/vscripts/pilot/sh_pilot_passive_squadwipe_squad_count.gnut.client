@@ -104,6 +104,9 @@ void function ShPassiveSquadwipeSquadCount_Init()
 
 
 
+
+
+
 void function ServerToClient_NearbySquads_Obit( entity player, int squadCount )
 {
 	Obituary_Print_Localized( Localize( "#UPGRADE_ALERT_ENEMY_SQUADS_" + string( squadCount ), player.GetPlayerName() ), GetPlayerInfoColor( player ), OBITUARY_COLOR_ENEMY )

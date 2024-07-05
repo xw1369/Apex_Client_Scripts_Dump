@@ -1169,7 +1169,6 @@ void function StartGivePlayerDoubleJump(entity player)
 
 
 
-
 void function OnGravityCannonCreated( entity trigger )
 {
 	if ( trigger.GetTriggerType() == TT_GRAVITY_CANNON )

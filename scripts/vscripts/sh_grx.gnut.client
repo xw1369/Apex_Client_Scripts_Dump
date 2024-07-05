@@ -148,7 +148,25 @@ global function DEV_IsValidGRXRef
 
 
 
+
+
+
+
 global function GRXPack_GetTickSoundAlias
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -225,7 +243,9 @@ global function DEV_GRX_ForcePackResults
 
 
 
+
 #endif
+
 
 
 
@@ -259,20 +279,9 @@ global function ClientCodeCallback_GRXPackOpened
 
 
 
-
-
-
-global const int S20_ANNIVERSARY_GIFTING_CAMPAIGN_ITEM_COUNT = 12
-global const int S20_ANNIVERSARY_GIFTING_CAMPAIGN_GOAL = 6
-
-
-
-
-
-
 global const int MAX_REWARDS_PER_REWARD_SEQ_CALL = 255
 
-const int QUEUED_REWARDS_MAX_COUNT = 12
+global const int QUEUED_REWARDS_MAX_COUNT = 12
 const int QUEUED_REWARDS_MAX_ITEMS_COUNT = 1
 
 
@@ -282,6 +291,8 @@ const int QUEUED_REWARDS_MAX_ITEMS_COUNT = 1
 
 
 const bool GRX_DEBUG_PRINTS = true
+
+const string SHOP_TAB_ALIAS = "shop"
 
 
 
@@ -527,8 +538,37 @@ global enum eItemFlavorGRXMode
 
 
 
-Assert( GRX_CURRENCY_COUNT == 5 )
-global ItemFlavor&[GRX_CURRENCY_COUNT] GRX_CURRENCIES = [{...}, {...}, {...}, {...}, {...}]
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Assert( GRX_CURRENCY_COUNT == 7 )
+global ItemFlavor&[GRX_CURRENCY_COUNT] GRX_CURRENCIES = [{...}, {...}, {...}, {...}, {...}, {...}, {...}]
 
 global int GRX_DEV_ITEM = -1
 global int GRX_QA_ITEM = -1
@@ -676,6 +716,7 @@ struct PlayerGRXScriptState
 
 
 
+
 }
 
 
@@ -762,6 +803,10 @@ struct FileStruct_LifetimeLevel
 
 
 
+
+
+
+
 #if GRX_DEBUG_PRINTS
 		bool GRX_DEBUG_PRINTS_disableTemporarily = false
 #endif
@@ -803,11 +848,13 @@ void function ShGRX_LevelInit()
 
 
 	AddCallback_RegisterRootItemFlavors( void function() {
-		Assert( GRX_CURRENCY_COUNT == 5 )
+		Assert( GRX_CURRENCY_COUNT == 7 )
 		GRX_CURRENCIES[GRX_CURRENCY_PREMIUM] = expect ItemFlavor(RegisterItemFlavorFromSettingsAsset( $"settings/itemflav/grx_currency/premium.rpak" )) 
 		GRX_CURRENCIES[GRX_CURRENCY_CREDITS] = expect ItemFlavor(RegisterItemFlavorFromSettingsAsset( $"settings/itemflav/grx_currency/credits.rpak" )) 
 		GRX_CURRENCIES[GRX_CURRENCY_CRAFTING] = expect ItemFlavor(RegisterItemFlavorFromSettingsAsset( $"settings/itemflav/grx_currency/crafting.rpak" )) 
 		GRX_CURRENCIES[GRX_CURRENCY_HEIRLOOM] = expect ItemFlavor(RegisterItemFlavorFromSettingsAsset( $"settings/itemflav/grx_currency/heirloom.rpak" )) 
+		GRX_CURRENCIES[GRX_CURRENCY_EXOTIC] = expect ItemFlavor(RegisterItemFlavorFromSettingsAsset( $"settings/itemflav/grx_currency/exotic.rpak" )) 
+		GRX_CURRENCIES[GRX_CURRENCY_ESCROW] = expect ItemFlavor(RegisterItemFlavorFromSettingsAsset( $"settings/itemflav/grx_currency/escrow.rpak" )) 
 
 		
 		GRX_CURRENCIES[GRX_CURRENCY_EVENT] = expect ItemFlavor(RegisterItemFlavorFromSettingsAsset( $"settings/itemflav/grx_currency/s19me01_coin.rpak" )) 
@@ -846,18 +893,9 @@ void function ShGRX_LevelInit()
 
 		Remote_RegisterUIFunction( "ServerToUI_PROTO_YouAreGreenLightedForGRX" )
 		Remote_RegisterUIFunction( "ServerToUI_GRX_QueuedRewardsGiven" )
-		Remote_RegisterUIFunction( "ServerToUI_SetMilestonePackAutoOpenStatus", "bool" )
 
-		Remote_RegisterServerFunction( "UICallback_AutoOpenMilestonePacks" )
 		Remote_RegisterServerFunction( "ClientCallback_acknowledge_reward", "int", 0, QUEUED_REWARDS_MAX_COUNT, "int", INT_MIN, INT_MAX )
 		Remote_RegisterServerFunction( "ClientCallback_SetOfferRefreshSuppressed", "bool" )
-
-	
-
-		Remote_RegisterServerFunction( "ClientCallback_UpdateGiftingCampaignCount", "int", INT_MIN, INT_MAX, "int", 0, INT_MAX, "bool" )
-
-
-
 
 
 
@@ -887,6 +925,13 @@ void function ShGRX_LevelInit()
 
 	GRX_DEV_ITEM = GRX_RegisterItem( "account_flag_dev", eItemFlavorGRXMode.REGULAR )
 	GRX_QA_ITEM = GRX_RegisterItem( "account_flag_QA", eItemFlavorGRXMode.REGULAR )
+
+
+
+
+
+
+
 }
 
 
@@ -2230,6 +2275,46 @@ bool function IsItemOwnedByPlayerInternal( ItemFlavor flav, entity player = null
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 ItemFlavorBag function GRX_GetMostRecentPackOpeningResults()
 {
 	Assert( fileLevel.mostRecentPackOpeningResultsOrNull != null, "Tried to call GRX_GetMostRecentPackOpeningResults with no pack opening results available for use" )
@@ -2238,6 +2323,22 @@ ItemFlavorBag function GRX_GetMostRecentPackOpeningResults()
 	fileLevel.mostRecentPackOpeningResultsOrNull = null
 	return bag
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -3101,6 +3202,26 @@ bool function GRXPack_PlayerOwnsAllItemsInPack( entity player, ItemFlavor pack )
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 #if DEV
 ItemFlavorBag ornull DEV_GRX_ForcePackResults_resultsOrNull
 void function DEV_GRX_ForcePackResults( int packError, ... )
@@ -3549,6 +3670,24 @@ void function GRXDbg( entity player, string label, ... )
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 PlayerGRXScriptState function GetPlayerGRXScriptState( entity player )
 {
 
@@ -3565,6 +3704,31 @@ PlayerGRXScriptState function GetPlayerGRXScriptState( entity player )
 		return fileLevel.localGRXState
 
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -4875,40 +5039,6 @@ void function UIToClient_GRXInventoryCleanStateChange( bool isClean, int marketp
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 #if DEV
 
 
@@ -4925,7 +5055,48 @@ void function UIToClient_GRXInventoryCleanStateChange( bool isClean, int marketp
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 #endif
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -6090,7 +6261,7 @@ void function ClientCodeCallback_GRXPackOpened( array<int> balanceDiffs, array<i
 			bag.quantities.append( 1 )
 			bag.quantities.append( 1 )
 			bag.quantities.append( 1 )
-			bag.associatedError = 0
+			bag.associatedError = GRX_INVENTORYERROR_NONE
 		}
 		else if ( DEV_GRX_ForcePackResults_resultsOrNull != null )
 		{
@@ -6106,6 +6277,32 @@ void function ClientCodeCallback_GRXPackOpened( array<int> balanceDiffs, array<i
 
 	fileLevel.mostRecentPackOpeningResultsOrNull = bag
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -6578,6 +6775,55 @@ array<ItemFlavor> function GRX_GetStickerPacksWithRewards()
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 bool function GRX_IsOfferRestricted( entity player = null )
 {
 
@@ -6601,6 +6847,14 @@ bool function GRX_IsOfferRestricted( entity player = null )
 
 	return grxState.isOfferRestricted
 }
+
+
+
+
+
+
+
+
 
 
 
@@ -6837,11 +7091,6 @@ bool function GRX_IsItemCoveredByOfferRestrictions( ItemFlavor flav )
 
 
 
-
-
-
-
-
 #if DEV
 
 
@@ -6865,6 +7114,168 @@ bool function GRX_IsItemCoveredByOfferRestrictions( ItemFlavor flav )
 
 
 #endif
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

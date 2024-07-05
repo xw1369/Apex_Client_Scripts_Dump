@@ -277,10 +277,10 @@ void function InitScoreboardMP()
 	file.scoreboard = scoreboard
 
 	file.header.gametypeAndMap = HudElement( "ScoreboardGametypeAndMap", scoreboard )
-	RuiSetString( Hud_GetRui( file.header.gametypeAndMap ), "gameType", GAMETYPE_TEXT[ GAMETYPE ] )
+	
 	RuiSetString( Hud_GetRui( file.header.gametypeAndMap ), "mapName", mapName )
 	file.header.gametypeDesc = HudElement( "ScoreboardHeaderGametypeDesc", scoreboard )
-	RuiSetString( Hud_GetRui( file.header.gametypeDesc ), "desc", GAMEDESC_CURRENT )
+	
 	file.header.scoreHeader = HudElement( "ScoreboardScoreHeader", scoreboard )
 
 	file.footer = HudElement( "ScoreboardGamepadFooter", scoreboard )

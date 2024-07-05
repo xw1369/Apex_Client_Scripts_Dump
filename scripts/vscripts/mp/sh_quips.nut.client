@@ -214,7 +214,10 @@ array<LoadoutEntry> function Loadout_QuipArrayForCharacter( ItemFlavor character
 
 array<LoadoutEntry> function Loadout_FavoredQuipArrayForCharacter( ItemFlavor characterClass )
 {
-	return fileLevel.loadoutCharacterFavoredQuipMap[characterClass]
+	if ( characterClass in fileLevel.loadoutCharacterFavoredQuipMap )
+		return fileLevel.loadoutCharacterFavoredQuipMap[characterClass]
+
+	return [] 
 }
 
 bool function Loadout_IsCharacterQuipLoadoutEntry( LoadoutEntry entry )

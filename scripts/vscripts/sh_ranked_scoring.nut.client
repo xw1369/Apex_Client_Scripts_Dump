@@ -569,6 +569,7 @@ int function Ranked_GetPenaltyPointsForAbandon( SharedRankedDivisionData current
 
 
 
+
 float function GetHighEndLostMultiplier ()
 {
 	return GetCurrentPlaylistVarFloat( "ranked_tuning_var_high_end_multiplier", HIGH_END_LOST_MULTIPLIER ) 

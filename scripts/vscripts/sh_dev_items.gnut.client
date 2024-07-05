@@ -1,5 +1,7 @@
-#if DEV
-global function DEV_PrintAllGRXRefs
+globalize_all_functions
+
+#if !DEV
+unreachable 
 #endif
 
 const array< string > BASE_ITEMFLAV_TYPES =
@@ -60,7 +62,7 @@ const array< string > MELEE_WEAPON_ITEM_TYPES =
 	"skins"
 ] 
 
-#if DEV
+
 void function DEV_PrintAllGRXRefs()
 {
 	array <ItemFlavor> allItemFlavs = GetAllItemFlavors()
@@ -207,4 +209,24 @@ void function DEV_GetFeatureFlagTableFromFlavorTypeSettingsBlock( table< ItemFla
 
 	return
 }
-#endif
+
+
+void function DEV_PrintItemFlavorsOfType( int itemFlavType = eItemType.account_pack )
+{
+	
+
+	array< ItemFlavor > flavs = GetAllItemFlavorsOfType( itemFlavType )
+
+	foreach ( ItemFlavor itemFlav in flavs )
+	{
+		printt( ItemFlavor_GetAssetName( itemFlav ), ItemFlavor_GetGUIDString( itemFlav ) )
+
+		if ( itemFlavType == eItemType.account_pack )
+		{
+			array< ItemFlavor > packContents = GRXPack_GetPackContents( itemFlav )
+			printt( "\tPackContentsCount", packContents.len() )
+		}
+	}
+
+	printt( format( "Found %d ItemFlavs of type %s", flavs.len(), DescribeItemFlavorType( itemFlavType ) ) )
+}

@@ -78,9 +78,6 @@ table<int, void functionref( entity player ) > baseInputCallacks
 
 void function ShTutorial_Init()
 {
-	if ( !IsSurvivalTraining() )
-		return
-
 
 
 

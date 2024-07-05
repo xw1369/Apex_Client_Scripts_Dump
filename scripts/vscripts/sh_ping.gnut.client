@@ -169,7 +169,7 @@ global enum pingWheelIndex
 	PING_MAP, 
 
 
-
+	PING_TRANSPORT_PORAL,
 
 
 	_count
@@ -382,13 +382,11 @@ global enum ePingType
 		PING_REPLICATOR,
 		PING_MATERIALS,
 		CRAFTING_GENERIC,
-
-			PING_REPLICATOR_NOONE_USED,
-			PING_REPLICATOR_ALL_USED,
-			PING_REPLICATOR_PLAYER_USED,
-			PING_REPLICATOR_TEAMMATE_USED,
-			PING_REPLICATOR_DISPENSER_INCOMING,
-
+		PING_REPLICATOR_NOONE_USED,
+		PING_REPLICATOR_ALL_USED,
+		PING_REPLICATOR_PLAYER_USED,
+		PING_REPLICATOR_TEAMMATE_USED,
+		PING_REPLICATOR_DISPENSER_INCOMING,
 
 
 
@@ -456,6 +454,10 @@ global enum ePingType
 
 		PING_MY_LAST_DEATH_BOX,
 		MARK_MY_LAST_DEATH_BOX,
+
+
+
+		MARK_MY_LAST_DEATH_LOCATION,
 
 
 	NON_PINGABLE_SPAWN_LOCATION,
@@ -576,9 +578,7 @@ global enum ePingType
 		LEGEND_START_AREA,
 
 
-
-		RAMPART_TT_VENDING,
-
+	RAMPART_TT_VENDING,
 
 
 		LOOT_TICK_GH,
@@ -593,11 +593,12 @@ global enum ePingType
 
 
 
-
-
-
-
-
+		TRANSPORT_PORTAL_REMOTE,
+		TRANSPORT_PORTAL_FRIENDLY,
+		TRANSPORT_PORTAL_ENEMY,
+		CHASE_PORTAL_FRIENDLY,
+		CHASE_PORTAL_ENEMY,
+		PHASE_DOOR,
 
 
 
@@ -605,6 +606,11 @@ global enum ePingType
 
 
 		MULTI_ENEMY_POI,
+
+
+
+
+
 
 
 	_count
@@ -661,11 +667,29 @@ global enum ePingReply
 
 
 
-
-
-
 	_count
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -906,6 +930,9 @@ string function Ping_GetSoundForLocationPing( entity wp, int pingType, bool isOu
 
 
 
+
+		case ePingType.MULTI_ENEMY_POI:
+
 			return ""
 
 		case ePingType.ABILITY_BLACK_MARKET:
@@ -963,7 +990,7 @@ void function ShPing_Init()
 		Remote_RegisterServerFunction( CMDNAME_PING_NEW_LOOT_DEATHBOX, "typed_entity", "prop_survival", "typed_entity", "prop_death_box", "int", INT_MIN, INT_MAX, "vector", -MAX_WORLD_COORD, MAX_WORLD_COORD, 32 )
 		Remote_RegisterServerFunction( CMDNAME_PING_NEW_LOOT_GRABBER, "typed_entity", "prop_survival", "typed_entity", "prop_loot_grabber", "int", INT_MIN, INT_MAX, "vector", -MAX_WORLD_COORD, MAX_WORLD_COORD, 32 )
 		Remote_RegisterServerFunction( CMDNAME_PING_NEW_LOOT_OUTSIDE_DEATHBOX, "typed_entity", "prop_survival", "int", INT_MIN, INT_MAX, "vector", -MAX_WORLD_COORD, MAX_WORLD_COORD, 32 )
-		Remote_RegisterServerFunction( CMDNAME_PING_REPLY, "typed_entity", "player_waypoint", "int", INT_MIN, INT_MAX )
+		Remote_RegisterServerFunction( CMDNAME_PING_REPLY, "typed_entity", "player_waypoint", "int", 0, ePingReply._count - 1 )
 		Remote_RegisterServerFunction( CMDNAME_CANCEL_PING_BY_TICKETID, "int", INT_MIN, INT_MAX )
 
 		
@@ -1151,6 +1178,11 @@ bool function IsPingDibsEnabledForPlayer( entity player )
 
 	return true
 }
+
+
+
+
+
 
 
 
@@ -1640,7 +1672,7 @@ ReplyCommsActionInfo function Ping_GetCommsActionForWaypointReply( entity player
 			else
 			{
 
-					if ( Control_IsModeEnabled() )
+					if ( GameMode_IsActive( eGameModes.CONTROL ) )
 						result.commsAction = eCommsAction.PING_CONTROL_OBJECTIVE_DEFEND
 
 			}
@@ -1654,13 +1686,18 @@ ReplyCommsActionInfo function Ping_GetCommsActionForWaypointReply( entity player
 			else
 			{
 
-					if ( Control_IsModeEnabled() )
+					if ( GameMode_IsActive( eGameModes.CONTROL ) )
 						result.commsAction = eCommsAction.PING_CONTROL_OBJECTIVE_ATTACK
 
 
 
-					if ( TreasureHunt_IsModeEnabled() )
+					if ( GameModeVariant_IsActive( eGameModeVariants.FREEDM_LOCKDOWN ) )
 						result.commsAction = eCommsAction.PING_TREASUREHUNT_OBJ_ATTACK
+
+
+
+
+
 
 			}
 			break
@@ -1673,12 +1710,6 @@ ReplyCommsActionInfo function Ping_GetCommsActionForWaypointReply( entity player
 		case ePingReply.CAREPACKAGE_INSIGHT_REPLY:
 			result.commsAction = eCommsAction.REPLY_CAREPACKAGE_INSIGHT
 			break
-
-
-
-
-
-
 
 
 
@@ -1942,9 +1973,9 @@ void function OnPingDown( entity player )
 	Assert( !HasPendingPing() )
 
 
-		
-		if ( IsAprilFools_S16() && AprilFools_S16_AttemptClientPingOverride_ReturnDidSucceedBool( player ) )
-			return
+
+
+
 
 
 	
@@ -2021,27 +2052,6 @@ void function OnPingDown( entity player )
 			}
 		}
 	}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 	
 	if ( canDoStandardPings )
@@ -2138,6 +2148,24 @@ void function OnPingDown( entity player )
 	}
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 	
 	if ( canDoStandardPings )
 	{
@@ -2220,6 +2248,18 @@ void function OnPingDown( entity player )
 				PingCommandExecuteUsePrompt( params.pingType, pingPosition, params.hitEnt, ticketId )
 				DoLocalPingConfirm( pingPosition, params.pingType, params.hitEnt, true )
 			}
+
+			else if ( params.pingType == ePingType.TRANSPORT_PORTAL_REMOTE )
+			{
+				params.pingType = ePingType.TRANSPORT_PORTAL_FRIENDLY
+
+				vector pingPosition = params.hitEnt.GetOrigin()
+				int ticketId = GetNewTicketID()
+
+				PingCommandExecuteUsePrompt( params.pingType, pingPosition, params.hitEnt, ticketId )
+				DoLocalPingConfirm( pingPosition, params.pingType, params.hitEnt, true )
+			}
+
 			else
 			{
 				
@@ -2452,17 +2492,6 @@ array<int> function GetReplyOptionsForWaypoint( entity player, entity wp )
 
 
 
-
-
-
-
-
-
-
-
-
-
-
 					case ePingType.THE_HUNT_AREA_HUNTER:
 						results.append( ePingReply.JOIN )
 						break
@@ -2613,6 +2642,7 @@ array<int> function GetReplyOptionsForWaypoint( entity player, entity wp )
 
 
 
+
 					default:
 						if ( wp.wp.haveConfirmed )
 							results.append( ePingReply.BLANK )
@@ -2678,6 +2708,9 @@ array<int> function GetReplyOptionsForWaypoint( entity player, entity wp )
 
 		case eWaypoint.TREASUREHUNT_OBJECTIVE:
 
+
+
+
 			switch ( pingType )
 			{
 				case ePingType.PING_CAPTURE_OBJECTIVE_DEFEND:
@@ -2688,12 +2721,6 @@ array<int> function GetReplyOptionsForWaypoint( entity player, entity wp )
 					break
 			}
 			break
-
-
-
-
-
-
 	}
 
 	return results
@@ -2740,11 +2767,9 @@ void function OnPingUp( entity player )
 			return
 	}
 
-
-		
-		if ( Crafting_IsDispenserCraftingEnabled() && Crafting_IsPlayerCrafting() )
-			return
-
+	
+	if ( Crafting_IsDispenserCraftingEnabled() && Crafting_IsPlayerCrafting() )
+		return
 
 	bool doMakeMenuCloseSound = true
 	bool doDebounceLookStick  = false
@@ -3619,9 +3644,17 @@ PingCommandParams function GetPingParamsForHitEnt( entity hitEnt, entity player,
 
 			entity localViewPlayer = GetLocalViewPlayer()
 			bool isCrypto          = PlayerHasPassive( localViewPlayer, ePassives.PAS_CRYPTO )
-			bool inCamera          = IsPlayerInCryptoDroneCameraView( localViewPlayer )
 
-			if ( isCrypto && inCamera )
+			bool activeCamera      = IsValid( localViewPlayer.p.cryptoActiveCamera )
+
+
+
+
+
+			if ( isCrypto && activeCamera )
+
+
+
 			{
 				if ( ClApexScreens_PosInStaticBanner( tr.endPos ) )
 				{
@@ -3643,17 +3676,27 @@ PingCommandParams function GetPingParamsForHitEnt( entity hitEnt, entity player,
 
 			if ( player.HasZiplinePingInRange() )
 			{
-				result.hitEnt = player.GetZiplinePingEntity();
+				result.hitEnt = player.GetZiplinePingEntity()
 
-				result.pingType = ePingType.ZIPLINE;
+				result.pingType = ePingType.ZIPLINE
 
 				if ( IsZiprail( result.hitEnt ) )
 				{
-					result.pingType =  ePingType.ZIPRAIL;
+					result.pingType =  ePingType.ZIPRAIL
 				}
 
 				return result
 			}
+
+
+			entity transportPortal = TransportPortal_GetReceiverPlayerIsLookingAt( player )
+			if ( IsValid( transportPortal ) )
+			{
+				result.hitEnt = transportPortal
+				result.pingType = ePingType.TRANSPORT_PORTAL_REMOTE
+				return result
+			}
+
 
 
 
@@ -4121,7 +4164,6 @@ PingCommandParams function GetPingParamsForHitEnt( entity hitEnt, entity player,
 			}
 			else if ( hitEntScriptName == WORKBENCH_CLUSTER_SCRIPTNAME )
 			{
-
 				if ( Crafting_IsDispenserCraftingEnabled() )
 				{
 					int notifyType = Dispensers_GetReplicatorStateForPlayer( player, processedHitEnt )
@@ -4150,7 +4192,6 @@ PingCommandParams function GetPingParamsForHitEnt( entity hitEnt, entity player,
 					}
 				}
 				else
-
 				{
 					result.hitEnt = processedHitEnt
 					result.pingType = ePingType.PING_REPLICATOR
@@ -4159,7 +4200,6 @@ PingCommandParams function GetPingParamsForHitEnt( entity hitEnt, entity player,
 			}
 			else if ( hitEntScriptName == WORKBENCH_CLUSTER_AIRDROPPED_SCRIPTNAME )
 			{
-
 				if ( Crafting_IsDispenserCraftingEnabled() )
 				{
 					result.hitEnt = processedHitEnt
@@ -4167,7 +4207,6 @@ PingCommandParams function GetPingParamsForHitEnt( entity hitEnt, entity player,
 					return result
 				}
 				else
-
 				{
 					result.hitEnt = processedHitEnt
 					result.pingType = ePingType.PING_REPLICATOR_INCOMING
@@ -4447,72 +4486,78 @@ PingCommandParams function GetPingParamsForHitEnt( entity hitEnt, entity player,
 	}
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+	{ 
+		entity chasePortal = GetHitEntForScriptName( hitEntData, TRANSPORT_PORTAL_ALLY_PORTAL_SCRIPTNAME )
+		if ( IsValid( chasePortal ) )
 		{
-			if ( IsShadowRoyaleMode() || IsFallLTM() )
-			{
-				entity lootCreepInfected = GetHitEntForTargetName( hitEntData, "loot_creep_infected" )
-				if ( IsValid( lootCreepInfected ) )
-				{
-					result.hitEnt = lootCreepInfected
-					result.pingType = ePingType.LOOT_CREEP_INFECTED
-					return result
-				}
-			}
+			result.pingType = IsFriendlyTeam( playerTeam, chasePortal.GetTeam() ) ? ePingType.CHASE_PORTAL_FRIENDLY : ePingType.CHASE_PORTAL_ENEMY
+			result.hitEnt = chasePortal
+			return result
 		}
+	}
+	{ 
+		entity receiver = GetHitEntForScriptName( hitEntData, TRANSPORT_PORTAL_RECEIVER_SCRIPTNAME )
+		if ( IsValid( receiver ) )
 		{
-			if ( IsShadowRoyaleMode() || IsFallLTM() )
-			{
-				entity lootCreepSpider = GetHitEntForTargetName( hitEntData, "loot_creep_spider" )
-				if ( IsValid( lootCreepSpider ) )
-				{
-					result.hitEnt = lootCreepSpider
-					result.pingType = ePingType.LOOT_CREEP_SPIDER
-					return result
-				}
-			}
+			result.pingType = IsFriendlyTeam( receiver.GetTeam(), playerTeam ) ? ePingType.TRANSPORT_PORTAL_FRIENDLY : ePingType.TRANSPORT_PORTAL_ENEMY
+			result.hitEnt = receiver
+
+			return result
 		}
+	}
+	{ 
+		entity translocator = GetHitEntForScriptName( hitEntData, TRANSPORT_PORTAL_TRANSLOCATOR_TRACE_BLOCKER_SCRIPTNAME )
+		if ( IsValid( translocator ) )
+		{
+			result.pingType = IsFriendlyTeam( translocator.GetTeam(), playerTeam ) ? ePingType.TRANSPORT_PORTAL_FRIENDLY : ePingType.TRANSPORT_PORTAL_ENEMY
+			result.hitEnt = translocator.GetOwner()
+
+			return result
+		}
+	}
+	{ 
+		entity phaseDoor = GetHitEntForScriptName( hitEntData, PHASE_DOOR_ROOT_ENT_SCRIPTNAME )
+		if ( !IsValid( phaseDoor ) )
+		{
+			phaseDoor = GetHitEntForScriptName( hitEntData, PHASE_DOOR_WARMUP_ENT_SCRIPTNAME )
+		}
+		if ( IsValid( phaseDoor ) )
+		{
+			result.pingType = ePingType.PHASE_DOOR
+			result.hitEnt = phaseDoor
+
+			return result
+		}
+	}
+
+
+
+	bool halloweenMode = false
+
+		halloweenMode = GameModeVariant_IsActive( eGameModeVariants.SURVIVAL_SHADOW_ARMY )
+
+
+
+
+	if ( halloweenMode )
+	{
+		entity lootCreepInfected = GetHitEntForTargetName( hitEntData, "loot_creep_infected" )
+		if ( IsValid( lootCreepInfected ) )
+		{
+			result.hitEnt = lootCreepInfected
+			result.pingType = ePingType.LOOT_CREEP_INFECTED
+			return result
+		}
+
+		entity lootCreepSpider = GetHitEntForTargetName( hitEntData, "loot_creep_spider" )
+		if ( IsValid( lootCreepSpider ) )
+		{
+			result.hitEnt   = lootCreepSpider
+			result.pingType = ePingType.LOOT_CREEP_SPIDER
+			return result
+		}
+	}
+
 
 	{
 		entity totemEnt = GetHitEntForModel( hitEntData, "mdl/props/revenant_totem/revenant_totem.rmdl" )
@@ -4976,6 +5021,18 @@ PingCommandParams function GetPingParamsForHitEnt( entity hitEnt, entity player,
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
 		{
 			entity explosiveHoldEnt = GetExplosiveHoldForHitEnt( processedHitEnt )
 			if ( IsValid( explosiveHoldEnt ) )
@@ -5164,6 +5221,24 @@ PingCommandParams function GetPingParamsForHitEnt( entity hitEnt, entity player,
 			return result
 		}
 	}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 	if ( EntIsADynamicProp( processedHitEnt ) && processedHitEnt.GetTargetName() == "pathfinder_statue" )
@@ -5416,7 +5491,7 @@ int function GetCommsActionForPing( entity pingingPlayer, int pingType, entity p
 
 		case ePingType.RESPAWN_STATION:
 
-				if ( IsShadowArmyGamemode() && ShadowArmy_RespawnBeacon_CanBeaconBeUsedByPlayer( pingingPlayer, pingedEnt ) )
+				if ( GameModeVariant_IsActive( eGameModeVariants.SURVIVAL_SHADOW_ARMY ) && ShadowArmy_RespawnBeacon_CanBeaconBeUsedByPlayer( pingingPlayer, pingedEnt ) )
 					return eCommsAction.SHADOWARMY_PING_RESPAWN_STATION
 
 			return eCommsAction.PING_RESPAWN_STATION
@@ -5546,7 +5621,7 @@ int function GetCommsActionForPing( entity pingingPlayer, int pingType, entity p
 				{
 
 						
-						if ( !IsShadowArmyGamemode() )
+						if ( !GameModeVariant_IsActive( eGameModeVariants.SURVIVAL_SHADOW_ARMY ) )
 
 						{
 							return eCommsAction.PING_ENEMY_SPOTTED_SHADOW
@@ -5575,7 +5650,7 @@ int function GetCommsActionForPing( entity pingingPlayer, int pingType, entity p
 
 
 		case ePingType.LOOT:
-			if ( IsValid( pingedEnt ) )
+			if ( IsValid( pingedEnt ) && pingedEnt.GetNetworkedClassName() == "prop_survival" )
 				return GetPingLootCommsAction( pingedEnt )
 			else
 				return eCommsAction.PING_WE_GO
@@ -5662,6 +5737,11 @@ int function GetCommsActionForPing( entity pingingPlayer, int pingType, entity p
 
 		case ePingType.MARK_MY_LAST_DEATH_BOX:
 			return eCommsAction.MARK_MY_LAST_DEATHBOX
+
+
+
+		case ePingType.MARK_MY_LAST_DEATH_LOCATION:
+			return eCommsAction.MARK_MY_LAST_DEATH_LOCATION
 
 
 		case ePingType.SURVEYBEACON:
@@ -5878,7 +5958,6 @@ int function GetCommsActionForPing( entity pingingPlayer, int pingType, entity p
 			return eCommsAction.PING_MATERIALS
 
 
-
 		case ePingType.PING_REPLICATOR_NOONE_USED:
 			return eCommsAction.PING_REPLICATOR_NOONE_USED
 
@@ -5893,7 +5972,6 @@ int function GetCommsActionForPing( entity pingingPlayer, int pingType, entity p
 
 		case ePingType.PING_REPLICATOR_DISPENSER_INCOMING:
 			return eCommsAction.PING_REPLICATOR_DISPENSER_INCOMING
-
 
 		case ePingType.VOID_RING:
 			return eCommsAction.PING_DEPLOYED_VOID_RING
@@ -5981,7 +6059,7 @@ int function GetCommsActionForPing( entity pingingPlayer, int pingType, entity p
 		case ePingType.PING_CAPTURE_OBJECTIVE_DEFEND:
 		{
 
-				if ( Control_IsModeEnabled() )
+				if ( GameMode_IsActive( eGameModes.CONTROL ) )
 					return eCommsAction.PING_CONTROL_OBJECTIVE_DEFEND
 
 		}
@@ -5989,13 +6067,18 @@ int function GetCommsActionForPing( entity pingingPlayer, int pingType, entity p
 		case ePingType.PING_CAPTURE_OBJECTIVE_ATTACK:
 		{
 
-				if ( Control_IsModeEnabled() )
+				if ( GameMode_IsActive( eGameModes.CONTROL ) )
 					return eCommsAction.PING_CONTROL_OBJECTIVE_ATTACK
 
 
 
-				if ( TreasureHunt_IsModeEnabled() )
+				if ( GameModeVariant_IsActive( eGameModeVariants.FREEDM_LOCKDOWN ) )
 					return eCommsAction.PING_TREASUREHUNT_OBJ_ATTACK
+
+
+
+
+
 
 		}
 
@@ -6111,10 +6194,8 @@ int function GetCommsActionForPing( entity pingingPlayer, int pingType, entity p
 			return eCommsAction.PING_AREA_THE_HUNT_HUNTER
 
 
-
 		case ePingType.RAMPART_TT_VENDING:
 			return eCommsAction.PING_RAMPART_TT_VENDING
-
 
 
 
@@ -6127,16 +6208,17 @@ int function GetCommsActionForPing( entity pingingPlayer, int pingType, entity p
 
 
 
-
-
-
-
-
-
-
-
-
-
+		case ePingType.TRANSPORT_PORTAL_REMOTE:
+		case ePingType.TRANSPORT_PORTAL_FRIENDLY:
+			return eCommsAction.PING_TRANSPORT_PORTAL_FRIENDLY
+		case ePingType.TRANSPORT_PORTAL_ENEMY:
+			return eCommsAction.PING_TRANSPORT_PORTAL_ENEMY
+		case ePingType.CHASE_PORTAL_FRIENDLY:
+			return eCommsAction.PING_CHASE_PORTAL_FRIENDLY
+		case ePingType.CHASE_PORTAL_ENEMY:
+			return eCommsAction.PING_CHASE_PORTAL_ENEMY
+		case ePingType.PHASE_DOOR:
+			return eCommsAction.PING_PHASE_DOOR
 
 
 
@@ -6146,6 +6228,13 @@ int function GetCommsActionForPing( entity pingingPlayer, int pingType, entity p
 
 		case ePingType.MULTI_ENEMY_POI:
 			return eCommsAction.PING_MULTI_ENEMY_POI
+
+
+
+
+
+
+
 
 	}
 
@@ -6255,6 +6344,9 @@ asset function Ping_IconForPing_Hud( entity player, int pingType, entity pingedE
 
 		case ePingType.MARK_MY_LAST_DEATH_BOX:
 
+
+		case ePingType.MARK_MY_LAST_DEATH_LOCATION:
+
 		case ePingType.BLEEDOUT:
 		case ePingType.RESPAWN_BANNER:
 			if ( LoadoutSlot_IsReady( ToEHI( owner ), Loadout_Character() ) )
@@ -6317,10 +6409,8 @@ asset function Ping_IconForPing_Hud( entity player, int pingType, entity pingedE
 
 		case ePingType.PING_REPLICATOR:
 		{
-
-				if ( Crafting_IsDispenserCraftingEnabled() )
-					return $"rui/hud/ping/icon_ping_crafting_2"
-
+			if ( Crafting_IsDispenserCraftingEnabled() )
+				return $"rui/hud/ping/icon_ping_crafting_2"
 
 			return $"rui/hud/ping/icon_ping_crafting"
 		}
@@ -6354,6 +6444,9 @@ asset function Ping_IconForPing_Minimap( entity player, int pingType, entity pin
 
 		case ePingType.PING_MY_LAST_DEATH_BOX:
 		case ePingType.MARK_MY_LAST_DEATH_BOX:
+
+
+		case ePingType.MARK_MY_LAST_DEATH_LOCATION:
 
 		case ePingType.BLEEDOUT:
 		case ePingType.RESPAWN_BANNER:
@@ -6390,10 +6483,12 @@ asset function Ping_IconForPing_Bigmap( entity player, int pingType, entity ping
 		case ePingType.PING_MY_LAST_DEATH_BOX:
 		case ePingType.MARK_MY_LAST_DEATH_BOX:
 
+
+		case ePingType.MARK_MY_LAST_DEATH_LOCATION:
+
 		case ePingType.BLEEDOUT:
 		case ePingType.RESPAWN_BANNER:
 			return $"rui/hud/unitframes/frame_status_mask"
-
 
 
 		case ePingType.PING_REPLICATOR_NOONE_USED:
@@ -6401,7 +6496,6 @@ asset function Ping_IconForPing_Bigmap( entity player, int pingType, entity ping
 		case ePingType.PING_REPLICATOR_PLAYER_USED:
 		case ePingType.PING_REPLICATOR_TEAMMATE_USED:
 		case ePingType.PING_REPLICATOR_DISPENSER_INCOMING:
-
 		case ePingType.CRAFTING_GENERIC:
 		case ePingType.PING_MATERIALS:
 		case ePingType.PING_REPLICATOR_INCOMING:
@@ -6492,6 +6586,9 @@ asset function Ping_RuiForPing_Hud( entity player, int pingType, entity pingedEn
 
 		case ePingType.MARK_MY_LAST_DEATH_BOX:
 
+
+		case ePingType.MARK_MY_LAST_DEATH_LOCATION:
+
 		case ePingType.BLEEDOUT:
 		case ePingType.RESPAWN_BANNER:
 
@@ -6559,6 +6656,9 @@ vector function Ping_LineColorForPing_Hud( int pingType )
 
 		case ePingType.MARK_MY_LAST_DEATH_BOX:
 
+
+		case ePingType.MARK_MY_LAST_DEATH_LOCATION:
+
 		case ePingType.I_GO:
 		case ePingType.WE_GO:
 		case ePingType.MAP_WAYPOINT:
@@ -6608,6 +6708,9 @@ vector function Ping_IconColorForPing_Hud( int pingType, bool isSameTeam )
 
 
 		case ePingType.MARK_MY_LAST_DEATH_BOX:
+
+
+		case ePingType.MARK_MY_LAST_DEATH_LOCATION:
 
 		case ePingType.I_GO:
 		case ePingType.WE_GO:
@@ -7447,6 +7550,7 @@ void function Ping_SetMapWaypoint( entity player, vector origin, bool pingEnemy 
 
 
 
+
 bool function TryOnscreenPromptFunction( entity player, string commandRef )
 {
 	if ( commandRef in file.lastOnscreenPromptFunctionTriggerTime )
@@ -7671,115 +7775,115 @@ void function UpdateOnscreenPromptHintAfterDelay( float delay, string commandRef
 
 
 
-const int INVALID_PING_TYPE = -1
-bool function AprilFools_S16_AttemptClientPingOverride_ReturnDidSucceedBool( entity player )
-{
-	bool shouldOverridePing = false
-	int expectedPingType = INVALID_PING_TYPE
-	entity pingEnt = null
 
-	
-	entity useEnt = GetPropSurvivalUseEntity( player )
-	entity crosshairEnt = GetCrosshairEntity( player )
-	if ( IsValid( useEnt ) && (!player.IsInputCommandHeld( IN_ZOOM ) || useEnt != player.GetUsePromptEntity()) )
-	{
-		expectedPingType = ePingType.LOOT
-		shouldOverridePing = AprilFools_S16_ShouldOverridePing( expectedPingType, useEnt )
-		pingEnt = useEnt
-	}
-	else if ( IsValid( crosshairEnt ) )
-	{
-		expectedPingType = ePingType.LOOT
-		shouldOverridePing = AprilFools_S16_ShouldOverridePing( expectedPingType, crosshairEnt )
-		pingEnt = crosshairEnt
-	}
 
-	
-	if ( expectedPingType == INVALID_PING_TYPE )
-	{
-		entity aaTarget = GetAimAssistCurrentTarget()
-		if ( PlayerHasPassive( player, ePassives.PAS_VANTAGE ) && SniperRecon_IsTracking( player ) )
-		{
-			entity bestTarget = SniperRecon_GetBestTarget( player )
-			if ( IsValid( bestTarget ) )
-			{
-				expectedPingType = ePingType.ENEMY_GENERAL
-				shouldOverridePing = AprilFools_S16_ShouldOverridePing( expectedPingType, bestTarget )
-				pingEnt = bestTarget
-			}
-		}
-		else if ( IsValid( aaTarget ) )
-		{
-			expectedPingType = ePingType.ENEMY_GENERAL
-			shouldOverridePing = AprilFools_S16_ShouldOverridePing( expectedPingType, aaTarget )
-			pingEnt = aaTarget
-		}
-	}
 
-	
-	if ( expectedPingType == INVALID_PING_TYPE )
-	{
-		entity focusedWp = GetFocusedWaypointEnt()
-		if ( IsValid( focusedWp ) && Waypoint_GetPingTypeForWaypoint( focusedWp ) == ePingType.ABILITY_ECHO_LOCATOR )
-		{
-			expectedPingType = ePingType.ABILITY_ECHO_LOCATOR
-			shouldOverridePing = AprilFools_S16_ShouldOverridePing( expectedPingType, focusedWp )
-			pingEnt = focusedWp
-		}
-	}
 
-	
-	if ( expectedPingType == INVALID_PING_TYPE )
-	{
-		entity ziplineEnt = GetZiplineUseEntity( player )
-		if ( IsValid( ziplineEnt ) )
-		{
-			expectedPingType = ePingType.ZIPLINE
-			shouldOverridePing = AprilFools_S16_ShouldOverridePing( expectedPingType, ziplineEnt )
-			pingEnt = ziplineEnt
-		}
-	}
 
-	
-	if ( expectedPingType == INVALID_PING_TYPE )
-	{
-		PingTraceResults tr = DoPingTrace( player )
-		if ( tr.success )
-		{
-			bool allowQuickPing      = expectedPingType != ePingType.ENEMY_GENERAL
-			PingCommandParams params = GetPingParamsForHitEnt( tr.hitEnt, player, tr )
 
-			if ( IsValid( params.hitEnt ) )
-			{
-				expectedPingType = params.pingType
-				shouldOverridePing = AprilFools_S16_ShouldOverridePing( expectedPingType, params.hitEnt )
-				pingEnt = params.hitEnt
-			}
-		}
-	}
 
-	if ( shouldOverridePing && expectedPingType != INVALID_PING_TYPE && IsValid( pingEnt ) )
-	{
-		AprilFools_S16_OverridePingOnServer( pingEnt, expectedPingType )
 
-#if DEV
-			if ( APRILFOOLS_S16_DISPLAY_DEBUG  )
-			{
-				string enumName = GetEnumString( "ePingType", expectedPingType )
-				printf("APRILFOOLS_S16: AprilFools_S16_AttemptClientPingOverride_ReturnDidSucceedBool going to try to override a ping, expectedPingType: " + enumName + " pingEnt: " + pingEnt )
-			}
-#endif
-	}
-	else
-	{
-#if DEV
-			if ( APRILFOOLS_S16_DISPLAY_DEBUG  )
-				printf("APRILFOOLS_S16: AprilFools_S16_AttemptClientPingOverride_ReturnDidSucceedBool decided NOT to override the Ping" )
-#endif
-	}
 
-	return shouldOverridePing
-}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -7940,6 +8044,48 @@ bool function CaptureObjectivePing_GetIsCaptureObjectivePingObjectiveWaypoint( e
 
 	return file.getIsCaptureObjectivePingObjectiveWPFunction( waypoint )
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -8438,7 +8584,7 @@ int function CaptureObjectivePing_GetObjectiveIndexFromWaypoint( entity waypoint
 
 
 
-const array<string> CAPTUREOBJECTIVE_OBJECTIVE_NAME_STRINGS = ["#CONTROL_OBJECTIVE_A", "#CONTROL_OBJECTIVE_B", "#CONTROL_OBJECTIVE_C" ]
+const array<string> CAPTUREOBJECTIVE_OBJECTIVE_NAME_STRINGS = ["#CONTROL_OBJECTIVE_A", "#CONTROL_OBJECTIVE_B", "#CONTROL_OBJECTIVE_C", "#CONTROL_OBJECTIVE_D", "#CONTROL_OBJECTIVE_E", "#CONTROL_OBJECTIVE_F", "#CONTROL_OBJECTIVE_G", "#CONTROL_OBJECTIVE_H", "#CONTROL_OBJECTIVE_I", "#CONTROL_OBJECTIVE_J" ]
 
 
 array<string> function CaptureObjectivePing_GetObjectiveNameStringsArray()

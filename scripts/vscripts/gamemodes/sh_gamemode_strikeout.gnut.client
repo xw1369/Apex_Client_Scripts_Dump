@@ -1,5 +1,3 @@
-global function IsStrikeoutGamemode
-
 
 global function Strikeout_GetMaxSquadStrikes
 
@@ -64,9 +62,6 @@ struct
 
 void function Sh_Survival_Strikeout_Init()
 {
-	if( !IsStrikeoutGamemode() )
-		return
-
 	Sh_Survival_Strikeout_RegisterNetworking()
 
 	PrecacheParticleSystem( P_WPN_STRIKEOUT_SHIELD )
@@ -80,6 +75,7 @@ void function Sh_Survival_Strikeout_Init()
 	AddCallback_PlayerFreefallActiveChanged( StrikeOut_PlayerFreefallActiveChanged )
 
 	DeathScreen_SetIsPlayerWaitingForRespawnFunc( Strikeout_IsPlayerWaitingForRespawn )
+
 
 
 
@@ -259,10 +255,16 @@ void function __EntitiesDidLoad()
 
 
 
+
+
 bool function Strikeout_IsPlayerRespawnDisabled( entity player )
 {
 	return player.GetPlayerNetBool( STRIKEOUT_RESPAWN_DISABLED )
 }
+
+
+
+
 
 
 
@@ -665,10 +667,4 @@ int function GetPlaylistVar_RespawnDisabledDeathstage()
 {
 	return GetCurrentPlaylistVarInt( "strikeout_respawn_disable_deathstage_close", 4 )
 }
-
-bool function IsStrikeoutGamemode()
-{
-	return GetCurrentPlaylistVarBool( "is_gamemode_strikeout", false )
-}
-
 

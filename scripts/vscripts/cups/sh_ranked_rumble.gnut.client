@@ -1,0 +1,1005 @@
+global function ShRankedRumble_Init
+global function RankedRumble_ParseBadgeFromCupContainer
+global function RankedRumble_CurrentRankedRumbleGUID
+global function RankedRumble_CurrentRankedRumbleTimestampRange
+global function RankedRumble_IsRunningRankedRumble
+global function RankedRumble_IsLatestGameRankedRumble
+global function RankedRumble_IsRegisteredRankedRumble
+global function RankedRumble_IsContainerRankedRumble
+global function RankedRumble_IsCupRankedRumble
+global function RankedRumble_IsCupIDRankedRumble
+global function RankedRumble_PartySizeNotQualified
+global function RankedRumble_IsRankedRumblePlaylist
+global function RankedRumble_FillCupsToContainer
+global function RankedRumble_IsCupMatchPlayerPlatform
+global function RankedRumble_IsCupMatchPlayerRank
+global function RankedRumble_GetCurrentRankedCup
+global function RankedRumble_GetRankedCupFromContainer
+global function RankedRumble_CombineBadgeTier
+global function RankedRumble_GetCupRankedTier
+global function RankedRumble_GetHighestRankedScoreAndPositionAcrossPlatforms
+global function RankedRumble_GetContainerInfo
+global function RankedRumble_GetPlayerHistoricalRankedTier
+
+
+
+
+
+
+
+
+
+
+
+
+
+global function RankedRumble_RegisterNetworkFunctions
+
+
+global function RankedRumble_UpdateEHIRankedPlatformLadderPosition
+
+
+
+
+
+
+
+global function RankedRumble_GetRegisteredCup
+
+
+global const bool RANKED_RUMBLE_DEBUG = true
+
+global const string RANKED_RUMBLE_CONVAR = "ranked_rumble_enabled"
+global const string RANKED_PLAYLIST_VAR = "is_ranked_game"
+global const string RANKED_RUMBLE_FIELD_NAME = "is_ranked_rumble"
+global const string RANKED_RUMBLE_TUTORIAL_MARK_PERSISTENT_KEY = "hasSeenRankedRumbleTutorial"
+const int MAX_PARTY_SIZE = 1
+const int EXACT_PERCENTAGE_THRESHOLD = 20
+const SQUAD_SIZE_FIELD_NAME = "squadSize"
+const RANKED_PERIOD_FIELD_NAME = "rankedPeriod"
+const RANKED_BADGE_FIELD_NAME = "rankedRumbleBadge"
+const PLATFORM_FIELD_NAME = "platform"
+const LAST_GAME_IS_RANKED_RUMBLE = "latestGameIsRankedRumble"
+enum eCupPlatform
+{
+	PLATFORM_PC,
+	PLATFORM_PS,
+	PLATFORM_NX,
+	PLATFORM_XB,
+	COUNT
+}
+const float REQUEST_LADDER_POSITION_TIMEOUT = 15
+const table< string, int > PLATFORM_MAP = {
+	["pc"] = eCupPlatform.PLATFORM_PC,
+	["ps"] = eCupPlatform.PLATFORM_PS,
+	["nx"] = eCupPlatform.PLATFORM_NX,
+	["xb"] = eCupPlatform.PLATFORM_XB
+} 
+
+global struct RankedRumbleMainCupInfo
+{
+	ItemFlavor& mainCupItem
+	table< int, SettingsAssetGUID > platformCups
+}
+
+global struct RankedRumbleCupInfo
+{
+	ItemFlavor& cupItem
+	int platform
+	SettingsAssetGUID mainCupID
+}
+
+global struct RankedRumbleContainerInfo
+{
+	int startTime = 0
+	int finishTime = 0
+	table< SettingsAssetGUID, RankedRumbleMainCupInfo > mainCups
+	table< SettingsAssetGUID, RankedRumbleCupInfo >		allCups
+
+	ItemFlavor& rankedRumbleBadge
+	ItemFlavor& rankedPeriod
+}
+
+struct FileStruct_LifetimeLevel
+{
+	bool initialized = false
+	table< SettingsAssetGUID, RankedRumbleContainerInfo > rankedRumbleContainers
+	table< SettingsAssetGUID, SettingsAssetGUID > cupsToContainerMap
+
+
+
+
+}
+FileStruct_LifetimeLevel& fileLevel
+
+
+
+
+
+
+
+
+void function ShRankedRumble_Init()
+{
+#if RANKED_RUMBLE_DEBUG
+		printt( "ShRankedRumble_Init" )
+#endif
+	FileStruct_LifetimeLevel newFileLevel
+	fileLevel = newFileLevel
+
+
+
+
+
+
+
+	Remote_RegisterServerFunction( "UICallback_MarkSeenRankedRumbleTutorial" )
+
+
+	AddCallback_OnItemFlavorRegistered( eItemType.calevent_apex_cup_container, void function(ItemFlavor cupItemFlavor) {
+		RankedRumble_ParseContainerBakeryParams( cupItemFlavor )
+	} )
+}
+
+
+
+
+
+
+
+
+
+asset function RankedRumble_ParseBadgeFromCupContainer( ItemFlavor cupContainerItemFlavor )
+{
+	Assert( RankedRumble_IsContainerRankedRumble( cupContainerItemFlavor ) )
+	return GetGlobalSettingsAsset( ItemFlavor_GetAsset( cupContainerItemFlavor ), RANKED_BADGE_FIELD_NAME )
+}
+
+void function RankedRumble_ParseContainerBakeryParams( ItemFlavor cupContainerItemFlavor )
+{
+	if ( !RankedRumble_IsContainerRankedRumble( cupContainerItemFlavor ) )
+		return
+
+	Assert( IsItemFlavorStructValid( cupContainerItemFlavor.guid, eValidation.ASSERT ) )
+	Assert( ItemFlavor_GetType( cupContainerItemFlavor ) == eItemType.calevent_apex_cup_container )
+	Assert( cupContainerItemFlavor.metaData != null )
+
+	SettingsAssetGUID cupContainerID = ItemFlavor_GetGUID( cupContainerItemFlavor )
+	Assert( !( cupContainerID in fileLevel.rankedRumbleContainers ), "Ranked rumble re-registering same cupContainer ItemFlavor" )
+
+	int squadSize = GetGlobalSettingsInt( ItemFlavor_GetAsset( cupContainerItemFlavor ), SQUAD_SIZE_FIELD_NAME )
+	Assert( squadSize == 1, "Ranked rumble squad size should be 1. " + cupContainerID )
+	RankedRumbleContainerInfo info
+	info.startTime = CalEvent_GetStartUnixTime( cupContainerItemFlavor )
+	info.finishTime = CalEvent_GetFinishUnixTime( cupContainerItemFlavor )
+	
+	info.rankedRumbleBadge = GetItemFlavorByAsset( RankedRumble_ParseBadgeFromCupContainer( cupContainerItemFlavor ) )
+	ItemFlavor ornull rankedPeriod = RegisterItemFlavorFromSettingsAsset( GetGlobalSettingsAsset( ItemFlavor_GetAsset( cupContainerItemFlavor ), RANKED_PERIOD_FIELD_NAME ) )
+	info.rankedPeriod = expect ItemFlavor( rankedPeriod )
+
+	fileLevel.rankedRumbleContainers[cupContainerID] <- info
+}
+
+int function GetCupPlatform( ItemFlavor cupItemFlavor )
+{
+	string platform = GetGlobalSettingsString( ItemFlavor_GetAsset( cupItemFlavor ), PLATFORM_FIELD_NAME )
+	Assert( platform in PLATFORM_MAP, "Ranked Rumble platform must be set. Invalid value: " + platform )
+	return PLATFORM_MAP[platform]
+}
+
+void function RankedRumble_OverrideCupBakeryAssetData( ItemFlavor cupItemFlavor, ItemFlavor parentCupItemFlavor )
+{
+	table< SettingsAssetGUID, CupBakeryAssetData > allCupData = Cups_GetAllCupBakeryAssetData()
+	CupBakeryAssetData cupData
+	CupBakeryAssetData parentCupData = allCupData[ItemFlavor_GetGUID( parentCupItemFlavor )]
+	cupData = clone parentCupData
+	cupData.itemFlavor = cupItemFlavor
+	allCupData[ItemFlavor_GetGUID( cupItemFlavor )] = cupData
+}
+
+void function RankedRumble_FillCupsToContainer()
+{
+	if( !GetConVarBool( "cups_enabled" ) ) return
+
+	foreach ( SettingsAssetGUID containerGUID, RankedRumbleContainerInfo containerInfo in fileLevel.rankedRumbleContainers )
+	{
+		foreach ( asset cupAsset in Cups_GetAllCupContainerBakeryAssetData()[containerGUID].cups )
+		{
+			ItemFlavor cupItemFlavor = GetItemFlavorByAsset( cupAsset )
+			SettingsAssetGUID cupID = ItemFlavor_GetGUID( cupItemFlavor )
+			int platform = GetCupPlatform( cupItemFlavor )
+			SettingsAssetGUID mainCupID = cupID
+			if( platform != eCupPlatform.PLATFORM_PC )
+			{
+				Assert( GetGlobalSettingsAsset( cupAsset, "parentItemFlavor" ) != "" )
+				ItemFlavor parentCupItemFlavor = GetItemFlavorByAsset( GetGlobalSettingsAsset( cupAsset, "parentItemFlavor" ) )
+				mainCupID = ItemFlavor_GetGUID( parentCupItemFlavor )
+				RankedRumble_OverrideCupBakeryAssetData( cupItemFlavor, parentCupItemFlavor )
+			}
+
+			if ( !( mainCupID in containerInfo.mainCups ) )
+			{
+				RankedRumbleMainCupInfo mainCupInfo
+				mainCupInfo.mainCupItem = GetItemFlavorByGUID( mainCupID )
+				mainCupInfo.platformCups[platform] <- cupID
+				containerInfo.mainCups[mainCupID] <- mainCupInfo
+			}
+			else
+			{
+				RankedRumbleMainCupInfo cupInfo = containerInfo.mainCups[mainCupID]
+				Assert( !( platform in cupInfo.platformCups ), "Find duplicate cup platform! " + platform )
+				cupInfo.platformCups[platform] <- cupID
+			}
+
+			if ( !( cupID in containerInfo.allCups ) )
+			{
+				RankedRumbleCupInfo cupInfo
+				cupInfo.platform = platform
+				cupInfo.mainCupID = mainCupID
+				cupInfo.cupItem = cupItemFlavor
+				containerInfo.allCups[cupID] <- cupInfo
+			}
+
+			if ( !( cupID in fileLevel.cupsToContainerMap ) )
+				fileLevel.cupsToContainerMap[cupID] <- containerGUID
+		}
+	}
+	fileLevel.initialized = true
+
+
+
+
+
+
+
+
+
+
+
+
+
+}
+
+bool function RankedRumble_IsRunningRankedRumble()
+{
+	if ( !GetConVarBool( RANKED_RUMBLE_CONVAR ) )
+		return false
+
+	return RankedRumble_CurrentRankedRumbleGUID() != ASSET_SETTINGS_UNIQUE_ID_INVALID
+}
+
+bool function RankedRumble_IsRankedRumbleRevealed()
+{
+	if ( !GetConVarBool( RANKED_RUMBLE_CONVAR ) )
+		return false
+
+	int timeNow = GetUnixTimestamp()
+	foreach ( SettingsAssetGUID containerGUID, RankedRumbleContainerInfo info in fileLevel.rankedRumbleContainers )
+	{
+		if ( CalEvent_IsRevealed( GetItemFlavorByGUID( containerGUID ), timeNow ) && info.finishTime > timeNow )
+			return true
+	}
+	return false
+}
+bool function RankedRumble_IsLatestGameRankedRumble( entity player )
+{
+
+		Assert ( player == GetLocalClientPlayer() )
+
+
+
+
+
+
+
+
+		if ( !IsConnected() )
+			return false
+
+
+	if ( !IsValid( player ) )
+		return false
+
+	if ( !IsLobby() && GetGameState() < eGameState.Prematch )
+		return RankedRumble_IsRunningRankedRumble() && RankedRumble_IsRegisteredRankedRumble( player )
+	else
+		return expect bool( player.GetPersistentVar( LAST_GAME_IS_RANKED_RUMBLE ) )
+
+	unreachable
+}
+
+bool function RankedRumble_IsRegisteredRankedRumble( entity player )
+{
+
+		Assert ( player == GetLocalClientPlayer() )
+
+
+
+
+
+
+
+
+		if ( !IsConnected() )
+			return false
+
+
+	if ( !IsValid( player ) )
+		return false
+
+	for( int i = 0; i < MAX_REGISTERED_CUPS; i++ )
+	{
+		string persistentDataKey = format( "cups[%d]", i )
+		bool cupIsActive = expect bool( player.GetPersistentVar( persistentDataKey+".active" ) )
+		if( cupIsActive )
+		{
+			CupBakeryAssetData cupData = Cups_GetCupBakeryAssetDataFromGUID( player.GetPersistentVarAsInt( persistentDataKey+".cupID" ) )
+			if ( RankedRumble_IsCupRankedRumble( cupData.itemFlavor ) )
+				return true
+		}
+	}
+	return false
+}
+
+SettingsAssetGUID function RankedRumble_CurrentRankedRumbleGUID()
+{
+	if ( !GetConVarBool( RANKED_RUMBLE_CONVAR ) )
+		return ASSET_SETTINGS_UNIQUE_ID_INVALID
+	int timeNow = GetUnixTimestamp()
+	foreach ( SettingsAssetGUID containerGUID, RankedRumbleContainerInfo info in fileLevel.rankedRumbleContainers )
+	{
+		if ( info.startTime < timeNow && info.finishTime > timeNow )
+			return containerGUID
+	}
+	return ASSET_SETTINGS_UNIQUE_ID_INVALID
+}
+
+TimestampRange ornull function RankedRumble_CurrentRankedRumbleTimestampRange()
+{
+	SettingsAssetGUID currentRankedRumble = RankedRumble_CurrentRankedRumbleGUID()
+	if ( currentRankedRumble == ASSET_SETTINGS_UNIQUE_ID_INVALID )
+		return null
+
+	TimestampRange range
+	range.startUnixTime = fileLevel.rankedRumbleContainers[currentRankedRumble].startTime
+	range.endUnixTime   = fileLevel.rankedRumbleContainers[currentRankedRumble].finishTime
+	return range
+}
+
+bool function RankedRumble_IsContainerRankedRumble( ItemFlavor cupContainerItemFlavor )
+{
+	return GetGlobalSettingsBool( ItemFlavor_GetAsset( cupContainerItemFlavor ), RANKED_RUMBLE_FIELD_NAME )
+}
+
+bool function RankedRumble_IsCupRankedRumble( ItemFlavor cupContainerItemFlavor )
+{
+	return ItemFlavor_GetGUID( cupContainerItemFlavor ) in fileLevel.cupsToContainerMap
+}
+
+bool function RankedRumble_IsCupIDRankedRumble( SettingsAssetGUID cupID )
+{
+	return cupID in fileLevel.cupsToContainerMap
+}
+
+bool function RankedRumble_IsRankedRumblePlaylist( string playlistName )
+{
+	return GameModeVariant_IsActiveForPlaylist( playlistName, eGameModeVariants.SURVIVAL_RANKED ) && RankedRumble_IsRunningRankedRumble()
+}
+
+bool function RankedRumble_PartySizeNotQualified( string playlistName, int partySize )
+{
+	return RankedRumble_IsRankedRumblePlaylist( playlistName ) && partySize > MAX_PARTY_SIZE
+}
+
+bool function RankedRumble_IsCupMatchPlayerPlatform( int cupID, entity player )
+{
+	if( !( cupID in fileLevel.cupsToContainerMap ) )
+		return false
+	RankedRumbleContainerInfo containerInfo = fileLevel.rankedRumbleContainers[fileLevel.cupsToContainerMap[cupID]]
+	if( !( cupID in containerInfo.allCups ) )
+	{
+		Assert( false, "Cup not in container! cup:" + cupID + " container:"+ fileLevel.cupsToContainerMap[cupID] )
+		return false
+	}
+	int playerPlatform = PLATFORM_MAP[GetMergedPlatformIdForPlayer( player )]
+	return playerPlatform == containerInfo.allCups[cupID].platform
+}
+
+
+ItemFlavor ornull function RankedRumble_GetRegisteredCup( UserFullCupData allCupInfo )
+{
+	
+	foreach( CupEntry cupEntry in allCupInfo.enteredCups )
+	{
+		if ( !Cups_IsValidCupID( cupEntry.cupID ) )
+			continue
+
+		ItemFlavor cup = Cups_GetCupBakeryAssetDataFromGUID( cupEntry.cupID ).itemFlavor
+		if( RankedRumble_IsCupRankedRumble( cup ) && RankedRumble_IsCupMatchPlayerPlatform( cupEntry.cupID, GetLocalClientPlayer() ) )
+			return cup
+	}
+	return null
+}
+
+
+SettingsAssetGUID function RankedRumble_GetCurrentRankedCup( entity player )
+{
+	SettingsAssetGUID currentRankedRumble = RankedRumble_CurrentRankedRumbleGUID()
+	if ( currentRankedRumble == ASSET_SETTINGS_UNIQUE_ID_INVALID )
+		return ASSET_SETTINGS_UNIQUE_ID_INVALID
+	return RankedRumble_GetRankedCupFromContainer( player, currentRankedRumble )
+}
+
+SettingsAssetGUID function RankedRumble_GetRankedCupFromContainer( entity player, SettingsAssetGUID rankedRumbleContainer )
+{
+
+
+
+
+
+
+	if ( !IsConnected() )
+		return ASSET_SETTINGS_UNIQUE_ID_INVALID
+
+	int platform = PLATFORM_MAP[GetMergedPlatformIdForPlayer( player )]
+
+	Assert( RankedRumble_IsContainerRankedRumble( GetItemFlavorByGUID( rankedRumbleContainer ) ) )
+
+	table< SettingsAssetGUID, RankedRumbleMainCupInfo > mainCupInfoMap = fileLevel.rankedRumbleContainers[rankedRumbleContainer].mainCups
+	table< SettingsAssetGUID, CupBakeryAssetData > allCupData          = Cups_GetAllCupBakeryAssetData()
+
+	table scorePosition = RankedRumble_GetHighestRankedScoreAndPositionAcrossPlatforms( player )
+	int playerRankedScore = expect int( scorePosition.score )
+	int ladderPosition = expect int( scorePosition.position )
+
+	int candidateCupID = 0
+	int candidateCupMinScore = 0
+	foreach( cupID, mainCupInfo in mainCupInfoMap )
+	{
+		CupBakeryAssetData cupData = allCupData[cupID]
+		if ( playerRankedScore >= cupData.entryRestrictions.minRankScore && cupData.entryRestrictions.minRankScore >= candidateCupMinScore )
+		{
+			if ( cupData.entryRestrictions.minRankString == "#RANKED_TIER_MASTER" && ladderPosition >= 0 )
+				continue
+			if ( cupData.entryRestrictions.minRankString == "#RANKED_TIER_APEX_PREDATOR" && ladderPosition < 0 )
+				continue
+			Assert( platform in mainCupInfo.platformCups )
+			candidateCupID = mainCupInfo.platformCups[platform]
+			candidateCupMinScore = cupData.entryRestrictions.minRankScore
+		}
+	}
+	Assert ( candidateCupID > 0, format( "Can't find a valid ranked rumble cup for event %d and player with %d score\n", rankedRumbleContainer, playerRankedScore ) )
+	return candidateCupID
+}
+
+int function RankedRumble_CombineBadgeTier( int rankedTier, int topX, int placement )
+{
+	rankedTier = rankedTier + 1 
+	topX = topX - 1 
+	return rankedTier + topX * 100 + placement * 10000
+}
+
+SharedRankedTierData function RankedRumble_GetPlayerHistoricalRankedTier( CupBakeryAssetData cupData, ItemFlavor rankedPeriod )
+{
+	string rankedPeriodGUIDString        = ItemFlavor_GetGUIDString( rankedPeriod )
+	array<SharedRankedTierData> rankedTierList = Ranked_GetHistoricalRankedTiers( rankedPeriodGUIDString )
+	foreach( rankedTierData in rankedTierList )
+	{
+		if ( rankedTierData.name == cupData.entryRestrictions.minRankString )
+		{
+			return rankedTierData
+		}
+	}
+	if ( Ranked_PeriodHasLadderOnlyDivision( rankedPeriodGUIDString ) )
+	{
+		SharedRankedTierData ladderOnlyTierData = Ranked_GetHistoricalLadderOnlyDivision( rankedPeriodGUIDString ).tier
+		if ( ladderOnlyTierData.name == cupData.entryRestrictions.minRankString )
+		{
+			return ladderOnlyTierData
+		}
+	}
+	unreachable
+}
+
+int function RankedRumble_GetCupRankedTier( SettingsAssetGUID cupID )
+{
+	if ( !RankedRumble_IsCupIDRankedRumble( cupID ) )
+		return -1
+	CupBakeryAssetData cupData = Cups_GetCupBakeryAssetDataFromGUID( cupID )
+	SettingsAssetGUID cupContainerID = ItemFlavor_GetGUID( cupData.containerItemFlavor )
+	RankedRumbleContainerInfo info = fileLevel.rankedRumbleContainers[cupContainerID]
+	SharedRankedTierData rankedTierData = RankedRumble_GetPlayerHistoricalRankedTier( cupData, info.rankedPeriod )
+	return rankedTierData.index
+}
+
+bool function RankedRumble_IsCupMatchPlayerRank( int cupID, entity player )
+{
+	if( !( cupID in fileLevel.cupsToContainerMap ) )
+		return false
+
+	return cupID == RankedRumble_GetCurrentRankedCup( player )
+}
+
+table function RankedRumble_GetHighestRankedScoreAndPositionAcrossPlatforms( entity player, bool serverRequirePosition = true )
+{
+
+		if ( !IsLocalClientEHIValid() )
+			return { score = 0, position = 0 }
+
+
+
+
+
+
+
+
+		if ( !IsConnected() )
+			return { score = 0, position = 0 }
+
+
+	int highestScore = -1
+	string highestPlatform = ""
+	foreach( string platform in PLATFORM_LIST )
+	{
+		int currentScore = player.GetPersistentVarAsInt( format( XPROG_PERSISTENCE_FORMAT_STRING, platform, RANKED_CURRENT_SCORE_PERSISTENCE_VAR_NAME ) )
+		if ( currentScore > highestScore )
+		{
+			highestScore = currentScore
+			highestPlatform = platform
+		}
+	}
+	Assert( highestPlatform != "" )
+
+	int highestPosition = -1
+
+
+
+
+
+
+
+
+
+
+
+		EHIScriptStruct ehiss = GetEHIScriptStruct( LocalClientEHI() )
+		if ( highestPlatform in ehiss.platformLadderPosition )
+		{
+			highestPosition = ehiss.platformLadderPosition[highestPlatform]
+		}else
+		{
+#if RANKED_RUMBLE_DEBUG
+				if ( Ranked_HasActiveLadderOnlyDivision() && highestScore >= Ranked_GetActiveLadderOnlyDivisionData().scoreMin )
+					printt( "platformLadderPosition is not available! platform:" + highestPlatform )
+#endif
+		}
+
+	return { score = highestScore, position = highestPosition }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+void function RankedRumble_RegisterNetworkFunctions()
+{
+	for ( int i = 0; i < PLATFORM_LIST.len(); i++ )
+	{
+		RegisterNetVarIntChangeCallback( "nv_currentRankedLadderPosition_" + PLATFORM_LIST[i], void function ( entity player, int newVal ) : ( i )
+		{
+			OnRankedPlatformLadderPositionChanged( player, newVal, i )
+		} )
+	}
+}
+
+void function OnRankedPlatformLadderPositionChanged( entity player, int new, int platformIndex )
+{
+	Assert( IsLobby() )
+
+	EHI playerEHI = ToEHI( player )
+	RankedRumble_UpdateEHIRankedPlatformLadderPosition( playerEHI, new, platformIndex )
+	RunUIScript( "RankedRumble_UpdateEHIRankedPlatformLadderPosition", playerEHI, new, platformIndex )
+}
+
+
+void function RankedRumble_UpdateEHIRankedPlatformLadderPosition( EHI playerEHI, int rankedLadderPosition, int platformIndex )
+{
+	EHIScriptStruct ehiss = GetEHIScriptStruct( playerEHI )
+	ehiss.platformLadderPosition[PLATFORM_LIST[platformIndex]] <- rankedLadderPosition
+#if RANKED_RUMBLE_DEBUG
+		printt( "RankedRumble_UpdateEHIRankedPlatformLadderPosition ", rankedLadderPosition, platformIndex )
+#endif
+}
+
+RankedRumbleContainerInfo function RankedRumble_GetContainerInfo( ItemFlavor containerItemFlavor )
+{
+	Assert( RankedRumble_IsContainerRankedRumble( containerItemFlavor ) )
+	SettingsAssetGUID cupContainerID = ItemFlavor_GetGUID( containerItemFlavor )
+	RankedRumbleContainerInfo info = fileLevel.rankedRumbleContainers[cupContainerID]
+	return info
+}

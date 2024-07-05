@@ -582,6 +582,33 @@ void function EntitiesDidLoad()
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 void function OnPanelCreated( entity panel )
 {
 	if ( panel.GetScriptName() != EXPLOSIVE_HOLD_PANEL_SCRIPTNAME )
@@ -783,6 +810,17 @@ void function ExplosiveHoldDoor_DisplayRui( entity ent, entity player, var rui, 
 		RuiSetGameTime( rui, "endTime", Time() + settings.duration )
 
 }
+
+
+
+
+
+
+
+
+
+
+
 
 
 

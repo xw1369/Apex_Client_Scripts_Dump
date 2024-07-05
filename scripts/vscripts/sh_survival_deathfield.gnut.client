@@ -96,6 +96,9 @@ global function GetRingTuningOverrideVar
 
 
 
+
+
+
 global function Cl_Deathfield_GetRadiusScale
 global function Cl_Deathfield_GetFXIDForRadius
 #if DEV
@@ -105,6 +108,7 @@ global function Cl_GetDeathFieldStage
 global function Cl_SURVIVAL_GetDeathField
 global function Cl_SURVIVAL_GetDeathFieldCurrentRadius
 global function Cl_SURVIVAL_GetDeathFieldCenter
+global function Cl_SURVIVAL_GetSafeZoneCenter
 global function Cl_SURVIVAL_PosInsideDeathField
 global function Cl_SURVIVAL_PosInSafeZone
 global function ServerCallback_UpdateSurveyBeaconHUDVisibility
@@ -117,6 +121,7 @@ global function SurveyBeacon_ShowSquadInfo
 
 
 global function HasDeathFieldImmunity
+global function Deathfield_GetDoesDeathfieldStartEnabled
 global function SURVIVAL_GetCurrentDeathFieldStage
 global function SURVIVAL_GetCurrentRoundString
 global function SURVIVAL_IsFinalDeathFieldStage
@@ -130,6 +135,7 @@ global function RemoveCallback_OnSurvivalDeathFieldStageChanged
 
 
 global function HasActiveSurveyZone
+global function GetActiveSurveyZone
 global function TeamHasActiveSurveyZone
 
 
@@ -329,7 +335,6 @@ void function Sh_ArenaDeathField_Init()
 
 	RegisterSignal( "NewDeathFieldStarting" )
 	RegisterSignal( "UpdateSurveyBeaconVisibility" )
-
 
 
 
@@ -590,6 +595,13 @@ float function SURVIVAL_Deathfield_GetStartRadius()
 	return startRadius
 }
 
+float function SURVIVAL_Deathfield_GetStartDamage()
+{
+	int startStage = maxint( file.deathFieldStartStage - 1, 0 )
+
+	return file.deathFieldStageData[startStage].percentDamagePerTick
+}
+
 bool function TeamShouldSeeBeaconMarker( int team, entity beacon )
 {
 	array<entity> players = GetPlayerArrayOfTeam( team )
@@ -763,6 +775,21 @@ bool function TeamShouldSeeBeaconMarker( int team, entity beacon )
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+bool function Deathfield_GetDoesDeathfieldStartEnabled()
+{
+	return GetCurrentPlaylistVarBool( "deathfield_start_enabled", false )
+}
 
 
 
@@ -3873,7 +3900,7 @@ void function SurveyBeaon_ClassChanged( entity player )
 void function OnViewPlayerChanged( entity viewPlayer )
 {
 	entity localClientPlayer = GetLocalClientPlayer()
-	if ( GameRules_GetGameMode() == SURVIVAL && localClientPlayer && localClientPlayer.GetTeam() == TEAM_SPECTATOR )
+	if ( GameMode_IsActive( eGameModes.SURVIVAL ) && localClientPlayer && localClientPlayer.GetTeam() == TEAM_SPECTATOR )
 	{
 		RuiSetBool( ClGameState_GetRui(), "hideDeathFieldWarning", ( localClientPlayer.GetObserverMode() == OBS_MODE_ROAMING ) )
 	}
@@ -3987,6 +4014,16 @@ vector function Cl_SURVIVAL_GetDeathFieldCenter()
 {
 	if ( IsValid( file.deathField ) )
 		return file.deathField.GetOrigin()
+	else
+		return <0, 0, 0>
+
+	unreachable
+}
+
+vector function Cl_SURVIVAL_GetSafeZoneCenter()
+{
+	if ( IsValid( file.safeZone ) )
+		return file.safeZone.GetOrigin()
 	else
 		return <0, 0, 0>
 
@@ -4173,6 +4210,25 @@ bool function HasActiveSurveyZone( entity player )
 		}
 	}
 	return false  
+}
+
+entity function GetActiveSurveyZone( entity player )
+{
+	if ( !IsValid( player ) )
+		return null
+	foreach ( surveyZone in file.surveyMinimapEnts )
+	{
+		entity owner = surveyZone.GetOwner()
+
+		if ( IsValid(owner) && owner.GetTeam() == player.GetTeam() ) 
+		{
+			if ( owner == player)
+			{
+				return surveyZone
+			}
+		}
+	}
+	return null
 }
 
 bool function TeamHasActiveSurveyZone( int team )
@@ -4371,6 +4427,13 @@ bool function ShouldShowDeathFieldEffects( entity player )
 
 
 	}
+
+
+		if ( Deathfield_GetDoesDeathfieldStartEnabled() && player.GetPlayerNetBool( "playerInPlane" ) )
+		{
+			shouldShow = false
+		}
+
 
 	if ( IsViewingSquadSummary() || IsViewingDeathRecap() )
 		shouldShow = false

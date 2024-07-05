@@ -49,6 +49,9 @@ global function VaultPanel_ServerToClient_SetVaultMarkerClientEnt
 
 
 
+
+
+
 const string LOOT_VAULT_PANEL_SCRIPTNAME = "LootVaultPanel"
 const string LOOT_VAULT_DOOR_SCRIPTNAME = "LootVaultDoor"
 const string LOOT_VAULT_DOOR_SCRIPTNAME_RIGHT = "LootVaultDoorRight"
@@ -106,6 +109,19 @@ struct VaultData
 	entity minimapObj
 	entity openMinimapObj
 }
+
+#if DEV
+struct SpecialVolumeDimensions
+{
+	vector center
+	vector endFront
+	vector endBack
+
+	float radius
+	float heightAbove
+	float heightBelow
+}
+#endif
 
 global struct UniqueVaultData
 {
@@ -235,6 +251,12 @@ struct
 
 
 
+
+
+
+
+
+
 } file
 
 bool function LootVault_Enabled()
@@ -326,6 +348,12 @@ void function VaultPanelSpawned( entity panel )
 	data.panel = panel
 
 	UniqueVaultData uniqueData = GetUniqueVaultData( panel )
+
+
+
+
+
+
 
 
 
@@ -605,6 +633,9 @@ void function VaultDoorSpawned( entity door )
 
 
 
+
+
+
 UniqueVaultData function GetUniqueVaultData( entity panel )
 {
 	UniqueVaultData data
@@ -659,6 +690,7 @@ UniqueVaultData function GetVaultTypeByPanelData( VaultData panelData )
 bool function HasVaultKey( entity player )
 {
 	array< ConsumableInventoryItem > playerInventory = SURVIVAL_GetPlayerInventory( player )
+
 	foreach ( item in playerInventory )
 	{
 		LootData lootData = SURVIVAL_Loot_GetLootDataByIndex( item.type )
@@ -834,6 +866,107 @@ void function VaultPanelUnlocking( VaultData panelData, int panelState )
 
 	thread HideVaultPanel_Thread( panelData )
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1345,6 +1478,77 @@ entity function GetVaultPanelForLoot( entity lootEnt )
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 void function MinimapPackage_VaultPanel( entity ent, var rui )
 {
 #if MINIMAP_DEBUG
@@ -1469,6 +1673,7 @@ bool function PingVaultUnderAim( entity vault )
 
 	return true
 }
+
 
 
 

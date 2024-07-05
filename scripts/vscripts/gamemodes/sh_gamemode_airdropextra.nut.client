@@ -1,6 +1,5 @@
 global function AirdropExtra_Init
 global function AirdropExtravaganza_RegisterNetworking
-global function IsLTM_AirdropExtravaganza
 
 
 
@@ -61,9 +60,6 @@ const float AIRDROPEXTRA_CLUSTER_MIN_DIST		= 30.0
 
 void function AirdropExtra_Init()
 {
-	if ( !IsLTM_AirdropExtravaganza() )
-		return
-
 
 
 
@@ -93,18 +89,12 @@ void function AirdropExtra_Init()
 			SURVIVAL_SetGameStateAssetOverrideCallback( AirdropExtravaganzaOverrideGamestateUI )
 		}
 
-}
 
-bool function IsLTM_AirdropExtravaganza()
-{
-	return GetCurrentPlaylistVarBool( "airdrop_ltm_enabled", false )
+	AirdropExtravaganza_RegisterNetworking()
 }
 
 void function AirdropExtravaganza_RegisterNetworking()
 {
-	if ( !IsLTM_AirdropExtravaganza() )
-		return
-
 	RegisterNetworkedVariable( "AirdropExtra_AirdropTier", SNDC_GLOBAL, SNVT_INT, -1 )
 	RegisterNetworkedVariable( "AirdropExtra_AirdropProgress", SNDC_GLOBAL, SNVT_INT, -1 )
 	RegisterNetworkedVariable( "AirdropExtra_AirdropCount", SNDC_GLOBAL, SNVT_INT, -1 )

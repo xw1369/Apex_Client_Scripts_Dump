@@ -60,7 +60,7 @@ const vector MOBILE_SHIELD_ENEMY_PROJECTOR_FX_COLOR	= < 255, 150, 12 >
 
 const string MOBILE_SHIELD_PROPULSION_SFX_3P 		= "Newcastle_Tactical_ShieldActivation"
 const string MOBILE_SHIELD_COMMAND_SFX_3P 			= "Newcastle_Tactical_Command"
-const string MOBILE_SHIELD_STOP_SFX_3P 				= "Char_11_TacticalA_A"
+const string MOBILE_SHIELD_STOP_SFX_3P 				= "Char_11_TacticalA_Recall_3p"
 const string MOBILE_SHIELD_WARNING_SFX_3P			= "Newcastle_Tactical_ShieldPower_Shutdown"
 const string MOBILE_SHIELD_DISSOLVE_SFX_3P			= "Newcastle_Drone_dissolve" 
 const string MOBILE_SHIELD_DESTROY_SFX_1P 			= "Newcastle_Tactical_ShieldBreak" 
@@ -1572,13 +1572,12 @@ void function AttemptChangeDirection( entity player )
 	{
 		vector desiredPos = <0,0,0>
 		entity weapon = player.GetOffhandWeapon( OFFHAND_TACTICAL )
+		if ( !IsValid( weapon ) )
+			return
 
 		if( file.cl_shieldActive == true )
 		{
-			if ( IsValid( weapon ) )
-			{
-				desiredPos = ShieldThrow_GetThrowDestination( player, weapon )
-			}
+			desiredPos = ShieldThrow_GetThrowDestination( player, weapon )
 			Remote_ServerCallFunction( "ClientCallback_AttemptChangeShieldDirection", desiredPos )
 		}
 		else

@@ -458,10 +458,8 @@ void function SCB_PathTT_PlayRingAnnouncerDialogue( int lineId )
 	}
 
 	string lineToPlay = file.isInStadium? RING_ANNOUNCER_LINES[ lineId ] : RING_ANNOUNCER_LINES_EXT[ lineId ]
-
 		if ( IsNightMap() && UseNightRingAnnouncer() )
 			lineToPlay = file.isInStadium? RING_ANNOUNCER_LINES_REVENANT[ lineId ] : RING_ANNOUNCER_LINES_REVENANT_EXT[ lineId ]
-
 	float duration = GetSoundDuration( GetAnyDialogueAliasFromName( lineToPlay ) )
 	file.announcerLineFinishedPlayingTime = Time() + duration + ANNOUNCER_DEBOUNCE_TIME
 	file.currentlyPlayingLinePriority = lineId

@@ -1,5 +1,11 @@
 global function ShPassiveKnockTacReset_Init
 
+const float TAC_RESET_ASSIST_WINDOW = 3.0
+
+
+
+
+
 void function ShPassiveKnockTacReset_Init()
 {
 
@@ -7,6 +13,50 @@ void function ShPassiveKnockTacReset_Init()
 
 
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

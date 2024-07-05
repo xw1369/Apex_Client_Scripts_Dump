@@ -31,7 +31,6 @@ const int TEAM_COUNT_PANEL_ONE 		= 2
 const int TEAM_COUNT_PANEL_TWO 		= 7
 const int TEAM_COUNT_PANEL_THREE 	= 11
 
-const int MAX_TEAM_SIZE = 3
 const int ROSTER_LIST_SIZE = 20 
 
 enum ePlayerHealthStatus

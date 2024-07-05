@@ -9,6 +9,12 @@ global function OnWeaponEnergizedStart_weapon_dragon_lmg
 global function OnWeaponStartEnergizing_weapon_dragon_lmg
 global function OnWeaponEnergizedEnd_weapon_dragon_lmg
 
+
+
+
+
+
+
 global const string DRAGON_LMG_ENERGIZED_MOD = "energized"
 
 const string DRAGON_CLASS_NAME = "mp_weapon_dragon_lmg"
@@ -112,6 +118,13 @@ void function OnWeaponActivate_weapon_dragon_lmg( entity weapon )
 
 
 
+
+
+
+
+
+
+
 }
 
 void function OnWeaponDeactivate_weapon_dragon_lmg( entity weapon )
@@ -122,6 +135,16 @@ void function OnWeaponDeactivate_weapon_dragon_lmg( entity weapon )
 
 	weapon.StopWeaponEffect( EFFECT_ENHANCED_MODE_FP, EFFECT_ENHANCED_MODE_3P )
 	weapon.StopWeaponSound( EQUIPPED_WHILE_CHARGED )
+
+
+
+
+
+
+
+
+
+
 }
 
 var function OnWeaponPrimaryAttack_weapon_dragon_lmg( entity weapon, WeaponPrimaryAttackParams attackParams )
@@ -169,6 +192,22 @@ void function OnWeaponEnergizedEnd_weapon_dragon_lmg( entity weapon, entity play
 	SetEnableEmission( weapon, false )
 
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

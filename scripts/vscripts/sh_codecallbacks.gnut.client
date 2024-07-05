@@ -10,7 +10,7 @@ global function CodeCallback_ShouldUseBlockReload
 global function SetCallback_ShouldUseBlockReloadCallback
 global function CodeCallback_PlayerClassChanged
 global function CodeCallback_OnUseEntity
-
+global function CodeCallback_OnUseStart
 global function CodeCallback_OnUseEnd
 global function CodeCallback_OnUseButtonPressed
 global function CodeCallback_OnUseButtonReleased
@@ -60,7 +60,9 @@ global function RemoveCallback_OnClientPartyMemberAdded
 
 
 global function CodeCallback_OnPlayerWeaponActivated
+global function CodeCallback_OnPlayerWeaponDryFired
 global function AddCallback_OnPlayerWeaponSwitched
+global function AddCallback_OnPlayerWeaponDryFired
 
 global function AddCallback_OnVehicleLaunch
 global function CodeCallback_OnVehicleLaunch
@@ -101,7 +103,6 @@ global function AddGetExtendedRangeUseEntityCallback
 global function RemoveGetExtendedRangeUseEntityCallback
 
 global function CodeCallback_ObjectPlacementSpecial_CheckInvalidEnt
-global function CodeCallback_ObjectPlacementSpecial_GetMaxHeight
 
 struct
 {
@@ -120,6 +121,7 @@ struct
 	array<bool functionref( entity, entity )> canPlayerUseCheckCallbacks
 
 	array<void functionref( entity, entity, entity )> onPlayerSwitchedWeaponCallbacks
+	array<void functionref( entity, entity )> onPlayerDryFiredWeaponCallbacks
 	table<entity , entity>							  playerPreviousActiveWeapon
 
 	array< void functionref( entity, array<entity> ) > getExtendedRangeUseEntityCallbacks
@@ -300,7 +302,7 @@ bool function CodeCallback_CanPlayerReload( entity player )
 }
 
 
-bool function CodeCallback_CanHitPingTrace( entity ent )
+bool function CodeCallback_CanHitPingTrace( entity ent, entity ornull tracingEntity )
 {
 	return !ent.e.ignorePingTrace
 }
@@ -454,6 +456,11 @@ void function AddCallback_OnPlayerWeaponSwitched( void functionref(entity, entit
 	file.onPlayerSwitchedWeaponCallbacks.append( callback )
 }
 
+void function AddCallback_OnPlayerWeaponDryFired( void functionref(entity, entity) callback )
+{
+	file.onPlayerDryFiredWeaponCallbacks.append( callback )
+}
+
 void function CodeCallback_OnPlayerWeaponActivated( entity player, entity activatedWeapon )
 {
 	if( !( player in file.playerPreviousActiveWeapon ) )
@@ -465,6 +472,12 @@ void function CodeCallback_OnPlayerWeaponActivated( entity player, entity activa
 			cb(player, activatedWeapon, file.playerPreviousActiveWeapon[player])
 		file.playerPreviousActiveWeapon[player] = activatedWeapon
 	}
+}
+
+void function CodeCallback_OnPlayerWeaponDryFired( entity player, entity dryFiredWeapon )
+{
+	foreach ( void functionref(entity, entity) cb in file.onPlayerDryFiredWeaponCallbacks )
+		cb(player, dryFiredWeapon )
 }
 
 
@@ -521,11 +534,13 @@ void function CancelDisembark( entity player )
 }
 
 
-
-
-
-
-
+void function CodeCallback_OnUseStart( entity player )
+{
+	if ( IsValid( player.GetUseEntity() ) )
+	{
+		player.p.lastUseTime = Time()
+	}
+}
 
 void function CodeCallback_OnUseEnd( entity player )
 {
@@ -813,10 +828,10 @@ string function CodeCallback_CheckPassThroughAddsMods( entity player, entity hit
 		}
 
 
-			if ( currMods.contains( "hopup_april_fools_energy" ) )
-			{
-				return "amped_damage_alt"
-			}
+
+
+
+
 
 		return "amped_damage"
 	}
@@ -1065,20 +1080,9 @@ void function RemoveGetExtendedRangeUseEntityCallback( void functionref( entity,
 bool function CodeCallback_ObjectPlacementSpecial_CheckInvalidEnt( entity ent )
 {
 
+	return PhaseDoor_CheckInvalidEnt( ent )
 
 
-	return false
-
-
-	unreachable
-}
-
-float function CodeCallback_ObjectPlacementSpecial_GetMaxHeight( entity player )
-{
-
-
-
-	return 0
 
 
 	unreachable

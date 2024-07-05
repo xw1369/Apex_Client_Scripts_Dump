@@ -186,8 +186,6 @@ array<ItemFlavor> function GetActiveLoginEvents( int t )
 
 
 
-
-
 array<ItemFlavor> function LoginEvent_GetLoginRewards( ItemFlavor event )
 {
 	Assert( ItemFlavor_GetType( event ) == eItemType.calevent_login )

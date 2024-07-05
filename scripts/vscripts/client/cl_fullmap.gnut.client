@@ -68,6 +68,8 @@ const FULLMAP_SELECT_RANGE = 750
 const float FULLMAP_ENTITY_SELECT_RANGE_NORMALIZED = 0.02
 const float OVERVIEW_MAP_SIZE = 4096 
 
+const vector OBSERVER_TELEPORT_OFFSET = <0.0, 0.0, 250.0>
+
 struct MinimapLabelStruct
 {
 	string name
@@ -125,7 +127,7 @@ struct
 	table<EHI, var> 			fullmapPlayerItems
 
 	entity 						highlightedPlayer
-	int							playerTagMode = OBS_PLAYERTAG_MODE_ALL
+	int							playerTagMode = OBS_PLAYERTAG_RANGE_INFINITE
 	bool						updatePlayerTags = true
 	AimTargetStruct				mapAimTarget
 
@@ -161,13 +163,20 @@ void function Fullmap_SetupScoreboard()
 	clGlobal.hideScoreboardFunc = HideFullmap
 	
 
-	Teams_AddCallback_ScoreboardData( Survival_GetScoreboardData )
-	Teams_AddCallback_Header( Survival_ScoreboardUpdateHeader )
-	Teams_AddCallback_GetTeamColor( Survival_GetTeamColor )
-	Teams_AddCallback_GetTeamName( Survival_GetTeamName )
-	Teams_AddCallback_GetTeamIcon( Survival_GetTeamIcon )
-	Teams_AddCallback_PlayerScores( Survival_GetPlayerScores )
-	Teams_AddCallback_SortScoreboardPlayers( Survival_SortPlayersByScore )
+
+	
+	
+	if ( GameModeVariant_IsActive( eGameModeVariants.SURVIVAL_WINTEREXPRESS ) )
+	{
+		Teams_AddCallback_ScoreboardData( Survival_GetScoreboardData )
+		Teams_AddCallback_Header( Survival_ScoreboardUpdateHeader )
+		Teams_AddCallback_GetTeamColor( Survival_GetTeamColor )
+		Teams_AddCallback_GetTeamName( Survival_GetTeamName )
+		Teams_AddCallback_GetTeamIcon( Survival_GetTeamIcon )
+		Teams_AddCallback_PlayerScores( Survival_GetPlayerScores )
+		Teams_AddCallback_SortScoreboardPlayers( Survival_SortPlayersByScore )
+	}
+
 }
 
 
@@ -188,7 +197,7 @@ ScoreboardData function Survival_GetScoreboardData()
 {
 	bool isWinterExpress = false
 
-		isWinterExpress = WinterExpress_IsModeEnabled()
+		isWinterExpress = GameModeVariant_IsActive( eGameModeVariants.SURVIVAL_WINTEREXPRESS )
 
 
 	ScoreboardData data
@@ -219,7 +228,7 @@ array< string > function Survival_GetPlayerScores( entity player )
 {
 	bool isWinterExpress = false
 
-		isWinterExpress = WinterExpress_IsModeEnabled()
+		isWinterExpress = GameModeVariant_IsActive( eGameModeVariants.SURVIVAL_WINTEREXPRESS )
 
 
 	array< string > scores
@@ -242,15 +251,21 @@ array< string > function Survival_GetPlayerScores( entity player )
 
 
 
-array< entity > function Survival_SortPlayersByScore( array< entity > teamPlayers, ScoreboardData gameData )
+array< TeamsScoreboardPlayer > function Survival_SortPlayersByScore( array< TeamsScoreboardPlayer > players )
 {
-	teamPlayers.sort( int function( entity a, entity b )
+	players.sort( int function( TeamsScoreboardPlayer a, TeamsScoreboardPlayer b )
 	{
+		entity playerA = FromEHI( a.playerEHI )
+		entity playerB = FromEHI( b.playerEHI )
+
+		if( !IsValid( playerA ) || !IsValid( playerB ) )
+			return 0
+
 		
 		int aScore
 		int bScore
-		aScore = a.GetPlayerNetInt( "kills" )
-		bScore = b.GetPlayerNetInt( "kills" )
+		aScore = playerA.GetPlayerNetInt( "kills" )
+		bScore = playerB.GetPlayerNetInt( "kills" )
 
 		if ( aScore > bScore ) return -1
 		else if ( aScore < bScore ) return 1
@@ -258,7 +273,7 @@ array< entity > function Survival_SortPlayersByScore( array< entity > teamPlayer
 	}
 	)
 
-	return teamPlayers
+	return players
 }
 
 
@@ -267,7 +282,7 @@ void function Survival_ScoreboardUpdateHeader( var headerRui, var frameRui, int 
 {
 	bool isWinterExpress = false
 
-		isWinterExpress = WinterExpress_IsModeEnabled()
+		isWinterExpress = GameModeVariant_IsActive( eGameModeVariants.SURVIVAL_WINTEREXPRESS )
 
 
 	if( headerRui != null )
@@ -293,11 +308,11 @@ void function Survival_ScoreboardUpdateHeader( var headerRui, var frameRui, int 
 bool function Survival_ShouldChangeTeamUI()
 {
 
-	 if ( IsShadowArmyGamemode() )
+	 if ( GameModeVariant_IsActive( eGameModeVariants.SURVIVAL_SHADOW_ARMY ) )
 	 	return true
 
 
-	if( WinterExpress_IsModeEnabled() )
+	if( GameModeVariant_IsActive( eGameModeVariants.SURVIVAL_WINTEREXPRESS ) )
 		return true
 
 	return false
@@ -328,7 +343,7 @@ bool function Survival_ShouldChangeTeamUI()
 	 else
 	 {
 
-			 if( WinterExpress_IsModeEnabled() )
+			 if( GameModeVariant_IsActive( eGameModeVariants.SURVIVAL_WINTEREXPRESS ) )
 			 {
 				 return Squads_GetSquadColor( Squads_GetSquadUIIndex( team ) )
 			 }
@@ -355,7 +370,14 @@ string function Survival_GetTeamName( int team )
 			else
 				teamName = "#SHADOW_ARMY_TEAM_LEGENDS"
 		}
+		else
 
+		{
+			Assert( team > TEAM_INVALID ) 
+			teamName = ( AllianceProximity_IsUsingAlliances() ) ? Localize( "#TEAM_NUMBERED", AllianceProximity_GetAllianceFromTeam( team ) + 1 ) : Localize( "#TEAM_NUMBERED", team - 1 )
+
+			return teamName
+		}
 
 	return teamName
 }
@@ -633,15 +655,15 @@ var function FullMap_Ping_( float radius, vector color, float pulseDuration, flo
 }
 
 
-var function FullMap_AddEnemyLocation( entity enemy )
+var function FullMap_AddEnemyLocation( entity enemy, asset enemyIconOverride = $"", float sizeOverride = -1.0 )
 {
 	var rui = FullMap_CommonAdd( $"ui/in_world_minimap_square_simple.rpak" )
 
 	RuiSetFloat3( rui, "objectPos", enemy.GetOrigin() )
 	RuiSetFloat3( rui, "objectAngles", ( enemy.GetAngles() + <0, -90, 0> ) )
-	RuiSetFloat( rui, "objectSize", 5.0 )
+	RuiSetFloat( rui, "objectSize", sizeOverride <= 0 ? 5.0 : sizeOverride )
 	RuiSetBool( rui, "doAnnounceEffect", true )
-	RuiSetImage( rui, "iconImage", $"rui/hud/minimap/compass_icon_player" )
+	RuiSetImage( rui, "iconImage", enemyIconOverride == $"" ? $"rui/hud/minimap/compass_icon_player" : enemyIconOverride )
 
 	
 	RuiSetFloat3( rui, "objColor", GetKeyColor( COLORID_MINIMAP_ENEMY_REF ) * ( 1.0 / 255.0 ) )
@@ -715,12 +737,12 @@ var function FullMap_AddHuntPreyLocation( entity enemy )
 	return rui
 }
 
-void function FullMap_PlayCryptoPulseSequence( vector pulseOrigin, bool tintMap, float tintDuration )
+void function FullMap_PlayCryptoPulseSequence( vector pulseOrigin, bool tintMap, float tintDuration, float rangeOverride = -1 )
 {
-	thread Fullmap_PlayCryptoPulseSequence_Thread( pulseOrigin, tintMap, tintDuration )
+	thread Fullmap_PlayCryptoPulseSequence_Thread( pulseOrigin, tintMap, tintDuration, rangeOverride )
 }
 
-void function Fullmap_PlayCryptoPulseSequence_Thread( vector pulseOrigin, bool tintMap, float tintDuration )
+void function Fullmap_PlayCryptoPulseSequence_Thread( vector pulseOrigin, bool tintMap, float tintDuration, float rangeOverride )
 {
 	if ( tintMap )
 	{
@@ -731,6 +753,14 @@ void function Fullmap_PlayCryptoPulseSequence_Thread( vector pulseOrigin, bool t
 	wait 0.5
 	var pulseRui = FullMap_AddCryptoRingPulse( pulseOrigin )
 	var minimapPulseRui = Minimap_AddCryptoPulseToMinimap( pulseOrigin )
+
+
+
+
+
+
+
+
 	RuiSetGameTime( pulseRui, "pulseSequenceEndTime", Time() + ( tintDuration - 1 ) )
 	RuiSetGameTime( minimapPulseRui, "pulseSequenceEndTime", Time() + ( tintDuration - 1 ) )
 
@@ -1137,6 +1167,7 @@ void function ShowMapRui()
 {
 	Fullmap_SetVisible( true )
 	UpdateMainHudVisibility( GetLocalViewPlayer() )
+	file.updatePlayerTags = true
 }
 
 
@@ -1216,7 +1247,6 @@ void function UpdateMap_THREAD()
 				return 0
 			});
 
-			int playersShownCount = 0
 			foreach ( ent in sortedPlayers )
 			{
 				if ( !IsValid( ent ) || !ent.IsPlayer() )
@@ -1230,32 +1260,26 @@ void function UpdateMap_THREAD()
 
 				entity player = GetLocalViewPlayer()
 
-				bool showNameTag = false
+				bool showNameTag = true
+				vector distanceToPlayerDelta = ent.GetOrigin() - player.GetOrigin()
+				distanceToPlayerDelta.z = 0
+				float sqrDistanceToPlayer = distanceToPlayerDelta.LengthSqr()
+
 				switch( file.playerTagMode )
 				{
-					case OBS_PLAYERTAG_MODE_NONE:
-						printt("PlayerTagMode_None")
+					case OBS_PLAYERTAG_RANGE_NONE:
+					case OBS_PLAYERTAG_RANGE_TEAM:
 						showNameTag = false
 						break;
 
-					case OBS_PLAYERTAG_MODE_5_TEAMS:
-						showNameTag = playersShownCount < 15
-						playersShownCount++;
+					case OBS_PLAYERTAG_RANGE_SMALL:
+						showNameTag = sqrDistanceToPlayer < ( GetConVarInt( "spectator_playerTagRange_small" ) ^ 2 )
 						break;
-					case OBS_PLAYERTAG_MODE_7_TEAMS:
-						showNameTag = playersShownCount < 21
-						playersShownCount++;
+					case OBS_PLAYERTAG_RANGE_MEDIUM:
+						showNameTag = sqrDistanceToPlayer < ( GetConVarInt( "spectator_playerTagRange_medium" ) ^ 2 )
 						break;
-					case OBS_PLAYERTAG_MODE_11_TEAMS:
-						showNameTag = playersShownCount < 33
-						playersShownCount++;
-						break;
-					case OBS_PLAYERTAG_MODE_ALL:
-						showNameTag = true
-						break;
-
-					case OBS_PLAYERTAG_MODE_TEAM:
-						showNameTag = (ent.GetTeam() == player.GetTeam())
+					case OBS_PLAYERTAG_RANGE_LARGE:
+						showNameTag = sqrDistanceToPlayer < ( GetConVarInt( "spectator_playerTagRange_large" ) ^ 2 )
 						break;
 				}
 
@@ -1360,6 +1384,13 @@ void function ShowFullmap()
 	Scoreboard_SetVisible( true )
 	ShowMapRui()
 	UpdateFullmapRuiTracks()
+
+
+
+
+
+
+
 
 	thread UpdateMap_THREAD()
 
@@ -1559,7 +1590,8 @@ void function AddToFullMapCustom( entity ent, var topo, GenericFullmapSetupStruc
 	if ( topo == file.mapTopo )
 		drawMode = FULLMAP_RUI_DRAW_LAYER
 
-	var rui = RuiCreate( data.ruiAsset, topo, drawMode, FULLMAP_Z_BASE )
+	int zOrder = ent.Minimap_GetZOrder()
+	var rui = RuiCreate( data.ruiAsset, topo, drawMode, FULLMAP_Z_BASE + zOrder )
 	RuiSetFloat3( rui, "mapCorner", <file.mapCornerX, file.mapCornerY, 0> )
 	RuiSetFloat( rui, "mapScale", file.mapScale )
 	RuiSetFloat( rui, "displayDist", max( file.threatMaxDist, 2200 ) )
@@ -1836,7 +1868,20 @@ bool function Fullmap_HandleKeyInput( int key )
 			swallowInput = true
 			break
 
+		case BUTTON_SHOULDER_LEFT:
 		case MOUSE_MIDDLE:
+#if DEV
+			bool hasALGSSpectator = GetCurrentPlaylistVarBool( "has_extended_observer_controls", true )
+#else
+			bool hasALGSSpectator = GetCurrentPlaylistVarBool( "has_extended_observer_controls", false )
+#endif
+			if ( hasALGSSpectator && IsPrivateMatch() && GetLocalClientPlayer().GetTeam() == TEAM_SPECTATOR )
+			{
+				thread ObserverTeleport_Thread()
+				return true
+			}
+			break
+
 		case BUTTON_STICK_RIGHT:
 		case BUTTON_Y:
 		case BUTTON_DPAD_RIGHT:
@@ -1872,7 +1917,7 @@ bool function Fullmap_HandleKeyInput( int key )
 		}
 		else
 		{
-			if( !Control_IsModeEnabled() ) 
+			if( !GameMode_IsActive( eGameModes.CONTROL ) ) 
 			{
 				vector worldPos = FullMap_ConvertNormalizedPosToWorldPos( FullMap_GetMapNormalizedAimCoordinate() )
 				if ( !attemptedDoublePing )
@@ -2012,4 +2057,23 @@ void function SetCurrentZoom(float zoomFactor, vector zoomPos , bool adjustValue
 	file.fullmapZoomFactor = zoomFactor
 	SetBigMapZoomScale( file.fullmapZoomFactor )
 	SetBigMapZoomAnchor( file.fullmapZoomPos.x, file.fullmapZoomPos.y )
+}
+
+void function ObserverTeleport_Thread()
+{
+	HideScoreboard()
+	ScreenFade( GetLocalViewPlayer(), 0, 0, 0, 255, 0.2, 0.0, FFADE_OUT | FFADE_STAYOUT )
+	vector worldPosition = FullMap_ConvertNormalizedPosToWorldPos( FullMap_GetMapNormalizedAimCoordinate() )
+	vector groundPosition = GetGroundPositionOpenToSky( worldPosition )
+
+	wait 0.2 
+
+	if ( GetLocalClientPlayer().GetObserverMode() != OBS_MODE_ROAMING )
+		GetLocalClientPlayer().SetObserverFreecamState( true );
+
+	while ( GetLocalClientPlayer().GetObserverMode() != OBS_MODE_ROAMING )
+		WaitFrame()
+
+	GetLocalClientPlayer().SetObserverPosition( groundPosition + OBSERVER_TELEPORT_OFFSET )
+	ScreenFade( GetLocalViewPlayer(), 0, 0, 0, 255, 0.2, 0.1, FFADE_IN | FFADE_PURGE )
 }

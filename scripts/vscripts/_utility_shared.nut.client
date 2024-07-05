@@ -113,6 +113,7 @@ global enum eEntitiesDidLoadPriority
 {
 	
 	LOW,
+	MEDIUM,
 	HIGH
 }
 
@@ -308,15 +309,11 @@ void function InitWeaponScripts()
 	
 	MeleeRevenantScythe_rt01_Init()
 	MpWeaponRevenantScythePrimary_rt01_Init()
+	MeleeFuseHeirloom_Init()
+	MpWeaponFuseHeirloomPrimary_Init()
 
-		MeleeFuseHeirloom_Init()
-		MpWeaponFuseHeirloomPrimary_Init()
-
-
-
-		MeleeArtifactDagger_Init()
-		MpWeaponArtifactDaggerPrimary_Init()
-
+	MeleeArtifactDagger_Init()
+	MpWeaponArtifactDaggerPrimary_Init()
 
 
 		MeleeArtifactSword_Init()
@@ -399,6 +396,10 @@ void function InitWeaponScripts()
 
 
 
+
+
+
+
 		MpAbilityCopycatKit_Init()
 
 
@@ -421,6 +422,28 @@ void function InitWeaponScripts()
 
 	MpWeaponBasicBolt_Init()
 	MpWeaponLmg_Init()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -577,64 +600,6 @@ void function InitAbilityScripts()
 
 
 
-	
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -707,6 +672,7 @@ void function InitAbilityScripts()
 
 
 
+	
 
 
 
@@ -739,6 +705,74 @@ void function InitAbilityScripts()
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+		AlterExtraScript_Init()
+		MpAbilityPhaseDoor_Init()
+		MpAbilityTransportPortal_Init()
+		MpAbilityTransportPortalDatapad_Init()
+
+
+
+
+
+		PassiveRemoteDeathboxInteract_Init()
+
+
+		PassiveVoidVision_Init()
 
 
 
@@ -1308,6 +1342,38 @@ bool function ArePlayersAllies( entity playerA, entity playerB )
 
 
 	return false
+}
+
+array<entity> function GetArrayOfPossibleAlliesForPlayer( entity player, bool includeAlliance = true )
+{
+	array<entity> allyArray
+	int team = player.GetTeam()
+
+	if ( includeAlliance && AllianceProximity_IsUsingAlliances() )
+	{
+		int alliance = AllianceProximity_GetAllianceFromTeam( team )
+		allyArray = AllianceProximity_GetAllPlayersInAlliance( alliance, true )
+	}
+	else
+	{
+		allyArray = GetPlayerArrayOfTeam_Alive( team )
+	}
+	allyArray.removebyvalue( player )
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+	return allyArray
 }
 
 table<int, int> function GetPlayerTeamCountTable()
@@ -3464,13 +3530,13 @@ int function GetWinningTeam( bool shouldReturnInvalidInCaseOfTie = true )
 }
 
 
-void function EmitSkyboxSoundAtPosition( vector positionInSkybox, string sound, float skyboxScale = 0.001, bool clamp = false )
-{
-	if ( IsServer() )
-		clamp = true 
-	vector position = SkyboxToWorldPosition( positionInSkybox, skyboxScale, clamp )
-	EmitSoundAtPosition( TEAM_UNASSIGNED, position, sound )
-}
+
+
+
+
+
+
+
 
 
 vector function SkyboxToWorldPosition( vector positionInSkybox, float skyboxScale = 0.001, bool clamp = true )
@@ -3581,7 +3647,7 @@ bool function IsRoundBased()
 bool function IsLootRoundBased()
 {
 
-	if ( ShGameModeExplore_IsActive() )
+	if ( GameModeVariant_IsActive( eGameModeVariants.SURVIVAL_EXPLORE ) )
 		return true
 
 	return IsRoundBased()
@@ -3613,7 +3679,7 @@ bool function IsPilotEliminationBased()
 }
 
 
-void function __WarpInEffectShared( vector origin, vector angles, string sfx, float preWaitOverride = -1.0, entity ornull vehicle = null )
+void function __WarpInEffectShared( vector origin, vector angles, string sfx, entity vehicle, float preWaitOverride = -1.0 )
 {
 	float preWait   = 2.0
 	float sfxWait   = 0.1
@@ -3642,7 +3708,13 @@ void function __WarpInEffectShared( vector origin, vector angles, string sfx, fl
 
 
 	wait sfxWait
+
 	EmitSoundAtPosition( TEAM_UNASSIGNED, origin, sfx )
+
+
+
+
+
 
 	wait totalTime - preWait - sfxWait
 }
@@ -3668,7 +3740,12 @@ void function __WarpOutEffectShared( entity dropship )
 
 
 
-	EmitSoundAtPosition( TEAM_UNASSIGNED, origin, "dropship_warpout" )
+
+		EmitSoundAtPosition( TEAM_UNASSIGNED, origin, "dropship_warpout" )
+
+
+
+
 }
 
 
@@ -4937,6 +5014,63 @@ array< vector > function GetPointsAlongLine( vector start, vector end, int count
 }
 
 
+int function Location_Score_ByDistance( vector loc, array< vector > testLocs, float testRadius, int outsideScoreAdd, int insideScoreAdd, bool test2D = true )
+{
+	float testRadiusSqr = pow( testRadius, 2 )
+
+	int score = 0
+	foreach( testLoc in testLocs )
+	{
+		float testDistSqr = test2D ? Distance2DSqr( loc, testLoc ) : DistanceSqr( loc, testLoc )
+
+		if( testDistSqr > testRadiusSqr )
+		{
+			score += outsideScoreAdd
+		}
+		else
+		{
+			score += insideScoreAdd
+		}
+	}
+
+	return score
+}
+
+
+table< string, int > function Count_Strings_IntoTable( array< string > itemsToCount )
+{
+	table< string, int > results
+	foreach( item in itemsToCount )
+	{
+		if( !( item in results ) )
+		{
+			results[ item ] <- 0
+		}
+		results[ item ]++
+	}
+	return results
+}
+
+entity function Get_Player_ByName( string playerName )
+{
+	entity result
+	array< entity > players = GetPlayerArray()
+	foreach( player in players )
+	{
+		if ( !IsValid( player ) )
+			continue
+
+		if ( player.GetPlayerName() == playerName )
+		{
+			result = player
+			break
+		}
+	}
+
+	return result
+}
+
+
 
 
 
@@ -5032,6 +5166,13 @@ bool function IsSpectre( entity ent )
 {
 	return ent.IsNPC() && ent.GetAIClass() == AIC_SPECTRE
 }
+
+
+
+
+
+
+
 
 
 bool function IsWorldSpawn( entity ent )
@@ -5186,6 +5327,12 @@ bool function CanNPCDoDamageOnBehalfOfPlayer( entity ent )
 
 	if ( IsNessie( ent ) )
 		return true
+
+
+
+
+
+
 
 
 
@@ -5560,11 +5707,6 @@ vector function OffsetPointRelativeToVector( vector point, vector offset, vector
 
 
 
-
-
-
-
-
 bool function PlayerHasWeapon( entity player, string weaponName )
 {
 	array<entity> weapons = player.GetMainWeapons()
@@ -5910,7 +6052,11 @@ bool function Do2DLinesIntersect( vector A, vector B, vector C, vector D )
 
 int function GetSlotForWeapon( entity player, entity weapon )
 {
-	array<int> slots = [ WEAPON_INVENTORY_SLOT_PRIMARY_0, WEAPON_INVENTORY_SLOT_PRIMARY_1, SLING_WEAPON_SLOT, WEAPON_INVENTORY_SLOT_ANTI_TITAN ]
+
+
+
+		array<int> slots = [ WEAPON_INVENTORY_SLOT_PRIMARY_0, WEAPON_INVENTORY_SLOT_PRIMARY_1, SLING_WEAPON_SLOT, WEAPON_INVENTORY_SLOT_ANTI_TITAN ]
+
 
 	foreach ( slot in slots )
 	{
@@ -6655,13 +6801,6 @@ Point function CreatePoint( vector origin, vector angles )
 	return data
 }
 
-
-bool function IsFallLTM()
-{
-	return GetCurrentPlaylistVarInt( "mode_fall_ltm", 0 ) == 1
-}
-
-
 table<int, array<entity> > function ArrangePlayersByTeam( array<entity> players )
 {
 	table<int, array<entity> > out = {}
@@ -7318,4 +7457,18 @@ string function TryGetValueForKey( entity ent, string key, string defaultValue )
 	}
 
 	return defaultValue
+}
+
+string function GetEnumStringFromValue( int match, table< string, int > enumTable )
+{
+	foreach ( string key, int value in enumTable )
+	{
+		if ( value == match )
+		{
+			return key
+		}
+	}
+
+	Assert( false, format( "Attempted to get string ref for undefined or unknown value: %d", match ) )
+	unreachable
 }

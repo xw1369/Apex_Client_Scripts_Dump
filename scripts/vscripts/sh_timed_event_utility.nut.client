@@ -84,6 +84,8 @@ global struct TimedEventData
 
 struct
 {
+	bool enabled = false
+
 	array<TimedEventData>		timedEvents
 	table<int, TimedEventData>	eventTypeToTimedEvent
 	table<TimedEventData, int>	timedEventToEventType
@@ -106,10 +108,7 @@ file
 
 void function TimedEvents_Init()
 {
-
-	if ( !GameMode_GetTimedEventsEnabled( GameRules_GetGameMode() ) )
-		return
-
+	file.enabled = true
 
 
 
@@ -128,10 +127,10 @@ void function TimedEvents_Init()
 }
 
 
-
 void function TimedEvents_RegisterTimedEvent( TimedEventData data )
 {
-	if ( !GameMode_GetTimedEventsEnabled( GameRules_GetGameMode() ) )
+	Assert( file.enabled, "TimedEvents not initailized, Check the gamemode's initialization setup" )
+	if ( !file.enabled )
 		return
 
 	int timedEventType = data.eventType
@@ -148,6 +147,7 @@ void function TimedEvents_RegisterTimedEvent( TimedEventData data )
 	file.eventTypeToTimedEvent[ timedEventType ] <- data
 	file.timedEventToEventType[ data ] <- timedEventType
 }
+
 
 
 

@@ -664,7 +664,6 @@ bool function TitanSword_Super_IsActive( entity player )
 
 
 
-
 void function OnSelectFirePressed( entity player )
 {
 	if ( player != GetLocalViewPlayer() )

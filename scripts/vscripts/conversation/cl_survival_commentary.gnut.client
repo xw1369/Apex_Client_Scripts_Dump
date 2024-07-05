@@ -603,7 +603,7 @@ void function ServerCallback_Survival_HighlightedPlayerKilled(entity killedPlaye
 
 			if ( localClientPlayer == killer && killer != killedPlayer )
 			{
-				AnnouncementMessageSweep( localClientPlayer, file.getCommentaryString( eSurvivalCommentary_SringtoPrint.YOUKILLED_CHAMPION ), Localize( killedPlayer.GetPlayerName() ), GetPlayerInfoColor( killedPlayer ) )
+				AnnouncementMessageSweep( localClientPlayer, file.getCommentaryString( eSurvivalCommentary_SringtoPrint.YOUKILLED_CHAMPION ), playerName, GetPlayerInfoColor( killedPlayer ) )
 			}
 		}
 		else if ( playerType == eSurvivalCommentaryPlayerType.KILLLEADER )
@@ -611,7 +611,7 @@ void function ServerCallback_Survival_HighlightedPlayerKilled(entity killedPlaye
 			Obituary_Print_Localized( Localize( file.getCommentaryString( eSurvivalCommentary_SringtoPrint.KILLLEADER_OBIT ), playerName ), playerNameColor )
 
 			if ( localClientPlayer == killer && killer != killedPlayer )
-				AnnouncementMessageSweep( localClientPlayer, file.getCommentaryString( eSurvivalCommentary_SringtoPrint.YOUKILLED_KILLLEADER ), Localize( killedPlayer.GetPlayerName() ), GetPlayerInfoColor( killedPlayer ) )
+				AnnouncementMessageSweep( localClientPlayer, file.getCommentaryString( eSurvivalCommentary_SringtoPrint.YOUKILLED_KILLLEADER ), playerName, GetPlayerInfoColor( killedPlayer ) )
 		}
 	}
 }

@@ -1,12 +1,18 @@
 global function PassiveOctane_Init
-global function Octane_GetOctanePassiveRegenRate
+global function Octane_GetPassiveRegenDelay
+global function Octane_GetPassiveRegenRate
 
 void function PassiveOctane_Init()
 {
 	AddCallback_OnPassiveChanged( ePassives.PAS_OCTANE, PassiveOctane_OnPassiveChanged )
 }
 
-float function Octane_GetOctanePassiveRegenRate()
+float function Octane_GetPassiveRegenDelay()
+{
+	return GetCurrentPlaylistVarFloat( "octane_health_regen_delay", 6.0 )
+}
+
+float function Octane_GetPassiveRegenRate()
 {
 	return GetCurrentPlaylistVarFloat( "octane_health_regen_amount", 1.5 )
 }

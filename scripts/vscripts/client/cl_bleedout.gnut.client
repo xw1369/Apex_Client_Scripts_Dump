@@ -32,6 +32,7 @@ struct
 	float reviveEndTime = 0.0
 
 	entity oldPlayerHealer = null
+	entity oldPlayerToRes = null
 } file
 
 void function BleedoutClient_Init()
@@ -79,7 +80,7 @@ string function PlayerBleedoutUseTextOverride( entity player )
 	}
 	else if ( IsEnemyTeam( localPlayer.GetTeam(), player.GetTeam() ) )
 	{
-		if ( IsRecruitMode() && CanRecruitOrRevivePlayer( localPlayer, player ) )
+		if ( GameModeVariant_IsActive( eGameModeVariants.SURVIVAL_RECRUIT ) && CanRecruitOrRevivePlayer( localPlayer, player ) )
 			return "#RECRUIT_USE_TEAMMATE_RES_DYNAMIC"
 		
 
@@ -131,32 +132,37 @@ void function BLEEDOUT_RevivePlayerHealerChanged( entity playerToRes, entity pla
 	if ( !IsValid( playerHealer ) )
 	{
 		if ( IsValid( playerToRes ) )
+		{
 			playerToRes.Signal( "Bleedout_StopFirstAid" )
+		}
 
-		if ( IsValid( file.oldPlayerHealer ) )
+		if ( IsValid( file.oldPlayerHealer ) && ( playerToRes == file.oldPlayerToRes ) )
 		{
 			if ( file.oldPlayerHealer.IsPlayer() )
 				file.oldPlayerHealer.SetSingle3PWeaponClonesVisibility( true, WEAPON_INVENTORY_SLOT_PRIMARY_2 )
 			file.oldPlayerHealer.Signal( "Bleedout_StopFirstAid" )
 			file.oldPlayerHealer = null
+			file.oldPlayerToRes = null
 		}
+
 		return
 	}
 
 	if ( playerHealer.IsPlayer() )
 		playerHealer.SetSingle3PWeaponClonesVisibility( false, WEAPON_INVENTORY_SLOT_PRIMARY_2 )
 
-	if ( IsValid( playerHealer ) && IsValid( file.oldPlayerHealer ) && (playerHealer != file.oldPlayerHealer) )
+	if ( IsValid( playerHealer ) && IsValid( file.oldPlayerHealer ) && (playerHealer != file.oldPlayerHealer) && ( file.oldPlayerToRes == playerToRes ) )
 	{
 		file.oldPlayerHealer.Signal( "Bleedout_StopFirstAid" )
 		file.oldPlayerHealer = null
+		file.oldPlayerToRes = null
 	}
 
 	entity viewPlayer = GetLocalViewPlayer()
 	int team = viewPlayer.GetTeam()
 
 	bool playerOnDifferentTeam = IsEnemyTeam( playerToRes.GetTeam(),  playerHealer.GetTeam() )
-	if ( !IsRecruitMode() && playerOnDifferentTeam )
+	if ( !GameModeVariant_IsActive( eGameModeVariants.SURVIVAL_RECRUIT ) && playerOnDifferentTeam )
 		return	
 
 	file.reviveStartTime = Time()
@@ -185,9 +191,10 @@ void function BLEEDOUT_RevivePlayerHealerChanged( entity playerToRes, entity pla
 		}
 
 		thread Bleedout_DisplayFirstAidProgressBar( viewPlayer, endTime, endTime - Time(), ruiString, hasGuardianAngel )
-	}
 
-	file.oldPlayerHealer = playerHealer
+		file.oldPlayerToRes = playerToRes
+		file.oldPlayerHealer = playerHealer
+	}
 }
 
 void function Bleedout_DisplayTrainingFirstAidProgressBar( entity dummy, float endTime, float progressTime )
@@ -216,7 +223,15 @@ void function Bleedout_DisplayFirstAidProgressBar( entity playerToRes, float end
 	RuiSetString( rui, "text", text )
 	RuiSetGameTime( rui, "endTime", endTime )
 	RuiSetFloat( rui, "progressTime", progressTime )
-	RuiSetBool( rui, "hasGuardianAngel", hasGuardianAngel )
+	RuiSetInt( rui, "reviveTier", hasGuardianAngel ? 4 : 0 )
+
+
+
+
+
+
+
+
 
 
 	Chroma_BeginRevive( progressTime )
@@ -319,8 +334,22 @@ void function ShowWoundedMarker( entity woundedPlayer, float endTime )
 		thread TrackSelfReviveState( woundedPlayer, shieldRUI )
 
 
-			
-			thread TrackForceBleedoutState( woundedPlayer, shieldRUI )
+
+
+
+
+
+
+
+
+
+
+
+
+
+				
+				thread TrackForceBleedoutState( woundedPlayer, shieldRUI )
+
 
 
 		thread BleedoutScreenFX_Start( woundedPlayer, startTime, endTime )
@@ -341,7 +370,7 @@ void function ShowWoundedMarker( entity woundedPlayer, float endTime )
 		showTimer = false
 	}
 
-		if ( IsStrikeoutGamemode() )
+		if ( GameModeVariant_IsActive( eGameModeVariants.SURVIVAL_STRIKEOUT ) )
 		{
 			showTimer = false
 		}
@@ -416,7 +445,7 @@ bool function CanSelfRevive( entity player )
 			return true
 
 
-		if ( Bleedout_CanSelfResFromUpgrade( player ) && IsSurvivalMode() && player.p.numSelfRevivesUsed == 0 )
+		if ( Bleedout_CanSelfResFromUpgrade( player ) && GameMode_IsActive( eGameModes.SURVIVAL ) && player.p.numSelfRevivesUsed == 0 )
 
 		return true
 	}
@@ -486,7 +515,7 @@ void function BleedoutScreenFX_Start( entity woundedPlayer, float startTime, flo
 		return
 
 
-	if ( IsStrikeoutGamemode() )
+	if ( GameModeVariant_IsActive( eGameModeVariants.SURVIVAL_STRIKEOUT ) )
 		return
 
 

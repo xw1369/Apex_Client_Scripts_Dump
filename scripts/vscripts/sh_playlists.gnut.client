@@ -13,7 +13,8 @@ global function GetPlaylistModNames
 global function GetPlaylistIndexForName
 global function Playlist_GetLTMSlotPlaylist
 global function Playlist_GetNewModeVersion
-global function Playlist_GetScheduleData
+global function Playlist_GetPlaylistScheduledTimeRange
+global function Playlist_GetScheduleData_Deprecated
 global function Playlist_ShouldBeHiddenForScheduleBlocks
 global function Playlist_GetRankedSeasonEndDate
 global function Playlist_HasRankedSeasonEndDate
@@ -59,6 +60,9 @@ global const table<string, asset> GAMEMODE_IMAGE_MAP = {
 	play_apex = $"rui/menu/gamemode/play_apex",
 	apex_elite = $"rui/menu/gamemode/apex_elite",
 	training = $"rui/menu/gamemode/playlist_bg_med_training",
+
+
+
 	firing_range = $"rui/menu/gamemode/playlist_bg_med_firing_range",
 	generic_01 = $"rui/menu/gamemode/generic_01",
 	generic_02 = $"rui/menu/gamemode/generic_02",
@@ -109,6 +113,7 @@ global const table<string, asset> GAMEMODE_IMAGE_MAP = {
 	panel_storm_point_mu2 = $"rui/menu/gamemode/playlist_bg_storm_point_mu2",
 
 	panel_divided_moon = $"rui/menu/gamemode/playlist_bg_divided_moon",
+	panel_divided_moon_mu1 = $"rui/menu/gamemode/playlist_bg_divided_moon_mu1",
 
 	shotguns_and_snipers = $"rui/menu/gamemode/playlist_bg_shotguns_and_snipers",
 	panel_worlds_edge_mu2_airdrop = $"rui/menu/gamemode/playlist_bg_worldsedge_airdrop",
@@ -240,10 +245,28 @@ global const table<string, asset> GAMEMODE_IMAGE_MAP = {
 
 
 
+		survival_solos = $"rui/menu/gamemode/playlist_bg_survival_solos",
+
+
+
+		survival_quads = $"rui/menu/gamemode/playlist_bg_survival_quads",
+
+
+
+		bigtdm = $"rui/menu/gamemode/playlist_bg_arena_phase_runner",
+
+
+
 		mixtape_treasurehunt_thunderdome = $"rui/menu/gamemode/treasure_hunt/playlist_bg_treasurehunt_thunderdome",
 		mixtape_treasurehunt_skulltown = $"rui/menu/gamemode/treasure_hunt/playlist_bg_treasurehunt_skulltown",
 		mixtape_treasurehunt_storm_point_mu2 = $"rui/menu/gamemode/treasure_hunt/playlist_bg_treasurehunt_storm_point_mu2",
 		mixtape_treasurehunt_monument = $"rui/menu/gamemode/treasure_hunt/playlist_bg_treasurehunt_monument",
+
+
+
+
+
+
 
 }
 
@@ -251,6 +274,9 @@ global const table<string, asset> GAMEMODE_THUMBNAIL_IMAGE_MAP = {
 	play_apex = $"rui/menu/gamemode/play_apex",
 	apex_elite = $"rui/menu/gamemode/apex_elite",
 	training = $"rui/menu/gamemode/playlist_bg_sq_training",
+
+
+
 	firing_range = $"rui/menu/gamemode/playlist_bg_sq_firing_range",
 	generic_01 = $"rui/menu/gamemode/generic_01",
 	generic_02 = $"rui/menu/gamemode/generic_02",
@@ -302,6 +328,7 @@ global const table<string, asset> GAMEMODE_THUMBNAIL_IMAGE_MAP = {
 	panel_storm_point_mu2 = $"rui/menu/gamemode/playlist_bg_sq_storm_point_mu2",
 
 	panel_divided_moon = $"rui/menu/gamemode/playlist_bg_sq_divided_moon",
+	panel_divided_moon_mu1 = $"rui/menu/gamemode/playlist_bg_sq_divided_moon_mu1",
 
 	shotguns_and_snipers = $"rui/menu/gamemode/playlist_bg_sq_shotguns_and_snipers",
 	panel_worlds_edge_mu2_airdrop = $"rui/menu/gamemode/playlist_bg_worldsedge_airdrop",
@@ -432,10 +459,28 @@ global const table<string, asset> GAMEMODE_THUMBNAIL_IMAGE_MAP = {
 
 
 
+		survival_solos = $"rui/menu/gamemode/playlist_bg_sq_survival_solos",
+
+
+
+		survival_quads = $"rui/menu/gamemode/playlist_bg_sq_survival_quads",
+
+
+
+		bigtdm = $"rui/menu/gamemode/playlist_bg_sq_arena_phase_runner",
+
+
+
 		mixtape_treasurehunt_thunderdome = $"rui/menu/gamemode/treasure_hunt/playlist_bg_sq_treasurehunt_thunderdome",
 		mixtape_treasurehunt_skulltown = $"rui/menu/gamemode/treasure_hunt/playlist_bg_sq_treasurehunt_skulltown",
 		mixtape_treasurehunt_storm_point_mu2 = $"rui/menu/gamemode/treasure_hunt/playlist_bg_sq_treasurehunt_storm_point_mu2",
 		mixtape_treasurehunt_monument = $"rui/menu/gamemode/treasure_hunt/playlist_bg_sq_treasurehunt_monument",
+
+
+
+
+
+
 
 }
 
@@ -731,7 +776,54 @@ int function GetPlaylistIndexForName( PlaylistName playlistName )
 
 
 
-PlaylistScheduleData function Playlist_GetScheduleData( string plName )
+bool function Playlist_PlaylistHasSchedule( string playlistName )
+{
+
+
+
+
+
+
+
+
+
+
+
+
+		PlaylistScheduleData scheduleData = Playlist_GetScheduleData_Deprecated( playlistName )
+		return scheduleData.blocks.len() > 0
+
+
+	return false
+}
+
+TimestampRange ornull function Playlist_GetPlaylistScheduledTimeRange( string playlistName )
+{
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+		PlaylistScheduleData scheduleData = Playlist_GetScheduleData_Deprecated( playlistName )
+		return scheduleData.currentBlock
+
+
+	return null
+}
+
+
+
+PlaylistScheduleData function Playlist_GetScheduleData_Deprecated( string plName )
 {
 	if ( plName in file.cachedPlaylistMap )
 	{
@@ -839,7 +931,7 @@ PlaylistScheduleData function Playlist_GetNonCachedScheduleData( string plName )
 
 bool function Playlist_ShouldBeHiddenForScheduleBlocks( string plName )
 {
-	PlaylistScheduleData scheduleData = Playlist_GetScheduleData( plName )
+	PlaylistScheduleData scheduleData = Playlist_GetScheduleData_Deprecated( plName )
 	if ( scheduleData.blocks.len() > 0 )
 	{
 		if ( scheduleData.currentBlock == null )
@@ -874,13 +966,13 @@ bool function Playlist_ShouldLockRankedPlaylistForPatch( string plName )
 	if ( !Playlist_HasRankedSeasonEndDate() )
 		return false
 
-	PlaylistScheduleData scheduleData = Playlist_GetScheduleData( plName )
-	if ( scheduleData.blocks.len() > 0 )
+	if ( Playlist_PlaylistHasSchedule( plName ) )
 	{
-		if ( scheduleData.currentBlock == null )
+		TimestampRange ornull currentBlockOrNull = Playlist_GetPlaylistScheduledTimeRange( plName )
+		if ( currentBlockOrNull == null )
 			return true
 
-		TimestampRange currentBlock = expect TimestampRange( scheduleData.currentBlock )
+		TimestampRange currentBlock = expect TimestampRange( currentBlockOrNull )
 
 		bool outsideCurrentBlock = currentBlock.startUnixTime > GetUnixTimestamp() || currentBlock.endUnixTime < GetUnixTimestamp()
 		bool pastEndDate = Playlist_IsPastRankedSeasonEndDate()
@@ -938,7 +1030,7 @@ void function ShPlaylist_CacheData()
 		playlistData.name = name
 		playlistData.index = index
 
-		playlistData.playlistSchedule = Playlist_GetScheduleData( name )
+		playlistData.playlistSchedule = Playlist_GetScheduleData_Deprecated( name )
 
 		file.cachedPlaylistArray[index] = playlistData
 		file.cachedPlaylistMap[name] <- playlistData
@@ -1042,6 +1134,21 @@ array<string> function GetVisiblePlaylistNames( bool isPrivateMatchQuery = false
 
 		list.append( playlistData.name )
 	}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 	array<string> finalList = []
 
@@ -1162,7 +1269,23 @@ const table<string, asset> GAMEMODE_EMBLEM_MAP = {
 
 
 
+		emblem_survival_solos = $"rui/menu/gamemode_emblem/generic_ltm", 
+
+
+
+		emblem_survival_quads = $"rui/menu/gamemode_emblem/generic_ltm", 
+
+
+
+		emblem_bigtdm = $"rui/menu/gamemode_emblem/emblem_tdm_big",
+
+
+
 		emblem_treasure_hunt = $"rui/menu/gamemode_emblem/emblem_treasure_hunt",
+
+
+
+
 
 }
 
@@ -1172,6 +1295,9 @@ const table<string, asset> GAMEMODE_BANNER_LOGO_MAP = {
 	freedm = $"rui/rui_screens/apex_logo_tdm",
 
 		logo_treasure_hunt = $"rui/hud/gametype_icons/ltm/treasure_hunt/logo_treasure_hunt",
+
+
+		logo_bigtdm = $"rui/rui_screens/apex_logo_tdm_big",
 
 }
 

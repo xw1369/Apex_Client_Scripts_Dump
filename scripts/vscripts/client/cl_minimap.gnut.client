@@ -412,10 +412,14 @@ void function ClMinimap_Init()
 
 
 
+
+
+		file.fullmap_unitframesRui.append( RuiCreate( $"ui/unitframe_survival_v3.rpak", clGlobal.topoFullscreenFullMap, FULLMAP_RUI_DRAW_LAYER, 20 ) )
 		file.fullmap_unitframesRui.append( RuiCreate( $"ui/unitframe_survival_v3.rpak", clGlobal.topoFullscreenFullMap, FULLMAP_RUI_DRAW_LAYER, 20 ) )
 		file.fullmap_unitframesRui.append( RuiCreate( $"ui/unitframe_survival_v3.rpak", clGlobal.topoFullscreenFullMap, FULLMAP_RUI_DRAW_LAYER, 20 ) )
 		file.fullmap_unitframesRui.append( RuiCreate( $"ui/unitframe_survival_v3.rpak", clGlobal.topoFullscreenFullMap, FULLMAP_RUI_DRAW_LAYER, 20 ) )
 
+		file.fullmap_jipframesRui.append( RuiCreate( $"ui/unitframe_survival_jip.rpak", clGlobal.topoFullscreenFullMap, FULLMAP_RUI_DRAW_LAYER, 20 ) )
 		file.fullmap_jipframesRui.append( RuiCreate( $"ui/unitframe_survival_jip.rpak", clGlobal.topoFullscreenFullMap, FULLMAP_RUI_DRAW_LAYER, 20 ) )
 		file.fullmap_jipframesRui.append( RuiCreate( $"ui/unitframe_survival_jip.rpak", clGlobal.topoFullscreenFullMap, FULLMAP_RUI_DRAW_LAYER, 20 ) )
 		file.fullmap_jipframesRui.append( RuiCreate( $"ui/unitframe_survival_jip.rpak", clGlobal.topoFullscreenFullMap, FULLMAP_RUI_DRAW_LAYER, 20 ) )
@@ -1661,11 +1665,8 @@ void function Minimap_UpdateMinimapVisibility( entity player )
 	if ( MiniMapIsDisabled() )
 		isVisible = false
 
-
-	if ( IsHardcoreSurvival() && ( PlayerMatchState_GetFor( player ) == ePlayerMatchState.NORMAL ) )
+	if ( GameModeVariant_IsActive( eGameModeVariants.SURVIVAL_HARDCORE ) && ( PlayerMatchState_GetFor( player ) == ePlayerMatchState.NORMAL ) )
 		isVisible = false
-
-
 
 	if ( Freelance_IsHubLevel() )
 		isVisible = false
@@ -1865,6 +1866,10 @@ void function FullmapChallengeCategoryRight( var button )
 	IncrementCategorySelection( true )
 	EmitUISound( "UI_Menu_Focus_Small" )
 	UpdateMinimapChallengeRui( file.fullmap_challengeRuiArray )
+
+
+
+
 }
 
 void function FullmapChallengeCategoryLeft( var button )
@@ -1873,7 +1878,22 @@ void function FullmapChallengeCategoryLeft( var button )
 	DecrementCategorySelection( true )
 	EmitUISound( "UI_Menu_Focus_Small" )
 	UpdateMinimapChallengeRui( file.fullmap_challengeRuiArray )
+
+
+
+
 }
+
+
+
+
+
+
+
+
+
+
+
 
 
 void function SetFullmapRuiResolutionsToScreenSize()
@@ -1965,7 +1985,12 @@ void function UpdateFullmapRuiTracks()
 		entity teamMember = UnitFrame_GetOwnerByIndex( slotIndex )
 		if ( !IsValid( teamMember ) )
 		{
-			if ( teamMember != null )
+			if( slotIndex >= ( GetMaxTeamSizeForPlaylist( GetCurrentPlaylistName() ) - 1 ) )
+			{
+				RuiSetBool( rui, "isVisible", false )
+				RuiSetBool( jipRui, "isVisible", false )
+			}
+			else if ( teamMember != null )
 			{
 				
 				RuiSetBool( rui, "isVisible", true )
@@ -1975,7 +2000,7 @@ void function UpdateFullmapRuiTracks()
 				RuiSetBool( rui, "isJumpmaster", false )
 				RuiSetInt( rui, "frameSlot", slotIndex )
 			}
-			else if( GamemodeUtility_IsJIPEnabled() && !IsFiringRangeGameMode() )
+			else if( GamemodeUtility_IsJIPEnabled() && !GameModeVariant_IsActive( eGameModeVariants.SURVIVAL_FIRING_RANGE ) )
 			{
 				bool isObserver = GetLocalClientPlayer().GetTeam() == TEAM_SPECTATOR || GetLocalClientPlayer().GetTeam() == TEAM_UNASSIGNED
 				RuiSetBool( jipRui, "isVisible", gamestateIsPlaying && !isObserver )

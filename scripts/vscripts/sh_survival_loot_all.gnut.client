@@ -129,6 +129,8 @@ global struct LootData
 	bool          printPickupToObituary = false
 	bool          pretendsToBeBlank = false
 
+	table<int,var> extraData
+
 	string        baseWeapon
 	array<string> baseMods
 
@@ -136,6 +138,12 @@ global struct LootData
 	array<string> fakeMods
 
 	bool functionref( entity, entity, int ) extraCanUseFunction = null
+}
+
+global enum eExtraDataType
+{
+	INT_ARMOR_EVO = 0,
+	INT_ARMOR_SHIELDS
 }
 
 global enum eWeaponAttachmentType
@@ -511,13 +519,11 @@ void function SURVIVAL_Loot_All_InitShared()
 				data.craftingIcon = GetWeaponInfoFileKeyFieldAsset_Global( data.baseWeapon, "crafting_icon" )
 
 
-				
-				if ( !TitanSword_WeaponRefIsTitanSword( data.ref ) )
-				{
-					data.model = GetWeaponInfoFileKeyFieldAsset_Global( data.baseWeapon, "playermodel" )
-				}
-
-
+					
+					if ( !OverridePickupModel_Weapon ( data ) )
+					{
+						data.model = GetWeaponInfoFileKeyFieldAsset_Global( data.baseWeapon, "playermodel" )
+					}
 
 
 				if ( IsWeaponKeyFieldDefined( data.baseWeapon, "ammo_pool_type" ) && GetWeaponInfoFileKeyField_Global( data.baseWeapon, "uses_ammo_pool" ) != false )
@@ -702,6 +708,26 @@ void function SURVIVAL_Loot_All_InitShared()
 
 	file.initialized = true
 }
+
+
+bool function OverridePickupModel_Weapon ( LootData data )
+{
+	
+
+
+
+
+
+
+
+
+		if ( TitanSword_WeaponRefIsTitanSword( data.ref ) )
+			return true
+
+
+	return false
+}
+
 
 array<string> function SURVIVAL_Loot_GetSortedStringArrayFromSupportedAttachmentsString( string supportedAttachmentsString )
 {

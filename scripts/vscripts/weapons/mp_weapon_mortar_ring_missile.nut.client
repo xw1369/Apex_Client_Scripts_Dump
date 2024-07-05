@@ -1221,6 +1221,12 @@ void function OnProjectileCollision_ability_mortar_ring_missile( entity projecti
 
 
 
+
+
+
+
+
+
 void function MortarRingReveal_RevealStatusChanged( entity ent, int statusEffect, bool actuallyChanged )
 {
 	ManageHighlightEntity( ent )
@@ -1298,6 +1304,9 @@ void function ClientCodeCallback_MortarRingFireSegmentCreated( entity trigger, e
 {
 	if ( !IsValid( trigger ) || !IsValid( start ) || !IsValid( end ) ) 
 		return
+
+	SetAllowForKillreplayProjectileCam( trigger )
+	SetCustomKillreplayChaseCamFromWeaponClass( trigger, MORTAR_RING_MISSILE_WEAPON )
 
 	thread MortarRingFireSegmentClientEffects( trigger, start, end )
 }

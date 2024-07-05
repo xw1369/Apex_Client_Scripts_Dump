@@ -12,6 +12,9 @@ global function OnClientAnimEvent_companion_launch
 global function CanLaunchToCompanion
 
 
+
+
+
 global function CodeCallback_OnJetDriveStart
 global function CodeCallback_OnJetDriveDoubleJump
 global function CodeCallback_OnJetDriveWindowBegin
@@ -141,6 +144,16 @@ void function Companion_Launch_Init()
 	RegisterSignal( "Vantage_RemoveAllTacMods" )
 
 	AddCallback_OnPassiveChanged( ePassives.PAS_VANTAGE, OnPassiveChangedVantageCompanionLaunch )
+
+	
+
+
+
+
+
+
+
+
 }
 
 void function OnPassiveChangedVantageCompanionLaunch( entity player, int passive, bool didHave, bool nowHas )
@@ -650,41 +663,49 @@ int function CanLaunchToCompanion( entity player, entity companion )
 
 	vector companionPos = companion.GetOrigin()
 
-	
-	vector playerToCompanionPos = companionPos - player.EyePosition()
-	float dotToCompanionPos     = DotProduct( player.GetViewVector(), Normalize( playerToCompanionPos ) )
-	if ( dotToCompanionPos < DOT_60DEGREE )
-		return eCanLaunchResult.NO_OFF_SCREEN
-
-
-	
-	vector startTrace = player.EyePosition()
-	vector endTrace = companion.GetOrigin()
-	TraceResults tr = TraceLine( startTrace, endTrace , [],TRACE_MASK_PLAYERSOLID, TRACE_COLLISION_GROUP_PLAYER, player )
-	
-	if ( tr.fraction < 1.0 )
+	bool shouldCheckOnScreen = GetCurrentPlaylistVarBool( "vantage_los_check_onscreen", true )
+	if ( shouldCheckOnScreen )
 	{
 		
-		if ( ECHO_DO_ADDITIONAL_VIS_TRACES )
+		vector playerToCompanionPos = companionPos - player.EyePosition()
+		float dotToCompanionPos     = DotProduct( player.GetViewVector(), Normalize( playerToCompanionPos ) )
+		if ( dotToCompanionPos < DOT_60DEGREE )
+			return eCanLaunchResult.NO_OFF_SCREEN
+	}
+
+
+	bool shouldCheckBlocked = GetCurrentPlaylistVarBool( "vantage_los_check_blocked", true )
+	if ( shouldCheckBlocked )
+	{
+		
+		vector startTrace = player.EyePosition()
+		vector endTrace = companion.GetOrigin()
+		TraceResults tr = TraceLine( startTrace, endTrace , [],TRACE_MASK_PLAYERSOLID, TRACE_COLLISION_GROUP_PLAYER, player )
+		
+		if ( tr.fraction < 1.0 )
 		{
-			vector offset = (player.GetViewRight()*METERS_TO_INCHES*0.5)
-			startTrace = player.EyePosition() + offset + (UP_VECTOR*METERS_TO_INCHES*0.5)
-			tr = TraceLine( startTrace, endTrace , [],TRACE_MASK_PLAYERSOLID, TRACE_COLLISION_GROUP_PLAYER, player )
 			
-			if ( tr.fraction < 1.0 )
+			if ( ECHO_DO_ADDITIONAL_VIS_TRACES )
 			{
-				startTrace = player.EyePosition()  - offset + (UP_VECTOR*METERS_TO_INCHES*0.5)
+				vector offset = (player.GetViewRight()*METERS_TO_INCHES*0.5)
+				startTrace = player.EyePosition() + offset + (UP_VECTOR*METERS_TO_INCHES*0.5)
 				tr = TraceLine( startTrace, endTrace , [],TRACE_MASK_PLAYERSOLID, TRACE_COLLISION_GROUP_PLAYER, player )
 				
 				if ( tr.fraction < 1.0 )
 				{
-					return eCanLaunchResult.NO_LOS_FAIL
+					startTrace = player.EyePosition()  - offset + (UP_VECTOR*METERS_TO_INCHES*0.5)
+					tr = TraceLine( startTrace, endTrace , [],TRACE_MASK_PLAYERSOLID, TRACE_COLLISION_GROUP_PLAYER, player )
+					
+					if ( tr.fraction < 1.0 )
+					{
+						return eCanLaunchResult.NO_LOS_FAIL
+					}
 				}
 			}
-		}
-		else
-		{
-			return eCanLaunchResult.NO_LOS_FAIL
+			else
+			{
+				return eCanLaunchResult.NO_LOS_FAIL
+			}
 		}
 	}
 
@@ -759,6 +780,29 @@ void function PreLaunch_Thread( entity player )
 		WaitFrame()
 	}
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1090,6 +1134,21 @@ void function CodeCallback_OnJetDriveWindowBegin( entity player, float windowTim
 
 }
 
+
+
+void function AttemptCancelLaunch( entity player )
+{
+	if ( player != GetLocalViewPlayer() )
+		return
+
+	if ( !PlayerHasPassive( player, ePassives.PAS_VANTAGE ) )
+		return
+
+	if ( VantageCompanion_GetPlayerLaunchState( player ) != ePlayerLaunchState.PRELAUNCHING )
+		return
+
+	Remote_ServerCallFunction( "ClientToServer_AttemptCancelLaunch" )
+}
 
 void function JetDriveClientThread( entity player )
 {

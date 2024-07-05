@@ -32,6 +32,9 @@ void function OnSpectatorTargetChanged_Callback( entity player, entity prevTarge
 	if( !IsValid( newTarget ) )
 		return
 
+	if( !newTarget.IsPlayer() )
+		return
+
 	entity weapon = newTarget.GetActiveWeapon( eActiveInventorySlot.mainHand  )
 	if( IsValid( weapon ) && weapon.GetWeaponClassName() == "mp_weapon_valkyrie_spear_primary" )
 		OnWeaponActivate_weapon_valkyrie_spear_primary( weapon )

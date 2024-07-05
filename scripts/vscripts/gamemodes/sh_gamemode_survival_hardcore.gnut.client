@@ -1,19 +1,9 @@
 global function Sh_Survival_Hardcore_Init
-global function IsHardcoreSurvival
-global function Sh_Survival_Hardcore_RegisterNetworking
 
 const string HUD_DISSAPPEAR_SFX = "HardcoreBR_HUD_Disappear_1P"
 
 
-
-
-
-
-
-
 global function ServertoClient_HardcoreHideRui
-
-
 
 
 struct
@@ -21,15 +11,10 @@ struct
 	var playerHud
 	var gamestateHud
 	var dpadmenuHud
-
 } file
 
 void function Sh_Survival_Hardcore_Init()
 {
-	if( !IsHardcoreSurvival() )
-		return
-
-
 
 	AddCallback_OnPlayerMatchStateChanged( OnPlayerMatchStateChanged )
 	SURVIVAL_SetGameStateAssetOverrideCallback( Hardcore_OverrideGameState )
@@ -40,6 +25,7 @@ void function Sh_Survival_Hardcore_Init()
 
 
 
+	Sh_Survival_Hardcore_RegisterNetworking()
 }
 
 void function Sh_Survival_Hardcore_RegisterNetworking()
@@ -63,7 +49,7 @@ void function OnPlayerMatchStateChanged( entity player, int newValue )
 
 void function Hardcore_HideClientHud( entity player)
 {
-	Minimap_UpdateMinimapVisibility(player)
+	Minimap_UpdateMinimapVisibility( player )
 	file.playerHud = GetPilotRui()
 	file.gamestateHud = ClGameState_GetRui()
 	file.dpadmenuHud = GetDpadMenuRui()
@@ -78,14 +64,14 @@ void function Hardcore_HideClientHud( entity player)
 
 void function ServertoClient_HardcoreHideRui()
 {
-	Hardcore_HideClientHud(GetLocalViewPlayer())
+	Hardcore_HideClientHud( GetLocalViewPlayer() )
 }
 
 
 
 void function HideSquadRui()
 {
-	table<entity, UnitFrameDef>       teamUnitFrames = GetTeamUnitFrames()
+	table<entity, UnitFrameDef> teamUnitFrames = GetTeamUnitFrames()
 	foreach ( player, unitFrame in teamUnitFrames )
 	{
 		RuiSetBool( unitFrame.rui, "isVisible", false )
@@ -99,23 +85,6 @@ void function Hardcore_OverrideGameState()
 	ClGameState_RegisterGameStateAsset( $"ui/gamestate_survival_hardcore_mode.rpak" )
 	ClGameState_RegisterGameStateFullmapAsset( $"ui/gamestate_info_fullmap_hardcore_mode.rpak" )
 }
-
-
-
-
-bool function IsHardcoreSurvival()
-{
-	return GetCurrentPlaylistVarBool( "is_hardcore_mode", false )
-}
-
-
-
-
-
-
-
-
-
 
 
 

@@ -1,6 +1,5 @@
 
 global function ShGameModeShadowRoyale_Init
-global function Gamemode_ShadowRoyale_RegisterNetworking
 
 
 
@@ -82,9 +81,6 @@ struct
 
 void function ShGameModeShadowRoyale_Init()
 {
-	if ( !IsShadowRoyaleMode() )
-		return
-
 	AddCallback_EntitiesDidLoad( EntitiesDidLoad )
 
 	PrecacheSkinName( "ShadowSqaud" )
@@ -114,6 +110,8 @@ void function ShGameModeShadowRoyale_Init()
 		AddCallback_OnVictoryCharacterModelSpawned( OnVictoryCharacterModelSpawned )
 		AddCallback_OnPingCreatedByAnyPlayer( OnPingCreatedByAnyPlayer_CustomReviveText )
 
+
+	Gamemode_ShadowRoyale_RegisterNetworking()
 }
 
 
@@ -121,9 +119,6 @@ void function ShGameModeShadowRoyale_Init()
 
 void function Gamemode_ShadowRoyale_RegisterNetworking()
 {
-	if ( !IsShadowRoyaleMode() )
-		return
-
 	Remote_RegisterClientFunction( "ServerCallback_ModeShadowRoyale_AnnouncementSplash", "int", 0, eShadowRoyaleMessage._count )
 	Remote_RegisterClientFunction( "ServerCallback_PlaySpectatorAnnouncer", "int", 0, eShadowRoyaleSpectatorAudio._count )
 	Remote_RegisterClientFunction( "ServerCallback_PlayerRespawned", "entity" )
@@ -133,9 +128,6 @@ void function Gamemode_ShadowRoyale_RegisterNetworking()
 
 void function EntitiesDidLoad()
 {
-	if ( !IsShadowRoyaleMode() )
-		return
-
 	if ( IsMenuLevel() )
 		return
 
@@ -1293,9 +1285,6 @@ void function AnnouncementMessageSweepShadowRoyale( int style, entity player, st
 	Announcement_SetRightIcon( announcement, rightIcon )
 	AnnouncementFromClass( player, announcement )
 }
-
-
-
 
 
 

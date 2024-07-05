@@ -11,6 +11,8 @@ global function AddCallback_OnScoreboardCreated
 global function AddCallback_OnGameStateChanged
 global function ClWaittillGameStateOrHigher
 
+global function ClGameState_SetResolutionCleanupFunc
+
 global function ShowRoundScoresInAnnouncement
 
 global function PlayRoundWonConversationWithAnnouncementDelay
@@ -104,6 +106,8 @@ struct
 
 	int cachedGameState = -1
 	array< void functionref( int ) > onGameStateChangedFuncs
+
+	void functionref() resolutionCompletedCleanupFunc = null
 } file
 
 const DEV_COUNTDOWNTIMER = 0
@@ -126,6 +130,7 @@ void function ClientCodeCallback_ToggleGamePaused( bool isPaused )
 void function ClGameState_Init()
 {
 	RegisterSignal( "GameStateChanged" )
+	RegisterSignal( "GameModes_CompletedResolutionCleanup" )
 	RegisterNetVarIntChangeCallback( "gameState", ClGameState_Changed )
 	RegisterNetVarBoolChangeCallback( "badRepPresent", UpdateScoreboardBadRepPresentMessage )
 
@@ -211,7 +216,7 @@ asset function GetWaitingGameStateArtHud()
 	asset hudArtAsset = $""
 	string mapName = GetMapName()
 
-		if( IsBattleRushGamemode() )
+		if( GameModeVariant_IsActive( eGameModeVariants.SURVIVAL_BATTLE_RUSH ) )
 		{
 			return $"ui/waiting_after_battle_rush.rpak"
 		}
@@ -255,7 +260,8 @@ void function SetCommonScoreRUIVars( var rui )
 
 
 
-	if ( IsSoloMode() )
+
+	if ( GameModeVariant_IsActive( eGameModeVariants.SURVIVAL_SOLOS ) )
 	{
 		RuiSetBool( rui, "shouldDisplayLivingPlayerCount", false )
 		RuiSetString( rui, "squadsRemainingTextSingular", "#SURVIVAL_PLAYERS_REMAIN" )
@@ -300,7 +306,7 @@ void function UpdateCommonScoreRuiTracking( var rui, entity player )
 
 
 
-	if ( IsRankedGame() && isValidMode )
+	if ( GameModeVariant_IsActive( eGameModeVariants.SURVIVAL_RANKED ) && isValidMode )
 	{
 		RuiTrackInt( rui, "participationCount", player, RUI_TRACK_SCRIPT_NETWORK_VAR_INT, GetNetworkedVariableIndex( "kill_participation" ) )
 	}
@@ -316,12 +322,8 @@ void function UpdateCommonScoreRuiTracking( var rui, entity player )
 
 		if ( Crafting_IsEnabled() )
 		{
-
 			if ( !Crafting_IsDispenserCraftingEnabled() )
-
-			{
 				RuiTrackInt( ClGameState_GetRui(), "craftingMaterials", player, RUI_TRACK_SCRIPT_NETWORK_VAR_INT, GetNetworkedVariableIndex( "craftingMaterials" ) )
-			}
 		}
 
 }
@@ -603,10 +605,6 @@ void function ClGameStateThink_Playing( entity player )
 
 void function ThirtySecondWarning()
 {
-	string conversation = GameMode_GetGameEndingConversation( GameRules_GetGameMode() )
-	if ( conversation != "" )
-		PlayConversationToLocalClient( conversation )
-
 	int lastSecond = -1
 	while ( Time() < GetGameEndTime() && GetGameState() == eGameState.Playing )
 	{
@@ -668,6 +666,16 @@ void function UpdateIsSonyMP()
 	SetIsConsideredSonyMultiplayer( isSonyMP )
 }
 
+
+void function DefaultCompletedResolutionCleanupFunc()
+{
+	Signal( clGlobal.levelEnt, "GameModes_CompletedResolutionCleanup" )
+}
+
+void function ClGameState_SetResolutionCleanupFunc( void functionref() func )
+{
+	file.resolutionCompletedCleanupFunc = func
+}
 
 void function ClGameState_Changed( entity playerEnt, int newVal )
 {
@@ -792,6 +800,14 @@ void function ClGameState_Changed( entity playerEnt, int newVal )
 			SetCrosshairPriorityState( crosshairPriorityLevel.POSTMATCH, CROSSHAIR_STATE_HIDE_ALL )
 			ResetReconnectParametersAsync()
 			
+			if ( file.resolutionCompletedCleanupFunc != null )
+			{
+				file.resolutionCompletedCleanupFunc()
+			}
+			else
+			{
+				DefaultCompletedResolutionCleanupFunc()
+			}
 			break
 
 		case eGameState.SwitchingSides:

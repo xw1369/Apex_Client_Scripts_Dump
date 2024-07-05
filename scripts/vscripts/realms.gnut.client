@@ -540,8 +540,6 @@ void function EntitiesDidLoad()
 
 
 
-
-
 void function CopyRealmsFromTo( entity source, entity target )
 {
 	target.RemoveFromAllRealms()

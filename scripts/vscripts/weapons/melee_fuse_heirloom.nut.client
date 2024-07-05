@@ -1,5 +1,3 @@
-
-
 global function MeleeFuseHeirloom_Init
 
 global function OnWeaponActivate_melee_fuse_heirloom
@@ -89,5 +87,3 @@ void function OnWeaponDeactivate_melee_fuse_heirloom( entity weapon )
 
 
 }
-
-                              

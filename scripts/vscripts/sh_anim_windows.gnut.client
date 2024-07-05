@@ -91,6 +91,7 @@ void function ShAnimWindows_LevelInit()
 		RegisterAnimWindowType( BOTH, "SetPropSkin", null, null, AnimWindow_SetPropSkin_Start, null, null )
 		RegisterAnimWindowType( CLIENT, "SetColorModScaleOverDuration", AnimWindow_SetColorModScaleOverDuration_Init, null, AnimWindow_SetColorModScaleOverDuration_Start, AnimWindow_SetColorModScaleOverDuration_Transition, AnimWindow_SetColorModScaleOverDuration_Stop )
 		RegisterAnimWindowType( CLIENT, "SetLodOriginAttachment", null, null, AnimWindow_SetLodOriginAttachment_Start, null, AnimWindow_SetLodOriginAttachment_Stop )
+		RegisterAnimWindowType( CLIENT, "HideEnt", null, null, AnimWindow_HideEnt_Start, null, AnimWindow_HideEnt_Stop )
 
 		
 		RegisterAnimWindowType( CLIENT, "MirageHoloFX", AnimWindow_MirageHoloFX_Init, AnimWindow_MirageHoloFX_Precache, AnimWindow_MirageHoloFX_Start, AnimWindow_MirageHoloFX_Transition, AnimWindow_MirageHoloFX_Stop )
@@ -642,6 +643,13 @@ void function AnimWindow_PlayFX_Start( ScriptAnimWindow window, var settingsBloc
 		}
 	}
 
+
+		if ( GetCurrentPlaylistVarBool( "anim_fx_window_sound", true ) && fxHandleOrNull )
+		{
+			EffectSetSoundEnabled( expect int( fxHandleOrNull ), true )
+		}
+
+
 #if DEV
 		disableoverwrite( windowFXHandleMap )
 #endif
@@ -929,6 +937,51 @@ void function AnimWindow_SetLodOriginAttachment_Stop( ScriptAnimWindow window, v
 
 		Signal( window.ent, "StopLodOriginAttachment" )
 
+}
+
+
+
+
+
+
+void function AnimWindow_HideEnt_Start( ScriptAnimWindow window, var settingsBlock )
+{
+	entity ent = window.ent
+	Assert( IsValid( ent ) )
+
+	ent.kv.rendermode = 4
+	ent.kv.renderamt = 0
+
+	bool hideChildren = GetSettingsBlockBool( settingsBlock, "hideChildren" )
+	if ( hideChildren )
+	{
+		array<entity> hierachy = GetEntityAndAllChildren( ent )
+		foreach ( entity hierachyEnt in hierachy )
+		{
+			hierachyEnt.kv.rendermode = 4
+			hierachyEnt.kv.renderamt = 0
+		}
+	}
+}
+
+void function AnimWindow_HideEnt_Stop( ScriptAnimWindow window, var settingsBlock )
+{
+	entity ent = window.ent
+	Assert( IsValid( ent ) )
+
+	ent.kv.rendermode = 4
+	ent.kv.renderamt = 255
+
+	bool hideChildren = GetSettingsBlockBool( settingsBlock, "hideChildren" )
+	if ( hideChildren )
+	{
+		array<entity> hierachy = GetEntityAndAllChildren( ent )
+		foreach ( entity hierachyEnt in hierachy )
+		{
+			hierachyEnt.kv.rendermode = 4
+			hierachyEnt.kv.renderamt = 255
+		}
+	}
 }
 
 
@@ -1460,6 +1513,7 @@ void function AnimWindow_LifelineDroneCommonFX_Stop( ScriptAnimWindow window, va
 
 
 
+const string BLOODHOUND_WHITE_RAVEN_SKIN = "bloodhound_epicp_v21_aether"
 void function AnimWindow_SetBloodhoundRavenPropSkin( ScriptAnimWindow window, var settingsBlock, entity prop )
 {
 	if ( IsValid( prop ) )
@@ -1467,11 +1521,21 @@ void function AnimWindow_SetBloodhoundRavenPropSkin( ScriptAnimWindow window, va
 		entity player            = window.ent
 		ItemFlavor character     = LoadoutSlot_GetItemFlavor( ToEHI( player ), Loadout_Character() )
 		ItemFlavor skin          = LoadoutSlot_GetItemFlavor( ToEHI( player ), Loadout_CharacterSkin( character ) )
-		string characterSkinName = CharacterSkin_GetSkinName( skin )
 
+		if ( IsLobby() )
+		{
+			ItemFlavor ornull previewSkin = clGlobal.previewMenuPilotModels.characterSkin
+			if ( previewSkin != null )
+			{
+				expect ItemFlavor( previewSkin )
+				skin = previewSkin
+			}
+		}
+
+		string characterSkinName = CharacterSkin_GetSkinName( skin )
 		
 
-		if ( prop.GetModelName() == BLOODHOUND_BIRD_MDL && characterSkinName == "bloodhound_epicp_v21_aether" )
+		if ( prop.GetModelName() == BLOODHOUND_BIRD_MDL && characterSkinName == BLOODHOUND_WHITE_RAVEN_SKIN )
 		{
 			prop.SetSkin ( 2 )
 		}
@@ -1556,14 +1620,14 @@ void function AnimWindow_SetSmearPropColour( ScriptAnimWindow window, var settin
 	if ( IsValid( owner ) && owner.IsPlayer() )
 	{
 		if ( owner == GetLocalClientPlayer() && owner.p.artifactConfig == null ) 
-			Artifacts_StoreLoadoutDataOnPlayerEntityStruct( owner )
+			Artifacts_StoreLoadoutDataOnPlayerEntityStruct( owner, null, false )
 
 		if ( owner.p.artifactConfig == null )
 			return
 
 		ArtifactConfig artifactConfig = expect ArtifactConfig( owner.p.artifactConfig )
 
-		prop.kv.rendercolor = Artifacts_FX_GetSmearColor( artifactConfig.powerSource )
+		prop.kv.rendercolor = Artifacts_FX_GetEmissiveAndSmearColor( artifactConfig.powerSource, false )
 	}
 }
 

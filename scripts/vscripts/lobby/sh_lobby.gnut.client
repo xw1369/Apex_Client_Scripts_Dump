@@ -3,6 +3,8 @@ globalize_all_functions
 global const string PRIVATE_MATCH_PLAYLIST = "private_match"
 global const int    PRIVATE_MATCH_MAX_PARTY_SIZE = 1
 
+global const int TRAINING_REQUIRED_BELOW_LEVEL_0_BASE = 14
+
 array<string> function GetPrivateMatchModes()
 {
 	array<string> modesArray

@@ -1539,6 +1539,69 @@ void function PlaceWallWithoutHolstering( entity player )
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 bool function CoverWall_CanUse( entity player, entity ent, int useFlags )
 {
 	if ( ! IsValid( player ) )
@@ -1587,6 +1650,11 @@ void function CoverWall_OnPropScriptDestroyed( entity ent )
 
 void function OnCharacterButtonPressed( entity player )
 {
+
+
+
+
+
 	entity useEnt = player.GetUsePromptEntity()
 	if ( !IsValid( useEnt ) || useEnt.GetScriptName() != BASE_WALL_SCRIPT_NAME )
 		return
@@ -1615,12 +1683,31 @@ string function CoverWall_UseTextOverride( entity ent )
 
 		if ( CanReclaimWall( ent ) )
 		{
+
+
+
+
+
+
+
+
+
+
 			CustomUsePrompt_SetText( Localize("#WPN_COVER_WALL_DYNAMIC_RECLAIM") )
 			CustomUsePrompt_SetHintImage( $"rui/hud/character_abilities/rampart_cover_pickup" )
 			CustomUsePrompt_SetLineColor( <0.0, 1.0, 1.0> )
 		}
 		else
 		{
+
+
+
+
+
+
+
+
+
 			CustomUsePrompt_SetText( Localize("#WPN_COVER_WALL_DYNAMIC_DESTROY") )
 			
 			CustomUsePrompt_SetHintImage( $"" )

@@ -1117,7 +1117,7 @@ bool function VerifyAirdropPoint( vector baseOrigin, float yaw, bool isCarePacka
 
 
 #if DEBUG_DROP_POINTS
-		if ( DEBUG_DROP_POINTS_LINES && failCode & 0x0005 )
+		if ( DEBUG_DROP_POINTS_LINES && (failCode & 0x0005) != 0 )
 		{
 			DebugDrawCylinder( trace.endPos, < -90, 0, 0 >, maxs.x, maxs.z, <250, 50, 0>, false, DEBUG_DRAW_TIME )
 			DebugDrawCylinder( baseOrigin, < -90, 0, 0 >, maxs.x, maxs.z, <70, 70, 70>, false, DEBUG_DRAW_TIME )

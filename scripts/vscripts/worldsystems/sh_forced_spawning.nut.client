@@ -16,6 +16,11 @@ global function ForcedSpawn_GetEnemyPingDisplayTime
 
 
 
+
+
+
+
+
 struct
 {
 
@@ -23,6 +28,103 @@ struct
 
 
 } file
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -298,9 +400,16 @@ bool function SurvivalSelectedDrop_ShowEnemyStartPings()
 	return GetCurrentPlaylistVarBool( "forced_spawn_show_enemy_start_pings", true )
 }
 
+
 float function ForcedSpawn_GetRingWaitTimeAfterSpawn()
 {
 	return GetCurrentPlaylistVarFloat( "forced_spawn_ring_wait_time_after_spawn", 20.0 )
+}
+
+
+float function ForcedSpawn_GetContestedSpawnRadius()
+{
+	return GetCurrentPlaylistVarFloat( "forced_spawn_contested_spawn_radius", 500.0 )
 }
 
 

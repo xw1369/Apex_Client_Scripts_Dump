@@ -80,7 +80,7 @@ void function SpectreShacks_MapInit()
 	if( !SpectreShacksAreEnabled() )
 		return
 
-	if( !IsSurvivalMode() )
+	if( !GameMode_IsActive( eGameModes.SURVIVAL ) )
 		return
 
 	if( !MapContainsArmories() )
@@ -114,7 +114,7 @@ void function SpectreShacks_Bootstrap()
 	if( !SpectreShacksAreEnabled() )
 		return
 
-	if( !IsSurvivalMode() )
+	if( !GameMode_IsActive( eGameModes.SURVIVAL ) )
 		return
 
 	if( !MapContainsArmories() )

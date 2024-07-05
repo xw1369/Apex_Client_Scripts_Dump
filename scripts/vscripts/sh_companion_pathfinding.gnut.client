@@ -53,6 +53,9 @@ global struct CompanionData
 	bool startedMovingCloser
 	bool orderDidPathfinding
 	float ceilingHeightAtDestination
+#if DEV
+		vector prevPos 
+#endif
 }
 
 global struct CompanionFlightParams

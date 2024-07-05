@@ -236,6 +236,10 @@ int function Grenade_OnWeaponToss( entity weapon, WeaponPrimaryAttackParams atta
 
 	entity grenade     = Grenade_Launch( weapon, attackParams.pos, (attackParams.dir * directionScale), projectilePredicted, projectileLagCompensated )
 	entity weaponOwner = weapon.GetWeaponOwner()
+
+	if ( !IsValid( weaponOwner ) )
+		return weapon.GetWeaponSettingInt( eWeaponVar.ammo_per_shot )
+
 	weaponOwner.Signal( "ThrowGrenade" )
 
 	PlayerUsedOffhand( weaponOwner, weapon, true, grenade ) 

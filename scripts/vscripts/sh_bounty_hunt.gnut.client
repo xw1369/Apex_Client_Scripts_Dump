@@ -1,6 +1,5 @@
 
 global function BountyHunt_Init
-global function IsBountyHuntEnabled
 global function GetTheHuntStartWaitTime
 
 
@@ -194,9 +193,6 @@ const string HUNT_NETVAR_END_TIME				= "bountyHuntEndTime"
 
 void function BountyHunt_Init()
 {
-	if ( !IsBountyHuntEnabled() )
-		return
-
 	PrecacheModel( TEMP_HUNT_PAD )
 	PrecacheParticleSystem( VFX_HUNT_LOOTTICK_SPAWN )
 	PrecacheParticleSystem( VFX_HUNT_DATAPAD_IDEL )
@@ -242,11 +238,6 @@ void function BountyHunt_Init()
 
 	RegisterCustomItemPickupAction( "sh_bounty_hunt", Bounty_ItemPickup )
 }
-
-
-
-
-
 
 
 
@@ -1494,11 +1485,6 @@ bool function Bounty_GetIsBirdInViewFocus( entity player, vector pos )
 	}
 
 	return inViewFocus
-}
-
-bool function IsBountyHuntEnabled()
-{
-	return GetCurrentPlaylistVarBool( "bounty_hunt_enabled", false )
 }
 
 float function GetTheHuntStartWaitTime()

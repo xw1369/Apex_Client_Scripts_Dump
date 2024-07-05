@@ -1,137 +1,59 @@
 
 global function GameModes_Init
 
-global function GameMode_Create
-global function GameMode_SetName
-global function GameMode_SetGameModeAttackAnnouncement
-global function GameMode_SetGameModeDefendAnnouncement
-global function GameMode_SetAttackDesc
-global function GameMode_SetDefendDesc
-global function GameMode_SetIcon
-global function GameMode_SetDefaultScoreLimits
-global function GameMode_AddScoreboardColumnData
-global function GameMode_SetGameModeAnnouncement
-global function GameMode_SetDefaultTimeLimits
-global function GameMode_SetWinBy2Rules
-global function GameMode_SetDesc
-global function GameMode_SetColor
-global function GameMode_SetSuddenDeath
-global function GameMode_SetPVEMode
 
-global function GameMode_GetScoreLimit
-global function GameMode_GetRoundScoreLimit
+
+
+
+global function GameMode_FindByDevName
+
+
 global function GameMode_Rounds_IsWinBy2
 global function GameMode_GetWinBy2MaxTies
 global function GameMode_GetWinBy2MinScore
-global function GameMode_GetTimeLimit
-global function GameMode_GetRoundTimeLimit
-global function GameMode_GetGameModeAnnouncement
-global function GameMode_GetGameModeAttackAnnouncement
-global function GameMode_GetGameModeDefendAnnouncement
-global function GameMode_GetDesc
-global function GameMode_GetName
-global function GameMode_GetIcon
-global function GameMode_GetColor
-global function GameMode_GetAttackDesc
-global function GameMode_GetDefendDesc
-global function GameMode_GetPilotSpawnpointsRatingFunc
-global function GameMode_GetTitanSpawnpointsRatingFunc
-global function GameMode_GetScoreCompareFunc
-global function GameMode_GetSuddenDeathEnabled
-global function GameMode_GetEvacEnabled
-global function GameMode_GetTimedEventsEnabled
-global function GameMode_GetPVEMode
-global function GameMode_GetGameEndingWarning
-global function GameMode_GetGameEndingConversation
-global function GameMode_GetScoreboardColumnTitles
-global function GameMode_GetScoreboardColumnScoreTypes
-global function GameMode_GetScoreboardColumnNumDigits
-global function GameMode_GetCustomIntroAnnouncement
 global function GameMode_RunServerInits
 global function GameMode_RunClientInits
 global function GameMode_RunSharedInits
-global function GameMode_IsDefined
 global function GameMode_AreRoundsEnabled
+global function GameMode_IsActive
+global function GameMode_IsActiveForPlaylist
+global function GameMode_VerifyActiveMode
 
-global function LimitedTimeMode_GetName
-global function LimitedTimeMode_GetIcon
-global function LimitedTimeMode_GetPlaylistFlag
-global function LimitedTimeMode_IsDefined
-
-
-global function GameMode_RunScoreboardInit
-global function GameMode_SetScoreboardSetupFunc
-global function GameMode_GetScoreboardSetupFunc
-
-
-global function GameMode_AddServerInit
-global function GameMode_AddClientInit
-global function GameMode_AddSharedInit
-global function GameMode_SetScoreCompareFunc
-global function GameMode_SetPilotSpawnpointsRatingFunc
-global function GameMode_SetTitanSpawnpointsRatingFunc
-global function GameMode_SetCustomIntroAnnouncement
-
-global function GameMode_GetGameModeId
-
-global function GameMode_SetEvacEnabled
-global function GameMode_SetTimedEventsEnabled
-
-global function GameMode_GetLoadoutSelectTime
+global function GameModeVariant_GetByDevName
+global function GameModeVariant_GetName
+global function GameModeVariant_GetIcon
+global function GameModeVariant_GetPlaylistFlag
+global function GameModeVariant_IsDefined
+global function GameModeVariant_IsActive
+global function GameModeVariant_IsActiveForPlaylist
 
 
 global function GameMode_DoesModeDisplayIconsForAllFriendlyTeams
 global function GameMode_DoesModeDisplayIconsForAllTeams
-global function GameMode_OverrideCompletedResolutionCleanupFunc
+
+
+
+
 
 
 global struct GamemodeSettings
 {
-	string name = ""
-	string name_localized = "Undefined Game Mode"
-	string desc_localized = "Undefined Game Mode Description"
-	string desc_attack = ""
-	string desc_defend = ""
-	string gameModeAnnoucement = ""
-	string gameModeAttackAnnoucement = ""
-	string gameModeDefendAnnoucement = ""
-	asset icon = $"ui/menu/playlist/classic"
-	array<int> color = [127, 127, 127, 255]
+	string devName = ""
 	array<void functionref()> serverInits
 	array<void functionref()> clientInits
 	array<void functionref()> sharedInits
-	void functionref( int, array<entity>, int, entity ) pilotSpawnpointRatingFunc
-	void functionref( int, array<entity>, int, entity ) titanSpawnpointRatingFunc
-	IntFromEntityCompare scoreCompareFunc
-	int defaultScoreLimit = 100
-	int defaultTimeLimit = 30
-	int defaultRoundScoreLimit = 5
-	float defaultRoundTimeLimit = 5.0
-	bool isWinBy2 = false
-	int winBy2MaxTies = 3
-	int winBy2MinScore = 3
-	bool evacEnabled = true
-	bool timedEventsEnabled = false
-	bool isPVEMode = false
-	string gameModeEndingWarning = "#GAMEMODE_END_IN_N_SECONDS"
-	string gameModeEndingConversation = ""
-	bool suddenDeathEnabled = false
-	array<string> scoreboardColumnTitles
-	array<int> scoreboardColumnScoreTypes
-	array<int> scoreboardColumnNumDigits
-	void functionref(entity) customIntroAnnouncementFunc
-
-
-		void functionref() scoreboardInitFunc
-
 }
 
-global struct LimitedTimeModeSettings
+global struct GameModeVariantSettings
 {
-	string name = ""
-	string name_localized = "Undefined Game Mode"
-	asset icon = $"ui/menu/playlist/classic"
+	string devName = ""
+	string name_localized = ""
+	asset icon = $""
+	int  baseMode
 	string playlist_flag = ""
+	array<void functionref()> serverInits
+	array<void functionref()> clientInits
+	array<void functionref()> sharedInits
 }
 
 
@@ -139,22 +61,187 @@ global struct LimitedTimeModeSettings
 
 global enum eGameModes
 {
-	invalid =							-1,
+	invalid				= -1,
 
-	SURVIVAL_ID =						0,
-	TEAM_DEATHMATCH_ID =				1,
+	SURVIVAL 			= 0,
 	
-	GAMEMODE_FREELANCE_ID = 3,
+	
+	FREELANCE 			= 3,
 
 
 
 
-	CONTROL_ID				= 5,
+	CONTROL				= 5,
 
 
-	FREEDM_ID		 		= 6,
+	FREEDM		 		= 6,
 
-	_count,
+
+	_count
+}
+
+global enum eGameModeVariants
+{
+	invalid = -1,
+
+	SURVIVAL_FIRING_RANGE,
+	SURVIVAL_TRAINING,
+
+	SURVIVAL_RANKED,
+
+
+
+
+
+
+
+	SURVIVAL_AIRDROPEXTRA,
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+	SURVIVAL_CAMPFIRE,
+
+
+
+
+
+	SURVIVAL_EXPLORE,
+
+
+
+
+	SURVIVAL_FRAGNCLEAR,
+
+	SURVIVAL_GOLDEN_HORSE,
+
+
+
+
+
+
+
+
+
+
+	SURVIVAL_RECRUIT,
+
+
+
+
+
+
+
+	SURVIVAL_SHADOW_ARMY,
+
+
+	SURVIVAL_SHADOW_ROYALE,
+
+
+
+
+
+
+
+
+	SURVIVAL_HARDCORE,
+
+	SURVIVAL_HEATWAVE,
+
+
+	SURVIVAL_BATTLE_RUSH,
+
+
+	SURVIVAL_VALENTINES_S15,
+
+
+
+
+
+
+
+
+	SURVIVAL_WINTEREXPRESS,
+
+
+
+
+
+
+
+
+
+	SURVIVAL_THE_HUNT,
+
+
+	SURVIVAL_HALLOWEEN_18_1,
+
+
+
+
+
+	SURVIVAL_STRIKEOUT,
+
+
+	SURVIVAL_SOLOS,
+
+
+	SURVIVAL_QUADS,
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+		FREEDM_TDM,
+
+
+		FREEDM_GUNGAME,
+
+
+		FREEDM_LOCKDOWN,
+
+
+
+
+
+
+
+
+
+
+
+
+
+	FREEDM_SCROUNGE,
+
+
+	_count
 }
 
 
@@ -170,70 +257,42 @@ global enum eWinReason
 	_count
 }
 
-const table<string, int> gameModesStringToIdMap = {
-	[ TEAM_DEATHMATCH ] 					= eGameModes.TEAM_DEATHMATCH_ID,
-	[ SURVIVAL ]							= eGameModes.SURVIVAL_ID,
-
-
-
-
-	[ GAMEMODE_CONTROL ]					= eGameModes.CONTROL_ID,
-
-	[ GAMEMODE_FREELANCE ]					= eGameModes.GAMEMODE_FREELANCE_ID,
-
-	[ GAMEMODE_FREEDM ]						= eGameModes.FREEDM_ID,
-
-}
-
 struct
 {
-	table<string, GamemodeSettings> gameModeDefs
-	table<string, LimitedTimeModeSettings> ltmDefs
+	table<int , GamemodeSettings> gameModeDefs
+	table<int , GameModeVariantSettings> variantDefs
 
-
-		void functionref() completedResolutionCleanupFunc
-
+	table<string, int> gameModesStringToIdMap
 } file
 
 void function GameModes_Init()
 {
-	string gameMode
+	
+	
+	
 
-	gameMode = TEAM_DEATHMATCH
-	GameMode_Create( gameMode )
-	GameMode_SetName( gameMode, "#PL_pilot_hunter" )
-	GameMode_SetGameModeAnnouncement( gameMode, "phunt_modeDesc" )
-	GameMode_SetDesc( gameMode, "#PL_pilot_hunter_hint" )
-	GameMode_SetIcon( gameMode, $"ui/menu/playlist/tdm" )
-	GameMode_SetDefaultScoreLimits( gameMode, 50, 0 )
-	GameMode_SetDefaultTimeLimits( gameMode, 15, 0.0 )
-	GameMode_AddScoreboardColumnData( gameMode, "#SCOREBOARD_KILLS", PGS_PILOT_KILLS, 2 )
-	GameMode_AddScoreboardColumnData( gameMode, "#SCOREBOARD_DEATHS", PGS_DEATHS, 2 )
-	GameMode_AddScoreboardColumnData( gameMode, "#SCOREBOARD_ASSISTS", PGS_ASSISTS, 2 )
-	GameMode_SetColor( gameMode, [212, 83, 152, 255] )
+	
+	
 
-	gameMode = SURVIVAL
-	GameMode_Create( gameMode )
-	GameMode_SetName( gameMode, "#GAMEMODE_SURVIVAL" )
-	GameMode_SetGameModeAnnouncement( gameMode, "ffa_modeDesc" )
-	GameMode_SetDesc( gameMode, "#PL_survival_hint" )
-	GameMode_SetIcon( gameMode, $"vgui/burncards/burncard_group_icon_weapons" )
-	GameMode_SetDefaultScoreLimits( gameMode, 50, 0 )
-	GameMode_SetDefaultTimeLimits( gameMode, 30, 0.0 )
-	GameMode_AddScoreboardColumnData( gameMode, "#SCOREBOARD_PILOT_KILLS", PGS_PILOT_KILLS, 2 )
-	GameMode_SetColor( gameMode, [147, 204, 57, 255] )
+	GameMode_Create( eGameModes.SURVIVAL, SURVIVAL )
 
 
 
+		GameMode_AddClientInit( eGameModes.SURVIVAL, ClGamemodeSurvival_Init )
 
 
+		GameMode_AddSharedInit( eGameModes.SURVIVAL, GamemodeSurvivalShared_Init )
 
 
+	GameModeVariant_Create( eGameModeVariants.SURVIVAL_FIRING_RANGE, eGameModes.SURVIVAL )
+	GameModeVariant_SetPlaylistFlag( eGameModeVariants.SURVIVAL_FIRING_RANGE, "survival_firingrange" )
 
+		GameModeVariant_AddSharedInit( eGameModeVariants.SURVIVAL_FIRING_RANGE, FiringRangeGameMode_Init )
 
 
 
 
+			GameModeVariant_AddSharedInit( eGameModeVariants.SURVIVAL_FIRING_RANGE, CombatRange_Init )
 
 
 
@@ -242,9 +301,17 @@ void function GameModes_Init()
 
 
 
+	GameModeVariant_Create( eGameModeVariants.SURVIVAL_TRAINING, eGameModes.SURVIVAL )
+	GameModeVariant_SetPlaylistFlag( eGameModeVariants.SURVIVAL_TRAINING, "survival_training" )
 
+		GameModeVariant_AddSharedInit( eGameModeVariants.SURVIVAL_TRAINING, ShSurvivalTraining_Init )
+		GameModeVariant_AddSharedInit( eGameModeVariants.SURVIVAL_TRAINING, ShTutorial_Init )
 
 
+	GameModeVariant_Create( eGameModeVariants.SURVIVAL_RANKED, eGameModes.SURVIVAL )
+	GameModeVariant_SetDevName( eGameModeVariants.SURVIVAL_RANKED, GAMEMODE_SURVIVAL_RANKED )
+	GameModeVariant_SetName( eGameModeVariants.SURVIVAL_RANKED, "#PL_TRIO_RANKED" )
+	GameModeVariant_SetPlaylistFlag( eGameModeVariants.SURVIVAL_RANKED, "is_ranked_game" )
 
 
 
@@ -263,7 +330,10 @@ void function GameModes_Init()
 
 
 
+	GameModeVariant_Create( eGameModeVariants.SURVIVAL_AIRDROPEXTRA, eGameModes.SURVIVAL )
+	GameModeVariant_SetPlaylistFlag( eGameModeVariants.SURVIVAL_AIRDROPEXTRA, "airdrop_ltm_enabled" )
 
+		GameModeVariant_AddSharedInit( eGameModeVariants.SURVIVAL_AIRDROPEXTRA, AirdropExtra_Init )
 
 
 
@@ -310,11 +380,6 @@ void function GameModes_Init()
 
 
 
-	gameMode = GAMEMODE_STRIKEOUT
-	LimitedTimeMode_Create( gameMode )
-	LimitedTimeMode_SetName( gameMode, "#STRIKEOUT_NAME" )
-	LimitedTimeMode_SetIcon( gameMode, $"rui/menu/gamemode_emblem/emblem_three_strikes" )
-	LimitedTimeMode_SetPlaylistFlag( gameMode, "is_gamemode_strikeout" )
 
 
 
@@ -362,7 +427,10 @@ void function GameModes_Init()
 
 
 
+		GameModeVariant_Create( eGameModeVariants.SURVIVAL_CAMPFIRE, eGameModes.SURVIVAL )
+		GameModeVariant_SetPlaylistFlag( eGameModeVariants.SURVIVAL_CAMPFIRE, "is_campfire_mode" )
 
+			GameModeVariant_AddSharedInit( eGameModeVariants.SURVIVAL_CAMPFIRE, Campfire_Init )
 
 
 
@@ -371,13 +439,14 @@ void function GameModes_Init()
 
 
 
-		RegisterSignal( "GameModes_CompletedResolutionCleanup" )
-		GameMode_OverrideCompletedResolutionCleanupFunc( GameModes_DefaultCompletedResolutionCleanupFunc )
 
 
 
 
+		GameModeVariant_Create( eGameModeVariants.SURVIVAL_EXPLORE, eGameModes.SURVIVAL )
+		GameModeVariant_SetPlaylistFlag( eGameModeVariants.SURVIVAL_EXPLORE, "survival_explore_mode" )
 
+			GameModeVariant_AddSharedInit( eGameModeVariants.SURVIVAL_EXPLORE, ShGameModeExplore_Init )
 
 
 
@@ -392,54 +461,24 @@ void function GameModes_Init()
 
 
 
-	gameMode = GAMEMODE_CONTROL
-	GameMode_Create( gameMode )
-	GameMode_SetName( gameMode, "#CONTROL_NAME" )
-	GameMode_SetGameModeAnnouncement( gameMode, "ffa_modeDesc" )
-	GameMode_SetDesc( gameMode, "#GAMEMODE_CONTROL_DESC" )
-	GameMode_SetIcon( gameMode, $"vgui/burncards/burncard_group_icon_weapons" )
-	GameMode_SetDefaultScoreLimits( gameMode, 50, 0 )
-	GameMode_SetDefaultTimeLimits( gameMode, 30, 0.0 )
-	GameMode_AddScoreboardColumnData( gameMode, "#SCOREBOARD_PILOT_KILLS", PGS_PILOT_KILLS, 2 )
-	GameMode_SetColor( gameMode, [147, 204, 57, 255] )
-	GameMode_SetTimedEventsEnabled( gameMode, true )
 
 
 
+	
+	
 
 
 
-	gameMode = GAMEMODE_FREELANCE
-	GameMode_Create( gameMode )
-	GameMode_SetGameModeAnnouncement( gameMode, "" )
-	GameMode_SetName( gameMode, "#PL_freelance" )
-	GameMode_SetDesc( gameMode, "#PL_freelance_hint" )
-	GameMode_SetIcon( gameMode, $"ui/menu/playlist/at" )
-	GameMode_SetDefaultScoreLimits( gameMode, 50000, 5 )
-	GameMode_SetDefaultTimeLimits( gameMode, 0, 120.0 )
-	GameMode_AddScoreboardColumnData( gameMode, "%$rui/candy/candy_credit_1%", PGS_SCORE, 5 )
-	GameMode_AddScoreboardColumnData( gameMode, "#SCOREBOARD_DEATHS", PGS_DEATHS, 2 )
-	GameMode_SetColor( gameMode, [127, 127, 127, 255] )
-	GameMode_SetPVEMode( gameMode, true )
 
 
-	gameMode = GAMEMODE_FREEDM
-	GameMode_Create( gameMode )
-	GameMode_SetName( gameMode, "#PL_pilot_hunter" )
-	GameMode_SetGameModeAnnouncement( gameMode, "phunt_modeDesc" )
-	GameMode_SetDesc( gameMode, "#PL_pilot_hunter_hint" )
-	GameMode_SetIcon( gameMode, $"ui/menu/playlist/tdm" )
-	GameMode_SetDefaultScoreLimits( gameMode, 50, 0 )
-	GameMode_SetDefaultTimeLimits( gameMode, 15, 0.0 )
-	GameMode_AddScoreboardColumnData( gameMode, "#SCOREBOARD_KILLS", PGS_PILOT_KILLS, 2 )
-	GameMode_AddScoreboardColumnData( gameMode, "#SCOREBOARD_DEATHS", PGS_DEATHS, 2 )
-	GameMode_AddScoreboardColumnData( gameMode, "#SCOREBOARD_ASSISTS", PGS_ASSISTS, 2 )
-	GameMode_SetColor( gameMode, [212, 83, 152, 255] )
-	GameMode_SetTimedEventsEnabled( gameMode, true )
 
 
 
+		GameModeVariant_Create( eGameModeVariants.SURVIVAL_GOLDEN_HORSE, eGameModes.SURVIVAL )
+		GameModeVariant_SetPlaylistFlag( eGameModeVariants.SURVIVAL_GOLDEN_HORSE, "is_golden_horse" )
+		GameModeVariant_SetDevName( eGameModeVariants.SURVIVAL_GOLDEN_HORSE, GAMEMODE_GOLDEN_HORSE )
 
+			GameModeVariant_AddSharedInit( eGameModeVariants.SURVIVAL_GOLDEN_HORSE, GoldenHorse_Init )
 
 
 
@@ -463,527 +502,774 @@ void function GameModes_Init()
 
 
 
-	GameModes_Init_SV_CL()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+	GameModeVariant_Create( eGameModeVariants.SURVIVAL_RECRUIT, eGameModes.SURVIVAL )
+	GameModeVariant_SetPlaylistFlag( eGameModeVariants.SURVIVAL_RECRUIT, "recruit_mode" )
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+		GameModeVariant_Create( eGameModeVariants.SURVIVAL_SHADOW_ARMY, eGameModes.SURVIVAL )
+		GameModeVariant_SetPlaylistFlag( eGameModeVariants.SURVIVAL_SHADOW_ARMY, "is_shadow_army_gamemode" )
+		GameModeVariant_SetDevName( eGameModeVariants.SURVIVAL_SHADOW_ARMY, GAMEMODE_SHADOW_ARMY )
+
+			GameModeVariant_AddSharedInit( eGameModeVariants.SURVIVAL_SHADOW_ARMY, ShadowArmy_Init )
+			GameModeVariant_AddSharedInit( eGameModeVariants.SURVIVAL_SHADOW_ARMY, ShadowArmy_RespawnBeacon_Init )
+
+
+
+
+
+
+
+
+
+
+			GameModeVariant_Create( eGameModeVariants.SURVIVAL_SHADOW_ROYALE, eGameModes.SURVIVAL )
+			GameModeVariant_SetPlaylistFlag( eGameModeVariants.SURVIVAL_SHADOW_ROYALE, "shadow_royale_mode" )
+			GameModeVariant_SetDevName( eGameModeVariants.SURVIVAL_SHADOW_ROYALE, GAMEMODE_SHADOW_ROYALE )
+
+				GameModeVariant_AddSharedInit( eGameModeVariants.SURVIVAL_SHADOW_ROYALE, ShGameModeShadowRoyale_Init )
+				GameModeVariant_AddSharedInit( eGameModeVariants.SURVIVAL_SHADOW_ROYALE, ShPlayerPet_Init )
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+	GameModeVariant_Create( eGameModeVariants.SURVIVAL_HARDCORE, eGameModes.SURVIVAL )
+	GameModeVariant_SetPlaylistFlag( eGameModeVariants.SURVIVAL_HARDCORE, "is_hardcore_mode" )
+	GameModeVariant_SetDevName( eGameModeVariants.SURVIVAL_HARDCORE, GAMEMODE_SURVIVAL_HARDCORE )
+
+		GameModeVariant_AddSharedInit( eGameModeVariants.SURVIVAL_HARDCORE, Sh_Survival_Hardcore_Init )
+
+
+
+
+
+
+
+
+		GameModeVariant_Create( eGameModeVariants.SURVIVAL_HEATWAVE, eGameModes.SURVIVAL )
+		GameModeVariant_SetPlaylistFlag( eGameModeVariants.SURVIVAL_HEATWAVE, "is_heatwave_mode" )
+		GameModeVariant_SetDevName( eGameModeVariants.SURVIVAL_HEATWAVE, GAMEMODE_HEATWAVE )
+
+			GameModeVariant_AddSharedInit( eGameModeVariants.SURVIVAL_HARDCORE, Sh_Survival_Heatwave_Init )
+
+
+
+
+
+
+
+
+
+
+		GameModeVariant_Create( eGameModeVariants.SURVIVAL_BATTLE_RUSH, eGameModes.SURVIVAL )
+		GameModeVariant_SetPlaylistFlag( eGameModeVariants.SURVIVAL_BATTLE_RUSH, "is_gamemode_battle_rush" )
+		GameModeVariant_SetDevName( eGameModeVariants.SURVIVAL_BATTLE_RUSH, GAMEMODE_QUICK_MATCH )
+
+			GameModeVariant_AddSharedInit( eGameModeVariants.SURVIVAL_BATTLE_RUSH, Sh_Survival_BattleRush_Init )
+
+
+
+
+
+
+
+
+
+		GameModeVariant_Create( eGameModeVariants.SURVIVAL_VALENTINES_S15, eGameModes.SURVIVAL )
+		GameModeVariant_SetPlaylistFlag( eGameModeVariants.SURVIVAL_VALENTINES_S15, "is_valentines_s15" )
+		GameModeVariant_SetDevName( eGameModeVariants.SURVIVAL_VALENTINES_S15, GAMEMODE_DATE_NIGHT )
+
+			GameModeVariant_AddSharedInit( eGameModeVariants.SURVIVAL_VALENTINES_S15, Valentines_S15_Mode_Init )
+
+
+			GameModeVariant_AddClientInit( eGameModeVariants.SURVIVAL_VALENTINES_S15, ClValentines_Init )
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+		GameModeVariant_Create( eGameModeVariants.SURVIVAL_WINTEREXPRESS, eGameModes.SURVIVAL )
+		GameModeVariant_SetPlaylistFlag( eGameModeVariants.SURVIVAL_WINTEREXPRESS, "is_winter_express_game" )
+		GameModeVariant_SetDevName( eGameModeVariants.SURVIVAL_WINTEREXPRESS, GAMEMODE_WINTER_EXPRESS )
+
+			GameModeVariant_AddSharedInit( eGameModeVariants.SURVIVAL_WINTEREXPRESS, WinterExpress_Init )
+
+
+
+
+
+
+
+
+		GameModeVariant_Create( eGameModeVariants.SURVIVAL_THE_HUNT, eGameModes.SURVIVAL )
+		GameModeVariant_SetPlaylistFlag( eGameModeVariants.SURVIVAL_THE_HUNT, "bounty_hunt_enabled" )
+		GameModeVariant_SetDevName( eGameModeVariants.SURVIVAL_THE_HUNT, GAMEMODE_THE_HUNT_20 )
+
+			GameModeVariant_AddSharedInit( eGameModeVariants.SURVIVAL_THE_HUNT, BountyHunt_Init )
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+	GameModeVariant_Create( eGameModeVariants.SURVIVAL_HALLOWEEN_18_1, eGameModes.SURVIVAL )
+	GameModeVariant_SetPlaylistFlag( eGameModeVariants.SURVIVAL_HALLOWEEN_18_1, "halloween_18_active" )
+	GameModeVariant_SetDevName( eGameModeVariants.SURVIVAL_HALLOWEEN_18_1, GAMEMODE_HALLOWEEN_18_1 )
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+	
+	GameModeVariant_Create( eGameModeVariants.SURVIVAL_STRIKEOUT, eGameModes.SURVIVAL )
+	GameModeVariant_SetDevName( eGameModeVariants.SURVIVAL_STRIKEOUT, GAMEMODE_STRIKEOUT )
+	GameModeVariant_SetName( eGameModeVariants.SURVIVAL_STRIKEOUT, "#STRIKEOUT_NAME" )
+	GameModeVariant_SetIcon( eGameModeVariants.SURVIVAL_STRIKEOUT, $"rui/menu/gamemode_emblem/emblem_three_strikes" )
+	GameModeVariant_SetPlaylistFlag( eGameModeVariants.SURVIVAL_STRIKEOUT, "is_gamemode_strikeout" )
+
+		GameModeVariant_AddSharedInit( eGameModeVariants.SURVIVAL_STRIKEOUT, Sh_Survival_Strikeout_Init )
+
+
+	
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+	
+	GameModeVariant_Create( eGameModeVariants.SURVIVAL_SOLOS, eGameModes.SURVIVAL )
+	GameModeVariant_SetDevName( eGameModeVariants.SURVIVAL_SOLOS, GAMEMODE_SURVIVAL_SOLOS )
+	GameModeVariant_SetName( eGameModeVariants.SURVIVAL_SOLOS, "#SURVIVAL_MODE_SOLOS" )
+	GameModeVariant_SetPlaylistFlag( eGameModeVariants.SURVIVAL_SOLOS, "is_gamemode_solos" )
+
+		GameModeVariant_AddSharedInit( eGameModeVariants.SURVIVAL_SOLOS, Sh_Survival_Solos_Init )
+
+
+	
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+	GameModeVariant_Create( eGameModeVariants.SURVIVAL_QUADS, eGameModes.SURVIVAL )
+	GameModeVariant_SetDevName( eGameModeVariants.SURVIVAL_QUADS, GAMEMODE_SURVIVAL_QUADS )
+	GameModeVariant_SetName( eGameModeVariants.SURVIVAL_QUADS, "#SURVIVAL_MODE_QUADS" )
+	GameModeVariant_SetPlaylistFlag( eGameModeVariants.SURVIVAL_QUADS, "gamemode_survival_quads_active" )
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+	GameMode_Create( eGameModes.CONTROL, GAMEMODE_CONTROL )
+	
+	
+	
+
+
+
+		GameMode_AddClientInit( eGameModes.CONTROL, ClGamemodeSurvival_Init )
+
+
+		GameMode_AddSharedInit( eGameModes.CONTROL, GamemodeSurvivalShared_Init )
+
+
+
+
+
+
+
+
+	GameMode_Create( eGameModes.FREELANCE, GAMEMODE_FREELANCE )
+
+
+
+
+
+		GameMode_AddClientInit( eGameModes.FREELANCE, ClientInit_Freelance )
+		
+
+
+		GameMode_AddSharedInit( eGameModes.FREELANCE, SharedInit_Freelance )
+
+
+
+	GameMode_Create( eGameModes.FREEDM, GAMEMODE_FREEDM )
+
+
+
+		GameMode_AddClientInit( eGameModes.FREEDM, FreeDM_GamemodeInitClient )
+
+
+		GameMode_AddSharedInit( eGameModes.FREEDM, FreeDM_GamemodeInitShared )
+
+
+	
+	
+
+
+
+
+
+
+		GameModeVariant_Create( eGameModeVariants.FREEDM_TDM, eGameModes.FREEDM )
+		GameModeVariant_SetPlaylistFlag( eGameModeVariants.FREEDM_TDM, "freedm_tdm_active" )
+		GameModeVariant_SetDevName( eGameModeVariants.FREEDM_TDM, TEAM_DEATHMATCH )
+
+			GameModeVariant_AddSharedInit( eGameModeVariants.FREEDM_TDM, TDM_Init )
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+		GameModeVariant_Create( eGameModeVariants.FREEDM_GUNGAME, eGameModes.FREEDM )
+		GameModeVariant_SetPlaylistFlag( eGameModeVariants.FREEDM_GUNGAME, "freedm_gun_game_active" )
+
+			GameModeVariant_AddSharedInit( eGameModeVariants.FREEDM_GUNGAME, GunGame_Init )
+
+
+
+
+		GameModeVariant_Create( eGameModeVariants.FREEDM_LOCKDOWN, eGameModes.FREEDM )
+		GameModeVariant_SetPlaylistFlag( eGameModeVariants.FREEDM_LOCKDOWN, "freedm_treasure_hunt_active" )
+		GameModeVariant_SetDevName( eGameModeVariants.FREEDM_TDM, GAMEMODE_TREASURE_HUNT )
+
+			GameModeVariant_AddSharedInit( eGameModeVariants.FREEDM_LOCKDOWN, TreasureHunt_Init )
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+	
+
+
+
+
+
+
+
 
 
 	
 	GameMode_VerifyModes()
 }
 
-
-
-
-
-
-
-GamemodeSettings function GameMode_Create( string gameModeName )
+void function GameMode_NotifyUIOfModeChange( string gametypeStr, int gametypeID )
 {
-	Assert( !(gameModeName in file.gameModeDefs), "Gametype already defined!" )
+	GAMETYPE = gametypeStr
+	GAMETYPE_ID = gametypeID
+}
+
+
+
+
+
+void function GameMode_Create( int modeId, string stringModeName )
+{
+	Assert( !(modeId in file.gameModeDefs), "Gametype already defined!" )
 
 	GamemodeSettings settings
-	file.gameModeDefs[gameModeName] <- settings
+	settings.devName = stringModeName
 
-	return file.gameModeDefs[gameModeName]
+	file.gameModeDefs[ modeId ] <- settings
+	file.gameModesStringToIdMap[ stringModeName ] <- modeId
 }
 
-void function GameMode_SetName( string gameModeName, string nameText )
+void function GameMode_AddServerInit( int modeId, void functionref() func )
 {
-	Assert( gameModeName in file.gameModeDefs, "No MP Gametype specified in _settings.nut (" + gameModeName + ")" )
-	file.gameModeDefs[gameModeName].name_localized = nameText
+	Assert( modeId in file.gameModeDefs, "No MP Gametype specified in _settings.nut" )
+	file.gameModeDefs[ modeId ].serverInits.append( func )
 }
 
-void function GameMode_SetGameModeAnnouncement( string gameModeName, string gameModeAnnoucement ) 
+void function GameMode_AddClientInit( int modeId, void functionref() func )
 {
-	Assert( gameModeName in file.gameModeDefs, "No MP Gametype specified in _settings.nut" )
-	file.gameModeDefs[gameModeName].gameModeAnnoucement = gameModeAnnoucement
+	Assert( modeId in file.gameModeDefs, "No MP Gametype specified in _settings.nut" )
+	file.gameModeDefs[ modeId ].clientInits.append( func )
 }
 
-void function GameMode_SetGameModeAttackAnnouncement( string gameModeName, string gameModeAttackAnnoucement ) 
+void function GameMode_AddSharedInit( int modeId, void functionref() func )
 {
-	Assert( gameModeName in file.gameModeDefs, "No MP Gametype specified in _settings.nut" )
-	file.gameModeDefs[gameModeName].gameModeAttackAnnoucement = gameModeAttackAnnoucement
+	Assert( modeId in file.gameModeDefs, "No MP Gametype specified in _settings.nut" )
+	file.gameModeDefs[ modeId ].sharedInits.append( func )
 }
 
-void function GameMode_SetGameModeDefendAnnouncement( string gameModeName, string gameModeDefendAnnoucement )
-{
-	Assert( gameModeName in file.gameModeDefs, "No MP Gametype specified in _settings.nut" ) 
-	file.gameModeDefs[gameModeName].gameModeDefendAnnoucement = gameModeDefendAnnoucement
-}
-
-void function GameMode_SetDesc( string gameModeName, string descText )
-{
-	Assert( gameModeName in file.gameModeDefs, "No MP Gametype specified in _settings.nut" )
-	file.gameModeDefs[gameModeName].desc_localized = descText
-}
-
-void function GameMode_SetAttackDesc( string gameModeName, string descText )
-{
-	Assert( gameModeName in file.gameModeDefs, "No MP Gametype specified in _settings.nut" )
-	file.gameModeDefs[gameModeName].desc_attack = descText
-}
-
-void function GameMode_SetDefendDesc( string gameModeName, string descText )
-{
-	Assert( gameModeName in file.gameModeDefs, "No MP Gametype specified in _settings.nut" )
-	file.gameModeDefs[gameModeName].desc_defend = descText
-}
-
-void function GameMode_SetIcon( string gameModeName, asset icon )
-{
-	Assert( gameModeName in file.gameModeDefs, "No MP Gametype specified in _settings.nut" )
-	file.gameModeDefs[gameModeName].icon = icon
-}
-
-void function GameMode_SetColor( string gameModeName, array<int> color )
-{
-	Assert( gameModeName in file.gameModeDefs, "No MP Gametype specified in _settings.nut" )
-	file.gameModeDefs[gameModeName].color = color
-}
-
-void function GameMode_SetSuddenDeath( string gameModeName, bool state )
-{
-	Assert( gameModeName in file.gameModeDefs, "No MP Gametype specified in _settings.nut" )
-	file.gameModeDefs[gameModeName].suddenDeathEnabled = state
-}
-
-void function GameMode_AddServerInit( string gameModeName, void functionref() func )
-{
-	Assert( gameModeName in file.gameModeDefs, "No MP Gametype specified in _settings.nut" )
-	file.gameModeDefs[gameModeName].serverInits.append( func )
-}
-
-void function GameMode_AddClientInit( string gameModeName, void functionref() func )
-{
-	Assert( gameModeName in file.gameModeDefs, "No MP Gametype specified in _settings.nut" )
-	file.gameModeDefs[gameModeName].clientInits.append( func )
-}
-
-void function GameMode_AddSharedInit( string gameModeName, void functionref() func )
-{
-	Assert( gameModeName in file.gameModeDefs, "No MP Gametype specified in _settings.nut" )
-	file.gameModeDefs[gameModeName].sharedInits.append( func )
-}
-
-void function GameMode_SetPilotSpawnpointsRatingFunc( string gameModeName, void functionref( int, array<entity>, int, entity ) func )
-{
-	Assert( gameModeName in file.gameModeDefs, "No MP Gametype specified in _settings.nut" )
-	file.gameModeDefs[gameModeName].pilotSpawnpointRatingFunc = func
-}
-
-void function GameMode_SetTitanSpawnpointsRatingFunc( string gameModeName, void functionref( int, array<entity>, int, entity ) func )
-{
-	Assert( gameModeName in file.gameModeDefs, "No MP Gametype specified in _settings.nut" )
-	file.gameModeDefs[gameModeName].titanSpawnpointRatingFunc = func
-}
-
-void function GameMode_SetScoreCompareFunc( string gameModeName, int functionref( entity, entity ) func )
-{
-	Assert( gameModeName in file.gameModeDefs, "No MP Gametype specified in _settings.nut" )
-	file.gameModeDefs[gameModeName].scoreCompareFunc = func
-}
-
-void function GameMode_SetDefaultScoreLimits( string gameModeName, int scoreLimit, int roundScoreLimit )
-{
-	Assert( gameModeName in file.gameModeDefs, "No MP Gametype specified in _settings.nut" )
-	file.gameModeDefs[gameModeName].defaultScoreLimit = scoreLimit
-	file.gameModeDefs[gameModeName].defaultRoundScoreLimit = roundScoreLimit
-}
-
-void function GameMode_SetDefaultTimeLimits( string gameModeName, int timeLimit, float roundTimeLimit )
-{
-	Assert( gameModeName in file.gameModeDefs, "No MP Gametype specified in _settings.nut" )
-	file.gameModeDefs[gameModeName].defaultTimeLimit = timeLimit
-	file.gameModeDefs[gameModeName].defaultRoundTimeLimit = roundTimeLimit
-}
-
-void function GameMode_SetWinBy2Rules( string gameModeName, int minScore, int maxTies )
-{
-	Assert( gameModeName in file.gameModeDefs, "No MP Gametype specified in _settings.nut" )
-	file.gameModeDefs[gameModeName].isWinBy2 = true
-	file.gameModeDefs[gameModeName].winBy2MaxTies = maxTies
-	file.gameModeDefs[gameModeName].winBy2MinScore = minScore
-	file.gameModeDefs[gameModeName].defaultRoundScoreLimit = minScore + maxTies - 1
-}
-
-void function GameMode_AddScoreboardColumnData( string gameModeName, string title, int scoreType, int numDigits )
-{
-	Assert( gameModeName in file.gameModeDefs, "No MP Gametype specified in _settings.nut" )
-	file.gameModeDefs[gameModeName].scoreboardColumnTitles.append( title )
-	file.gameModeDefs[gameModeName].scoreboardColumnScoreTypes.append( scoreType )
-	file.gameModeDefs[gameModeName].scoreboardColumnNumDigits.append( numDigits )
-}
-
-void function GameMode_SetEvacEnabled( string gameModeName, bool value )
-{
-	Assert( gameModeName in file.gameModeDefs, "No MP Gametype specified in _settings.nut" )
-	file.gameModeDefs[gameModeName].evacEnabled = value
-}
-
-void function GameMode_SetTimedEventsEnabled( string gameModeName, bool value )
-{
-	Assert( gameModeName in file.gameModeDefs, "No MP Gametype specified in _settings.nut" )
-	file.gameModeDefs[gameModeName].timedEventsEnabled = value
-}
-
-void function GameMode_SetPVEMode( string gameModeName, bool value )
-{
-	Assert( gameModeName in file.gameModeDefs, "No MP Gametype specified in _settings.nut" )
-	file.gameModeDefs[gameModeName].isPVEMode = value
-}
 
-void function GameMode_SetGameEndingWarning( string gameModeName, string warning )
-{
-	Assert( gameModeName in file.gameModeDefs, "No MP Gametype specified in _settings.nut" )
-	file.gameModeDefs[gameModeName].gameModeEndingWarning = warning
-}
-
-void function GameMode_SetGameEndingConversation( string gameModeName, string conversation )
-{
-	Assert( gameModeName in file.gameModeDefs, "No MP Gametype specified in _settings.nut" )
-	file.gameModeDefs[gameModeName].gameModeEndingConversation = conversation
-}
-
-void function GameMode_SetCustomIntroAnnouncement( string gameModeName, void functionref(entity) func )
-{
-	Assert( gameModeName in file.gameModeDefs, "No MP Gametype specified in _settings.nut" )
-	file.gameModeDefs[gameModeName].customIntroAnnouncementFunc = func
-}
-
-LimitedTimeModeSettings function LimitedTimeMode_Create( string ltmName )
-{
-	Assert( !(ltmName in file.ltmDefs), "LTM already defined!" )
-
-	LimitedTimeModeSettings settings
-	file.ltmDefs[ltmName] <- settings
-
-	return file.ltmDefs[ltmName]
-}
-
-void function LimitedTimeMode_SetName( string ltmName, string nameText )
-{
-	Assert( ltmName in file.ltmDefs, "No LTM Gametype specified in _settings.nut (" + ltmName + ")" )
-	file.ltmDefs[ltmName].name_localized = nameText
-}
-
-void function LimitedTimeMode_SetIcon( string ltmName, asset icon )
-{
-	Assert( ltmName in file.ltmDefs, "No LTM Gametype specified in _settings.nut" )
-	file.ltmDefs[ltmName].icon = icon
-}
-
-void function LimitedTimeMode_SetPlaylistFlag( string ltmName, string playlistFlag )
-{
-	Assert( ltmName in file.ltmDefs, "No LTM Gametype specified in _settings.nut" )
-	file.ltmDefs[ltmName].playlist_flag = playlistFlag
-}
 
-
-
-
-
-int function GameMode_GetScoreLimit( string gameModeName )
+void function GameModeVariant_Create( int variantId, int baseMode )
 {
-	Assert( gameModeName in file.gameModeDefs, "No MP Gametype specified in _settings.nut" )
-	return GetCurrentPlaylistVarInt( "scorelimit", file.gameModeDefs[gameModeName].defaultScoreLimit )
-}
+	Assert( !(variantId in file.variantDefs), "Variant already defined!" )
 
-int function GameMode_GetRoundScoreLimit( string gameModeName )
-{
-	Assert( gameModeName in file.gameModeDefs, "No MP Gametype specified in _settings.nut" )
-	return GetCurrentPlaylistVarInt( "roundscorelimit", file.gameModeDefs[gameModeName].defaultRoundScoreLimit )
+	GameModeVariantSettings settings
+	settings.baseMode = baseMode
+	file.variantDefs[ variantId ] <- settings
 }
 
-bool function GameMode_Rounds_IsWinBy2( string gameModeName )
+void function GameModeVariant_SetDevName( int variantId, string devName )
 {
-	Assert( gameModeName in file.gameModeDefs, "No MP Gametype specified in _settings.nut" )
-	return GetCurrentPlaylistVarBool( "rounds_win_by_2_enabled", file.gameModeDefs[gameModeName].isWinBy2 )
+	Assert( variantId in file.variantDefs, "No variant Gametype specified in _settings.nut" )
+	file.variantDefs[ variantId ].devName = devName
 }
 
-int function GameMode_GetWinBy2MinScore( string gameModeName )
+void function GameModeVariant_SetName( int variantId, string nameText )
 {
-	Assert( gameModeName in file.gameModeDefs, "No MP Gametype specified in _settings.nut" )
-	return GetCurrentPlaylistVarInt( "rounds_win_by_2_enabled", file.gameModeDefs[gameModeName].winBy2MinScore )
+	Assert( variantId in file.variantDefs, "No variant Gametype specified in _settings.nut" )
+	file.variantDefs[ variantId ].name_localized = nameText
 }
 
-int function GameMode_GetWinBy2MaxTies( string gameModeName )
+void function GameModeVariant_SetIcon( int variantId, asset icon )
 {
-	Assert( gameModeName in file.gameModeDefs, "No MP Gametype specified in _settings.nut" )
-	return GetCurrentPlaylistVarInt( "rounds_win_by_2_enabled", file.gameModeDefs[gameModeName].winBy2MaxTies )
+	Assert( variantId in file.variantDefs, "No variant Gametype specified in _settings.nut" )
+	file.variantDefs[ variantId ].icon = icon
 }
 
-int function GameMode_GetTimeLimit( string gameModeName )
+void function GameModeVariant_SetPlaylistFlag( int variantId, string playlistFlag )
 {
-	Assert( gameModeName in file.gameModeDefs, "No MP Gametype specified in _settings.nut" )
-	return GetCurrentPlaylistVarInt( "timelimit", file.gameModeDefs[gameModeName].defaultTimeLimit )
+	Assert( variantId in file.variantDefs, "No variant Gametype specified in _settings.nut" )
+	file.variantDefs[ variantId ].playlist_flag = playlistFlag
 }
 
-float function GameMode_GetRoundTimeLimit( string gameModeName )
+void function GameModeVariant_AddServerInit( int variantId, void functionref() initFunc )
 {
-	Assert( gameModeName in file.gameModeDefs, "No MP Gametype specified in _settings.nut" )
-	return GetCurrentPlaylistVarFloat( "roundtimelimit", file.gameModeDefs[gameModeName].defaultRoundTimeLimit )
+	file.variantDefs[ variantId ].serverInits.append( initFunc )
 }
 
-string function GameMode_GetGameModeAnnouncement( string gameModeName )
+void function GameModeVariant_AddClientInit( int variantId, void functionref() initFunc )
 {
-	Assert( gameModeName in file.gameModeDefs, "No MP Gametype specified in _settings.nut" )
-	return file.gameModeDefs[gameModeName].gameModeAnnoucement
+	file.variantDefs[ variantId ].clientInits.append( initFunc )
 }
 
-string function GameMode_GetGameModeAttackAnnouncement( string gameModeName )
+void function GameModeVariant_AddSharedInit( int variantId, void functionref() initFunc )
 {
-	Assert( gameModeName in file.gameModeDefs, "No MP Gametype specified in _settings.nut" )
-	return file.gameModeDefs[gameModeName].gameModeAttackAnnoucement
+	file.variantDefs[ variantId ].sharedInits.append( initFunc )
 }
 
-string function GameMode_GetGameModeDefendAnnouncement( string gameModeName )
-{
-	Assert( gameModeName in file.gameModeDefs, "No MP Gametype specified in _settings.nut" )
-	return file.gameModeDefs[gameModeName].gameModeDefendAnnoucement
-}
 
-string function GameMode_GetDesc( string gameModeName )
-{
-	Assert( gameModeName in file.gameModeDefs, "No MP Gametype specified in _settings.nut" )
-	return file.gameModeDefs[gameModeName].desc_localized
-}
 
-string function GameMode_GetName( string gameModeName )
-{
-	Assert( gameModeName in file.gameModeDefs, "No MP Gametype specified in _settings.nut" )
-	return file.gameModeDefs[gameModeName].name_localized
-}
 
-asset function GameMode_GetIcon( string gameModeName )
-{
-	Assert( gameModeName in file.gameModeDefs, "No MP Gametype specified in _settings.nut" )
-	return file.gameModeDefs[gameModeName].icon
-}
 
-array<int> function GameMode_GetColor( string gameModeName )
-{
-	Assert( gameModeName in file.gameModeDefs, "No MP Gametype specified in _settings.nut" )
-	return file.gameModeDefs[gameModeName].color
-}
 
-string function GameMode_GetAttackDesc( string gameModeName )
-{
-	Assert( gameModeName in file.gameModeDefs, "No MP Gametype specified in _settings.nut" )
-	return file.gameModeDefs[gameModeName].desc_attack
-}
 
-string function GameMode_GetDefendDesc( string gameModeName )
+int function GameMode_FindByDevName( string gamemodeDevName )
 {
-	Assert( gameModeName in file.gameModeDefs, "No MP Gametype specified in _settings.nut" )
-	return file.gameModeDefs[gameModeName].desc_defend
-}
+	if ( !( gamemodeDevName in file.gameModesStringToIdMap ) )
+	{
+		return eGameModes.invalid
+	}
 
-void functionref( int, array<entity>, int, entity ) function GameMode_GetPilotSpawnpointsRatingFunc( string gameModeName )
-{
-	Assert( gameModeName in file.gameModeDefs, "No MP Gametype specified in _settings.nut" )
-	Assert( file.gameModeDefs[gameModeName].pilotSpawnpointRatingFunc != null, "No respawn func set for " + gameModeName )
-	return file.gameModeDefs[gameModeName].pilotSpawnpointRatingFunc
+	return file.gameModesStringToIdMap[ gamemodeDevName ]
 }
 
-void functionref( int, array<entity>, int, entity ) function GameMode_GetTitanSpawnpointsRatingFunc( string gameModeName )
+bool function GameMode_IsActive( int modeId )
 {
-	Assert( gameModeName in file.gameModeDefs, "No MP Gametype specified in _settings.nut" )
-	Assert( file.gameModeDefs[gameModeName].titanSpawnpointRatingFunc != null, "No respawn func set for " + gameModeName )
-	return file.gameModeDefs[gameModeName].titanSpawnpointRatingFunc
+	return GAMETYPE_ID == modeId
 }
 
-IntFromEntityCompare function GameMode_GetScoreCompareFunc( string gameModeName )
+bool function GameMode_IsActiveForPlaylist( string playlist, int modeId )
 {
-	Assert( gameModeName in file.gameModeDefs, "No MP Gametype specified in _settings.nut" )
-	return file.gameModeDefs[gameModeName].scoreCompareFunc
-}
+	for ( int i = 0; i < GetPlaylistGamemodesCount( playlist ); i++ )
+	{
+		if ( GameMode_FindByDevName( GetPlaylistGamemodeByIndex( playlist, i ) ) == modeId )
+		{
+			return true
+		}
+	}
 
-bool function GameMode_GetSuddenDeathEnabled( string gameModeName )
-{
-	Assert( gameModeName in file.gameModeDefs, "No MP Gametype specified in _settings.nut" )
-	return file.gameModeDefs[gameModeName].suddenDeathEnabled
+	return false
 }
 
-bool function GameMode_GetEvacEnabled( string gameModeName ) 
-{
-	Assert( gameModeName in file.gameModeDefs, "No MP Gametype specified in _settings.nut" )
-	return file.gameModeDefs[gameModeName].evacEnabled
-}
 
-bool function GameMode_GetTimedEventsEnabled( string gameModeName )
-{
-	Assert( gameModeName in file.gameModeDefs, "No MP Gametype specified in _settings.nut" )
-	return file.gameModeDefs[gameModeName].timedEventsEnabled
-}
 
-bool function GameMode_GetPVEMode( string gameModeName )
+int function GameModeVariant_GetByDevName( string variantDevName )
 {
-	Assert( gameModeName in file.gameModeDefs, "No MP Gametype specified in _settings.nut" )
-	return file.gameModeDefs[gameModeName].isPVEMode
-}
+	foreach ( variantId, variantDef in file.variantDefs )
+	{
+		if ( variantDef.devName == variantDevName )
+		{
+			return variantId
+		}
+	}
 
-string function GameMode_GetGameEndingWarning( string gameModeName )
-{
-	Assert( gameModeName in file.gameModeDefs, "No MP Gametype specified in _settings.nut" )
-	return file.gameModeDefs[gameModeName].gameModeEndingWarning
+	return eGameModeVariants.invalid
 }
 
-string function GameMode_GetGameEndingConversation( string gameModeName )
+string function GameModeVariant_GetName( int variantId )
 {
-	Assert( gameModeName in file.gameModeDefs, "No MP Gametype specified in _settings.nut" )
-	return file.gameModeDefs[gameModeName].gameModeEndingConversation
+	Assert( variantId in file.variantDefs, "No variant gametype specified in _settings.nut" )
+	return file.variantDefs[ variantId ].name_localized
 }
 
-
-void function GameMode_SetScoreboardSetupFunc( string gameModeName, void functionref() func )
+asset function GameModeVariant_GetIcon( int variantId )
 {
-	Assert( gameModeName in file.gameModeDefs, "No MP Gametype specified in _settings.nut" )
-	file.gameModeDefs[gameModeName].scoreboardInitFunc = func
+	Assert( variantId in file.variantDefs, "No variant gametype specified in _settings.nut" )
+	return file.variantDefs[ variantId ].icon
 }
 
-void functionref() function GameMode_GetScoreboardSetupFunc( string gameModeName )
+string function GameModeVariant_GetPlaylistFlag( int variantId )
 {
-	Assert( gameModeName in file.gameModeDefs, "No MP Gametype specified in _settings.nut" )
-	return file.gameModeDefs[gameModeName].scoreboardInitFunc
+	Assert( variantId in file.variantDefs, "No variant gametype specified in _settings.nut" )
+	return file.variantDefs[ variantId ].playlist_flag
 }
-
 
-array<string> function GameMode_GetScoreboardColumnTitles( string gameModeName )
+bool function GameModeVariant_IsDefined( int variantId )
 {
-	Assert( gameModeName in file.gameModeDefs, "No MP Gametype specified in _settings.nut" )
-	return file.gameModeDefs[gameModeName].scoreboardColumnTitles
+	return ( variantId in file.variantDefs )
 }
 
-array<int> function GameMode_GetScoreboardColumnScoreTypes( string gameModeName )
+bool function GameModeVariant_IsActiveForPlaylist( string playlist, int variantId )
 {
-	Assert( gameModeName in file.gameModeDefs, "No MP Gametype specified in _settings.nut" )
-	return file.gameModeDefs[gameModeName].scoreboardColumnScoreTypes
-}
+	
+	if ( file.variantDefs[ variantId ].devName.len() != 0 && GetPlaylistVarString( playlist, "variant", "" ) == file.variantDefs[ variantId ].devName )
+	{
+		return true
+	}
 
-array<int> function GameMode_GetScoreboardColumnNumDigits( string gameModeName )
-{
-	Assert( gameModeName in file.gameModeDefs, "No MP Gametype specified in _settings.nut" )
-	return file.gameModeDefs[gameModeName].scoreboardColumnNumDigits
+	return GetPlaylistVarBool( playlist, file.variantDefs[ variantId ].playlist_flag, false )
 }
 
-void functionref(entity) function GameMode_GetCustomIntroAnnouncement( string gameModeName )
+bool function GameModeVariant_IsActive( int variantId )
 {
-	Assert( gameModeName in file.gameModeDefs, "No MP Gametype specified in _settings.nut" )
-	return file.gameModeDefs[gameModeName].customIntroAnnouncementFunc
+	return GameModeVariant_IsActiveForPlaylist( GetCurrentPlaylistName(), variantId )
 }
 
-string function LimitedTimeMode_GetName( string ltmName )
+int function GameModeVariant_GetActiveMode()
 {
-	Assert( ltmName in file.ltmDefs, "No LTM Gametype specified in _settings.nut" )
-	return file.ltmDefs[ltmName].name_localized
-}
+	foreach( variantId, modeSettings in file.variantDefs )
+	{
+		if ( GetCurrentPlaylistVarBool( file.variantDefs[ variantId ].playlist_flag, false ) )
+		{
+			return variantId
+		}
+	}
 
-asset function LimitedTimeMode_GetIcon( string ltmName )
-{
-	Assert( ltmName in file.ltmDefs, "No LTM Gametype specified in _settings.nut" )
-	return file.ltmDefs[ltmName].icon
+	return eGameModeVariants.invalid
 }
 
-string function LimitedTimeMode_GetPlaylistFlag( string ltmName )
-{
-	Assert( ltmName in file.ltmDefs, "No LTM Gametype specified in _settings.nut" )
-	return file.ltmDefs[ltmName].playlist_flag
-}
 
-bool function LimitedTimeMode_IsDefined( string ltmName )
-{
-	return (ltmName in file.ltmDefs)
-}
 
 
 
 
 void function GameMode_RunServerInits()
 {
-	Assert( GAMETYPE in file.gameModeDefs, "No MP Gametype specified in _settings.nut" )
-
-	foreach ( initFunc in file.gameModeDefs[GAMETYPE].serverInits )
+	Assert( GAMETYPE_ID in file.gameModeDefs, "No MP Gametype specified in _settings.nut" )
+	foreach ( initFunc in file.gameModeDefs[ GAMETYPE_ID ].serverInits )
 	{
 		initFunc()
 	}
+
+	int variantId = GameModeVariant_GetActiveMode()
+	if ( variantId != eGameModeVariants.invalid )
+	{
+		foreach( initFunc in file.variantDefs[ variantId ].serverInits )
+		{
+			initFunc()
+		}
+	}
 }
-
-
-void function GameMode_RunScoreboardInit()
-{
-	Assert( GAMETYPE in file.gameModeDefs, "No MP Gametype specified in _settings.nut" )
-	file.gameModeDefs[GAMETYPE].scoreboardInitFunc()
-}
-
 
 void function GameMode_RunClientInits()
 {
-	Assert( GAMETYPE in file.gameModeDefs, "No MP Gametype specified in _settings.nut" )
-
-	foreach ( initFunc in file.gameModeDefs[GAMETYPE].clientInits )
+	Assert( GAMETYPE_ID in file.gameModeDefs, "No MP Gametype specified in _settings.nut" )
+	foreach ( initFunc in file.gameModeDefs[ GAMETYPE_ID ].clientInits )
 	{
 		initFunc()
+	}
+
+	int variantId = GameModeVariant_GetActiveMode()
+	if ( variantId != eGameModeVariants.invalid )
+	{
+		foreach( initFunc in file.variantDefs[ variantId ].clientInits )
+		{
+			initFunc()
+		}
 	}
 }
 
 void function GameMode_RunSharedInits()
 {
-	Assert( GAMETYPE in file.gameModeDefs, "No MP Gametype specified in _settings.nut" )
-
-	foreach ( initFunc in file.gameModeDefs[GAMETYPE].sharedInits )
+	Assert( GAMETYPE_ID in file.gameModeDefs, "No MP Gametype specified in _settings.nut" )
+	foreach ( initFunc in file.gameModeDefs[ GAMETYPE_ID ].sharedInits )
 	{
 		initFunc()
+	}
+
+	int variantId = GameModeVariant_GetActiveMode()
+	if ( variantId != eGameModeVariants.invalid )
+	{
+		foreach( initFunc in file.variantDefs[ variantId ].sharedInits )
+		{
+			initFunc()
+		}
 	}
 }
 
 void function GameMode_VerifyModes()
 {
-	foreach ( gameModeName, gameModeData in file.gameModeDefs )
+	foreach ( gameModeId, gameModeData in file.gameModeDefs )
 	{
-		int gameModeId = GameMode_GetGameModeId( gameModeName )
-		bool foundGameModeIdString = false
-		foreach ( idString, gameModeEnumId in eGameModes )
-		{
-			if ( gameModeEnumId != gameModeId )
-				continue
+		Assert( gameModeId > eGameModes.invalid && gameModeId < eGameModes._count, "GAMEMODE not defined properly in eGameModes!" )
+	}
 
-			foundGameModeIdString = true
-			break
-		}
-		Assert( foundGameModeIdString, "GAMEMODE not defined properly in eGameModes!" )
-
-		GAMETYPE_TEXT[gameModeName] <- gameModeData.name_localized
-		GAMETYPE_DESC[gameModeName] <- gameModeData.desc_localized
-		
-		GAMETYPE_COLOR[gameModeName] <- gameModeData.color
-		
-		
-		
+	foreach ( variantId, variantDef in file.variantDefs )
+	{
+		Assert( variantId > eGameModeVariants.invalid && variantId < eGameModeVariants._count, "Variant not defined properly in eGameModeVariants" )
 	}
 }
 
-int function GameMode_GetGameModeId( string gameModeName )
+void function GameMode_VerifyActiveMode()
 {
-	if ( gameModeName in gameModesStringToIdMap )
-		return gameModesStringToIdMap[gameModeName]
+	Assert( GAMETYPE_ID in file.gameModeDefs, "Active gamemode is invalid" )
 
-	Assert( false, "GAMEMODE " + gameModeName + " not defined in gameModesStringToIdMap" )
-
-	return 0
+	bool hasDef = false
+	foreach( variantId, variantDef in file.variantDefs )
+	{
+		if ( GameModeVariant_IsActive( variantId ) )
+		{
+			Assert( !hasDef, "Multiple variants are set active!" )
+			Assert( variantDef.baseMode == GAMETYPE_ID, "Active variant is based on a different gamemode from the active mode!" )
+			hasDef = true
+		}
+	}
 }
 
-bool function GameMode_IsDefined( string gameModeName )
-{
-	return (gameModeName in file.gameModeDefs)
-}
-
-float function GameMode_GetLoadoutSelectTime()
-{
-	return GetCurrentPlaylistVarFloat( "pick_loadout_time", 5.0 )
-}
 
 bool function GameMode_AreRoundsEnabled()
 {
 	return GetCurrentPlaylistVarBool( "survival_rounds_enabled", false )
+}
+
+bool function GameMode_Rounds_IsWinBy2( string gameModeName )
+{
+	return GetCurrentPlaylistVarBool( "rounds_win_by_2_enabled", false )
+}
+
+int function GameMode_GetWinBy2MinScore( string gameModeName )
+{
+	return GetCurrentPlaylistVarInt( "rounds_win_by_2_enabled", 0 )
+}
+
+int function GameMode_GetWinBy2MaxTies( string gameModeName )
+{
+	return GetCurrentPlaylistVarInt( "rounds_win_by_2_enabled", 0 )
 }
 
 
@@ -1002,16 +1288,21 @@ bool function GameMode_DoesModeDisplayIconsForAllTeams( string mode )
 
 
 
-void function GameModes_DefaultCompletedResolutionCleanupFunc()
-{
-	Signal( clGlobal.levelEnt, "GameModes_CompletedResolutionCleanup" )
-}
 
 
 
 
-void function GameMode_OverrideCompletedResolutionCleanupFunc( void functionref() func )
-{
-	file.completedResolutionCleanupFunc = func
-}
+
+
+
+
+
+
+
+
+
+
+
+
+
 

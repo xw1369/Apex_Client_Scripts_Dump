@@ -57,12 +57,20 @@ void function ClRingWarning_Update()
 				RuiSetFloat( rui, "lethalTimeLeft", timeLeft )
 				RuiSetFloat( rui, "lethalTimeMax", DEATHFIELD_RING_LETHALITY_STATUS_DURATION )
 			}
-			RuiSetBool( rui, "lethalShouldWarn", shouldWarn && timeLeft > 0 )
+
+			bool lethalShouldWarn = ( shouldWarn && timeLeft > 0 )
+			RuiSetBool( rui, "lethalShouldWarn", lethalShouldWarn )
 
 
 		RuiSetBool( rui, "hideDeathFieldWarning", ( player.GetObserverMode() == OBS_MODE_ROAMING ) )
 		RuiTrackBool( rui, "hasDeathFieldImmunity", player, RUI_TRACK_SCRIPT_NETWORK_VAR_BOOL, GetNetworkedVariableIndex( "hasDeathFieldImmunity" ) )
 		RuiTrackFloat( rui, "deathfieldDistance", player, RUI_TRACK_DEATHFIELD_DISTANCE )
+
+
+			bool shouldShowMessage = !( Deathfield_GetDoesDeathfieldStartEnabled() && player.GetPlayerNetBool( "playerInPlane" ) )
+			RuiSetBool( rui, "damageShouldWarn", shouldShowMessage )
+
+
 	}
 }
 

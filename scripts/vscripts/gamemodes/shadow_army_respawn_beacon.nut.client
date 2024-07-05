@@ -32,7 +32,6 @@
 
 
 global function ShadowArmy_RespawnBeacon_Init
-global function ShadowArmy_RespawnBeacon_RegisterNetworking
 global function ShadowArmy_RespawnBeacon_GetLegendsWaitingToRespawnCount
 global function ShadowArmy_RespawnBeacon_CanBeaconBeUsed
 global function ShadowArmy_RespawnBeacon_CanBeaconBeUsedByPlayer
@@ -160,9 +159,6 @@ file
 
 void function ShadowArmy_RespawnBeacon_Init()
 {
-	if ( !IsShadowArmyGamemode() )
-		return
-
 
 
 
@@ -193,14 +189,13 @@ void function ShadowArmy_RespawnBeacon_Init()
 
 
 
+
+	ShadowArmy_RespawnBeacon_RegisterNetworking()
 }
 
 
 void function ShadowArmy_RespawnBeacon_RegisterNetworking()
 {
-	if ( !IsShadowArmyGamemode() )
-		return
-
 	
 	Remote_RegisterClientFunction( "ShadowArmy_RespawnBeacon_ServerCallback_RespawnBeaconOnUse", "entity", "entity" )
 	Remote_RegisterClientFunction( "ShadowArmy_RespawnBeacon_ServerCallback_ShowBeaconHint", "int", 0, eShadowArmyRespawnBeaconHintIndex._count )

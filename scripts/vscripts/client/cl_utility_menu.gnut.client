@@ -34,8 +34,6 @@ void function CLUtilityMenu_Init()
 {
 	file.menuColorCorrection = ColorCorrection_Register( MENU_COLOR_CORRECTION )
 
-	AddLocalPlayerFunc( SetDefaultBloomScale )
-
 	level.hudElements <- {}
 
 	
@@ -248,15 +246,6 @@ void function AddCallback_OnSettingsUpdated( void functionref() callbackFunc )
 {
 	Assert( !file.settingsUpdatedCallbacks.contains( callbackFunc ) )
 	file.settingsUpdatedCallbacks.append( callbackFunc )
-}
-
-
-void function SetDefaultBloomScale( entity player )
-{
-	if ( IsLobby() )
-		SetConVarFloat( "mat_bloomscale", 0.5 )
-	else
-		SetConVarFloat( "mat_bloomscale", 1.0 )
 }
 
 

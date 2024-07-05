@@ -112,6 +112,9 @@ void function ServerCallback_UpdateOverheadIconForNPC( entity guy )
 	if ( !IsAlive( guy ) )
 		return
 
+
+
+
 	thread FriendIconAddEntity_Thread( guy )
 }
 
@@ -222,8 +225,8 @@ void function OutOfBoundsDeadTime_Changed( entity player )
 	int gameState = GetGameState()
 
 	
-	bool isFiringRangeMode = GetCurrentPlaylistVarBool( "survival_firingrange", false )
-	bool isTraining = GetCurrentPlaylistVarBool( "survival_training", false )
+	bool isFiringRangeMode = GameModeVariant_IsActive( eGameModeVariants.SURVIVAL_FIRING_RANGE )
+	bool isTraining = GameModeVariant_IsActive( eGameModeVariants.SURVIVAL_TRAINING )
 	if ( !isFiringRangeMode && !isTraining && ( gameState < eGameState.Playing ))
 		return
 

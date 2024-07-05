@@ -8,6 +8,8 @@ global function Sh_Squads_Init
 
 
 
+
+
 global function Squads_GetMax
 global function Squads_GetSquadName
 global function Squads_GetSquadNameLong
@@ -188,12 +190,11 @@ vector function Squads_GetNonLinearSquadColor( int squadIndex, bool forceWinterE
 	bool skipNessie = false
 
 
-		skipNessie = WinterExpress_IsModeEnabled() || forceWinterExpress
+		skipNessie = GameModeVariant_IsActive( eGameModeVariants.SURVIVAL_WINTEREXPRESS ) || forceWinterExpress
 
 
 	if( squadIndex + TEAM_IMC == file.squadIdIsNessie && !skipNessie)
 		return GetKeyColor( COLORID_LTM_SQUAD_0_EASTEREGG )
-
 
 	array<vector> squad_colors = [
 		GetKeyColor( COLORID_LTM_SQUAD_0 ),
@@ -207,10 +208,45 @@ vector function Squads_GetNonLinearSquadColor( int squadIndex, bool forceWinterE
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 asset function Squads_GetSquadIcon( int squadIndex, bool forceWinterExpress = false )
 {
 
-		if( WinterExpress_IsModeEnabled() || forceWinterExpress )
+		if( GameModeVariant_IsActive( eGameModeVariants.SURVIVAL_WINTEREXPRESS ) || forceWinterExpress )
 			return WINTER_EXPRESS_SQUAD_ICONS[ squadIndex ]
 
 
@@ -225,7 +261,7 @@ asset function Squads_GetSquadIcon( int squadIndex, bool forceWinterExpress = fa
 string function Squads_GetSquadName( int squadIndex, bool forceWinterExpress = false )
 {
 
-		if( WinterExpress_IsModeEnabled() || forceWinterExpress  )
+		if( GameModeVariant_IsActive( eGameModeVariants.SURVIVAL_WINTEREXPRESS ) || forceWinterExpress )
 			return WINTER_EXPRESS_SQUAD_NAMES[ squadIndex ]
 
 
@@ -243,7 +279,7 @@ int function Squads_GetMax()
 string function Squads_GetSquadNameLong( int squadIndex, bool forceWinterExpress = false )
 {
 
-		if( WinterExpress_IsModeEnabled() || forceWinterExpress  )
+		if( GameModeVariant_IsActive( eGameModeVariants.SURVIVAL_WINTEREXPRESS ) || forceWinterExpress )
 			return WINTER_EXPRESS_SQUAD_NAMES_LONG[ squadIndex ]
 
 
@@ -271,7 +307,7 @@ void function Squads_SetCustomPlayerInfo( entity player )
 	int myAllianceOrTeam    = ( isUsingAlliances )? AllianceProximity_GetAllianceFromTeam( myTeam ): myTeam
 	bool sameAllianceOrTeam = allianceOrTeam == myAllianceOrTeam
 
-	if( !IsSurvivalMode() || ( IsSurvivalMode() && Survival_ShouldChangeTeamUI() ) )
+	if( !GameMode_IsActive( eGameModes.SURVIVAL ) || ( GameMode_IsActive( eGameModes.SURVIVAL ) && Survival_ShouldChangeTeamUI() ) )
 	{
 		vector color = Teams_GetTeamColor( team )
 

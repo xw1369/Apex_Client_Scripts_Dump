@@ -4,6 +4,7 @@ global function ClMainHud_Init
 
 global function InitChatHUD
 global function UpdateChatHUDVisibility
+global function SetChatHUDPosition
 
 global function MainHud_TurnOff_RUI
 
@@ -45,6 +46,8 @@ const float OFFHAND_ALERT_ICON_SCALE = 4.5
 
 const bool ALWAYS_SHOW_BOOST_MOBILITY_BAR = true
 
+global const int DEFAULT_TEXTCHAT_VERTICAL_OFFSET = -512
+
 
 global struct HudVisibilityStatus
 {
@@ -63,6 +66,9 @@ struct
 	var  rodeoRUI 
 	bool trackingDoF = false
 	bool onlyShowMinimap = false
+
+	bool hasInitChatHud = false
+	int chatVerticalOffset = DEFAULT_TEXTCHAT_VERTICAL_OFFSET
 } file
 
 void function ClMainHud_Init()
@@ -638,14 +644,55 @@ void function MainHud_TurnOff_RUI( entity cockpit, bool instant = false )
 void function HidePermanentHudTopo()
 {
 	RuiTopology_UpdatePos( clGlobal.topoFullscreenHudPermanent, <0, 0, 0>, <0, 0, 0>, <0, 0, 0> )
+
+	HUD_TogglePermanentHudsVisibility( false )
 }
 
 
 void function ShowPermanentHudTopo()
 {
 	UpdateFullscreenTopology( clGlobal.topoFullscreenHudPermanent, true )
+
+	HUD_TogglePermanentHudsVisibility( true )
 }
 
+
+void function HUD_TogglePermanentHudsVisibility( bool isVisible )
+{
+	var ultimateRui = GetUltimateRui()
+	var pilotRui = GetPilotRui()
+	var dpadMenuRui = GetDpadMenuRui()
+	var weaponRui = GetWeaponRui()
+	var tacticalRui = GetTacticalRui()
+	var compassRui = GetTacticalRui()
+	var gamestateRui = ClGameState_GetRui()
+
+	if ( ultimateRui != null )
+		RuiSetBool( ultimateRui, "isVisible", isVisible )
+
+	if ( pilotRui != null )
+		RuiSetBool( pilotRui, "isVisible", isVisible )
+
+	if ( dpadMenuRui != null )
+		RuiSetBool( dpadMenuRui, "isVisible", isVisible )
+
+	if ( weaponRui != null )
+		RuiSetBool( weaponRui, "isVisible", isVisible )
+
+	if ( tacticalRui != null )
+		RuiSetBool( tacticalRui, "isVisible", isVisible )
+
+	if ( compassRui != null )
+		RuiSetBool( compassRui, "isVisible", isVisible )
+
+	if ( gamestateRui != null )
+		RuiSetBool( gamestateRui, "isVisible", isVisible )
+
+	foreach ( unitFrame in GetTeamUnitFrames() )
+	{
+		RuiSetBool( unitFrame.rui, "isVisible", isVisible )
+	}
+}
 
 void function HideTargetInfoHudTopo()
 {
@@ -880,6 +927,12 @@ bool function ShouldHaveFarDoF( entity player )
 }
 
 
+
+bool function ShouldScriptHideHudInKillreplay()
+{
+	return GetCurrentPlaylistVarBool( "killreplay_hide_hud", false )
+}
+
 bool function ShouldHideHudForDeadPlayer( entity player )
 {
 	if ( IsAlive( player ) )
@@ -898,7 +951,7 @@ bool function ShouldHideHudForDeadPlayer( entity player )
 
 	if ( IsWatchingKillReplay() )
 	{
-		if ( GetCurrentPlaylistVarBool( "killreplay_hide_hud", true ) )
+		if ( ShouldScriptHideHudInKillreplay() )
 			return false
 	}
 	else
@@ -916,11 +969,8 @@ bool function ShouldMainHudBeVisible( entity player )
 {
 	int ceFlags = player.GetCinematicEventFlags()
 
-	if ( IsWatchingKillReplay() )
-	{
-		if ( GetCurrentPlaylistVarBool( "killreplay_hide_hud", true ) )
-			return false
-	}
+	if ( IsWatchingKillReplay() && ShouldScriptHideHudInKillreplay() )
+		return false
 
 	if ( IsBitFlagSet( ceFlags, CE_FLAG_EMBARK ) )
 		return false
@@ -987,6 +1037,7 @@ bool function ShouldMainHudBeVisible( entity player )
 		case eGameState.WinnerDetermined:
 		case eGameState.Resolution:
 		case eGameState.Postmatch:
+			return IsWatchingKillReplay() && IsReplayRoundWinning() && !ShouldScriptHideHudInKillreplay()
 			return false
 	}
 
@@ -1040,7 +1091,7 @@ bool function ShouldPermanentHudBeVisible( entity player )
 	if ( IsViewingSquadSummary() || IsViewingDeathRecap() )
 		return false
 
-	if ( IsWatchingKillReplay() && GetCurrentPlaylistVarBool( "killreplay_hide_hud", true ) )
+	if ( IsWatchingKillReplay() && ShouldScriptHideHudInKillreplay() )
 		return false
 
 	
@@ -1069,7 +1120,7 @@ bool function ShouldPermanentHudBeVisible( entity player )
 		case eGameState.WinnerDetermined:
 		case eGameState.Resolution:
 		case eGameState.Postmatch:
-			return false
+			return IsWatchingKillReplay() && IsReplayRoundWinning() && !ShouldScriptHideHudInKillreplay()
 	}
 
 	if ( Scoreboard_IsVisible() )
@@ -1086,7 +1137,7 @@ bool function ShouldPermanentHudBeVisible( entity player )
 			return false
 	}
 
-	if ( ShouldHideHudForDeadPlayer( player ) && !Control_IsModeEnabled() )
+	if ( ShouldHideHudForDeadPlayer( player ) && !GameMode_IsActive( eGameModes.CONTROL ) )
 		return false
 
 #if DEV
@@ -1127,7 +1178,14 @@ void function InitChatHUD()
 	int width           = 630
 	int height          = 200
 
-	Hud_SetSize( HudElement( "IngameTextChat" ), width * resMultiplier, height * resMultiplier )
+	var chat = HudElement( "IngameTextChat" )
+	Hud_SetSize( chat, width * resMultiplier, height * resMultiplier )
+
+	file.hasInitChatHud = true
+
+	
+	if ( Hud_GetY( chat ) != file.chatVerticalOffset )
+		SetChatHUDPosition( file.chatVerticalOffset )
 }
 
 
@@ -1152,6 +1210,20 @@ void function UpdateChatHUDVisibility()
 		Hud_Show( hint )
 }
 
+void function SetChatHUDPosition( int yPosition )
+{
+	if ( IsLobby() || clGlobal.isMenuOpen )
+		return
+
+	file.chatVerticalOffset = yPosition
+
+	if ( !file.hasInitChatHud )
+		return
+
+	var chat = HudElement( "IngameTextChat" )
+	Hud_SetY( chat, yPosition )
+}
+
 
 bool function IsWatchingReplay()
 {
@@ -1167,20 +1239,7 @@ bool function IsWatchingReplay()
 
 void function SetAllHudVisExceptMinimap( bool toggle )
 {
-	RuiSetBool( GetPilotRui(), "isVisible", toggle )
-	RuiSetBool( ClGameState_GetRui(), "isVisible", toggle )
-	RuiSetBool( GetDpadMenuRui(), "isVisible", toggle )
-	RuiSetBool( GetWeaponRui(), "isVisible", toggle )
-	RuiSetBool( GetTacticalRui(), "isVisible", toggle )
-	RuiSetBool( GetUltimateRui(), "isVisible", toggle )
-
-	foreach ( unitFrame in GetTeamUnitFrames() )
-	{
-		RuiSetBool( unitFrame.rui, "isVisible", toggle )
-	}
-
-	if ( GetCompassRui() != null )
-		RuiSetBool( GetCompassRui(), "isVisible", toggle )
+	HUD_TogglePermanentHudsVisibility( toggle )
 
 	Obituary_SetEnabled( toggle )
 	Obituary_ClearObituary()
@@ -1190,20 +1249,7 @@ void function SetAllHudVisExceptMinimap( bool toggle )
 
 void function Dev_SetDefaultHUD( bool toggle )
 {
-	RuiSetBool( GetPilotRui(), "isVisible", toggle )
-	RuiSetBool( ClGameState_GetRui(), "isVisible", toggle )
-	RuiSetBool( GetDpadMenuRui(), "isVisible", toggle )
-	RuiSetBool( GetWeaponRui(), "isVisible", toggle )
-	RuiSetBool( GetTacticalRui(), "isVisible", toggle )
-	RuiSetBool( GetUltimateRui(), "isVisible", toggle )
-
-	foreach ( unitFrame in GetTeamUnitFrames() )
-	{
-		RuiSetBool( unitFrame.rui, "isVisible", toggle )
-	}
-
-	if ( GetCompassRui() != null )
-		RuiSetBool( GetCompassRui(), "isVisible", toggle )
+	HUD_TogglePermanentHudsVisibility( toggle )
 }
 #endif
 

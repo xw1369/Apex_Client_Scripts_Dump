@@ -2,7 +2,6 @@
 
 global function GoldenHorse_Init
 
-global function IsGoldenHorse
 global function IsGoldenHorse_FR
 global function GoldenHorse_TicksEnabled
 global function GoldenHorse_SwordCarePackageEnabled
@@ -28,7 +27,6 @@ global function GoldenHorse_UpdateLootHighlight
 
 
 
-const string PVAR_GOLDEN_HORSE_ENABLED = "is_golden_horse"
 const string PVAR_GOLDEN_HORSE_FR_ENABLED = "is_golden_horse_fr"
 const string PVAR_GOLDEN_HORSE_TICKS_ENABLED = "golden_horse_ticks_enabled"
 const string PVAR_GOLDEN_HORSE_SWORD_SPAWNS_ENABLED = "golden_horse_swords_enabled"
@@ -79,12 +77,6 @@ struct
 
 } file
 
-
-bool function IsGoldenHorse()
-{
-	return GetCurrentPlaylistVarBool( PVAR_GOLDEN_HORSE_ENABLED, false )
-}
-
 bool function IsGoldenHorse_FR()
 {
 	return GetCurrentPlaylistVarBool( PVAR_GOLDEN_HORSE_FR_ENABLED, false )
@@ -92,17 +84,17 @@ bool function IsGoldenHorse_FR()
 
 bool function GoldenHorse_SwordCarePackageEnabled()
 {
-	return IsGoldenHorse() && GetCurrentPlaylistVarBool( PVAR_GOLDEN_HORSE_SWORD_CAREPACKAGE_ENABLED, true )
+	return GetCurrentPlaylistVarBool( PVAR_GOLDEN_HORSE_SWORD_CAREPACKAGE_ENABLED, true )
 }
 
 bool function GoldenHorse_ModifyCarePackageSpawnDistance()
 {
-	return IsGoldenHorse() && GetCurrentPlaylistVarBool( PVAR_GOLDEN_HORSE_CAREPACKAGE_DIST_ENABLED, true )
+	return GetCurrentPlaylistVarBool( PVAR_GOLDEN_HORSE_CAREPACKAGE_DIST_ENABLED, true )
 }
 
 bool function GoldenHorse_TicksEnabled()
 {
-	return IsGoldenHorse() && GetCurrentPlaylistVarBool( PVAR_GOLDEN_HORSE_TICKS_ENABLED, true )
+	return GetCurrentPlaylistVarBool( PVAR_GOLDEN_HORSE_TICKS_ENABLED, true )
 }
 
 bool function GoldenHorse_DebugTicks()
@@ -122,9 +114,6 @@ bool function GoldenHorse_DebugSwordSpawns()
 
 void function GoldenHorse_Init()
 {
-	if ( !IsGoldenHorse() )
-		return
-
 
 
 
@@ -488,7 +477,7 @@ void function GoldenHorse_DestroyLootTickMarkers()
 
 string function GoldenHorse_UpdateLootHighlight( entity prop, string ref, int tier, string highlight )
 {
-	if ( !IsGoldenHorse() )
+	if ( !GameModeVariant_IsActive( eGameModeVariants.SURVIVAL_GOLDEN_HORSE ) )
 		return highlight
 
 	if ( ref == "hopup_golden_horse_green" )

@@ -21,6 +21,7 @@ global function SonarShared_Init
 
 
 
+
 global function SonarPulse
 global function ServerCallback_SonarPulseFromPosition
 global function ServerCallback_SonarPulseConeFromPosition
@@ -35,6 +36,7 @@ const asset FX_HEAL_TARGET = $"P_ar_target_ally"
 
 struct
 {
+
 
 
 
@@ -137,6 +139,38 @@ void function AddRemoveSonarOverviewScanRUI( entity highlightEnt, int oldContext
 		ReconScan_RemoveHudForTarget( GetLocalViewPlayer(), highlightEnt )
 	}
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

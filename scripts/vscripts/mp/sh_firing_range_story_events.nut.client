@@ -41,7 +41,7 @@ void function ShFiringRangeStoryEvents_Init()
 	if ( GetMapName() != "mp_rr_canyonlands_staging_mu1" ) 
 		return
 
-	if ( !IsFiringRangeGameMode() )
+	if ( !GameModeVariant_IsActive( eGameModeVariants.SURVIVAL_FIRING_RANGE ) )
 		return
 
 	PrecacheScriptString( BTS_DOOR_SCRIPT_NAME )

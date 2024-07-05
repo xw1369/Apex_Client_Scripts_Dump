@@ -19,8 +19,11 @@ global function RegisterAccumulatedStat_Int
 global function RegisterVariableStat_Int
 global function RegisterExpensiveCalculatedStat_Int
 global function RegisterCachedCalculatedStat_Int
+global function RegisterBitfieldStat_Int
 global function RegisterStatEnumStruct
 global function HasStatCachingOptimizations
+
+
 
 
 
@@ -70,6 +73,7 @@ global enum eStatBehavior
 	CALCULATED, 
 	ACCUMULATED, 
 	VARIABLE, 
+	BITFIELD, 
 }
 
 
@@ -88,6 +92,13 @@ global enum eStatGetWhen
 {
 	CURRENT,
 	START_OF_CURRENT_MATCH,
+}
+
+global enum eStatFetchMode
+{
+	DEFAULT,
+	FORCE_NO_CACHE,
+	BITFIELD_RAW,
 }
 
 
@@ -305,7 +316,7 @@ bool function HasStatCachingOptimizations()
 
 
 
-int function GetStat_Int( entity player, StatEntry entry, int when = eStatGetWhen.CURRENT, bool forceNoCache = false )
+int function GetStat_Int( entity player, StatEntry entry, int when = eStatGetWhen.CURRENT, int fetchMode = eStatFetchMode.DEFAULT )
 {
 
 
@@ -337,9 +348,9 @@ int function GetStat_Int( entity player, StatEntry entry, int when = eStatGetWhe
 			{
 				foreach ( CalcStatCache calcStat in fileLevel.calculatedStatsCache[player] )
 				{
-					if ( !forceNoCache && calcStat.when == when && calcStat.statRef == entry.persistenceFullKey_Current && unixTime <= calcStat.timeStamp + fileLevel.calculatedStatsCacheDurationSec )
+					if ( fetchMode == eStatFetchMode.DEFAULT && calcStat.when == when && calcStat.statRef == entry.persistenceFullKey_Current && unixTime <= calcStat.timeStamp + fileLevel.calculatedStatsCacheDurationSec )
 						return calcStat.value
-					else if ( calcStat.when == when && calcStat.statRef == entry.persistenceFullKey_Current && ( unixTime > calcStat.timeStamp + fileLevel.calculatedStatsCacheDurationSec || forceNoCache ) ) 
+					else if ( calcStat.when == when && calcStat.statRef == entry.persistenceFullKey_Current && ( unixTime > calcStat.timeStamp + fileLevel.calculatedStatsCacheDurationSec || fetchMode == eStatFetchMode.FORCE_NO_CACHE  ) ) 
 						fileLevel.calculatedStatsCache[player].fastremovebyvalue( calcStat )
 				}
 
@@ -374,12 +385,14 @@ int function GetStat_Int( entity player, StatEntry entry, int when = eStatGetWhe
 			return entry.calcFunc_Int( player, GetCalcSourceEntriesFromEntry( entry ), when )
 	}
 
+	if ( entry.behavior == eStatBehavior.BITFIELD && fetchMode != eStatFetchMode.BITFIELD_RAW )
+		return entry.calcFunc_Int( player, GetCalcSourceEntriesFromEntry( entry ), when )
+
 #if DEV
 		
 		if ( DEV_ShouldIgnorePersistence() )
 			return 0
 #endif
-
 
 
 
@@ -589,6 +602,21 @@ string function GetStatTemplateDebugName( StatTemplate template )
 
 	return format( "stats%s.%s", sesPart, template.fieldName )
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1196,15 +1224,8 @@ StatTemplate function RegisterVariableStat_Int( StatEnumStruct ornull enumStruct
 
 
 
-
-StatTemplate function InternalRegisterCalculatedStatCommon( StatEnumStruct ornull enumStructOrNull, string fieldName, bool writeImmediately, bool shouldCache,
-		StatCalcFuncInfo functionref( StatEntry, array<StatTemplate> ) setupFunc, array<StatTemplate> sourceTemplates, int gameMode )
+void function InternalRegisterCalcFunc( StatTemplate stat, StatCalcFuncInfo functionref( StatEntry, array<StatTemplate> ) setupFunc, array<StatTemplate> sourceTemplates )
 {
-	StatTemplate stat = InternalRegisterStatCommon( enumStructOrNull, fieldName, eStatType.INT, eStatBehavior.CALCULATED, writeImmediately, shouldCache, gameMode )
-
-	
-	
-
 	foreach( StatEntry entry in stat.allEntries )
 	{
 		StatCalcFuncInfo calcInfo = setupFunc( entry, sourceTemplates )
@@ -1223,6 +1244,17 @@ StatTemplate function InternalRegisterCalculatedStatCommon( StatEnumStruct ornul
 			}
 		}
 	}
+}
+
+
+
+
+StatTemplate function InternalRegisterCalculatedStatCommon( StatEnumStruct ornull enumStructOrNull, string fieldName, bool writeImmediately, bool shouldCache,
+		StatCalcFuncInfo functionref( StatEntry, array<StatTemplate> ) setupFunc, array<StatTemplate> sourceTemplates, int gameMode )
+{
+	StatTemplate stat = InternalRegisterStatCommon( enumStructOrNull, fieldName, eStatType.INT, eStatBehavior.CALCULATED, writeImmediately, shouldCache, gameMode )
+
+	InternalRegisterCalcFunc( stat, setupFunc, sourceTemplates )
 
 	return stat
 }
@@ -1243,6 +1275,18 @@ StatTemplate function RegisterCachedCalculatedStat_Int( StatEnumStruct ornull en
 		StatCalcFuncInfo functionref( StatEntry, array<StatTemplate> ) setupFunc, array<StatTemplate> sourceTemplates, int gameMode )
 {
 	return InternalRegisterCalculatedStatCommon( enumStructOrNull, fieldName, writeImmediately, true, setupFunc, sourceTemplates, gameMode )
+}
+
+
+
+StatTemplate function RegisterBitfieldStat_Int( StatEnumStruct ornull enumStructOrNull, string fieldName, bool writeImmediately,
+		StatCalcFuncInfo functionref( StatEntry, array<StatTemplate> ) setupFunc, array<StatTemplate> sourceTemplates, int gameMode )
+{
+	StatTemplate stat = InternalRegisterStatCommon( enumStructOrNull, fieldName, eStatType.INT, eStatBehavior.BITFIELD, writeImmediately, false, gameMode )
+
+	InternalRegisterCalcFunc( stat, setupFunc, sourceTemplates )
+
+	return stat
 }
 
 

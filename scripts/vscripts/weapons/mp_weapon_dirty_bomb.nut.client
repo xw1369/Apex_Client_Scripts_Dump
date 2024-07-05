@@ -25,6 +25,7 @@ const int DIRTY_BOMB_MAX_GAS_CANISTERS = 6
 const string DIRTY_BOMB_WARNING_SOUND = "weapon_vortex_gun_explosivewarningbeep"
 
 
+global const string DIRTY_BOMB_CLOUD_HOST_TARGETNAME = "caustic_trap_cloud_host"
 const int DIRTY_BOMB_HEALTH = 150
 const float DIRTY_BOMB_CLOUD_LINGER_TIME = 2.0
 const asset DIRTY_BOMB_CANISTER_EXPLODE_FX = $"P_gastrap_destroyed"
@@ -49,7 +50,7 @@ const vector DIRTY_BOMB_BOUND_MAXS = <8, 8, 8>
 const vector DIRTY_BOMB_PLACEMENT_TRACE_OFFSET = <0, 0, 128>
 const float DIRTY_BOMB_ANGLE_LIMIT = 0.55
 const float DIRTY_BOMB_PLACEMENT_MAX_HEIGHT_DELTA = 20.0
-const float DIRTY_BOMB_TRACE_HEIGHT_END_OFFSET = 24
+const float DIRTY_BOMB_TRACE_HEIGHT_END_OFFSET = 36
 
 const bool CAUSTIC_DEBUG_DRAW_PLACEMENT = false
 
@@ -87,6 +88,14 @@ void function MpWeaponDirtyBomb_Init()
 		AddCallback_MinimapEntShouldCreateCheck_Scriptname( DIRTY_BOMB_TARGETNAME, Minimap_DontCreateRuisForEnemies )
 		RegisterMinimapPackage( "prop_script", eMinimapObject_prop_script.DIRTY_BOMB, MINIMAP_OBJECT_RUI, MinimapPackage_DirtyBomb, FULLMAP_OBJECT_RUI, MinimapPackage_DirtyBomb )
 
+
+
+
+
+
+
+
+
 }
 
 
@@ -99,6 +108,9 @@ void function DirtyBombPrecache()
 	RegisterSignal( "DirtyBomb_Ready" )
 
 	PrecacheScriptString( DIRTY_BOMB_TARGETNAME )
+
+		PrecacheScriptString( DIRTY_BOMB_CLOUD_HOST_TARGETNAME )
+
 
 	PrecacheParticleSystem( DIRTY_BOMB_CANISTER_EXP_FX )
 	PrecacheParticleSystem( DIRTY_BOMB_CANISTER_FX_ALL )
@@ -1079,12 +1091,51 @@ void function DirtyBombPrecache()
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 void function DirtyBomb_OnPropScriptCreated( entity ent )
 {
 	switch ( ent.GetScriptName() )
 	{
 		case DIRTY_BOMB_TARGETNAME:
 			AddEntityCallback_GetUseEntOverrideText( ent, DirtyBomb_UseTextOverride )
+			break
+
+		case DIRTY_BOMB_CLOUD_HOST_TARGETNAME:
+			SetAllowForKillreplayProjectileCam( ent )
+			SetCustomKillreplayChaseCamFromWeaponClass( ent, CAUSTIC_DIRTY_BOMB_WEAPON_CLASS_NAME )
+
 			break
 	}
 }

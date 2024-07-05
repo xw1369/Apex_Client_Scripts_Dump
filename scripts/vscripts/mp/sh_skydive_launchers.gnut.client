@@ -82,6 +82,12 @@ enum eSkydiveLauncherVelocityType
 
 
 
+
+
+
+
+
+
 struct
 {
 
@@ -111,6 +117,8 @@ global asset FX_SKYDIVE_LAUNCHER_GRAVITY_MINI_IDLE = $""
 
 
 
+asset HORIZONTAL_LAUNCHER_LAUNCH_SEQUENCE = $"animseq/props/district_horizontal_launcher/district_horizontal_launcher_fireA.rseq"
+
 void function Sh_SkydiveLaunchers_Init()
 {
 
@@ -134,6 +142,94 @@ void function Sh_SkydiveLaunchers_Init()
 
 	file.holsterWeaponsOnAscent = GetCurrentPlaylistVarBool( "skydive_launchers_holster_weapons", true )
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1028,6 +1124,26 @@ void function OnSkydiveLauncherCreated( entity trigger )
 			ambientFxName = "ZipRail_Launcher_Idle_Loop"
 			break
 
+
+		case eSkydiveLauncherType.DEFAULT:
+			{
+				entity launcherModel = trigger.GetOwner()
+				if ( IsValid( launcherModel ) )
+				{
+					string launcherName = launcherModel.GetScriptName()
+					if ( launcherName == "district_launcher_horizontal" )
+					{
+						ambientFxName = "District_GravityMini_LaunchPad_Idle_Loop_Horizontal_3p"
+						break
+					}
+					if ( launcherName == "district_launcher_vertical" )
+					{
+						ambientFxName = "District_GravityMini_LaunchPad_Idle_Loop_Vertical_3p"
+						break
+					}
+				}
+			}
+
 		default:
 			ambientFxName = "WXpress_Emit_LaunchPad_Loop"
 			break
@@ -1058,6 +1174,25 @@ void function OnSkydiveLauncherCreated( entity trigger )
 		switch( skydiveLauncherType )
 		{
 			case eSkydiveLauncherType.DEFAULT:
+			{
+				entity launcherModel = trigger.GetOwner()
+				if ( IsValid( launcherModel ) )
+				{
+					string launcherName = launcherModel.GetScriptName()
+					if ( launcherName == "district_launcher_horizontal" )
+					{
+						sfxLaunchPlayer1p = "District_GravityMini_LaunchPad_Horizontal_1p"
+						sfxAirborneMvmt1p = "District_GravityMini_LaunchPad_AirborneMvmt_Horizontal_3p"
+						break
+					}
+					if ( launcherName == "district_launcher_vertical" )
+					{
+						sfxLaunchPlayer1p = "District_GravityMini_LaunchPad_Vertical_1p"
+						sfxAirborneMvmt1p = "JumpPad_Ascent_Windrush"
+						break
+					}
+				}
+			}
 			case eSkydiveLauncherType.SHORT_HEIGHT:
 				sfxLaunchPlayer1p = "WXpress_LaunchPad"
 				sfxAirborneMvmt1p = "JumpPad_Ascent_Windrush"

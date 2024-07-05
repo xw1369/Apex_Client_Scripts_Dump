@@ -138,6 +138,10 @@ void function UpgradeSelectionMenu_Open()
 	if( !UpgradeCore_ShowHudUpgradeSelection() )
 		return
 
+	entity player = GetLocalViewPlayer()
+	if( IsValid( player ) && ( player.ContextAction_IsMeleeExecution() || player.ContextAction_IsMeleeExecutionTarget() ) )
+		return
+
 	Announcements_SetVisible(false)
 
 	RunUIScript( "ClientToUi_SetUpgradeSelectionOpen", true )
@@ -152,7 +156,6 @@ void function UpgradeSelectionMenu_Open()
 	inputContext.hudInputFlags = (HIF_BLOCK_WAYPOINT_FOCUS)
 	HudInput_PushContext( inputContext )
 
-	entity player = GetLocalViewPlayer()
 	thread UpgradeSelectionMenu_ListenForDamageThread( player )
 	UpgradeSelectionMenu_UpdateChoices( player )
 }
