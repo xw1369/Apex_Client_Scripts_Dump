@@ -76,7 +76,9 @@ const asset BREACH_AIM_FX = $"P_wrp_trl_end"
 
 const asset BREACH_FX_AR_DIR = $"P_ar_ping_wall_dir_CP"
 const asset BREACH_FX_AR_INVALID = $"P_mm_breach_arc_end_fail"
-const asset BREACH_RANGE_FX = $"P_ar_zipline_range"
+
+
+
 
 const string FUNC_BREACH_FAILED = "ServerToClient_PhaseBreachPortalCancelled"
 const string PLACEMENT_FAILED_HINT = "#PHASE_BREACH_CANT_PLACE"
@@ -155,7 +157,9 @@ void function MpWeaponPhaseBreach_Init()
 	PrecacheParticleSystem( BREACH_STARTPOINT_FX )
 	PrecacheParticleSystem( BREACH_FX_AR_DIR )
 	PrecacheParticleSystem( BREACH_FX_AR_INVALID )
-	PrecacheParticleSystem( BREACH_RANGE_FX )
+
+
+
 
 
 	PrecacheScriptString( "portal_marker" )
@@ -345,6 +349,15 @@ var function OnWeaponPrimaryAttackAnimEvent_ability_phase_breach( entity weapon,
 
 	return 0
 }
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1425,19 +1438,21 @@ void function PhaseBreachPlacement_Thread( entity weapon )
 	
 	int wallDownFXID	= GetParticleSystemIndex(BREACH_FX_AR_DIR )
 
-	
-	const int OFFSET_CORRECTION = 290
-	int rangeId = GetParticleSystemIndex( BREACH_RANGE_FX )
-	int rangeVfx  = StartParticleEffectOnEntity( player, rangeId, FX_PATTACH_ABSORIGIN_FOLLOW, ATTACHMENTID_INVALID )
-	EffectSetControlPointVector( rangeVfx, 1, <PHASE_BREACH_MAX_2D_DIST_DEFAULT + OFFSET_CORRECTION, 0, 0> )
 
-	OnThreadEnd(
-		function() : ( rangeVfx )
-		{
-			if ( EffectDoesExist( rangeVfx ) )
-				EffectStop( rangeVfx, false, true )
-		}
-	)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 	while ( true )
 	{

@@ -3504,26 +3504,6 @@ bool function IsLoadoutSlotLocked( EHI playerEHI, LoadoutEntry entry )
 			return false
 #endif
 
-	
-	
-	if ( !entry.isAllowedToChangeDuringMatch )
-	{
-
-		if ( GetCurrentPlaylistVarBool( "winter_express_loadout_changeable_at_anytime", false ) )
-			return false
-
-
-
-		if ( GetCurrentPlaylistVarBool( "control_loadout_changeable_at_anytime", false ) )
-			return false
-
-
-
-		if ( GetCurrentPlaylistVarBool( "freedm_loadout_changeable_at_anytime", false ) )
-			return false
-
-	}
-
 	return entry.isSlotLocked( playerEHI )
 }
 

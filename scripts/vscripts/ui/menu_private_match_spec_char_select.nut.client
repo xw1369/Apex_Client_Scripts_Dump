@@ -480,7 +480,7 @@ void function TryEnablePrivateMatchSpectCharSelectMenu( entity player )
 
 	bool isShowingAllSquadsGladCardIntro = GetCurrentPlaylistVarBool( "survival_enable_all_squads_intro", false )
 	bool isShowingSquadGladCardIntro = GetCurrentPlaylistVarBool( "survival_enable_squad_intro", true )
-	bool isShowingChampGladCardIntro = GetCurrentPlaylistVarBool( "survival_enable_gladiator_intros", true )
+	bool isShowingChampGladCardIntro = GetCurrentPlaylistVarBool( "survival_enable_gladiator_intros", true ) && GetConVarBool( "show_champion_screen" )
 	bool isShowingMVPGladCardIntro = GetCurrentPlaylistVarBool( "survival_enable_mvp_intros", false )
 
 

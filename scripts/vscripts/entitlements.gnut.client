@@ -899,14 +899,6 @@ asset function Entitlement_GetSKUStoreApexCoinCardBaseImage( ItemFlavor flavor )
 
 
 
-
-
-
-
-
-
-
-
 void function EntitlementRegister( ItemFlavor flavor )
 {
 	int entitlementType = Entitlement_GetEntitlementType( flavor )

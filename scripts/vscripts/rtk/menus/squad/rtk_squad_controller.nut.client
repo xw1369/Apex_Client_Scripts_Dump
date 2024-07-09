@@ -425,7 +425,7 @@ void function UICallback_RTKToggleMutePings( string path, int index )
 		{
 			if( data.uid == uid && data.eaid == eaid )
 			{
-				player = data.player
+				player = FromEHI( data.ehi )
 				break
 			}
 		}

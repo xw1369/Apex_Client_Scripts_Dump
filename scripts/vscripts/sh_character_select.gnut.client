@@ -140,6 +140,7 @@ global enum eNewCharacterSelectMenuState
 
 global function CharacterSelectMenu_Init
 global function IsCharacterReselectEnabled
+global function IsCharacterReselectAllowedNow
 
 
 
@@ -1626,7 +1627,7 @@ void function _OpenCharacterSelectMenu( var menu )
 	if ( !fileLevel.isBrowseMode )
 		FooterRui()
 
-	if( IsCharacterReselectEnabled() )
+	if( IsCharacterReselectAllowedNow() )
 		Remote_ServerCallFunction( REMOTE_SERVERCALL_ON_RESELECT_MENU_OPEN )
 
 
@@ -5160,10 +5161,27 @@ void function SetCharacterSelectSceneForChampionSquad()
 
 
 
+
+
+
+
+
+
+
+
+
+
 bool function IsCharacterReselectEnabled()
 {
 	return GetCurrentPlaylistVarBool( "character_reselect_enabled", false )
 }
+
+
+bool function IsCharacterReselectAllowedNow()
+{
+	return IsCharacterReselectEnabled() && GamePlayingOrSuddenDeath()
+}
+
 
 #if DEV
 void function Dev_CharacterSelectClearCamera()
