@@ -14,6 +14,7 @@ global const string CMDNAME_CAR_AMMO_SWAP = "ClientCallback_CarHandleAmmoSwap"
 
 
 
+
 global function Weapon_CAR_TryApplyAmmoSwap
 
 
@@ -29,6 +30,7 @@ const VFX_COCKPIT_HEALTH = $"VFX_NAME_"
 
 void function MpWeaponCar_Init()
 {
+
 
 
 
@@ -178,6 +180,27 @@ void function Weapon_CAR_TryApplyAmmoSwap( entity player, entity weapon )
 
 	Remote_ServerCallFunction( CMDNAME_CAR_AMMO_SWAP )
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

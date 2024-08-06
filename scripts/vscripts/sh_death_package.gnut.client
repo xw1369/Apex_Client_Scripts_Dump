@@ -62,6 +62,10 @@ global const GRENADE_INDICATOR_PHASE_DOOR = $"mdl/hud/grenade_indicator/grenade_
 global const GRENADE_MODEL = $"mdl/weapons/grenades/m20_f_grenade.rmdl"
 global const DAMAGEARROW_MODEL = $"mdl/weapons/bullets/damage_arrow.rmdl"
 
+
+
+
+
 global enum eThreatIndicatorID
 {
 	GRENADE_INDICATOR_FRAG_MODEL,
@@ -78,6 +82,9 @@ global enum eThreatIndicatorID
 	GRENADE_INDICATOR_EMP_MODEL,
 	GRENADE_INDICATOR_CLUSTER_BOMB_MODEL,
 	GRENADE_INDICATOR_SKULL_MODEL,
+
+
+
 
 		GRENADE_INDICATOR_PHASE_DOOR
 
@@ -154,6 +161,9 @@ void function Death_Package_Init()
 	PrecacheParticleSystem( $"P_headshot_pilot" )
 	PrecacheParticleSystem( $"P_headshot_pilot_robot" )
 	PrecacheParticleSystem( $"xo_exp_death" )
+
+
+
 
 
 

@@ -153,11 +153,6 @@ float function GetPlayerExtraShieldsDuration( entity player )
 
 
 
-
-
-
-
-
 void function ExtraShields_OnExtraShieldDurationChanged( entity player, float newDuration )
 {
 	if ( player != GetLocalViewPlayer() )

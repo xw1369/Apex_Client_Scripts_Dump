@@ -279,9 +279,6 @@ bool function OnWeaponAttemptOffhandSwitch_ability_panic_button( entity weapon )
 
 
 
-
-
-
 var function OnWeaponPrimaryAttack_ability_panic_button( entity weapon, WeaponPrimaryAttackParams attackParams )
 {
 	entity weaponOwner = weapon.GetWeaponOwner()

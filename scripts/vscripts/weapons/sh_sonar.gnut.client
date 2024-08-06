@@ -107,12 +107,12 @@ void function AddRemoveSonarHealthRUI( entity highlightEnt, int oldContext, int 
 
 	if ( newContext == GetHighlightId( HIGHLIGHT_BLOODHOUND_SONAR ) )
 	{
-		ReconScan_ShowHudForTarget( GetLocalViewPlayer(), highlightEnt )
+		ReconScan_ShowHudForTarget( GetLocalViewPlayer(), highlightEnt, eShowHealthbarMode.ALWAYS, true )
 	}
 
 	if ( oldContext == GetHighlightId( HIGHLIGHT_BLOODHOUND_SONAR ) )
 	{
-		ReconScan_RemoveHudForTarget( GetLocalViewPlayer(), highlightEnt )
+		ReconScan_RemoveHudForTarget( GetLocalViewPlayer(), highlightEnt, eShowHealthbarMode.ALWAYS )
 	}
 }
 
@@ -131,14 +131,19 @@ void function AddRemoveSonarOverviewScanRUI( entity highlightEnt, int oldContext
 
 	if ( newContext == GetHighlightId( HIGHLIGHT_BLOODHOUND_SONAR ) )
 	{
-		ReconScan_ShowHudForTarget( GetLocalViewPlayer(), highlightEnt, true, $"ui/recon_overview_scan_target.rpak" )
+		ReconScan_ShowHudForTarget( GetLocalViewPlayer(), highlightEnt, eShowHealthbarMode.ALWAYS, true, $"ui/recon_overview_scan_target.rpak" )
 	}
 
 	if ( oldContext == GetHighlightId( HIGHLIGHT_BLOODHOUND_SONAR ) )
 	{
-		ReconScan_RemoveHudForTarget( GetLocalViewPlayer(), highlightEnt )
+		ReconScan_RemoveHudForTarget( GetLocalViewPlayer(), highlightEnt, eShowHealthbarMode.ALWAYS )
 	}
 }
+
+
+
+
+
 
 
 
@@ -610,6 +615,13 @@ void function EntitySonarStatusEnabled( entity ent, int statusEffect, bool actua
 	ManageHighlightEntity( ent )
 
 	EntitySonarDetectedEnabled( ent, statusEffect, actuallyChanged )
+
+
+
+
+
+
+
 }
 
 void function EntitySonarStatusDisabled( entity ent, int statusEffect, bool actuallyChanged )

@@ -200,6 +200,7 @@ global struct MilestoneEventGrantReward
 
 
 
+
 struct FileStruct_LifetimeLevel
 {
 	EntitySet chasePackGrantQueued
@@ -1070,6 +1071,7 @@ bool function MilestoneEvent_IsItemEventItem( ItemFlavor event, int itemIdx )
 	}
 	return false
 }
+
 
 
 

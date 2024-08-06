@@ -291,6 +291,9 @@ struct FileLevelStruct
 		array<int>				lockedButtonIndexes
 		array<int>				disabledButtonIndexes
 		array<int>				tempEnabledButtonIndexes
+		array<int>				unlockedByBattlepassButtonIndexes
+		array<int>				unlockedByBotModeButtonIndexes
+		array<int>				unlockableInNewPlayerPassButtonIndexes
 
 		array<ItemFlavor> characterSkins
 
@@ -336,12 +339,16 @@ struct FileLevelStruct
 struct CharacterLists {
 	array<ItemFlavor> shipping
 	array<ItemFlavor> unlocked
+	array<ItemFlavor> unlockedByBattlepass
+	array<ItemFlavor> unlockedByBotMode
+	array<ItemFlavor> unlockableInNewPlayerPass
 	array<ItemFlavor> locked
 	array<ItemFlavor> disabled
 	array<ItemFlavor> all
 }
 
 global function Character_IsCharacterUnlockedForCalevent
+global function Character_IsUnlockedForBattlePassV2
 
 FileLevelStruct& fileLevel
 
@@ -544,22 +551,22 @@ void function OpenCharacterSelectMenu( bool isBrowseMode = false, bool browseMod
 	bool isSpecialCharacterSelect = false
 
 
-	if (IsRevTakeover())
-		isSpecialCharacterSelect = ShadowArmy_IsPlayerOnShadowArmy(GetLocalClientPlayer())
+
+
 
 
 	if (isSpecialCharacterSelect)
 	{
 
-		RunUIScript( "UI_RunSpecialCharacterSelect", fileLevel.isBrowseMode, fileLevel.menuEntsExist )
-		ScreenCoverEndTransition ( 11.0 )
+
+
 
 	}
 	else
 	{
 
-		if (IsRevTakeover())
-			ScreenCoverEndTransition()
+
+
 
 
 		RunUIScript( "UI_RunCharacterSelect", fileLevel.isBrowseMode, fileLevel.menuEntsExist )
@@ -669,8 +676,8 @@ void function PanAwayCharacterSelect()
 	bool isSpecialCharacterSelect = false
 
 
-	if (IsRevTakeover())
-		isSpecialCharacterSelect = ShadowArmy_IsPlayerOnShadowArmy(GetLocalClientPlayer())
+
+
 
 
 
@@ -925,8 +932,8 @@ void function DoSquadCardsPresentation( string endTime, bool showTitleFrame )
 	bool shouldHideCharacterSelectRoom = GetCurrentPlaylistVarBool( "survival_hide_character_select_room", false )
 
 
-	if ( IsRevTakeover() )
-		SetCharacterSelectBackgroundForTeam( ShadowArmy_IsPlayerOnShadowArmy(GetLocalClientPlayer()) )
+
+
 
 
 	if ( shouldHideCharacterSelectRoom )
@@ -960,8 +967,8 @@ void function DoSquadCardsPresentation( string endTime, bool showTitleFrame )
 		fileLevel.nestedGladiatorCardHandles.append( nestedGCHandle )
 
 
-		if (IsRevTakeover())
-			RuiSetBool( nestedGCHandle.cardRui, "showStack", true )
+
+
 
 
 		if (showTitleFrame && teammates.len() > 0)
@@ -1023,19 +1030,19 @@ void function DoSquadCardsPresentation( string endTime, bool showTitleFrame )
 	}
 
 
-	if (IsRevTakeover())
-	{
-		if (ShadowArmy_IsPlayerOnShadowArmy(GetLocalClientPlayer()))
-		{
-			RuiSetString( borderRui, "headerText", "#SHADOW_ARMY_REV_LEGEND_REV_ARMY_BANNER_01" )
-			RuiSetString( borderRui, "subHeaderText", "#SHADOW_ARMY_REV_LEGEND_REV_ARMY_BANNER_02" )
-		}
-		else
-		{
-			RuiSetString( borderRui, "headerText", "#SHADOW_ARMY_REV_LEGEND_ALLIANCE_BANNER_01" )
-			RuiSetString( borderRui, "subHeaderText", "#SHADOW_ARMY_REV_LEGEND_ALLIANCE_BANNER_02" )
-		}
-	}
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 	RuiSetString( borderRui, "gameModeString", GetCurrentPlaylistVarString( "name", "#PLAYLIST_UNAVAILABLE" ) )
@@ -1259,26 +1266,26 @@ void function DoChampionSquadCardsPresentation( string endTime )
 
 
 
-	if ( !didPopulateChamptionSquad && IsRevTakeover() )
+
+
+
+
+
+
+
+
+
+
+
+	
+	if( IsBotPlaygroundMatch() )
 	{
-		array <entity> enemyTeamPlayerArray = ShadowArmy_GetEnemySquadPlayersForAllianceIntro( AllianceProximity_GetAllianceFromTeam( GetLocalViewPlayer().GetTeam() ) )
-		if( enemyTeamPlayerArray.len() > 0 ) championEHI 		= ToEHI( enemyTeamPlayerArray[0] )
-		if( enemyTeamPlayerArray.len() > 1 ) championSquad1EHI = ToEHI( enemyTeamPlayerArray[1] )
-		if( enemyTeamPlayerArray.len() > 2 ) championSquad2EHI = ToEHI( enemyTeamPlayerArray[2] )
+		array<entity> teammates = GetPlayerSquad()
+		if( teammates.len() > 0 ) championEHI 		= ToEHI( teammates[0] )
+		if( teammates.len() > 1 ) championSquad1EHI = ToEHI( teammates[1] )
+		if( teammates.len() > 2 ) championSquad2EHI = ToEHI( teammates[2] )
 		didPopulateChamptionSquad = true
 	}
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -1305,8 +1312,8 @@ void function DoChampionSquadCardsPresentation( string endTime )
 
 
 
-		if ( GameModeVariant_IsActive( eGameModeVariants.SURVIVAL_SHADOW_ARMY ) )
-			shouldPlayChampionVO = false
+
+
 
 
 	
@@ -1337,9 +1344,9 @@ void function DoChampionSquadCardsPresentation( string endTime )
 	ScreenFade( GetLocalClientPlayer(), 0, 0, 0, 255, fadeToBlackDuration, blackDuration, FFADE_OUT | FFADE_PURGE )
 	wait fadeToBlackDuration
 
-	if ( IsRevTakeover() )
-		SetCharacterSelectBackgroundForTeam( !ShadowArmy_IsPlayerOnShadowArmy(GetLocalClientPlayer()) )
-	else
+
+
+
 
 		SetCharacterSelectSceneForChampionSquad()
 	wait blackDuration
@@ -1370,20 +1377,20 @@ void function DoChampionSquadCardsPresentation( string endTime )
 		topHeader = "#GLADIATOR_CARD_INTRO_CHAMPION_SQUAD_DATE_NIGHT"
 
 
-	else if ( IsRevTakeover() )
-	{
-		if (ShadowArmy_IsPlayerOnShadowArmy(GetLocalClientPlayer()))
-		{
-			topHeader = "#SHADOW_ARMY_REV_CHAMPIONS_ALLIANCE_BANNER_01"
-			RuiSetString( rui, "subHeaderText" ,"#SHADOW_ARMY_REV_CHAMPIONS_ALLIANCE_BANNER_02" )
-		}
-		else
-		{
-			topHeader = "#SHADOW_ARMY_REV_CHAMPIONS_REV_ARMY_BANNER_01"
-			RuiSetString( rui, "subHeaderText" ,"#SHADOW_ARMY_REV_CHAMPIONS_REV_ARMY_BANNER_02" )
-		}
-		showBottomText = false
-	}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 	else
 		topHeader = "#GLADIATOR_CARD_INTRO_CHAMPION_SQUAD"
@@ -1440,9 +1447,9 @@ void function DoChampionSquadCardsPresentation( string endTime )
 	}
 
 
-	if (IsRevTakeover())
-		foreach ( NestedGladiatorCardHandle ngch in nestedGCHandles )
-			RuiSetBool( ngch.cardRui, "showStack", true )
+
+
+
 
 
 	OnThreadEnd(
@@ -1480,9 +1487,9 @@ bool function ShouldPlayIntroQuip()
 
 
 
-	
-		if ( GameModeVariant_IsActive( eGameModeVariants.SURVIVAL_SHADOW_ARMY ) )
-			return false
+
+
+
 
 
 
@@ -1917,8 +1924,15 @@ void function UpdateMenuButtons()
 		if ( characters.disabled.contains( character ) )
 			fileLevel.disabledButtonIndexes.append( index )
 
-		if( characters.unlocked.contains(character) )
+		if ( characters.unlockedByBattlepass.contains(character) )
+			fileLevel.unlockedByBattlepassButtonIndexes.append( index )
+		else if ( characters.unlockedByBotMode.contains(character) )
+			fileLevel.unlockedByBotModeButtonIndexes.append( index )
+		else if ( characters.unlocked.contains(character) )
 			fileLevel.tempEnabledButtonIndexes.append( index )
+
+		if ( characters.unlockableInNewPlayerPass.contains(character) )
+			fileLevel.unlockableInNewPlayerPassButtonIndexes.append( index )
 
 		
 		fileLevel.buttonIndexCharacterMap[ index ] <- character
@@ -2229,20 +2243,22 @@ void function CloseCharacterSelectMenuAtTime( float closeTimeStamp )
 
 	bool continueHoldOver = false
 
-	if ( IsRevTakeover() && IsValid( localPlayer ) && !ShadowArmy_IsPlayerOnShadowArmy( localPlayer ) )
-		continueHoldOver = true
 
 
+
+
+	printt( "[Fade]CloseCharacterSelectMenuAtTime", closeTimeStamp, Time(), CharSelect_GetOutroTransitionDuration(), continueHoldOver )
 	waitthread ScreenCoverTransition( Time() + CharSelect_GetOutroTransitionDuration(), continueHoldOver )
+	printt( "[Fade]CloseCharacterSelectMenuAtTime end", Time() )
 
 	CloseCharacterSelectMenu()
 
 
-		if ( IsRevTakeover() && IsValid( localPlayer ) && !ShadowArmy_IsPlayerOnShadowArmy( localPlayer ) )
-		{
-			thread ShadowArmy_PlayIntroBannerSoundForLegends_Thread()
-			wait ScreenCoverEndTransition( SHADOWARMY_LEGEND_SPAWN_FADE_FROM_BLACK_HOLD_DURATION + SHADOWARMY_LEGEND_SPAWN_FADE_FROM_BLACK_FADE_DURATION )
-		}
+
+
+
+
+
 
 
 	FlashGameWindow()
@@ -3078,14 +3094,14 @@ void function OnLockStepPickIndexChanged( entity player, int new )
 		expect entity( pickingPlayer )
 
 
-		if ( IsRevTakeover() && ShadowArmy_IsPlayerOnShadowArmy(GetLocalClientPlayer()) )
-		{
-			fileLevel.desiredCharacterOrNull = GetItemFlavorByAsset( CHARACTER_ASSET_REV )
-			SetMenuState( eNewCharacterSelectMenuState.LOCKED )
-			UpdateButtonStates()
-			return
 
-		}
+
+
+
+
+
+
+
 
 
 		LoadoutEntry characterSlot = Loadout_Character()
@@ -3406,10 +3422,34 @@ void function UpdateButtonStates()
 			
 		}
 
-		if ( fileLevel.tempEnabledButtonIndexes.contains( i ) )
+		asset topRightIcon = $""
+		asset bottomLeftIcon = $""
+
+		if ( fileLevel.unlockedByBattlepassButtonIndexes.contains( i ) )
 		{
-			RuiSetBool( buttonRui, "isTempUnlocked", true )
+			topRightIcon = $"rui/menu/character_select/utility/bp_icon"
+			bottomLeftIcon = $"rui/menu/character_select/utility/timer_icon"
 		}
+		else if ( fileLevel.unlockedByBotModeButtonIndexes.contains( i ) )
+		{
+			topRightIcon = $""
+			bottomLeftIcon = $"rui/menu/buttons/unlocked"
+		}
+		else if ( fileLevel.tempEnabledButtonIndexes.contains( i ) )
+		{
+			topRightIcon = $""
+			bottomLeftIcon = $"rui/menu/buttons/unlocked"
+		}
+		else if ( fileLevel.unlockableInNewPlayerPassButtonIndexes.contains( i ) )
+		{
+			topRightIcon = $"rui/menu/character_select/utility/npp_icon"
+			bottomLeftIcon = $""
+		}
+
+		RuiSetImage( buttonRui, "topRightIcon", topRightIcon )
+		RuiSetImage( buttonRui, "bottomLeftIcon", bottomLeftIcon )
+		RuiSetBool( buttonRui, "topRightIconVisible", topRightIcon != $"" )
+		RuiSetBool( buttonRui, "bottomLeftIconVisible", bottomLeftIcon != $"" )
 
 
 
@@ -3598,8 +3638,9 @@ void function UpdateButtonStates()
 	}
 
 	bool isTempUnlocked = GetCurrentPlaylistVarBool( "all_characters_unlocked", false )
+	bool isFiringRangeTemp = GameModeVariant_IsActive( eGameModeVariants.SURVIVAL_FIRING_RANGE ) && isTempUnlocked
 
-	Hud_SetVisible( fileLevel.calloutRuiPanel, isTempUnlocked || fileLevel.isJiP )
+	Hud_SetVisible( fileLevel.calloutRuiPanel, isFiringRangeTemp || fileLevel.isJiP )
 	var calloutRui = Hud_GetRui( fileLevel.calloutRuiPanel )
 
 	if( fileLevel.isJiP )
@@ -3607,7 +3648,7 @@ void function UpdateButtonStates()
 		RuiSetString( calloutRui, "title", "#CONTROL_RESPAWN_LATE_JOIN_PLAYER_TITLE" )
 		RuiSetString( calloutRui, "desc", "#CONTROL_RESPAWN_LATE_JOIN_PLAYER_DESC" )
 	}
-	else if( isTempUnlocked )
+	else if( isFiringRangeTemp )
 	{
 		RuiSetString( calloutRui, "title", "#ALL_LEGENDS_AVAILABLE_FIRING_RANGE" )
 		RuiSetString( calloutRui, "desc", "" )
@@ -3921,11 +3962,11 @@ void function UpdatePlayerModel( ItemFlavor character, ItemFlavor ornull charact
 	
 
 
-	if ( GetCurrentPlaylistVarBool( "use_custom_mode_intro", false ) && IsRevTakeover() && ShadowArmy_IsPlayerOnShadowArmy(GetLocalClientPlayer()) )
-	{
-		fileLevel.characterModel.Hide()
-	}
-	else
+
+
+
+
+
 
 	{
 		fileLevel.characterModel.Show()
@@ -3938,31 +3979,31 @@ void function UpdatePlayerModel( ItemFlavor character, ItemFlavor ornull charact
 	thread FlashMenuModel( fileLevel.characterModel, eMenuModelFlashType.CHARACTER_SELECT, flashColor )
 
 
-		if ( GetCurrentPlaylistVarBool( "use_custom_mode_intro", false ) && IsRevTakeover() && ShadowArmy_IsPlayerOnShadowArmy(GetLocalClientPlayer()) )
-		{
-			
-			int backgroundSkinIndex = fileLevel.backgroundModelGeo.GetSkinIndexByName("revenant_event_skin")
-			if ( IsValid( fileLevel.backgroundModelGeo ) )
-				fileLevel.backgroundModelGeo.SetSkin( backgroundSkinIndex )
 
-			
-			int smokeSkinIndex = fileLevel.backgroundModelSmoke.GetSkinIndexByName("revenant_event_skin")
-			if ( IsValid( fileLevel.backgroundModelSmoke ) )
-			fileLevel.backgroundModelSmoke.SetSkin( smokeSkinIndex )
 
-			ItemFlavor ornull armySkin = GetItemFlavorOrNullByGUID( ConvertItemFlavorGUIDStringToGUID( "SAID00097700436" ) )
-			if ( armySkin != null )
-			{
-				expect ItemFlavor( armySkin )
-				TryUpdateLightingRig( character, armySkin )
-			}
-			else
-			{
-				TryUpdateLightingRig( character, characterSkin )
-			}
 
-		}
-		else
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 		{
 			
@@ -4101,16 +4142,16 @@ void function UpdatePlayerAnim( ItemFlavor character, int currentMenuState )
 		Assert( (customReadyIntroAnim == $"") == (customReadyIdleAnim == $""), format( "Char skin '%s' has only one char select custom anim set!", string(ItemFlavor_GetAsset( characterSkin )) ) )
 
 
-		if ( GetCurrentPlaylistVarBool( "use_custom_mode_intro", false ) && IsRevTakeover() && ShadowArmy_IsPlayerOnShadowArmy(GetLocalClientPlayer()) )
-		{
-			wait 8.5
-			fileLevel.characterModel.Show()
-			entity charNode = fileLevel.characterNode
-			PlayAnim( fileLevel.characterModel, "revenant_army_menu_ready_up_center", charNode )
-		}
-		else if ( (customReadyIntroAnim != $"") && ShipHackCheckForAnim( customReadyIntroAnim, fileLevel.characterModel, characterSkin ) && ShipHackCheckForAnim( customReadyIdleAnim, fileLevel.characterModel, characterSkin ) )
 
 
+
+
+
+
+
+
+
+		if ( (customReadyIntroAnim != $"") && ShipHackCheckForAnim( customReadyIntroAnim, fileLevel.characterModel, characterSkin ) && ShipHackCheckForAnim( customReadyIdleAnim, fileLevel.characterModel, characterSkin ) )
 
 		{
 			
@@ -4567,42 +4608,76 @@ void function DebugMenuThink()
 
 
 
-void function CreateNewCharacterModel( asset model )
-{
-	Assert( IsValid( fileLevel.characterNode ) )
-
-	if ( IsValid( fileLevel.characterModel ) )
-		fileLevel.characterModel.Destroy()
-
-	entity charNode = fileLevel.characterNode
-
-	fileLevel.characterModel = CreateClientSidePropDynamic( charNode.GetOrigin(), charNode.GetAngles(), model )
-	fileLevel.characterModel.MakeSafeForUIScriptHack()
-	fileLevel.characterModel.SetParent( charNode ) 
-
-	fileLevel.characterModel.Hide()
-}
-
-void function CreateNewLightRigModel()
-{
-	Assert( DoesBackgroundEntExist() )
-
-	if ( IsValid( fileLevel.lightRigModel ) )
-		fileLevel.lightRigModel.Destroy()
-
-	entity targetBackground = GetEntByScriptName( BACKGROUND_ENT_NAME )
-
-	vector targetBackgroundAngles = targetBackground.GetAngles()
-
-	targetBackgroundAngles = targetBackgroundAngles 
 
 
-	fileLevel.lightRigModel = CreateClientSidePropDynamic( targetBackground.GetOrigin(), targetBackgroundAngles, LIGHT_RIG_MDL )
-	fileLevel.lightRigModel.MakeSafeForUIScriptHack()
-	fileLevel.lightRigModel.SetParent( targetBackground )
-	fileLevel.lightRigModel.Hide()
-}
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+	void function CreateNewCharacterModel( asset model )
+	{
+		Assert( IsValid( fileLevel.characterNode ) )
+
+		if ( IsValid( fileLevel.characterModel ) )
+			fileLevel.characterModel.Destroy()
+
+		entity charNode = fileLevel.characterNode
+
+		fileLevel.characterModel = CreateClientSidePropDynamic( charNode.GetOrigin(), charNode.GetAngles(), model )
+		fileLevel.characterModel.MakeSafeForUIScriptHack()
+		fileLevel.characterModel.SetParent( charNode )
+
+		fileLevel.characterModel.Hide()
+	}
+
+	void function CreateNewLightRigModel()
+	{
+		Assert( DoesBackgroundEntExist() )
+
+		if ( IsValid( fileLevel.lightRigModel ) )
+			fileLevel.lightRigModel.Destroy()
+
+		entity targetBackground = GetEntByScriptName( BACKGROUND_ENT_NAME )
+
+		vector targetBackgroundAngles = targetBackground.GetAngles()
+
+		targetBackgroundAngles = targetBackgroundAngles 
+
+
+		fileLevel.lightRigModel = CreateClientSidePropDynamic( targetBackground.GetOrigin(), targetBackgroundAngles, LIGHT_RIG_MDL )
+		fileLevel.lightRigModel.MakeSafeForUIScriptHack()
+		fileLevel.lightRigModel.SetParent( targetBackground )
+		fileLevel.lightRigModel.Hide()
+	}
+	
 
 
 
@@ -4941,92 +5016,92 @@ void function FadeInOut (float fadeOutDuration , float blackoutDuration, float f
 }
 
 
-void function SetCharacterSelectBackgroundForTeam( bool shadowArmy )
-{
-	int backgroundModelGeoSkinIndex = CHAMPION_SQAUD_BACKGROUND_SKIN_INDEX
-	int backgroundModelSmokeSkinIndex = CHAMPION_SQAUD_BACKGROUND_SKIN_INDEX
 
-	if ( shadowArmy )
-	{
-		backgroundModelGeoSkinIndex = fileLevel.backgroundModelGeo.GetSkinIndexByName("revenant_event_skin")
-		backgroundModelSmokeSkinIndex = fileLevel.backgroundModelSmoke.GetSkinIndexByName("revenant_event_skin")
-	}
-	else
-	{
-		backgroundModelGeoSkinIndex = fileLevel.backgroundModelGeo.GetSkinIndexByName("ballistic")
-		backgroundModelSmokeSkinIndex = fileLevel.backgroundModelSmoke.GetSkinIndexByName("ballistic")
-	}
 
-	if ( IsValid( fileLevel.backgroundModelGeo ) )
-		fileLevel.backgroundModelGeo.SetSkin( backgroundModelGeoSkinIndex )
 
-	if ( IsValid( fileLevel.backgroundModelSmoke ) )
-		fileLevel.backgroundModelSmoke.SetSkin( backgroundModelSmokeSkinIndex )
 
-	fileLevel.lightEntsExist = DoMenuLightsExist()
-	if ( fileLevel.lightEntsExist && IsValid( fileLevel.lightRigModel ) )
-	{
-		fileLevel.keyLight.SetTweakLightColor( < 0.5, 0.5, 0.5 > )
-		fileLevel.keyLight.SetTweakLightBrightness( 4.0 )
-		fileLevel.keyLight.SetTweakLightCone( 18.0 )
-		fileLevel.keyLight.SetTweakLightInnerCone ( 15.0 )
-		fileLevel.keyLight.SetTweakLightDistance( 1800.0 )
-		fileLevel.keyLight.SetTweakLightHalfBrightFrac( 0.3 )
-		fileLevel.keyLight.SetTweakLightSpecIntensity( 1.0 )
-		fileLevel.keyLight.SetTweakLightPBRFalloff( false )
-		fileLevel.keyLight.SetTweakLightRealtimeShadows( true )
-		fileLevel.fillLight.SetTweakLightColor( < 0.2, 0.2, 0.2 > )
-		fileLevel.fillLight.SetTweakLightBrightness( 0.4 )
-		fileLevel.fillLight.SetTweakLightCone( 15.0 )
-		fileLevel.fillLight.SetTweakLightInnerCone ( 12.0 )
-		fileLevel.fillLight.SetTweakLightDistance( 800.0 )
-		fileLevel.fillLight.SetTweakLightHalfBrightFrac( 0 )
-		fileLevel.fillLight.SetTweakLightSpecIntensity( 1.0 )
-		fileLevel.fillLight.SetTweakLightPBRFalloff( false )
-		fileLevel.fillLight.SetTweakLightRealtimeShadows( true )
-		fileLevel.rimLightL.SetTweakLightColor( < 0.75, 0.75, 0.75 > )
-		fileLevel.rimLightL.SetTweakLightBrightness( 4.0 )
-		fileLevel.rimLightL.SetTweakLightCone( 24.0 )
-		fileLevel.rimLightL.SetTweakLightInnerCone ( 20.0 )
-		fileLevel.rimLightL.SetTweakLightDistance( 800.0 )
-		fileLevel.rimLightL.SetTweakLightHalfBrightFrac( 0 )
-		fileLevel.rimLightL.SetTweakLightSpecIntensity( 1.0 )
-		fileLevel.rimLightL.SetTweakLightPBRFalloff( false )
-		fileLevel.rimLightL.SetTweakLightRealtimeShadows( true )
-		fileLevel.rimLightR.SetTweakLightColor( < 0.6, 0.6, 0.6 > )
-		fileLevel.rimLightR.SetTweakLightBrightness( 4.0 )
-		fileLevel.rimLightR.SetTweakLightCone( 24.0 )
-		fileLevel.rimLightR.SetTweakLightInnerCone ( 20.0 )
-		fileLevel.rimLightR.SetTweakLightDistance( 800.0 )
-		fileLevel.rimLightR.SetTweakLightHalfBrightFrac( 0 )
-		fileLevel.rimLightR.SetTweakLightSpecIntensity( 2.0 )
-		fileLevel.rimLightR.SetTweakLightPBRFalloff( false )
-		fileLevel.rimLightR.SetTweakLightRealtimeShadows( true )
 
-		
-		fileLevel.lightRigModel.Anim_Play( $"animseq/humans/class/char_select_light_default.rseq" )
-		int attachIdx_fill = fileLevel.lightRigModel.LookupAttachment( "LIGHT_1" )
-		int attachIdx_rimL = fileLevel.lightRigModel.LookupAttachment( "LIGHT_2" )
-		int attachIdx_rimR = fileLevel.lightRigModel.LookupAttachment( "LIGHT_3" )
-		int attachIdx_key = fileLevel.lightRigModel.LookupAttachment( "LIGHT_4" )
 
-		fileLevel.fillLight.SetTweakLightOrigin( fileLevel.lightRigModel.GetAttachmentOrigin( attachIdx_fill ) )
-		fileLevel.fillLight.SetTweakLightAngles( fileLevel.lightRigModel.GetAttachmentAngles( attachIdx_fill ) )
 
-		fileLevel.rimLightL.SetTweakLightOrigin( fileLevel.lightRigModel.GetAttachmentOrigin( attachIdx_rimL ) )
-		fileLevel.rimLightL.SetTweakLightAngles( fileLevel.lightRigModel.GetAttachmentAngles( attachIdx_rimL ) )
 
-		fileLevel.rimLightR.SetTweakLightOrigin( fileLevel.lightRigModel.GetAttachmentOrigin( attachIdx_rimR ) )
-		fileLevel.rimLightR.SetTweakLightAngles( fileLevel.lightRigModel.GetAttachmentAngles( attachIdx_rimR ) )
 
-		fileLevel.keyLight.SetTweakLightOrigin( fileLevel.lightRigModel.GetAttachmentOrigin( attachIdx_key ) )
-		fileLevel.keyLight.SetTweakLightAngles( fileLevel.lightRigModel.GetAttachmentAngles( attachIdx_key ) )
-	}
-	else
-	{
-		printt( "Map doesn't have menu lights compiled in. Make sure the latest menu box instance is in the level and recompile the map." )
-	}
-}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 void function SetCharacterSelectSceneForChampionSquad()
@@ -5256,15 +5331,29 @@ CharacterLists function PopulateCharacterListStruct()
 			continue
 
 		bool isAvailable = IsItemFlavorUnlockedForLoadoutSlot( LocalClientEHI(), Loadout_Character(), characterItemFlav, true )
-		bool isOwned     = Character_IsCharacterOwnedByPlayer( characterItemFlav, GetLocalClientPlayer() )
+		bool isPlayable  = Character_IsCharacterOwnedByPlayer( characterItemFlav, GetLocalClientPlayer() ) 
+		bool isOwned 	 = ItemFlavor_GetGRXMode( characterItemFlav ) == eItemFlavorGRXMode.REGULAR ? GRX_HasItem( ItemFlavor_GetGRXIndex( characterItemFlav ) ) : true 
 
 		if ( !isAvailable || CharacterSelect_CustomIsCharacterLockedForPlayer( characterItemFlav, GetLocalClientPlayer() ) )
 		{
 			result.disabled.append( characterItemFlav )
 		}
-		else if ( isOwned )
+		else if ( isPlayable )
 		{
-			result.shipping.append( characterItemFlav )
+			if ( !isOwned && Character_IsUnlockedForBattlePassV2( FromEHI( LocalClientEHI() ), characterItemFlav ) )
+			{
+				result.unlocked.append( characterItemFlav )
+				result.unlockedByBattlepass.append( characterItemFlav )
+			}
+			else if ( !isOwned && Character_BotMode_AreAllCharactersPlayableForPlayer( GetLocalClientPlayer() ) )
+			{
+				result.unlocked.append( characterItemFlav )
+				result.unlockedByBotMode.append( characterItemFlav )
+			}
+			else
+			{
+				result.shipping.append( characterItemFlav )
+			}
 		}
 		else if ( GetCurrentPlaylistVarBool( "all_characters_unlocked", false ) )
 		{
@@ -5276,6 +5365,10 @@ CharacterLists function PopulateCharacterListStruct()
 		}
 		else
 		{
+			if ( Character_IsUnlockableInNewPlayerPass( characterItemFlav ) )
+			{
+				result.unlockableInNewPlayerPass.append( characterItemFlav )
+			}
 			result.locked.append( characterItemFlav )
 		}
 
@@ -5286,8 +5379,30 @@ CharacterLists function PopulateCharacterListStruct()
 }
 
 
-
 bool function Character_IsCharacterUnlockedForCalevent( ItemFlavor characterItemFlavor )
 {
 	return TempUnlock_IsCharacterUnlocked( characterItemFlavor )
+}
+
+bool function Character_IsUnlockedForBattlePassV2( entity player, ItemFlavor charFlav )
+{
+	
+	
+
+
+		ItemFlavor ornull currentBPV2Flav = GetActiveBattlePassV2()
+		bool ownsEliteBP = false
+		if ( currentBPV2Flav != null )
+		{
+			expect ItemFlavor( currentBPV2Flav )
+			ownsEliteBP = DoesPlayerOwnEliteBattlePass( player, currentBPV2Flav )
+		}
+
+		
+		
+		return ownsEliteBP
+
+
+
+
 }

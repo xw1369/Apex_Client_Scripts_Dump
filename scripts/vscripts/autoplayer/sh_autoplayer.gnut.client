@@ -17,6 +17,9 @@ global function AutoPlayer_GetCurrentAttachmentTier
 global function AutoPlayer_GetPrematchGameState
 global function AutoPlayer_GetPlayingGameState
 global function AutoPlayer_GetSuddenDeathGameState
+global function AutoPlayer_GetUpgradeStationPingValue
+
+
 
 
 
@@ -25,9 +28,12 @@ global function AutoPlayer_GetSuddenDeathGameState
 global function AutoPlayer_UpgradeCoreXPChanged
 
 
+global function IsBotDefaultApperanceEnabled
+
 struct
 {
 	array< ItemFlavor >	forbiddenCharacters
+	int                 latestPingTicketID = -1
 } file
 
 void function AutoPlayer_Init()
@@ -52,6 +58,13 @@ void function AutoPlayer_Init()
 
 	
 	string defaultCharactersAllowed = "character_lifeline character_bangalore character_bloodhound character_gibraltar character_pathfinder character_wraith"
+
+
+	if ( NewPlayerBotQueueAreEnabled() )
+	{
+		defaultCharactersAllowed = "character_fuse character_bangalore character_bloodhound character_wraith character_octane character_seer character_vantage character_gibralter character_conduit character_lifeline"
+	}
+
 
 	if ( GetConVarBool( "autoplayer_gameplay_mode" ) == false )
 		defaultCharactersAllowed = ""
@@ -312,6 +325,9 @@ int function AutoPlayer_GetPlayerNetInt( entity player, string name )
 
 
 
+
+
+
 int function AutoPlayer_TranslateLootType( int lootType )
 {
 	switch ( lootType )
@@ -457,6 +473,11 @@ int function AutoPlayer_GetSuddenDeathGameState()
 	return eGameState.SuddenDeath
 }
 
+int function AutoPlayer_GetUpgradeStationPingValue()
+{
+	return ePingType.UPGRADE_STATION
+}
+
 
 void function AutoPlayer_UpgradeCoreXPChanged( entity player, int newXP )
 {
@@ -487,3 +508,46 @@ void function AutoPlayer_UpgradeCoreXPChanged( entity player, int newXP )
 	}
 }
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+bool function IsBotDefaultApperanceEnabled()
+{
+	return GetCurrentPlaylistVarBool( "bots_use_default_appearance", false )
+}

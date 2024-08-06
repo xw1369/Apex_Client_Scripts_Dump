@@ -12,8 +12,6 @@ global function OnWeaponDeactivate_incap_shield
 global function OnCreateChargeEffect_incap_shield
 
 
-
-const bool INCAP_SHIELD_PERSIST_LOGIC = true
 const bool INCAP_SHIELD_DEBUG = false
 
 const float INCAP_SHIELD_MOVE_SLOW_SEVERITY = 0.55
@@ -29,27 +27,9 @@ const string SOUND_PILOT_INCAP_SHIELD_1P = "BleedOut_Shield_Sustain_1p"
 const string SOUND_PILOT_INCAP_SHIELD_END_3P = "BleedOut_Shield_Break_3P"
 const string SOUND_PILOT_INCAP_SHIELD_END_1P = "BleedOut_Shield_Break_1P"
 
-
 struct
 {
 } file
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 void function MpWeaponIncapShield_Init()
@@ -63,7 +43,6 @@ void function MpWeaponIncapShield_Init()
 	RegisterSignal( "IncapShieldBeginCharge" )
 
 }
-
 
 
 void function OnCreateChargeEffect_incap_shield( entity weapon, int fxHandle )
@@ -81,264 +60,6 @@ void function OnCreateChargeEffect_incap_shield( entity weapon, int fxHandle )
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-#if !INCAP_SHIELD_PERSIST_LOGIC
-bool function OnWeaponChargeBegin_weapon_incap_shield( entity weapon )
-{
-	entity player = weapon.GetWeaponOwner()
-
-	if ( player.IsPlayer() )
-	{
-
-
-
-
-
-
-	}
-
-	return true
-}
-
-void function OnWeaponChargeEnd_weapon_incap_shield( entity weapon )
-{
-	weapon.Signal( "OnChargeEnd" )
-
-	foreach( effect in weapon.w.statusEffects )
-		StatusEffect_Stop( weapon.GetWeaponOwner(), effect )
-}
-
-void function OnWeaponOwnerChanged_weapon_incap_shield( entity weapon, WeaponOwnerChangedParams changeParams )
-{
-	entity newOwner = weapon.GetWeaponOwner()
-	entity oldOwner = changeParams.oldOwner
-
-
-
-
-
-
-
-}
-
-var function OnWeaponPrimaryAttack_incap_shield( entity weapon, WeaponPrimaryAttackParams attackParams )
-{
-	return 0
-}
-
-var function OnWeaponPrimaryAttackAnimEvent_incap_shield( entity weapon, WeaponPrimaryAttackParams attackParams )
-{
-	return 0
-}
-
-void function OnWeaponActivate_incap_shield( entity weapon )
-{
-}
-
-void function OnWeaponDeactivate_incap_shield( entity weapon )
-{
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-#endif
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-#if INCAP_SHIELD_PERSIST_LOGIC
-
 var function OnWeaponPrimaryAttack_incap_shield( entity weapon, WeaponPrimaryAttackParams attackParams )
 {
 	return 0
@@ -626,7 +347,3 @@ void function OnWeaponChargeEnd_weapon_incap_shield( entity weapon )
 
 
 
-
-
-
-#endif

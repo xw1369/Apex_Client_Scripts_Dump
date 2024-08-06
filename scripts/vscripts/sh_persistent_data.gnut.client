@@ -89,7 +89,6 @@ global function SafeGetPersistentVarAsInt
 
 
 
-
 global typedef OnPersistentDataReadyCallbackType void functionref( entity player )
 
 
@@ -710,13 +709,6 @@ int function SafeGetPersistentVarAsInt( entity player, string key )
 		return player.GetPersistentVarAsInt( key )
 	return 0
 }
-
-
-
-
-
-
-
 
 
 

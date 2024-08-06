@@ -14,8 +14,6 @@ global function GetHealDroneForHitEnt
 
 
 
-
-
 global function CanDeployHealDrone
 
 
@@ -29,14 +27,24 @@ const float DEPLOYABLE_MEDIC_ICON_HEIGHT = 32.0
 const int DEPLOYABLE_MEDIC_HEAL_MAX_TARGETS = 3
 const float DEPLOYABLE_MEDIC_HEAL_START_DELAY = 1.0
 const float DEPLOYABLE_MEDIC_HEAL_RADIUS = 256.0 
+
+
+
 const int DEPLOYABLE_MEDIC_HEAL_AMOUNT = 9999 
+
+
+
 const float DEPLOYABLE_MEDIC_MAX_LIFETIME = 20
+
 
 const float DEPLOYABLE_MEDIC_HEAL_PER_SEC = 7
 
 
 
-const ROPE_LENGTH = DEPLOYABLE_MEDIC_HEAL_RADIUS + 50
+
+
+
+const DEPLOYABLE_MEDIC_ROPE_OFFSET = 50
 const ROPE_NODE_COUNT = 10
 const ROPE_SHOOT_OUT_TIME = 0.25
 const ROPE_REAL_IN_TIME = 0.25
@@ -180,6 +188,13 @@ void function MpWeaponDeployableMedic_Init()
 float function GetDeployableMedicHealRate( entity player )
 {
 	float result = DEPLOYABLE_MEDIC_HEAL_PER_SEC
+
+
+
+
+
+
+
 
 	if ( PlayerHasPassive( player, ePassives.PAS_TAC_UPGRADE_ONE ) ) 
 	{
@@ -338,11 +353,17 @@ void function OnDeployableMedicPlanted( entity projectile,  DeployableCollisionP
 
 }
 
+int function DeployableMedic_GetHealAmount()
+{
 
 
 
 
 
+
+
+	return DEPLOYABLE_MEDIC_HEAL_AMOUNT
+}
 
 
 

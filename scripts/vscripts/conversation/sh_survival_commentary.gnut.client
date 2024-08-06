@@ -171,26 +171,26 @@ global enum eSurvivalCommentaryBucket
 	BEGIN_ROUND_FINAL,
 
 
-	VICTORY_LEGEND_SOLO,
-	VICTORY_SHADOWSQUAD,
-	SHADOW_PLAYER_RESPAWN,
-	SHADOW_PLAYER_DEATH_FINAL,
-	SHADOW_PLAYER_DEATH_FINAL_REV,
-	SHADOWS_PLAYER_JOIN,
-	SHADOWSQUAD_GROW,
-	SHADOWSQUAD_SPAWNS,
-	CHAR_SELECT_TAUNT_ALT_MAP,
-	STREAK_NEW_KILL_LEADER,
-	CHAMP_DIED_NO_TOP5_STREAK,
-	STREAK_LOST_CHAMP,
-	STREAK_LOST_APEX_PRED,
-	GAMECHANGER_ACTIVATE_SHADOWS,
-	EVAC_SHIP_INCOMING,
-	EVAC_SHIP_INCOMING_SHADOWS,
-	PRE_VICTORY_LEGENDS_SINGLE,
-	PRE_VICTORY_LEGENDS_MULTIPLE,
-	PRE_VICTORY_SHADOWS,
-	SHADOW_REVENGE_KILL,
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -333,29 +333,29 @@ global enum eSurvivalCommentaryBucket
 
 
 
-	SHADOWARMY_MATCH_START,
-	SHADOWARMY_BEGIN_ROUND,
-	SHADOWARMY_EVAC_SUCCESS,
-	SHADOWARMY_EVAC_FAILED,
-	SHADOWARMY_EVAC_SHIP_BOARDED,
-	SHADOWARMY_EVAC_SHIP_INCOMING,
-	SHADOW_ARMY_NEW_KILL_LEADER_REV,
-	SHADOW_ARMY_NEW_KILL_LEADER_LEGEND,
-	SHADOW_ARMY_BEACON_SABOTAGED,
-	SHADOW_ARMY_BEACON_USING,
-	SHADOW_ARMY_BEACON_COMPLETE,
-	SHADOW_ARMY_LAST_SQUAD,
-	SHADOW_ARMY_FEW_SQUADS,
-	SHADOW_ARMY_FEW_SQUADS_REV,
-	SHADOW_ARMY_HALF_SQUADS,
-	SHADOW_ARMY_HALF_SQUADS_REV,
-	SHADOW_ARMY_LOBA_RESPAWNED,
-	SHADOW_ARMY_CRYPTO_INTRO,
-	SHADOW_ARMY_LOBA_CRYPTO_RESPONSE,
-	SHADOW_ARMY_LOBA_EVAC_INCOMING,
-	SHADOW_ARMY_LOBA_EVAC_ARRIVED,
-	SHADOW_ARMY_LOBA_EVAC_COMPLETE,
-	SHADOW_ARMY_LOBA_EVAC_NEARMISS,
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -367,6 +367,21 @@ global enum eSurvivalCommentaryBucket
 
 	FREEDM_VO_OVERIDE_TEAM_NEAR_WINNING,
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 	_count
 }
 
@@ -377,7 +392,7 @@ global enum eSurvivalHostType
 	AI,
 	BLISK,
 
-	NOC,
+
 
 	MIRAGE,
 
@@ -388,7 +403,7 @@ global enum eSurvivalHostType
 	LOBA,
 	CRYPTO,
 
-	REV_ARMY,
+
 
 	_count
 }
@@ -968,8 +983,8 @@ int function ConvertHostStringToEnum( string hostName )
 
 
 
-		case "#HOST_NOC":
-			return eSurvivalHostType.NOC
+
+
 
 		case "#HOST_MIRAGE":
 			return eSurvivalHostType.MIRAGE
@@ -983,8 +998,8 @@ int function ConvertHostStringToEnum( string hostName )
 		case "#HOST_CRYPTO":
 			return eSurvivalHostType.CRYPTO
 
-		case "#HOST_REV_ARMY":
-			return eSurvivalHostType.REV_ARMY
+
+
 
 
 		default:
@@ -1145,13 +1160,13 @@ bool function CanPlayerSpeak( entity player )
 
 
 
-			
-			if ( !GameModeVariant_IsActive( eGameModeVariants.SURVIVAL_SHADOW_ARMY ) )
 
-			{
-				if ( IsPlayerShadowZombie( player ) )
-					return false
-			}
+
+
+
+
+
+
 
 
 	return true

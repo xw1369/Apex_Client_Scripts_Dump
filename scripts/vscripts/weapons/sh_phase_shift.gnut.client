@@ -128,6 +128,12 @@ void function CancelPhaseShift( entity ent )
 
 
 
+
+
+
+
+
+
 	ent.PhaseShiftCancel()
 
 
@@ -266,6 +272,11 @@ bool function PhaseShift( entity ent, float warmupTime, float duration, int shif
 				break
 			case PHASETYPE_DOOR:
 				seeOtherNonShifters = true
+
+				if ( PHASE_DOOR_LOGGING )
+				{
+					printf( "PHASE DOOR: Starting phase for: " + ent )
+				}
 				break
 
 			case PHASETYPE_DASH:
@@ -305,6 +316,42 @@ bool function PhaseShift( entity ent, float warmupTime, float duration, int shif
 
 	unreachable
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

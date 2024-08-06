@@ -60,6 +60,12 @@ global const TREASUREHUNT_OBJECTIVE_SCRIPTNAME = "treasurehunt_objective"
 
 
 
+
+
+
+
+
+
 const int MAX_SUPPORTED_TEAMS = 4
 const int INVALID_OBJ_INDEX_DEFAULT = -1
 const int INVALID_OBJ_INDEX_OBJ_COMPLETE = -2
@@ -317,6 +323,16 @@ void function TreasureHunt_RegisterNetworking()
 
 
 
+
+
+
+
+
+
+
+
+
+
 float function GetTreasureHuntZoneHoldTime()
 {
 
@@ -369,13 +385,6 @@ int function GetMaxActiveObjectiveCount()
 
 	return minint( playlistDefinedCount, nameCount )
 }
-
-
-
-
-
-
-
 
 
 
@@ -1181,6 +1190,21 @@ void function TreasureHunt_RegisterTimedEvents()
 
 	TimedEvents_RegisterTimedEvent( objectiveData )
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -2541,7 +2565,7 @@ void function TreasureHunt_DisplaySquadScore_Thread()
 				if ( IsValid( file.objectiveWaypoints[ objectiveID ] ) )
 					objectiveState = file.objectiveWaypoints[ objectiveID ].GetWaypointInt( CAPTURE_OBJ_WAYPOINT_INT_IDX_OBJ_STATE )
 
-				vector color = objectiveState == eTreasureHuntCaptureZoneState.SUDDEN_DEATH ? SrgbToLinear( ZONE_SUDDENDEATH_COLOR ) : SrgbToLinear( ZONE_CONTESTED_COLOR )
+				vector color = objectiveState == eTreasureHuntCaptureZoneState.SUDDEN_DEATH ? SrgbToLinear( ZONE_SUDDENDEATH_COLOR / 255 ) : SrgbToLinear( ZONE_CONTESTED_COLOR /255 )
 				TreasureHunt_ScoreHud_SetCapturePointColor( objectiveID, color )
 				TreasureHunt_ScoreHud_SetCapturePointContested( objectiveID, true )
 

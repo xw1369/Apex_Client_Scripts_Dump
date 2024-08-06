@@ -372,7 +372,7 @@ void function MpWeaponTeslaTrap_Init()
 		RegisterMinimapPackage( "prop_script", eMinimapObject_prop_script.ARC_TRAP, MINIMAP_ARC_TRAP_RUI, RegisterTeslaTrapMinimapRui, $"ui/in_world_minimap_tesla_trap.rpak", RegisterTeslaTrapMinimapRui )
 
 
-
+		
 
 
 
@@ -3368,6 +3368,12 @@ void function OnFocusTrapChanged( entity player, entity newEnt )
 
 
 
+
+
+
+
+
+
 int function TeslaTrap_LinkTrapSort( entity trapA, entity trapB )
 {
 	TeslaTrapSortingData trapASort = file.trapSortingData[ trapA ]
@@ -3585,26 +3591,26 @@ void function TeslaTrap_OntriggerDestroyed( entity trigger )
 }
 
 
+void function TeslaTrap_OnGainFocus( entity ent )
+{
+	if ( !IsValid( ent ) )
+		return
 
+	entity player = GetLocalViewPlayer()
+	if ( !IsValid( player ) )
+		return
 
+	if ( player == ent.GetOwner() && ent.GetTargetName() == "tesla_trap" )
+	{
+		CustomUsePrompt_SetText( Localize( "#QUICK_PACKUP_PROMPT" ) )
+		CustomUsePrompt_Show( ent )
+	}
+}
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+void function TeslaTrap_OnLoseFocus( entity ent )
+{
+	CustomUsePrompt_ClearForAny()
+}
 
 
 void function TeslaTrap_OnPropScriptCreated( entity ent )
@@ -3625,6 +3631,9 @@ void function TeslaTrap_OnPropScriptCreated( entity ent )
 			thread TeslaTrap_CreateHUDMarker( ent )
 			AddEntityCallback_GetUseEntOverrideText( ent, TeslaTrap_UseTextOverride )
 			SetCallback_CanUseEntityCallback( ent, TeslaTrap_CanUse )
+
+			SetCallback_ShouldUseBlockReloadCallback( ent, Perk_QuickPackup_ShoudUseBlockReload )
+
 			break
 	}
 }

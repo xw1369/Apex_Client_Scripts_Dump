@@ -45,8 +45,6 @@ void function Perk_ExtraFirepower_Init()
 
 
 
-
-
 void function ExtraFirepower_Activate( entity player, string characterName )
 {
 

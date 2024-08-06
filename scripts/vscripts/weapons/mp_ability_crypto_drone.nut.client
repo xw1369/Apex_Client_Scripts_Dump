@@ -272,6 +272,9 @@ void function MpAbilityCryptoDrone_Init()
 
 
 
+
+
+
 }
 
 
@@ -2612,6 +2615,47 @@ void function CryptoDrone_WeaponInputThink( entity player, entity weapon )
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 void function Camera_OnCreate( entity player, int statusEffect, bool actuallyChanged )
 {
 	if ( player != GetLocalViewPlayer() )
@@ -3073,12 +3117,6 @@ bool function PlayerCanUseCamera( entity ownerPlayer, bool needsValidCamera )
 
 	return true
 }
-
-
-
-
-
-
 
 
 

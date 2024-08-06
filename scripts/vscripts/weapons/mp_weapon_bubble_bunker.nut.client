@@ -13,6 +13,7 @@ global function OnWeaponTossPrep_WeaponBubbleBunker
 
 global function GibraltarIsInDome
 global function InDomeShield
+global function BubbleBunker_ShouldGibraltarGiveFastRevive
 
 global const string GIBRALTAR_DOME_SCRIPTNAME = "gibraltar_dome_shield"
 global const string BUBBLE_BUNKER_MOVER_SCRIPTNAME = "Gibraltar_BubbleShield_mover"
@@ -161,6 +162,13 @@ float function BubbleBunker_UpgradedScaler()
 float function BubbleBunker_GetThrowPower( entity player )
 {
 	float result = BUBBLE_BUNKER_THROW_POWER
+
+
+
+
+
+
+
 
 
 	if( UpgradeCore_IsEnabled() )
@@ -873,4 +881,14 @@ bool function GibraltarIsInDome( entity player )
 bool function InDomeShield( entity player )
 {
 	return StatusEffect_HasSeverity( player, eStatusEffect.bubble_bunker )
+}
+
+bool function BubbleBunker_ShouldGibraltarGiveFastRevive( entity player )
+{
+
+
+
+
+
+	return GibraltarIsInDome( player ) && GetCurrentPlaylistVarBool( "gibraltar_fast_revive", true )
 }

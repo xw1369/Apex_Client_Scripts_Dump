@@ -233,6 +233,12 @@ void function ShStats_LevelInit()
 	ShStats_Beginner_LevelInit()
 	ShStats_Gameplay_LevelInit()
 	ShStatsDefs_Init()
+
+
+
+
+
+
 }
 
 
@@ -361,6 +367,9 @@ void function RegisterAllStats()
 
 
 
+
+
+
 	
 	CAREER_STATS.clubs_games_played_with_club = RegisterAccumulatedStat_Int( null, "clubs_games_played_with_club", eChallengeGameMode.BATTLE_ROYALE, BADGES_UNLOCK_NEED )
 	CAREER_STATS.clubs_placements_win_with_club = RegisterAccumulatedStat_Int( null, "clubs_placements_win_with_club", eChallengeGameMode.BATTLE_ROYALE, BADGES_UNLOCK_NEED )
@@ -388,17 +397,32 @@ void function RegisterAllStats()
 	
 	StatsRegister_S21()
 
+
+		StatsRegister_S22()
+
+
 	StatsRegister_MetaChallenges()
+
+	StatsRegister_NarrativeChallenges()
+
 
 		CAREER_STATS.gamemode_treasurehunt_objectives_captured = RegisterAccumulatedStat_Int( null, "gamemode_treasurehunt_objectives_captured", eChallengeGameMode.TREASURE_HUNT, CHALLENGES_CALC_DEPENDS )
 
 
 
-
+		StatsRegister_NewPlayerPass()
 
 
 	StatsRegister_Autogen()
 	StatsRegister_EventShopStats()
+
+
+
+
+
+
+		StatsRegister_ApexCups()
+
 }
 
 
@@ -426,6 +450,169 @@ void function RegisterAllStats()
 
 
  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

@@ -110,9 +110,6 @@ global function SCB_DoGotTreasurePackNotify
 
 
 
-
-
-
 #if DEV
 
 
@@ -143,11 +140,9 @@ struct {
 } file
 
 const string FUNCNAME_DoGotTreasurePackNotify = "SCB_DoGotTreasurePackNotify"
-const string FUNCNAME_UpdatePanelData = "SCB_UpdateQuestPanelData"
 void function SeasonQuest_RegisterNetworking()
 {
 	Remote_RegisterClientFunction( FUNCNAME_DoGotTreasurePackNotify )
-	Remote_RegisterUIFunction( FUNCNAME_UpdatePanelData )
 }
 
 const string CC_TreasureBoxDisplayAcknowledged = "ClientCallback_TreasureBoxDisplayAcknowledged"
@@ -553,33 +548,6 @@ int function SeasonQuest_GetStatusForMissionIndex( entity player, ItemFlavor que
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 const string VARBLOCKNAME_QuestDatas = "questDatas"
 const string VARNAME_TB_lastPickupTime = "treasureBox_lastPickupTime"
 const string VARNAME_TB_totalPickups = "treasureBox_totalPickups"
@@ -597,57 +565,6 @@ string function BuildPersistentVarName( ItemFlavor quest, string varName )
 	Assert( ItemFlavor_GetType( quest ) == eItemType.quest )
 	return format( "%s[%s].%s", VARBLOCKNAME_QuestDatas, ItemFlavor_GetGUIDString( quest ), varName )
 }
-
-
-int function GetPersistentQuestVarInt( entity player, ItemFlavor quest, string varName )
-{
-	return player.GetPersistentVarAsInt( BuildPersistentVarName( quest, varName ) )
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

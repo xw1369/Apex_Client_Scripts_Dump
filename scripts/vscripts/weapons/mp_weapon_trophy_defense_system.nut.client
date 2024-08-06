@@ -35,6 +35,9 @@ const asset TROPHY_ELECTRICITY_FX = $"P_wpn_trophy_loop_1"
 
 const asset TROPHY_ELECTRICITY_FX_UPGRADE = $"P_wpn_trophy_loop_1_pow"
 
+
+const asset TROPHY_EMERGENCY_POWER_FX_UPGRADE = $"P_wpn_trophy_loop_1_CP_color"
+
 const asset TROPHY_INTERCEPT_PROJECTILE_SMALL_FX = $"P_wpn_trophy_imp_sm"
 const asset TROPHY_INTERCEPT_PROJECTILE_LARGE_FX = $"P_wpn_trophy_imp_lg"
 const asset TROPHY_INTERCEPT_PROJECTILE_CLOSE_FX = $"P_wpn_trophy_imp_lite"
@@ -112,9 +115,11 @@ const float WATTSON_TROPHY_CHARGE_POPUP_COOLDOWN = 3.5
 
 const float TROPHY_SHIELD_REPAIR_INTERVAL = 0.5
 const int TROPHY_SHIELD_REPAIR_AMOUNT = 1
+
+const int TROPHY_SHIELD_UPGRADED_REPAIR_ADDITIVE = 1
+
 const int TROPHY_DEPLOY_COUNT_UPDATE = 1
 const float TROPHY_SHIELD_REPAIR_INTERVAL_UPDATE = 0.2
-const int TROPHY_SHIELD_REPAIR_AMOUNT_UPDATE = 1
 const float TROPHY_SHIELD_DAMAGED_DELAY = 1.0
 const float TROPHY_LOS_CHARGE_TIMEOUT = 1.0
 const asset TACTICAL_CHARGE_FX = $"P_player_boost_screen"
@@ -132,6 +137,10 @@ const bool TROPHY_DEBUG_DRAW_PLACEMENT = false
 const bool TROPHY_DEBUG_DRAW_INTERSECTION = false
 
 const int TROPHY_SHIELD_AMOUNT = 250
+
+const int TROPHY_SHIELD_REGEN_STOCKPILE_AMOUNT = 1
+const float TROPHY_SHIELD_REGEN_STOCKPILE_AMOUNT_INTEVAL = 0.5
+
 
 
 const float TROPHY_ICON_HEIGHT = 96.0
@@ -212,6 +221,8 @@ struct
 	float trophy_shieldRegenInterval
 	float trophy_shieldRegenDelayOnDamage
 
+	int trophy_shieldRegenAmountAdditive
+
 	bool alwaysReminderVersion
 
 
@@ -227,6 +238,9 @@ function MpWeaponTrophy_Init()
 	PrecacheParticleSystem( TROPHY_ELECTRICITY_FX )
 
 		PrecacheParticleSystem( TROPHY_ELECTRICITY_FX_UPGRADE )
+
+
+		PrecacheParticleSystem( TROPHY_EMERGENCY_POWER_FX_UPGRADE )
 
 	PrecacheParticleSystem( TROPHY_INTERCEPT_PROJECTILE_SMALL_FX )
 	PrecacheParticleSystem( TROPHY_INTERCEPT_PROJECTILE_LARGE_FX )
@@ -244,7 +258,10 @@ function MpWeaponTrophy_Init()
 	file.trophy_maxCount = GetCurrentPlaylistVarInt( "wattson_trophy_max_count", TROPHY_DEPLOY_COUNT )
 	PrecacheParticleSystem( TROPHY_NO_SHIELDS_FX )
 	file.trophy_shieldPoolAmount 			= GetCurrentPlaylistVarInt( "wattson_trophy_shieldPoolAmount", TROPHY_SHIELD_AMOUNT )
-	file.trophy_shieldRegenAmount 			= GetCurrentPlaylistVarInt( "wattson_trophy_shieldRegenAmount", TROPHY_SHIELD_REPAIR_AMOUNT_UPDATE )
+	file.trophy_shieldRegenAmount 			= GetCurrentPlaylistVarInt( "wattson_trophy_shieldRegenAmount", TROPHY_SHIELD_REPAIR_AMOUNT )
+
+		file.trophy_shieldRegenAmountAdditive	= GetCurrentPlaylistVarInt( "wattson_trophy_shieldRegenAmountAdditive", TROPHY_SHIELD_UPGRADED_REPAIR_ADDITIVE )
+
 	file.trophy_shieldRegenInterval 		= GetCurrentPlaylistVarFloat( "wattson_trophy_shieldRegenTick", TROPHY_SHIELD_REPAIR_INTERVAL_UPDATE )
 	file.trophy_shieldRegenDelayOnDamage	= GetCurrentPlaylistVarFloat( "wattson_trophy_shieldRegenDelayOnDamage", TROPHY_SHIELD_DAMAGED_DELAY )
 	file.trophy_maxCount 					= GetCurrentPlaylistVarInt( "wattson_trophy_max_count", TROPHY_DEPLOY_COUNT_UPDATE )
@@ -2718,154 +2735,6 @@ void function OnCreateClientOnlyModel_weapon_trophy_defense_system( entity weapo
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 void function Trophy_OnWeaponStatusUpdate( entity player, var rui, int slot )
 {
 	if ( slot != OFFHAND_TACTICAL )
@@ -3200,10 +3069,14 @@ int function GetTrophySystem_MaxShieldCapacity( entity trophy )
 	entity owner = trophy.GetOwner()
 
 
-	if ( IsValid( owner ) && PlayerHasPassive( owner, ePassives.PAS_BATTERY_POWERED ) && PlayerHasPassive( owner, ePassives.PAS_ULT_UPGRADE_TWO ) ) 
-	{
-		maxCapacity *= 2
-	}
+
+			if ( IsValid( owner ) && PlayerHasPassive( owner, ePassives.PAS_BATTERY_POWERED ) && PlayerHasPassive( owner, ePassives.PAS_ULT_UPGRADE_ONE ) ) 
+
+
+
+			{
+				maxCapacity *= 2
+			}
 
 	return maxCapacity
 }
@@ -3213,10 +3086,12 @@ int function GetTrophySystem_MaxTrophyCount( entity owner )
 	int maxCount = file.trophy_maxCount
 
 
-	if ( IsValid( owner ) && PlayerHasPassive( owner, ePassives.PAS_BATTERY_POWERED ) && PlayerHasPassive( owner, ePassives.PAS_ULT_UPGRADE_ONE ) )  
-	{
-		maxCount = 2
-	}
+
+
+
+
+
+
 
 
 	return maxCount

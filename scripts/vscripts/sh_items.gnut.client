@@ -40,6 +40,7 @@ global function ItemFlavor_GetAssetShortName
 global function ItemFlavor_GetSettingsBlock
 global function ItemFlavor_SortByTier
 global function ItemFlavor_GetSourceIcon 
+global function ItemFlavor_GetParentFlavor
 
 global function ItemFlavor_GetTypeName
 global function ItemFlavor_GetLongName
@@ -48,6 +49,7 @@ global function ItemFlavor_GetLongDescription
 global function ItemFlavor_GetShortDescription
 global function ItemFlavor_GetRewardShortDescription
 global function ItemFlavor_GetIcon
+global function ItemFlavor_GetChallengeIcon
 global function IsItemFlavorTypeEquippable
 global function ItemFlavor_GetTypeUICategory
 
@@ -180,14 +182,14 @@ global enum eItemType
 	calevent_apex_cup_container
 	calevent_boost_event
 	calevent_temp_unlock
-	calevent_challenge_collection
-	calevent_challenge_set
 	calevent_reward_campaign
-	calevent_challenge_tile
 	_CALEVENT_RANGE_END
 
 	
 	challenge
+	challenge_collection
+	challenge_set
+	challenge_tile
 
 	
 	quest
@@ -204,6 +206,9 @@ global enum eItemType
 	apex_coins
 	battlepass
 	battlepass_purchased_xp
+
+		battlepass_v2_addon
+
 	voucher
 	character
 	character_skin
@@ -225,7 +230,7 @@ global enum eItemType
 	skydive_trail
 	radio_play
 
-	event_ability
+
 
 	sticker
 
@@ -250,6 +255,10 @@ global enum eItemType
 	artifact_component_theme
 	artifact_component_END
 
+
+
+
+
 	
 	__loot_start
 	loot_main_weapon
@@ -273,6 +282,10 @@ global enum eItemType
 	ranked_trial
 	apex_cup
 
+	narrative_season
+
+	account_flag
+
 	COUNT
 }
 
@@ -286,7 +299,7 @@ global enum eItemTypeUICategory
 	CAL_EVENT,
 }
 
-table<int, int> itemTypeUICategoryMap = {
+const table<int, int> itemTypeUICategoryMap = {
 	[eItemType.character] = eItemTypeUICategory.CHARACTER,
 	[eItemType.account_currency] = eItemTypeUICategory.NONE,
 	[eItemType.account_currency_bundle] = eItemTypeUICategory.NONE,
@@ -313,6 +326,9 @@ table<int, int> itemTypeUICategoryMap = {
 	[eItemType.artifact_component_theme] = eItemTypeUICategory.CHARACTER,
 	[eItemType.artifact_component_activation_emote] = eItemTypeUICategory.CHARACTER,
 	[eItemType.artifact_component_power_source] = eItemTypeUICategory.CHARACTER,
+
+
+
 	[eItemType.battlepass_purchased_xp] = eItemTypeUICategory.NONE,
 	[eItemType.skydive_emote] = eItemTypeUICategory.CHARACTER,
 	[eItemType.calevent_season] = eItemTypeUICategory.CAL_EVENT,
@@ -329,11 +345,12 @@ table<int, int> itemTypeUICategoryMap = {
 	[eItemType.character_emote] = eItemTypeUICategory.CHARACTER,
 	[eItemType.sticker] = eItemTypeUICategory.MISC_LOADOUT,
 
-		[eItemType.quest_comic] =eItemTypeUICategory.NON_EQUIPPABLE,
+		[eItemType.quest_comic] = eItemTypeUICategory.NON_EQUIPPABLE,
 
+	[eItemType.account_flag] = eItemTypeUICategory.NON_EQUIPPABLE,
 }
 
-global table<int, string> itemTypeNameMap = {
+global const table<int, string> itemTypeNameMap = {
 	[eItemType.character] = "#itemtype_character_NAME",
 	[eItemType.account_currency] = "#itemtype_account_currency_NAME",
 	[eItemType.account_currency_bundle] = "#itemtype_account_currency_bundle_NAME",
@@ -361,11 +378,14 @@ global table<int, string> itemTypeNameMap = {
 	[eItemType.artifact_component_theme] = "#itemtype_artifact_component_theme_NAME",
 	[eItemType.artifact_component_activation_emote] = "#itemtype_artifact_component_activation_emote_NAME",
 	[eItemType.artifact_component_power_source] = "#itemtype_artifact_component_power_source_NAME",
+
+
+
 	[eItemType.battlepass_purchased_xp] = "#itemtype_battlepass_purchased_xp_NAME",
 	[eItemType.skydive_emote] = "#itemtype_skydive_emote_NAME",
 	[eItemType.radio_play] = "#itemtype_radio_play_NAME",
 
-	[eItemType.event_ability] = "#itemtype_event_ability_NAME",
+
 
 	[eItemType.emote_icon] = "#itemtype_character_emote_icon_NAME",
 	[eItemType.character_emote] = "#itemtype_character_emote_NAME",
@@ -376,6 +396,7 @@ global table<int, string> itemTypeNameMap = {
 
 	[eItemType.reward_set_tracker] = "#itemtype_reward_set_tracker_NAME",
 
+	[eItemType.account_flag] = "#itemtype_account_flag_NAME",
 }
 
 global enum eItemFlavorShippingStatus
@@ -984,6 +1005,16 @@ string function ItemFlavor_GetTypeName( ItemFlavor flavor )
 	
 	if ( !(flavor.typeIndex in itemTypeNameMap) )
 		return format( "%s !UNLOCALIZED!", DEV_GetEnumStringSafe( "eItemType", flavor.typeIndex ) )
+
+	if ( ItemFlavor_GetType( flavor ) == eItemType.gladiator_card_stat_tracker )
+	{
+		if ( GladiatorCardStatTracker_GetTrackerType( flavor ) == eTrackerType.ART )
+			return Localize( "#REWARD_TRACKER_ART" )
+
+		if ( GladiatorCardStatTracker_GetTrackerType( flavor ) == eTrackerType.BOTH )
+			return Localize( "#REWARD_TRACKER_STAT_AND_ART" )
+	}
+
 	return itemTypeNameMap[flavor.typeIndex]
 }
 
@@ -1081,6 +1112,12 @@ string function ItemFlavor_GetRewardShortDescription( ItemFlavor flav )
 
 		
 		case eItemType.gladiator_card_stat_tracker:
+			if ( GladiatorCardStatTracker_GetTrackerType( flav ) == eTrackerType.ART )
+				return Localize( "#REWARD_TRACKER_ART" )
+
+			if ( GladiatorCardStatTracker_GetTrackerType( flav ) == eTrackerType.BOTH )
+				return Localize( "#REWARD_TRACKER_STAT_AND_ART" )
+
 			ItemFlavor ornull ref = GladiatorCardStatTracker_GetCharacterFlavor( flav )
 			if ( ref == null )
 				return Localize( "#REWARD_TRACKER_GENERIC" )
@@ -1138,6 +1175,9 @@ string function ItemFlavor_GetRewardShortDescription( ItemFlavor flav )
 		case eItemType.quest_comic:
 			return Localize( ItemFlavor_GetTypeName( flav ) )
 
+		case eItemType.account_flag:
+			return Localize( ItemFlavor_GetTypeName( flav ) )
+
 		case eItemType.melee_skin:
 			return Localize( "#itemtype_melee_skin_NAME" )
 
@@ -1159,6 +1199,14 @@ asset function ItemFlavor_GetIcon( ItemFlavor flavor )
 
 
 
+asset function ItemFlavor_GetChallengeIcon( ItemFlavor flavor )
+{
+	Assert( IsItemFlavorStructValid( flavor.guid, eValidation.ASSERT ) )
+	return GetGlobalSettingsAsset( ItemFlavor_GetAsset( flavor ), "challengeIcon" )
+}
+
+
+
 
 asset function ItemFlavor_GetSourceIcon( ItemFlavor flavor )
 {
@@ -1166,6 +1214,17 @@ asset function ItemFlavor_GetSourceIcon( ItemFlavor flavor )
 	return GetGlobalSettingsAsset( ItemFlavor_GetAsset( flavor ), "tagIcon" )
 }
 
+ItemFlavor ornull function ItemFlavor_GetParentFlavor( ItemFlavor flavor )
+{
+	asset parentAsset = GetGlobalSettingsAsset( ItemFlavor_GetAsset( flavor ), "parentItemFlavor" )
+	if ( parentAsset == $"" )
+		return null
+
+	if ( IsValidItemFlavorSettingsAsset( parentAsset ) )
+		return GetItemFlavorByAsset( parentAsset )
+
+	return null
+}
 
 int function ItemFlavor_GetAccountPackType( ItemFlavor pack )
 {
@@ -1385,10 +1444,10 @@ vector function ItemFlavor_GetQualityColor( ItemFlavor flavor )
 }
 
 
-string function ItemFlavor_GetQualityName( ItemFlavor flavor )
+string function ItemFlavor_GetQualityName( ItemFlavor flavor, bool isPlural = false )
 {
 	Assert( IsItemFlavorStructValid( flavor.guid, eValidation.ASSERT ) )
-	return ItemQuality_GetQualityName( ItemFlavor_GetQuality( flavor ) )
+	return ItemQuality_GetQualityName( ItemFlavor_GetQuality( flavor ), isPlural )
 }
 
 bool function ItemFlavor_IsThematic( ItemFlavor flavor )
@@ -1437,27 +1496,30 @@ bool function ItemFlavor_IsBattlepass( ItemFlavor flavor )
 	return false
 }
 
-string function ItemQuality_GetQualityName( int quality )
+string function ItemQuality_GetQualityName( int quality, bool isPlural = false)
 {
 	switch ( quality )
 	{
 		case 5:
-			return "#LOOT_TIER6"
+			return isPlural ? "#LOOT_TIER6_PLURAL" : "#LOOT_TIER6"
 
 		case 4:
-			return "#LOOT_TIER5"
+			return isPlural ? "#LOOT_TIER5_PLURAL" : "#LOOT_TIER5"
 
 		case 3:
-			return "#LOOT_TIER4"
+			return isPlural ? "#LOOT_TIER4_PLURAL" : "#LOOT_TIER4"
 
 		case 2:
-			return "#LOOT_TIER3"
+			return isPlural ? "#LOOT_TIER3_PLURAL" : "#LOOT_TIER3"
 
 		case 1:
-			return "#LOOT_TIER2"
+			return isPlural ? "#LOOT_TIER2_PLURAL" : "#LOOT_TIER2"
 
 		case 0:
-			return "#LOOT_TIER1"
+			return isPlural ? "#LOOT_TIER1_PLURAL" : "#LOOT_TIER1"
+
+		case -1:
+			return ""
 	}
 	unreachable
 }
@@ -1518,10 +1580,13 @@ array<var> function IterateSettingsAssetArray( asset settingsAsset, string array
 	var assetBlock       = GetSettingsBlockForAsset( settingsAsset )
 	var arr              = GetSettingsBlockArray( assetBlock, arrayFieldName )
 	int arraySize        = GetSettingsArraySize( arr )
+
 	array<var> arrBlocks = []
+	arrBlocks.resize( arraySize )
+
 	for ( int entryIdx = 0; entryIdx < arraySize; entryIdx++ )
 	{
-		arrBlocks.append( GetSettingsArrayElem( arr, entryIdx ) )
+		arrBlocks[entryIdx] = GetSettingsArrayElem( arr, entryIdx )
 	}
 	return arrBlocks
 }
@@ -1529,14 +1594,14 @@ array<var> function IterateSettingsAssetArray( asset settingsAsset, string array
 
 array<var> function IterateSettingsArray( var arr )
 {
-	
-	
-	
 	int arraySize        = GetSettingsArraySize( arr )
+
 	array<var> arrBlocks = []
+	arrBlocks.resize( arraySize )
+
 	for ( int entryIdx = 0; entryIdx < arraySize; entryIdx++ )
 	{
-		arrBlocks.append( GetSettingsArrayElem( arr, entryIdx ) )
+		arrBlocks[entryIdx] = GetSettingsArrayElem( arr, entryIdx )
 	}
 	return arrBlocks
 }
@@ -1736,11 +1801,11 @@ ItemFlavor ornull function RegisterItemFlavorFromSettingsAsset( asset settingsAs
 		return null
 	}
 
-	if ( fileLevel.hasChallengeMetaData && eItemType[itemType] == eItemType.challenge )
+	if ( fileLevel.hasChallengeMetaData && flavor.typeIndex == eItemType.challenge )
 		flavor.metaData = GetChallengeMetaDataFromAsset( settingsAsset )
 
-	if ( fileLevel.hasTimestampMetaData && IsCalEvent( eItemType[itemType] ) )
-		flavor.metaData = GetTimestampMetaDataFromAsset( settingsAsset )
+	if ( fileLevel.hasTimestampMetaData && IsCalEvent( flavor.typeIndex ) || ITEM_TYPES_WITH_DATETIME_ATTRIBUTES.contains( flavor.typeIndex ) )
+		flavor.metaData = GetTimestampMetaDataFromAsset( settingsAsset, flavor.typeIndex, true )
 
 	
 	if ( flavor.typeIndex == eItemType.character )
@@ -2559,7 +2624,7 @@ table<string, string> function GetChallengeMetaDataFromAsset( asset settingsAsse
 
 
 
-table<string, string> function GetTimestampMetaDataFromAsset( asset settingsAsset, bool showWarning = true )
+table<string, string> function GetTimestampMetaDataFromAsset( asset settingsAsset, int itemType, bool showWarning )
 {
 	table<string, string> metaData = {}
 
@@ -2583,7 +2648,7 @@ table<string, string> function GetTimestampMetaDataFromAsset( asset settingsAsse
 
 		metaData[ tempKey ] <- string(tempTimeStamp)
 	}
-	else if ( showWarning )
+	else if ( showWarning && IsCalEvent( itemType ) )
 	{
 		Warning( "CalEvent %s '%s' time is unset. Using %d (%s).", string(settingsAsset), tempKey, defaultUnixTime, GetDateTimeString( defaultUnixTime ) )
 	}
@@ -2607,7 +2672,7 @@ table<string, string> function GetTimestampMetaDataFromAsset( asset settingsAsse
 
 		metaData[ tempKey ] <- string(tempTimeStamp)
 	}
-	else if ( showWarning )
+	else if ( showWarning && IsCalEvent( itemType ) )
 	{
 		Warning( "CalEvent %s '%s' time is unset. Using %d (%s).", string(settingsAsset), tempKey, defaultUnixTime, GetDateTimeString( defaultUnixTime ) )
 	}

@@ -1,3 +1,5 @@
+global function BattleRush_GetPlaylistVar_ResetInventoryOnRespawn
+
 
 global function Sh_Survival_BattleRush_Init
 
@@ -85,7 +87,6 @@ void function Sh_Survival_BattleRush_Init()
 
 
 
-
 }
 
 
@@ -100,9 +101,6 @@ void function Sh_Survival_BattleRush_RegisterNetworking()
 	Remote_RegisterServerFunction( "BattleRush_ClientCallback_PlayJumpMusic" )
 
 }
-
-
-
 
 
 
@@ -560,3 +558,8 @@ void function Client_OnResolution( )
 
 
 
+
+bool function BattleRush_GetPlaylistVar_ResetInventoryOnRespawn()
+{
+	return GetCurrentPlaylistVarBool( "battle_rush_reset_inventory_on_respawn", true )
+}

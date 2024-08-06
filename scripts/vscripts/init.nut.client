@@ -60,6 +60,7 @@ global struct GrenadeIndicatorData
 {
 	vector hitPos
 	vector hitNormal
+	vector hitVelocity
 	entity hitEnt
 }
 
@@ -147,6 +148,7 @@ global struct CupEntry
 	float positionPercentage
 	int currSquadScore
 	int reRollCount
+	bool active
 	array< CupMatchSummary > matchSummaryData
 	array< int > tierScoreBounds
 }
@@ -232,7 +234,6 @@ global struct PartyMember
 	bool present
 	string eaid
 	int boostCount
-	string unspoofedHardware
 	string unspoofedUID
 }
 
@@ -259,6 +260,15 @@ global struct NetTraceRouteResults
 	int worstRttMs
 	int lastRttMs
 	int averageRttMs
+}
+
+global struct EnemyDotDistanceSqrStruct
+{
+	entity enemy
+	float viewCos
+	float distanceSqr
+	bool inPlayerFOV
+	float score
 }
 
 
@@ -1021,7 +1031,6 @@ global struct Friend
 	string id
 	string unspoofedid = ""
 	string hardware
-	string unspoofedHardware = ""
 	string name = "Unknown"
 	string presence = ""
 	int    status = eFriendStatus.OFFLINE

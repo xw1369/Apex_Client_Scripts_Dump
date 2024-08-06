@@ -410,6 +410,12 @@ void function ShieldOverlayUpdate( entity player, float shieldFrac, float lastSh
 	}
 	else if ( shieldFrac < lastShieldFrac )
 	{
+
+		
+		if ( player.IsMostRecentShieldChangeFromSingleSource( SHIELD_CHANGE_SOURCE_REGEN, player.GetShieldHealth(), 0.5 ) )
+			return
+
+
 		particleSystemIdx = file.shieldFX
 	}
 	else
@@ -429,13 +435,6 @@ void function PlayShieldOverlayFX( entity player, int particleSystemIdx )
 	int fxHandle = StartParticleEffectOnEntity( cockpit, particleSystemIdx, FX_PATTACH_ABSORIGIN_FOLLOW, ATTACHMENTID_INVALID )
 
 	int armorTier = maxint( 1, EquipmentSlot_GetEquipmentTier( GetLocalViewPlayer(), "armor" ) )
-
-
-
-
-
-
-
 
 	vector shieldColor = GetFXRarityColorForTier( armorTier )
 

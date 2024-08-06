@@ -29,7 +29,8 @@ global enum ePakType
 	DL_STORE_EVENT_WIDE_SHORT,
 	DL_STORE_EVENT_WIDE_MEDIUM,
 	DL_STORE_EVENT_TALL,
-	DL_STORE_EVENT_SHORT
+	DL_STORE_EVENT_SHORT,
+	DL_BATTLEPASS_UM,
 }
 
 
@@ -101,7 +102,7 @@ sDownloadedImageAsset function GetDownloadedImageAssetFromString( string rpakNam
 	{
 		return dlAsset
 	}
-	else if ( dlType == ePakType.DL_PROMO || dlType == ePakType.DL_MINI_PROMO )
+	else if ( dlType == ePakType.DL_PROMO || dlType == ePakType.DL_MINI_PROMO || dlType == ePakType.DL_BATTLEPASS_UM )
 	{
 		fullImageName = "rui/download_promo/" + imageName
 	}
@@ -145,7 +146,7 @@ asset function GetFallbackImage( int dlType )
 		image = $"rui/menu/image_download/image_load_failed_event_tall"
 	else if ( dlType == ePakType.DL_STORE_EVENT_SHORT )
 		image = $"rui/menu/image_download/image_load_failed_event_short"
-	else if ( dlType == ePakType.DL_PROMO || dlType == ePakType.DL_MINI_PROMO )
+	else if ( dlType == ePakType.DL_PROMO || dlType == ePakType.DL_MINI_PROMO || dlType == ePakType.DL_BATTLEPASS_UM )
 		image = $"rui/menu/image_download/image_load_failed_promo"
 
 	return image
@@ -171,7 +172,7 @@ asset function GetDownloadedImageAsset( string rpakName, string imageName, int d
 
 		if ( isLoading )
 		{
-			if ( dlType == ePakType.DL_PROMO || dlType == ePakType.DL_MINI_PROMO )
+			if ( dlType == ePakType.DL_PROMO || dlType == ePakType.DL_MINI_PROMO || dlType == ePakType.DL_BATTLEPASS_UM )
 				image = GetFallbackImage( dlType )
 			else
 				image = $""
@@ -184,7 +185,7 @@ asset function GetDownloadedImageAsset( string rpakName, string imageName, int d
 	}
 	else
 	{
-		if ( dlType == ePakType.DL_PROMO || dlType == ePakType.DL_MINI_PROMO )
+		if ( dlType == ePakType.DL_PROMO || dlType == ePakType.DL_MINI_PROMO || dlType == ePakType.DL_BATTLEPASS_UM )
 			image = GetFallbackImage( dlType )
 	}
 
@@ -447,6 +448,12 @@ void function RequestDownloadedImagePakLoad_Internal( string rpakName, int pakTy
 		{
 			RunUIScript( "OnDLPromoPakLoaded" )
 		}
+
+		else if( req.pakType == ePakType.DL_BATTLEPASS_UM )
+		{
+			RunUIScript( "OnBattlepassCarouselPakLoaded", rpakName )
+		}
+
 
 		if( req.imageElem )
 		{

@@ -515,24 +515,24 @@ array<string> function GetSubjectNamesForCommsAction( int commsAction, entity su
 
 
 
-	bool halloweenMode = false
 
 
 
 
-		halloweenMode = halloweenMode || GameModeVariant_IsActive( eGameModeVariants.SURVIVAL_SHADOW_ARMY )
 
-	if ( halloweenMode )
-	{
-		if ( commsAction == eCommsAction.PING_LOOT_CREEP_INFECTED )
-		{
-			return [Localize( "#LOOT_CREEP_INFECTED_UI_TITLE" )]
-		}
-			if ( commsAction == eCommsAction.PING_LOOT_CREEP_SPIDER )
-		{
-			return [Localize( "#LOOT_CREEP_SPIDER_UI_TITLE" )]
-		}
-	}
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 	if ( CaptureObjectivePing_GetIsCaptureObjectivePingCommsAction( commsAction, subjectEnt ) )
@@ -559,6 +559,21 @@ vector function GetSubjectColorForCommsAction( entity subjectEnt, string itemRef
 
 	if ( subjectEnt.IsPlayer() )
 		return GetChatTitleColorForPlayer( subjectEnt )
+
+
+	if( LootBinReset_IsLootBinSpecial( subjectEnt ) )
+	{
+		if( LootBinReset_IsLootBin_GoldBin( subjectEnt ) )
+		{
+			return GetKeyColor( COLORID_HUD_LOOT_TIER4 )
+		}
+
+		if( LootBinReset_IsLootBin_Mythic( subjectEnt ) )
+		{
+			return GetKeyColor( COLORID_MYTHIC_BIN_ICON )
+		}
+	}
+
 
 	switch ( subjectEnt.GetNetworkedClassName() )
 	{
@@ -891,13 +906,12 @@ float function GetCooldownTimeForCommsAction( int commsAction )
 		case eCommsAction.PING_TOXIC_GAS:
 		case eCommsAction.PING_ENEMY_SHIELD:
 		case eCommsAction.PING_ENEMY_TELEPORTER:
-			return 1.5
 		case eCommsAction.PING_VANTAGE_ENEMY_SPOTTED_1:
 		case eCommsAction.PING_VANTAGE_ENEMY_SPOTTED_2:
 		case eCommsAction.PING_VANTAGE_ENEMY_SPOTTED_3:
 		case eCommsAction.PING_VANTAGE_ENEMY_SPOTTED_4:
 		case eCommsAction.PING_VANTAGE_ENEMY_SPOTTED_5:
-			return 0.7
+			return 1.5
 
 		case eCommsAction.FIRING_RANGE_TARGET_SPEED_CHANGE:
 			return 0.9
@@ -943,8 +957,8 @@ bool function ShouldMuteCommsActionForCooldown( entity player, int commsAction, 
 	bool isEnemyNearbyComm = commsAction == eCommsAction.QUICKCHAT_SKYDIVE_ENEMIES_NEARBY
 
 
-		if ( GameModeVariant_IsActive( eGameModeVariants.SURVIVAL_SHADOW_ARMY ) )
-			isEnemyNearbyComm = commsAction == eCommsAction.QUICKCHAT_SKYDIVE_ENEMIES_NEARBY || commsAction == eCommsAction.QUICKCHAT_SKYDIVE_REV_NEARBY || commsAction == eCommsAction.QUICKCHAT_SKYDIVE_SKINBAG_NEARBY
+
+
 
 
 	if ( isEnemyNearbyComm )
@@ -1364,7 +1378,6 @@ void function PlaySoundForCommsAction( entity player, entity subjectEnt, CommsAc
 				act.index == eCommsAction.PING_VANTAGE_ENEMY_SPOTTED_4 ||
 				act.index == eCommsAction.PING_VANTAGE_ENEMY_SPOTTED_5 )
 		{
-			
 			subEvent = eCommsAction.SUB_TYPE_VANTAGE_TEAM_1
 			if ( IsValid( subjectEnt ) )
 			{
@@ -1636,8 +1649,8 @@ string function GetPlayerDialogSound( entity player, entity subjectEnt, CommsAct
 		return ""
 
 
-		if ( GameModeVariant_IsActive( eGameModeVariants.SURVIVAL_SHADOW_ARMY ) && IsPlayerShadowZombie( player ) )
-			return GetShadowDialogSoundForAction( act, options )
+
+
 
 
 	string subAlias = act.aliasSubname
@@ -1769,6 +1782,15 @@ void function AddCallback_OnQuickchatEvent( int index, void functionref(entity, 
 	Assert( !file.onQuickchatCallbacks[ index ].contains( func ) )
 	file.onQuickchatCallbacks[ index ].append( func )
 }
+
+
+
+
+
+
+
+
+
 
 
 

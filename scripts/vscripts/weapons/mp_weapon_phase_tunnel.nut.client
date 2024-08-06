@@ -187,8 +187,10 @@ global struct PhaseTunnelData
 
 struct
 {
+	float tunnelLifetime
 	float maxPlacementDist
 	float travelTimeMin
+	float travelTimeLong
 	float travelTimeMax
 	float travelSpeed
 
@@ -252,9 +254,11 @@ void function MpWeaponPhaseTunnel_Init()
 	
 	
 	
+	file.tunnelLifetime   = GetCurrentPlaylistVarFloat( "wraith_portal_lifeline", PHASE_TUNNEL_LIFETIME )
 	file.maxPlacementDist = GetCurrentPlaylistVarFloat( "wraith_portal_max_distance", PHASE_TUNNEL_MAX_DISTANCE )
-	
-	
+	file.travelTimeMin    = GetCurrentPlaylistVarFloat( "wraith_portal_min_travel_time", PHASE_TUNNEL_TELEPORT_TRAVEL_TIME_MIN )
+	file.travelTimeLong	  = GetCurrentPlaylistVarFloat( "wraith_portal_long_travel_time", PHASE_TUNNEL_TELEPORT_TRAVEL_TIME_LONG )
+	file.travelTimeMax    = GetCurrentPlaylistVarFloat( "wraith_portal_max_travel_time", PHASE_TUNNEL_TELEPORT_TRAVEL_TIME_MAX )
 	file.travelSpeed      = GetCurrentPlaylistVarFloat( "wraith_portal_max_travel_speed", 1024.0 )
 }
 
@@ -2245,13 +2249,6 @@ bool function IsValidWorldExitPos( TraceResults results )
 	return false
 }
 
-array< entity > function PhaseTunnel_GetPortalIgnoreEnts()
-{
-	array< entity > ignoreEnts
-	return ignoreEnts
-}
-
-
 bool function PhaseTunnel_IsPortalExitPointValid( entity player, vector testOrg, entity ignoreEnt = null, bool onlyCheckWorld = false, bool isCrouched = false, bool DEBUG_DRAW = false )
 {
 	int solidMask            = onlyCheckWorld ? TRACE_MASK_PLAYERSOLID_BRUSHONLY : TRACE_MASK_PLAYERSOLID
@@ -2267,8 +2264,6 @@ bool function PhaseTunnel_IsPortalExitPointValid( entity player, vector testOrg,
 		if ( IsValid( vehicle ) )
 			ignoreEnts.append( vehicle )
 
-
-	ignoreEnts.extend( PhaseTunnel_GetPortalIgnoreEnts() )
 
 	TraceResults result
 
@@ -2423,7 +2418,7 @@ void function PhaseTunnel_CreateHUDMarker( entity portalMarker )
 	var topology = CreateRUITopology_Worldspace( portalMarker.GetOrigin(), portalMarker.GetAngles(), 24, 24 )
 	var ruiPlane = RuiCreate( $"ui/phase_tunnel_timer.rpak", topology, RUI_DRAW_WORLD, 0 )
 	RuiSetGameTime( ruiPlane, "startTime", Time() )
-	RuiSetFloat( ruiPlane, "lifeTime", PHASE_TUNNEL_LIFETIME )
+	RuiSetFloat( ruiPlane, "lifeTime", file.tunnelLifetime )
 
 	OnThreadEnd(
 		function() : ( ruiPlane, topology )

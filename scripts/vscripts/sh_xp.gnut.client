@@ -104,6 +104,11 @@ global enum eXPType
 	BONUS_OBJECTIVES_COMPLETED = 23,
 
 	CHALLENGE_REWARD = 24,
+
+
+
+
+
 	_count_,
 }
 
@@ -601,6 +606,17 @@ void function InitXPData()
 
 	InitXpEventTypeData( eXPType.CHALLENGE_REWARD, "xp_challenge_reward", "#EOG_XP_CHALLENGES_REWARD" )
 	XpEventTypeData_SetDisplayEmpty( eXPType.CHALLENGE_REWARD, false )
+
+
+
+
+
+
+
+
+
+
+
 }
 
 

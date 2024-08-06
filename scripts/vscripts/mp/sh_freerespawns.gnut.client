@@ -1,0 +1,5801 @@
+
+
+global function FreeRespawns_Feature_Exists
+
+global function Freespawns_PLV_LockoutTime_Progress_PastDisable
+
+global function Freespawns_PLV_AggroRewards_DamageChunk_Threshold
+global function Freespawns_AggroReward_Get_ByType
+
+global function Freespawns_PLV_RebuildWeaponSlots
+
+
+const asset RESPAWN_DEATHLOC_BEACON_ASSET = $"P_ar_loot_drop_point_far_cp"
+const asset RESPAWN_DEATHLOC_ICON_ASSET		  = $"rui/rui_screens/icon_skull_postdeath"
+const float RESPAWN_DEATHLOC_SHOW_DURATION = 60.0
+
+const string LOCKOUT_TIMES_DEFAULTS 		= "10 20 30 40 50 60"
+const string LOCKOUT_DEATHADDS_DEFAULTS 	= "05 10 15 15 15 15"
+
+const asset 	RESPAWN_PLAYERWILLRESPAWN_VFX = $"P_dummie_warp_default"
+const string 	RESPAWN_PLAYERWILLRESPAWN_SFX = "Dummie_WarpOut_3P"
+
+const float LOCKOUTTIME_MAX = 255.0
+
+
+const int TEAM_ALL = -1
+const int DEFAULT_LIMIT_ENDROUNDEND 	= 4
+const int DEFAULT_LIMIT_SQUADSREMAINING = -1 
+
+const float FREESPAWN_ENEMY_WARN_RANGE = 100 * METERS_TO_INCHES
+
+const asset		DESTINATIONMARKER_FX = $"P_ar_FS_landingmark" 
+const float 	FREESPAWNS_LANDINGMARKER_SPECTATE_TIME = 4.0
+
+const string 	FREESPAWN_SOUND_3P_LANDINGMARKER_ALLY 	= "Survival_Freespawn_Landing_Marker_3P"
+const string 	FREESPAWN_SOUND_3P_LANDINGMARKER_ENEMY 	= "PvE_RespawnChime_3P"
+const string	FREESPAWN_SOUND_1P_ELIMINATED_A_SQUAD		= "UI_3Strikes_EnemySquadEliminated" 
+
+
+const string	FREESPAWN_SOUND_1P_ALLYRESPAWNED			= "Survival_Freespawn_Friendly_1P"					
+const string 	FREESPAWN_SOUND_1P_ENEMYNEARBY				= "Survival_Freespawn_Nearby_Enemy_1P"				
+const string 	FREESPAWN_SOUND_1P_RESPAWNCOUNTDOWN			= "Survival_Freespawn_TokenCountdown_1P"			
+const string	FREESPAWN_SOUND_1P_USETOKEN					= "Survival_Freespawn_TokenUse_1P"					
+const string	FREESPAWN_SOUND_1P_LAUNCHRESTORE			= "Survival_Freespawn_LaunchRestore_1P"				
+
+const string	FREESPAWN_SOUND_PLAYER_KILLED_WILL_RESPAWN  = "Survival_Freespawn_Pilot_Killed_Indicator_1P"	
+const string	FREESPAWN_SOUND_FREESPAWNS_DISABLED			= "Survival_Gameplay_Revival_Finish"				
+const string 	FREESPAWN_SOUND_AGGROREWARD					= "Survival_Freespawn_TokenCountdownUpdate_1P"
+
+const string 	FREESPAWN_VO_RESPAWN_START					= "bc_podLeaderLaunch"
+const string 	FREESPAWN_VO_RESPAWN_LANDED					= "bc_respawnAuto"
+const float		SQUAD_SURVIVOR_WARNING_DEBOUNCE_TIME			= 10.0
+const string	SQUAD_SURVIVOR_SOUND_ANNOUNCE				= "Survival_Freespawn_TokenCountdownUpdate_1P" 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+struct sObserverTarget
+{
+	entity targetObj
+	int mode = OBS_MODE_CHASE
+	float duration
+}
+
+struct sFreespawnedLoadout_DegradedWeapon
+{
+	string ref
+	array< string > mods
+}
+
+
+const string SKYDIVE_SPAWN_WARN_SOUND = "PvE_RespawnChime_3P"
+
+struct sDestPoint
+{
+	Point pt
+	bool isValid = false
+}
+
+
+global const vector 	FREESPAWN_PROMPT_COLOR	= < 128.0, 128.0, 128.0 > / 255.0
+global const vector 	FREESPAWN_AGRROREWARD_COLOR	= < 0.0, 255.0, 0.0 > / 255.0
+global const vector		FREESPAWN_AGGROREWARD_PENALTY_COLOR = < 255.0, 0.0, 0.0 > / 255.0
+global const float 		FREESPAWN_DELAY = 30.0
+
+global function Freespawns_PLV_AutoActivate
+
+global function Freespawns_RespawnBeacons_Disabled
+
+global function Freespawns_PLV_RestoreAttachments_OnFreespawn
+global function Freespawns_RestorableAttachments_GetTypes
+
+const int FREESPAWNSV3_SELFREVIVES_MAX = 1
+const string HIGHLIGHT_ENEMYTEAMMATES = "bloodhound_sonar"
+
+
+const int FREESPAWN_ANNOUNCEMENT_PRIORITY_DEFAULT = 1000
+
+global function FreeRespawns_Init
+global function FreeRespawns_IsPlayerRespawnDisabled
+global function FreeRespawns_Feature_IsInEffect
+global function FreeRespawns_DontResetInventory
+global function FreeRespawns_PLV_DontResetInventory_OnFreespawn
+
+global function Freespawns_ManualBleedout_CanDo
+
+global function Freespawns_SkipBleedout_CanDo
+
+global function Freespawns_SelfRevive_CanDo
+global function Freespawns_PLV_DeathCam_Time
+global function PlayerRecentlyFreespawned_Check
+
+
+
+global function FreeRespawns_CanLocalPlayerRespawn
+global function FreeRespawns_CanLocalPlayerRespawnOrIsRespawning
+global function FreeRespawns_SetCanLocalPlayerRespawn
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+global function FreeRespawns_SV2CL_Announcement_SquadElimination
+global function FreeRespawns_SV2CL_Announcement_RespawnsDisabled
+global function FreeRespawns_SV2CL_UpdateRui
+
+global function FreeRespawns_UpdateSquadLeaderbox
+
+global function Freespawns_SV2CL_RespawnStatus_Announce
+global function Freespawns_SV2CL_InitFreespawnPrompt
+global function Freespawns_SV2CL_LockoutTime_Updated
+global function Freespawns_SV2CL_LockoutPrompt_Hide
+
+global function Freespawns_CL_SkipBleedout_Prompts_Thread
+
+global function Freespawns_SV2CL_FreespawnsEnabled_Update
+global function Freespawns_SV2CL_AggroReward_Give
+global function Freespawns_SV2CL_AggroReward_Announce
+global function Freespawns_SV2CL_SelfRevives_Updated
+
+global function Freespawns_SV2CL_Lockout_CountdownSounds
+global function Freespawns_SV2CL_LockoutStartTime_Set
+global function Freespawns_SV2CL_LockoutCumulative_Update_Announce
+
+struct sAnnouncementFields
+{
+	string  playerName = ""
+	string 	message = ""
+	string 	messageObit = ""
+	string 	messageLoc = ""
+	string 	messageObitLoc = ""
+	vector 	messageColor = COLOR_GRAY
+	float 	duration = 5.0
+	int 	announceStyle =  ANNOUNCEMENT_STYLE_GENERIC_WARNING 
+	int 	priority = FREESPAWN_ANNOUNCEMENT_PRIORITY_DEFAULT
+	string 	announcementSFX = RESPAWN_PLAYERWILLRESPAWN_SFX
+}
+
+
+
+
+
+const string NETFUNC_ANNOUNCEMENT_SQUAD_ELIMINATION 	= "FreeRespawns_SV2CL_Announcement_SquadElimination"
+const string NETFUNC_ANNOUNCEMENT_RESPAWNS_DISABLED 	= "FreeRespawns_SV2CL_Announcement_RespawnsDisabled"
+
+const string NETFUNC_SV2CL_UPDATERUI 					= "FreeRespawns_SV2CL_UpdateRui"
+
+const string NETVAR_FREERESPAWNS_SQUAD_LIVES 			= "FreeRespawn_Squad_Lives"
+const string NETVAR_FREERESPAWNS_DISABLED 				= "FreeRespawn_Disabled"
+global const string NETVAR_FREERESPAWNS_RECENTLYFREESPAWNED	= "Freespawn_RecentlyFreespawned"
+global const string NETVAR_FREESPAWNS_PLAYER_ISFREESPAWNING = "Freespawn_Player_IsFreespawning"
+const float TIME_ANNOUNCEMENT_RESPAWN_ENABLED = 7.0
+const float TIME_ANNOUNCEMENT_RESPAWN_DISABLED = 7.0
+const float TIME_ANNOUNCEMENT_SQUAD_ELIMINATED = 4.0
+const float TIME_ANNOUNCEMENT_SQUAD_LIVES_REMAINING_RESPAWN = 7.0
+const float TIME_ANNOUNCEMENT_SQUAD_LIVES_REMAINING = 7.0
+
+enum eFreespawnObitType
+{
+	WILL_RESPAWN,
+	IS_RESPAWNING,
+	IS_RESPAWNING_MULTIPLE,
+	SQUAD_SURVIVOR,
+	ELIMINATED,
+	ELIMINATED_A_SQUAD,
+	COUNT_
+}
+
+enum eDeathAddType 
+{
+	PENALTY_DEATH,
+	PENALTY_BLEEDOUT,
+	PENALTY_SUICIDE,
+	PENALTY_EXECUTED,
+	REWARD_DOWN,
+	REWARD_KILL,
+	REWARD_EXECUTION,
+	COUNT_
+}
+
+
+global const int FREESPAWNS_SELFREVIVE_STATUSEFFECT_INDEX = eStatusEffect.temporary_self_revive
+
+#if DEV
+global function DEV_Freespawns_LockoutTime_Show
+global function DEV_Freespawns_LockoutTime_Set
+#endif
+
+
+
+
+
+const asset RUI_STRIKEOUT_INFO = 	$"ui/gamestate_info_survival.rpak"
+const asset RUI_STRIKEOUT_FULLMAP = $"ui/gamestate_info_fullmap.rpak"
+const asset RUI_DEATH_SCREEN = 		$"ui/header_data_solo.rpak" 
+
+const string RUIVAR_SQUAD_LIVES = "squadStrikes"
+const string RUIVAR_LIVES_HEADER_LABEL = "headerLabel"
+const string RUIVAR_RESPAWN_DISABLED = "respawnsDisabled"
+const string RUIVAR_DEATH_SCREEN_TITLE = "headerText"
+const string RUIVAR_DEATH_SCREEN_KILLS = "killsText"
+const string RUIVAR_DEATH_SCREEN_SCORE_LOSE = "losingScore"
+const string RUIVAR_DEATH_SCREEN_SCORE_WIN = "winningScore"
+
+const string TEXT_RESPAWN_ENABLED 			= "#FREERESPAWNS_ENABLED"
+const string TEXT_RESPAWN_ENABLED_SUB 		= "#FREERESPAWNS_ENABLED_SUB"
+
+const string TEXT_RESPAWN_DISABLED = "#FREERESPAWNS_DISABLED"
+const string TEXT_RESPAWN_DISABLED_SUB = "#FREERESPAWNS_DISABLED_SUB"
+
+const string TEXT_SQUAD_PLACEMENT_WIN = "#SQUAD_PLACEMENT_GCARDS_TITLE"
+const string TEXT_SQUAD_PLACEMENT_LOSE = "#SQUAD_HEADER_DEFEAT"
+const string TEXT_SQUAD_PLACEMENT_KILLS = "#DEATH_SCREEN_SUMMARY_KILLS_SQUAD"
+const string TEXT_DEATH_SCREEN_SUMMARY_KILLS = "#DEATH_SCREEN_SUMMARY_KILLS"
+const string TEXT_DEATH_SCREEN_SUMMARY_ASSISTS = "#DEATH_SCREEN_SUMMARY_ASSISTS"
+const string TEXT_DEATH_SCREEN_SUMMARY_KNOCKDOWNS = "#DEATH_SCREEN_SUMMARY_KNOCKDOWNS"
+const string TEXT_DEATH_SCREEN_SUMMARY_DAMAGE = "#DEATH_SCREEN_SUMMARY_DAMAGE_DEALT"
+const string TEXT_DEATH_SCREEN_SUMMARY_TIME = "#DEATH_SCREEN_SUMMARY_SURVIVAL_TIME"
+const string TEXT_DEATH_SCREEN_SUMMARY_REVIVES = "#DEATH_SCREEN_SUMMARY_REVIVES"
+
+
+const string SFX_SQUAD_LIVES_REMAINING_ONE = "UI_3Strikes_Widget_Stinger_Strike1"
+const string SFX_SQUAD_LIVES_REMAINING_ZERO = "UI_3Strikes_Widget_Stinger_Strike1"
+const string SFX_SQUAD_ELIMINATED = "UI_3Strikes_EnemySquadEliminated"
+const string SFX_RESPAWN_DISABLED_WITH_REWARD = "UI_3Strikes_RespawningDisabled"
+const string SFX_RESPAWN_DISABLED_WITHOUT_REWARD = "UI_3Strikes_RespawningDisabled"
+
+
+
+const vector INVALID_LOC = < 0,0,0 >
+
+struct
+{
+	bool devPrintsOn = false
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+		bool freespawns_IsEnabled = false	
+		array< float > lockoutTimeMins_ByRound_Explicit
+		array< float > lockoutDeathAdds_ByRound_Explicit
+		table< int, asset > freeSpawnV2_CountdownNumbers
+
+
+
+		int squadLives = 0
+		int squadLivesViewPlayer = 0
+		int lastSquadLifeAnnouncement = -1
+		bool soloSplashAnnounceDisplayed = false
+		bool localPlayerCanRespawn = false
+		bool localPlayerCanRespawnOrIsRespawning = false
+
+
+
+		bool gameIsPlaying = false 
+
+		var nestedRespawnTokenRui
+		var nestedSquadLivesRui
+		var nestedSquadLivesMapRui
+		bool squadEliminated = false
+		table< int, array< int > > destinationFXs 
+
+		float lockoutStartTime 	
+		float lockoutTime		
+
+
+} file
+
+
+
+
+
+
+
+void function FreeRespawns_Init()
+{
+	if( !GameMode_IsActive( eGameModes.SURVIVAL ) )
+		return
+
+	if( GameModeVariant_IsActive( eGameModeVariants.SURVIVAL_FIRING_RANGE ) )
+		return
+
+	if( GameModeVariant_IsActive( eGameModeVariants.SURVIVAL_TRAINING ) )
+		return
+
+	if( !FreeRespawns_Feature_Exists() )
+		return
+
+	PrecacheParticleSystem( DESTINATIONMARKER_FX )
+
+	
+
+	RegisterNetworking()
+
+	AddCallback_EntitiesDidLoad( OnEntitiesDidLoad )
+
+	LockoutTimeMins_Init()
+	LockoutDeathAdds_Explicit_Init()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+	RegisterSignal( "freespawns_gameover" )
+
+	AddCallback_GameStateEnter( eGameState.Playing, OnGameState_Playing )
+	AddCallback_GameStateEnter( eGameState.WinnerDetermined, OnGameState_WinnerDetermined ) 
+
+
+		RegisterNetVarIntChangeCallback( NETVAR_FREERESPAWNS_SQUAD_LIVES, Lives_Changed )
+		RegisterNetVarBoolChangeCallback( NETVAR_FREERESPAWNS_DISABLED, FreeRespawns_CL_Disabled_Changed )
+
+		Announcements_SetOnSetupAnnouncement_RemainingRespawns( FreeRespawns_OnSetupAnnouncement_RemainingRespawns )
+
+		DeathScreen_SetIsPlayerWaitingForRespawnFunc( FreeRespawns_IsPlayerWaitingForRespawn )
+		AddScoreboardShowCallback( FreeRespawns_OnShowScoreboard )
+
+		FreeRespawns_OverrideGameStateUI()
+
+		RegisterMinimapPackage( "prop_script", eMinimapObject_prop_script.FREESPAWN_RESPAWN_MAP,
+			MINIMAP_OBJ_AREA_RUI, void function( entity ent, var rui ) {
+				SetupMapRuiRespawnLocation( ent, rui, false )
+			},
+			FULLMAP_OBJECTIVE_AREA_RUI, void function( entity ent, var rui ) {
+				SetupMapRuiRespawnLocation( ent, rui, true )
+			}
+		)
+
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+void function RegisterNetworking()
+{
+	RegisterNetworkedVariable( NETVAR_FREERESPAWNS_SQUAD_LIVES, SNDC_PLAYER_EXCLUSIVE, SNVT_INT, 0 )
+	RegisterNetworkedVariable( NETVAR_FREERESPAWNS_DISABLED, SNDC_PLAYER_EXCLUSIVE, SNVT_BOOL, false )
+	RegisterNetworkedVariable( NETVAR_FREERESPAWNS_RECENTLYFREESPAWNED, SNDC_PLAYER_EXCLUSIVE, SNVT_BOOL, false )
+	RegisterNetworkedVariable( NETVAR_FREESPAWNS_PLAYER_ISFREESPAWNING, SNDC_PLAYER_EXCLUSIVE, SNVT_BOOL, false )
+	RegisterNetworkedVariable( "Freespawns_Lockout_IntroTuning_Active", SNDC_GLOBAL, SNVT_BOOL  )
+	RegisterNetworkedVariable( "Freespawns_Lockout_HyperTuning_Active", SNDC_GLOBAL, SNVT_BOOL  )
+
+	Remote_RegisterClientFunction( NETFUNC_ANNOUNCEMENT_SQUAD_ELIMINATION )
+	Remote_RegisterClientFunction( NETFUNC_ANNOUNCEMENT_RESPAWNS_DISABLED, "bool" )
+	Remote_RegisterClientFunction( NETFUNC_SV2CL_UPDATERUI )
+
+	Remote_RegisterClientFunction( "Freespawns_SV2CL_RespawnStatus_Announce", 			"entity", "int", 0, eFreespawnObitType.COUNT_ )
+	Remote_RegisterClientFunction( "Freespawns_SV2CL_InitFreespawnPrompt")
+	Remote_RegisterClientFunction( "Freespawns_SV2CL_LockoutTime_Updated", 				"float", 0.0, LOCKOUTTIME_MAX, 32 )
+	Remote_RegisterClientFunction( "Freespawns_SV2CL_LockoutPrompt_Hide" )
+
+	Remote_RegisterClientFunction( "Freespawns_SV2CL_FreespawnsEnabled_Update", 		"bool" )
+	Remote_RegisterClientFunction( "Freespawns_SV2CL_AggroReward_Give", "entity", 		"int", 0, eFreespawns_AggroType.COUNT_ )
+	Remote_RegisterClientFunction( "Freespawns_SV2CL_AggroReward_Announce", "entity", 	"int", 0, eFreespawns_AggroType.COUNT_ )
+
+	Remote_RegisterClientFunction( "Freespawns_SV2CL_SelfRevives_Updated", "entity", 	"int", 0, SelfRevives_PLV_MaxCount() )
+
+	Remote_RegisterClientFunction( "Freespawns_SV2CL_LockoutStartTime_Set", 			"float", 0.0, 1000000.0, 32 )
+	Remote_RegisterClientFunction( "Freespawns_SV2CL_Lockout_CountdownSounds" )
+
+	Remote_RegisterClientFunction( "Freespawns_SV2CL_LockoutCumulative_Update_Announce", "entity", "int", 0, eDeathAddType.COUNT_ )
+}
+
+void function OnEntitiesDidLoad()
+{
+
+
+
+
+
+
+
+}
+
+void function OnGameState_Playing()
+{
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+		file.gameIsPlaying = true
+
+}
+
+void function OnGameState_WinnerDetermined()
+{
+	
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+		entity localPlayer = GetLocalClientPlayer() 
+
+		if( IsValid( localPlayer ) )
+		{
+			localPlayer.Signal( "freespawns_gameover" )
+			Freespawns_SV2CL_LockoutPrompt_Hide()
+		}
+
+}
+
+float function DeathAddMod_PLV_Penalty_Death()
+{
+	return( GetCurrentPlaylistVarFloat( "freespawns_deathaddmod_penalty_death", 	1.0 ) )
+}
+
+float function DeathAddMod_PLV_Penalty_Bleedout()
+{
+	return( GetCurrentPlaylistVarFloat( "freespawns_deathaddmod_penalty_bleedout", 1.0 ) )
+}
+
+float function DeathAddMod_PLV_Penalty_Executed()
+{
+	return( GetCurrentPlaylistVarFloat( "freespawns_deathaddmod_penalty_executed", 1.5 ) )
+}
+
+float function DeathAddMod_PLV_Penalty_Suicide()
+{
+	return( GetCurrentPlaylistVarFloat( "freespawns_deathaddmod_penalty_suicide", 	2.0 ) )
+}
+
+float function DeathAddMod_PLV_Reward_Down()
+{
+	return( GetCurrentPlaylistVarFloat( "freespawns_deathaddmod_reward_down", 		-0.5 ) )
+}
+
+float function DeathAddMod_PLV_Reward_Kill()
+{
+	return( GetCurrentPlaylistVarFloat( "freespawns_deathaddmod_reward_kill", 		-0.5 ) )
+}
+
+float function DeathAddMod_PLV_Reward_Execution()
+{
+	return( GetCurrentPlaylistVarFloat( "freespawns_deathaddmod_reward_finish", 	-1.0 ) )
+}
+
+float function DeathAdd_Calculate( int modType )
+{
+	float deathAddBase = LockoutDeathAdd_Get_ForCurrentRound()
+	float deathAddMod
+
+	switch( modType )
+	{
+		case eDeathAddType.PENALTY_BLEEDOUT:
+			deathAddMod = DeathAddMod_PLV_Penalty_Bleedout()
+			break
+		case eDeathAddType.PENALTY_DEATH:
+			deathAddMod = DeathAddMod_PLV_Penalty_Death()
+			break
+		case eDeathAddType.PENALTY_EXECUTED:
+			deathAddMod = DeathAddMod_PLV_Penalty_Executed()
+			break
+		case eDeathAddType.PENALTY_SUICIDE:
+			deathAddMod = DeathAddMod_PLV_Penalty_Suicide()
+			break
+
+		case eDeathAddType.REWARD_DOWN:
+			deathAddMod = DeathAddMod_PLV_Reward_Down() 
+			break
+		case eDeathAddType.REWARD_KILL:
+			deathAddMod = DeathAddMod_PLV_Reward_Kill()
+			break
+		case eDeathAddType.REWARD_EXECUTION:
+			deathAddMod = DeathAddMod_PLV_Reward_Execution()
+			break
+	}
+
+	float result = deathAddBase * deathAddMod
+	return( result )
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+int function Lives_Get( entity player )
+{
+	if( !IsValid( player ) )
+		return -1
+
+	if( !player.IsPlayer() )
+		return -1
+
+	int lives = player.GetPlayerNetInt( NETVAR_FREERESPAWNS_SQUAD_LIVES )
+	return( lives )
+}
+
+array< entity > function Lives_PlayersWithLives_Get( int team )
+{
+	array< entity > playersWithFreespawns = []
+	array< entity > squadPlayers = GetPlayerArrayOfTeam( team )
+
+	if( squadPlayers.len() == 0 )
+		return playersWithFreespawns
+
+	foreach( pl in squadPlayers )
+	{
+		if( !IsValid( pl ) )
+			continue
+
+		int playerLives = Lives_Get( pl )
+		if( playerLives >= 0 ) 
+		{
+			playersWithFreespawns.append( pl )
+		}
+	}
+
+	return playersWithFreespawns
+}
+
+int function Lives_PlayersWithLives_Count( int team )
+{
+	array< entity > playersWithLivesLeft = Lives_PlayersWithLives_Get( team )
+	int countPlayers = playersWithLivesLeft.len()
+
+#if DEV
+		printt( FUNC_NAME() + "(): Team " + " has " + countPlayers + " players with Freespawns left." )
+#endif
+	return countPlayers
+}
+
+array< entity > function Lives_PlayersWithoutLives_Get( int team )
+{
+	array< entity > playersWithNoFreespawns
+	array< entity > squadPlayers = GetPlayerArrayOfTeam( team )
+
+	if( squadPlayers.len() == 0 )
+		return playersWithNoFreespawns
+
+	foreach( pl in squadPlayers )
+	{
+		if( !IsValid( pl ) )
+			continue
+
+		int playerLives = Lives_Get( pl )
+		if( playerLives < 0 ) 
+		{
+			playersWithNoFreespawns.append( pl )
+		}
+	}
+
+	return playersWithNoFreespawns
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+bool function FreeRespawns_IsPlayerEliminated( entity player )
+{
+	string freespawnType = FreeRespawns_PLV_Type()
+
+	bool result
+
+	switch( freespawnType )
+	{
+		case "ondemand":
+		default:
+			int respawnStatus = player.GetPlayerNetInt( "respawnStatus" )
+			result = respawnStatus == eRespawnStatus.SQUAD_ELIMINATED
+			break
+	}
+
+	return result
+}
+
+bool function FreeRespawns_IsPlayerRespawnDisabled( entity player )
+{
+	return player.GetPlayerNetBool( NETVAR_FREERESPAWNS_DISABLED )
+}
+
+bool function FreeRespawns_Feature_IsInEffect()
+{
+	if( !FreeRespawns_Feature_Exists() )
+		return false
+
+		bool isEnabled = file.freespawns_IsEnabled 
+
+	return( isEnabled )
+}
+
+bool function ManualBleedout_PLV_Enabled()
+{
+	return( GetCurrentPlaylistVarBool( "freespawns_manual_bleedout_enabled", true ) )
+}
+
+bool function Freespawns_ManualBleedout_CanDo()
+{
+	bool featureOn 		= FreeRespawns_Feature_IsInEffect()
+	bool canForceBleedout 	= ManualBleedout_PLV_Enabled()
+	return( featureOn && canForceBleedout )
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+int function SquadLives_Get( int team )
+{
+	
+	if( FreeRespawns_PLV_SquadLivesMax() <= 0  )
+		return 1
+
+
+
+
+
+
+		return ( file.squadLives )
+
+}
+
+int function SquadLives_Get_ByPlayer( entity player )
+{
+	if ( !IsValid( player ) )
+		return 0
+
+	if( !player.IsPlayer() )
+		return 0
+
+	return( player.GetPlayerNetInt( NETVAR_FREERESPAWNS_SQUAD_LIVES ) )
+}
+
+
+
+
+
+
+
+
+bool function FreeRespawns_Feature_Exists()
+{
+	return( GetCurrentPlaylistVarBool( "freerespawns_feature_exists", false ) )
+}
+
+
+string function FreeRespawns_PLV_Type()
+{
+	
+	
+	
+
+	return( GetCurrentPlaylistVarString( "freerespawns_type", "ondemand" ) )
+}
+
+
+
+bool function FreeRespawns_PLV_DropshipSkyDive_HasJumpMaster()
+{
+	return( GetCurrentPlaylistVarBool( "freerespawns_dropshipskydive_hasjumpmaster", true ) )
+}
+
+bool function FreeRespawns_PLV_GiveReward_OnDisable()
+{
+	return( GetCurrentPlaylistVarBool( "freerespawns_givereward_ondisable", false ) )
+}
+
+
+
+
+int function FreeRespawns_PLV_Limit_SquadsRemaining()
+{
+	return( GetCurrentPlaylistVarInt( "freerespawns_limit_squadsremaining", DEFAULT_LIMIT_SQUADSREMAINING ) )
+}
+
+int function FreeRespawns_PLV_SquadLivesMax()
+{
+	return( GetCurrentPlaylistVarInt( "freerespawns_squadlivesmax", 1 ) )
+}
+
+int function LivesToStrikes( int lives )
+{
+	
+	const int MAX_STRIKES = 3
+
+	int strikes = minint( MAX_STRIKES - lives - 1, 3 )
+	return maxint( strikes, 0 )
+}
+
+
+bool function FreeRespawns_PLV_DontResetInventory_OnFreespawn()
+{
+	return( GetCurrentPlaylistVarBool( "freerespawns_dontresetinventory_onfreespawn", true ) )
+}
+
+
+
+
+int function Freespawns_PLV_EndRound_OnClose()
+{
+	return( GetCurrentPlaylistVarInt( "freespawns_endround_onclose", 4 ) ) 
+}
+
+
+bool function Freespawns_PLV_AutoActivate()
+{
+	return( GetCurrentPlaylistVarBool( "freespawns_autoactivate", true ) ) 
+}
+
+
+bool function Freespawns_PLV_RestoreAttachments_OnFreespawn()
+{
+	return( GetCurrentPlaylistVarBool( "freespawns_restoreattachments", true ) ) 
+}
+
+
+
+
+string function Freespawns_PLV_RestorableAttachments()
+{
+	return( GetCurrentPlaylistVarString( "freespawns_restorableattachments", "barrel bolt hopup laser mag optic stock" ) ) 
+}
+
+array< string > function Freespawns_RestorableAttachments_GetTypes()
+{
+	string plv = Freespawns_PLV_RestorableAttachments()
+	array< string > results = GetTrimmedSplitString( plv, " " )
+	return results
+}
+
+
+bool function Freespawns_PLV_RebuildWeaponSlots()
+{
+	return( GetCurrentPlaylistVarBool( "freespawns_rebuildweaponslots", true ) ) 
+}
+
+
+bool function FreespawnLoadout_PLV_DegradeAttachments()
+{
+	return( GetCurrentPlaylistVarBool( "freespawnloadout_degradegoldattachments", true ) )
+}
+
+bool function FreespawnLoadout_PLV_DegradeAttachments_SuicidesOnly()
+{
+	return( GetCurrentPlaylistVarBool( "freespawnsloadout_degradegoldattachments_suicidesonly", true ) )
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+float function Freespawns_PLV_RespawningEnemy_WarnDistance()
+{
+	return( GetCurrentPlaylistVarFloat( "freespawns_respawningenemy_warndistance", 150 ) )
+}
+
+
+
+
+
+bool function FreeRespawns_DontResetInventory()
+{
+	return( FreeRespawns_PLV_DontResetInventory_OnFreespawn() )
+}
+
+
+int function EndFreespawn_NoDeath_Reward_XP()
+{
+	return( GetCurrentPlaylistVarInt( "freeRespawn_nodeathrewardxp", 1000 ) )
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+bool function PlayerRecentlyFreespawned_Check( entity player )
+{
+	if( !IsValid( player ) )
+		return false
+
+	if( !player.IsPlayer() )
+		return false
+
+
+
+
+
+
+		if( !file.gameIsPlaying )
+			return false
+
+
+	return( player.GetPlayerNetBool( NETVAR_FREERESPAWNS_RECENTLYFREESPAWNED ) )
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#if DEV
+
+void function DEV_Freespawns_LockoutTime_Show()
+{
+	printt( "Lockout Time == " + LockoutTimeMin_Get_ForCurrentRound() )
+}
+
+void function DEV_Freespawns_LockoutTime_Set( int round = 0, float duration = 90 )
+{
+	file.lockoutTimeMins_ByRound_Explicit[ round ] = duration
+}
+
+void function DevOut( string printMe, bool forcePrint = false )
+{
+	if( forcePrint || file.devPrintsOn )
+	{
+		printt( "** FREERESPAWNS ** " + printMe )
+	}
+}
+
+
+void function DevSphere( vector loc, float radius, vector color, bool showThrough, float duration, bool forceOut = false )
+{
+	if( !file.devPrintsOn && !forceOut )
+		return
+
+	DebugDrawSphere( loc, radius, color, showThrough, duration )
+}
+
+#endif
+
+
+
+
+
+void function FreeRespawns_CL_Disabled_Changed( entity argPlayer, bool isOff )
+{
+	
+	if( !IsValid( argPlayer ) )
+		return
+
+#if DEV
+		printt( FUNC_NAME() + "(): Freespawns for player " + argPlayer.GetPlayerName() + " disabled == " + isOff )
+#endif
+
+	file.freespawns_IsEnabled = !isOff
+	RunUIScript( "UI_Freespawns_SetEnabled", !isOff )
+}
+
+void function Lives_Changed( entity argPlayer, int newValue )
+{
+	string freespawnType = FreeRespawns_PLV_Type()
+	switch( freespawnType )
+	{
+		case "ondemand":
+		default:
+			Lives_ForPlayer_Changed( argPlayer, newValue )
+			break
+	}
+}
+
+void function Lives_ForPlayer_Changed( entity argPlayer, int newValue )
+{
+	entity localViewPlayer = GetLocalViewPlayer()
+	entity localClientPlayer = GetLocalClientPlayer()
+
+	entity localPlayer = IsValid( localViewPlayer ) ? localViewPlayer : localClientPlayer
+	if( !IsValid( localPlayer ) )
+		return
+
+	int localPlayerTeam = localPlayer.GetTeam()
+	int argPlayerTeam = argPlayer.GetTeam()
+
+#if DEV
+		DevOut( format( "%s():  -------------------", FUNC_NAME() ) )
+		DevOut( format( "%s():  Local Player Team == %s", FUNC_NAME(), string(  localPlayerTeam ) ) )
+		DevOut( format( "%s():  Arg Player Team == %s", FUNC_NAME(), string(  argPlayerTeam ) ) )
+		DevOut( format( "%s():  newValue == %s", FUNC_NAME(), string(  newValue ) ) )
+#endif
+
+	if( argPlayer == localPlayer )
+	{
+		file.squadLives = newValue
+		UpdateRui_Lives()
+	}
+}
+
+void function FreeRespawns_OverrideGameStateUI()
+{
+	ClGameState_RegisterGameStateAsset( RUI_STRIKEOUT_INFO )
+	ClGameState_RegisterGameStateFullmapAsset( RUI_STRIKEOUT_FULLMAP )
+}
+
+var function FreeRespawns_OnSetupAnnouncement_RemainingRespawns( AnnouncementData announcement )
+{
+	entity player = GetLocalClientPlayer()
+	if ( !IsValid( player ) )
+		return null
+
+	var rui = RuiCreate( $"ui/announcement_solos_respawns_remaining.rpak", clGlobal.topoFullScreen, RUI_DRAW_POSTEFFECTS, RUI_SORT_SCREENFADE + 1 )
+	RuiSetInt( rui, "squadLives", file.squadLives )
+	RuiSetInt( rui, "strikeTotal", LivesToStrikes( file.squadLives ) )
+
+	EmitSoundOnEntity( player, announcement.soundAlias )
+	return rui
+}
+
+bool function FreeRespawns_IsPlayerWaitingForRespawn( entity player )
+{
+	if ( !IsValid( player ) || ( player != GetLocalClientPlayer() ) )
+		return false
+
+	if ( FreeRespawns_IsPlayerRespawnDisabled( player ) )
+		return false
+
+	int team = player.GetTeam()
+	bool awaitingRespawn = file.squadLives > -1
+
+#if DEV
+		bool playerIsLocalClientPlayer = player == GetLocalClientPlayer()
+		bool playerIsLocalViewPlayer = player == GetLocalViewPlayer()
+		DevOut( format( "%s(): player is Local Client Player? %s", FUNC_NAME(), string ( playerIsLocalClientPlayer ) ) )
+		DevOut( format( "%s(): player is Local View Player? %s", FUNC_NAME(), string ( playerIsLocalClientPlayer ) ) )
+		DevOut( format( "%s(): Squad Lives for Team %s == %s", FUNC_NAME(), string( team ), string ( file.squadLives ) ) )
+		DevOut( format( "%s(): file.freespawns_IsEnabled == %s", FUNC_NAME(), string ( file.freespawns_IsEnabled ) ) )
+#endif
+
+	return( awaitingRespawn )
+}
+
+void function FreeRespawns_SV2CL_Announcement_RespawnsDisabled( bool hasLives )
+{
+	string message = Localize( TEXT_RESPAWN_DISABLED )
+	AnnouncementData announcement = Announcement_Create( message )
+
+	int style = hasLives ? ANNOUNCEMENT_STYLE_FINAL_RING_NO_RESPAWNS : ANNOUNCEMENT_STYLE_GENERIC_WARNING
+	string subText = Localize( TEXT_RESPAWN_DISABLED_SUB )
+	vector messageColor = hasLives ? COLOR_ORANGE : COLOR_ORANGE
+
+	string sfxDisable
+	if( FreeRespawns_PLV_GiveReward_OnDisable() )
+	{
+		sfxDisable = hasLives ? SFX_RESPAWN_DISABLED_WITH_REWARD : SFX_RESPAWN_DISABLED_WITHOUT_REWARD
+	}
+	else
+	{
+		sfxDisable = FREESPAWN_SOUND_FREESPAWNS_DISABLED
+	}
+
+	if( hasLives )
+	{
+		Announcement_SetSubText( announcement, subText )
+	}
+	Announcement_SetUseColorOnSubtext( announcement, false )
+	Announcement_SetTitleColor( announcement, messageColor )
+	Announcement_SetDuration( announcement, TIME_ANNOUNCEMENT_RESPAWN_DISABLED )
+	Announcement_SetStyle( announcement, style )
+
+	AnnouncementFromClass( GetLocalViewPlayer(), announcement )
+	EmitSoundOnEntity( GetLocalViewPlayer(), sfxDisable )
+
+	UpdateRui_RespawnState( true )
+	UpdateRui_Lives()
+}
+
+void function UpdateRui_RespawnState( bool newState )
+{
+	FreeRespawns_SetCanLocalPlayerRespawn( newState, newState )
+	RunUIScript( "FreeRespawns_SetCanLocalPlayerRespawn", newState, newState )
+
+	UpdateNestedSquadLivesRui( file.nestedSquadLivesRui, file.squadLives, file.squadLivesViewPlayer )
+	UpdateNestedSquadLivesRui( file.nestedSquadLivesMapRui, file.squadLives, file.squadLivesViewPlayer )
+}
+
+void function UpdateRui_Lives()
+{
+	string freespawnType = FreeRespawns_PLV_Type()
+
+	switch( freespawnType )
+	{
+		case "ondemand":
+		default:
+			UpdateRui_Lives_Player()
+			break
+	}
+}
+
+void function UpdateRui_Lives_Player()
+{
+	entity player = GetLocalClientPlayer()
+	if ( !IsValid( player) )
+		return
+
+	TryCreateNestedSquadLivesRui()
+
+	int lives = player.GetPlayerNetInt( NETVAR_FREERESPAWNS_SQUAD_LIVES )
+	UpdateNestedSquadLivesRui( file.nestedSquadLivesRui, lives, file.squadLivesViewPlayer )
+	UpdateNestedSquadLivesRui( file.nestedSquadLivesMapRui, lives, file.squadLivesViewPlayer )
+
+	bool squadEliminated = player.GetPlayerNetInt( "respawnStatus" ) == eRespawnStatus.SQUAD_ELIMINATED
+	bool canRespawnOrIsRespawning = file.squadLives >= 0 && !squadEliminated
+	bool canRespawn = !squadEliminated && ( (file.squadLives > 0 && IsAlive( GetLocalClientPlayer() ) ) || (file.squadLives >= 0 && !IsAlive( GetLocalClientPlayer() ) ) )
+
+	FreeRespawns_SetCanLocalPlayerRespawn( canRespawnOrIsRespawning, canRespawn )
+	RunUIScript( "FreeRespawns_SetCanLocalPlayerRespawn", canRespawnOrIsRespawning, canRespawn )
+}
+
+
+void function TryCreateNestedSquadLivesRui()
+{
+	var gamestateRui = ClGameState_GetRui()
+	if ( gamestateRui != null && RuiIsAlive( gamestateRui ) && file.nestedSquadLivesRui == null || !RuiIsAlive( file.nestedSquadLivesRui ) )
+	{
+		RuiDestroyNestedIfAlive( gamestateRui, "respawnTokenHudHandle" )
+		file.nestedSquadLivesRui = RuiCreateNested( gamestateRui, "respawnTokenHudHandle", $"ui/gamestate_survival_respawn_token.rpak" )
+	}
+
+	var gamestateMapRui = GetFullmapGamestateRui()
+	if ( gamestateMapRui != null && RuiIsAlive( gamestateMapRui ) && file.nestedSquadLivesMapRui == null || !RuiIsAlive( file.nestedSquadLivesMapRui ) )
+	{
+		RuiDestroyNestedIfAlive( gamestateMapRui, "respawnTokenHudHandle" )
+		file.nestedSquadLivesMapRui = RuiCreateNested( gamestateMapRui, "respawnTokenHudHandle", $"ui/gamestate_survival_respawn_token.rpak" )
+	}
+}
+
+void function UpdateNestedSquadLivesRui( var nestedSquadLivesRui, int lives, int viewPlayerLives )
+{
+	if ( nestedSquadLivesRui != null && RuiIsAlive( nestedSquadLivesRui ) )
+	{
+		RuiSetInt( nestedSquadLivesRui, "squadLives", maxint( lives, 0 ) )
+		RuiSetBool( nestedSquadLivesRui, "respawnsDisabled", !file.localPlayerCanRespawn )
+		RuiSetInt( nestedSquadLivesRui, "viewPlayerLives", maxint( viewPlayerLives, 0 ) )
+		RuiSetBool( nestedSquadLivesRui, "isLivesInfinite", true )
+	}
+}
+
+
+void function FreeRespawns_OnShowScoreboard()
+{
+	UpdateNestedSquadLivesRui( file.nestedSquadLivesMapRui, file.squadLives, file.squadLivesViewPlayer )
+}
+
+
+
+
+
+
+void function FreeRespawns_SV2CL_Announcement_ToKilledPlayer_RespawnStatus( bool willRespawn )
+{
+	string message
+	string announcementSFX
+	vector messageColor
+	float duration
+	int announceStyle
+	
+	if( willRespawn )
+	{
+		message = Localize( "#FREERESPAWNS_YOU_WILL_RESPAWN" )
+		announcementSFX = SFX_SQUAD_LIVES_REMAINING_ONE
+		messageColor = COLOR_GREEN
+	}
+	else
+	{
+		message = Localize( "#FREERESPAWNS_YOU_WONT_RESPAWN" )
+		announcementSFX = SFX_SQUAD_LIVES_REMAINING_ZERO
+		messageColor = COLOR_RED
+	}
+	duration = TIME_ANNOUNCEMENT_SQUAD_LIVES_REMAINING
+	announceStyle = ANNOUNCEMENT_STYLE_GENERIC_WARNING
+
+	AnnouncementData announcement = Announcement_Create( message )
+	Announcement_SetDuration( announcement, duration )
+	Announcement_SetTitleColor( announcement, messageColor )
+
+	Announcement_SetStyle( announcement, announceStyle )
+	Announcement_SetPriority( announcement, FREESPAWN_ANNOUNCEMENT_PRIORITY_DEFAULT )
+
+	AnnouncementFromClass( GetLocalViewPlayer(), announcement )
+	EmitSoundOnEntity( GetLocalViewPlayer(), announcementSFX )
+}
+
+
+
+
+void function FreeRespawns_SV2CL_Announcement_SquadElimination()
+{
+	string message = ""
+
+	AnnouncementData announcement = Announcement_Create( message )
+
+	Announcement_SetDuration( announcement, TIME_ANNOUNCEMENT_SQUAD_ELIMINATED )
+	Announcement_SetStyle( announcement, ANNOUNCEMENT_STYLE_MILESTONE_SMALL )
+	Announcement_SetTitleColor( announcement, < 1,1,1 > )
+
+	AnnouncementFromClass( GetLocalViewPlayer(), announcement )
+	EmitSoundOnEntity( GetLocalViewPlayer(), SFX_SQUAD_ELIMINATED )
+}
+
+
+
+void function FreeRespawns_SV2CL_UpdateRui()
+{
+	UpdateRui_Lives()
+}
+
+
+
+void function FreeRespawns_SV2CL_DeathScreenUpdate( var rui )
+{
+	SquadSummaryData squadData = GetSquadSummaryData()
+	string titleString = squadData.squadPlacement == 1 ? TEXT_SQUAD_PLACEMENT_WIN : TEXT_SQUAD_PLACEMENT_LOSE
+	string killsText = TEXT_SQUAD_PLACEMENT_KILLS
+	RuiSetString( rui, RUIVAR_DEATH_SCREEN_TITLE, titleString )
+	RuiSetString( rui, RUIVAR_DEATH_SCREEN_KILLS, killsText )
+}
+
+
+
+void function PopulateSummaryDataStrings( SquadSummaryPlayerData data )
+{
+	data.modeSpecificSummaryData[0].displayString = TEXT_DEATH_SCREEN_SUMMARY_KILLS
+	data.modeSpecificSummaryData[1].displayString = TEXT_DEATH_SCREEN_SUMMARY_ASSISTS
+	data.modeSpecificSummaryData[2].displayString = TEXT_DEATH_SCREEN_SUMMARY_KNOCKDOWNS
+	data.modeSpecificSummaryData[3].displayString = TEXT_DEATH_SCREEN_SUMMARY_DAMAGE
+	data.modeSpecificSummaryData[4].displayString = TEXT_DEATH_SCREEN_SUMMARY_TIME
+	data.modeSpecificSummaryData[5].displayString = TEXT_DEATH_SCREEN_SUMMARY_REVIVES
+	data.modeSpecificSummaryData[6].displayString = ""
+}
+
+
+
+
+void function _Wait_Duration_Or_PlayerLanded( float duration, float timeSlice = 0.1  )
+{
+	entity player = GetLocalViewPlayer()
+
+	float timePassed = 0
+	while( IsValid( player ) && !player.IsOnGround() && ( timePassed < duration ) )
+	{
+		wait( timeSlice )
+		timePassed += timeSlice
+	}
+}
+
+
+
+
+void function OnLocalViewPlayerChanged( entity player )
+{
+	if ( !IsValid( player ) )
+		return
+
+	SquadRespawn_DropshipSkydive_UpdateSquadLeaderbox_Internal( player )
+}
+
+
+
+void function FreeRespawns_UpdateSquadLeaderbox( entity statusChangePlayer, bool isJumpmaster ) 
+{
+	SquadRespawn_DropshipSkydive_UpdateSquadLeaderbox_Internal( statusChangePlayer )
+}
+
+
+
+void function SquadRespawn_DropshipSkydive_UpdateSquadLeaderbox_Internal( entity statusChangePlayer )
+{
+	entity player = GetLocalViewPlayer()
+
+	if ( !IsValid( player ) )
+		return
+
+	bool isLocalPlayer = player == statusChangePlayer
+	var gamestateRui = ClGameState_GetRui()
+
+	NotifyDropSequence( true )
+	SetSkydiveStartingConvars()
+
+	entity jumpMasterPlayer = GetJumpmasterForTeam( player.GetTeam(), false )
+	string jumpMasterName = IsValid( jumpMasterPlayer ) ? jumpMasterPlayer.GetPlayerName() : ""
+	vector squadLeaderColor = GetPlayerInfoColor( player )
+	if ( IsValid( jumpMasterPlayer ) )
+	{
+		squadLeaderColor = GetPlayerInfoColor( jumpMasterPlayer )
+	}
+
+	RunUIScript( "ClientToUI_SetSquadLeaderInfo", jumpMasterPlayer == player, player.GetPlayerNetBool( "isJumpingWithSquad" ), jumpMasterName, squadLeaderColor, GetMaxTeamPlayers(), HasHoldButtonAction() )
+}
+
+bool function HasHoldButtonAction()
+{
+	entity player = GetLocalClientPlayer()
+	int team = player.GetTeam()
+
+	
+	if ( player.GetPlayerNetBool( "isJumpmaster" ) )
+		return GetNumPlayersJumpingWithSquad( team, false ) > 1
+
+	
+	if ( !player.GetPlayerNetBool( "isJumpingWithSquad" ) )
+		return GetNumPlayersJumpingWithSquad( team, false ) > 0 && IsValid( GetJumpmasterForTeam( team ) )
+
+	
+	return true
+}
+
+
+
+bool function FreeRespawns_CanLocalPlayerRespawn()
+{
+	if ( !IsValid( GetLocalClientPlayer() ) )
+	{
+		return false
+	}
+
+	return file.localPlayerCanRespawn
+}
+
+bool function FreeRespawns_CanLocalPlayerRespawnOrIsRespawning()
+{
+	if ( !IsValid( GetLocalClientPlayer() ) )
+	{
+		return false
+	}
+
+	return file.localPlayerCanRespawnOrIsRespawning
+}
+
+void function FreeRespawns_SetCanLocalPlayerRespawn(bool localPlayerCanRespawnOrIsRespawning = false, bool localPlayerCanRespawn = false)
+{
+	file.localPlayerCanRespawnOrIsRespawning = localPlayerCanRespawnOrIsRespawning
+	file.localPlayerCanRespawn = localPlayerCanRespawn
+}
+
+
+
+array< int > function Get_Squads_NotEliminated()
+{
+	array< int > results
+	array< entity > allPlayers  = GetPlayerArray()
+
+	foreach( player in allPlayers )
+	{
+		if( !IsValid( player ) )
+			continue
+
+		if( !player.IsPlayer() )
+			continue
+
+		if( player.GetPlayerNetInt( "respawnStatus" ) == eRespawnStatus.SQUAD_ELIMINATED )
+			continue
+
+		int playerTeam = player.GetTeam()
+		if( !results.contains( playerTeam ) )
+		{
+			results.append( playerTeam )
+		}
+	}
+
+	return results
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+bool function Lockout_PLV_IntroTunings_Enabled()
+{
+	
+	return( GetCurrentPlaylistVarBool( "freespawns_lockout_introtunings_enabled", true ) )
+}
+
+int function Lockout_PLV_IntroTunings_Round()
+{
+	
+	return( GetCurrentPlaylistVarInt( "freespawns_lockout_introtunings_round", 1 ) )
+}
+
+float function Lockout_PLV_IntroTunings_LockoutTime()
+{
+	return( GetCurrentPlaylistVarFloat( "freespawns_lockout_introtunings_lockouttime", 5.0 ) )
+}
+
+float function Lockout_PLV_IntroTunings_DeathAdd()
+{
+	return( GetCurrentPlaylistVarFloat( "freespawns_lockout_introtunings_deathadd", 5.0 ) )
+}
+
+
+
+
+
+
+
+bool function Lockout_IntroTunings_ActiveCheck()
+{
+	if( !Lockout_PLV_IntroTunings_Enabled() )
+		return false
+
+	bool result = GetGlobalNetBool( "Freespawns_Lockout_IntroTuning_Active" )
+
+#if DEV
+		printt( FUNC_NAME() + "(): Freespawns_Lockout_IntroTuning_Active == " + result )
+#endif
+
+	return result
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+bool function Lockout_PLV_HyperTunings_Enabled()
+{
+	
+	return( GetCurrentPlaylistVarBool( "freespawns_lockout_hypertunings_enabled", false ) )
+}
+
+int function Lockout_PLV_HyperTunings_StartAt_EndofRound()
+{
+	
+	return( GetCurrentPlaylistVarInt( "freespawns_lockout_hypertunings_startat_endofround", 4 ) )
+}
+
+float function Lockout_PLV_HyperTunings_LockoutTime()
+{
+	return( GetCurrentPlaylistVarFloat( "freespawns_lockout_hypertunings_lockouttime", 60.0 ) )
+}
+
+float function Lockout_PLV_HyperTunings_DeathAdd()
+{
+	return( GetCurrentPlaylistVarFloat( "freespawns_lockout_hypertunings_deathadd", 30.0 ) )
+}
+
+float function Lockout_PLV_HyperTunings_AggroRewardMod()
+{
+	return( GetCurrentPlaylistVarFloat( "freespawns_lockout_hypertunings_aggrorewardmod", 2.0 ) )
+}
+
+bool function Lockout_HyperTunings_ActiveCheck()
+{
+	if( !Lockout_PLV_HyperTunings_Enabled() )
+		return false
+
+	bool result = GetGlobalNetBool( "Freespawns_Lockout_HyperTuning_Active" )
+
+#if DEV
+		printt( FUNC_NAME() + "(): Freespawns_Lockout_HyperTuning_Active == " + result )
+#endif
+
+	return result
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+string function Lockout_PLV_LockoutTimeMins_ByRound()
+{
+	return( GetCurrentPlaylistVarString( "freespawns_lockouttimes_byround", 		LOCKOUT_TIMES_DEFAULTS ) ) 
+}
+string function Lockout_PLV_DeathAdds_ByRound()
+{
+	return( GetCurrentPlaylistVarString( "freespawns_lockoutdeathadds_byround", 	LOCKOUT_DEATHADDS_DEFAULTS ) )
+}
+
+bool function Freespawns_PLV_LockoutTime_Progress_PastDisable()
+{
+	return( GetCurrentPlaylistVarBool( "freespawns_lockouttime_progress_pastdisable", true ) ) 
+}
+
+
+
+
+void function LockoutTimeMins_Init()
+{
+	string lockoutTimes_String = Lockout_PLV_LockoutTimeMins_ByRound()
+	array< string > lockoutTimes_StrArray = GetTrimmedSplitString( lockoutTimes_String, " " )
+	foreach( string ltStr in lockoutTimes_StrArray )
+	{
+		file.lockoutTimeMins_ByRound_Explicit.append( float( ltStr ) )
+	}
+}
+
+void function LockoutDeathAdds_Explicit_Init()
+{
+	string lockout_DeathAdds_String = Lockout_PLV_DeathAdds_ByRound()
+	array< string > lockout_DeathAdds_StrArray = GetTrimmedSplitString( lockout_DeathAdds_String, " " )
+	foreach( string ltStr in lockout_DeathAdds_StrArray )
+	{
+		file.lockoutDeathAdds_ByRound_Explicit.append( float( ltStr ) )
+	}
+}
+
+
+float function LockoutTimeMin_Get_ForCurrentRound( bool roundClosed = false )
+{
+	int round = SURVIVAL_GetCurrentDeathFieldStage()
+#if DEV
+		printt( FUNC_NAME() + "(): roundClosed == " + roundClosed )
+		printt( FUNC_NAME() + "(): Round Number ( Before Adjustment ) == " + round )
+#endif
+
+	round = round < 0 ? 0 : round
+
+	round = roundClosed ? round + 1 : round
+
+	float lockoutTime
+
+	if( Lockout_IntroTunings_ActiveCheck() )
+	{
+		lockoutTime = Lockout_PLV_IntroTunings_LockoutTime()
+	}
+	else if( Lockout_HyperTunings_ActiveCheck() )
+	{
+		lockoutTime = Lockout_PLV_HyperTunings_LockoutTime()
+	}
+	else
+	{
+		lockoutTime = LockoutTimeMin_Get_ForStage_Explicit( round )
+	}
+
+#if DEV
+		printt( FUNC_NAME() + "(): Lockout Time for Stage " + round + " ==  " + lockoutTime )
+#endif
+
+	return( lockoutTime )
+}
+
+float function LockoutDeathAdd_Get_ForCurrentRound( bool roundClosed = false )
+{
+	int round = SURVIVAL_GetCurrentDeathFieldStage()
+
+	round = maxint( 0, round )
+
+	round = roundClosed ? round + 1 : round
+
+	float lockoutDeathAdd
+
+	if( Lockout_IntroTunings_ActiveCheck() )
+	{
+		lockoutDeathAdd = Lockout_PLV_IntroTunings_DeathAdd()
+	}
+	else if( Lockout_HyperTunings_ActiveCheck() )
+	{
+		lockoutDeathAdd = Lockout_PLV_HyperTunings_DeathAdd()
+	}
+	else
+	{
+		lockoutDeathAdd = LockoutDeathAdd_Get_ForStage_Explicit( round )
+	}
+
+#if DEV
+		printt( FUNC_NAME() + "(): Lockout DeathAdd for Stage " + round + " ==  " + lockoutDeathAdd )
+#endif
+
+	return( lockoutDeathAdd )
+}
+
+float function LockoutTimeMin_Get_ForStage_Explicit( int roundParm )
+{
+	
+	int lockOutTimes_Len = file.lockoutTimeMins_ByRound_Explicit.len()
+
+	int round = roundParm < 0 ? 0 : roundParm
+	round = minint( round, lockOutTimes_Len - 1 )
+	float lockoutTime =  file.lockoutTimeMins_ByRound_Explicit[ round ]
+#if DEV
+		printt( FUNC_NAME() + "(): Round == " + round )
+		printt( FUNC_NAME() + "(): Lockout Time == " + lockoutTime )
+#endif
+
+	return( lockoutTime )
+}
+
+float function LockoutDeathAdd_Get_ForStage_Explicit( int roundParm )
+{
+	
+	int lockoutDeathAdds_Len = file.lockoutDeathAdds_ByRound_Explicit.len()
+
+	int round = maxint( 0, roundParm )
+	round = minint( round, lockoutDeathAdds_Len - 1 )
+	float lockoutDeathAdd =  file.lockoutDeathAdds_ByRound_Explicit[ round ]
+#if DEV
+		printt( FUNC_NAME() + "(): Round == " + round )
+		printt( FUNC_NAME() + "(): Lockout Time == " + lockoutDeathAdd )
+#endif
+
+	return( lockoutDeathAdd )
+}
+
+
+
+float function SkipBleedout_DelayTime_Get_ForCurrentRound()
+{
+	float baseDelay = Freespawns_PLV_SkipBleedout_DelayTime_Base()
+
+	float lockoutTime = LockoutTimeMin_Get_ForCurrentRound()
+
+	float delayTime = lockoutTime - baseDelay
+	delayTime = min( baseDelay, delayTime )
+	return delayTime
+}
+
+
+
+
+bool function AggroRewards_PLV_Enabled()
+{
+	return( GetCurrentPlaylistVarBool( "freespawns_aggrorewards_enabled", true ) ) 
+}
+
+bool function AggroRewards_PLV_CanGive_DamageChunk()
+{
+	return( GetCurrentPlaylistVarBool( "freespawns_aggrorewards_CanGive_damagechunk", true ) ) 
+}
+
+bool function AggroRewards_PLV_CanGive_DownedEnemy()
+{
+	return( GetCurrentPlaylistVarBool( "freespawns_aggrorewards_CanGive_downedenemy", true ) ) 
+}
+
+bool function AggroRewards_PLV_CanGive_KilledEnemy()
+{
+	return( GetCurrentPlaylistVarBool( "freespawns_aggrorewards_CanGive_killedenemy", true ) ) 
+}
+
+bool function AggroRewards_PLV_CanGive_ExecutedEnemy()
+{
+	return( GetCurrentPlaylistVarBool( "freespawns_aggrorewards_CanGive_executedenemy", true ) ) 
+}
+
+bool function AggroRewards_PLV_CanGive_Penalty_AllyDeath()
+{
+	return( GetCurrentPlaylistVarBool( "freespawns_aggrorewards_CanGive_penalty_allydeath", false ) ) 
+}
+
+int function Freespawns_PLV_AggroRewards_DamageChunk_Threshold()
+{
+	return( GetCurrentPlaylistVarInt( "freespawns_aggrorewards_damagechunk_threshold", 300  ) ) 
+}
+
+float function AggroRewards_PLV_DamageChunk()
+{
+	return( GetCurrentPlaylistVarFloat( "freespawns_aggrorewards_damagechunk", -5.0  ) ) 
+}
+
+float function AggroRewards_PLV_DownedEnemy()
+{
+	return( GetCurrentPlaylistVarFloat( "freespawns_aggrorewards_downedenemy", -5.0  ) ) 
+}
+
+float function AggroRewards_PLV_KilledEnemy()
+{
+	return( GetCurrentPlaylistVarFloat( "freespawns_aggrorewards_killedenemy", -10  ) ) 
+}
+
+float function AggroRewards_PLV_ExecutedEnemy()
+{
+	return( GetCurrentPlaylistVarFloat( "freespawns_aggrorewards_executedenemy", -15  ) ) 
+}
+
+bool function AggroRewards_ShouldGive()
+{
+	bool freespawnsEnabled = true 
+
+		freespawnsEnabled = FreeRespawns_Feature_IsInEffect()
+
+
+	bool freespawnsV3_AggroRewards_Enabled = AggroRewards_PLV_Enabled()
+	return( freespawnsEnabled && freespawnsV3_AggroRewards_Enabled  )
+}
+
+float function Freespawns_AggroReward_Get_ByType( int aggroRewardType )
+{
+	if( !AggroRewards_ShouldGive() )
+		return 0
+
+	float result
+	switch( aggroRewardType )
+	{
+		case eFreespawns_AggroType.DAMAGE_CHUNK:
+			result = AggroRewards_PLV_DamageChunk()
+			break
+		case eFreespawns_AggroType.DOWNED_ENEMY:
+			result = AggroRewards_PLV_DownedEnemy()
+			break
+		case eFreespawns_AggroType.KILLED_ENEMY:
+			result = AggroRewards_PLV_KilledEnemy()
+			break
+		case eFreespawns_AggroType.EXECUTED_ENEMY:
+			result = AggroRewards_PLV_ExecutedEnemy()
+			break
+		case eFreespawns_AggroType.PENALTY_ALLYDEATH:
+			result = LockoutTimeSynced_PLV_AllyDeathPenalty()
+			break
+		default:
+			result = 0
+			break
+	}
+
+	if( Lockout_HyperTunings_ActiveCheck() )
+	{
+		float rewardMod = Lockout_PLV_HyperTunings_AggroRewardMod()
+		result = result * rewardMod
+	}
+
+	return( result )
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+bool function LockoutDeathAdds_PLV_Enabled()
+{
+	return( GetCurrentPlaylistVarBool( "freespawns_lockoutdeathadds_enabled", true ) ) 
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+bool function LockoutTimeSynced_PLV_Enabled()
+{
+	return( GetCurrentPlaylistVarBool( "freespawns_lockouttime_synced_enabled", true ) ) 
+}
+
+float function LockoutTimeSynced_PLV_AllyDeathPenalty()
+{
+	return( GetCurrentPlaylistVarFloat( "freespawns_lockouttime_synced_allydeathpenalty", 0.0 ) ) 
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+float function Freespawns_PLV_SpawnNear_Radius()
+{
+	return( GetCurrentPlaylistVarFloat( "freespawns_spawnnear_radius", 5.0 ) )
+}
+
+bool function Freespawns_PLV_Show_RespawnStatus_OnRespawn()
+{
+	return( GetCurrentPlaylistVarBool( "freespawns_showrespawnstatus_onrespawn", true ) ) 
+}
+
+bool function Freespawns_PLV_Show_RespawnStatus_OnDeath_WillSpawn()
+{
+	return( GetCurrentPlaylistVarBool( "freespawns_showrespawnstatus_ondeath_willrespawn", false ) ) 
+}
+
+bool function Freespawns_PLV_Show_Survivor_AggroHint()
+{
+	return( GetCurrentPlaylistVarBool( "freespawns_show_survivor_aggrohint", true ) )
+}
+
+bool function Freespawns_PLV_Show_RespawnStatus_OnDeath_Eliminated()
+{
+	return( GetCurrentPlaylistVarBool( "freespawns_showrespawnstatus_ondeath_eliminated", true ) ) 
+}
+
+
+
+float function DropshipGroupSpawn_PLV_Height()
+{
+	return( GetCurrentPlaylistVarFloat( "freespawns_dropshipgroupspawn_height", 300 )) 
+}
+
+
+float function DropshipGroupSpawn_PLV_Traffic_HeightMod()
+{
+	return( GetCurrentPlaylistVarFloat( "freespawns_dropshipgroupspawn_traffic_heightmod", 10 )) 
+}
+
+float function DropshipGroupSpawn_PLV_Traffic_AirspaceRadius()
+{
+	return( GetCurrentPlaylistVarFloat( "freespawns_dropshipgroupspawn_traffic_airspaceradius", 150 )) 
+}
+
+float function DropshipGroupSpawn_PLV_DiveRadius()
+{
+	return( GetCurrentPlaylistVarFloat( "freespawns_dropshipgroupspawn_diveradius", 250 )) 
+}
+
+bool function DropshipGroupSpawn_PLV_DropFacingRingCenter()
+{
+	return( GetCurrentPlaylistVarBool( "freespawns_dropshipgroupspawn_dropfacingringcenter", true ) )
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+void function SetupMapRuiRespawnLocation( entity ent, var rui, bool isFullMap )
+{
+	RuiSetAsset( rui, "areaImage", $"rui/hud/common/radial_gradiant" )
+	RuiSetImage( rui, "centerImage", $"" )
+	RuiSetImage( rui, "clampedImage", $"" )
+	RuiSetFloat( rui, "areaImageAlpha", 0.95 )
+
+	string areaColorArgName = "objColor"
+	if ( !isFullMap )
+	{
+		RuiSetBool( rui, "useOverrideColor", true )
+		areaColorArgName = "overrideColor"
+	}
+
+	RuiSetColorAlpha( rui, areaColorArgName, SrgbToLinear( <57, 181, 74> / 255 ), 1 )
+
+	RuiSetFloat( rui, "objectRadius", DropshipGroupSpawn_PLV_DiveRadius() * METERS_TO_INCHES / 16384)
+}
+
+void function Freespawns_SV2CL_InitFreespawnPrompt()
+{
+	RunUIScript( "UI_InitFreespawnPrompt" )
+}
+
+void function Freespawns_SV2CL_LockoutTime_Updated( float newLockoutTime )
+{
+#if DEV
+		printt( FUNC_NAME() + "(): newLockoutTime == " + newLockoutTime )
+#endif
+
+	LockoutTimeCL_Set( newLockoutTime )
+	RunUIScript( "UI_Freespawns_LockoutTimer_Set", newLockoutTime )
+}
+
+void function Freespawns_SV2CL_LockoutPrompt_Hide()
+{
+	RunUIScript( "FreespawnPrompt_SetVisible", false )
+	RunUIScript( "FreespawnPrompt_SetDisabled", true )
+	RunUIScript( "FreespawnPrompt_KillUpdateThread" )
+}
+
+void function LockoutTimeCL_Set( float newLockoutTime )
+{
+	entity player = GetLocalViewPlayer()
+	string playerName = IsValid( player ) ? player.GetPlayerName() : "unknown"
+
+	float startTime = LockoutStartTime_CL_Get()
+	float endTime_Old = startTime + file.lockoutTime
+	float endTime_New = startTime + newLockoutTime
+#if DEV
+		printt( FUNC_NAME() + "(): Lockout start Time for " + playerName + " == " + startTime )
+		printt( FUNC_NAME() + "(): OLD Lockout Duration for " + playerName + " == " + ( endTime_Old - startTime ) )
+		printt( FUNC_NAME() + "(): NEW Lockout Duration for " + playerName + " == " + ( endTime_New - startTime ) )
+#endif
+	file.lockoutTime = newLockoutTime
+	DeathScreen_UpdateRespawnTime( startTime, endTime_New )
+}
+
+float function LockoutTimeCL_Get()
+{
+	return( file.lockoutTime )
+}
+
+
+
+
+void function Freespawns_SV2CL_RespawnStatus_Announce( entity subjectPlayer, int respawnObitType )
+{
+	entity player = GetLocalViewPlayer()
+
+	if( !IsValid( player ) )
+		return
+
+	if( !IsValid( subjectPlayer ) )
+		return
+
+	if( !subjectPlayer.IsPlayer() )
+		return
+
+	bool isSelf = player == subjectPlayer
+	bool isAlly = player.GetTeam() == subjectPlayer.GetTeam()
+
+	sAnnouncementFields aFields
+
+	aFields.message = ""
+	aFields.messageObit = ""
+	aFields.messageColor = COLOR_GRAY
+	aFields.duration = 5.0
+	aFields.announceStyle =  ANNOUNCEMENT_STYLE_GENERIC_WARNING 
+	aFields.announcementSFX = RESPAWN_PLAYERWILLRESPAWN_SFX
+	switch( respawnObitType )
+	{
+		case eFreespawnObitType.WILL_RESPAWN: 	
+			aFields.message = isSelf ? "#FREESPAWNSV2_OBIT_YOU_HAVEFREESPAWN" : "#FREESPAWNSV2_OBIT_VICTIM_HASFREESPAWN"
+			aFields.messageObit 	= ""
+			aFields.messageColor 	= isSelf ? COLOR_GREEN : COLOR_ORANGE
+			break
+		case eFreespawnObitType.IS_RESPAWNING:	
+			if( isSelf )
+			{
+				aFields.message 		= ""
+				aFields.messageObit		= "#FREESPAWNSV2_OBIT_YOURE_FREESPAWNING"
+				aFields.messageColor 	= COLOR_GREEN
+				
+			}
+			else
+			{
+				aFields.message 		= isAlly ? "#FREESPAWNSV2_OBIT_VICTIM_ISRESPAWNING_TOALLIES" : "FREESPAWNSV2_OBIT_VICTIM_ISRESPAWNING_TOENEMIES"
+				aFields.messageObit		= ""
+				aFields.messageColor 	= isAlly ? COLOR_GREEN : COLOR_ORANGE
+				aFields.announceStyle 	= ANNOUNCEMENT_STYLE_SWEEP 
+				aFields.announcementSFX = isAlly ? FREESPAWN_SOUND_1P_ALLYRESPAWNED : FREESPAWN_SOUND_1P_ENEMYNEARBY
+				aFields.playerName 		= subjectPlayer.GetPlayerName()
+			}
+			break
+		case eFreespawnObitType.IS_RESPAWNING_MULTIPLE:	
+			if(( isSelf ) || player.GetPlayerNetBool( NETVAR_FREESPAWNS_PLAYER_ISFREESPAWNING )) 
+			{
+				aFields.message 		= ""
+				aFields.messageObit		= "#FREESPAWNSV2_OBIT_YOURE_FREESPAWNING"
+				aFields.messageColor 	= COLOR_GREEN
+				aFields.announcementSFX = FREESPAWN_SOUND_1P_USETOKEN
+			}
+			else
+			{
+				aFields.message 		= isAlly ? "#FREESPAWNS_OBIT_ALLIES_RESPAWNING" : "FREESPAWNS_OBIT_ENEMIES_RESPAWNING"
+				aFields.messageObit		= ""
+				aFields.messageColor 	= isAlly ? COLOR_GREEN : COLOR_ORANGE
+				aFields.announceStyle 	= ANNOUNCEMENT_STYLE_SWEEP 
+				aFields.announcementSFX = isAlly ? FREESPAWN_SOUND_1P_ALLYRESPAWNED : FREESPAWN_SOUND_1P_ENEMYNEARBY
+				aFields.playerName 		= subjectPlayer.GetPlayerName()
+			}
+		break
+		case eFreespawnObitType.SQUAD_SURVIVOR:
+			aFields.message 			= "#FREESPAWNV4_SQUAD_SURVIVOR"
+			aFields.messageColor 		= COLOR_GRAY
+			aFields.announceStyle 		= ANNOUNCEMENT_STYLE_QUICK
+			break
+		case eFreespawnObitType.ELIMINATED:
+			if(( !isSelf ) && ( !isAlly ))
+			{
+				aFields.message = "#FREERESPAWNS_RESPAWN_OBIT_ENEMYELIMINATED"
+				aFields.messageColor = COLOR_ORANGE
+				aFields.announceStyle 	= ANNOUNCEMENT_STYLE_SWEEP 
+			}
+			break
+		case eFreespawnObitType.ELIMINATED_A_SQUAD:
+			aFields.playerName 		= subjectPlayer.GetPlayerName()
+			aFields.messageObit 	= isSelf ? "#FREESPAWNS_RESPAWN_OBIT_ELIMINATEDASQUAD_BYYOU" : "#FREESPAWNS_RESPAWN_OBIT_ELIMINATEDASQUAD"
+			aFields.messageColor 	= COLOR_GREEN
+			aFields.announceStyle 	= ANNOUNCEMENT_STYLE_MILESTONE_SMALL 
+			aFields.announcementSFX = FREESPAWN_SOUND_1P_ELIMINATED_A_SQUAD
+			break
+		default:
+			break
+	}
+
+	aFields.messageLoc = Localize( aFields.message, aFields.playerName )
+	aFields.messageObitLoc = Localize( aFields.messageObit, aFields.playerName )
+
+	_Announcement_Show( aFields )
+}
+
+
+
+void function Freespawns_SV2CL_LockoutCumulative_Update_Announce( entity subjectPlayer, int deathAddType )
+{
+	entity player = GetLocalViewPlayer()
+
+	if( !IsValid( player ) )
+		return
+
+	if( !IsValid( subjectPlayer ) )
+		return
+
+	if( !subjectPlayer.IsPlayer() )
+		return
+
+	bool isSelf = player == subjectPlayer
+	bool isAlly = player.GetTeam() == subjectPlayer.GetTeam()
+
+	vector color_Player = GetKeyColor( COLORID_MEMBER_COLOR0, subjectPlayer.GetTeamMemberIndex() )
+	vector color_Value
+
+	string subjectPlayerName = subjectPlayer.GetPlayerName()
+
+	string obitMsg = ""
+	switch( deathAddType )
+	{
+		case eDeathAddType.PENALTY_DEATH:
+			color_Value 	= COLOR_RED
+			obitMsg 	= isSelf ? "#FREESPAWNS_LOCKOUT_INC_DEATH_YOU" : "#FREESPAWNS_LOCKOUT_INC_DEATH"
+			break
+		case eDeathAddType.PENALTY_BLEEDOUT:
+			obitMsg 	= isSelf ? "#FREESPAWNS_LOCKOUT_INC_BLEEDOUT_BYYOU" : "#FREESPAWNS_LOCKOUT_INC_BLEEDOUT"
+			color_Value 	= COLOR_RED
+			break
+		case eDeathAddType.PENALTY_SUICIDE:
+			obitMsg 	= isSelf ? "#FREESPAWNS_LOCKOUT_INC_SUICIDE_YOU" : "#FREESPAWNS_LOCKOUT_INC_SUICIDE"
+			color_Value 	= COLOR_RED
+			break
+		case eDeathAddType.PENALTY_EXECUTED:
+			obitMsg 	= isSelf ? "#FREESPAWNS_LOCKOUT_INC_WASEXECUTED_YOU" : "#FREESPAWNS_LOCKOUT_INC_WASEXECUTED"
+			color_Value 	= COLOR_RED
+			break
+		case eDeathAddType.REWARD_DOWN:
+			obitMsg 	= isSelf ? "#FREESPAWNS_LOCKOUT_DEC_DOWN_BYYOU" : "#FREESPAWNS_LOCKOUT_DEC_DOWN"
+			color_Value 	= COLOR_GREEN
+			break
+		case eDeathAddType.REWARD_KILL:
+			obitMsg 	= isSelf ? "#FREESPAWNS_LOCKOUT_DEC_KILL_BYYOU" : "#FREESPAWNS_LOCKOUT_DEC_KILL"
+			color_Value 	= COLOR_GREEN
+			break
+		case eDeathAddType.REWARD_EXECUTION:
+			obitMsg 	= isSelf ? "#FREESPAWNS_LOCKOUT_DEC_FINISH_BYYOU" : "#FREESPAWNS_LOCKOUT_DEC_FINISH"
+			color_Value 	= COLOR_GREEN
+			break
+		default:
+			break
+	}
+
+	float deathAddValue = DeathAdd_Calculate( deathAddType )
+	string valueStr = FormatAndLocalizeNumber( "1.0", deathAddValue, false )
+	string obitMsgLoc
+	if( isSelf )
+	{
+		obitMsgLoc = Localize( obitMsg, valueStr)
+	}
+	else
+	{
+		obitMsgLoc = Localize( obitMsg, subjectPlayerName, valueStr)
+	}
+
+	Obituary_Print_Localized( obitMsgLoc, color_Player, color_Value )
+}
+
+
+
+
+bool function Freespawns_PLV_SkipBleedout_Allow()
+
+{
+	return( GetCurrentPlaylistVarBool( "freespawns_skipbleedout_allow", false ) ) 
+}
+
+bool function Freespawns_PLV_DeathFX_WillRespawn_Show()
+{
+	return( GetCurrentPlaylistVarBool( "freespawns_deathfx_willrespawn_show", false ) ) 
+}
+
+float function Freespawns_PLV_SkipBleedout_DelayTime_Base()
+{
+	return( GetCurrentPlaylistVarFloat( "freespawns_skipbleedout_delaytime_base", 10.0 ) ) 
+}
+
+
+bool function Freespawns_SkipBleedout_CanDo( entity player )
+{
+	bool result = Freespawns_PLV_SkipBleedout_Allow()
+	if( !result )
+		return false
+
+	if( !IsValid( player ) )
+		return false
+
+	if( !player.IsPlayer() )
+		return false
+
+	bool freespawnsEnabled = !player.GetPlayerNetBool( NETVAR_FREERESPAWNS_DISABLED )
+	int numTokensLeft = player.GetPlayerNetInt( NETVAR_FREERESPAWNS_SQUAD_LIVES )
+
+	result = result && freespawnsEnabled
+	result = result && ( numTokensLeft > 0 )
+	result = result && Bleedout_IsBleedingOut( player )
+	return( result )
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+void function Freespawns_CL_SkipBleedout_Prompts_Thread( entity player, var rui )
+{
+	player.EndSignal( "OnDeath" )
+	player.EndSignal( "OnDestroy" )
+	player.EndSignal( "Bleedout_OnRevive" )
+
+	float time_LockoutTotal = LockoutTimeMin_Get_ForCurrentRound()
+	float time_skipBleedout_Delay = SkipBleedout_DelayTime_Get_ForCurrentRound() 
+	float timeStart = ClientTime()
+	float timePassed = 0
+	float timeLeft = time_LockoutTotal
+
+	OnThreadEnd(
+		function () : ( player, rui )
+		{
+#if DEV
+				printt( FUNC_NAME() + "(): Prompts End" )
+				printt( FUNC_NAME() + "(): IsValid( player ) ? " + IsValid( player ) )
+				printt( FUNC_NAME() + "(): rui != null ? " + ( rui != null ) )
+#endif
+		}
+	)
+
+	
+	while(( rui != null ) && ( timePassed < time_skipBleedout_Delay ))
+	{
+		timePassed = ClientTime() - timeStart
+		SkipBleedout_UpdatePrompt( "#FREESPAWNSV2_SKIPBLEEDOUT_DELAY", timeStart, time_LockoutTotal, rui )
+	}
+
+	
+	while(( rui != null ) && ( timePassed < time_LockoutTotal ) )
+	{
+		timePassed = ClientTime() - timeStart
+		SkipBleedout_UpdatePrompt( "#FREESPAWNSV2_SKIPBLEEDOUT_IN", timeStart, time_LockoutTotal, rui )
+	}
+
+	
+	while( rui != null )
+	{
+		SkipBleedout_UpdatePrompt( "#FREESPAWNSV2_SKIPBLEEDOUT", timeStart, time_LockoutTotal, rui )
+		WaitFrame()
+	}
+}
+
+void function SkipBleedout_UpdatePrompt( string prompt, float timeStart, float time_LockoutTotal, var rui )
+{
+	if( rui == null )
+		return
+
+	entity player = GetLocalViewPlayer()
+
+	if( !IsValid( player ) )
+		return
+
+	bool canDoSkipBleedout = Freespawns_SkipBleedout_CanDo( player )
+	RuiSetBool( rui, "canForceBleedout", canDoSkipBleedout )
+
+	float time_LockoutRemaining = TimeLeft( time_LockoutTotal, timeStart )
+	string promptText = Localize( prompt, FormatNumber( "1.0", time_LockoutRemaining ) )
+	RuiSetString( rui, "bleedoutString", promptText )
+
+	WaitFrame()
+}
+
+
+
+void function Freespawns_SV2CL_FreespawnsEnabled_Update( bool isOn )
+{
+	file.freespawns_IsEnabled = isOn
+	RunUIScript( "UI_Freespawns_SetEnabled", isOn )
+}
+
+
+void function Freespawns_SV2CL_AggroReward_Give( entity actionPlayer, int aggroType )
+{
+#if DEV
+		printt( FUNC_NAME() + "(): actionPlayer 	== " + actionPlayer )
+		printt( FUNC_NAME() + "(): GetLocalViewPlayer()	 == " + GetLocalViewPlayer() )
+		printt( FUNC_NAME() + "(): GetLocalClientPlayer()== " + GetLocalClientPlayer() )
+		printt( FUNC_NAME() + "(): aggroType 	== " + aggroType )
+#endif
+
+	float startTime = LockoutStartTime_CL_Get()
+	float aggroReward = Freespawns_AggroReward_Get_ByType( aggroType )
+	float oldLockoutTime = LockoutTimeCL_Get()
+	float newLockoutTime = oldLockoutTime + aggroReward
+	LockoutTimeCL_Set( newLockoutTime )
+
+	RunUIScript( "UI_Freespawns_LockoutTime_AggroReward_Give", aggroType )
+	Freespawns_SV2CL_AggroReward_Announce( actionPlayer, aggroType )
+}
+
+void function Freespawns_SV2CL_AggroReward_Announce( entity actionPlayer, int aggroType )
+{
+#if DEV
+		printt( FUNC_NAME() + "(): aggro Reward Announcement from " + actionPlayer )
+#endif
+
+	entity player = GetLocalViewPlayer() 
+
+	if( !IsValid( player ) )
+		return
+
+	if( !IsValid( actionPlayer ) )
+		return
+
+	if( !actionPlayer.IsPlayer() && !actionPlayer.IsBot() )
+		return
+
+	bool isSelf = false 
+	bool isAlly = player.GetTeam() == actionPlayer.GetTeam()
+
+	sAnnouncementFields aFields
+
+	aFields.message = ""
+	aFields.messageObit = ""
+	aFields.messageColor = COLOR_GRAY
+	aFields.duration = 5.0
+	aFields.announceStyle =  ANNOUNCEMENT_STYLE_GENERIC_WARNING 
+	aFields.announcementSFX = RESPAWN_PLAYERWILLRESPAWN_SFX
+
+	float aggroReward = Freespawns_AggroReward_Get_ByType( aggroType )
+#if DEV
+		printt( FUNC_NAME() + "(): actionPlayer 	== " + actionPlayer )
+		printt( FUNC_NAME() + "(): player 			== " + player )
+		printt( FUNC_NAME() + "(): GetLocalViewPlayer()	 == " + GetLocalViewPlayer() )
+		printt( FUNC_NAME() + "(): GetLocalClientPlayer()== " + GetLocalClientPlayer() )
+		printt( FUNC_NAME() + "(): aggroType 	== " + aggroType )
+		printt( FUNC_NAME() + "(): aggroReward 	== " + aggroReward )
+#endif
+
+	string aggroRewardStr = string( aggroReward )
+
+	switch( aggroType )
+	{
+		case eFreespawns_AggroType.DAMAGE_CHUNK:
+			int damageChunk = Freespawns_PLV_AggroRewards_DamageChunk_Threshold()
+			if( isSelf )
+			{
+				aFields.message 		= "#FREESPAWNSV3_AGGRO_DAMAGECHUNK_SELF"
+				aFields.messageObit		= "#FREESPAWNSV3_AGGRO_DAMAGECHUNK_SELF"
+				aFields.messageColor 	= COLOR_GREEN
+				aFields.announceStyle 	= ANNOUNCEMENT_STYLE_QUICK
+				aFields.announcementSFX = FREESPAWN_SOUND_AGGROREWARD
+				aFields.messageLoc 		= Localize( aFields.message, string( damageChunk ), aggroReward )
+				aFields.messageObitLoc 	= aFields.messageLoc
+			}
+			else
+			{
+				aFields.message 		= "#FREESPAWNSV3_AGGRO_DAMAGECHUNK_TEAMMATE"
+				aFields.messageObit		= "#FREESPAWNSV3_AGGRO_DAMAGECHUNK_TEAMMATE"
+				aFields.messageColor 	= COLOR_GREEN
+				aFields.announceStyle 	= ANNOUNCEMENT_STYLE_QUICK
+				aFields.announcementSFX = FREESPAWN_SOUND_AGGROREWARD
+				aFields.messageLoc 		= Localize( aFields.message, actionPlayer.GetPlayerName(), string( damageChunk ), aggroReward )
+				aFields.messageObitLoc  = aFields.messageLoc
+			}
+			break
+		case eFreespawns_AggroType.DOWNED_ENEMY:
+			if( isSelf )
+			{
+				aFields.message 		= "#FREESPAWNSV3_AGGRO_DOWNEDENEMY_SELF"
+				aFields.messageObit		= "#FREESPAWNSV3_AGGRO_DOWNEDENEMY_SELF"
+				aFields.messageColor 	= COLOR_GREEN
+				aFields.announceStyle 	= ANNOUNCEMENT_STYLE_QUICK
+				aFields.announcementSFX = FREESPAWN_SOUND_AGGROREWARD
+				aFields.messageLoc 		= Localize( aFields.message, aggroReward )
+				aFields.messageObitLoc 	= aFields.messageLoc
+			}
+			else
+			{
+				aFields.message 		= "#FREESPAWNSV3_AGGRO_DOWNEDENEMY_TEAMMATE"
+				aFields.messageObit		= "#FREESPAWNSV3_AGGRO_DOWNEDENEMY_TEAMMATE"
+				aFields.messageColor 	= COLOR_GREEN
+				aFields.announceStyle 	= ANNOUNCEMENT_STYLE_QUICK 
+				aFields.announcementSFX = FREESPAWN_SOUND_AGGROREWARD
+				aFields.messageLoc 		= Localize( aFields.message, actionPlayer.GetPlayerName(), aggroReward )
+				aFields.messageObitLoc  = aFields.messageLoc
+			}
+			break
+		case eFreespawns_AggroType.KILLED_ENEMY:
+			if( isSelf )
+			{
+				aFields.message 		= "#FREESPAWNSV3_AGGRO_KILLEDENEMY_SELF"
+				aFields.messageObit		= "#FREESPAWNSV3_AGGRO_KILLEDENEMY_SELF"
+				aFields.messageColor 	= COLOR_GREEN
+				aFields.announceStyle 	= ANNOUNCEMENT_STYLE_QUICK
+				aFields.announcementSFX = FREESPAWN_SOUND_AGGROREWARD
+				aFields.messageLoc 		= Localize( aFields.message, aggroReward )
+				aFields.messageObitLoc 	= aFields.messageLoc
+			}
+			else
+			{
+				aFields.message 		= "#FREESPAWNSV3_AGGRO_KILLEDENEMY_TEAMMATE"
+				aFields.messageObit		= "#FREESPAWNSV3_AGGRO_KILLEDENEMY_TEAMMATE"
+				aFields.messageColor 	= COLOR_GREEN
+				aFields.announceStyle 	= ANNOUNCEMENT_STYLE_QUICK 
+				aFields.announcementSFX = FREESPAWN_SOUND_AGGROREWARD
+				aFields.messageLoc 		= Localize( aFields.message, actionPlayer.GetPlayerName(), aggroReward )
+				aFields.messageObitLoc  = aFields.messageLoc
+			}
+			break
+		case eFreespawns_AggroType.EXECUTED_ENEMY:
+			if( isSelf )
+			{
+				aFields.message 		= "#FREESPAWNSV3_AGGRO_EXECUTEDENEMY_SELF"
+				aFields.messageObit		= "#FREESPAWNSV3_AGGRO_EXECUTEDENEMY_SELF"
+				aFields.messageColor 	= COLOR_GREEN
+				aFields.announceStyle 	= ANNOUNCEMENT_STYLE_QUICK
+				aFields.announcementSFX = FREESPAWN_SOUND_AGGROREWARD
+				aFields.messageLoc 		= Localize( aFields.message, aggroReward )
+				aFields.messageObitLoc 	= aFields.messageLoc
+			}
+			else
+			{
+				aFields.message 		= "#FREESPAWNSV3_AGGRO_EXECUTEDENEMY_TEAMMATE"
+				aFields.messageObit		= "#FREESPAWNSV3_AGGRO_EXECUTEDENEMY_TEAMMATE"
+				aFields.messageColor 	= COLOR_GREEN
+				aFields.announceStyle 	= ANNOUNCEMENT_STYLE_QUICK 
+				aFields.announcementSFX = FREESPAWN_SOUND_AGGROREWARD
+				aFields.messageLoc 		= Localize( aFields.message, actionPlayer.GetPlayerName(), aggroReward )
+				aFields.messageObitLoc  = aFields.messageLoc
+			}
+			break
+			break
+		default:
+			break
+	}
+
+#if DEV
+		printt( FUNC_NAME() + "(): messageLoc 		== " + aFields.messageLoc )
+		printt( FUNC_NAME() + "(): messageObitLoc 	== " + aFields.messageObitLoc )
+#endif
+
+	_Announcement_Show( aFields )
+}
+
+void function _Announcement_Show( sAnnouncementFields aFields )
+{
+	entity player = GetLocalViewPlayer()
+
+	if( !IsValid( player ) )
+		return
+
+	
+	if( aFields.message != "" )
+	{
+#if DEV
+			printt( FUNC_NAME() + "(): For " + aFields.playerName + ", messageLoc = " + aFields.messageLoc )
+#endif
+
+		AnnouncementData announcement = Announcement_Create( aFields.messageLoc )
+		Announcement_SetDuration( announcement, aFields.duration )
+		Announcement_SetTitleColor( announcement, aFields.messageColor )
+
+		Announcement_SetStyle( announcement, aFields.announceStyle )
+		Announcement_SetPriority( announcement, aFields.priority )
+		Announcement_SetSoundAlias( announcement, aFields.announcementSFX )
+
+		AnnouncementFromClass( player, announcement )
+	}
+
+	if( aFields.messageObit != "" )
+	{
+#if DEV
+			printt( FUNC_NAME() + "(): For " + aFields.playerName + ", messageObitLoc = " + aFields.messageObitLoc )
+#endif
+		Obituary_Print_Localized( aFields.messageObitLoc, aFields.messageColor )
+	}
+	if( aFields.announcementSFX != "" )
+	{
+		EmitSoundOnEntity( player, aFields.announcementSFX )
+	}
+}
+
+void function Freespawns_SV2CL_Lockout_CountdownSounds()
+{
+	thread Lockout_CL_CountdownSounds_Thread()
+}
+
+void function Lockout_CL_CountdownSounds_Thread()
+{
+	entity player = GetLocalViewPlayer()
+
+	for( int i = 0; i < 5; i++ )
+	{
+		if( !IsValid( player ) )
+			return
+
+		EmitSoundOnEntity( player, "Survival_Freespawn_TokenCountdown_1P"  )
+
+		wait( 1 )
+	}
+
+	if( !IsValid( player ) )
+		return
+
+	EmitSoundOnEntity( player, "Survival_Freespawn_TokenUse_1P" )
+}
+
+
+
+
+
+bool function SelfRevives_PLV_Enabled()
+{
+	return( GetCurrentPlaylistVarBool( "freespawns_selfrevives_enabled", false ) ) 
+}
+
+bool function SelfRevives_PLV_Allowed_AfterFreespawnDisable()
+{
+	return( GetCurrentPlaylistVarBool( "freespawns_selfrevives_allowed_afterfreespawndisable", true ) ) 
+}
+
+int function SelfRevives_PLV_MaxCount()
+{
+	return( GetCurrentPlaylistVarInt( "freespawns_selfrevives_maxcount", FREESPAWNSV3_SELFREVIVES_MAX ) ) 
+}
+
+
+
+bool function SelfRevives_Allowed()
+{
+	bool freespawnsV3_SelfRevives_Enabled = SelfRevives_PLV_Enabled()
+	bool freespawnsEnabled = SelfRevives_PLV_Allowed_AfterFreespawnDisable() ? true : FreeRespawns_Feature_IsInEffect()
+
+	return ( freespawnsEnabled && freespawnsV3_SelfRevives_Enabled )
+}
+
+bool function Freespawns_SelfRevive_CanDo( entity player )
+{
+	if( !IsValid( player ) )
+		return false
+
+	if( !player.IsPlayer() )
+		return false
+
+	if( !SelfRevives_Allowed() )
+		return false
+
+	return( player.p.numSelfRevivesLeft > 0 )
+}
+
+float function Freespawns_PLV_DeathCam_Time( entity player )
+{
+	return GetCurrentPlaylistVarFloat( "freespawns_deathcam_time", DEATHCAM_TIME_SHORT )
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+void function Freespawns_SV2CL_SelfRevives_Updated( entity player, int revives )
+{
+	if( !IsValid( player ) )
+		return
+
+#if DEV
+		printt( FUNC_NAME() + "(): for player " + player )
+		printt( FUNC_NAME() + "(): revives == " + revives )
+#endif
+
+	player.p.numSelfRevivesLeft = revives
+}
+
+
+
+int function SelfRevives_Remaining_Get( entity player )
+{
+	if( !IsValid( player ) )
+		return 0
+
+	int revivesLeft = player.p.numSelfRevivesLeft
+	return( revivesLeft )
+}
+
+
+
+
+bool function Freespawns_PLV_RespawnBeacons_Disabled()
+{
+	return( GetCurrentPlaylistVarBool( "freespawns_respawnbeacons_disabled", true ) ) 
+}
+
+bool function Freespawns_RespawnBeacons_Disabled()
+{
+	bool featureExists 	= FreeRespawns_Feature_Exists()
+	bool respawnBeacons_Disabled = Freespawns_PLV_RespawnBeacons_Disabled()
+	return( featureExists && respawnBeacons_Disabled )
+}
+
+
+bool function Freespawns_PLV_RespawnMapIcons_Enabled()
+{
+	return( GetCurrentPlaylistVarBool( "freespawns_respawnmapicons_enabled", true ) )
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+void function Freespawns_SV2CL_LockoutStartTime_Set( float startTime )
+{
+#if DEV
+		entity player = GetLocalViewPlayer()
+		string playerName = IsValid( player ) ? player.GetPlayerName() : "unknown"
+		printt( FUNC_NAME() + "(): player " + playerName + " lockout startTime = " + startTime )
+#endif
+
+	if( startTime == file.lockoutStartTime )
+		return
+
+	file.lockoutStartTime = startTime
+
+#if DEV
+		printt( FUNC_NAME() + "(): player " + playerName +  " file.lockoutStartTime = " + file.lockoutStartTime )
+#endif
+
+	RunUIScript( "UI_Freespawns_LockoutStartTime_SetNow", file.lockoutStartTime )
+}
+
+float function LockoutStartTime_CL_Get()
+{
+	return file.lockoutStartTime
+}
+
+
+
+
+
+float function TimeLeft( float timeTotal, float timeStart )
+{
+	float frac
+
+		frac = 1 - ( ClientTime() - timeStart ) / timeTotal
+
+
+
+
+	frac = max( 0, frac )
+
+	float timeLeft = timeTotal * frac
+	return( timeLeft )
+}
+
+                          

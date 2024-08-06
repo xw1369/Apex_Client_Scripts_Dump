@@ -38,34 +38,6 @@ global function WinterExpress_IsTeamWinning
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-#if DEV
-global function PickCommentaryLineFromBucket_WinterExpressCustom
-#endif
-
-
 global enum eWinterExpressRoundState
 {
 	OBJECTIVE_ACTIVE,
@@ -89,6 +61,13 @@ global enum eWinterExpressObjectiveState
 	CONTESTED,
 	CONTROLLED,
 	INACTIVE,
+}
+
+global enum eWinterExpressSpawnMode
+{
+	HOVERTANK,
+	SKYDIVE,
+	STATION_UNSUPPORTED 
 }
 
 
@@ -370,11 +349,6 @@ void function WinterExpress_Init()
 
 
 
-
-
-
-
-
 		SetCustomScreenFadeAsset( $"ui/screen_fade_winter_express.rpak" )
 
 		CircleAnnouncementsEnable( false )
@@ -461,6 +435,24 @@ void function WinterExpress_RegisterNetworking()
 bool function WinterExpress_IsNarrowWin()
 {
 	return GetGlobalNetBool( "WinterExpress_NarrowWin" )
+}
+
+int function WinterExpress_GetSpawnMode()
+{
+	switch ( GetCurrentPlaylistVarString( "winter_express_spawn_mode", "hovertank" ) )
+	{
+		case "hovertank":
+			return eWinterExpressSpawnMode.HOVERTANK
+
+		case "skydive":
+			return eWinterExpressSpawnMode.SKYDIVE
+
+		default:
+			Assert( false, "playlist var \"winter_express_spawn_mode\" set to invalid value! (should be either hovertank or skydive)" )
+			return -1
+	}
+
+	unreachable
 }
 
 
@@ -695,242 +687,6 @@ void function Client_OnWinnerDetermined( )
 		SetVictoryScreenTeamName( Localize( Squads_GetSquadNameLong( squadIndex ) ) )
 	}
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -4063,6 +3819,14 @@ VictorySoundPackage function GetVictorySoundPackage()
 
 	return victorySoundPackage
 }
+
+
+
+
+
+
+
+
 
 
 

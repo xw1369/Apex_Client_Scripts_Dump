@@ -20,6 +20,7 @@ global function SupportBin_EntityIsSupportBin
 
 
 
+
 global function Perk_SupportBin_SupportBinHasHudMarker
 global function Perk_SupportBin_ServerToClient_DisplayOpenedSupportBoxPrompt
 
@@ -120,10 +121,16 @@ enum SurvivalStatusType
 
 
 
+
 void function Perk_SupportLootbin_Init()
 {
 	if ( !SupportBin_ShouldUseDiscreteSupportBins() )
 		return
+
+
+		if ( !SupportBin_ShouldSpawnSupportBins() )
+			return
+
 
 	PerkInfo extraBinLoot
 	extraBinLoot.perkId          = ePerkIndex.EXTRA_BIN_LOOT
@@ -143,11 +150,6 @@ void function Perk_SupportLootbin_Init()
 
 
 	Perks_RegisterClassPerk( extraBinLoot )
-
-
-		if ( !SupportBin_ShouldSpawnSupportBins() )
-			return
-
 
 
 
@@ -184,6 +186,9 @@ void function Perk_SupportLootbin_Init()
 bool function SupportBin_ShouldSpawnSupportBins()
 {
 	if( GetCurrentPlaylistVarBool("survival_block_lootbin_creation", false ) )
+		return false
+
+	if ( !LootBin_ArePerkBinsEnabled() )
 		return false
 
 
@@ -358,8 +363,28 @@ bool function SupportBin_EntityIsSupportBin( entity ent )
 		return false
 	if( !LootBin_HasSecretCompartment( ent ) )
 		return false
-	return ent.GetSkin() == ent.GetSkinIndexByName( SUPPORT_LOOT_BIN_SKIN_NAME )
+
+
+		return ent.GetSkin() == ent.GetSkinIndexByName( SUPPORT_LOOT_BIN_SKIN_NAME ) || ent.GetSkin() == ent.GetSkinIndexByName( SUPPORT_BIN_RESET_SKIN_NAME )
+
+
+
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1694,6 +1719,12 @@ void function Perk_SupportBin_RuiThinkThread( var rui, entity ent )
 	RuiSetFloat( rui, "minAlphaDist", 1500 )
 	RuiSetFloat( rui, "maxAlphaDist", 2000 )
 }
+
+
+
+
+
+
 
 
 

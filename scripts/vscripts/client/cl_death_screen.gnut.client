@@ -26,8 +26,7 @@ global function DeathScreen_ClearIsPlayerWaitingForRespawnFunc
 global function DeathScreen_OnSquadShow
 
 
-
-
+global function InitFreespawnPrompt
 
 
 global function UICallback_ShowRank
@@ -231,7 +230,7 @@ void function DeathScreen_OnPlayerCreated( entity player )
 		info.player   = player
 		info.uid      = player.GetUserID()
 		info.eaid     = player.GetEadpUserIdStr()
-		info.hardware = player.GetUnspoofedHardware()
+		info.hardware = player.GetHardwareName()
 		info.unspoofedUid = player.GetUnspoofedPlatformUserIdStr()
 		info.ehi      = ehi
 		info.team     = player.GetTeam()
@@ -376,12 +375,14 @@ void function UpdateRequeueUI_Thread( int clientPlayerTeam )
 
 	bool showRequeue = IsMatchmakingFromMatchEnabled()
 
+
 	if( GameModeVariant_IsActiveForPlaylist( GetCurrentPlaylistName(), eGameModeVariants.SURVIVAL_RANKED ) && RankedRumble_IsLatestGameRankedRumble( GetLocalClientPlayer() ) )
 	{
 
-			showRequeue = false
+
 
 	}
+
 
 	Hud_SetVisible( requeueEle, showRequeue )
 
@@ -588,8 +589,8 @@ void function DeathScreen_SpectatorTargetChanged( entity player, entity previous
 
 	if ( IsValid( currentTarget ) && currentTarget.IsPlayer() )
 	{
-		RunUIScript( "UI_DeathScreenSetBlockPlayer", currentTarget.GetEadpUserIdStr(), currentTarget.GetUnspoofedHardware() )
-		printt( "#EADP UI_DeathScreenSetBlockPlayer", currentTarget.GetEadpUserIdStr(), currentTarget.GetUnspoofedHardware() )
+		RunUIScript( "UI_DeathScreenSetBlockPlayer", currentTarget.GetEadpUserIdStr(), currentTarget.GetHardwareName() )
+		printt( "#EADP UI_DeathScreenSetBlockPlayer", currentTarget.GetEadpUserIdStr(), currentTarget.GetHardwareName() )
 	}
 	else if ( IsAlive( player ) )
 	{
@@ -822,9 +823,9 @@ void function DeathScreenUpdate()
 	if ( GetCurrentTabIndex() == eDeathScreenPanel.SQUAD_SUMMARY )
 	{
 
+		RTKDeathScreenSquadSummary_PopulateData()
 
 
-		RunUIScript( "UI_UpdateSquadSummary" )
 
 	}
 
@@ -845,13 +846,13 @@ void function DeathScreenUpdateChangeLegend( entity player )
 	bool legendReselectable = IsCharacterReselectEnabled()
 
 
-		if( IsRevTakeover() && IsValid( player ) )
-		{
-			if( AllianceProximity_GetAllianceFromTeam( player.GetTeam() ) == ALLIANCE_B )
-			{
-				legendReselectable = false
-			}
-		}
+
+
+
+
+
+
+
 
 
 	if( legendReselectable && validGameState )
@@ -975,6 +976,7 @@ void function DeathScreenUpdateHeader( var headerElem )
 
 
 	int respawnStatus  = GetRespawnStatus( clientPlayer )
+	int eliminationStyle = GetEliminationStyle( clientPlayer )
 	bool displayBanner = true
 	int gameState      = GetGameState()
 	bool isWinner      = GetWinningTeam() == clientPlayer.GetTeam()
@@ -1057,6 +1059,7 @@ void function DeathScreenUpdateHeader( var headerElem )
 
 	RuiSetInt( headerRui, "respawnStyle", respawnStyle )
 	RuiSetInt( headerRui, "respawnStatus", respawnStatus )
+	RuiSetInt( headerRui, "eliminationStyle", eliminationStyle )
 	RuiSetInt( headerRui, "tabIndex", GetCurrentTabIndex() )
 	RuiSetInt( headerRui, "gameState", gameState )
 	RuiSetBool( headerRui, "display", displayBanner )
@@ -1139,10 +1142,10 @@ void function DeathScreenUpdateHeader( var headerElem )
 
 
 
-		if ( GameModeVariant_IsActive( eGameModeVariants.SURVIVAL_SHADOW_ARMY ) )
-		{
-			RuiSetBool( headerRui, "shadowMode", true )
-		}
+
+
+
+
 
 
 	if ( file.deathScreenBannerOverrideFunc != null )
@@ -1609,8 +1612,8 @@ void function UICallback_ShowSpectateTab( var headerElem )
 	entity viewPlayer = GetLocalViewPlayer()
 	if ( IsValid( viewPlayer ) )
 	{
-		RunUIScript( "UI_DeathScreenSetBlockPlayer", viewPlayer.GetEadpUserIdStr(), viewPlayer.GetUnspoofedHardware() )
-		printt( "#EADP UI_DeathScreenSetBlockPlayer 2", viewPlayer.GetEadpUserIdStr(), viewPlayer.GetUnspoofedHardware() )
+		RunUIScript( "UI_DeathScreenSetBlockPlayer", viewPlayer.GetEadpUserIdStr(), viewPlayer.GetHardwareName() )
+		printt( "#EADP UI_DeathScreenSetBlockPlayer 2", viewPlayer.GetEadpUserIdStr(), viewPlayer.GetHardwareName() )
 	}
 
 	if ( ClApexScreens_IsDisabled() )
@@ -2178,6 +2181,8 @@ void function UpdateGladCardVisibility()
 	bool shouldShowGladCard = canShowGladCard && file.showGladCard
 
 	RunUIScript( "UI_SetCanShowGladCard", canShowGladCard )
+
+	RuiSetBool( GetWeaponRui(), "isGladCardVisible", !shouldShowGladCard )
 
 	if ( !shouldShowGladCard )
 	{
@@ -3011,6 +3016,10 @@ asset function GetGladCardReplacementImageForDamageSourceID( int damageSourceID 
 			return $"rui/pilot_loadout/mods/heatwave_sun_killer_art"
 
 
+
+
+
+
 	}
 
 #if DEV
@@ -3458,13 +3467,8 @@ void function AddCallback_ShouldShowDeathScreen( bool functionref() func )
 }
 
 
-
-
-
-
-
-
-
-
-
-      
+void function InitFreespawnPrompt()
+{
+	RunUIScript( "UI_InitFreespawnPrompt" )
+}
+                          

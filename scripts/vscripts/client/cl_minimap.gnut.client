@@ -321,6 +321,7 @@ void function ClMinimap_Init()
 	AddCreateCallback( "player", OnPlayerCreate )
 	AddTargetNameCreateCallback( "deathField", MinimapDeathFieldCreated )
 	AddCallback_OnPlayerChangedTeam( Minimap_OnPlayerTeamChanged )
+	AddCallback_OnYouRespawned( MinimapRespawnReset )
 	RegisterSignal( "TeamChanged" )
 
 	float threatMaxDist  = Minimap_GetFloatForKey( "threatMaxDist" )
@@ -1056,10 +1057,10 @@ var function Minimap_AddEnemyToMinimap( entity enemy, asset enemyIconOverride = 
 	
 	RuiSetFloat3( rui, "objColor", GetKeyColor( COLORID_MINIMAP_ENEMY_REF ) * ( 1.0 / 255.0 ) )
 
-		if ( IsRevTakeover() )
-		{
-			RuiSetFloat3( rui, "objColor", Teams_GetTeamColor( enemy.GetTeam() ) )
-		}
+
+
+
+
 
 
 	return rui
@@ -1493,6 +1494,19 @@ void function MinimapJammed_Disabled( entity ent, int statusEffect, bool actuall
 	}
 }
 
+void function MinimapRespawnReset()
+{
+	if ( !file.minimapEnabled )
+		return
+
+	clGlobal.levelEnt.Signal( "LoopRadarJammerSounds" )
+
+	if ( file.minimap_jammed_layer != null )
+	{
+		RuiDestroy( file.minimap_jammed_layer )
+		file.minimap_jammed_layer = null
+	}
+}
 
 void function LoopRadarJammerSounds( entity ent )
 {
@@ -1848,15 +1862,15 @@ void function Fullmap_SetTintParams( float startTime, float tintDuration, vector
 
 void function ChallengesOnScoreboardShow()
 {
-	RegisterButtonPressedCallback( IsRTL() ? BUTTON_DPAD_RIGHT : BUTTON_DPAD_LEFT, FullmapChallengeCategoryLeft )
-	RegisterButtonPressedCallback( IsRTL() ? BUTTON_DPAD_LEFT : BUTTON_DPAD_RIGHT, FullmapChallengeCategoryRight )
+	RegisterButtonPressedCallback( BUTTON_DPAD_LEFT, FullmapChallengeCategoryLeft )
+	RegisterButtonPressedCallback( BUTTON_DPAD_RIGHT, FullmapChallengeCategoryRight )
 	RegisterButtonPressedCallback( KEY_Y, FullmapChallengeCategoryRight )
 }
 
 void function ChallengesOnScoreboardHide()
 {
-	DeregisterButtonPressedCallback( IsRTL() ? BUTTON_DPAD_RIGHT : BUTTON_DPAD_LEFT, FullmapChallengeCategoryLeft )
-	DeregisterButtonPressedCallback( IsRTL() ? BUTTON_DPAD_LEFT : BUTTON_DPAD_RIGHT, FullmapChallengeCategoryRight )
+	DeregisterButtonPressedCallback( BUTTON_DPAD_LEFT, FullmapChallengeCategoryLeft )
+	DeregisterButtonPressedCallback( BUTTON_DPAD_RIGHT, FullmapChallengeCategoryRight )
 	DeregisterButtonPressedCallback( KEY_Y, FullmapChallengeCategoryRight )
 }
 
@@ -1868,7 +1882,7 @@ void function FullmapChallengeCategoryRight( var button )
 	UpdateMinimapChallengeRui( file.fullmap_challengeRuiArray )
 
 
-
+	OnPlayerViewFullMapChallenges()
 
 }
 
@@ -1880,20 +1894,20 @@ void function FullmapChallengeCategoryLeft( var button )
 	UpdateMinimapChallengeRui( file.fullmap_challengeRuiArray )
 
 
-
+	OnPlayerViewFullMapChallenges()
 
 }
 
 
-
-
-
-
-
-
-
-
-
+void function OnPlayerViewFullMapChallenges()
+{
+	entity player = GetLocalClientPlayer()
+	if ( !player.p.hasTickedFullMapViewChallengesStatThisGame )
+	{
+		Remote_ServerCallFunction( "ClientCallback_StatsHook_OnPlayerViewFullMapChallenges" )
+		player.p.hasTickedFullMapViewChallengesStatThisGame = true
+	}
+}
 
 
 void function SetFullmapRuiResolutionsToScreenSize()
@@ -1947,7 +1961,7 @@ void function UpdateFullmapRuiTracks()
 	bool isPlayerShadow = false
 
 
-		isPlayerShadow = IsPlayerShadowZombie( viewPlayer )
+
 
 
 	RuiSetBool( viewPlayerRui, "useShadowFormFrame", viewPlayer.IsShadowForm() && !isPlayerShadow )

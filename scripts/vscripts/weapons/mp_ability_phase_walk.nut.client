@@ -11,6 +11,11 @@ const string SOUND_ACTIVATE_3P = "pilot_phaseshift_firstarmraise_3p"
 const float PHASE_WALK_PRE_TELL_TIME = 1.5
 const asset PHASE_WALK_APPEAR_PRE_FX = $"P_phase_dash_pre_end_mdl"
 
+const float SPEEDBOOST_STRENGTH = 0.3
+
+
+
+
 struct
 {
 
@@ -23,6 +28,10 @@ void function MpAbilityPhaseWalk_Init()
 	PrecacheParticleSystem( PHASE_WALK_APPEAR_PRE_FX )
 }
 
+bool function MpAbilityPhaseWalk_ShouldUseQuickPhase( entity weapon )
+{
+	return weapon.HasMod( "ult_active" ) || weapon.HasMod( "gamemode_dayzero" )
+}
 
 void function OnWeaponActivate_ability_phase_walk( entity weapon )
 {
@@ -36,7 +45,7 @@ void function OnWeaponActivate_ability_phase_walk( entity weapon )
 
 
 
-	if ( !weapon.HasMod( "ult_active" ) )
+	if ( !MpAbilityPhaseWalk_ShouldUseQuickPhase( weapon ) )
 	{
 
 
@@ -122,11 +131,27 @@ bool function OnWeaponChargeBegin_ability_phase_walk( entity weapon )
 
 		if ( doStatus )
 		{
-			int speedHandle = StatusEffect_AddTimed( player, eStatusEffect.speed_boost, 0.3, chargeTime, chargeTime * 0.3 )
 
 
 
 
+
+
+
+
+
+
+
+
+
+
+			{
+				int speedHandle = StatusEffect_AddTimed( player, eStatusEffect.speed_boost, SPEEDBOOST_STRENGTH, chargeTime, chargeTime * 0.3 )
+
+
+
+
+			}
 		}
 	}
 

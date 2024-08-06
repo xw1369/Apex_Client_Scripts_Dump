@@ -39,13 +39,27 @@ global struct InputHint
 global enum eTutorialContext
 {
 	NONE = -1,
+
+
+
+
 	MOVEMENT = 0,
+
 	LOOT_BIN,
 	LOOT_BIN_ITEMS,
+
+
+
+
+
+
 	ORDNANCE,
 	ORDNANCE_DONE,
 	WEAPON_LOOT_BIN,
 	WEAPON_PICKUP,
+
+
+
 	WEAPON,
 	WEAPON_SWAP,
 	WEAPON_SWAP_DONE,
@@ -106,6 +120,15 @@ void function ShTutorial_Init()
 	AddInputHint( eTutorialContext.ORDNANCE, -1, "%attack%", "#SURVIVAL_TRAINING_THROW_GRENADE", Tutorial_TryAction_ThrewGrenade )
 	AddInputHint( eTutorialContext.ORDNANCE, -1, "#SURVIVAL_TRAINING_TAP_HEAL_BIND", "#SURVIVAL_TRAINING_USE_HEALTHKIT", Tutorial_TryAction_UseHealth )
 	AddInputHint( eTutorialContext.ORDNANCE, -1, "#SURVIVAL_TRAINING_ORDNANCE_MENU_BIND", "#SURVIVAL_TRAINING_USE_ORDNANCE_MENU", Tutorial_TryAction_OrdnanceMenu )
+
+
+
+
+
+
+
+
+
 	
 
 	AddInputHint( eTutorialContext.WEAPON_LOOT_BIN, -1, "%use%", "#SURVIVAL_TRAINING_OPEN_BIN", Tutorial_TryAction_OpenLootBin2 )
@@ -429,6 +452,10 @@ void function OnTutorialContextChanged( entity player, int new )
 	if ( new < 0 )
 		return
 
+
+
+
+
 	foreach ( index, inputHint in file.contextInputHintMap[new] )
 	{
 		var hintRui = CreateFullscreenRui( $"ui/tutorial_hint_line.rpak" )
@@ -453,6 +480,25 @@ void function OnTutorialContextChanged( entity player, int new )
 
 	thread ClientTutorialContextThink( player, new )
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 void function ClientTutorialContextThink( entity player, int context )

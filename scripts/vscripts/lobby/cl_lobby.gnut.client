@@ -23,22 +23,6 @@ const int LOBBY_BANNER_LTM_SKIN_INDEX = 2
 const int LOBBY_EVENT1_SKIN_OFFSET = 3
 const int LOBBY_EVENT2_SKIN_OFFSET = 6
 
-
-const asset P_S21_PORTAL_1_EFFECT = $"P_S21_portal_01"
-const asset P_S21_PORTAL_2_EFFECT = $"P_S21_portal_02"
-const asset P_S21_PORTAL_IMAGE_EFFECT = $"P_S21_portal_radio_image_01"
-const asset P_S21_PORTAL_FRAME_EFFECT = $"P_S21_portal_frame"
-const asset P_S21_PORTAL_BP_EFFECT = $"P_S21_portal_01_BP"
-
-
-const asset P_S21_RT_PORTAL_1_EFFECT = $"P_S21_portal_01_RT"
-const asset P_S21_RT_PORTAL_2_EFFECT = $"P_S21_portal_02_RT"
-const asset P_S21_IMAGE_PORTAL_2_EFFECT = $"P_image_portal_02_RT"
-
-
-const asset P_KOTV_PORTAL_1_EFFECT = $"P_KotV_portal_01"
-const asset P_KOTV_PORTAL_2_EFFECT = $"P_KotV_portal_02"
-
 struct
 {
 	array<void functionref( entity )> onPlayerAddedToLobbyCallbacks
@@ -108,28 +92,6 @@ void function CacheLobbyBannerEnt()
 {
 	file.lobbyBanners     = GetEntArrayByScriptName( "lobby_banner" )
 	file.lobbyReskinProps = GetEntArrayByScriptName( "event_skin_prop" )
-
-	if ( IsLobbyEvent1Active() )
-	{
-		PrecacheParticleSystem( P_S21_RT_PORTAL_1_EFFECT )
-		PrecacheParticleSystem( P_S21_RT_PORTAL_2_EFFECT )
-		PrecacheParticleSystem( P_S21_IMAGE_PORTAL_2_EFFECT )
-	}
-
-	if ( IsLobbyEvent2Active() )
-	{
-		PrecacheParticleSystem( P_KOTV_PORTAL_1_EFFECT )
-		PrecacheParticleSystem( P_KOTV_PORTAL_2_EFFECT )
-	}
-
-	if ( !IsLobbyEvent1Active() || !IsLobbyEvent2Active() )
-	{
-		PrecacheParticleSystem( P_S21_PORTAL_1_EFFECT )
-		PrecacheParticleSystem( P_S21_PORTAL_2_EFFECT )
-		PrecacheParticleSystem( P_S21_PORTAL_IMAGE_EFFECT )
-		PrecacheParticleSystem( P_S21_PORTAL_FRAME_EFFECT )
-		PrecacheParticleSystem( P_S21_PORTAL_BP_EFFECT )
-	}
 }
 
 void function Lobby_OnReadyFX( bool isReady )
@@ -247,10 +209,6 @@ void function SetupEventBase()
 		skinName = "event_2_skin"
 	}
 
-	
-	if ( !IsLobbyEvent1Active() && !IsLobbyEvent2Active() )
-		SetupBaseFX()
-
 	if ( skinName == "" )
 		return
 
@@ -261,26 +219,6 @@ void function SetupEventBase()
 			lobbyReskinProp.SetSkin(lobbyReskinProp.GetSkinIndexByName(skinName))
 		}
 	}
-}
-
-void function SetupBaseFX()
-{
-	array< entity > event_portal_group_1 = GetEntArrayByScriptName( "event_portal_group_1" )
-	SetupParticleEffectOnEntities( event_portal_group_1, P_S21_PORTAL_1_EFFECT, FX_PATTACH_ABSORIGIN, ATTACHMENTID_INVALID )
-
-	array< entity > event_portal_group_2 = GetEntArrayByScriptName( "event_portal_group_2" )
-	array< entity > event_portal_front = GetEntArrayByScriptName( "event_portal_front" )
-	event_portal_group_2.extend( event_portal_front )
-	SetupParticleEffectOnEntities( event_portal_group_2, P_S21_PORTAL_2_EFFECT, FX_PATTACH_ABSORIGIN, ATTACHMENTID_INVALID )
-
-	array< entity > event_portal_image = GetEntArrayByScriptName( "event_portal_image" )
-	SetupParticleEffectOnEntities( event_portal_image, P_S21_PORTAL_IMAGE_EFFECT, FX_PATTACH_ABSORIGIN, ATTACHMENTID_INVALID )
-
-	array< entity > event_portal_frame = GetEntArrayByScriptName( "event_portal_frame" )
-	SetupParticleEffectOnEntities( event_portal_frame, P_S21_PORTAL_FRAME_EFFECT, FX_PATTACH_ABSORIGIN, ATTACHMENTID_INVALID )
-
-	array< entity > event_portal_bp = GetEntArrayByScriptName( "event_portal_bp" )
-	SetupParticleEffectOnEntities( event_portal_bp, P_S21_PORTAL_BP_EFFECT, FX_PATTACH_ABSORIGIN, ATTACHMENTID_INVALID )
 }
 
 void function SetupEventProps()
@@ -304,20 +242,6 @@ void function SetupEvent1Props()
 	}
 
 	
-	array< entity > event_portal_group_1 = GetEntArrayByScriptName( "event_portal_group_1" )
-	array< entity > event_portal_bp = GetEntArrayByScriptName( "event_portal_bp" )
-	event_portal_group_1.extend( event_portal_bp )
-	SetupParticleEffectOnEntities( event_portal_group_1, P_S21_RT_PORTAL_1_EFFECT, FX_PATTACH_ABSORIGIN, ATTACHMENTID_INVALID )
-
-	array< entity > event_portal_front = GetEntArrayByScriptName( "event_portal_front" )
-	SetupParticleEffectOnEntities( event_portal_front, P_S21_RT_PORTAL_2_EFFECT, FX_PATTACH_ABSORIGIN, ATTACHMENTID_INVALID )
-
-	array< entity > event_portal_group_2 = GetEntArrayByScriptName( "event_portal_group_2" )
-	array< entity > event_portal_image = GetEntArrayByScriptName( "event_portal_image" )
-	array< entity > event_portal_frame = GetEntArrayByScriptName( "event_portal_frame" )
-	event_portal_group_2.extend( event_portal_image )
-	event_portal_group_2.extend( event_portal_frame )
-	SetupParticleEffectOnEntities( event_portal_group_2, P_S21_IMAGE_PORTAL_2_EFFECT, FX_PATTACH_ABSORIGIN, ATTACHMENTID_INVALID )
 }
 
 void function SetupEvent2Props()
@@ -335,30 +259,6 @@ void function SetupEvent2Props()
 	}
 
 	
-	array< entity > event_portal_group_1 = GetEntArrayByScriptName( "event_portal_group_1" )
-	array< entity > event_portal_bp = GetEntArrayByScriptName( "event_portal_bp" )
-	event_portal_group_1.extend( event_portal_bp )
-	SetupParticleEffectOnEntities( event_portal_group_1, P_KOTV_PORTAL_1_EFFECT, FX_PATTACH_ABSORIGIN, ATTACHMENTID_INVALID )
-
-	array< entity > event_portal_group_2 = GetEntArrayByScriptName( "event_portal_group_2" )
-	array< entity > event_portal_front = GetEntArrayByScriptName( "event_portal_front" )
-	array< entity > event_portal_image = GetEntArrayByScriptName( "event_portal_image" )
-	array< entity > event_portal_frame = GetEntArrayByScriptName( "event_portal_frame" )
-	event_portal_group_2.extend( event_portal_front )
-	event_portal_group_2.extend( event_portal_image )
-	event_portal_group_2.extend( event_portal_frame )
-	SetupParticleEffectOnEntities( event_portal_group_2, P_KOTV_PORTAL_2_EFFECT, FX_PATTACH_ABSORIGIN, ATTACHMENTID_INVALID )
-}
-
-void function SetupParticleEffectOnEntities( array< entity > entities,  asset effectAsset, int attachType, int attachmentIndex )
-{
-	print_dev( "SDROVIE - " + FUNC_NAME() + " - " + entities.len() )
-	foreach ( effect in entities )
-	{
-		print_dev( "SDROVIE - " + effect.GetScriptName() )
-		
-			StartParticleEffectOnEntity( effect, GetParticleSystemIndex( effectAsset ), attachType, attachmentIndex )
-	}
 }
 
 void function OnPartyMemberAdded()

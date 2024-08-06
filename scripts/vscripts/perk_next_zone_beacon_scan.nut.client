@@ -6,8 +6,12 @@ global function PlayEffects_RingConsole_Pulse
 
 
 
+global function Recon_CanUseBeacon
+
 global function OnActivate_BeaconScan_Circle
 global function Perk_NextZoneSurveyBeacon_GetNextZoneBeaconForEntHit
+
+
 
 
 
@@ -211,6 +215,12 @@ bool function Recon_CanUseBeacon( entity player, entity beacon )
 
 	return true
 }
+
+
+
+
+
+
 
 
 

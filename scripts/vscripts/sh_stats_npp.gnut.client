@@ -1,4 +1,6 @@
 
+global function NPP_Init
+global function StatsRegister_NewPlayerPass
 
 
 
@@ -65,13 +67,19 @@
 
 
 
+const float MOVEMENT_WAIT_INTERVAL = 0.2
 
+struct
+{
 
 
 
 
+} file
 
 
+void function NPP_Init()
+{
 
 
 
@@ -81,27 +89,102 @@
 
 
 
+}
 
+void function StatsRegister_NewPlayerPass()
+{
+	
+	
+	
+	CAREER_STATS.npp_cards_earned = RegisterAccumulatedStat_Int( null, "npp_cards_earned", eChallengeGameMode.NON_MODE, CHALLENGES_CALC_DEPENDS )
+	CAREER_STATS.npp_level = RegisterAccumulatedStat_Int( null, "npp_level", eChallengeGameMode.NON_MODE, CHALLENGES_CALC_DEPENDS )
 
+	
+	
+	
+	CAREER_STATS.map_challenges_viewed = RegisterAccumulatedStat_Int( null, "map_challenges_viewed", eChallengeGameMode.ANY, CHALLENGES_CALC_DEPENDS )
+	CAREER_STATS.map_viewed_from_plane = RegisterAccumulatedStat_Int( null, "map_viewed_from_plane", eChallengeGameMode.ANY, CHALLENGES_CALC_DEPENDS )
+	CAREER_STATS.drop_suggestion_from_plane = RegisterAccumulatedStat_Int( null, "drop_suggestion_from_plane", eChallengeGameMode.ANY, CHALLENGES_CALC_DEPENDS )
 
+	CAREER_STATS.ping_survey_beacon = RegisterAccumulatedStat_Int( null, "ping_survey_beacon", eChallengeGameMode.ANY, CHALLENGES_CALC_DEPENDS )
+	CAREER_STATS.ping_support_bin = RegisterAccumulatedStat_Int( null, "ping_support_bin", eChallengeGameMode.ANY, CHALLENGES_CALC_DEPENDS )
+	CAREER_STATS.ping_assault_bin = RegisterAccumulatedStat_Int( null, "ping_assault_bin", eChallengeGameMode.ANY, CHALLENGES_CALC_DEPENDS )
+	CAREER_STATS.ping_controller_console = RegisterAccumulatedStat_Int( null, "ping_controller_console", eChallengeGameMode.ANY, CHALLENGES_CALC_DEPENDS )
+	CAREER_STATS.ping_replicator = RegisterAccumulatedStat_Int( null, "ping_replicator", eChallengeGameMode.ANY, CHALLENGES_CALC_DEPENDS )
+	CAREER_STATS.ping_enemy_specific = RegisterAccumulatedStat_Int( null, "ping_enemy_specific", eChallengeGameMode.ANY, CHALLENGES_CALC_DEPENDS )
+	CAREER_STATS.ping_supply_bin = RegisterAccumulatedStat_Int( null, "ping_supply_bin", eChallengeGameMode.ANY, CHALLENGES_CALC_DEPENDS )
 
+	CAREER_STATS.ping_attachment_or_optics_request = RegisterAccumulatedStat_Int( null, "ping_attachment_or_optics_request", eChallengeGameMode.ANY, CHALLENGES_CALC_DEPENDS )
 
+	CAREER_STATS.light_ammo_collected = RegisterAccumulatedStat_Int( null, "light_ammo_collected", eChallengeGameMode.ANY, CHALLENGES_CALC_DEPENDS )
+	CAREER_STATS.heavy_ammo_collected = RegisterAccumulatedStat_Int( null, "heavy_ammo_collected", eChallengeGameMode.ANY, CHALLENGES_CALC_DEPENDS )
+	CAREER_STATS.shotgun_ammo_collected = RegisterAccumulatedStat_Int( null, "shotgun_ammo_collected", eChallengeGameMode.ANY, CHALLENGES_CALC_DEPENDS )
+	CAREER_STATS.energy_ammo_collected = RegisterAccumulatedStat_Int( null, "energy_ammo_collected", eChallengeGameMode.ANY, CHALLENGES_CALC_DEPENDS )
+	CAREER_STATS.sniper_ammo_collected = RegisterAccumulatedStat_Int( null, "sniper_ammo_collected", eChallengeGameMode.ANY, CHALLENGES_CALC_DEPENDS )
 
+	CAREER_STATS.light_weapon_collected = RegisterAccumulatedStat_Int( null, "light_weapon_collected", eChallengeGameMode.ANY, CHALLENGES_CALC_DEPENDS )
+	CAREER_STATS.heavy_weapon_collected = RegisterAccumulatedStat_Int( null, "heavy_weapon_collected", eChallengeGameMode.ANY, CHALLENGES_CALC_DEPENDS )
+	CAREER_STATS.shotgun_weapon_collected = RegisterAccumulatedStat_Int( null, "shotgun_weapon_collected", eChallengeGameMode.ANY, CHALLENGES_CALC_DEPENDS )
+	CAREER_STATS.energy_weapon_collected = RegisterAccumulatedStat_Int( null, "energy_weapon_collected", eChallengeGameMode.ANY, CHALLENGES_CALC_DEPENDS )
+	CAREER_STATS.sniper_weapon_collected = RegisterAccumulatedStat_Int( null, "sniper_weapon_collected", eChallengeGameMode.ANY, CHALLENGES_CALC_DEPENDS )
 
+	CAREER_STATS.dropped_items = RegisterAccumulatedStat_Int( null, "dropped_items", eChallengeGameMode.ANY, CHALLENGES_CALC_DEPENDS )
+	CAREER_STATS.ping_dropped_attachment_or_optic = RegisterAccumulatedStat_Int( null, "ping_dropped_attachment_or_optic", eChallengeGameMode.ANY, CHALLENGES_CALC_DEPENDS )
+	CAREER_STATS.ping_dropped_healing_or_shielding = RegisterAccumulatedStat_Int( null, "ping_dropped_healing_or_shielding", eChallengeGameMode.ANY, CHALLENGES_CALC_DEPENDS )
 
+	CAREER_STATS.revealed_care_packages_looted_any_mode = RegisterAccumulatedStat_Int( null, "revealed_care_packages_looted_any_mode", eChallengeGameMode.ANY, CHALLENGES_CALC_DEPENDS )
 
+	CAREER_STATS.syringe_consumed = RegisterAccumulatedStat_Int( null, "syringe_consumed", eChallengeGameMode.ANY, CHALLENGES_CALC_DEPENDS )
+	CAREER_STATS.shield_cell_consumed = RegisterAccumulatedStat_Int( null, "shield_cell_consumed", eChallengeGameMode.ANY, CHALLENGES_CALC_DEPENDS )
+	CAREER_STATS.med_kit_consumed = RegisterAccumulatedStat_Int( null, "med_kit_consumed", eChallengeGameMode.ANY, CHALLENGES_CALC_DEPENDS )
+	CAREER_STATS.shield_battery_consumed = RegisterAccumulatedStat_Int( null, "shield_battery_consumed", eChallengeGameMode.ANY, CHALLENGES_CALC_DEPENDS )
+	CAREER_STATS.phoenix_kit_consumed = RegisterAccumulatedStat_Int( null, "phoenix_kit_consumed", eChallengeGameMode.ANY, CHALLENGES_CALC_DEPENDS )
+	CAREER_STATS.ult_accel_consumed = RegisterAccumulatedStat_Int( null, "ult_accel_consumed", eChallengeGameMode.ANY, CHALLENGES_CALC_DEPENDS )
 
+	CAREER_STATS.times_healed_ring_damage = RegisterAccumulatedStat_Int( null, "times_healed_ring_damage", eChallengeGameMode.ANY, CHALLENGES_CALC_DEPENDS )
+	CAREER_STATS.ring_damage_avoided_with_heat_shield = RegisterAccumulatedStat_Int( null, "ring_damage_avoided_with_heat_shield", eChallengeGameMode.ANY, CHALLENGES_CALC_DEPENDS )
+	CAREER_STATS.rings_outran = RegisterAccumulatedStat_Int( null, "rings_outran", eChallengeGameMode.ANY, CHALLENGES_CALC_DEPENDS )
 
+	CAREER_STATS.weapon_damage_done_any_mode= RegisterAccumulatedStat_Int( null, "weapon_damage_done_any_mode", eChallengeGameMode.ANY, CHALLENGES_CALC_DEPENDS )
+	CAREER_STATS.weapon_damage_done_ads_any_mode = RegisterAccumulatedStat_Int( null, "weapon_damage_done_ads_any_mode", eChallengeGameMode.ANY, CHALLENGES_CALC_DEPENDS )
 
+	CAREER_STATS.drops_from_dropship = RegisterAccumulatedStat_Int( null, "drops_from_dropship", eChallengeGameMode.ANY, CHALLENGES_CALC_DEPENDS )
 
+	CAREER_STATS.meters_sprinted_guns_holstered = RegisterAccumulatedStat_Int( null, "meters_sprinted_guns_holstered", eChallengeGameMode.ANY, CHALLENGES_CALC_DEPENDS )
+	CAREER_STATS.meters_crouch_walked = RegisterAccumulatedStat_Int( null, "meters_crouch_walked", eChallengeGameMode.ANY, CHALLENGES_CALC_DEPENDS )
+	CAREER_STATS.meters_slid = RegisterAccumulatedStat_Int( null, "meters_slid", eChallengeGameMode.ANY, CHALLENGES_CALC_DEPENDS )
 
+	CAREER_STATS.evoarmor_evolves_to_red_any_mode = RegisterAccumulatedStat_Int( null, "evoarmor_evolves_to_red_any_mode", eChallengeGameMode.ANY, CHALLENGES_CALC_DEPENDS )
+	CAREER_STATS.armor_break = RegisterAccumulatedStat_Int( null, "armor_break", eChallengeGameMode.ANY, CHALLENGES_CALC_DEPENDS )
 
+	CAREER_STATS.times_used_ability_tactical = RegisterAccumulatedStat_Int( null, "times_used_ability_tactical", eChallengeGameMode.ANY, CHALLENGES_CALC_DEPENDS )
+	CAREER_STATS.times_used_ability_ultimate = RegisterAccumulatedStat_Int( null, "times_used_ability_ultimate", eChallengeGameMode.ANY, CHALLENGES_CALC_DEPENDS )
 
+	
+	CAREER_STATS.npp_damage_done_any_mode				= RegisterAccumulatedStat_Int( null, "npp_damage_done_any_mode", eChallengeGameMode.ANY, CHALLENGES_CALC_DEPENDS )
+	CAREER_STATS.npp_damage_done_hipfire_any_mode		= RegisterAccumulatedStat_Int( null, "npp_damage_done_hipfire_any_mode", eChallengeGameMode.ANY, CHALLENGES_CALC_DEPENDS )
+	CAREER_STATS.npp_dooms_any_mode						= RegisterAccumulatedStat_Int( null, "npp_dooms_any_mode", eChallengeGameMode.ANY, CHALLENGES_CALC_DEPENDS )
+	CAREER_STATS.npp_kills_or_assists_any_mode			= RegisterAccumulatedStat_Int( null, "npp_kills_or_assists_any_mode", eChallengeGameMode.ANY, CHALLENGES_CALC_DEPENDS )
+	CAREER_STATS.npp_executions_any_mode				= RegisterAccumulatedStat_Int( null, "npp_executions_any_mode", eChallengeGameMode.ANY, CHALLENGES_CALC_DEPENDS )
 
+	CAREER_STATS.npp_crafting_harvester_used_any_mode	= RegisterAccumulatedStat_Int( null, "npp_crafting_harvester_used_any_mode", eChallengeGameMode.ANY, CHALLENGES_CALC_DEPENDS )
+	CAREER_STATS.npp_legend_upgrades_selected			= RegisterAccumulatedStat_Int( null, "npp_legend_upgrades_selected", eChallengeGameMode.ANY, CHALLENGES_CALC_DEPENDS )
 
+	CAREER_STATS.npp_assault_games_played				= RegisterAccumulatedStat_Int( null, "npp_assault_games_played", eChallengeGameMode.ANY, CHALLENGES_CALC_DEPENDS )
+	CAREER_STATS.npp_skirmisher_games_played			= RegisterAccumulatedStat_Int( null, "npp_skirmisher_games_played", eChallengeGameMode.ANY, CHALLENGES_CALC_DEPENDS )
+	CAREER_STATS.npp_recon_games_played					= RegisterAccumulatedStat_Int( null, "npp_recon_games_played", eChallengeGameMode.ANY, CHALLENGES_CALC_DEPENDS )
+	CAREER_STATS.npp_controller_games_played			= RegisterAccumulatedStat_Int( null, "npp_controller_games_played", eChallengeGameMode.ANY, CHALLENGES_CALC_DEPENDS )
+	CAREER_STATS.npp_support_games_played				= RegisterAccumulatedStat_Int( null, "npp_support_games_played", eChallengeGameMode.ANY, CHALLENGES_CALC_DEPENDS )
 
+	CAREER_STATS.npp_weapon_supply_bins_looted			= RegisterAccumulatedStat_Int( null, "npp_weapon_supply_bins_looted", eChallengeGameMode.ANY, CHALLENGES_CALC_DEPENDS )
+	CAREER_STATS.npp_care_packages_revealed				= RegisterAccumulatedStat_Int( null, "npp_care_packages_revealed", eChallengeGameMode.ANY, CHALLENGES_CALC_DEPENDS )
+	CAREER_STATS.npp_recon_passive_beacons_scanned		= RegisterAccumulatedStat_Int( null, "npp_recon_passive_beacons_scanned", eChallengeGameMode.ANY, CHALLENGES_CALC_DEPENDS )
+	CAREER_STATS.npp_ring_consoles_used					= RegisterAccumulatedStat_Int( null, "npp_ring_consoles_used", eChallengeGameMode.ANY, CHALLENGES_CALC_DEPENDS )
+	CAREER_STATS.npp_extended_supply_bins_looted		= RegisterAccumulatedStat_Int( null, "npp_extended_supply_bins_looted", eChallengeGameMode.ANY, CHALLENGES_CALC_DEPENDS )
 
 
+		Remote_RegisterServerFunction( "ClientCallback_StatsHook_OnPlayerViewFullMapChallenges" )
+		Remote_RegisterServerFunction( "ClientCallback_StatsHook_OnPlayerViewFullMapFromPlane" )
 
 
 
@@ -109,6 +192,7 @@
 
 
 
+}
 
 
 
@@ -373,4 +457,999 @@
 
 
 
-                               
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                           

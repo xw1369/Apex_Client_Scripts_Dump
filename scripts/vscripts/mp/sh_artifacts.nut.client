@@ -260,6 +260,10 @@ const string RAGOLD = "RAGOLD"
 global enum eArtifactSetIndex { 
 	
 	
+
+
+
+
 	RAGOLD = -2,
 	_EMPTY = -1, 
 	CELES = 0,
@@ -288,6 +292,10 @@ global const table<string, int> ARTIFACT_COMPONENT_SETTINGS_KEYS = {
 	[DEATHBOX_KEY] = eArtifactComponentType.DEATHBOX,
 	[ACTIVATION_EMOTE_KEY] = eArtifactComponentType.ACTIVATION_EMOTE,
 }
+
+
+
+
 
 
 
@@ -536,9 +544,11 @@ void function RegisterArtifactComponentsForWeapon( ItemFlavor artifactWeapon )
 		componentsInSet.resize( eArtifactComponentType.COUNT )
 
 		string setTheme = GetGlobalSettingsString( componentSet, THEME_NAME )
+		Assert( setTheme in eArtifactSetIndex )
+		int setIndex = eArtifactSetIndex[ setTheme ]
 
 		
-		if ( setTheme != EMPTY && setTheme != RAGOLD )
+		if ( setIndex >= 0 )
 		{
 			Assert( setTheme in eArtifactSetIndex )
 
@@ -632,13 +642,13 @@ void function RegisterArtifactComponentsForWeapon( ItemFlavor artifactWeapon )
 			}
 			else
 			{
-				Assert( setTheme == RAGOLD )
+				Assert( setIndex <= eArtifactSetIndex.RAGOLD )
 				ItemFlavor invalidComponent
 				componentsInSet[ componentType ] = invalidComponent
 			}
 		}
 
-		fileLevel.componentSets[ eArtifactSetIndex[ currentTheme ] ] <- componentsInSet
+		fileLevel.componentSets[ setIndex ] <- componentsInSet
 	}
 
 }
@@ -1691,7 +1701,7 @@ void function Artifacts_FX_StartWeaponFX( entity weapon, int fxPackageType )
 	}
 
 	ArtifactFX1PAnd3P fx1P3P = Artifacts_FX_Get1PAnd3PFXArraysForWeapon( weapon, fxPackageType )
-	int fxLen = maxint( fx1P3P.fx1P.len(), fx1P3P.fx1P.len() )
+	int fxLen = maxint( fx1P3P.fx1P.len(), fx1P3P.fx3P.len() )
 	for ( int i = 0; i < fxLen; i++ )
 	{
 		asset onePAsset   = fx1P3P.fx1P.isvalidindex( i ) ? fx1P3P.fx1P[ i ].fxAsset : $""
@@ -1712,6 +1722,11 @@ void function Artifacts_FX_StartWeaponFX( entity weapon, int fxPackageType )
 				s_fxHandles[ fxPackageType ].append( fxHandle )
 				return
 			}
+
+
+
+
+
 
 
 
@@ -1761,7 +1776,7 @@ void function Artifacts_FX_StopWeaponFX( entity weapon, int fxPackageType )
 
 
 	ArtifactFX1PAnd3P fx1P3P = Artifacts_FX_Get1PAnd3PFXArraysForWeapon( weapon, fxPackageType )
-	int fxLen = maxint( fx1P3P.fx1P.len(), fx1P3P.fx1P.len() )
+	int fxLen = maxint( fx1P3P.fx1P.len(), fx1P3P.fx3P.len() )
 	for ( int i = 0; i < fxLen; i++ )
 	{
 		asset onePAsset   = ( fx1P3P.fx1P.isvalidindex( i ) && fxPackageType != eArtifactFXPackageType.FLOURISH ) ? fx1P3P.fx1P[ i ].fxAsset : $""

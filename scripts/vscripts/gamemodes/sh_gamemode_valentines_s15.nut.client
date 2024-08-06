@@ -1116,31 +1116,26 @@ string function Valentines_S15_GetString( int infoId )
 	{
 		case eSurvivalCommentary_SringtoPrint.NEWKILLLEADER_OBIT:
 			retVal = "#SURVIVAL_NEWKILLLEADER_OBIT_DATE_NIGHT"
-			printt( "Passed Valentines String - NEWKILLLEADER_OBIT - Shicks" )
 
 			break
 
 		case eSurvivalCommentary_SringtoPrint.YOUAREKILLLEADER:
 			retVal = "#SURVIVAL_YOUAREKILLLEADER_DATE_NIGHT"
-			printt( "Passed Valentines String - YOUAREKILLLEADER - Shicks" )
 
 			break
 
 		case eSurvivalCommentary_SringtoPrint.CHAMPION_OBIT:
 			retVal = "#SURVIVAL_CHAMPION_OBIT_DATE_NIGHT"
-			printt( "Passed Valentines String - CHAMPION_OBIT - Shicks" )
 
 			break
 
 		case eSurvivalCommentary_SringtoPrint.YOUKILLED_CHAMPION:
 			retVal = "#SURVIVAL_YOUKILLED_CHAMPION_DATE_NIGHT"
-			printt( "Passed Valentines String - YOUKILLED_CHAMPION - Shicks" )
 
 			break
 
 		case eSurvivalCommentary_SringtoPrint.KILLLEADER_OBIT:
 			retVal = "#SURVIVAL_KILLLEADER_OBIT_DATE_NIGHT"
-			printt( "Passed Valentines String - KILLLEADER_OBIT - Shicks" )
 
 			break
 
@@ -1151,7 +1146,6 @@ string function Valentines_S15_GetString( int infoId )
 
 		case eSurvivalCommentary_SringtoPrint.YOUKILLED_KILLLEADER:
 			retVal = "#SURVIVAL_YOUKILLED_KILLLEADER_DATE_NIGHT"
-			printt( "Passed Valentines String -  YOUKILLED_KILLLEADER - Shicks" )
 
 			break
 

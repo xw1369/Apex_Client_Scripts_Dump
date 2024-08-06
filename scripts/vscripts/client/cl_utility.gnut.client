@@ -350,6 +350,7 @@ void function AddCallback_OnViewPlayerChanged( void functionref( entity ) callba
 void function RunLocalViewPlayerChangedCallbacks( entity player )
 {
 	printt( "RunLocalViewPlayerChangedCallbacks", player )
+	Signal( clGlobal.signalDummy, "ViewPlayerChanged" )
 	foreach ( callbackFunc in clGlobal.onLocalViewPlayerChangedFuncs )
 	{
 		callbackFunc( player )
@@ -970,6 +971,14 @@ void function Dev_DestroyTextInfoPanelWithID( int panelID )
 		RuiDestroyIfAlive( rui )
 
 	file.textPanels[ panelID ].clear()
+}
+
+void function Dev_BuildTextInfoPanel( bool isTitleString, int char )
+{
+	if ( isTitleString )
+		dev_infoPanelTitleString += format( "%c", char )
+	else
+		dev_infoPanelTextString += format( "%c", char )
 }
 
 void function __Dev_CreateTextInfoPanel( vector origin, vector angles, bool showPin, float textScale, int panelID = -1 )

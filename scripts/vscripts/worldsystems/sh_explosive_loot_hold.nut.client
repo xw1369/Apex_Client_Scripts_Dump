@@ -173,6 +173,7 @@ void function ShExplosiveHold_Init()
 
 
 		AddCreateCallback( "prop_dynamic", OnPanelCreated )
+		AddCallback_FullUpdate( ExplosiveHoldsOnFullUpdate )
 
 
 	RegisterSignal( "LootHoldUseDone" )
@@ -619,6 +620,11 @@ void function OnPanelCreated( entity panel )
 	AddEntityCallback_GetUseEntOverrideText( panel, GetExplosiveHoldUseTextOverride )
 }
 
+void function ExplosiveHoldsOnFullUpdate()
+{
+	file.explosiveHoldEnts = GetEntArrayByScriptName( EXPLOSIVE_HOLD_SCRIPTNAME )
+}
+
 
 
 
@@ -810,6 +816,8 @@ void function ExplosiveHoldDoor_DisplayRui( entity ent, entity player, var rui, 
 		RuiSetGameTime( rui, "endTime", Time() + settings.duration )
 
 }
+
+
 
 
 

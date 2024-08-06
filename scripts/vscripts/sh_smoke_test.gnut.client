@@ -1,0 +1,109 @@
+global function SmokeTest_Shared_Init
+
+
+
+
+
+
+
+
+global function SmokeTest_Client_StartPingTests
+
+
+struct
+{
+
+
+
+} file
+
+void function SmokeTest_Shared_Init()
+{
+
+
+
+
+	Remote_RegisterClientFunction( "SmokeTest_Client_StartPingTests" )
+	Remote_RegisterServerFunction( "SmokeTest_Server_CompletedOnePingTest", "int", 0, ePingType._count - 1 )
+	Remote_RegisterServerFunction( "SmokeTest_Server_FinishedPingsTest" )
+}
+
+string function SmokeTest_GetPingTestStatus( int currentPing )
+{
+	return currentPing.tostring() + "/" + (ePingType._count - 1).tostring() + " ping being tested"
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+void function SmokeTest_Client_StartPingTests()
+{
+#if DEV
+    thread SmokeTest_Client_ExecutePingTests()
+#endif
+}
+
+void function SmokeTest_Client_ExecutePingTests()
+{
+#if DEV
+	for ( int i = 0; i < ePingType._count; i++ )
+	{
+		
+		if ( i == ePingType._assertion_marker )
+			continue
+
+		printt( "rr_pings:", SmokeTest_GetPingTestStatus( i ) )
+
+		PingCommandExecuteUsePrompt( i, gp()[0].GetOrigin(), gp()[0], 0 )
+
+		Remote_ServerCallFunction( "SmokeTest_Server_CompletedOnePingTest", i )
+
+		wait 1.0
+
+		for ( int j = 0; j < 17000; j++ )
+		{
+			
+			if ( !IsHeavyWeightEntityFromEncodedEHandle( j ) )
+			{
+				continue
+			}
+
+			entity wp = GetEntByIndex( j )
+
+			if (  IsValid( wp ) && wp.GetNetworkedClassName() == "player_waypoint" )
+			{
+				for ( int k = 0; k < ePingReply._count; k++ )
+				{
+					Remote_ServerCallFunction( "ClientCallback_PingReply", wp, k )
+				}
+			}
+		}
+	}
+
+	Remote_ServerCallFunction( "SmokeTest_Server_FinishedPingsTest" )
+#endif
+}
+

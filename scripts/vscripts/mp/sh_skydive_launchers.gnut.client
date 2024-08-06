@@ -38,7 +38,8 @@ global enum eSkydiveLauncherAirControlType
 enum eSkydiveLauncherThreshold
 {
 	FLOOR,
-	CEILING
+	CEILING,
+	NONE
 }
 
 enum eSkydiveLauncherVelocityType
@@ -118,6 +119,7 @@ global asset FX_SKYDIVE_LAUNCHER_GRAVITY_MINI_IDLE = $""
 
 
 asset HORIZONTAL_LAUNCHER_LAUNCH_SEQUENCE = $"animseq/props/district_horizontal_launcher/district_horizontal_launcher_fireA.rseq"
+global asset HORIZONTAL_LAUNCHER_MODEL = $"mdl/props/district_horizontal_launcher/district_horizontal_launcher_base_w.rmdl"
 
 void function Sh_SkydiveLaunchers_Init()
 {
@@ -142,6 +144,19 @@ void function Sh_SkydiveLaunchers_Init()
 
 	file.holsterWeaponsOnAscent = GetCurrentPlaylistVarBool( "skydive_launchers_holster_weapons", true )
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1182,7 +1197,7 @@ void function OnSkydiveLauncherCreated( entity trigger )
 					if ( launcherName == "district_launcher_horizontal" )
 					{
 						sfxLaunchPlayer1p = "District_GravityMini_LaunchPad_Horizontal_1p"
-						sfxAirborneMvmt1p = "District_GravityMini_LaunchPad_AirborneMvmt_Horizontal_3p"
+						sfxAirborneMvmt1p = "JumpPad_Ascent_Windrush"
 						break
 					}
 					if ( launcherName == "district_launcher_vertical" )

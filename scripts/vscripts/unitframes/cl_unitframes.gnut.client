@@ -699,7 +699,7 @@ void function SetUnitFrameDataFromOwner( var rui, entity ent, entity localPlayer
 
 		RuiTrackInt( rui, "playerExtraShield", ent, RUI_TRACK_EXTRA_SHIELD_INT )
 		RuiTrackInt( rui, "playerExtraShieldTier", ent, RUI_TRACK_EXTRA_SHIELD_TIER_INT )
-		RuiSetInt( rui, "armorShieldCapacity", ent.GetShieldHealthMax() )
+		RuiTrackInt( rui, "armorShieldCapacity", ent, RUI_TRACK_SHIELD_HEALTH_MAX_INT )
 
 
 	int observerMode = 0
@@ -749,11 +749,11 @@ void function SetUnitFrameDataFromOwner( var rui, entity ent, entity localPlayer
 	{
 		
 
-			if ( IsRevTakeover() )
-			{
-				RuiSetColorAlpha( rui, "customCharacterColor", Teams_GetTeamColor( ent.GetTeam() ), 1.0 )
-				RuiSetBool( rui, "useCustomCharacterColor", true )
-			}
+
+
+
+
+
 
 	}
 }
@@ -1336,8 +1336,8 @@ bool function UnitFrames_ShouldShowTeamName()
 
 
 
-	if ( IsRevTakeover() )
-		return true
+
+
 
 
 	if ( GetCurrentPlaylistVarBool( "show_unitframe_team_name", false ) )

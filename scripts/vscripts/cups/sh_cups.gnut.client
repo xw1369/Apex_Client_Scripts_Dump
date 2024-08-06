@@ -10,6 +10,9 @@ global function Cups_IsCupVisible
 global function Cups_HasGracePeriodEndedForCup
 global function Cups_IsMatchValidForCups
 global function Cups_IsCupGameMode
+global function Cups_IsCupUseBestTen
+global function Cups_IsCupContainerUseBestTen
+global function Cups_GetActiveCupContainerIDsFromBakery
 global function Cups_GetActiveCupForPlaylist
 global function Cups_GetPointsForPlacement
 
@@ -28,11 +31,11 @@ global function Cups_GetPlayersFullPCupData
 global function Cups_GetPlayersPCupData
 global function Cups_GetLatestMatchSummaryData
 global function Cups_IsCupForLatestMatchActive
-global function Cups_GetCupSquadIDFromSquad
 
 
 global function CupEvent_GetGameMode
 global function CupEvent_GetSquadSize
+global function CupEvent_GetLimitSquadSize
 global function CupEvent_GetMatchCount
 global function CupEvent_GetRewardSequenceName
 global function CupEvent_GetCups
@@ -99,6 +102,9 @@ global struct CupBakeryAssetData
 	int squadSize
 	int numMatches
 
+	bool isUseBestTen
+	bool isLimitSquadSize
+
 	string gameModePlaylistVar
 
 
@@ -127,6 +133,9 @@ global struct CupContainerBakeryAssetData
 	string name
 	int squadSize
 	int numMatches
+
+	bool isUseBestTen
+	bool isLimitSquadSize
 
 	string gameModePlaylistVar
 
@@ -175,8 +184,8 @@ global enum eCupSquadEligibility
 	_count_
 }
 
-global const MAX_REGISTERED_CUPS = 8
-global const MAX_CUP_SQUAD_SIZE = 1 
+global const MAX_REGISTERED_CUPS = 16
+global const MAX_CUP_SQUAD_SIZE = 3
 
 
 const SQUAD_SIZE_FIELD_NAME = "squadSize"
@@ -190,12 +199,20 @@ const GRACE_PERIOD_FIELD_NAME = "gracePeriodTime"
 global const int CUP_STATE_STARTING = 0
 global const int CUP_STATE_IN_PROGESS = 1
 global const int CUP_STATE_FINISHED = 2
+global const int CUP_STATE_NOT_PARTICIPATE = 3
 
 
 global const int CUP_LOCK_NONE = 0
 global const int CUP_LOCK_LEVELS = 1
 global const int CUP_LOCK_ORIENTATION = 2
 global const int CUP_LOCK_TRAINING = 3
+
+
+global const string CUP_USE_BEST_TEN_FIELD_NAME = "use_best_ten"
+global const int CUP_INVALID_MAX_MATCH_LIMIT = 0
+
+
+global const string LIMIT_SQUAD_SIZE_FIELD_NAME = "limit_squad_size"
 
 
 const MMR_BUCKET_LIMIT_BOOL_FIELD_NAME = "hasMMREntryRequirement"
@@ -253,6 +270,8 @@ void function ShCups_RegisterNetworking()
 	Remote_RegisterServerFunction( "ClientCallback_DeleteCupEntry",
 		"int", 0, INT_MAX 
 	)
+
+	Remote_RegisterServerFunction( "ClientCallback_DeleteAllCupEntries" )
 
 	Remote_RegisterServerFunction( "ClientCallback_GrantAllCupRewards",
 		"int", 0, INT_MAX 
@@ -402,6 +421,9 @@ void function Cups_ParseContainerBakeryParams( ItemFlavor cupItemFlavor )
 		cupContainer.name = string( ItemFlavor_GetAsset( cupItemFlavor ) )
 
 
+	
+	cupContainer.isLimitSquadSize = GetGlobalSettingsBool( ItemFlavor_GetAsset( cupItemFlavor ), LIMIT_SQUAD_SIZE_FIELD_NAME )
+
 	cupContainer.squadSize = GetGlobalSettingsInt( ItemFlavor_GetAsset( cupItemFlavor ), SQUAD_SIZE_FIELD_NAME )
 	Assert( cupContainer.squadSize > 0 && cupContainer.squadSize <= MAX_CUP_SQUAD_SIZE, "Invalid squad size specified for cup container " + cupContainerID )
 
@@ -428,10 +450,23 @@ void function Cups_ParseContainerBakeryParams( ItemFlavor cupItemFlavor )
 	string gracePeriodString = GetGlobalSettingsString( ItemFlavor_GetAsset( cupItemFlavor ), GRACE_PERIOD_FIELD_NAME )
 	Assert( gracePeriodString != "", "Invalid grace period specified for cup container " + cupContainerID )
 	int ornull gracePeriodTime = DateTimeStringToUnixTimestamp( gracePeriodString )
+
+	string gracePeriodPlaylistVarName = ItemFlavor_GetGUIDString( cupItemFlavor ) + "_graceperiod_time"
+	string gracePeriodPlaylistString = GetCurrentPlaylistVarString( gracePeriodPlaylistVarName, "" )
+	if ( gracePeriodPlaylistString != "" )
+	{
+		gracePeriodTime = DateTimeStringToUnixTimestamp( gracePeriodPlaylistString )
+
+		printt( "[Cups] graceperiod_time : " + gracePeriodPlaylistVarName + " has be overridden by the playlist : " + gracePeriodPlaylistString )
+	}
+
 	Assert( gracePeriodTime != null, "Invalid grace period specified for cup container " + cupContainerID )
 	expect int(gracePeriodTime)
 	Assert( gracePeriodTime > CalEvent_GetFinishUnixTime( cupItemFlavor ), "Invalid grace period specified for cup container " + cupContainerID + ": Grace Period must be after cup end time" )
 	cupContainer.gracePeriodTimestamp = gracePeriodTime
+
+	
+	cupContainer.isUseBestTen = GetGlobalSettingsBool( ItemFlavor_GetAsset( cupItemFlavor ), CUP_USE_BEST_TEN_FIELD_NAME )
 
 	
 	cupContainer.maximumNumberOfReRolls = GetGlobalSettingsInt(ItemFlavor_GetAsset( cupItemFlavor ), MAX_REROLL_COUNT_FIELD_NAME )
@@ -591,6 +626,8 @@ void function Cups_CopyContainerParamsToCupStruct( CupContainerBakeryAssetData c
 	cup.reRollTokenAsset = cupContainer.reRollTokenAsset
 	cup.placementPoints = cupContainer.placementPoints
 	cup.statPoints = cupContainer.statPoints
+	cup.isUseBestTen = cupContainer.isUseBestTen
+	cup.isLimitSquadSize = cupContainer.isLimitSquadSize
 }
 
 void function Cups_ValidateBakeryGamemodeParams()
@@ -628,23 +665,6 @@ void function Cups_ValidateBakeryGamemodeParams()
 		else
 			Warning( "Gamemode playlist var " + cup.gameModePlaylistVar + " cannot be validated against a playlist. Must link to a valid playlist with a name loc field." )
 	}
-}
-
-string function Cups_GetCupSquadIDFromSquad( SettingsAssetGUID  cupID, array<entity> squad )
-{
-	if( !GetConVarBool( "cups_enabled" ) ) return ""
-
-	Assert( squad.len() > 0 )
-	string outSquadID = ""
-	foreach( entity player in squad )
-	{
-		UserCupEntryData cupEntryData = Cups_GetPlayersPCupData( player, cupID )
-
-		if( outSquadID == "") outSquadID = cupEntryData.squadID
-
-		if( cupEntryData.squadID != outSquadID ) return ""
-	}
-	return outSquadID
 }
 
 int function Cups_GetNextAvailablePersistentDataSlot( entity player )
@@ -781,7 +801,7 @@ bool function Cups_IsMatchValidForCups()
 	if ( IsPrivateMatch() )
 		return false
 
-	if ( IsOrientationMatch() )
+	if ( NewPlayerBotQueueAreEnabled() )
 		return false
 
 	return true
@@ -795,6 +815,30 @@ bool function Cups_IsCupGameMode( SettingsAssetGUID cupID )
 	return GetCurrentPlaylistVarBool( cupBakeryData.gameModePlaylistVar, false )
 }
 
+bool function Cups_IsCupUseBestTen( SettingsAssetGUID cupID )
+{
+	if ( !fileLevel.cupsInitialised )
+		return false
+	return Cups_GetCupBakeryAssetDataFromGUID( cupID ).isUseBestTen
+}
+
+bool function Cups_IsCupContainerUseBestTen( SettingsAssetGUID cupContainerID )
+{
+	if ( !fileLevel.cupsInitialised || !( cupContainerID in fileLevel.cupContainers ) )
+		return false
+	return fileLevel.cupContainers[cupContainerID].isUseBestTen
+}
+
+SettingsAssetGUID function Cups_GetActiveCupContainerIDsFromBakery() 
+{
+	foreach( SettingsAssetGUID containerID, CupContainerBakeryAssetData containerBakeryData in fileLevel.cupContainers )
+	{
+		if( CalEvent_IsActive( containerBakeryData.itemFlavor, GetUnixTimestamp() ) )
+			return containerID
+	}
+	return ASSET_SETTINGS_UNIQUE_ID_INVALID
+}
+
 ItemFlavor ornull function Cups_GetActiveCupForPlaylist( string playlist, entity player )
 {
 	if ( !GetConVarBool( "cups_enabled" ) )
@@ -806,7 +850,7 @@ ItemFlavor ornull function Cups_GetActiveCupForPlaylist( string playlist, entity
 
 
 
-	if ( !IsValid( player ) )
+	if ( !IsValid( player ) || !IsPersistenceAvailable() )
 		return null
 
 
@@ -822,6 +866,10 @@ ItemFlavor ornull function Cups_GetActiveCupForPlaylist( string playlist, entity
 
 		
 		if ( !CalEvent_IsActive( cup.containerItemFlavor, unixTime ) )
+			continue
+
+		
+		if ( Cups_GetPlayersPDataIndexForCupID( player, cupID ) < 0 )
 			continue
 
 
@@ -900,7 +948,7 @@ UserCupEntryData function Cups_GetPlayersPCupData ( entity player, SettingsAsset
 		string persistentDataKey = format( "cups[%d]", i )
 		if ( player.GetPersistentVarAsInt( persistentDataKey+".cupID" ) == cupID )
 		{
-			userCupData.registered = true
+			userCupData.registered = expect bool( player.GetPersistentVar( persistentDataKey+".active" ) )
 			userCupData.cupIndex = i
 			userCupData.cupID = player.GetPersistentVarAsInt( persistentDataKey+".cupID" )
 			userCupData.numMatches = player.GetPersistentVarAsInt( persistentDataKey+".numMatches" )
@@ -1021,6 +1069,12 @@ int function CupEvent_GetSquadSize( ItemFlavor cupEvent )
 {
 	Assert( cupEvent.typeIndex == eItemType.calevent_apex_cup_container )
 	return GetGlobalSettingsInt( ItemFlavor_GetAsset( cupEvent ), SQUAD_SIZE_FIELD_NAME )
+}
+
+bool function CupEvent_GetLimitSquadSize( ItemFlavor cupEvent )
+{
+	Assert( cupEvent.typeIndex == eItemType.calevent_apex_cup_container )
+	return GetGlobalSettingsBool( ItemFlavor_GetAsset( cupEvent ), LIMIT_SQUAD_SIZE_FIELD_NAME )
 }
 
 int function CupEvent_GetMatchCount( ItemFlavor cupEvent )

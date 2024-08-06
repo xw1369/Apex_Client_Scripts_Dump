@@ -5,13 +5,11 @@
 
 
 global function MeleeShared_Init
-
 global function Loadout_MeleeSkin
 global function Loadout_Deathbox
 global function Deathbox_GetDefaultItemFlavor
 global function Deathbox_GetGoldenHorseDeathbox
 global function MeleeWeapon_GetWeaponType
-
 global function MeleeWeapon_GetMainWeaponClassname
 global function MeleeWeapon_GetOffhandWeaponClassname
 global function MeleeSkin_GetMenuModel
@@ -28,6 +26,10 @@ global function MeleeSkin_GetItemInspectOffset
 global function MeleeSkin_ShouldHideIfLocked
 global function MeleeSkin_IsItemFlavorUnlocked
 global function MeleeCustomization_ShouldHideIfLocked
+
+
+
+
 
 
 
@@ -80,7 +82,13 @@ global function Melee_Attack
 
 
 
+
+
+
 global function ClientCodeCallback_ShowMeleePrompt
+
+
+
 
 
 
@@ -101,6 +109,8 @@ global function DEV_GetMenuHeirloomOverrideGUID
 global enum eMeleeWeaponType {
 	HEIRLOOM
 	ARTIFACT
+
+
 
 	COUNT
 }
@@ -143,6 +153,13 @@ const float MELEE_KNOCKBACK_DURATION = 0.25
 
 
 
+
+
+
+
+
+
+
 struct CharacterAndMeleeWeapons
 {
 	ItemFlavor& character
@@ -161,6 +178,12 @@ struct FileStruct_LifetimeLevel
 	table<ItemFlavor, int> cosmeticFlavorSortOrdinalMap
 
 	table<ItemFlavor, CharacterAndMeleeWeapons > charactersMeleeWeaponsMap 
+
+
+
+
+
+
 
 
 
@@ -215,7 +238,11 @@ void function OnItemFlavorRegistered_Melee_Weapon( ItemFlavor meleeWeapon )
 	
 	if ( legendsList.len() == 0 )
 	{
+
+
+
 		Assert( ItemFlavor_GetGUID( meleeWeapon ) == DEFAULT_MELEE_WEAPON_GUID || MeleeWeapon_GetWeaponType( meleeWeapon ) == eMeleeWeaponType.ARTIFACT )
+
 
 		foreach ( obj in fileLevel.charactersMeleeWeaponsMap )
 		{
@@ -232,6 +259,10 @@ void function OnItemFlavorRegistered_Melee_Weapon( ItemFlavor meleeWeapon )
 
 	if ( MeleeWeapon_GetWeaponType( meleeWeapon ) == eMeleeWeaponType.ARTIFACT && Artifacts_GetConfigurationFramework( meleeWeapon ) == eArtifactConfigurationType.COMPONENT )
 		RegisterArtifactComponentsForWeapon( meleeWeapon )
+
+
+
+
 }
 
 void function OnAllItemFlavorsRegistered_Deathboxes()
@@ -272,6 +303,11 @@ void function OnAllItemFlavorsRegistered_Melee_Weapon()
 
 			foreach ( meleeSkin in meleeSkinList )
 			{
+
+					foreach ( string impactTable in GetSkinImpactTableAliases( ItemFlavor_GetGUID( meleeSkin ) ) )
+						PrecacheImpactEffectTable( impactTable )
+
+
 				fullMeleeSkinList.append( meleeSkin )
 			}
 		}
@@ -320,6 +356,10 @@ void function OnAllItemFlavorsRegistered_Melee_Weapon()
 			fileLevel.characterDeathboxLoadoutEntryMap[character] <- boxEntry
 
 	}
+
+
+
+
 }
 
 int function MeleeSkin_GetSortOrdinal( ItemFlavor flavor )
@@ -546,6 +586,17 @@ bool function MeleeSkin_IsItemFlavorUnlocked( EHI playerEHI, ItemFlavor meleeSki
 
 
 
+
+
+
+
+
+
+
+
+
+
+
 bool function MeleeCustomization_ShouldHideIfLocked( ItemFlavor component )
 {
 	if ( ItemFlavor_GetType( component ) <= eItemType.artifact_component_START || ItemFlavor_GetType( component ) >= eItemType.artifact_component_END )
@@ -644,6 +695,35 @@ ItemFlavor function Deathbox_GetEquipped( ItemFlavor character, ItemFlavor melee
 
 	return GetDefaultItemFlavorForLoadoutSlot( playerEHI, boxSlot )
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1125,6 +1205,73 @@ void function Melee_RemoveModsForLegendAbilities( entity player )
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 bool function DoesWeaponTriggerMeleeAttack( entity weapon )
 {
 	return (weapon.IsWeaponOffhandMelee() || weapon.GetWeaponSettingBool( eWeaponVar.attack_button_presses_melee ))
@@ -1290,6 +1437,11 @@ void function CodeCallback_OnMeleePressed( entity attacker, entity meleeInputWea
 	if ( !AttackerCanStartMelee( attacker, meleeInputWeapon ) )
 		return
 
+
+
+
+
+
 	entity currentWeapon              = attacker.GetActiveWeapon( eActiveInventorySlot.mainHand )
 	bool restoreMainOffhandAfterMelee = (IsValid( currentWeapon ) && currentWeapon.IsWeaponOffhand() && currentWeapon.GetWeaponSettingBool( eWeaponVar.offhand_restore_after_melee ))
 	entity offhandToRestore           = restoreMainOffhandAfterMelee ? currentWeapon : null
@@ -1315,7 +1467,7 @@ void function TryDoorLunge( entity attacker, entity lungeWeapon )
 	{
 		bool isShadowSquad = false
 
-			isShadowSquad = IsPlayerShadowZombie( attacker )
+
 
 
 		bool doorLungeEnabled = !isShadowSquad && GetCurrentPlaylistVarBool( "blockable_door_can_be_hurt_by_special_kick", true )
@@ -1345,10 +1497,8 @@ void function TryDoorLunge( entity attacker, entity lungeWeapon )
 
 		if ( doorLungeEnabled && IsValid( lungeTarget ) && ( IsDoor( lungeTarget ) || IsRebuiltDoor( lungeTarget ) ) )
 		{
-
 			if ( lungeWeapon.HasMod( "sword_rt01" ) )
 				lungeWeapon.RemoveMod( "sword_rt01" )
-
 			lungeWeapon.AddMod( "proto_door_kick" )
 
 			attacker.Lunge_SetTargetPosition( <eyeTraceHitPos.x, eyeTraceHitPos.y, lungeTarget.GetWorldSpaceCenter().z - 52 > ) 

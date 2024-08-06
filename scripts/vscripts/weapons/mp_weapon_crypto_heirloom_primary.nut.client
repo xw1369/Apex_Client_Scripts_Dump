@@ -6,9 +6,7 @@ global function OnWeaponDeactivate_weapon_crypto_heirloom_primary
 const asset CRYPTO_AMB_EXHAUST_FP = $"P_crypto_sword_exhaust"
 const asset CRYPTO_AMB_EXHAUST_3P = $"P_crypto_sword_base_3P"  
 
-
 const string SWORD_RT01_MOD = "sword_rt01"
-
 
 const table<string, table< int, int > > HEIRLOOM_SKIN_REMAP =
 {
@@ -56,14 +54,11 @@ void function OnWeaponActivate_weapon_crypto_heirloom_primary( entity weapon )
 		if ( IsServer() || InPrediction() )
 			weapon.RemoveMod( SWORD_RT01_MOD )
 	}
-
 	else if ( meleeSkinName == "heirloom_rt01" )
 	{
 		if ( IsServer() || InPrediction() )
 			weapon.AddMod( SWORD_RT01_MOD )
 	}
-
-
 }
 
 void function OnWeaponDeactivate_weapon_crypto_heirloom_primary( entity weapon )

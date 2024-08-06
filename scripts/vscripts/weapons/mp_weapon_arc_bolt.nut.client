@@ -92,6 +92,8 @@ const float TETHER_HEALTH_BASE = 1000.0
 
 
 
+
+
 const float TETHER_RADIUS_DEFAULT = 190
 const float TETHER_HEALTH_DRAIN_PER_SEC_DEFAULT = 250.0
 const float TETHER_MAX_STRETCH_DAMAGE_DEFAULT = 4.0    
@@ -217,6 +219,10 @@ void function MpWeaponArcBolt_Init()
 
 	SetConVarFloat( "tether_maxvel", GetCurrentPlaylistVarFloat( "ash_tether_pull_maxvel", TETHER_MAX_PULL_VELOCITY_DEFAULT ) )
 	SetConVarFloat( "tether_default_strength", TETHER_DEFAULT_STRENGTH )
+
+
+
+
 	SetConVarFloat( "tether_strength_healthScale", TETHER_STRENGTH_HEALTH_SCALE )
 	SetConVarFloat( "tether_maxStretchDamage", GetCurrentPlaylistVarFloat( "ash_tether_max_stretch_damage", TETHER_MAX_STRETCH_DAMAGE_DEFAULT ) )
 
@@ -420,6 +426,15 @@ float function GetBoltLifetime( entity player )
 
 	return result
 }
+
+
+
+
+
+
+
+
+
 
 
 

@@ -224,6 +224,15 @@ global function TrackFirstPersonGunShield
 
 
 
+
+
+
+
+
+
+
+
+
 void function TrackFirstPersonGunShield( entity vortexWeapon, asset shieldEffect, string attachment )
 {
 	thread TrackFirstPersonGunShield_Thread( vortexWeapon, shieldEffect, attachment )

@@ -1198,6 +1198,18 @@ void function ShGas_Init()
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
 void function UpdatePlayerScreenColorCorrection( entity player, int statusEffect, int ccID )
 {
 	Assert ( IsNewThread(), "Must be threaded off." )

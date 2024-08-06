@@ -125,6 +125,9 @@ struct GroundLootData
 
 const float ULT_HINT_COOLDOWN = 90.0
 
+
+
+
 struct {
 	table<string, void functionref( entity, string )>         itemUseFunctions
 	table<string, void functionref( entity, string, string )> specialItemUseFunctions
@@ -146,6 +149,9 @@ struct {
 
 	float                 lastHealHintDisplayTime
 	float				  lastUltHintDisplayTime
+
+
+
 	table<string, string> triggerBinds
 	var 				  slingButtonRui
 	array<entity> lastLoot
@@ -166,6 +172,9 @@ void function Cl_Survival_InventoryInit()
 	file.specialItemTypeUseFunctions[ eLootType.ATTACHMENT ] <- EquipAttachment
 
 	file.lastUltHintDisplayTime = Time() - ULT_HINT_COOLDOWN
+
+
+
 
 	RegisterSignal( "OpenSwapForItem" )
 	RegisterSignal( "ResetInventoryMenu" )
@@ -1167,6 +1176,7 @@ void function UICallback_UpdateRequestButton( var button )
 		return
 
 	string weaponName = loot.baseWeapon
+	float scaleFrac = GetScreenScaleFrac()
 
 
 
@@ -1184,6 +1194,11 @@ void function UICallback_UpdateRequestButton( var button )
 
 		RuiSetImage( rui, "iconImage", ordanenceData.hudIcon )
 		RuiSetString( rui, "iconName", Localize ( pingStringData ) )
+		RuiSetImage( rui, "borderImage", $"rui/menu/inventory/border_ThermitePing" )
+		Hud_SetX( button, -12 * scaleFrac )
+		Hud_SetY( button, -40 * scaleFrac )
+		Hud_SetWidth( button, 84 * scaleFrac )
+		Hud_SetHeight( button, 84 * scaleFrac )
 		Hud_Show( button )
 
 		ToolTipData dt
@@ -1199,30 +1214,39 @@ void function UICallback_UpdateRequestButton( var button )
 	}
 
 
+	EquipmentSlot e = Survival_GetEquipmentSlotDataByRef( requestButton )
+	bool weaponCanRequestPair = false
 
+	if( e.weaponSlot >= 0 )
+	{
+		entity weapon = player.GetNormalWeapon( e.weaponSlot )
+		bool weaponCanAkimbo = GetWeaponInfoFileKeyField_GlobalBool( weapon.GetWeaponClassName(), "is_akimbo_weapon" )
+		bool weaponIsLockedSet = SURVIVAL_Weapon_IsAttachmentLocked( GetWeaponClassNameWithLockedSet( weapon ) )
+		weaponCanRequestPair = weaponCanAkimbo && !weaponIsLockedSet && !weapon.IsAkimboAvailable()
+	}
 
+	if ( weaponCanRequestPair )
+	{
+		string commsData = GetWeaponInfoFileKeyField_GlobalString ( weaponName, "akimbo_comms" )
 
+		RuiSetImage( rui, "iconImage", $"" )
+		RuiSetImage( rui, "borderImage", $"rui/menu/inventory/border_weapon_request" )
+		Hud_SetX( button, -265 * scaleFrac )
+		Hud_SetY( button, -24 * scaleFrac )
+		Hud_SetWidth( button, 160 * scaleFrac )
+		Hud_SetHeight( button, 128 * scaleFrac )
+		Hud_Show( button )
 
+		ToolTipData dt
+		PopulateTooltipWithTitleAndDesc( loot, dt )
 
+		dt.commsAction = eCommsAction[ commsData ]
 
+		dt.tooltipFlags = IsPingEnabledForPlayer( player ) ? dt.tooltipFlags : dt.tooltipFlags | eToolTipFlag.PING_DISSABLED
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+		Hud_SetToolTipData( button, dt )
+		RunUIScript( "ClientToUI_Tooltip_MarkForClientUpdate", button, eTooltipStyle.DEFAULT )
+	}
 
 }
 
@@ -1236,13 +1260,13 @@ int function GetWeaponCurrentAmmo( entity weapon )
 		if(  weapon.UsesClipsForAmmo() )
 		{
 
+			entity owner = weapon.GetWeaponOwner()
+
+			
+			bool showAkimboCount = weapon.IsAkimboAvailable() && !weapon.IsAkimboDisabled() && owner.GetAkimboState() != AKIMBO_STATE_OFFHAND;
+			ammoCount = ( showAkimboCount ) ? weapon.GetAkimboSharedClipCount() :  weapon.GetWeaponPrimaryClipCount()
 
 
-
-
-
-
-			ammoCount = weapon.GetWeaponPrimaryClipCount()
 
 
 		}
@@ -1707,13 +1731,13 @@ void function UICallback_PingRequestButton ( var button )
 	}
 
 
+		if ( GetWeaponInfoFileKeyField_GlobalBool ( weaponName, "is_akimbo_weapon" ) )
+		{
+			EmitSoundOnEntity( player, PING_SOUND_DEFAULT )
+			string commsData = GetWeaponInfoFileKeyField_GlobalString ( weaponName, "akimbo_comms" )
 
-
-
-
-
-
-
+			Quickchat( eCommsAction [ commsData ], null )
+		}
 
 
 
@@ -2082,6 +2106,11 @@ void function UpdateLootTooltip( ToolTipData dt )
 	LootRef lootRef = SURVIVAL_CreateLootRef( data, ent )
 	lootRef.count = count
 	lootRef.lootProperty = property
+
+
+	if ( data.lootType == eLootType.MAINWEAPON )
+		data.hudIcon = GetWeaponLootIcon_WeaponLootHint( GetLocalClientPlayer(), data )
+
 
 	entity player = GetLocalViewPlayer()
 
@@ -2466,11 +2495,30 @@ void function ShowHealHint( float damage, vector damageOrigin, int damageType, i
 	UpdateHealHint( GetLocalClientPlayer() )
 }
 
+bool function ShouldShowAnyHint( entity player )
+{
+
+	if ( !IsLocalPlayerAlive_NonReplay() )
+		return false
+
+	if ( !IsAlive( player ) )
+		return false
+
+	if ( Bleedout_IsBleedingOut( player ) )
+		return false
+
+	if ( GetGameState() == eGameState.WinnerDetermined || GetGameState() > eGameState.Epilogue )
+		return false
+
+	return true
+}
 
 void function UpdateHealHint( entity player )
 {
 	const float HINT_DURATION = 5.0
-	if ( ShouldShowHealHint( player ) )
+	bool allowedToShowHint = ShouldShowAnyHint( player )
+
+	if ( allowedToShowHint && ShouldShowHealHint( player ) )
 	{
 		if ( Time() - file.lastHealHintDisplayTime < 10.0 )
 			return
@@ -2493,7 +2541,7 @@ void function UpdateHealHint( entity player )
 			file.lastHealHintDisplayTime = Time()
 		}
 	}
-	else if ( ShouldShowUltHint( player ) )
+	else if ( allowedToShowHint && ShouldShowUltHint( player ) )
 	{
 		float timeSinceUltHint = Time() - file.lastUltHintDisplayTime
 		if ( timeSinceUltHint < ULT_HINT_COOLDOWN )
@@ -2522,27 +2570,39 @@ void function UpdateHealHint( entity player )
 		}
 
 	}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 	else
 	{
 		HidePlayerHint( "#SURVIVAL_HEAL_HINT_CROSSHAIR" )
 		HidePlayerHint( "#SURVIVAL_MEDIC_HEAL_HINT" )
 		HidePlayerHint( "#SURVIVAL_ULT_ACCEL_HINT_CONTROLLER" )
 		HidePlayerHint( "#SURVIVAL_ULT_ACCEL_HINT_PC" )
+
+
+
+
 	}
 }
 
 
 bool function ShouldShowHealHint( entity player )
 {
-	if ( !IsLocalPlayerAlive_NonReplay() )
-		return false
-
-	if ( Bleedout_IsBleedingOut( player ) )
-		return false
-
-	if ( GetGameState() == eGameState.WinnerDetermined || GetGameState() > eGameState.Epilogue )
-		return false
-
 	float shieldHealthFrac = GetShieldHealthFrac( player )
 	float healthFrac       = GetHealthFrac( player )
 	if ( (player.GetShieldHealthMax() == 0 || shieldHealthFrac > 0.25) && healthFrac > 0.5 )
@@ -2565,22 +2625,10 @@ bool function ShouldShowHealHint( entity player )
 
 
 	return false
-
-
-	unreachable
 }
 
 bool function ShouldShowUltHint( entity player )
 {
-	if ( !IsAlive( player ) )
-		return false
-
-	if ( Bleedout_IsBleedingOut( player ) )
-		return false
-
-	if ( GetGameState() == eGameState.WinnerDetermined || GetGameState() > eGameState.Epilogue )
-		return false
-
 	int kitType = eConsumableType.ULTIMATE
 
 	if ( !Consumable_CanUseConsumable( player, kitType, false ) )
@@ -2590,10 +2638,32 @@ bool function ShouldShowUltHint( entity player )
 		return false
 
 	return true
-
-
-	unreachable
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 void function UseHealthPickupRefFromInventory( entity player, string ref )
@@ -2805,6 +2875,8 @@ void function UICallback_GetLootDataFromButton( var button, int position )
 		LootData data = EquipmentSlot_GetEquippedLootDataForSlot( player, equipmentSlot )
 
 		ref = data.ref
+
+		RunUIScript( "ClientCallback_SetTempButtonIcon", data.hudIcon )
 	}
 
 	RunUIScript( "ClientCallback_SetTempButtonRef", ref )
@@ -3478,7 +3550,7 @@ void function TEMP_UpdateTeammateRui( var elem, bool isCompact )
 			RuiSetFloat( rui, "respawnStatusEndTime", ent.GetPlayerNetTime( "respawnStatusEndTime" ) )
 
 
-				RuiSetBool( rui, "useShadowFormFrame", ent.IsShadowForm() && !IsPlayerShadowZombie( ent ) )
+
 
 
 

@@ -826,11 +826,6 @@ asset function GetIndicatorModel( entity grenade )
 			return GRENADE_INDICATOR_PHASE_DOOR
 
 
-
-
-
-
-
 	if ( grenade instanceof C_PlayerWaypoint )
 	{
 		switch( grenade.GetWaypointInt( 0 ) )
@@ -874,6 +869,12 @@ asset function GetIndicatorModel( entity grenade )
 			case eThreatIndicatorID.GRENADE_INDICATOR_PHASE_DOOR:
 				return GRENADE_INDICATOR_PHASE_DOOR
 				break
+
+
+
+
+
+
 
 
 			default:

@@ -1,9 +1,5 @@
 
 
-
-
-
-
 global function StatsRegister_ApexCups
 
 
@@ -12,13 +8,15 @@ global function StatsRegister_ApexCups
 
 
 
-const SettingsAssetGUID APEX_CUPS_SAID_S20AC01A = 850794391
+
+
 
 void function StatsRegister_ApexCups()
 {
-	
-	
-	
+
+		CAREER_STATS.apexcups_ssr_damage = RegisterAccumulatedStat_Int( null, "apexcups_ssr_damage", eChallengeGameMode.TURBO, CHALLENGES_CALC_DEPENDS )
+		CAREER_STATS.apexcups_ssr_kills = RegisterAccumulatedStat_Int( null, "apexcups_ssr_kills", eChallengeGameMode.TURBO, CHALLENGES_CALC_DEPENDS )
+
 }
 
 
@@ -79,10 +77,4 @@ void function StatsRegister_ApexCups()
 
 
 
-
-
-
-
-
-
-                                           
+                       

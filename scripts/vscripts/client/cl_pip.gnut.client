@@ -1,12 +1,18 @@
 global function ClPip_LevelInit
 global function BeginMovingPIP
-global function CaptureStillPIPThenEndMovingPIPThread
-global function ReleasePIP
+global function CaptureMovingPIPtoStillPIP
+global function AllocateStillPIPSlot
+global function ReleasePIPSlot
 global function PIPSlotState_GetSlotID
 
 
 
 global function ClientCodeCallback_MonitorSnapshotDone
+global function ClientCodeCallback_GladiatorCardCached
+global function ClientCodeCallback_GladiatorCardCacheLoaded
+
+global function ClPip_GetMaxConcurrentCaptures
+global function ClPip_SetMaxConcurrentCaptures
 
 
 Assert( PIP_MONITOR_START_INDEX == 0 ) 
@@ -49,7 +55,8 @@ struct
 	
 	array<PIPSlotState> slotStateList
 
-	bool                isCaptureInProgress = false
+	int                capturesInProgress = 0
+	int                maxConcurrentCaptures = 1
 	array<PIPSlotState> captureQueue
 	array<CapturedStillPIPInfo> capturedStillPIPs
 
@@ -59,149 +66,26 @@ struct
 	table signalDummy
 } file
 
-bool function IsStillPIPCaptureCached( string name )
+
+
+
+
+int function ClPip_GetMaxConcurrentCaptures()
 {
-	if ( GladCardCache_Debugging_IsEnabled() )
-	{
-		printf( "#CAPTURE_STREAMS %s() Checking for name: %s", FUNC_NAME(), name )
-	}
-
-	bool retVal = false
-	bool found = false
-
-	foreach( int index, CapturedStillPIPInfo info in file.capturedStillPIPs )
-	{
-		if ( info.name == name )
-		{
-			found = true
-			if ( GladCardCache_IsGladCardCachedByHandle( info.handle ) )
-			{
-				if ( GladCardCache_Debugging_IsEnabled() )
-				{
-					printf( "#CAPTURE_STREAMS %s() - Cache ready - name: %s; handle: %d; characterRef: %s; index: %d", FUNC_NAME(), info.name, info.handle, info.characterRef, index )
-				}
-				retVal = true
-			}
-			else if ( GladCardCache_Debugging_IsEnabled() )
-			{
-				printf( "#CAPTURE_STREAMS %s() - Cache not ready - name: %s; handle: %d; characterRef: %s; index: %d", FUNC_NAME(), info.name, info.handle, info.characterRef, index )
-				retVal = false
-			}
-		}
-	}
-
-	if ( !found && GladCardCache_Debugging_IsEnabled() )
-	{
-		printf( "#CAPTURE_STREAMS %s() - No cache entry - name: " + name, FUNC_NAME() )
-	}
-
-	return retVal
+	return file.maxConcurrentCaptures
 }
 
-int function GetCapturedStillPIPCacheHandle( string name )
+void function ClPip_SetMaxConcurrentCaptures(int newValue = 1)
 {
-	if ( GladCardCache_Debugging_IsEnabled() )
+	int actualNewValue = maxint(1, newValue)
+	actualNewValue  = minint(PIP_NUM_MONITORS, actualNewValue )
+
+	if (newValue != actualNewValue )
 	{
-		printf( "#CAPTURE_STREAMS %s() Checking for name: %s", FUNC_NAME(), name )
+		printf("ClPip_SetMaxConcurrentCaptures was called with %d, but value was clamped to %d", newValue, actualNewValue)
 	}
 
-	Assert( IsStillPIPCaptureCached( name ), "#CAPTURE_STREAMS Failed to find existing capture stream for name: " + name + "" )
-
-	foreach( int index, CapturedStillPIPInfo info in file.capturedStillPIPs )
-	{
-		if ( info.name == name )
-		{
-			if ( GladCardCache_Debugging_IsEnabled() )
-			{
-				printf( "#CAPTURE_STREAMS %s() Found - name: %s; handle: %d; characterRef: %s; index: %d", FUNC_NAME(), info.name, info.handle, info.characterRef, index )
-			}
-
-			return info.handle
-		}
-	}
-
-	return -1
-}
-
-string ornull function GetCapturedStillPIPCacheCharacterName( string name )
-{
-	foreach( int index, CapturedStillPIPInfo info in file.capturedStillPIPs )
-	{
-		if ( info.name == name )
-		{
-			if ( GladCardCache_Debugging_IsEnabled() )
-			{
-				printf( "#CAPTURE_STREAMS %s() Found - name: %s; handle: %d; characterRef: %s; index: %d", FUNC_NAME(), info.name, info.handle, info.characterRef, index )
-			}
-
-			return info.characterRef
-		}
-	}
-
-	return null
-}
-
-void function StoreCapturedStillPIPCacheHandle( string name, int handle, string ornull characterRef = null )
-{
-	if ( GladCardCache_Debugging_IsEnabled() )
-	{
-		printf( "#CAPTURE_STREAMS %s() entered - name: %s; handle: %d; characterRef: %s;", FUNC_NAME(), name, handle, characterRef )
-	}
-
-	Assert( !IsStillPIPCaptureCached( name ), "#CAPTURE_STREAMS Unexpectedly found existing capture stream for name: " + name + "" )
-
-	CapturedStillPIPInfo info
-	info.name = name
-	info.handle = handle
-	info.characterRef = characterRef != null ? expect string( characterRef ) : "";
-
-	file.capturedStillPIPs.append( info )
-
-	if ( GladCardCache_Debugging_IsEnabled() )
-	{
-		printf( "#CAPTURE_STREAMS %s() completed - name: %s; handle: %d; characterRef: %s; index %d;", FUNC_NAME(), info.name, info.handle, info.characterRef, file.capturedStillPIPs.len() - 1 )
-	}
-}
-
-void function RemoveCapturedStillPIPCacheHandle( string name, string reason )
-{
-	if ( GladCardCache_Debugging_IsEnabled() )
-	{
-		printf( "#CAPTURE_STREAMS %s() entered - Removing name: %s reason: %s", FUNC_NAME(), name, reason )
-	}
-
-	foreach( int index, CapturedStillPIPInfo info in file.capturedStillPIPs )
-	{
-		if ( info.name == name )
-		{
-			if ( GladCardCache_Debugging_IsEnabled() )
-			{
-				printf( "#CAPTURE_STREAMS %s() - Found name: %s at index %d; handle: %d; characterRef: %s; reason: %s", FUNC_NAME(), info.name, index, info.handle, info.characterRef, reason )
-			}
-
-			file.capturedStillPIPs.remove( index )
-			if ( GladCardCache_Debugging_IsEnabled() )
-			{
-				printf( "#CAPTURE_STREAMS %s() - Removed: %s from script array at index %d; handle: %d", FUNC_NAME(), info.name, index, info.handle )
-			}
-
-			GladCardCache_ClearCachedGladCard_ByHandle( info.handle )
-			if ( GladCardCache_Debugging_IsEnabled() )
-			{
-				printf( "#CAPTURE_STREAMS %s() - Removed: %s from C++ cache; handle: %d", FUNC_NAME(), info.name, info.handle )
-			}
-		}
-	}
-}
-
-void function RemoveAllCapturedStillPIPCacheHandles()
-{
-	if ( GladCardCache_Debugging_IsEnabled() )
-	{
-		printf( "#CAPTURE_STREAMS  %s()", FUNC_NAME() )
-	}
-
-	file.capturedStillPIPs.clear()
+	file.maxConcurrentCaptures = actualNewValue 
 }
 
 void function ClPip_LevelInit()
@@ -210,6 +94,8 @@ void function ClPip_LevelInit()
 	RegisterSignal( "YouMayProceedWithPIPSnapshot" )
 	RegisterSignal( "CancelPIPSnapshot" )
 	RegisterSignal( "PIPSlotAvailable" )
+	RegisterSignal( "GladiatorCardCached" )
+	RegisterSignal( "GladiatorCardCacheLoaded" )
 
 	file.slotStateList.resize( PIP_NUM_TOTAL )
 	foreach( int slotIndex, PIPSlotState slotState in file.slotStateList )
@@ -221,22 +107,6 @@ void function ClPip_LevelInit()
 		if ( slotState.isUsableForMoving )
 			file.freeMovingSlotCount++
 	}
-
-	ClearCache();
-}
-
-void function ClearCache()
-{
-	if( GladCardCache_IsEnabled() )
-	{
-		if ( GladCardCache_Debugging_IsEnabled() )
-		{
-			printf( "#CAPTURE_STREAMS %s() -Clearing cache of PIP still captures of gladcards ", FUNC_NAME() )
-		}
-
-		GladCardCache_ClearCache()
-		RemoveAllCapturedStillPIPCacheHandles()
-	}
 }
 
 void function WaitForFreePIP( bool mustBeMoving )
@@ -247,9 +117,31 @@ void function WaitForFreePIP( bool mustBeMoving )
 	return
 }
 
-
-PIPSlotState function BeginMovingPIP( entity camera, int colorCorrectionLayer = -1 )
+PIPSlotState ornull function BeginMovingPIP( entity camera, bool allowWaitForFreeSlot, int colorCorrectionLayer = -1 )
 {
+	PIPSlotState ornull slotState = AllocateMovingPIPSlot( allowWaitForFreeSlot )
+	if ( slotState == null )
+		return null
+
+	expect PIPSlotState ( slotState )
+	Assert( slotState.status == ePIPSlotStatus.MOVING )
+	slotState.camera = camera
+	camera.SetMonitorId( slotState.slotIndex )
+	camera.SetActive( true )
+	if ( colorCorrectionLayer != -1 )
+	{
+		slotState.hasColorCorrectionAssigned = true
+		ColorCorrection_AssignMonitor( slotState.slotIndex, colorCorrectionLayer )
+	}
+
+	return slotState
+}
+
+PIPSlotState ornull function AllocateMovingPIPSlot( bool allowWaitForFreeSlot )
+{
+	if ( allowWaitForFreeSlot )
+		WaitForFreePIP( true )
+
 	for ( int slotIndex = PIP_MONITOR_START_INDEX; slotIndex < PIP_MONITOR_START_INDEX + PIP_NUM_MONITORS; slotIndex++ )
 	{
 		PIPSlotState slotState = file.slotStateList[slotIndex]
@@ -259,32 +151,47 @@ PIPSlotState function BeginMovingPIP( entity camera, int colorCorrectionLayer = 
 		slotState.status = ePIPSlotStatus.MOVING
 		file.freeTotalSlotCount--
 		file.freeMovingSlotCount--
-		slotState.camera = camera
-		camera.SetMonitorId( slotIndex )
-		camera.SetActive( true )
-		if ( colorCorrectionLayer != -1 )
-		{
-			slotState.hasColorCorrectionAssigned = true
-			ColorCorrection_AssignMonitor( slotIndex, colorCorrectionLayer )
-		}
-
 		return slotState
 	}
-
-	Assert( false, "No free moving PIP slots." )
-	unreachable
+	return null
 }
 
-void function CaptureStillPIPThenEndMovingPIPThread( PIPSlotState movingSlotState, PIPSlotState ornull[1] outArray_stillSlotState, string ornull cacheName = null, string ornull characterRef = null, bool allowWaitForStillSlot = false )
+PIPSlotState ornull function AllocateStillPIPSlot( bool allowWaitForFreeSlot )
+{
+	if ( allowWaitForFreeSlot )
+		WaitForFreePIP( false )
+
+	for ( int slotsTriedCount = 0; slotsTriedCount < PIP_NUM_TOTAL; slotsTriedCount++ )
+	{
+		
+		int slotIndex = (PIP_MONITOR_START_INDEX + PIP_NUM_MONITORS + slotsTriedCount) % PIP_NUM_TOTAL
+		PIPSlotState slotState = file.slotStateList[slotIndex]
+		if ( slotState.status != ePIPSlotStatus.AVAILABLE )
+			continue
+
+		slotState.status = ePIPSlotStatus.STILL
+		file.freeTotalSlotCount--
+		if ( slotState.isUsableForMoving )
+			file.freeMovingSlotCount--
+		return slotState
+	}
+	return null
+}
+
+void function CaptureMovingPIPtoStillPIP( PIPSlotState movingSlotState, PIPSlotState stillSlotState )
 {
 	Assert( movingSlotState.slotIndex != -1 ) 
 	Assert( movingSlotState.isUsableForMoving ) 
 	Assert( movingSlotState.status == ePIPSlotStatus.MOVING ) 
 	Assert( movingSlotState.associatedProcessingSlotStateOrNull == null ) 
 
+	Assert( stillSlotState.slotIndex != -1 ) 
+	Assert( stillSlotState.status == ePIPSlotStatus.STILL ) 
+	Assert( stillSlotState.associatedProcessingSlotStateOrNull == null ) 
+
 	
 	bool shouldWaitOneFrame = false
-	if ( file.isCaptureInProgress )
+	if ( file.capturesInProgress >= file.maxConcurrentCaptures )
 	{
 		file.captureQueue.append( movingSlotState )
 
@@ -293,17 +200,18 @@ void function CaptureStillPIPThenEndMovingPIPThread( PIPSlotState movingSlotStat
 		} )
 
 		WaitSignal( movingSlotState, "YouMayProceedWithPIPSnapshot" )
-		
+		Assert(file.captureQueue[0] == movingSlotState)
 		file.captureQueue.remove( 0 )
 
 		shouldWaitOneFrame = true 
 	}
-	else
-	{
-		file.isCaptureInProgress = true
-	}
+
+	Assert( file.capturesInProgress < file.maxConcurrentCaptures )
+	++file.capturesInProgress
 
 	OnThreadEnd( void function() : ( movingSlotState ) {
+		Assert( file.capturesInProgress > 0 )
+		--file.capturesInProgress
 		if ( movingSlotState.associatedProcessingSlotStateOrNull != null )
 		{
 			movingSlotState.camera.DequeueMonitorSnapshot()
@@ -312,16 +220,10 @@ void function CaptureStillPIPThenEndMovingPIPThread( PIPSlotState movingSlotStat
 
 			stillSlotState.associatedProcessingSlotStateOrNull = null
 			movingSlotState.associatedProcessingSlotStateOrNull = null
-
-			ReleasePIP( stillSlotState )
-
-			Assert( file.isCaptureInProgress )
 		}
 
-		if ( file.captureQueue.len() > 0 )
+		if ( file.captureQueue.len() > 0 && file.capturesInProgress < file.maxConcurrentCaptures )
 			Signal( file.captureQueue[0], "YouMayProceedWithPIPSnapshot" )
-		else
-			file.isCaptureInProgress = false
 	} )
 
 	EndSignal( movingSlotState, "CancelPIPSnapshot" )
@@ -329,66 +231,16 @@ void function CaptureStillPIPThenEndMovingPIPThread( PIPSlotState movingSlotStat
 	if ( shouldWaitOneFrame )
 		WaitFrame()
 
-	if ( allowWaitForStillSlot )
-		WaitForFreePIP( false )
-
-	int stillSlotIndex = -1
-	PIPSlotState stillSlotState
-	for ( int slotsTriedCount = 0; slotsTriedCount < PIP_NUM_TOTAL; slotsTriedCount++ )
-	{
-		
-		int candidateSlotIndex          = (PIP_MONITOR_START_INDEX + PIP_NUM_MONITORS + slotsTriedCount) % PIP_NUM_TOTAL
-		PIPSlotState candidateSlotState = file.slotStateList[candidateSlotIndex]
-		if ( candidateSlotState.status != ePIPSlotStatus.AVAILABLE )
-			continue
-
-		stillSlotIndex = candidateSlotIndex
-		stillSlotState = candidateSlotState
-		break
-	}
-	Assert( stillSlotIndex != -1, "No free PIP slots." )
-
-	stillSlotState.status = ePIPSlotStatus.STILL
-	file.freeTotalSlotCount--
-	if ( stillSlotState.isUsableForMoving )
-		file.freeMovingSlotCount--
+	
+	
 	stillSlotState.associatedProcessingSlotStateOrNull = movingSlotState
 	movingSlotState.associatedProcessingSlotStateOrNull = stillSlotState
 
-	bool canCache = GladCardCache_IsEnabled() && cacheName != null
-	bool streaming = false
-	if ( canCache )
-	{
-		if ( IsStillPIPCaptureCached( expect string( cacheName ) ) )
-		{
-			string ornull cachedCharacterName = GetCapturedStillPIPCacheCharacterName( expect string( cacheName ) )
-			if ( cachedCharacterName != null && expect string( cachedCharacterName ) != expect string( characterRef ) )
-			{
-				RemoveCapturedStillPIPCacheHandle( expect string( cacheName ), "character changed" )
-			}
-			else
-			{
-				GladCardCache_StreamInGladCard( GetCapturedStillPIPCacheHandle( expect string( cacheName ) ), stillSlotState.slotIndex )
-				streaming = true
-				WaitSignal( stillSlotState, "PIPSnapshotCaptured" )
-			}
-		}
-	}
 
-	if ( !streaming )
-	{
-		
-		movingSlotState.camera.QueueMonitorSnapshot( stillSlotState.slotIndex )
-
-		if ( canCache )
-		{
-			movingSlotState.camera.SetMonitorSnapshotCacheName( expect string( cacheName ) )
-			StoreCapturedStillPIPCacheHandle( expect string( cacheName ), movingSlotState.camera.GetMonitorSnapShotHandle(), characterRef  )
-		}
-
-		WaitSignal( stillSlotState, "PIPSnapshotCaptured" )
-		
-	}
+	
+	movingSlotState.camera.QueueMonitorSnapshot( stillSlotState.slotIndex )
+	WaitSignal( stillSlotState, "PIPSnapshotCaptured" )
+	
 
 
 	Assert( stillSlotState.status == ePIPSlotStatus.STILL ) 
@@ -398,11 +250,6 @@ void function CaptureStillPIPThenEndMovingPIPThread( PIPSlotState movingSlotStat
 
 	stillSlotState.associatedProcessingSlotStateOrNull = null
 	movingSlotState.associatedProcessingSlotStateOrNull = null
-
-	ReleasePIP( movingSlotState )
-
-	outArray_stillSlotState[0] = stillSlotState
-	
 }
 
 
@@ -417,8 +264,19 @@ void function ClientCodeCallback_MonitorSnapshotDone( int stillSlotIndex )
 	
 }
 
+void function ClientCodeCallback_GladiatorCardCached( int stillSlotIndex )
+{
+	PIPSlotState stillSlotState = file.slotStateList[stillSlotIndex]
+	Signal( stillSlotState, "GladiatorCardCached" )
+}
 
-void function ReleasePIP( PIPSlotState slotState )
+void function ClientCodeCallback_GladiatorCardCacheLoaded( int stillSlotIndex )
+{
+	PIPSlotState stillSlotState = file.slotStateList[stillSlotIndex]
+	Signal( stillSlotState, "GladiatorCardCacheLoaded" )
+}
+
+void function ReleasePIPSlot( PIPSlotState slotState )
 {
 	Assert( slotState.slotIndex != -1 ) 
 	Assert( slotState.status != ePIPSlotStatus.AVAILABLE, "Attempted to end PIP on slot that was not in use." )

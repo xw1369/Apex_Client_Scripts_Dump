@@ -757,6 +757,24 @@ void function GunGame_Init()
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 var function GunGame_GetHUDRui()
 {
 	return file.gamemodeRUI

@@ -1,4 +1,3 @@
-
 global function MpWeaponCryptoHeirloomRt01Primary_Init
 global function OnWeaponActivate_weapon_crypto_heirloom_rt01_primary
 global function OnWeaponDeactivate_weapon_crypto_heirloom_rt01_primary
@@ -16,9 +15,6 @@ const table<string, table< int, int > > HEIRLOOM_SKIN_REMAP =
 	},
 }
 
-		
-
-
 void function MpWeaponCryptoHeirloomRt01Primary_Init()
 {
 
@@ -27,10 +23,6 @@ void function MpWeaponCryptoHeirloomRt01Primary_Init()
 
 
 
-
-
-
-		
 
 
 }
@@ -53,13 +45,10 @@ void function OnWeaponActivate_weapon_crypto_heirloom_rt01_primary( entity weapo
 		weapon.PlayWeaponEffect( CRYPTO_AMB_EXHAUST_FP_rt01, CRYPTO_AMB_EXHAUST_3P_rt01, "Fx_def_blade_02", true )
 		weapon.PlayWeaponEffect( CRYPTO_AMB_EXHAUST_FP_rt01, CRYPTO_AMB_EXHAUST_3P_rt01, "Fx_def_blade_03", true )
 	}
-
 	else if ( meleeSkinName == "heirloom_rt01" )
 	{
 		
 	}
-
-
 }
 
 void function OnWeaponDeactivate_weapon_crypto_heirloom_rt01_primary( entity weapon )
@@ -71,12 +60,9 @@ void function OnWeaponDeactivate_weapon_crypto_heirloom_rt01_primary( entity wea
 	{
 		weapon.StopWeaponEffect( CRYPTO_AMB_EXHAUST_FP_rt01, CRYPTO_AMB_EXHAUST_3P_rt01 )
 	}
-
 	else if ( meleeSkinName == "heirloom_rt01" )
 	{
 		
 	}
 
-
 }
-                              

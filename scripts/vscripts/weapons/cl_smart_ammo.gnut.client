@@ -179,19 +179,19 @@ void function SmartAmmo_LockedOntoWarningHUD_Update()
 			RuiSetFloat3( file.lockon_hud, "borderColor", borderColor )
 		}
 
-		else if (StatusEffect_HasSeverity( player, eStatusEffect.red_revenant_revealed ))
-		{
-			RuiSetString( file.lockon_hud, "lockMessage", "#SHADOW_ARMY_LANDING_FULL_REV" )
 
-			RuiSetBool( file.lockon_hud, "isVisible", true )
-			RuiSetBool( file.lockon_hud, "northLock", false )
-			RuiSetBool( file.lockon_hud, "southLock", false )
-			RuiSetBool( file.lockon_hud, "westLock", false )
-			RuiSetBool( file.lockon_hud, "eastLock", false )
-			RuiSetImage( file.lockon_hud, "characterIcon", $"rui/gamemodes/rev_army/red_eye_rev_banner_icon" )
-			RuiSetFloat3( file.lockon_hud, "borderColor", < 1.0, 0.0, 0.0 > )
-			RuiSetFloat (file.lockon_hud, "characterIconScale", 0.8)
-		}
+
+
+
+
+
+
+
+
+
+
+
+
 
 		else if ( StatusEffect_HasSeverity( player, eStatusEffect.shadow_form ) )
 		{
@@ -287,12 +287,12 @@ void function SmartAmmo_LockedOntoWarningHUD_Update()
 		else if ( StatusEffect_HasSeverity( player, eStatusEffect.perk_survey_beacon_enemies_scanned_visual ) )
 		{
 
-
-
-
-
-
-
+			if( Perk_ScoutExpert_FastBeaconScan_Enabled() )
+			{
+				array<entity> scannedEnemies = BeaconScanEnemy_GetScannedEnemies()
+				RuiSetString( file.lockon_hud, "lockMessage", Localize( "#SURVEY_ENEMY_ALLY_SCANNED_WITH_COUNT_HINT", scannedEnemies.len() ) )
+			}
+			else
 
 			{
 				RuiSetString( file.lockon_hud, "lockMessage", "#SURVEY_ENEMY_ALLY_SCANNED_HINT" )
@@ -409,6 +409,13 @@ void function SmartAmmo_LockedOntoWarningHUD_Update()
 			{
 				RuiSetString( file.lockon_hud, "lockMessage", "#FUSE_MORTAR_DETECTED_WARNING" )
 				RuiSetImage( file.lockon_hud, "characterIcon", $"rui/menu/buttons/battlepass/character_skin_fuse" )
+			}
+
+
+			else if ( StatusEffect_HasSeverity( player, eStatusEffect.freespawn_victim_teammate ) )
+			{
+				RuiSetString( file.lockon_hud, "lockMessage", "#FREESPAWNS_VICTIM_TEAMMATE_SCANNED" )
+				RuiSetFloat3( file.lockon_hud, "borderColor", <1, .19, .19> )
 			}
 
 			else

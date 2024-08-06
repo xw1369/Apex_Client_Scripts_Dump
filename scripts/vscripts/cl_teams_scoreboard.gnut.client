@@ -10,6 +10,17 @@ global function Teams_AddCallback_GetTeamIcon
 global function Teams_AddCallback_OnPlayerClick
 global function Teams_AddCallback_DoModeSpecificWork
 global function Teams_AddCallback_IsEnabled
+global function Teams_HasCallback_ScoreboardTitle
+global function Teams_HasCallback_ScoreboardData
+global function Teams_HasCallback_PlayerScores
+global function Teams_HasCallback_SortScoreboardPlayers
+global function Teams_HasCallback_Header
+global function Teams_HasCallback_GetTeamColor
+global function Teams_HasCallback_GetTeamName
+global function Teams_HasCallback_GetTeamIcon
+global function Teams_HasCallback_OnPlayerClick
+global function Teams_HasCallback_DoModeSpecificWork
+global function Teams_HasCallback_IsEnabled
 global function Teams_PopulatePlayerRow
 global function Teams_PopulateHeaderRui
 global function Teams_GetMaxTeamSize
@@ -127,10 +138,20 @@ void function Teams_AddCallback_ScoreboardTitle( string functionref() callbackFu
 	file.Callback_ScoreboardTitle = callbackFunc
 }
 
+bool function Teams_HasCallback_ScoreboardTitle()
+{
+	return IsValid( file.Callback_ScoreboardTitle )
+}
+
 void function Teams_AddCallback_ScoreboardData( ScoreboardData functionref(  ) callbackFunc )
 {
 	Assert( !IsValid( file.Callback_ScoreboardData ), "ScoreboardData already has a callback function - " + string( callbackFunc ) + ", ensure this is only called once" )
 	file.Callback_ScoreboardData = callbackFunc
+}
+
+bool function Teams_HasCallback_ScoreboardData()
+{
+	return IsValid( file.Callback_ScoreboardData )
 }
 
 void function Teams_AddCallback_PlayerScores( array< string > functionref( entity ) callbackFunc )
@@ -139,10 +160,20 @@ void function Teams_AddCallback_PlayerScores( array< string > functionref( entit
 	file.Callback_PlayerScores = callbackFunc
 }
 
+bool function Teams_HasCallback_PlayerScores()
+{
+	return IsValid( file.Callback_PlayerScores )
+}
+
 void function Teams_AddCallback_SortScoreboardPlayers(  array< TeamsScoreboardPlayer > functionref( array< TeamsScoreboardPlayer > ) callbackFunc )
 {
 	Assert( !IsValid( file.Callback_SortScoreboardPlayers ), "SortScoreboardPlayers already has a callback function - " + string( callbackFunc ) + ", ensure this is only called once" )
 	file.Callback_SortScoreboardPlayers = callbackFunc
+}
+
+bool function Teams_HasCallback_SortScoreboardPlayers()
+{
+	return IsValid( file.Callback_SortScoreboardPlayers )
 }
 
 void function Teams_AddCallback_Header(  void functionref( var, var, int ) callbackFunc )
@@ -151,10 +182,20 @@ void function Teams_AddCallback_Header(  void functionref( var, var, int ) callb
 	file.Callback_Header = callbackFunc
 }
 
+bool function Teams_HasCallback_Header()
+{
+	return IsValid( file.Callback_Header )
+}
+
 void function Teams_AddCallback_GetTeamColor(  vector functionref( int ) callbackFunc )
 {
 	Assert( !IsValid( file.Callback_GetTeamColor ), "_GetTeamColor already has a callback function - " + string( callbackFunc ) + ", ensure this is only called once" )
 	file.Callback_GetTeamColor = callbackFunc
+}
+
+bool function Teams_HasCallback_GetTeamColor()
+{
+	return IsValid( file.Callback_GetTeamColor )
 }
 
 void function Teams_AddCallback_GetTeamName(  string functionref( int ) callbackFunc )
@@ -163,16 +204,31 @@ void function Teams_AddCallback_GetTeamName(  string functionref( int ) callback
 	file.Callback_GetTeamName = callbackFunc
 }
 
+bool function Teams_HasCallback_GetTeamName()
+{
+	return IsValid( file.Callback_GetTeamName )
+}
+
 void function Teams_AddCallback_GetTeamIcon(  asset functionref( int ) callbackFunc )
 {
 	Assert( !IsValid( file.Callback_GetTeamIcon ), "_GetTeamIcon already has a callback function - " + string( callbackFunc ) + ", ensure this is only called once" )
 	file.Callback_GetTeamIcon = callbackFunc
 }
 
+bool function Teams_HasCallback_GetTeamIcon()
+{
+	return IsValid( file.Callback_GetTeamIcon )
+}
+
 void function Teams_AddCallback_OnPlayerClick(  vector functionref( EHI ) callbackFunc )
 {
 	Assert( !IsValid( file.Callback_OnPlayerClick ), "_OnPlayerClick already has a callback function - " + string( callbackFunc ) + ", ensure this is only called once" )
 	file.Callback_OnPlayerClick = callbackFunc
+}
+
+bool function Teams_HasCallback_OnPlayerClick()
+{
+	return IsValid( file.Callback_OnPlayerClick )
 }
 
 void function Teams_AddCallback_DoModeSpecificWork( void functionref( var ) callbackFunc, string hudElementName = "" )
@@ -182,10 +238,20 @@ void function Teams_AddCallback_DoModeSpecificWork( void functionref( var ) call
 	file.ModeSpecificWork_HudElementName = hudElementName
 }
 
+bool function Teams_HasCallback_DoModeSpecificWork()
+{
+	return IsValid( file.Callback_DoModeSpecificWork )
+}
+
 void function Teams_AddCallback_IsEnabled(  bool functionref() callbackFunc )
 {
 	Assert( !IsValid( file.Callback_IsEnabled ), "_IsEnabled already has a callback function - " + string( callbackFunc ) + ", ensure this is only called once" )
 	file.Callback_IsEnabled = callbackFunc
+}
+
+bool function Teams_HasCallback_IsEnabled()
+{
+	return IsValid( file.Callback_IsEnabled )
 }
 
 void function Teams_OnPlayerConnectionStateChanged( entity player )
@@ -395,7 +461,7 @@ void function ClientCallback_Teams_OnPlayerViewProfile(  int teamIndex, int row 
 
 bool function Teams_CanViewProfile( string otherPlayerUid, string otherPlayerHardware )
 {
-	string hardware = GetUnspoofedPlayerHardware()
+	string hardware = GetPlayerHardware()
 
 	if ( otherPlayerUid == "" )
 		return false
@@ -581,7 +647,11 @@ void function Teams_PopulateHeaderRui( var scoreHeaderRui, int teamIndex, Scoreb
 		RuiSetInt( scoreHeaderRui, "playerScore" + ( i + 1 ) + "NumDigits", data.columnNumDigits[i] )
 	}
 
-	RuiSetString( scoreHeaderRui, "headerText", Localize( "#TEAM_NUMBERED", (teamIndex + 1) ) )
+	string teamHeader = Localize( "#TEAM_NUMBERED", (teamIndex + 1) )
+	if( UseThematicTeamNames() )
+		teamHeader = Localize( GetThematicTeamName( AllianceProximity_IsUsingAlliances() ? AllianceProximity_GetAllianceFromTeam( teamIndex + TEAM_IMC ) : teamIndex + TEAM_IMC ) )
+
+	RuiSetString( scoreHeaderRui, "headerText", teamHeader )
 	RuiSetFloat( scoreHeaderRui, "rowWidth", rowWidth )
 	RuiSetInt( scoreHeaderRui, "gameState", GetGameState() )
 
@@ -626,6 +696,8 @@ string function Teams_GetTeamName( int teamIndex )
 	string teamName
 	if( IsValid(file.Callback_GetTeamName) )
 		teamName = file.Callback_GetTeamName( Teams_NormalizeTeamIndex( teamIndex ) )
+	else if ( UseThematicTeamNames() )
+		teamName = GetThematicTeamName( Teams_NormalizeTeamIndex( teamIndex ) )
 
 	return teamName
 }

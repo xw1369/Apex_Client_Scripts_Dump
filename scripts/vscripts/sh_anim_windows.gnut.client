@@ -4,6 +4,7 @@ global function ShAnimWindows_LevelInit
 global function ShowEntityAndChildren
 global function HideEntityAndChildren
 
+global function ClientCodeCallback_AnimWindowStream
 global function ClientCodeCallback_AnimWindowStart
 global function ClientCodeCallback_AnimWindowTransition
 global function ClientCodeCallback_AnimWindowStop
@@ -78,28 +79,30 @@ void function ShAnimWindows_LevelInit()
 		RegisterAnimWindowPropScriptCallback( MELEE_SKIN_KEY, AnimWindow_MatchMeleePropSkin )
 		RegisterAnimWindowPropScriptCallback( ARTIFACT_SMEAR_KEY, AnimWindow_SetSmearPropColour )
 
+		RegisterScriptAnimWindowCallbacks( "DisableGunTargetingLaser", AnimWindow_DisableGunTargetingLaser_Start, AnimWindow_DisableGunTargetingLaser_Stop )
 
 
-		
-		RegisterAnimWindowType( BOTH, "CreateProp", null, AnimWindow_CreateProp_Precache, AnimWindow_CreateProp_Start, AnimWindow_CreateProp_Transition, AnimWindow_CreateProp_Stop )
-		RegisterAnimWindowType( CLIENT, "PlaySound", null, AnimWindow_PlaySound_Precache, AnimWindow_PlaySound_Start, AnimWindow_PlaySound_Transition, AnimWindow_PlaySound_Stop )
-		RegisterAnimWindowType( BOTH, "PlayFX", null, AnimWindow_PlayFX_Precache, AnimWindow_PlayFX_Start, AnimWindow_PlayFX_Transition, AnimWindow_PlayFX_Stop )
-		RegisterAnimWindowType( BOTH, "SetConVar", null, null, AnimWindow_SetConVar_Start, null, AnimWindow_SetConVar_Stop )
-		RegisterAnimWindowType( BOTH, "Callback", null, null, AnimWindow_Callback_Start, null, AnimWindow_Callback_Stop )
-		RegisterAnimWindowType( CLIENT, "FadeAlphaOverTime", null, null, AnimWindow_FadeAlphaOverTime_Start, null, AnimWindow_FadeAlphaOverTime_Stop )
-		RegisterAnimWindowType( CLIENT, "SetSkin", null, null, AnimWindow_SetSkin_Start, null, null )
-		RegisterAnimWindowType( BOTH, "SetPropSkin", null, null, AnimWindow_SetPropSkin_Start, null, null )
-		RegisterAnimWindowType( CLIENT, "SetColorModScaleOverDuration", AnimWindow_SetColorModScaleOverDuration_Init, null, AnimWindow_SetColorModScaleOverDuration_Start, AnimWindow_SetColorModScaleOverDuration_Transition, AnimWindow_SetColorModScaleOverDuration_Stop )
-		RegisterAnimWindowType( CLIENT, "SetLodOriginAttachment", null, null, AnimWindow_SetLodOriginAttachment_Start, null, AnimWindow_SetLodOriginAttachment_Stop )
-		RegisterAnimWindowType( CLIENT, "HideEnt", null, null, AnimWindow_HideEnt_Start, null, AnimWindow_HideEnt_Stop )
 
 		
-		RegisterAnimWindowType( CLIENT, "MirageHoloFX", AnimWindow_MirageHoloFX_Init, AnimWindow_MirageHoloFX_Precache, AnimWindow_MirageHoloFX_Start, AnimWindow_MirageHoloFX_Transition, AnimWindow_MirageHoloFX_Stop )
-		RegisterAnimWindowType( CLIENT, "ShadowFormFX", AnimWindow_ShadowFormFX_Init, AnimWindow_ShadowFormFX_Precache, AnimWindow_ShadowFormFX_Start, AnimWindow_ShadowFormFX_Transition, AnimWindow_ShadowFormFX_Stop )
-		RegisterAnimWindowType( CLIENT, "ShadowFormRebornFX", AnimWindow_ShadowFormRebornFX_Init, AnimWindow_ShadowFormRebornFX_Precache, AnimWindow_ShadowFormRebornFX_Start, AnimWindow_ShadowFormRebornFX_Transition, AnimWindow_ShadowFormRebornFX_Stop )
-		RegisterAnimWindowType( CLIENT, "LifelineDroneCommonFX", AnimWindow_LifelineDroneCommonFX_Init, AnimWindow_LifelineDroneCommonFX_Precache, AnimWindow_LifelineDroneCommonFX_Start, AnimWindow_LifelineDroneCommonFX_Transition, AnimWindow_LifelineDroneCommonFX_Stop )
-		RegisterAnimWindowType( CLIENT, "HideWeapon3P", AnimWindow_HideWeapon3P_Init, AnimWindow_HideWeapon3P_Precache, AnimWindow_HideWeapon3P_Start, AnimWindow_HideWeapon3P_Transition, AnimWindow_HideWeapon3P_Stop )
-		RegisterAnimWindowType( CLIENT, "OverrideCharacterSelectCamera", AnimWindow_OverrideCharacterSelectCamera_Init, AnimWindow_OverrideCharacterSelectCamera_Precache, AnimWindow_OverrideCharacterSelectCamera_Start, AnimWindow_OverrideCharacterSelectCamera_Transition, AnimWindow_OverrideCharacterSelectCamera_Stop )
+		RegisterAnimWindowType( BOTH, "CreateProp", null, AnimWindow_CreateProp_Precache, AnimWindow_CreateProp_StreamHint, AnimWindow_CreateProp_Start, AnimWindow_CreateProp_Transition, AnimWindow_CreateProp_Stop )
+		RegisterAnimWindowType( CLIENT, "PlaySound", null, AnimWindow_PlaySound_Precache, null, AnimWindow_PlaySound_Start, AnimWindow_PlaySound_Transition, AnimWindow_PlaySound_Stop )
+		RegisterAnimWindowType( BOTH, "PlayFX", null, AnimWindow_PlayFX_Precache, null, AnimWindow_PlayFX_Start, AnimWindow_PlayFX_Transition, AnimWindow_PlayFX_Stop )
+		RegisterAnimWindowType( BOTH, "SetConVar", null, null, null, AnimWindow_SetConVar_Start, null, AnimWindow_SetConVar_Stop )
+		RegisterAnimWindowType( BOTH, "Callback", null, null, null, AnimWindow_Callback_Start, null, AnimWindow_Callback_Stop )
+		RegisterAnimWindowType( CLIENT, "FadeAlphaOverTime", null, null, null, AnimWindow_FadeAlphaOverTime_Start, null, AnimWindow_FadeAlphaOverTime_Stop )
+		RegisterAnimWindowType( CLIENT, "SetSkin", null, null, null, AnimWindow_SetSkin_Start, null, null )
+		RegisterAnimWindowType( BOTH, "SetPropSkin", null, null, null, AnimWindow_SetPropSkin_Start, null, null )
+		RegisterAnimWindowType( CLIENT, "SetColorModScaleOverDuration", AnimWindow_SetColorModScaleOverDuration_Init, null, null, AnimWindow_SetColorModScaleOverDuration_Start, AnimWindow_SetColorModScaleOverDuration_Transition, AnimWindow_SetColorModScaleOverDuration_Stop )
+		RegisterAnimWindowType( CLIENT, "SetLodOriginAttachment", null, null, null, AnimWindow_SetLodOriginAttachment_Start, null, AnimWindow_SetLodOriginAttachment_Stop )
+		RegisterAnimWindowType( CLIENT, "HideEnt", null, null, null, AnimWindow_HideEnt_Start, null, AnimWindow_HideEnt_Stop )
+
+		
+		RegisterAnimWindowType( CLIENT, "MirageHoloFX", AnimWindow_MirageHoloFX_Init, AnimWindow_MirageHoloFX_Precache, null, AnimWindow_MirageHoloFX_Start, AnimWindow_MirageHoloFX_Transition, AnimWindow_MirageHoloFX_Stop )
+		RegisterAnimWindowType( CLIENT, "ShadowFormFX", AnimWindow_ShadowFormFX_Init, AnimWindow_ShadowFormFX_Precache, null, AnimWindow_ShadowFormFX_Start, AnimWindow_ShadowFormFX_Transition, AnimWindow_ShadowFormFX_Stop )
+		RegisterAnimWindowType( CLIENT, "ShadowFormRebornFX", AnimWindow_ShadowFormRebornFX_Init, AnimWindow_ShadowFormRebornFX_Precache, null, AnimWindow_ShadowFormRebornFX_Start, AnimWindow_ShadowFormRebornFX_Transition, AnimWindow_ShadowFormRebornFX_Stop )
+		RegisterAnimWindowType( CLIENT, "LifelineDroneCommonFX", AnimWindow_LifelineDroneCommonFX_Init, AnimWindow_LifelineDroneCommonFX_Precache, null, AnimWindow_LifelineDroneCommonFX_Start, AnimWindow_LifelineDroneCommonFX_Transition, AnimWindow_LifelineDroneCommonFX_Stop )
+		RegisterAnimWindowType( CLIENT, "HideWeapon3P", AnimWindow_HideWeapon3P_Init, AnimWindow_HideWeapon3P_Precache, null, AnimWindow_HideWeapon3P_Start, AnimWindow_HideWeapon3P_Transition, AnimWindow_HideWeapon3P_Stop )
+		RegisterAnimWindowType( CLIENT, "OverrideCharacterSelectCamera", AnimWindow_OverrideCharacterSelectCamera_Init, AnimWindow_OverrideCharacterSelectCamera_Precache, null, AnimWindow_OverrideCharacterSelectCamera_Start, AnimWindow_OverrideCharacterSelectCamera_Transition, AnimWindow_OverrideCharacterSelectCamera_Stop )
 
 		RegisterSignal( "StopLodOriginAttachment" )
 
@@ -270,6 +273,55 @@ void function AnimWindow_CreateProp_Precache( var settingsBlock )
 	}
 }
 
+bool function AnimWindow_CreateProp_StreamHint( var settingsBlock )
+{
+
+	asset ornull model = null
+	int selectModelFrom = eAnimWindowCreatePropModelSelectionStrategy[GetSettingsBlockString( settingsBlock, "selectModelFrom" )]
+	if ( selectModelFrom == eAnimWindowCreatePropModelSelectionStrategy.HARD_CODED )
+	{
+		model = GetSettingsBlockAsset( settingsBlock, "modelName" )
+	}
+	else if ( selectModelFrom == eAnimWindowCreatePropModelSelectionStrategy.SCRIPT_KEY )
+	{
+		switch ( GetSettingsBlockString( settingsBlock, "modelScriptKey" ) )
+		{
+			case "wraith_kunai":
+			{
+				model = WRAITH_KUNAI_MDL
+				break
+			}
+		}
+	}
+
+	if ( model == null )
+	{
+		return true
+	}
+
+	expect asset(model)
+
+	
+	int odlHandle = ODL_FindAsset( ODL_SKINS, model )
+	if ( odlHandle != -1 )
+	{
+		if( !ODL_IsLoaded( ODL_SKINS, odlHandle ) )
+		{
+			ODL_HintNeeded( ODL_SKINS, odlHandle, true )
+			return false
+		}
+	}
+
+	
+	if ( !StreamModelIsResident( model ) )
+	{
+		StreamModelHint( model )
+		return false
+	}
+
+
+	return true
+}
 
 void function AnimWindow_CreateProp_Start( ScriptAnimWindow window, var settingsBlock )
 {
@@ -1278,13 +1330,14 @@ void function AnimWindow_SetColorModScaleOverDuration_Transition( ScriptAnimWind
 		float rampUpDuration   = GetSettingsBlockFloat( settingsBlock, "rampUpDuration" )
 		float plateauDuration  = GetSettingsBlockFloat( settingsBlock, "plateauDuration" )
 		float rampDownDuration = GetSettingsBlockFloat( settingsBlock, "rampDownDuration" )
+		bool fromMinToMax = GetSettingsBlockBool( settingsBlock, "rampFromMinToMax" )
 
-		thread SetColorModScaleOverDuration( window.ent, window.endCycle, rampUpDuration, plateauDuration, rampDownDuration )
+		thread SetColorModScaleOverDuration( window.ent, window.endCycle, rampUpDuration, plateauDuration, rampDownDuration, fromMinToMax )
 
 }
 
 
-void function SetColorModScaleOverDuration( entity ent, float endCycle, float rampUpDuration, float plateauDuration, float rampDownDuration )
+void function SetColorModScaleOverDuration( entity ent, float endCycle, float rampUpDuration, float plateauDuration, float rampDownDuration, bool fromMinToMax)
 {
 	Signal( ent, "SetColorModScaleEnd" )
 	EndSignal( ent, "OnDestroy", "SetColorModScaleEnd" )
@@ -1298,7 +1351,7 @@ void function SetColorModScaleOverDuration( entity ent, float endCycle, float ra
 
 	OnThreadEnd( void function() : ( ent ) {
 		if ( IsValid( ent ) )
-			ent.SetColorModScaleIntensity( 1.0 )
+			ent.SetColorModScaleIntensity( -1.0 )
 	} )
 
 	float timeSinceStart = Time() - startTime
@@ -1308,18 +1361,33 @@ void function SetColorModScaleOverDuration( entity ent, float endCycle, float ra
 		if ( timeSinceStart < rampUpCompletion )
 		{
 			
-			ent.SetColorModScaleIntensity( Smooth01( 1.0 - (timeSinceStart / rampUpCompletion) ) )
+			if( fromMinToMax )
+				ent.SetColorModScaleIntensity( Smooth01( (timeSinceStart / rampUpCompletion) ) )
+			else
+				ent.SetColorModScaleIntensity( Smooth01( 1.0 - (timeSinceStart / rampUpCompletion) ) )
 		}
 		else if ( timeSinceStart < plateauCompletion )
 		{
 			
-			if ( ent.GetColorModScaleIntensity() != 0.0 )
-				ent.SetColorModScaleIntensity( 0.0 )
+			if( fromMinToMax )
+			{
+				if ( ent.GetColorModScaleIntensity() != 1.0 )
+					ent.SetColorModScaleIntensity( 1.0 )
+			}
+			else
+			{
+				if ( ent.GetColorModScaleIntensity() != 0.0 )
+					ent.SetColorModScaleIntensity( 0.0 )
+			}
+
 		}
 		else if ( timeSinceStart < rampDownCompletion )
 		{
 			
-			ent.SetColorModScaleIntensity( Smooth01( (timeSinceStart - plateauCompletion) / rampDownDuration ) )
+			if( fromMinToMax )
+				ent.SetColorModScaleIntensity( Smooth01( 1.0 - (timeSinceStart - plateauCompletion) / rampDownDuration ) )
+			else
+				ent.SetColorModScaleIntensity( Smooth01( (timeSinceStart - plateauCompletion) / rampDownDuration ) )
 		}
 
 		WaitFrame()
@@ -1725,11 +1793,36 @@ void function AnimWindow_OverrideCharacterSelectCamera_Stop( ScriptAnimWindow wi
 
 
 
+void function AnimWindow_DisableGunTargetingLaser_Start( entity ent , string params )
+{
+	ViewModel_GetWeapon( ent ).SetClientTargetingLaserVisible( false )
+}
+
+void function AnimWindow_DisableGunTargetingLaser_Stop( entity ent , string params )
+{
+	if ( !IsValid( ent ) )
+		return
+
+	entity weapon = ViewModel_GetWeapon( ent )
+
+	if ( !IsValid( weapon ) )
+		return
+
+	weapon.SetClientTargetingLaserVisible( true )
+}
+
+
+
+
+
+
+
 struct AnimWindowTypeInfo
 {
 	bool isForThisVM
 
 	void functionref( var )                   precacheFunc
+	bool functionref( var )                   streamFunc
 	void functionref( ScriptAnimWindow, var ) startFunc
 	void functionref( ScriptAnimWindow, var ) transitionFunc
 	void functionref( ScriptAnimWindow, var ) stopFunc
@@ -1744,6 +1837,7 @@ struct
 void function RegisterAnimWindowType( bool isForThisVM, string type,
 		void functionref() initFunc, 
 		void functionref( var ) precacheFunc, 
+		bool functionref( var ) streamFunc,
 		void functionref(ScriptAnimWindow, var ) startFunc,
 		void functionref( ScriptAnimWindow, var ) transitionFunc, 
 		void functionref(ScriptAnimWindow, var ) stopFunc )
@@ -1753,6 +1847,7 @@ void function RegisterAnimWindowType( bool isForThisVM, string type,
 	AnimWindowTypeInfo awti
 	awti.isForThisVM    = isForThisVM
 	awti.precacheFunc   = precacheFunc
+	awti.streamFunc		= streamFunc
 	awti.startFunc      = startFunc
 	awti.transitionFunc = transitionFunc
 	awti.stopFunc       = stopFunc
@@ -1786,6 +1881,20 @@ void function RegisterAnimWindowType( bool isForThisVM, string type,
 
 
 
+
+bool function ClientCodeCallback_AnimWindowStream( asset windowSettingsAsset )
+{
+	var block = GetSettingsBlockForAsset( windowSettingsAsset )
+
+	string windowType = GetSettingsBlockString( block, "type" )
+	Assert( windowType in fileLevel.animWindowTypeNameInfoMap, "Unknown script anim window type on \"" + string(windowSettingsAsset) + "\": " + windowType )
+
+	AnimWindowTypeInfo awti = fileLevel.animWindowTypeNameInfoMap[windowType]
+	if ( awti.streamFunc != null )
+		return awti.streamFunc( block )
+
+	return true
+}
 
 void function ClientCodeCallback_AnimWindowStart( ScriptAnimWindow window )
 {
@@ -1852,8 +1961,6 @@ void function ClientCodeCallback_AnimWindowStop( ScriptAnimWindow window )
 
 	awti.stopFunc( window, block )
 }
-
-
 
 
 

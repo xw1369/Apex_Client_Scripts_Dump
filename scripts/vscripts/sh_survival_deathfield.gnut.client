@@ -99,8 +99,10 @@ global function GetRingTuningOverrideVar
 
 
 
+
 global function Cl_Deathfield_GetRadiusScale
 global function Cl_Deathfield_GetFXIDForRadius
+global function Cl_Deathfield_GetFXIDForOuterRadius
 #if DEV
 global function Cl_Deathfield_SetOpacityOverride
 #endif
@@ -181,7 +183,7 @@ global enum ePathfinderNotifications
 }
 
 const int ID_INVALID = -1
-const float START_WAIT_TIME = 5.0
+global const float RING_START_WAIT_TIME = 5.0
 global const float MARGIN_WAIT_TIME = 5.0
 const asset SURVEY_BEACON_MODEL = $"mdl/props/pathfinder_beacon_radar/pathfinder_beacon_radar_animated.rmdl"
 const asset NEXT_ZONE_SURVEY_BEACON_MODEL = $"mdl/communication/terminal_usable_imc_01.rmdl"
@@ -277,6 +279,7 @@ struct
 		int												  fieldEffectHandle
 		float 											  ringOpacityOverrideValue
 		array< int > 									  deathFieldFxIdx
+		array< int > 									  deathFieldFxOuterIdx
 
 
 	array<void functionref( int stage, float nextCircleStartTime )> onSurvivalDeathFieldStageChangedCallbacks
@@ -297,17 +300,29 @@ void function Sh_ArenaDeathField_Init()
 
 
 
-	PrecacheParticleSystem( $"P_survival_radius_CP_1x1" )
-	PrecacheParticleSystem( $"P_survival_radius_CP_1x5" )
-	PrecacheParticleSystem( $"P_survival_radius_CP_1x100" )
+	PrecacheParticleSystem( $"P_sort_survival_radius_CP_1x1" )
+	PrecacheParticleSystem( $"P_sort_survival_radius_CP_1x5" )
+	PrecacheParticleSystem( $"P_sort_survival_radius_CP_1x100" )
 
-	PrecacheParticleSystem( $"P_survival_radius_CP_1k_x_1k" )
-	PrecacheParticleSystem( $"P_survival_radius_CP_1k_x_5k" )
-	PrecacheParticleSystem( $"P_survival_radius_CP_1k_x_100k" )
+	PrecacheParticleSystem( $"P_sort_survival_radius_CP_1k_x_1k" )
+	PrecacheParticleSystem( $"P_sort_survival_radius_CP_1k_x_5k" )
+	PrecacheParticleSystem( $"P_sort_survival_radius_CP_1k_x_100k" )
 
-	PrecacheParticleSystem( $"P_ring_radCP1_opaCP2_1k_x_1k" )
-	PrecacheParticleSystem( $"P_ring_radCP1_opaCP2_1k_x_5k" )
-	PrecacheParticleSystem( $"P_ring_radCP1_opaCP2_1k_x_100k" )
+	PrecacheParticleSystem( $"P_sort_ring_radCP1_opaCP2_1k_x_1k" )
+	PrecacheParticleSystem( $"P_sort_ring_radCP1_opaCP2_1k_x_5k" )
+	PrecacheParticleSystem( $"P_sort_ring_radCP1_opaCP2_1k_x_100k" )
+
+	PrecacheParticleSystem( $"outside_survival_radius_CP_1x1" )
+	PrecacheParticleSystem( $"outside_survival_radius_CP_1x5" )
+	PrecacheParticleSystem( $"outside_survival_radius_CP_1x100" )
+
+	PrecacheParticleSystem( $"outside_survival_radius_CP_1k_x_1k" )
+	PrecacheParticleSystem( $"outside_survival_radius_CP_1k_x_5k" )
+	PrecacheParticleSystem( $"outside_survival_radius_CP_1k_x_100k" )
+
+	PrecacheParticleSystem( $"outside_ring_radCP1_opaCP2_1k_x_1k" )
+	PrecacheParticleSystem( $"outside_ring_radCP1_opaCP2_1k_x_5k" )
+	PrecacheParticleSystem( $"outside_ring_radCP1_opaCP2_1k_x_100k" )
 
 
 
@@ -429,16 +444,19 @@ void function Sh_ArenaDeathField_Init()
 
 		if ( file.ringOpacityOverrideEnabled )
 		{
-			file.deathFieldFxIdx = [ GetParticleSystemIndex( $"P_ring_radCP1_opaCP2_1k_x_1k" ), GetParticleSystemIndex( $"P_ring_radCP1_opaCP2_1k_x_5k" ), GetParticleSystemIndex( $"P_ring_radCP1_opaCP2_1k_x_100k" ) ]
+			file.deathFieldFxIdx = [ GetParticleSystemIndex( $"P_sort_ring_radCP1_opaCP2_1k_x_1k" ), GetParticleSystemIndex( $"P_sort_ring_radCP1_opaCP2_1k_x_5k" ), GetParticleSystemIndex( $"P_sort_ring_radCP1_opaCP2_1k_x_100k" ) ]
+			file.deathFieldFxOuterIdx = [ GetParticleSystemIndex( $"outside_ring_radCP1_opaCP2_1k_x_1k" ), GetParticleSystemIndex( $"outside_ring_radCP1_opaCP2_1k_x_5k" ), GetParticleSystemIndex( $"outside_ring_radCP1_opaCP2_1k_x_100k" ) ]
 
 		}
 		else if ( file.usePreciseRingFx )
 		{
-			file.deathFieldFxIdx = [ GetParticleSystemIndex( $"P_survival_radius_CP_1k_x_1k" ), GetParticleSystemIndex( $"P_survival_radius_CP_1k_x_5k" ), GetParticleSystemIndex( $"P_survival_radius_CP_1k_x_100k" ) ]
+			file.deathFieldFxIdx = [ GetParticleSystemIndex( $"P_sort_survival_radius_CP_1k_x_1k" ), GetParticleSystemIndex( $"P_sort_survival_radius_CP_1k_x_5k" ), GetParticleSystemIndex( $"P_sort_survival_radius_CP_1k_x_100k" ) ]
+			file.deathFieldFxOuterIdx = [ GetParticleSystemIndex( $"outside_survival_radius_CP_1k_x_1k" ), GetParticleSystemIndex( $"outside_survival_radius_CP_1k_x_5k" ), GetParticleSystemIndex( $"outside_survival_radius_CP_1k_x_100k" ) ]
 		}
 		else
 		{
-			file.deathFieldFxIdx = [ GetParticleSystemIndex( $"P_survival_radius_CP_1x1" ), GetParticleSystemIndex( $"P_survival_radius_CP_1x5" ), GetParticleSystemIndex( $"P_survival_radius_CP_1x100" ) ]
+			file.deathFieldFxIdx = [ GetParticleSystemIndex( $"P_sort_survival_radius_CP_1x1" ), GetParticleSystemIndex( $"P_sort_survival_radius_CP_1x5" ), GetParticleSystemIndex( $"P_sort_survival_radius_CP_1x100" ) ]
+			file.deathFieldFxOuterIdx = [ GetParticleSystemIndex( $"outside_survival_radius_CP_1x1" ), GetParticleSystemIndex( $"outside_survival_radius_CP_1x5" ), GetParticleSystemIndex( $"outside_survival_radius_CP_1x100" ) ]
 		}
 
 }
@@ -494,7 +512,7 @@ void function GenerateDeathFieldStageData()
 	}
 }
 
-float function GetRingTuningOverrideVar ( string varName, float defaultValue )
+float function GetRingTuningOverrideVar( string varName, float defaultValue )
 {
 
 	if ( GetCurrentPlaylistVarBool ("deathfield_allows_override", true ) )
@@ -581,7 +599,7 @@ void function InitDeathFieldDataAndStageData()
 
 float function SURVIVAL_Deathfield_GetStartRadius()
 {
-	float startRadius = GetRingTuningOverrideVar ( "survival_death_field_start_radius", 65000 )
+	float startRadius = GetRingTuningOverrideVar( "survival_death_field_start_radius", 65000 )
 
 	if ( file.deathFieldStartStage > 0 )
 	{
@@ -3479,6 +3497,47 @@ bool function Deathfield_GetDoesDeathfieldStartEnabled()
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 void function SURVIVAL_AddCallback_OnDeathFieldStartShrink( void functionref( DeathFieldStageData ) callbackFunc )
 {
 	Assert( !file.ClientCallbacks_OnDeathFieldStartShrink.contains( callbackFunc ), "Already added " + string( callbackFunc ) + " with SURVIVAL_AddCallback_OnDeathFieldStartShrink" )
@@ -3573,7 +3632,7 @@ void function SurveyZoneCleanupOnDestroy( entity surveyZoneEnt )
 	file.surveyMinimapEnts.fastremovebyvalue( surveyZoneEnt )
 }
 
-int function Cl_Deathfield_GetFXIDForRadius( float radius )
+int function Cl_Deathfield_GetIndex( float radius )
 {
 	int idealIdx
 	if ( radius <= 3000 )
@@ -3589,7 +3648,19 @@ int function Cl_Deathfield_GetFXIDForRadius( float radius )
 		idealIdx = 0
 	}
 
+	return idealIdx
+}
+
+int function Cl_Deathfield_GetFXIDForRadius( float radius )
+{
+	int idealIdx = Cl_Deathfield_GetIndex( radius )
 	return file.deathFieldFxIdx[ idealIdx ]
+}
+
+int function Cl_Deathfield_GetFXIDForOuterRadius( float radius )
+{
+	int idealIdx = Cl_Deathfield_GetIndex( radius )
+	return file.deathFieldFxOuterIdx[ idealIdx ]
 }
 
 void function Cl_DeathFieldThink( entity deathField )
@@ -3603,6 +3674,11 @@ void function Cl_DeathFieldThink( entity deathField )
 	table<string, int> e
 	e["fx"] <- ringFX
 
+	int effectIDOuter = Cl_Deathfield_GetFXIDForOuterRadius( 64000.0 )
+	int ringFXOuter   = StartParticleEffectOnEntity( deathField, effectIDOuter, FX_PATTACH_ABSORIGIN, ATTACHMENTID_INVALID )
+
+	e["fxOuter"] <- ringFXOuter
+
 	entity deathfieldSoundEnt = CreateClientsideScriptMover( $"mdl/dev/empty_model.rmdl", deathField.GetOrigin(), <0, 0, 0> )
 
 	OnThreadEnd(
@@ -3610,6 +3686,7 @@ void function Cl_DeathFieldThink( entity deathField )
 		{
 			deathfieldSoundEnt.Destroy()
 			EffectStop( e["fx"], true, true )
+			EffectStop( e["fxOuter"], true, true )
 		}
 	)
 
@@ -3689,8 +3766,12 @@ void function Cl_DeathFieldThink( entity deathField )
 		{
 			effectID = idealFx
 			EffectStop( e["fx"], true, true )
+			EffectStop( e["fxOuter"], true, true )
 			ringFX = StartParticleEffectOnEntity( deathField, effectID, FX_PATTACH_ABSORIGIN, ATTACHMENTID_INVALID )
 			e["fx"] = ringFX
+			effectIDOuter = Cl_Deathfield_GetFXIDForOuterRadius( radius )
+			ringFXOuter   = StartParticleEffectOnEntity( deathField, effectIDOuter, FX_PATTACH_ABSORIGIN, ATTACHMENTID_INVALID )
+			e["fxOuter"] = ringFXOuter
 		}
 
 		entity player        = GetLocalViewPlayer()
@@ -3731,12 +3812,17 @@ void function Cl_DeathFieldThink( entity deathField )
 		if ( deathField.GetVelocity() == <0,0,0> || prevDeathFieldOrigin != deathField.GetOrigin() )
 		{
 			EffectSetControlPointVector( e["fx"], 0, deathField.GetOrigin() )
-			EffectSetControlPointVector( e["fx"], 1, <radius / radiusScale, 0, 0> )
+			EffectSetControlPointVector( e["fx"], 1, <radius / radiusScale, radius, 0> )
+			EffectSetControlPointVector( e["fxOuter"], 0, deathField.GetOrigin() )
+			EffectSetControlPointVector( e["fxOuter"], 1, <radius / radiusScale, radius, 0> )
 		}
 		prevDeathFieldOrigin = deathField.GetOrigin()
 
 		if ( file.ringOpacityOverrideEnabled )
+		{
 			EffectSetControlPointVector( e["fx"], 2, < file.ringOpacityOverrideValue, 0, 0 > )
+			EffectSetControlPointVector( e["fxOuter"], 2, < file.ringOpacityOverrideValue, 0, 0 > )
+		}
 
 		WaitFrame()
 	}
@@ -3775,10 +3861,20 @@ void function ServerCallback_SurveyBeaconNotifications( entity beacon, int notif
 			
 			entity localViewPlayer = GetLocalViewPlayer()
 			if ( IsValid( localViewPlayer ) && PlayerHasPassive( localViewPlayer, ePassives.PAS_PATHFINDER ) )
-				AddPlayerHint( 2.5, 0.25, $"rui/hud/ultimate_icons/ultimate_pathfinder", "#SURVEY_PATHFINDER_SUCCESS" )
+			{
+
+
+
+				{
+					AddPlayerHint( 2.5, 0.25, $"rui/hud/ultimate_icons/ultimate_pathfinder", "#SURVEY_PATHFINDER_SUCCESS" )
+				}
+			}
 
 			clGlobal.levelEnt.Signal( "UpdateSurveyBeaconVisibility" )
-			clGlobal.levelEnt.Signal( "UpdatePerkMinimapReady" )
+			if ( Perks_Enabled() )
+			{
+				clGlobal.levelEnt.Signal( "UpdatePerkMinimapReady" )
+			}
 
 			break
 
@@ -4078,7 +4174,7 @@ bool function Cl_SURVIVAL_PosInSafeZone( vector position )
 
 	DeathFieldStageData data = file.deathFieldStageData[i]
 	float endRadius = data.endRadius
-	vector deathFieldCenter = Cl_SURVIVAL_GetDeathFieldCenter()
+	vector deathFieldCenter = Cl_SURVIVAL_GetSafeZoneCenter()
 
 	float distanceFromCenter = Distance2D( position, deathFieldCenter )
 	return distanceFromCenter < endRadius

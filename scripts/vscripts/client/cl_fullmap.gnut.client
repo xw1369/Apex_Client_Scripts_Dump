@@ -6,6 +6,11 @@ global function SURVIVAL_AddMinimapLevelLabel
 global function Survival_ShouldChangeTeamUI
 global function Survival_GetTeamName
 global function Survival_GetTeamIcon
+global function Survival_GetScoreboardData
+global function Survival_ScoreboardUpdateHeader
+global function Survival_GetTeamColor
+global function Survival_GetPlayerScores
+global function Survival_SortPlayersByScore
 
 global function FullMap_GetMapNormalizedAimCoordinate
 global function FullMap_GetNormalizeWorldPos
@@ -163,20 +168,40 @@ void function Fullmap_SetupScoreboard()
 	clGlobal.hideScoreboardFunc = HideFullmap
 	
 
-
-	
-	
-	if ( GameModeVariant_IsActive( eGameModeVariants.SURVIVAL_WINTEREXPRESS ) )
+	if ( !Teams_HasCallback_ScoreboardData() )
 	{
 		Teams_AddCallback_ScoreboardData( Survival_GetScoreboardData )
-		Teams_AddCallback_Header( Survival_ScoreboardUpdateHeader )
-		Teams_AddCallback_GetTeamColor( Survival_GetTeamColor )
-		Teams_AddCallback_GetTeamName( Survival_GetTeamName )
-		Teams_AddCallback_GetTeamIcon( Survival_GetTeamIcon )
-		Teams_AddCallback_PlayerScores( Survival_GetPlayerScores )
-		Teams_AddCallback_SortScoreboardPlayers( Survival_SortPlayersByScore )
 	}
 
+	if ( !Teams_HasCallback_Header() )
+	{
+		Teams_AddCallback_Header( Survival_ScoreboardUpdateHeader )
+	}
+
+	if ( !Teams_HasCallback_GetTeamColor() )
+	{
+		Teams_AddCallback_GetTeamColor( Survival_GetTeamColor )
+	}
+
+	if ( !Teams_HasCallback_GetTeamName() )
+	{
+		Teams_AddCallback_GetTeamName( Survival_GetTeamName )
+	}
+
+	if ( !Teams_HasCallback_GetTeamIcon() )
+	{
+		Teams_AddCallback_GetTeamIcon( Survival_GetTeamIcon )
+	}
+
+	if ( !Teams_HasCallback_PlayerScores() )
+	{
+		Teams_AddCallback_PlayerScores( Survival_GetPlayerScores )
+	}
+
+	if ( !Teams_HasCallback_SortScoreboardPlayers() )
+	{
+		Teams_AddCallback_SortScoreboardPlayers( Survival_SortPlayersByScore )
+	}
 }
 
 
@@ -308,8 +333,8 @@ void function Survival_ScoreboardUpdateHeader( var headerRui, var frameRui, int 
 bool function Survival_ShouldChangeTeamUI()
 {
 
-	 if ( GameModeVariant_IsActive( eGameModeVariants.SURVIVAL_SHADOW_ARMY ) )
-	 	return true
+
+
 
 
 	if( GameModeVariant_IsActive( eGameModeVariants.SURVIVAL_WINTEREXPRESS ) )
@@ -325,17 +350,17 @@ bool function Survival_ShouldChangeTeamUI()
 	 if( AllianceProximity_IsUsingAlliances() )
 	 {
 
-			 if ( IsRevTakeover() )
-			 {
-				 if( team != SHADOWARMY_REVENANT_ALLIANCE )
-				 {
-					 return SrgbToLinear( GetKeyColor( COLORID_ALLIANCE_0 ) / 255.0 )
-				 }
-				 else
-				 {
-					 return SrgbToLinear( GetKeyColor( COLORID_ALLIANCE_1 ) / 255.0 )
-				 }
-			 }
+
+
+
+
+
+
+
+
+
+
+
 
 
 		 return SrgbToLinear( GetSkydiveSmokeColorForTeam( team + TEAM_IMC ) / 255.0 )
@@ -363,18 +388,22 @@ string function Survival_GetTeamName( int team )
 {
 	string teamName = ""
 
-		if ( IsRevTakeover() )
-		{
-			if( team == SHADOWARMY_REVENANT_ALLIANCE )
-				teamName = "#SHADOW_ARMY_TEAM_REV"
-			else
-				teamName = "#SHADOW_ARMY_TEAM_LEGENDS"
-		}
-		else
+
+
+
+
+
+
+
+
 
 		{
 			Assert( team > TEAM_INVALID ) 
-			teamName = ( AllianceProximity_IsUsingAlliances() ) ? Localize( "#TEAM_NUMBERED", AllianceProximity_GetAllianceFromTeam( team ) + 1 ) : Localize( "#TEAM_NUMBERED", team - 1 )
+
+			if( UseThematicTeamNames() )
+				teamName = Localize( GetThematicTeamName( AllianceProximity_IsUsingAlliances() ? AllianceProximity_GetAllianceFromTeam( team ) : team ) )
+			else
+				teamName = ( AllianceProximity_IsUsingAlliances() ) ? Localize( "#TEAM_NUMBERED", AllianceProximity_GetAllianceFromTeam( team ) + 1 ) : Localize( "#TEAM_NUMBERED", team - 1 )
 
 			return teamName
 		}
@@ -389,13 +418,13 @@ asset function Survival_GetTeamIcon( int team )
 	asset teamIcon = $""
 
 
-		if ( IsRevTakeover() )
-		{
-			if( team == SHADOWARMY_REVENANT_ALLIANCE )
-				teamIcon = $"rui/menu/buttons/battlepass/character_skin_revenant"
-			else
-				teamIcon = $"rui/menu/buttons/battlepass/character_skin_loba"
-		}
+
+
+
+
+
+
+
 
 
 	return teamIcon
@@ -668,10 +697,10 @@ var function FullMap_AddEnemyLocation( entity enemy, asset enemyIconOverride = $
 	
 	RuiSetFloat3( rui, "objColor", GetKeyColor( COLORID_MINIMAP_ENEMY_REF ) * ( 1.0 / 255.0 ) )
 
-		if ( IsRevTakeover() )
-		{
-			RuiSetFloat3( rui, "objColor", Teams_GetTeamColor( enemy.GetTeam() ) )
-		}
+
+
+
+
 
 
 	Fullmap_AddRui( rui )
@@ -754,11 +783,11 @@ void function Fullmap_PlayCryptoPulseSequence_Thread( vector pulseOrigin, bool t
 	var pulseRui = FullMap_AddCryptoRingPulse( pulseOrigin )
 	var minimapPulseRui = Minimap_AddCryptoPulseToMinimap( pulseOrigin )
 
-
-
-
-
-
+	if( rangeOverride > 0 )
+	{
+		RuiSetFloat( pulseRui, "staticPulseSize", rangeOverride / 2500 )
+		RuiSetFloat( minimapPulseRui, "staticPulseSize", rangeOverride / 2500 )
+	}
 
 
 	RuiSetGameTime( pulseRui, "pulseSequenceEndTime", Time() + ( tintDuration - 1 ) )
@@ -1386,10 +1415,10 @@ void function ShowFullmap()
 	UpdateFullmapRuiTracks()
 
 
-
-
-
-
+	if ( !IsSpectating() && IsPlayerInPlane( GetLocalViewPlayer() ) )
+	{
+		Remote_ServerCallFunction( "ClientCallback_StatsHook_OnPlayerViewFullMapFromPlane" )
+	}
 
 
 	thread UpdateMap_THREAD()

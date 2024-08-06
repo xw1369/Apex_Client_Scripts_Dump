@@ -102,8 +102,6 @@ struct
 
 
 
-
-
 } file
 
 void function BleedoutShared_Init()
@@ -533,7 +531,7 @@ float function Bleedout_GetBaseFirstAidTime( entity player )
 	
 	
 	
-	if ( GibraltarIsInDome( player ) && GetCurrentPlaylistVarInt( "gibraltar_fast_revive", 1 ) == 1 )
+	if ( BubbleBunker_ShouldGibraltarGiveFastRevive( player ) )
 		return GIB_DOME_REVIVE_TIME
 
 	return file.bleedoutTypes[ type ].firstAidTime
@@ -558,6 +556,13 @@ float function Bleedout_GetFirstAidTimeSelf( entity player )
 
 
 
+
+
+
+		if( Freespawns_SelfRevive_CanDo( player ) )
+		{
+			return DEFAULT_FIRSTAID_TIME
+		}
 
 
 	int type = player.GetPlayerNetInt( "bleedoutType" )
@@ -624,6 +629,11 @@ bool function Bleedout_GetSelfResEnabled( entity player )
 
 
 
+
+		if( Freespawns_SelfRevive_CanDo( player ) )
+			return true
+
+
 	
 	if ( PlayerHasPassive( player, ePassives.PAS_SELF_REVIVE ) )
 	{
@@ -631,10 +641,17 @@ bool function Bleedout_GetSelfResEnabled( entity player )
 			return true
 
 
+
+
+
+
+
 			if ( Bleedout_CanSelfResFromUpgrade( player ) && GameMode_IsActive( eGameModes.SURVIVAL ) && player.p.numSelfRevivesUsed == 0 )
 
 		return true
 	}
+
+
 
 	int type = player.GetPlayerNetInt( "bleedoutType" )
 	return file.bleedoutTypes[ type ].enableSelfRes
@@ -997,5 +1014,12 @@ void function Bleedout_ServerCallback_DisplaySelfResDelayHintForPlayer( float de
 
 bool function Bleedout_GetCanForceBleedoutTimeout()
 {
-	return GetCurrentPlaylistVarBool( "bleedout_can_force_bleedout_timeout", false )
+	bool canForceBleedout = GetCurrentPlaylistVarBool( "bleedout_can_force_bleedout_timeout", false )
+
+
+		bool freespawnsManualBleedoutCanDo = Freespawns_ManualBleedout_CanDo()
+		canForceBleedout = canForceBleedout || freespawnsManualBleedoutCanDo
+
+
+	return ( canForceBleedout )
 }

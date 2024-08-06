@@ -191,8 +191,11 @@ void function BLEEDOUT_RevivePlayerHealerChanged( entity playerToRes, entity pla
 		}
 
 		thread Bleedout_DisplayFirstAidProgressBar( viewPlayer, endTime, endTime - Time(), ruiString, hasGuardianAngel )
+	}
 
-		file.oldPlayerToRes = playerToRes
+	if ( playerHealer.IsPlayer() )
+	{
+		file.oldPlayerToRes  = playerToRes
 		file.oldPlayerHealer = playerHealer
 	}
 }
@@ -334,21 +337,21 @@ void function ShowWoundedMarker( entity woundedPlayer, float endTime )
 		thread TrackSelfReviveState( woundedPlayer, shieldRUI )
 
 
+			if( FreeRespawns_Feature_Exists() && Freespawns_SkipBleedout_CanDo( woundedPlayer ) )
+			{
+				thread Freespawns_CL_SkipBleedout_Prompts_Thread( woundedPlayer, shieldRUI )
+			}
+			else
+			{
+
+					
+					thread TrackForceBleedoutState( woundedPlayer, shieldRUI )
+
+			}
 
 
 
 
-
-
-
-
-
-
-
-
-
-				
-				thread TrackForceBleedoutState( woundedPlayer, shieldRUI )
 
 
 
@@ -445,6 +448,11 @@ bool function CanSelfRevive( entity player )
 			return true
 
 
+
+
+
+
+
 		if ( Bleedout_CanSelfResFromUpgrade( player ) && GameMode_IsActive( eGameModes.SURVIVAL ) && player.p.numSelfRevivesUsed == 0 )
 
 		return true
@@ -456,6 +464,11 @@ bool function CanSelfRevive( entity player )
 
 
 
+
+
+
+		if( Freespawns_SelfRevive_CanDo( player ) )
+			return true
 
 
 	return false

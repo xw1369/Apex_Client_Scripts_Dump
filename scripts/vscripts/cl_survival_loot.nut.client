@@ -40,6 +40,11 @@ global function RegisterCustomItemPromptUpdate
 
 global function ShouldOpenQuickswap
 
+
+global function GetWeaponLootIcon_ItemLootHint
+global function GetWeaponLootIcon_WeaponLootHint
+
+
 #if DEV
 global function DEV_ToggleLootRefs
 #endif
@@ -93,9 +98,7 @@ struct {
 	float nextHealthAllowTime = 0
 	bool showTeammateUsefulIcon = false
 
-#if LOOT_GROUND_VERTICAL_LINES
-		array<VerticalLineStruct> verticalLines
-#endif
+	array<VerticalLineStruct> verticalLines
 
 	table< entity, int > equipmentFX
 
@@ -146,19 +149,17 @@ void function Cl_Survival_LootInit()
 
 	AddOnSpectatorTargetChangedCallback( OnSpectatorTargetChanged )
 
-#if LOOT_GROUND_VERTICAL_LINES
-		for ( int i = 0; i < VERTICAL_LINE_COUNT; i++ )
-		{
-			var topo = RuiTopology_CreatePlane( <0, 0, 0>, <VERTICAL_LINE_WIDTH, 0, 0>, <0, 0, VERTICAL_LINE_HEIGHT>, true )
-			var rui  = RuiCreate( $"ui/loot_pickup_line.rpak", topo, RUI_DRAW_WORLD, 0 )
-			VerticalLineStruct v
-			v.topo = topo
-			v.rui = rui
-			file.verticalLines.append( v )
+	for ( int i = 0; i < VERTICAL_LINE_COUNT; i++ )
+	{
+		var topo = RuiTopology_CreatePlane( <0, 0, 0>, <VERTICAL_LINE_WIDTH, 0, 0>, <0, 0, VERTICAL_LINE_HEIGHT>, true )
+		var rui  = RuiCreate( $"ui/loot_pickup_line.rpak", topo, RUI_DRAW_WORLD, 0 )
+		VerticalLineStruct v
+		v.topo = topo
+		v.rui = rui
+		file.verticalLines.append( v )
 
-			HideVerticalLineStruct( v )
-		}
-#endif
+		HideVerticalLineStruct( v )
+	}
 
 #if HAS_ITEM_PICKUP_FEEDACK_FX
 		PrecacheParticleSystem( PICKUP_FEEDBACK_FX )
@@ -209,10 +210,7 @@ var[eLootPromptStyle._COUNT] function _newPromptStyles()
 void function SurvivalLoot_EntitiesDidLoad()
 {
 	thread ManageDeathBoxLootThread()
-
-#if LOOT_GROUND_VERTICAL_LINES
-		thread ManageVerticalLines()
-#endif
+	thread ManageVerticalLines()
 }
 
 
@@ -421,6 +419,10 @@ void function AttemptCancelHeal( entity player )
 
 
 
+
+
+
+		Perk_QuickPackup_Cancel( player )
 
 
 
@@ -985,6 +987,10 @@ void function UpdateUseHintForEntity( entity ent, var rui = null )
 
 	LootData data                 = SURVIVAL_Loot_GetLootDataByIndex( ent.GetSurvivalInt() )
 
+
+	data.hudIcon = GetWeaponLootIcon_WeaponLootHint( player, data )
+
+
 	RuiSetBool( rui, "isTooltip", false )
 	RuiSetBool( rui, "isPinged", isPinged )
 	RuiSetBool( rui, "isFocusedOnOtherWaypoint", isFocusedOnOtherWaypoint )
@@ -1180,6 +1186,8 @@ void function UpdateLootRuiWithData( entity player, var rui, LootData data, int 
 	RuiSetInt( rui, "extraPropertyValue", -1 )
 	RuiSetInt( rui, "replaceExtraPropertyValue", -1 )
 	RuiSetString( rui, "replaceSlot", Localize("#REPLACE" ) )
+	RuiSetBool( rui, "useAltSubTextColor", false )
+	RuiSetString( rui, "extraBottomText", "" )
 
 	if ( lootRef.lootData.lootType == eLootType.ARMOR )
 	{
@@ -1367,9 +1375,14 @@ void function UpdateLootRuiWithData( entity player, var rui, LootData data, int 
 
 			if ( lootRef.lootData.baseWeapon == energizedConsumableData )
 			{
+				asset weaponIcon = weaponData.hudIcon
+
+					weaponIcon = GetWeaponLootIcon_ItemLootHint( player, weaponData, weapon )
+
+
 				RuiSetString( rui, "replaceSlot", Localize( weaponNameString ) )
 				RuiSetString( rui, "replaceName", Localize( consumableHint ) )
-				RuiSetImage( rui, "attachWeapon1Icon", weaponData.hudIcon )
+				RuiSetImage( rui, "attachWeapon1Icon", weaponIcon )
 				RuiSetImage( rui, "replaceImage", ordanenceData.hudIcon )
 				RuiSetBool( rui, "hasReplace", true )
 				RuiSetBool( rui, "hasAttach1", true )
@@ -1506,7 +1519,13 @@ void function UpdateLootRuiWithData( entity player, var rui, LootData data, int 
 			if ( SURVIVAL_Loot_IsRefValid( weapon.GetWeaponClassName() ) )
 			{
 				LootData weaponData = SURVIVAL_Loot_GetLootDataByRef( weapon.GetWeaponClassName() )
-				RuiSetImage( rui, "attachWeapon1Icon", weaponData.hudIcon )
+				asset weaponIcon = weaponData.hudIcon
+
+					weaponIcon = GetWeaponLootIcon_ItemLootHint( player, weaponData, weapon )
+					if ( detailType == GetAttachmentPointName( "sight" ) && CanWeaponAkimbo( weaponData.baseWeapon ) )
+						RuiSetString( rui, "extraBottomText", "#AKIMBO_NO_OPTIC" )
+
+				RuiSetImage( rui, "attachWeapon1Icon", weaponIcon )
 				RuiSetBool( rui, "hasAttach1", true )
 				RuiSetBool( rui, "hasReplace", true )
 			}
@@ -1612,9 +1631,11 @@ void function UpdateLootRuiWithData( entity player, var rui, LootData data, int 
 		{
 			LootData slingData = SURVIVAL_Loot_GetLootDataByRef( slingRef )
 			weaponNames.append( slingData.baseWeapon )
+			weapons.append( GetPlayerSlingWeapon( player ) )
 		}
 
-		foreach ( weaponRef in weaponNames )
+		bool ammoCompatibilityFound = false
+		foreach ( int i, weaponRef in weaponNames )
 		{
 			if ( SURVIVAL_Loot_IsRefValid( weaponRef ) && IsWeaponKeyFieldDefined( weaponRef, "ammo_pool_type" ) )
 			{
@@ -1627,18 +1648,44 @@ void function UpdateLootRuiWithData( entity player, var rui, LootData data, int 
 				if ( ammoType == data.ref || secondaryAmmoType == data.ref )
 				{
 					LootData weaponData = SURVIVAL_Loot_GetLootDataByRef( weaponRef )
+					asset weaponIcon = weaponData.hudIcon
+
+						weaponIcon = GetWeaponLootIcon_ItemLootHint( player, weaponData, weapons[i] )
+
+
 
 					if ( GameModeVariant_IsActive( eGameModeVariants.SURVIVAL_FIRING_RANGE ) && GetCurrentPlaylistVarBool( "has_infinite_clips", false ) )
 						RuiSetImage( rui, "attachWeapon1Icon",  $"" )
 					else
-						RuiSetImage( rui, "attachWeapon1Icon", weaponData.hudIcon )
+						RuiSetImage( rui, "attachWeapon1Icon", weaponIcon )
 
 
 
 
 					RuiSetBool( rui, "hasAttach1", true )
+
+					LootData ammoData = SURVIVAL_Loot_GetLootDataByRef( data.ref )
+					string weaponNameString = GetWeaponInfoFileKeyField_GlobalString( weaponRef, "printname" )
+
+					RuiSetString( rui, "replaceSlot", Localize( weaponNameString ) )
+					RuiSetString( rui, "replaceName", Localize( "#COMPATIBLE_AMMO_TYPE" ) )
+					RuiSetImage( rui, "attachWeapon1Icon", weaponIcon )
+					RuiSetImage( rui, "replaceImage", ammoData.hudIcon )
+					RuiSetBool( rui, "hasReplace", true )
+					ammoCompatibilityFound = true
+
 					break
 				}
+			}
+		}
+
+		if ( !ammoCompatibilityFound )
+		{
+			if ( !GameModeVariant_IsActive( eGameModeVariants.SURVIVAL_FIRING_RANGE ) && !GetCurrentPlaylistVarBool( "has_infinite_clips", false ) )
+			{
+				RuiSetString( rui, "subText", Localize( "#NON_COMPATIBLE_AMMO_TYPE" ) )
+				RuiSetBool( rui, "useAltSubTextColor", true )
+				RuiSetFloat3( rui, "altSubTextColor", SrgbToLinear( < 255, 127, 127 > / 255.0 ) )
 			}
 		}
 	}
@@ -1844,7 +1891,6 @@ void function ManageDeathBoxLoot()
 	}
 }
 
-#if LOOT_GROUND_VERTICAL_LINES
 void function ManageVerticalLines()
 {
 	while ( true )
@@ -2013,7 +2059,6 @@ void function HideVerticalLineStruct( VerticalLineStruct lineStruct )
 	RuiSetBool( lineStruct.rui, "isVisible", false )
 	RuiSetVisible( lineStruct.rui, false )
 }
-#endif
 
 bool function TryOpenQuickSwap( entity overrideItem = null )
 {
@@ -2385,10 +2430,21 @@ void function SetupSurvivalLoot( var categories )
 	string cats              = expect string( categories )
 	array<string> stringCats = split( cats, WHITESPACE_CHARACTERS )
 
+	Assert( !( stringCats.contains( "main_weapon" ) && stringCats.contains( "main_weapon_event" ) ) )
+	bool wantEventWeapons = false
+
 	
 	array<int> catTypes
 	foreach ( string cat in stringCats )
+	{
+		if ( cat == "main_weapon_event" )
+		{
+			wantEventWeapons = true
+			cat = "main_weapon"
+		}
+
 		catTypes.append( SURVIVAL_Loot_GetLootTypeFromString( cat ) )
+	}
 
 	
 	if ( catTypes.contains( eLootType.ATTACHMENT ) )
@@ -2434,6 +2490,11 @@ void function SetupSurvivalLoot( var categories )
 			continue
 
 		string displayString = CreateLootDevDisplayString( data )
+		if ( data.lootType == eLootType.MAINWEAPON && data.lootTags.contains( "event_weapon" ) != wantEventWeapons )
+		{
+			continue
+		}
+
 		RunUIScript( "SetupDevCommand", displayString, "script SpawnGenericLoot( \"" + data.ref + "\", gp()[0].GetOrigin(), <-1,-1,-1>, " + data.countPerDrop + " )" )
 	}
 }
@@ -2460,8 +2521,8 @@ string function CreateLootDevDisplayString( LootData data )
 	if ( data.baseMods.contains( WEAPON_LOCKEDSET_MOD_PAINTBALL ) )
 		displayString = "[GOLD PAINTBALL]/ GOLD " + displayString
 
-
-
+	if ( data.baseMods.contains( WEAPON_LOCKEDSET_MOD_AKIMBO ) )
+		displayString = "[AKIMBO]/ AKIMBO " + displayString
 
 	return displayString
 }
@@ -2787,6 +2848,89 @@ void function ApplyEquipmentColorAndFXOverrides( entity prop )
 		}
 	}
 }
+
+
+asset function GetWeaponLootIcon_WeaponLootHint( entity player, LootData weaponData ) 
+{
+	asset icon = weaponData.hudIcon
+
+	
+	if ( weaponData.lootType != eLootType.MAINWEAPON || !CanWeaponAkimbo( weaponData.baseWeapon ) )
+		return icon
+
+	bool showAkimboActiveIcon = false
+
+	if ( SURVIVAL_Weapon_IsAttachmentLocked( weaponData.ref ) )
+	{
+		if ( weaponData.baseMods.contains( WEAPON_LOCKEDSET_MOD_AKIMBO ) ) 
+		{
+			showAkimboActiveIcon = true
+		}
+		else 
+		{
+			return GetWeaponInfoFileKeyFieldAsset_Global( weaponData.baseWeapon, "hud_icon" )
+		}
+	}
+	else
+	{
+		array<entity> weapons = SURVIVAL_GetPrimaryWeapons( player )
+		foreach ( weapon in weapons )
+		{
+			if ( weapon.GetWeaponClassName() == weaponData.baseWeapon && !SURVIVAL_Weapon_IsAttachmentLocked( GetWeaponClassNameWithLockedSet( weapon ) ) && !weapon.IsAkimboAvailable() ) 
+			{
+				showAkimboActiveIcon = true
+				break
+			}
+		}
+	}
+
+	string weaponInfoField = showAkimboActiveIcon ? "hud_icon_akimbo_active" : "hud_icon_akimbo_empty"
+	if ( IsWeaponKeyFieldDefined( weaponData.baseWeapon, weaponInfoField ) )
+	{
+		icon = GetWeaponInfoFileKeyFieldAsset_Global( weaponData.baseWeapon, weaponInfoField )
+	}
+
+	return icon
+}
+
+asset function GetWeaponLootIcon_ItemLootHint( entity player, LootData weaponData, entity weaponEntity ) 
+{
+	asset icon = weaponData.hudIcon
+	if ( weaponData.lootType != eLootType.MAINWEAPON || !CanWeaponAkimbo( weaponData.baseWeapon ) )
+		return icon
+
+	bool showAkimboActiveIcon = false
+
+	if ( SURVIVAL_Weapon_IsAttachmentLocked( GetWeaponClassNameWithLockedSet( weaponEntity ) ) ) 
+	{
+		if ( weaponEntity.IsAkimboAvailable() ) 
+		{
+			showAkimboActiveIcon = true
+		}
+		else 
+		{
+			return GetWeaponInfoFileKeyFieldAsset_Global( weaponData.baseWeapon, "hud_icon" )
+		}
+	}
+	else if ( weaponEntity.IsAkimboAvailable() )
+	{
+		showAkimboActiveIcon = true
+	}
+
+	string weaponInfoField = showAkimboActiveIcon ? "hud_icon_akimbo_active" : "hud_icon_akimbo_empty"
+	if ( IsWeaponKeyFieldDefined( weaponData.baseWeapon, weaponInfoField ) )
+	{
+		icon = GetWeaponInfoFileKeyFieldAsset_Global( weaponData.baseWeapon, weaponInfoField )
+	}
+
+	return icon
+}
+
+bool function CanWeaponAkimbo( string baseWeapon )
+{
+	return IsWeaponKeyFieldDefined( baseWeapon, "is_akimbo_weapon" ) && GetWeaponInfoFileKeyField_GlobalBool( baseWeapon, "is_akimbo_weapon" )
+}
+
 
 #if DEV
 void function DEV_ToggleLootRefs()

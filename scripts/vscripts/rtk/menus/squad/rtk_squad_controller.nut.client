@@ -524,7 +524,7 @@ void function UICallback_RTKPopulateSquadGladCards( string path )
 			switch ( reportStyle )
 			{
 				case 1: 
-					canReport = CrossplayUserOptIn() ? true : data.hardware == GetLocalClientPlayer().GetUnspoofedHardware()
+					canReport = CrossplayUserOptIn() ? true : data.hardware == GetLocalClientPlayer().GetHardwareName()
 				break
 
 				case 2: 

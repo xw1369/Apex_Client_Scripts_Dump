@@ -1,6 +1,7 @@
 
 
 
+
 global function Sh_Kepler_Init
 global function Kepler_IsPlayerInVariant
 global function Kepler_IsPlayerEligibleForItemFlavor
@@ -29,7 +30,6 @@ global function Kepler_GetScenarioFromKey
 global enum eKeplerScenario
 {
 	APEX_TAB_ORDERING,
-	WELCOME_CHALLENGE_20_1,
 	KEYART_WEAPONS,
 	KEYART_LEGEND_LAUNCH,
 	BATTLEPASS_DAILIES_CHALLENGE_21_0,
@@ -41,7 +41,6 @@ global enum eKeplerScenario
 
 table<int, string> keplerActiveScenarios = {
 	[eKeplerScenario.APEX_TAB_ORDERING] = "apex-tab-ordering",
-	[eKeplerScenario.WELCOME_CHALLENGE_20_1] = "20-1-welcome-challenge-01",
 	[eKeplerScenario.KEYART_WEAPONS] = "keyart_weapons",
 	[eKeplerScenario.KEYART_LEGEND_LAUNCH] = "keyart_legendlaunch",
 	[eKeplerScenario.BATTLEPASS_DAILIES_CHALLENGE_21_0] = "21-0-battle-pass-dailies",
@@ -148,6 +147,13 @@ bool function Kepler_IsPlayerEligibleForItemFlavor( entity player, ItemFlavor it
 
 	bool isReferencedByAnyScenario = false
 
+	asset itemAsset = GetSettingsAssetForUniqueId( itemFlavor.guid )
+	if( itemAsset == $"" )
+	{
+		Warning( "Checking Kepler eligibility of unknown item flavor" )
+		return true
+	}
+
 	foreach ( int scenario, string scenarioKey in keplerActiveScenarios )
 	{
 		if ( !( scenarioKey in file.loadedScenarios ) )
@@ -161,7 +167,7 @@ bool function Kepler_IsPlayerEligibleForItemFlavor( entity player, ItemFlavor it
 		{
 			foreach ( asset controlledAsset in variant.controlledAssets )
 			{
-				if ( GetUniqueIdForSettingsAsset( controlledAsset ) == itemFlavor.guid )
+				if ( controlledAsset == itemAsset )
 				{
 					isReferencedByAnyScenario = true
 					if ( Kepler_IsPlayerInVariant( player, scenario, variant.variantName ) )

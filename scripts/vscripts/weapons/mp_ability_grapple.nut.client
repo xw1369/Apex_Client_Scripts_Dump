@@ -17,7 +17,6 @@ global function GrappleWeaponInit
 
 
 
-
 struct
 {
 	int grappleExplodeImpactTable
@@ -27,7 +26,7 @@ struct
 	int grappleDrainBaseCost = 100
 	float grappleDrainMinDist = 300
 	float grappleDrainMaxDist = 2800
-	float grappleDrainMaxDist_Zscalar = 0.5
+	float grappleDrainMaxDist_Zscalar = 0.0
 } file
 
 const int GRAPPLEFLAG_CHARGED	= (1<<0)
@@ -42,7 +41,7 @@ void function GrappleWeaponInit()
 	file.grappleDrainBaseCost = GetCurrentPlaylistVarInt( "pathfinder_grapple_drain_base_cost", 100 )
 	file.grappleDrainMinDist = GetCurrentPlaylistVarFloat( "pathfinder_grapple_drain_min_dist", 300 )
 	file.grappleDrainMaxDist = GetCurrentPlaylistVarFloat( "pathfinder_grapple_drain_max_dist", 4500 )
-	file.grappleDrainMaxDist_Zscalar = GetCurrentPlaylistVarFloat( "pathfinder_grapple_drain_z_scalar", 0.5 )
+	file.grappleDrainMaxDist_Zscalar = GetCurrentPlaylistVarFloat( "pathfinder_grapple_drain_z_scalar", 0.0 )
 
 
 
@@ -123,17 +122,6 @@ var function OnWeaponPrimaryAttack_ability_grapple( entity weapon, WeaponPrimary
 	}
 	return 0
 }
-
-
-
-
-
-
-
-
-
-
-
 
 bool function OnWeaponAttemptOffhandSwitch_ability_grapple( entity weapon )
 {
@@ -225,7 +213,7 @@ void function CodeCallback_OnGrappleAttach( entity player, entity hitent, vector
 		if ( !grappleWeapon.GetWeaponSettingBool( eWeaponVar.grapple_weapon ) )
 			return
 
-		if ( GetCurrentPlaylistVarBool( "pathfinder_grapple_scaled_ammo_drain", true ) )
+		if ( grappleWeapon.GetWeaponSettingBool( eWeaponVar.grapple_scaled_ammo_drain ) )
 		{
 			thread GrappleDecreaseAmmo( player, grappleWeapon )
 		}
@@ -247,23 +235,30 @@ void function CodeCallback_OnGrappleAttach( entity player, entity hitent, vector
 	}
 }
 
+struct GrappleDistanceInfo
+{
+	vector startPos
+	vector lastPos
+	float  distanceTraveled
+	float  distanceTraveled_z
+}
+
 void function GrappleDecreaseAmmo( entity player, entity grappleWeapon )
 {
 
 		if ( !InPrediction() )
 			return
 
+
 	player.EndSignal( "OnDeath" )
 	grappleWeapon.EndSignal( "OnDestroy" )
 
-	vector startPos = player.GetOrigin()
+	GrappleDistanceInfo info
 
-	table<string , float> d
-	table<string , vector> e
-	e[ "startPos" ] <- startPos
-	e[ "lastPos" ] <- startPos
-	d[ "distanceTraveled" ] <- 0.0
-	d[ "distanceTraveled_z" ] <- 0.0
+	info.startPos = player.GetOrigin()
+	info.lastPos = info.startPos
+	info.distanceTraveled = 0.0
+	info.distanceTraveled_z = 0.0
 
 	float startTime = Time()
 	float fireDuration = grappleWeapon.GetWeaponSettingFloat( eWeaponVar.fire_duration )
@@ -274,39 +269,50 @@ void function GrappleDecreaseAmmo( entity player, entity grappleWeapon )
 	{
 		int amountToReduce = file.grappleDrainBaseCost
 
-		int newAmmo = maxint( 0, grappleWeapon.GetWeaponPrimaryClipCount() - amountToReduce )
 		grappleWeapon.SetWeaponPrimaryClipCount( 0 )
 		grappleWeapon.AddMod( "grapple_regen_stop" )
 		grappleWeapon.RegenerateAmmoReset()
 	}
 
 	OnThreadEnd(
-		function() : ( player, e, d, startAmmo, maxAmmo, grappleWeapon )
+		function() : ( player, info, startAmmo, maxAmmo, grappleWeapon )
 		{
 			if ( IsValid( player ) )
 			{
 				if ( IsValid( grappleWeapon ) )
 				{
-					d[ "distanceTraveled" ] += Distance2D( e[ "lastPos" ], player.GetOrigin() )
-					d[ "distanceTraveled_z" ] = max( d[ "distanceTraveled_z" ], fabs( player.GetOrigin().z - e[ "startPos" ].z ) )
-					float distanceTraveled = max( max( d[ "distanceTraveled" ], Distance( e[ "startPos" ], player.GetOrigin() ) ), d[ "distanceTraveled_z" ] * file.grappleDrainMaxDist_Zscalar )
-					ReduceAmmoBasedOnDistance( grappleWeapon, d[ "distanceTraveled" ], startAmmo, maxAmmo )
+					if ( grappleWeapon.GetWeaponPrimaryClipCount() > 10 )
+					{
+
+							if ( !InPrediction() )
+								return
+
+
+						if ( grappleWeapon.HasMod( "grapple_regen_stop" ) )
+							grappleWeapon.RemoveMod( "grapple_regen_stop" )
+
+						return
+					}
+
+					info.distanceTraveled += Distance2D( info.lastPos, player.GetOrigin() )
+					info.distanceTraveled_z = max( info.distanceTraveled_z, fabs( player.GetOrigin().z - info.startPos.z ) )
+
+					float distanceTraveled = max( info.distanceTraveled, (info.distanceTraveled_z * file.grappleDrainMaxDist_Zscalar) )
+
+					ReduceAmmoBasedOnDistance( grappleWeapon, distanceTraveled, startAmmo, maxAmmo )
 				}
 			}
 		}
 	)
 
+	player.EndSignal( "JumpPad_GiveDoubleJump" )
+
 	bool playerWasOnZipline = player.IsZiplining()
 	while ( player.IsGrappleActive() || Length( player.GetVelocity() ) > 500.0 )
 	{
-		grappleWeapon.SetWeaponPrimaryClipCount( 0 )
-
-		d[ "distanceTraveled" ] += Distance2D( e[ "lastPos" ], player.GetOrigin() )
-		d[ "distanceTraveled_z" ] = max( d[ "distanceTraveled_z" ], fabs( player.GetOrigin().z - e[ "startPos" ].z ) )
-		float distanceTraveled = max( max( d[ "distanceTraveled" ], Distance( e[ "startPos" ], player.GetOrigin() ) ), d[ "distanceTraveled_z" ] * file.grappleDrainMaxDist_Zscalar )
-		e[ "lastPos" ] <- player.GetOrigin()
-
-		player.EndSignal( "JumpPad_GiveDoubleJump" )
+		
+		if ( grappleWeapon.GetWeaponPrimaryClipCount() > 10 )
+			break
 
 		if ( player.IsZiplining() && !playerWasOnZipline )
 			break
@@ -317,6 +323,14 @@ void function GrappleDecreaseAmmo( entity player, entity grappleWeapon )
 		if ((Time() - startTime) > 5)
 			break
 
+		grappleWeapon.SetWeaponPrimaryClipCount( 0 )
+
+		info.distanceTraveled += Distance2D( info.lastPos, player.GetOrigin() )
+		info.distanceTraveled_z = max( info.distanceTraveled_z, fabs( player.GetOrigin().z - info.startPos.z ) )
+
+		info.lastPos = player.GetOrigin()
+
+		
 		wait 0.1
 	}
 }

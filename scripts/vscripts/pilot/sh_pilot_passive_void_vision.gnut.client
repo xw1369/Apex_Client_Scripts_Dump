@@ -399,7 +399,7 @@ void function PhaseHighlight_Thread( entity player )
 					{
 						RuiSetBool( handles.rui, "hideIfPhased", true )
 					}
-					ReconScan_RemoveHudForTarget( player, otherPlayer )
+					ReconScan_RemoveHudForTarget( player, otherPlayer, eShowHealthbarMode.REQUIRE_LOS )
 				}
 				ManageHighlightEntity( otherPlayer )
 			}
@@ -424,7 +424,7 @@ void function PhaseHighlight_Thread( entity player )
 
 				if ( showHealthbars.value )
 				{
-					newHandles.rui = ReconScan_ShowHudForTarget( player, otherPlayer, false )
+					newHandles.rui = ReconScan_ShowHudForTarget( player, otherPlayer, eShowHealthbarMode.REQUIRE_LOS )
 					if ( newHandles.rui != null && RuiIsAlive( newHandles.rui ) )
 					{
 						RuiSetBool( newHandles.rui, "hideIfPhased", false )
@@ -442,14 +442,6 @@ void function PhaseHighlight_Thread( entity player )
 				printf( "VV- PhaseHighlight_Thread highlighting " + otherPlayer )
 #endif
 
-			if ( showHealthbars.value )
-			{
-				var rui = highlightedPlayersToHandles[otherPlayer].rui
-				if ( rui != null && RuiIsAlive( rui ) )
-				{
-					RuiSetBool( rui, "isVisible", true )
-				}
-			}
 			ManageHighlightEntity( otherPlayer )
 
 		}
@@ -466,14 +458,6 @@ void function PhaseHighlight_Thread( entity player )
 					printf("VV- PhaseHighlight_Thread stopping highlight on " + otherPlayer)
 #endif
 
-				if ( showHealthbars.value )
-				{
-					var rui = highlightedPlayersToHandles[otherPlayer].rui
-					if ( rui != null && RuiIsAlive( rui ) )
-					{
-						RuiSetBool( rui, "isVisible", false )
-					}
-				}
 				ManageHighlightEntity( otherPlayer )
 			}
 		}
@@ -518,7 +502,7 @@ void function PhaseHighlight_Thread( entity player )
 						{
 							RuiSetBool( handles.rui, "hideIfPhased", true )
 						}
-						ReconScan_RemoveHudForTarget( player, otherPlayer )
+						ReconScan_RemoveHudForTarget( player, otherPlayer, eShowHealthbarMode.REQUIRE_LOS )
 
 						handles.rui = null
 
@@ -578,7 +562,7 @@ void function VoidVision_GetPlayersToHighlight( entity player, entity exitPortal
 
 		if ( DistanceSqr( visibilityCheckPoint, otherPlayerEyePos ) < maxSqrDist )
 		{
-			results = TraceLine( visibilityCheckPoint, otherPlayerEyePos, [player, otherPlayer], TRACE_MASK_OPAQUE, TRACE_COLLISION_GROUP_NONE )
+			results = TraceLine( visibilityCheckPoint, otherPlayerEyePos, allTargets, TRACE_MASK_OPAQUE, TRACE_COLLISION_GROUP_NONE )
 			if ( results.fraction == 1.0 )
 			{
 				outPlayersToHighlight.append( otherPlayer )

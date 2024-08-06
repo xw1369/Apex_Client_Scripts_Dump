@@ -19,10 +19,6 @@ global function AutoPlayer_PickBestWeapon
 global function AutoPlayer_RespawnIfChoosing
 
 
-
-
-
-
 const int TYPE1_AMMO_MAX_STACK = 5
 const int TYPE2_AMMO_MAX_STACK = 2
 const int GRENADES_MAX_STACK = 1
@@ -44,7 +40,6 @@ struct
 	table< entity, bool >           moveModes
 	table< entity, int >            autoPlayerStates
 	table< entity, array< entity> > visitedLoot
-	int                             latestPingTicketID = -1
 } file
 
 
@@ -1151,36 +1146,6 @@ array<string> function AutoPlayer_GetNeededAmmoTypes( entity player )
 	}
 	return neededAmmoTypes
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 void function AutoPlayer_RespawnIfChoosing( entity player )

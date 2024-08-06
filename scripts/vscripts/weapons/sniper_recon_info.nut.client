@@ -521,38 +521,73 @@ float function GetReconInfoFOV( entity weapon )
 	if ( !IsValid( weapon ) )
 		return 0.0
 
-	if ( (weapon.GetWeaponTypeFlags() & WPT_ULTIMATE) > 0 ||
-					(weapon.GetWeaponTypeFlags() & WPT_VIEWHANDS ) > 0 )
-		return 8.0
 
-	if ( weapon.GetWeaponClassName() == KRABER_WEAPON_NAME )
-		return 4.5
+		if ( (weapon.GetWeaponTypeFlags() & WPT_ULTIMATE) > 0 ||
+						(weapon.GetWeaponTypeFlags() & WPT_VIEWHANDS) > 0 )
+			return 8.13 
 
-	string opticAttachment = GetInstalledWeaponAttachmentForPoint( weapon, "sight" )
+		if ( weapon.GetWeaponClassName() == KRABER_WEAPON_NAME )
+			return 4.125  
 
-	float reconInfoFOV = 0.0
-	switch ( opticAttachment )
-	{
-		case "optic_cq_hcog_bruiser":
-			reconInfoFOV = 6.0
+		string opticAttachment = GetInstalledWeaponAttachmentForPoint( weapon, "sight" )
+
+		float reconInfoFOV = 0.0
+		switch ( opticAttachment )
+		{
+			case "optic_cq_hcog_bruiser":        
+				reconInfoFOV = 11.94 
+				break
+			case "optic_ranged_hcog":            
+				reconInfoFOV = 8.13 
+				break
+			case "optic_ranged_aog_variable":    
+				reconInfoFOV = 11.94 
+				break
+			case "optic_sniper":                
+				reconInfoFOV = 4.12   
+				break
+			case "optic_sniper_variable":        
+			case "optic_sniper_threat":            
+				reconInfoFOV = 6.14   
+				break
+			default:                            
+				reconInfoFOV = 18.52
 			break
-		case "optic_ranged_hcog":
-			reconInfoFOV = 4.0
-			break
-		case "optic_ranged_aog_variable":
-			reconInfoFOV = 7.5
-			break
-		case "optic_sniper":
-			reconInfoFOV = 4.5
-			break
-		case "optic_sniper_variable":
-		case "optic_sniper_threat":
-			reconInfoFOV = 6.0
-			break
-		default:
-			reconInfoFOV = 8.0
-			break
-	}
+		}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 	return reconInfoFOV
 }
@@ -600,9 +635,14 @@ void function CL_SniperRecon_UI_Thread( entity owner )
 			continue
 
 		float reconInfoFOV = GetReconInfoFOV( activeWeapon )
+		
+		
 
 		float outerCornerScale = reconInfoFOV/activeWeapon.GetWeaponSettingFloat(eWeaponVar.zoom_fov)
 		float innerCornerScale = 5.0/ owner.GetFOV()
+
+
+
 
 		float fireRate = activeWeapon.GetWeaponSettingFloat( eWeaponVar.fire_rate )
 		float weaponFireDelay = 1.0

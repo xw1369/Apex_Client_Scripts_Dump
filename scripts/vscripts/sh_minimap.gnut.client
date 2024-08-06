@@ -181,6 +181,15 @@ global enum eMinimapObject_prop_script
 
 
 
+
+
+		MYTHIC_BIN,
+
+
+
+		FREESPAWN_RESPAWN_MAP,
+
+
 	COUNT
 }
 
@@ -192,6 +201,9 @@ global enum eMinimapObject_npc
 	FD_TURRET,
 
 		LOOT_TICK_GH,
+
+
+
 
 	COUNT
 }

@@ -116,6 +116,11 @@ void function JumpmasterStatusChanged( entity statusChangePlayer, bool newValue 
 	AutoPlayer_JumpmasterPutInPlane( statusChangePlayer )
 #endif
 
+
+	if( PlayerRecentlyFreespawned_Check( statusChangePlayer ) )
+		return
+
+
 	PlayBattleChatterToSelfOnClient( statusChangePlayer, "bc_imJumpmaster" )
 }
 
@@ -443,6 +448,14 @@ void function CreateSquadLeaderBox( entity player )
 	thread PlayDoorsOpenTimerSounds( player )
 	EmitSoundOnEntity( player, "UI_InGame_SquadLeader_Announce" )
 
+
+	if ( NewPlayerBotQueueAreEnabled() && !AreMultipleHumansInTeam( player.GetTeam() ) )
+	{
+		RuiSetBool( file.sqadLeaderBoxRui, "showJumpMaster", false )
+		return
+	}
+
+
 	if ( IsValid( jumpMasterPlayer ) )
 	{
 		RuiSetString( file.sqadLeaderBoxRui, "squadLeaderName", jumpMasterPlayer.GetPlayerName() )
@@ -622,6 +635,14 @@ void function HoldTryRelinquishSquadLeaderOrBreakFromSquadTimer( entity player, 
 
 	if ( !HasHoldButtonAction() )
 		return
+
+
+	if ( NewPlayerBotQueueAreEnabled() && !AreMultipleHumansInTeam( player.GetTeam() ) )
+	{
+		RuiSetBool( file.sqadLeaderBoxRui, "holdingButton", false )
+		return
+	}
+
 
 	float margin = 0.2
 

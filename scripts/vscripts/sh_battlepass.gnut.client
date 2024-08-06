@@ -14,6 +14,26 @@ global function GetPlayerBattlePassLevel
 global function GetBattlePassLevelRewards
 
 
+global function BattlePassV2_IsV2BattlePass
+
+
+global function GetBattlePassV2Rewards
+
+
+global function BattlePassV2_GetScheduleDatatable
+
+
+global function GetPlayerActiveBattlePassV2
+global function GetActiveBattlePassV2
+global function DoesPlayerOwnBattlePassV2Level
+
+global function BattlePassV2_GetBPV2Type
+global function BattlePassV2_GetStartUnixTime
+global function BattlePassV2_GetFinishUnixTime
+global function BattlePassV2_GetBarebonesEliteAsset
+global function BattlePassV2_GetBarebonesEliteFlavForBP
+
+
 
 
 
@@ -63,6 +83,7 @@ global function GetCurrentBattlePassWeekExpirationTime
 global function GetBattlePassProgressBadge
 global function GetBattlePassChallenges
 global function GetNumBattlePassChallengesWeeks
+global function GetNumBattlePassChallenges
 global function BattlePassHasWeeklyChallenge
 global function GetBattlePassRecurringStarChallenge
 global function GetBattlePassRecurringGrindlordChallenge
@@ -72,6 +93,7 @@ global function GetMaxBattlePassLevelsWithLegendTokens
 global function IsPlayerLeveledToPurchaseBattlePassLevelsWithLegendTokens
 global function IsCurrentlyWithinTimeframeToPurchaseBattlePassLevelsWithLegendTokens
 global function CanPlayerPurchaseBattlePassLevelsWithLegendTokens
+global function SubstituteBattlePassRewardsForUserRestrictions
 
 
 
@@ -114,17 +136,30 @@ global function DEV_BattlePass
 
 global const int MAX_BATTLEPASS_CHARACTER_BONUS_XP_DEFAULT = 250000
 global const int STARS_TO_COMPLETE_BP_LEVEL = 10
-global const int BATTLEPASS_MAX_LEVEL = 110
+
+global const int BATTLEPASS_MAX_LEVEL = 100
+
+
+
 
 global const int BATTLEPASS_BUNDLE_LEVELS = 25
 
+global enum eBattlePassV2RewardTier
+{
+	UNSPECIFIED = -1,
+	FREE,
+	PREMIUM,
+	ELITE,
+}
 
 
-
-
-
-
-
+global enum eBattlePassV2Type
+{
+	SEASONAL,
+	NPP,
+	EVENT,
+	RETURNING,
+}
 
 
 global struct BattlePassReward
@@ -132,8 +167,8 @@ global struct BattlePassReward
 	ItemFlavor& flav
 	int         quantity
 	int         level
-	bool        isPremium
-	bool        isElite
+	bool        isPremium = false
+	bool        isElite = false
 	bool		isEventReward = false
 	string		eventName = ""
 	bool 		isOwned = false 
@@ -142,8 +177,9 @@ global struct BattlePassReward
 	int			tier = 0
 
 
-
-
+		bool isChaseReward
+		int rewardTier = eBattlePassV2RewardTier.UNSPECIFIED
+		asset iconOverride
 
 }
 
@@ -154,11 +190,19 @@ struct BattlePassData
 	ItemFlavor& season
 	array<int>  totalXPToCompleteLevel
 	int         maxPassLevel
-	int         maxPurchaseLevels = 99
+
+		int         maxPurchaseLevels = 59
+
+
+
 
 	table< int, table< int, array<ItemFlavor> > > challenges
 	ItemFlavor ornull recurringStarChallenge
 	ItemFlavor ornull recurringGrindlordChallenge
+
+
+		ItemFlavor& eliteBarebonesFlav
+
 }
 
 
@@ -176,6 +220,11 @@ struct FileStruct_LifetimeLevel
 	int expirationTimestamp
 	bool battlePassIsEnabled
 	bool sorted = false
+
+
+		ItemFlavor ornull currentBattlePassV2
+		int expirationTimestampV2
+
 }
 FileStruct_LifetimeLevel& fileLevel
 
@@ -221,6 +270,13 @@ void function ShBattlePass_LevelInit()
 
 
 	AddCallback_OnItemFlavorRegistered( eItemType.battlepass, void function( ItemFlavor pass ) {
+
+		if ( NPP_IsNPP( pass ) )
+		{
+			return
+		}
+
+
 		RegisterItemFlavorFromSettingsAsset( GetGlobalSettingsAsset( ItemFlavor_GetAsset( pass ), "basicPurchasePack" ) )
 		RegisterItemFlavorFromSettingsAsset( GetGlobalSettingsAsset( ItemFlavor_GetAsset( pass ), "bundlePurchasePack" ) )
 		RegisterItemFlavorFromSettingsAsset( GetGlobalSettingsAsset( ItemFlavor_GetAsset( pass ), "xpPurchaseFlav" ) )
@@ -285,7 +341,7 @@ void function ShBattlePass_LevelInit()
 				Assert( !dupeCheck.contains( chAsset ) )
 				dupeCheck.append( chAsset )
 
-			ItemFlavor ornull challenge = RegisterItemFlavorFromSettingsAsset( chAsset )
+				ItemFlavor ornull challenge = RegisterItemFlavorFromSettingsAsset( chAsset )
 				if ( challenge != null )
 					passData.challenges[ eChallengeTimeSpanKind.DAILY ][-1].append( expect ItemFlavor( challenge ) )
 			}
@@ -389,6 +445,23 @@ void function ShBattlePass_LevelInit()
 
 		dupeCheck.clear()
 
+
+			if ( BattlePassV2_IsV2BattlePass( pass ) )
+			{
+				asset barebonesEliteAsset = BattlePassV2_GetBarebonesEliteAsset( pass )
+				if ( barebonesEliteAsset != $"" )
+				{
+					ItemFlavor ornull barebonesEliteFlav = RegisterItemFlavorFromSettingsAsset( barebonesEliteAsset )
+
+					if ( barebonesEliteFlav != null )
+					{
+						expect ItemFlavor( barebonesEliteFlav )
+						passData.eliteBarebonesFlav = barebonesEliteFlav
+					}
+				}
+			}
+
+
 		fileLevel.battlePassMap[pass] <- passData
 	} )
 }
@@ -476,6 +549,25 @@ ItemFlavor ornull function GetActiveBattlePass()
 
 
 
+
+ItemFlavor ornull function GetActiveBattlePassV2()
+{
+	if ( !IsBattlePassEnabled() )
+	{
+		return null
+	}
+
+	if ( fileLevel.expirationTimestampV2 < GetUnixTimestamp() )
+	{
+		RefreshCachedSeasonInfo()
+	}
+
+	return fileLevel.currentBattlePassV2
+}
+
+
+
+
 string function GetActiveBattlePassGUID()
 {
 	ItemFlavor ornull activeBattlePass = GetActiveBattlePass()
@@ -547,6 +639,19 @@ ItemFlavor ornull function GetPlayerLastActiveBattlePass( EHI playerEHI )
 
 
 
+ItemFlavor ornull function GetPlayerActiveBattlePassV2( EHI playerEHI )
+{
+
+		Assert( playerEHI == LocalClientEHI() )
+
+
+	return GetActiveBattlePassV2()
+}
+
+
+
+
+
 
 
 
@@ -568,8 +673,55 @@ bool function DoesPlayerOwnBattlePass( entity player, ItemFlavor pass )
 
 bool function DoesPlayerOwnEliteBattlePass( entity player, ItemFlavor pass )
 {
-	return false 
+
+
+
+		Assert( ItemFlavor_GetType( pass ) == eItemType.battlepass )
+		if ( !BattlePassV2_IsV2BattlePass( pass ) )
+		{
+			return false 
+		}
+
+		if ( !GRX_HasInventoryEverBeenReady( player ) )
+		{
+
+				if ( !IsLobby() ) 
+					return GRX_HasItem( ItemFlavor_GetGRXIndex( BattlePassV2_GetBarebonesEliteFlavForBP( pass ) ) )
+
+
+			return false
+		}
+
+		return GRX_IsItemOwnedByPlayer_AllowOutOfDateData( BattlePassV2_GetBarebonesEliteFlavForBP( pass ), player )
+
 }
+
+
+
+
+bool function DoesPlayerOwnBattlePassV2Level( entity player, ItemFlavor pass, int tier )
+{
+	if ( tier == eBattlePassV2RewardTier.FREE )
+	{
+		return true
+	}
+
+	Assert( ItemFlavor_GetType( pass ) == eItemType.battlepass )
+	Assert( BattlePassV2_IsV2BattlePass( pass ) )
+
+	if ( tier == eBattlePassV2RewardTier.PREMIUM )
+	{
+		return DoesPlayerOwnBattlePass( player, pass )
+	}
+	else if ( tier == eBattlePassV2RewardTier.ELITE )
+	{
+		return DoesPlayerOwnEliteBattlePass( player, pass )
+	}
+
+	Assert( false, format( "Invalid reward tier; : %d", tier ) )
+	unreachable
+}
+
 
 
 
@@ -920,72 +1072,108 @@ array<BattlePassReward> function GetBattlePassBaseRewards( ItemFlavor pass )
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+array<BattlePassReward> function GetBattlePassV2Rewards( ItemFlavor pass, int levelIndex, int rewardTierTarget, entity player = null, bool allRewards = false, int allRewardsMinimumLevel = -1 )
+{
+	
+	
+	Assert( ItemFlavor_GetType( pass ) == eItemType.battlepass )
+	Assert( levelIndex >= 0, "Level must be >= 0" )
+
+	bool isV2Pass = BattlePassV2_IsV2BattlePass( pass )
+	if ( !isV2Pass )
+	{
+		Assert( rewardTierTarget == eBattlePassV2RewardTier.FREE || rewardTierTarget == eBattlePassV2RewardTier.PREMIUM, "Only FREE & PREMIUM tiers are supported on V1 assets." )
+	}
+	else
+	{
+		Assert( GetEnumString( "eBattlePassV2RewardTier", rewardTierTarget ) in eBattlePassV2RewardTier )
+	}
+
+	if ( ItemFlavor_GetType( pass ) != eItemType.battlepass || levelIndex < 0)
+		return []
+
+	var scheduleDT = isV2Pass ? BattlePassV2_GetScheduleDatatable( pass ) : BattlePass_GetScheduleDatatable( pass )
+
+	array<BattlePassReward> rewardList = []
+
+	int rowIndex = 0;
+	int currentLevel = 0;
+
+	int numRows = GetDataTableRowCount( scheduleDT )
+
+	while ( rowIndex < numRows )
+	{
+		
+		asset rewardAsset 	= GetDataTableAsset( scheduleDT, rowIndex, GetDataTableColumnByName( scheduleDT, "reward" ) )
+		int rewardQty 		= GetDataTableInt( scheduleDT, rowIndex, GetDataTableColumnByName( scheduleDT, "rewardQty" ) )
+		currentLevel		= GetDataTableInt( scheduleDT, rowIndex, GetDataTableColumnByName( scheduleDT, "levelIndex" ) )
+		bool premium 	  	= GetDataTableBool( scheduleDT, rowIndex, GetDataTableColumnByName( scheduleDT, "premium" ) )
+
+		
+		int rewardTier 		= isV2Pass ? GetDataTableInt( scheduleDT, rowIndex, GetDataTableColumnByName( scheduleDT, "rewardTier" ) ) : eBattlePassV2RewardTier.UNSPECIFIED
+		bool isChaseReward 	= isV2Pass ? GetDataTableBool( scheduleDT, rowIndex, GetDataTableColumnByName( scheduleDT, "isChaseReward" ) ) : false
+
+		
+		if ( rewardTier == eBattlePassV2RewardTier.UNSPECIFIED )
+		{
+			
+			
+			rewardTier = premium ? eBattlePassV2RewardTier.PREMIUM : eBattlePassV2RewardTier.FREE
+		}
+
+		if ( currentLevel < levelIndex && !allRewards )
+		{
+			rowIndex += 1
+			continue
+		}
+
+		if ( currentLevel < allRewardsMinimumLevel && allRewards  )
+		{
+			rowIndex += 1
+			continue
+		}
+
+		if ( currentLevel > levelIndex )
+			break
+
+		if ( rewardTierTarget == rewardTier || ( allRewards && rewardTier <= rewardTierTarget ) )
+		{
+			if ( rewardAsset != $"" )
+			{
+				if ( IsValidItemFlavorSettingsAsset( rewardAsset ) )
+				{
+					BattlePassReward reward
+
+					reward.flav = GetItemFlavorByAsset( rewardAsset )
+					string overrideRefGUIDString = GetCurrentPlaylistVarString( format( "%s_level_%d_override_ref", ItemFlavor_GetGUIDString( pass ), levelIndex ), "" )
+					if ( overrideRefGUIDString != "" )
+						reward.flav = GetItemFlavorByGUID( ConvertItemFlavorGUIDStringToGUID( overrideRefGUIDString ) )
+
+					reward.quantity = rewardQty
+					int overrideQty = GetCurrentPlaylistVarInt( format( "%s_level_%d_override_qty", ItemFlavor_GetGUIDString( pass ), levelIndex ), -1 )
+					if ( overrideQty != -1 )
+						reward.quantity = overrideQty
+
+					reward.level = levelIndex
+					reward.isPremium = premium
+
+
+						reward.rewardTier = rewardTier
+						reward.isChaseReward = isChaseReward
+
+
+					SubstituteBattlePassRewardsForUserRestrictions( player, reward )
+
+					rewardList.append( reward )
+				}
+			}
+		}
+
+		rowIndex++
+	}
+
+	return rewardList
+}
 
 
 
@@ -1033,6 +1221,10 @@ array<BattlePassReward> function GetBattlePassPremiumRewards( ItemFlavor pass, i
 					int overrideQty = GetCurrentPlaylistVarInt( format( "%s_level_%d_override_qty", ItemFlavor_GetGUIDString( pass ), levelIndex ), -1 )
 					if ( overrideQty != -1 )
 						reward.quantity = overrideQty
+
+
+					reward.rewardTier = eBattlePassV2RewardTier.PREMIUM
+
 
 					SubstituteBattlePassRewardsForUserRestrictions( player, reward )
 
@@ -1097,6 +1289,10 @@ array<BattlePassReward> function GetBattlePassLevelRewards( ItemFlavor pass, int
 				if ( overrideQty != -1 )
 					reward.quantity = overrideQty
 
+
+				reward.rewardTier = premium ? eBattlePassV2RewardTier.PREMIUM : eBattlePassV2RewardTier.FREE
+
+
 				if ( premium )
 					SubstituteBattlePassRewardsForUserRestrictions( player, reward )
 
@@ -1143,25 +1339,45 @@ BattlePassReward function ItemFlavorBagToBattlePassRewardByIndex( ItemFlavorBag 
 
 void function SubstituteBattlePassRewardsForUserRestrictions( entity player, BattlePassReward reward )
 {
+	bool isFreeReward = ( !reward.isPremium && !reward.isElite )
+
+	Assert( reward.rewardTier != eBattlePassV2RewardTier.UNSPECIFIED )
+	isFreeReward = isFreeReward && ( reward.rewardTier == eBattlePassV2RewardTier.FREE )
+
+
+	if ( isFreeReward ) 
+			return
+
 	bool lootBoxesAllowed = !GRX_IsOfferRestricted( player )
+	bool isRewardPackType = ( ItemFlavor_GetType( reward.flav ) == eItemType.account_pack )
+
+	if ( !isRewardPackType )
+	{
+		return
+	}
+
 	if ( !lootBoxesAllowed )
 	{
 		switch ( ItemFlavor_GetAsset( reward.flav ) )
 		{
 			case $"settings/itemflav/pack/cosmetic_rare.rpak":
 				reward.flav = GetItemFlavorByAsset( $"settings/itemflav/grx_currency/crafting.rpak" )
-				reward.quantity = 60
+				reward.quantity = 30
 				break
 
 			case $"settings/itemflav/pack/cosmetic_epic.rpak":
 				reward.flav = GetItemFlavorByAsset( $"settings/itemflav/grx_currency/crafting.rpak" )
-				reward.quantity = 250
+				reward.quantity = 200
 				break
 
 			case $"settings/itemflav/pack/cosmetic_legendary.rpak":
 				reward.flav = GetItemFlavorByAsset( $"settings/itemflav/grx_currency/crafting.rpak" )
-				reward.quantity = 800
+				reward.quantity = 600
 				break
+
+			default:
+				reward.flav = GetItemFlavorByAsset( $"settings/itemflav/grx_currency/crafting.rpak" )
+				reward.quantity = 30
 		}
 	}
 }
@@ -1299,6 +1515,8 @@ var function BattlePass_GetScheduleDatatable( ItemFlavor pass )
 
 
 
+
+
 bool function BattlePassV2_IsV2BattlePass( ItemFlavor pass )
 {
 	Assert( ItemFlavor_GetType( pass ) == eItemType.battlepass )
@@ -1306,6 +1524,7 @@ bool function BattlePassV2_IsV2BattlePass( ItemFlavor pass )
 
 	return rewardScheduleAsset != $""
 }
+
 
 
 
@@ -1317,6 +1536,38 @@ var function BattlePassV2_GetScheduleDatatable( ItemFlavor pass )
 	Assert ( rewardScheduleAsset != $"", format( "Battlepass flav (%s) must define a V2 reward schedule (null/not found).", string( ItemFlavor_GetAsset( pass ) ) ) )
 
 	return GetDataTable( rewardScheduleAsset )
+}
+
+
+
+
+asset function BattlePassV2_GetBarebonesEliteAsset( ItemFlavor pass )
+{
+	Assert( ItemFlavor_GetType( pass ) == eItemType.battlepass )
+	asset barebonesAsset = GetGlobalSettingsAsset( ItemFlavor_GetAsset( pass ), "eliteOwnershipFlav" )
+	return barebonesAsset
+}
+
+
+
+ItemFlavor function BattlePassV2_GetBarebonesEliteFlavForBP( ItemFlavor pass )
+{
+	Assert( ItemFlavor_GetType( pass ) == eItemType.battlepass )
+	Assert( pass in fileLevel.battlePassMap )
+
+	return fileLevel.battlePassMap[ pass ].eliteBarebonesFlav
+}
+
+
+int function BattlePassV2_GetBPV2Type( ItemFlavor pass )
+{
+	Assert( ItemFlavor_GetType( pass ) == eItemType.battlepass )
+	Assert( BattlePassV2_IsV2BattlePass( pass ) )
+
+	string passType = GetGlobalSettingsString( ItemFlavor_GetAsset( pass ), "bpv2Type" )
+	Assert( passType in eBattlePassV2Type )
+
+	return eBattlePassV2Type[ passType ]
 }
 
 
@@ -1349,6 +1600,135 @@ int function BattlePassPurchasedXP_GetXPAmount( ItemFlavor purchasedXPFlav )
 
 	return GetGlobalSettingsInt( ItemFlavor_GetAsset( purchasedXPFlav ), "xpAmount" )
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -2092,6 +2472,10 @@ asset function GetBattlePassDisplayBadge( int levelIndex )
 
 
 
+
+
+
+
 bool function CanPlayerPurchaseBattlePassLevelsWithLegendTokens( entity player, ItemFlavor pass )
 {
 	if ( !IsPurchasingBattlePassLevelsWithLegendTokensEnabled() )
@@ -2197,6 +2581,16 @@ int function GetNumBattlePassChallengesWeeks( ItemFlavor pass )
 	return fileLevel.battlePassMap[ pass ].challenges[ eChallengeTimeSpanKind.SEASON_WEEKLY ].len()
 }
 
+int function GetNumBattlePassChallenges( ItemFlavor pass )
+{
+	int count = 0
+	for( int week = 1; week <= GetNumBattlePassChallengesWeeks( pass ); week++ )
+	{
+		count += fileLevel.battlePassMap[ pass ].challenges[ eChallengeTimeSpanKind.SEASON_WEEKLY ][week].len()
+	}
+	return count
+}
+
 array<ItemFlavor> function GetBattlePassChallenges( ItemFlavor pass, int challengeTimeSpanKind, int groupIndex )
 {
 	return fileLevel.battlePassMap[ pass ].challenges[ challengeTimeSpanKind ][ groupIndex ]
@@ -2233,6 +2627,22 @@ void function RefreshCachedSeasonInfo()
 	{
 		fileLevel.currentBattlePass = Season_GetBattlePass( expect ItemFlavor( fileLevel.currentSeason ) )
 		fileLevel.expirationTimestamp = CalEvent_GetFinishUnixTime( expect ItemFlavor( fileLevel.currentSeason ) )
+
+
+		if ( Season_HasBattlePassV2( expect ItemFlavor( fileLevel.currentSeason ) ) )
+		{
+			fileLevel.currentBattlePassV2 = Season_GetBattlePassV2( expect ItemFlavor( fileLevel.currentSeason ) )
+
+			if ( fileLevel.currentBattlePassV2 != null )
+			{
+				fileLevel.expirationTimestampV2 = BattlePassV2_GetFinishUnixTime( expect ItemFlavor( fileLevel.currentBattlePassV2 ) )
+			}
+			else
+			{
+				fileLevel.expirationTimestampV2 = 0
+			}
+		}
+
 	}
 }
 
@@ -2245,3 +2655,86 @@ asset function BattlePass_GetStoreBundleContentsImage ( ItemFlavor flavor )
 	return GetGlobalSettingsAsset( ItemFlavor_GetAsset( flavor ), "storeBundleContentsImage" )
 }
 
+
+
+
+int function BattlePassV2_GetStartUnixTime( ItemFlavor flav )
+{
+	Assert( ItemFlavor_GetType( flav ) == eItemType.battlepass )
+	Assert( BattlePassV2_IsV2BattlePass( flav ) )
+
+	string timeString = GetGlobalSettingsString( ItemFlavor_GetAsset( flav ), "bpv2StartUnixTime" )
+	if ( timeString != "" )
+	{
+		int ornull t = DateTimeStringToUnixTimestamp( timeString )
+		if ( t != null )
+			return expect int(t)
+	}
+
+	return UNIX_TIME_FALLBACK_1970
+}
+
+int function BattlePassV2_GetFinishUnixTime( ItemFlavor flav )
+{
+	Assert( ItemFlavor_GetType( flav ) == eItemType.battlepass )
+	Assert( BattlePassV2_IsV2BattlePass( flav ) )
+
+	string timeString = GetGlobalSettingsString( ItemFlavor_GetAsset( flav ), "bpv2FinishUnixTime" )
+	if ( timeString != "" )
+	{
+		int ornull t = DateTimeStringToUnixTimestamp( timeString )
+		if ( t != null )
+			return expect int(t)
+	}
+
+	return UNIX_TIME_FALLBACK_2038
+}
+
+
+
+
+#if DEV
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#endif
+                           

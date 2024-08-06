@@ -62,6 +62,44 @@ global function BuffetEvent_GetRewardIconCol
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 global struct BuffetEventBadgeData
 {
 	ItemFlavor& badge
@@ -553,6 +591,43 @@ vector function BuffetEvent_GetRewardIconCol( ItemFlavor event )
 	Assert( ItemFlavor_GetType( event ) == eItemType.calevent_buffet )
 	return GetGlobalSettingsVector( ItemFlavor_GetAsset( event ), "rewardIconColor" )
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

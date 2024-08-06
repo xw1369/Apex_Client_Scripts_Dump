@@ -25,7 +25,6 @@ global function Control_Init
 
 
 
-
 global function ServerCallback_Control_ShowSpawnSelection
 global function ServerCallback_Control_UpdateSpawnWaveTimerTime
 global function ServerCallback_Control_UpdateSpawnWaveTimerVisibility
@@ -253,10 +252,6 @@ global const int CONTROL_MAX_EXP_TIER = 4
 global const int CONTROL_MAX_LOOT_TIER = 3
 
 global const int CONTROL_TEAMSCORE_LOCKOUTBROKEN = 50
-
-
-
-
 
 
 
@@ -553,20 +548,6 @@ enum eControlMRBPlacementState
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 struct ControlAnnouncementData
 {
 	bool isInitialized = false
@@ -605,14 +586,9 @@ struct {
 	bool isLockout = false
 	bool isRampUp = false
 
+	bool hasCamera = false
 	vector cameraLocation
 	vector cameraAngles
-
-
-
-
-
-
 
 
 
@@ -787,31 +763,14 @@ global enum eControlStat {
 
 void function Control_Init()
 {
-
-		AddCallback_EntitiesDidLoad( EntitiesDidLoad )
-
-
 	if ( !GameMode_IsActive( eGameModes.CONTROL ) )
 		return
 
 
+		AddCallback_EntitiesDidLoad( EntitiesDidLoad )
+
+
 	
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -854,7 +813,6 @@ void function Control_Init()
 			printt( "CONTROL: CONTROL_DETAILED_DEBUG is set to true, debug prints that fire very frequently are enabled" )
 		else
 			printt( "CONTROL: CONTROL_DETAILED_DEBUG is set to false, to enable debug prints that fire frequently set CONTROL_DETAILED_DEBUG to true" )
-
 
 
 
@@ -1048,23 +1006,14 @@ void function Control_Init()
 void function EntitiesDidLoad()
 {
 
+		
+		array<entity> jumpTowerFlags = GetEntArrayByScriptName( "jump_tower_flag" )
+		foreach( flag in jumpTowerFlags )
+			flag.Destroy()
 
 
 
-
-
-		if( GameMode_IsActive( eGameModes.CONTROL ) )
-		{
-			
-			array<entity> jumpTowerFlags = GetEntArrayByScriptName( "jump_tower_flag" )
-			foreach( flag in jumpTowerFlags )
-				flag.Destroy()
-		}
-
-
-
-		if( GameMode_IsActive( eGameModes.CONTROL ) )
-			Control_UpdateCrowdNoiseMeter() 
+		Control_UpdateCrowdNoiseMeter() 
 
 }
 
@@ -2169,465 +2118,6 @@ float function Control_GetMRBAirdropDelay()
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 void function Control_SetHomeBaseBadPlacesForMRBForAlliance( int alliance, array < vector > locations )
 {
 	if ( alliance == ALLIANCE_A )
@@ -2639,11 +2129,6 @@ void function Control_SetHomeBaseBadPlacesForMRBForAlliance( int alliance, array
 		file.allianceBBlockedHomeBasePositionsForMRB.extend( locations )
 	}
 }
-
-
-
-
-
 
 
 
@@ -2916,19 +2401,6 @@ void function Control_PingObjectiveFromObjID( int objID )
 		}
 	}
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -6616,9 +6088,6 @@ bool function Control_IsObjectiveWaypoint( entity waypoint )
 
 
 
-
-
-
 entity function Control_GetStarterPingFromTraceBlockerPing( entity pingedEnt, int playerTeam )
 {
 	entity starterPing = null
@@ -8884,10 +8353,6 @@ bool function Control_IsValidRespawnChoice( int respawnChoice )
 
 
 
-
-
-
-
 void function UICallback_Control_SpawnButtonClicked( int respawnChoice )
 {
 	if ( !Control_IsValidRespawnChoice( respawnChoice ) )
@@ -9249,10 +8714,10 @@ void function Control_UpdatePlayerInfo_thread( var elem )
 			break
 
 
-		if ( IsRevTakeover() && ( AllianceProximity_GetAllianceFromTeam( player.GetTeam() ) == ALLIANCE_B ) )
-		{
-			Hud_Hide( elem )
-		}
+
+
+
+
 
 
 		RuiSetImage( rui, "playerPortrait", CharacterClass_GetCharacterLockedPortrait( character ) )
@@ -10817,28 +10282,6 @@ void function OnVehicleBaseSpawned( entity vehicleBase )
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 void function ServerCallback_Control_NoVehiclesAvailable()
 {
 	AnnouncementMessageRight( GetLocalClientPlayer(), Localize( "#CONTROL_NO_VEHICLES_AVAILABLE" ), "", ANNOUNCEMENT_RED, $"", CONTROL_MESSAGE_DURATION, "WXpress_Train_Update_Small" )
@@ -11684,17 +11127,17 @@ vector function Control_GetTeamColor( int team )
 	bool isFriendly = team == AllianceProximity_GetAllianceFromTeam( GetLocalViewPlayer().GetTeam() )
 
 
-		if ( IsRevTakeover() )
-		{
-			if( team != SHADOWARMY_REVENANT_ALLIANCE )
-			{
-				return SrgbToLinear( GetKeyColor( COLORID_ALLIANCE_0 ) / 255.0 )
-			}
-			else
-			{
-				return SrgbToLinear( GetKeyColor( COLORID_ALLIANCE_1 ) / 255.0 )
-			}
-		}
+
+
+
+
+
+
+
+
+
+
+
 
 	if ( Control_IsPlayerPrivateMatchObserver( GetLocalClientPlayer() ) )
 		isFriendly = team == ALLIANCE_A
@@ -11710,7 +11153,21 @@ vector function Control_GetTeamColor( int team )
 
 string function Control_GetTeamName( int team )
 {
-	string teamName = Survival_GetTeamName( team )
+	entity localViewPlayer = GetLocalViewPlayer()
+	int playerTeam = localViewPlayer.GetTeam()
+	string teamName
+
+	if ( playerTeam == TEAM_SPECTATOR || playerTeam == TEAM_UNASSIGNED )
+	{
+		array< int > teams = AllianceProximity_GetTeamsInAlliance( team )
+		teamName = Survival_GetTeamName( ( teams.len() > 0 )? teams[0]: 0 )
+	}
+	else
+	{
+		bool isFriendly = team == AllianceProximity_GetAllianceFromTeam( localViewPlayer.GetTeam() )
+
+		teamName =  Localize( isFriendly ? "#ALLIES" : "#ENEMIES" )
+	}
 
 	return teamName
 }
@@ -12939,6 +12396,13 @@ float function Control_GetEXPPercentToNextTier( entity player )
 
 
 
+
+
+
+
+
+
+
 bool function Control_IsActiveWeaponUnHolstered( entity player )
 {
 	if ( !IsValid( player ) )
@@ -13236,6 +12700,9 @@ void function ServerCallback_Control_DisplayLockoutUnavailableWarning()
 		RuiSetGameTime( mapScoreTrackerRui, "lastLockoutBlockedMessageDisplayTime", currentTime )
 	}
 }
+
+
+
 
 
 
@@ -15176,22 +14643,6 @@ int function Control_GetMRBPlacementStateFromHomeBasePositionChecks( int current
 
 	return placementState
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

@@ -21,6 +21,13 @@ global function OnDeactivate_BeaconScan
 
 
 
+
+
+
+
+
+
+
 global function SurveyBeacon_CreateHUDMarker
 global function SurveyBeacon_AddSurveyBeaconMinimapPackage
 global function OnSurveyBeaconCreated
@@ -61,6 +68,11 @@ struct
 
 
 
+
+
+
+
+
 } file
 
 void function Perk_BeaconScan_Init()
@@ -70,6 +82,11 @@ void function Perk_BeaconScan_Init()
 
 
 	RegisterSignal( "BeaconIconReset" )
+
+
+
+
+
 
 }
 
@@ -387,6 +404,40 @@ entity function GetTeamSurveyBeaconUser( int team )
 	}
 	return null
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

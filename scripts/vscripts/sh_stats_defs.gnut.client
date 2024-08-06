@@ -68,6 +68,19 @@ global struct CareerStats
 	StatTemplate& respawned_ally
 
 	
+
+		
+		StatTemplate& akimbo_damage_done
+		StatTemplate& akimbo_dooms
+		StatTemplate& akimbo_kills
+
+		
+		StatTemplate& akimbo_damage_done_any_mode
+		StatTemplate& akimbo_dooms_any_mode
+		StatTemplate& akimbo_kills_any_mode
+
+
+	
 	StatTemplate& damage_done_to_prowler_on_storm_point
 	StatTemplate& damage_done_to_spider_on_storm_point
 
@@ -440,6 +453,18 @@ global struct CareerStats
 		StatTemplate& controller_games_played
 		StatTemplate& support_games_played
 
+		StatTemplate& assault_damage_done
+		StatTemplate& skirmisher_damage_done
+		StatTemplate& recon_damage_done
+		StatTemplate& controller_damage_done
+		StatTemplate& support_damage_done
+
+		StatTemplate& assault_kills
+		StatTemplate& skirmisher_kills
+		StatTemplate& recon_kills
+		StatTemplate& controller_kills
+		StatTemplate& support_kills
+
 		StatTemplate& weapon_supply_bins_looted
 		StatTemplate& care_packages_revealed
 		StatTemplate& ring_consoles_used
@@ -799,32 +824,91 @@ global struct CareerStats
 		StatTemplate& gamemode_bigtdm_games_played
 
 
+	
+
+		StatTemplate& s22_complete_all_badge_challenges
+
+		
+		StatTemplate& s22ce01_buffet_points
+
+
+			StatTemplate& gamemode_turbo_knockdowns
+			StatTemplate& gamemode_turbo_games_played
+
+
+		StatTemplate& s22rc01_games_played_trios_edistrict
 
 
 
+		StatTemplate& map_challenges_viewed
+		StatTemplate& map_viewed_from_plane
+		StatTemplate& light_ammo_collected
+		StatTemplate& heavy_ammo_collected
+		StatTemplate& shotgun_ammo_collected
+		StatTemplate& energy_ammo_collected
+		StatTemplate& sniper_ammo_collected
+		StatTemplate& light_weapon_collected
+		StatTemplate& heavy_weapon_collected
+		StatTemplate& shotgun_weapon_collected
+		StatTemplate& energy_weapon_collected
+		StatTemplate& sniper_weapon_collected
+		StatTemplate& dropped_items
+		StatTemplate& revealed_care_packages_looted_any_mode
+		StatTemplate& syringe_consumed
+		StatTemplate& shield_cell_consumed
+		StatTemplate& med_kit_consumed
+		StatTemplate& shield_battery_consumed
+		StatTemplate& phoenix_kit_consumed
+		StatTemplate& ult_accel_consumed
+		StatTemplate& times_healed_ring_damage
+		StatTemplate& ring_damage_avoided_with_heat_shield
+		StatTemplate& rings_outran
+		StatTemplate& drop_suggestion_from_plane
+		StatTemplate& ping_survey_beacon
+		StatTemplate& ping_support_bin
+		StatTemplate& ping_assault_bin
+		StatTemplate& ping_controller_console
+		StatTemplate& ping_replicator
+		StatTemplate& ping_enemy_specific
+		StatTemplate& ping_supply_bin
+		StatTemplate& ping_attachment_or_optics_request
+		StatTemplate& ping_dropped_attachment_or_optic
+		StatTemplate& ping_dropped_healing_or_shielding
+		StatTemplate& weapon_damage_done_any_mode
+		StatTemplate& weapon_damage_done_ads_any_mode
+		StatTemplate& drops_from_dropship
+		StatTemplate& meters_sprinted_guns_holstered
+		StatTemplate& meters_crouch_walked
+		StatTemplate& meters_slid
+		StatTemplate& evoarmor_evolves_to_red_any_mode
+		StatTemplate& armor_break
 
+		StatTemplate& times_used_ability_tactical
+		StatTemplate& times_used_ability_ultimate
 
+		StatTemplate& npp_damage_done_any_mode
+		StatTemplate& npp_damage_done_hipfire_any_mode
+		StatTemplate& npp_dooms_any_mode
+		StatTemplate& npp_kills_or_assists_any_mode
+		StatTemplate& npp_executions_any_mode
 
+		StatTemplate& npp_crafting_harvester_used_any_mode
+		StatTemplate& npp_legend_upgrades_selected
 
+		StatTemplate& npp_assault_games_played
+		StatTemplate& npp_skirmisher_games_played
+		StatTemplate& npp_recon_games_played
+		StatTemplate& npp_controller_games_played
+		StatTemplate& npp_support_games_played
 
+		StatTemplate& npp_weapon_supply_bins_looted
+		StatTemplate& npp_care_packages_revealed
+		StatTemplate& npp_recon_passive_beacons_scanned
+		StatTemplate& npp_ring_consoles_used
+		StatTemplate& npp_extended_supply_bins_looted
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+		StatTemplate& npp_cards_earned
+		StatTemplate& npp_level
 
 
 
@@ -895,8 +979,6 @@ global struct CareerStats
 
 
 
-
-
 		StatTemplate& graduated_bot_queue
 
 		StatTemplate& ftue_damage_done
@@ -913,6 +995,14 @@ global struct CareerStats
 		StatTemplate& gamemode_treasurehunt_objectives_captured
 
 
+
+		
+
+			StatTemplate& apexcups_ssr_kills
+			StatTemplate& apexcups_ssr_damage
+
+
+
 	table< int, StatTemplate > meta_challenge_stats
 
 	StatTemplate& autogen_challenges
@@ -922,6 +1012,19 @@ global struct CareerStats
 	StatTemplate& eventshop_current_guid
 
 	StatTemplate& lastGameParticipationScore
+
+
+
+
+
+
+
+
+
+
+
+
+
 } 
 
 global CareerStats CAREER_STATS
@@ -947,15 +1050,8 @@ global const array<string> STATS_ALTERNATE_MODE_REFS = [
 	"aprilfools_s16",
 	"shadowarmy",
 	"threestrikes",
-
-
-
-
-
-
-		"treasurehunt",
-
-
+	"turbo",
+	"treasurehunt",
 
 
 
@@ -983,15 +1079,8 @@ global const array<string> STATS_MATCH_TYPES = [
 	"armeddangerous",
 	"shadowarmy",
 	"threestrikes",
-
-
-
-
-
-
-		"treasurehunt",
-
-
+	"turbo",
+	"treasurehunt",
 
 
 
@@ -1029,15 +1118,8 @@ global enum eChallengeGameMode
 	APRILFOOLS_S16,
 	SHADOWARMY,
 	THREE_STRIKES,
-
-
-
-
-
-
+	TURBO,
 	TREASURE_HUNT,
-
-
 
 
 
@@ -1066,14 +1148,8 @@ global const table<int, string> GAME_MODE_TO_STAT_REF_MAP =
 	[eChallengeGameMode.APRILFOOLS_S16] = "aprilfools_s16",
 	[eChallengeGameMode.SHADOWARMY] = "shadowarmy",
 	[eChallengeGameMode.THREE_STRIKES] = "threestrikes",
-
-
-
-
-
-
-		[eChallengeGameMode.TREASURE_HUNT] = "treasurehunt",
-
+	[eChallengeGameMode.TURBO] = "turbo",
+	[eChallengeGameMode.TREASURE_HUNT] = "treasurehunt",
 
 
 

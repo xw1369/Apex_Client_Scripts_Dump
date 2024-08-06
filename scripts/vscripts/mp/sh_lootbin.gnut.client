@@ -18,6 +18,10 @@ global function AddCallback_OnLootBinOpening
 global function AddCallback_CanOpenLootBin
 
 
+global function LootBin_ArePerkBinsEnabled
+
+
+
 
 
 
@@ -110,6 +114,7 @@ global enum lootBinType
 
 }
 
+
 global enum eLootBinSequenceKind
 {
 	OPEN_REGULAR,
@@ -126,6 +131,44 @@ global enum eLootBinSequenceKind
 
 
 global typedef OnLootBinOpeningCallbackType void functionref( entity )
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -884,6 +927,86 @@ void function AddCallback_OnLootBinOpening( OnLootBinOpeningCallbackType callbac
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 bool function LootBin_HasSecretCompartment( entity lootBin )
 {
 
@@ -896,11 +1019,24 @@ bool function LootBin_HasSecretCompartment( entity lootBin )
 
 
 
-	bool isSupportBin = lootBin.GetSkin() == lootBin.GetSkinIndexByName( LOOT_BIN_SUPPORT_SKIN )
-	bool isMunitionsBin = lootBin.GetSkin() == lootBin.GetSkinIndexByName( MUNITIONS_BOX_LOOT_BIN_SKIN_NAME )
+	bool isSupportBin
+	bool isMunitionsBin
 
 
-	if( lootBin.GetSkin() == lootBin.GetSkinIndexByName( SUPPORT_LOOT_BIN_SKIN_NAME ) )
+		if( lootBin.GetSkin() == lootBin.GetSkinIndexByName( LOOT_BIN_SUPPORT_SKIN ) || lootBin.GetSkin() == lootBin.GetSkinIndexByName( SUPPORT_BIN_RESET_SKIN_NAME ) )
+			isSupportBin = true
+		if( lootBin.GetSkin() == lootBin.GetSkinIndexByName( MUNITIONS_BOX_LOOT_BIN_SKIN_NAME ) || lootBin.GetSkin() == lootBin.GetSkinIndexByName( ASSAULT_BIN_RESET_SKIN_NAME ) )
+			isMunitionsBin = true
+
+
+
+
+
+
+
+
+
+	if( isSupportBin )
 		return true
 
 
@@ -961,10 +1097,64 @@ array<entity> function LootBin_GetSpawnedLoot( entity lootBin, bool includeRegul
 
 
 
+
+
+
+
+
+
+
+
+
+
 		out.append( child )
 	}
 	return out
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1828,6 +2018,14 @@ string function GetLootBinUseTextOverride( entity lootBin )
 
 				return Localize( hint, playerName )
 			}
+
+
+				if( LootBinReset_IsLootBin_Mythic( lootBin ) && LootBinReset_MythicBins_HaveUniqueInteractPrompt() )
+				{
+					return "#RESET_BIN_MYTHIC_INTERACT_PROMPT"
+				}
+
+
 			return "#SURVIVAL_LOOTBIN_LOCKED"
 		}
 		else if ( !GradeFlagsHas( lootBin, eGradeFlags.IS_OPEN ) )
@@ -1842,6 +2040,12 @@ string function GetLootBinUseTextOverride( entity lootBin )
 		return "#SURVIVAL_LOOTBIN_CLOSE"
 	}
 	return ""
+}
+
+
+bool function LootBin_ArePerkBinsEnabled()
+{
+	return ( GetCurrentPlaylistVarBool( "enable_perk_bins", true ) )
 }
 
 

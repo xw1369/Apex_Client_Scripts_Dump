@@ -108,7 +108,7 @@ global const table<string, asset> emptyAttachmentSlotImages = {
 		hopup_golden_horse_red = $"rui/pilot_loadout/mods/empty_hopup_golden_horse_red"
 
 
-
+		hopup_gunshield = $"rui/pilot_loadout/mods/empty_hopup_gunshield"
 
 }
 
@@ -758,6 +758,9 @@ int function EmptyCommsAction_AttachmentForParent( string equipmentSlot, string 
 							return eCommsAction.INVENTORY_NEED_HOPUP_SELECTFIRE
 
 						case "hopup_energy_choke":
+
+
+
 							return eCommsAction.INVENTORY_NEED_HOPUP_CHOKE
 
 						case "hopup_headshot_dmg":
@@ -793,8 +796,8 @@ int function EmptyCommsAction_AttachmentForParent( string equipmentSlot, string 
 							return eCommsAction.INVENTORY_NEED_HOPUP_KINETIC_FEEDER
 
 
-
-
+						case "hopup_gunshield":
+							return eCommsAction.INVENTORY_NEED_HOPUP_GUNSHIELD
 
 					}
 				}
@@ -1210,8 +1213,26 @@ LootData function EquipmentSlot_GetEquippedLootDataForSlot( entity player, strin
 	if( es.weaponSlot >= 0 )
 	{
 		entity weapon = player.GetNormalWeapon( es.weaponSlot )
+		asset hudIcon
+
 		if( IsValid( weapon ) )
-			lootData.hudIcon = weapon.GetWeaponSettingAsset( eWeaponVar.hud_icon )
+		{
+			hudIcon = weapon.GetWeaponSettingAsset( eWeaponVar.hud_icon )
+
+
+			bool useAkimboIcon = GetWeaponInfoFileKeyField_GlobalBool( weapon.GetWeaponClassName(), "is_akimbo_weapon" ) && !SURVIVAL_Weapon_IsAttachmentLocked( GetWeaponClassNameWithLockedSet( weapon ) )
+			if ( useAkimboIcon )
+			{
+				
+				if ( weapon.IsAkimboAvailable() && !weapon.IsAkimboDisabled() )
+					hudIcon = GetWeaponInfoFileKeyFieldAsset_Global( weapon.GetWeaponClassName(), "hud_icon_akimbo_active" )
+				else
+					hudIcon = weapon.GetWeaponSettingAsset( eWeaponVar.hud_icon_akimbo )
+			}
+
+
+			lootData.hudIcon = hudIcon
+		}
 	}
 
 	return lootData
@@ -1522,7 +1543,7 @@ void function SetUnitFrameHudImageIfValid( string imageVarName, string tierVarNa
 				lootTier = UpgradeCore_GetPlayerArmorTier( player, false )
 				RuiSetBool( rui, "isEvolvingShield", true )
 				int armorForTier = EvolvingArmor_GetEvolvingArmorHealthForTier( lootTier )
-				RuiSetInt( rui, "armorShieldCapacity", armorForTier )
+				RuiTrackInt( rui, "armorShieldCapacity", player, RUI_TRACK_SHIELD_HEALTH_MAX_INT )
 				RuiSetInt( rui, tierVarName, lootTier )
 			}
 

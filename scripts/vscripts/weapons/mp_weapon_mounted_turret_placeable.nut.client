@@ -56,7 +56,11 @@ global const string MOUNTED_TURRET_PLACEABLE_WEAPON_NAME = "mp_weapon_mounted_tu
 global const string MOUNTED_TURRET_PLACEABLE_SCRIPT_NAME = "mounted_turret_placeable"
 const string MOUNTED_TURRET_PLACEABLE_ENT_NAME = "rampart_turret"
 
-const int MOUNTED_TURRET_PLACEABLE_MAX_TURRETS = 3
+
+const int MOUNTED_TURRET_PLACEABLE_MAX_TURRETS = 1
+
+
+
 
 const float MOUNTED_TURRET_PLACEABLE_NO_SPAWN_RADIUS = 256.0
 const float MOUNTED_TURRET_PLACEABLE_ICON_HEIGHT = 48.0
@@ -343,6 +347,12 @@ bool function OnWeaponAttemptOffhandSwitch_weapon_mounted_turret_placeable( enti
 {
 	return true
 }
+
+
+
+
+
+
 
 
 

@@ -161,6 +161,7 @@ global function DevPrintAllStatusEffectsOnEnt
 
 
 
+
 global function GlobalClientEventHandler
 global function UpdateViewmodelAmmo
 global function IsOwnerViewPlayerFullyADSed
@@ -171,11 +172,15 @@ global function TryCharacterButtonCommonReadyChecks
 global function ShouldShowADSScopeView
 global function HasFullscreenScope
 
-global function AddCallback_OnPlayerAddWeaponMod
-global function AddCallback_OnPlayerRemoveWeaponMod
+global function AddCallback_OnPlayerAddedWeaponMod
+global function AddCallback_OnPlayerRemovedWeaponMod
+global function AddCallback_OnPlayerAddedToggleWeaponMod
+global function AddCallback_OnPlayerRemovedToggleWeaponMod
 
 global function CodeCallback_OnPlayerAddedWeaponMod
 global function CodeCallback_OnPlayerRemovedWeaponMod
+global function CodeCallback_OnPlayerAddedToggleWeaponMod
+global function CodeCallback_OnPlayerRemovedToggleWeaponMod
 
 global function EnergyChoke_OnWeaponModCommandCheckMods
 
@@ -269,6 +274,7 @@ const vector NORMALAMMO_UI_COLOR = ZERO_VECTOR
 
 global const string OVERLOAD_AMMO_SETTING = "smart_reload_overload_ammo_required"
 global const string LOW_AMMO_FAC_SETTING = "low_ammo_fraction"
+global const string SMART_RELOAD_LOW_AMMO_FRAC_SETTING = "smart_reload_low_ammo_fraction"
 
 global struct SmartReloadSettings
 {
@@ -464,9 +470,10 @@ struct
 		var satchelHintRUI = null
 
 
-	array<void functionref( entity, entity, string )> playerAddWeaponModCallbacks
-	array<void functionref( entity, entity, string )> playerRemoveWeaponModCallbacks
-	table<string, array<void functionref( entity, string, bool )> > weaponModChangedCallbacks
+	array<void functionref( entity, entity, string )> playerAddedWeaponModCallbacks
+	array<void functionref( entity, entity, string )> playerRemovedWeaponModCallbacks
+	array<void functionref( entity, entity, string )> playerAddedToggleWeaponModCallbacks
+	array<void functionref( entity, entity, string )> playerRemovedToggleWeaponModCallbacks
 
 
 		table < entity, bool > weaponReloadedThroughSlideTable
@@ -586,8 +593,8 @@ void function WeaponUtility_Init()
 
 
 
-		AddCallback_OnPlayerAddWeaponMod( ShatterRounds_OnPlayerAddedWeaponMod )
-		AddCallback_OnPlayerRemoveWeaponMod( ShatterRounds_OnPlayerRemovedWeaponMod )
+		AddCallback_OnPlayerAddedToggleWeaponMod( ShatterRounds_OnPlayerAddedWeaponMod )
+		AddCallback_OnPlayerRemovedToggleWeaponMod( ShatterRounds_OnPlayerRemovedWeaponMod )
 
 	InitThrowableItemStickinessDatatable()
 }
@@ -599,7 +606,7 @@ void function InitThrowableItemStickinessDatatable()
 {
 	array< string > throwableItems = [
 		VOID_RING_WEAPON_REF, BUBBLE_BUNKER_WEAPON_NAME, ECHO_LOCATOR_WEAPON_NAME,
-		"mp_weapon_jump_pad", "mp_ability_space_elevator_tac", CAUSTIC_DIRTY_BOMB_WEAPON_CLASS_NAME,
+		"mp_weapon_jump_pad", "mp_ability_horizon_tac_space_elevator", CAUSTIC_DIRTY_BOMB_WEAPON_CLASS_NAME,
 		GRENADE_EMP_WEAPON_NAME, GUNGAME_THROWING_KNIFE_WEAPON_NAME, RIOT_DRILL_SCRIPT_NAME,
 		"mp_weapon_cluster_bomb_launcher", "mp_ability_debuff_zone", SPIKE_STRIP_WEAPON_NAME
 
@@ -3747,17 +3754,29 @@ void function PlayerUsedOffhand( entity player, entity offhandWeapon, bool sendP
 }
 
 
-void function AddCallback_OnPlayerAddWeaponMod( void functionref( entity, entity, string ) callbackFunc )
+void function AddCallback_OnPlayerAddedWeaponMod( void functionref( entity, entity, string ) callbackFunc )
 {
-	file.playerAddWeaponModCallbacks.append( callbackFunc )
+	
+	file.playerAddedWeaponModCallbacks.append( callbackFunc )
 }
 
-
-void function AddCallback_OnPlayerRemoveWeaponMod( void functionref( entity, entity, string ) callbackFunc )
+void function AddCallback_OnPlayerRemovedWeaponMod( void functionref( entity, entity, string ) callbackFunc )
 {
-	file.playerRemoveWeaponModCallbacks.append( callbackFunc )
+	
+	file.playerRemovedWeaponModCallbacks.append( callbackFunc )
 }
 
+void function AddCallback_OnPlayerAddedToggleWeaponMod( void functionref( entity, entity, string ) callbackFunc )
+{
+	
+	file.playerAddedToggleWeaponModCallbacks.append( callbackFunc )
+}
+
+void function AddCallback_OnPlayerRemovedToggleWeaponMod( void functionref( entity, entity, string ) callbackFunc )
+{
+	
+	file.playerRemovedToggleWeaponModCallbacks.append( callbackFunc )
+}
 
 void function CodeCallback_OnPlayerAddedWeaponMod( entity player, entity weapon, string mod )
 {
@@ -3767,15 +3786,10 @@ void function CodeCallback_OnPlayerAddedWeaponMod( entity player, entity weapon,
 	if ( !IsValid( weapon ) )
 		return
 
-	foreach ( callback in file.playerAddWeaponModCallbacks )
+	foreach ( callback in file.playerAddedWeaponModCallbacks )
 	{
 		callback( player, weapon, mod )
 	}
-
-	
-
-	bool modAdded = true
-	RunWeaponModChangedCallbacks( weapon, mod, modAdded )
 
 
 
@@ -3792,48 +3806,55 @@ void function CodeCallback_OnPlayerRemovedWeaponMod( entity player, entity weapo
 	if ( !IsValid( weapon ) )
 		return
 
-	foreach ( callback in file.playerRemoveWeaponModCallbacks )
+	foreach ( callback in file.playerRemovedWeaponModCallbacks )
 	{
 		callback( player, weapon, mod )
 	}
 
-	
-
-	bool modAdded = false
-	RunWeaponModChangedCallbacks( weapon, mod, modAdded )
-
 
 
 
 
 }
 
-
-void function RunWeaponModChangedCallbacks( entity weapon, string mod, bool modAdded )
+void function CodeCallback_OnPlayerAddedToggleWeaponMod( entity player, entity weapon, string mod )
 {
-	string className = weapon.GetWeaponClassName()
-	if ( !(className in file.weaponModChangedCallbacks) )
+	if ( !IsValid( player ) )
 		return
 
-	foreach ( callbackFunc in file.weaponModChangedCallbacks[className] )
-		callbackFunc( weapon, mod, modAdded )
+	if ( !IsValid( weapon ) )
+		return
+
+	foreach ( callback in file.playerAddedToggleWeaponModCallbacks )
+	{
+		callback( player, weapon, mod )
+	}
+
+
+
+
+
 }
 
 
+void function CodeCallback_OnPlayerRemovedToggleWeaponMod( entity player, entity weapon, string mod )
+{
+	if ( !IsValid( player ) )
+		return
+
+	if ( !IsValid( weapon ) )
+		return
+
+	foreach ( callback in file.playerRemovedToggleWeaponModCallbacks )
+	{
+		callback( player, weapon, mod )
+	}
 
 
 
 
 
-
-
-
-
-
-
-
-
-
+}
 
 
 
@@ -5095,6 +5116,54 @@ void function PlayDelayedShellEject( entity weapon, float time, int count = 1, b
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 void function UICallback_UpdateLaserSightColor()
 {
 	Remote_ServerCallFunction( "ClientCallback_UpdateLaserSightColor" )
@@ -5305,13 +5374,19 @@ CrosshairTargetData function GetCrosshairTargetData( entity player, float minDis
 	DoTraceCoordCheck( false )
 	array< entity > ignoreEnts = [ player ]
 	ignoreEnts.extend( GetEntArrayByScriptName( CRYPTO_DRONE_SCRIPTNAME ) )
+	ignoreEnts.extend( GetEntArrayByScriptName( DEATHBOX_FLYER_SCRIPT_NAME ) )
+	ignoreEnts.extend( GetEntArrayByScriptName( JUMPTOWER_PING_NAME ) )
+	ignoreEnts.extend( GetEntArrayByScriptName( REDEPLOY_BALLOON_INFLATABLE_SCRIPT_NAME ) )
 	TraceResults crosshairResults = TraceLineHighDetail( data.crosshairStart, crosshairEnd, ignoreEnts, (TRACE_MASK_SHOT | CONTENTS_BLOCKLOS ) & ~CONTENTS_WINDOW, TRACE_COLLISION_GROUP_PROJECTILE )
+
 	data.groundTarget = crosshairResults.endPos
 	data.groundTargetNormal = crosshairResults.surfaceNormal
 	data.airburstTarget = data.groundTarget + < 0, 0, airBurstHeight >
 	data.distanceToTarget = Distance( data.groundTarget, data.crosshairStart )
 	data.directionToTarget =  Normalize( data.groundTarget - data.crosshairStart )
 	float flattenedDistanceToTarget = Distance2D( data.groundTarget, data.crosshairStart )
+	bool isPlayerAbove =  ( data.groundTarget.z  - data.crosshairStart.z ) <= 0
+
 	if( flattenedDistanceToTarget < minDistance )
 	{
 		data.groundTarget = crosshairResults.endPos + ( FlattenNormalizeVec ( data.directionToTarget ) * ( minDistance - flattenedDistanceToTarget ) )
@@ -5321,7 +5396,7 @@ CrosshairTargetData function GetCrosshairTargetData( entity player, float minDis
 			data.groundTarget = downTraceResults.endPos
 		data.airburstTarget = data.groundTarget + < 0, 0, airBurstHeight >
 		data.distanceToTarget = Distance( data.groundTarget, data.crosshairStart )
-		data.inRange = true
+		data.inRange = CrosshairInRange( crosshairResults, player, isPlayerAbove )
 	}
 	else if ( capAtMaxRange && crosshairResults.fraction == 1.0 )
 	{
@@ -5333,15 +5408,32 @@ CrosshairTargetData function GetCrosshairTargetData( entity player, float minDis
 		data.airburstTarget = data.groundTarget + < 0, 0, airBurstHeight >
 		data.distanceToTarget = Distance( data.groundTarget, data.crosshairStart )
 		data.inRange = true
-
 	}
 	else
-	{
-		data.inRange = ( crosshairResults.fraction < 1.0 )
-	}
+		data.inRange = CrosshairInRange( crosshairResults, player, isPlayerAbove )
 	DoTraceCoordCheck( true )
 
 	return data
+}
+
+bool function CrosshairInRange( TraceResults crosshairResults, entity player, bool isPlayerAbove  )
+{
+	bool inRange = false
+	const array< string > HOVER_TANK_ENTS = [ "_hover_tank_mover", "_hover_tank_interior"]
+
+	if( IsValid( crosshairResults.hitEnt ) && HOVER_TANK_ENTS.contains( crosshairResults.hitEnt.GetScriptName() ) )
+	{
+		entity ground = player.GetGroundEntity()
+		float velocity = Length( crosshairResults.hitEnt.GetVelocity() )
+		if( isPlayerAbove || velocity == 0.0 || ground == crosshairResults.hitEnt )
+			inRange = crosshairResults.fraction < 1.0
+		else
+			inRange = false
+	}
+	else
+		inRange = crosshairResults.fraction < 1.0
+
+	return inRange
 }
 
 CrosshairTargetData function GetCrosshairTargetDataAngles( entity player, float minDistance, float maxDistance, float airBurstHeight, bool capAtMaxRange = false )
@@ -6603,6 +6695,27 @@ void function KineticLoaderFunctionality_ServerThink( entity player, entity weap
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 }
 void function KineticLoaderChokeGraceWindow_ServerThink( entity player, entity weapon )
 {
@@ -6917,6 +7030,9 @@ bool function GetInfiniteAmmo( entity weapon )
 {
 	return weapon.GetInfiniteAmmoState() != INFINITEAMMO_NONE
 }
+
+
+
 
 
 

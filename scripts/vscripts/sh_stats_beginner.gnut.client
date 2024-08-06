@@ -70,10 +70,6 @@ void function ShStats_Beginner_LevelInit()
 
 
 
-
-
-
-
 }
 
 void function StatsRegister_Beginner()
@@ -84,8 +80,6 @@ void function StatsRegister_Beginner()
 		CAREER_STATS.doors_broken_by_melee = RegisterAccumulatedStat_Int( null, "doors_broken_by_melee", eChallengeGameMode.ANY, CHALLENGES_CALC_DEPENDS )
 		CAREER_STATS.phoenix_kits_used = RegisterAccumulatedStat_Int( null, "phoenix_kits_used", eChallengeGameMode.BATTLE_ROYALE, CHALLENGES_CALC_DEPENDS )
 		CAREER_STATS.beginner_distance_kill = RegisterAccumulatedStat_Int( null, "beginner_distance_kill", eChallengeGameMode.BATTLE_ROYALE, CHALLENGES_CALC_DEPENDS )
-
-
 
 
 
@@ -285,26 +279,6 @@ StatCalcFuncInfo function SetupGraduatedBotQueueStat( StatEntry calcEntry, array
 
 	return info
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

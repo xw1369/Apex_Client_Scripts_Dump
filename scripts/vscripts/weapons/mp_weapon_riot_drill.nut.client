@@ -2,8 +2,6 @@ global function MpWeaponRiotDrill_Init
 
 global function OnWeaponActivate_riot_drill
 global function OnWeaponDeactivate_riot_drill
-
-global function OnWeaponTossCancel_weapon_riot_drill
 global function OnWeaponTossReleaseAnimEvent_weapon_riot_drill
 global function OnProjectileCollision_weapon_riot_drill
 
@@ -11,12 +9,6 @@ global function CodeCallback_BreachTraceEarlyExitOnEnt
 global function CodeCallback_BreachTraceIsValidPos
 
 
-
-
-
-
-
-global function ServerCallback_CancelPlacement
 global function OnClientAnimEvent_weapon_riot_drill
 
 
@@ -25,34 +17,11 @@ global const string RIOT_DRILL_DANGERZONE_TARGETNAME = "riot_drill_dangerzone_th
 const string RIOT_DRILL_MOVER_SCRIPTNAME = "riot_drill_mover"
 
 
-const float WALL_THICKNESS_MAX 			= 512.0			
-const float WALL_THICKNESS_MIN 			= 0.18
-const float MAX_RANGE 					= 1750.0		
-
-
-const float RIOT_DRILL_FIRE_DELAY 	= 1.0			
-const float RIOT_DRILL_DURATION 	= 8.0			
-const float RIOT_DRILL_BLAST_LENGTH = 224.0			
-const float RIOT_DRILL_BLAST_RADIUS = 130.0			
-const int	RIOT_DRILL_DAMAGE 		= 4				
-const int 	RIOT_DRILL_IMPACT_DAMAGE = 5			
-const int	RIOT_DRILL_OBJECT_DAMAGE = 1				
-const float RIOT_DRILL_DAMAGE_TICK 	= 0.2			
-
-const float RIOT_DRILL_DURATION_UPGRADE					= 6.0 
-const float RIOT_DRILL_BLAST_LENGTH_UPGRADE_MULTIPLIER 	= 1.5 
-const float RIOT_DRILL_BLAST_RADIUS_UPGRADE_MULTIPLIER 	= 1.5 
-
-
-
 const asset RIOT_DRILL_SPIKE 					= $"mdl/props/madmaggie_tactical_drill_bit/madmaggie_tactical_drill_bit.rmdl"
 const asset RIOT_DRILL_DRILL		 			= $"mdl/props/madmaggie_tactical_drill_bit/madmaggie_tactical_drill_bit.rmdl"
-const asset RIOT_DRILL_DRILL_FIZZLE		 		= $"mdl/robots/drone_frag/drone_frag.rmdl"
 
 
 const asset RIOT_DRILL_EMPTY_MODEL				= $"mdl/dev/empty_model.rmdl"
-const asset RIOT_DRILL_PLACEMENT_ENTER 			= $"_none_FX_test"
-const asset RIOT_DRILL_PLACEMENT_EXIT 			= $"_none_FX_test"
 const asset RIOT_DRILL_BLAST_BEAM_FX 			= $"P_mm_breach_beam"
 const asset RIOT_DRILL_BLAST_BEAM_WARN_FX 		= $"P_mm_breach_beam_warn"
 const asset RIOT_DRILL_AOE_WARNING_01_FX 		= $"P_mm_breach_exit"
@@ -61,13 +30,9 @@ const asset RIOT_DRILL_AOE_WARNING_01_FX 		= $"P_mm_breach_exit"
     const asset RIOT_DRILL_AOE_WARNING_01_FX_UPGRADE 		= $"P_mm_breach_exit_big"
 
 const asset RIOT_DRILL_FRONT_FX 				= $"P_mm_breach_enter"
-const asset RIOT_DRILL_SPRAY_TEST_CONE	 		= $"_none_FX_test"
-const asset RIOT_DRILL_SPRAY_TEST_COLUMN 		= $"_none_FX_test"
 const asset RIOT_DRILL_DECAL					= $"P_mm_breach_decal"
-const asset RIOT_DRILL_DAMAGE_FX_1P				= $"fissure_breach_CH_hex_flash"
-const asset RIOT_DRILL_FIZZLE_EXPLODE_FX		= $"fissure_breach_fizzle_explosion"
-const asset RIOT_DRILL_FIZZLE_SPARKS_FX			= $"fissure_breach_fizzle_spray"
 const asset RIOT_DRILL_ENTER_FX_DEFAULT			= $"P_mm_breach_imp_enter_default"
+
 const vector RIOT_DRILL_PLACEMENT_VALID_COLOR 	= <128, 188, 255>
 const vector RIOT_DRILL_PLACEMENT_CAUTION_COLOR = <255, 200, 40>
 const vector RIOT_DRILL_PLACEMENT_ERROR_COLOR 	= <255, 40, 40>
@@ -81,7 +46,7 @@ const string RIOT_DRILL_ENTRANCE_DRILLING 		= "Maggie_Tac_Drill_Entrance_Drillin
 const string RIOT_DRILL_EXIT_DRILLING_UPGRADE	= "Maggie_Tac_Drill_Exit_Drilling_Short"
 
 
-const bool DEBUG_INFO = false
+const bool RIOT_DRILL_DEBUG = false
 
 enum eBreachPlacementResult
 {
@@ -126,21 +91,6 @@ struct RiotDrillSystem
 
 struct
 {
-	bool balance_riotDrillAllowThick
-	bool balance_riotDrillAllowOutRange
-	bool balance_riotDrillProjCollision
-	float balance_riotDrillDelay
-	float balance_riotDrillDuration
-	int balance_riotDrillDamage
-	int balance_riotDrillImpactDamage
-	int balance_riotDrillObjectDamage
-	float balance_riotDrillMaxThickness
-	float balance_riotDrillRadius
-	float balance_riotDrillLength
-	float balance_riotDrillRange
-	bool balance_riotDrillAfterDeath
-	bool balance_riotDrillPlayerCollide
-
 	array<string> shieldScriptNames
 	array<string> bounceOffSpecialCaseNames
 
@@ -159,6 +109,27 @@ struct
 }
 file
 
+struct
+{
+	float damageTickRate = 0.2		
+	float delay = 1.0				
+	float duration = 8.0			
+	int   damage = 4				
+	int   impactDamage = 5			
+	int   objectDamage = 1			
+	float maxThickness = 512.0		
+	float radius = 130.0			
+	float length = 224.0			
+	float range = 1750.0 			
+	bool  persistAfterDeath = true	
+
+	float extraChargeDurationOverride = 6.0
+	float lengthUpgradeMultiplier = 1.5
+	float radiusUpgradeMultiplier = 1.5
+	float maxThicknessUpgradeOverride = 768.0
+
+} tuning
+
 void function MpWeaponRiotDrill_Init()
 {
 	PrecacheParticleSystem( RIOT_DRILL_FRONT_FX )
@@ -167,47 +138,24 @@ void function MpWeaponRiotDrill_Init()
 	    PrecacheParticleSystem( RIOT_DRILL_BLAST_BEAM_WARN_FX_UPGRADE )
 	    PrecacheParticleSystem( RIOT_DRILL_AOE_WARNING_01_FX_UPGRADE )
 
-	PrecacheParticleSystem( RIOT_DRILL_SPRAY_TEST_CONE )
-	PrecacheParticleSystem( RIOT_DRILL_SPRAY_TEST_COLUMN )
 	PrecacheParticleSystem( RIOT_DRILL_BLAST_BEAM_FX )
 	PrecacheParticleSystem( RIOT_DRILL_BLAST_BEAM_WARN_FX )
-	PrecacheParticleSystem( RIOT_DRILL_PLACEMENT_ENTER )
-	PrecacheParticleSystem( RIOT_DRILL_PLACEMENT_EXIT )
-	PrecacheParticleSystem( RIOT_DRILL_DAMAGE_FX_1P )
 	PrecacheParticleSystem( RIOT_DRILL_DECAL )
-	PrecacheParticleSystem( RIOT_DRILL_FIZZLE_EXPLODE_FX )
-	PrecacheParticleSystem( RIOT_DRILL_FIZZLE_SPARKS_FX )
 	PrecacheParticleSystem( RIOT_DRILL_ENTER_FX_DEFAULT )
 
 	PrecacheScriptString( RIOT_DRILL_SCRIPT_NAME )
-	PrecacheScriptString( "concussive_breach_marker" )
 
 	PrecacheModel( RIOT_DRILL_SPIKE )
 	PrecacheModel( RIOT_DRILL_DRILL )
-	PrecacheModel( RIOT_DRILL_DRILL_FIZZLE )
 	PrecacheModel( RIOT_DRILL_EMPTY_MODEL )
 
 	RegisterSignal( "DeployableBreachChargePlacement_End" )
 	RegisterSignal( "RiotDrill_TempAnimWindDown" )
 	RegisterSignal( "RiotDrill_StuckEntDissolving" )
 
-	file.balance_riotDrillAfterDeath	= GetCurrentPlaylistVarBool( "breaching_spike_after_death_override", true )										
-	file.balance_riotDrillAllowThick 	= GetCurrentPlaylistVarBool( "breaching_spike_allow_thick_override", true )										
-	file.balance_riotDrillAllowOutRange = GetCurrentPlaylistVarBool( "breaching_spike_allow_out_range_override", true )									
-	file.balance_riotDrillProjCollision = GetCurrentPlaylistVarBool( "breaching_spike_allow_projectile_collision_override", true )						
-	file.balance_riotDrillDelay 		= max( GetCurrentPlaylistVarFloat( "breaching_spike_delay_override", RIOT_DRILL_FIRE_DELAY ), 0.25 )		
-	file.balance_riotDrillDuration 		= max( GetCurrentPlaylistVarFloat( "riot_drill_duration_override", RIOT_DRILL_DURATION ), 0.0 )			
-	file.balance_riotDrillDamage 		= maxint( GetCurrentPlaylistVarInt( "breaching_spike_damage_override", RIOT_DRILL_DAMAGE ), 0 )				
-	file.balance_riotDrillImpactDamage	= maxint( GetCurrentPlaylistVarInt( "breaching_spike_impact_damage_override", RIOT_DRILL_IMPACT_DAMAGE ), 0 )		
-	file.balance_riotDrillObjectDamage 	= maxint( GetCurrentPlaylistVarInt( "breaching_spike_stuck_damage_override", RIOT_DRILL_OBJECT_DAMAGE ), 0 )		
-	file.balance_riotDrillMaxThickness 	= max( GetCurrentPlaylistVarFloat( "breaching_spike_max_thickness_override", WALL_THICKNESS_MAX ), 400.0 )		
-	file.balance_riotDrillRadius 		= max( GetCurrentPlaylistVarFloat( "breaching_spike_radius_override", RIOT_DRILL_BLAST_RADIUS ), 64.0 )		
-	file.balance_riotDrillLength 		= max( GetCurrentPlaylistVarFloat( "breaching_spike_length_override", RIOT_DRILL_BLAST_LENGTH ), 64.0 )		
-	file.balance_riotDrillRange 		= GetCurrentPlaylistVarFloat( "breaching_spike_range_override", MAX_RANGE )										
-	file.balance_riotDrillPlayerCollide = GetCurrentPlaylistVarBool( "breaching_spike_allow_player_collision_override", true )							
+	SetupTuning()
 
 	
-	file.fxOption_hideModels				= GetCurrentPlaylistVarBool( "breaching_spike_hide_models", true )
 	file.fxOption_impactTableFXEnterRefire	= GetCurrentPlaylistVarFloat( "breaching_spike_impact_fx_enter_refire", 0.2 )
 	file.fxOption_impactTableFXExitRefire	= GetCurrentPlaylistVarFloat( "breaching_spike_impact_fx_exit_refire", 0.2 )
 
@@ -232,66 +180,79 @@ void function MpWeaponRiotDrill_Init()
 
 		AddTargetNameCreateCallback( RIOT_DRILL_DANGERZONE_TARGETNAME, RiotDrill_AddThreatIndicator )
 
+		AddCallback_OnViewPlayerChanged( OnViewPlayerChanged )
 
-	Remote_RegisterServerFunction( "ClientCallback_DrillError_On" )
-	Remote_RegisterServerFunction( "ClientCallback_DrillError_Off" )
+}
 
-	Remote_RegisterClientFunction( "ServerCallback_CancelPlacement", "entity" )
+void function SetupTuning()
+{
+	tuning.damageTickRate    = GetCurrentPlaylistVarFloat( "riot_drill_damageTickRate", tuning.damageTickRate )
+	tuning.delay             = GetCurrentPlaylistVarFloat( "breaching_spike_delay_override", tuning.delay )
+	tuning.duration          = max( GetCurrentPlaylistVarFloat( "riot_drill_duration_override", tuning.duration ), 0.0 )
+	tuning.damage            = maxint( GetCurrentPlaylistVarInt( "breaching_spike_damage_override", tuning.damage ), 0 )
+	tuning.impactDamage      = maxint( GetCurrentPlaylistVarInt( "breaching_spike_impact_damage_override", tuning.impactDamage ), 0 )
+	tuning.objectDamage      = maxint( GetCurrentPlaylistVarInt( "breaching_spike_stuck_damage_override", tuning.objectDamage ), 0 )
+	tuning.maxThickness      = GetCurrentPlaylistVarFloat( "breaching_spike_max_thickness_override", tuning.maxThickness )
+	tuning.radius            = GetCurrentPlaylistVarFloat( "breaching_spike_radius_override", tuning.radius )
+	tuning.length            = GetCurrentPlaylistVarFloat( "breaching_spike_length_override", tuning.length )
+	tuning.range             = GetCurrentPlaylistVarFloat( "breaching_spike_range_override", tuning.range )
+	tuning.persistAfterDeath = GetCurrentPlaylistVarBool( "breaching_spike_after_death_override", tuning.persistAfterDeath )
+	tuning.extraChargeDurationOverride = GetCurrentPlaylistVarFloat( "riot_drill_extraChargeDurationOverride", tuning.extraChargeDurationOverride )
+	tuning.lengthUpgradeMultiplier = GetCurrentPlaylistVarFloat( "riot_drill_lengthUpgradeMultiplier", tuning.lengthUpgradeMultiplier )
+	tuning.radiusUpgradeMultiplier = GetCurrentPlaylistVarFloat( "riot_drill_radiusUpgradeMultiplier", tuning.radiusUpgradeMultiplier )
+	tuning.maxThicknessUpgradeOverride      = GetCurrentPlaylistVarFloat( "riot_drill_maxThicknessUpgradeOverride", tuning.maxThickness )
+}
+
+#if INTELLIJ_OUTLINE_SECTION_MARKER
+void function _____________Accessors___________________________(){}
+#endif
+entity function GetRiotDrillFromPlayerIfActive( entity player )
+{
+	if ( IsAlive( player ) )
+	{
+		entity weapon = player.GetOffhandWeapon( OFFHAND_SPECIAL )
+		if ( IsValid( weapon ) && weapon.GetWeaponClassName() == "mp_weapon_riot_drill" )
+			return weapon
+	}
+
+	return null
 }
 
 void function RestoreRiotDrillAmmo( entity owner )
 {
-	if ( IsAlive( owner ) )
+	entity weapon = GetRiotDrillFromPlayerIfActive( owner )
+	if ( weapon != null )
 	{
-		entity weapon = owner.GetOffhandWeapon( OFFHAND_SPECIAL )
-		if ( IsValid( weapon ) && weapon.GetWeaponClassName() == "mp_weapon_riot_drill" )
-			Weapon_AddSingleCharge( weapon )
+		Weapon_AddSingleCharge( weapon )
 	}
 }
 
-
-float function RiotDrill_GetReducedDuration()
-{
-	return GetCurrentPlaylistVarFloat( "riot_drill_reduced_duration", RIOT_DRILL_DURATION_UPGRADE )
-}
-
-float function RiotDrill_GetUpgradedRadiusMultiplier()
-{
-	return GetCurrentPlaylistVarFloat( "riot_drill_upgraded_radius", RIOT_DRILL_BLAST_RADIUS_UPGRADE_MULTIPLIER )
-}
-
-float function RiotDrill_GetUpgradedLengthMultiplier()
-{
-	return GetCurrentPlaylistVarFloat( "riot_drill_upgraded_length", RIOT_DRILL_BLAST_LENGTH_UPGRADE_MULTIPLIER )
-}
-
-
 float function RiotDrill_GetDuration( entity player )
 {
-	float result = file.balance_riotDrillDuration
+	float result = tuning.duration
 
 		if( PlayerHasPassive( player, ePassives.PAS_TAC_UPGRADE_ONE ) ) 
-			result = RiotDrill_GetReducedDuration()
+			result = tuning.extraChargeDurationOverride
 
 	return result
 }
 
 float function RiotDrill_GetRadius( entity player )
 {
-	float result = file.balance_riotDrillRadius
+	float result = tuning.radius
 
 	if( PlayerHasPassive( player, ePassives.PAS_TAC_UPGRADE_TWO ) ) 
-		result *= RiotDrill_GetUpgradedRadiusMultiplier()
+		result *= tuning.radiusUpgradeMultiplier
 
 	return result
 }
 
 float function RiotDrill_GetLength( entity player )
 {
-	float result = file.balance_riotDrillLength
+	float result = tuning.length
 
 		if( PlayerHasPassive( player, ePassives.PAS_TAC_UPGRADE_TWO ) ) 
-			result *= RiotDrill_GetUpgradedLengthMultiplier()
+			result *= tuning.lengthUpgradeMultiplier
 
 	return result
 }
@@ -818,86 +779,9 @@ float function RiotDrill_GetLength( entity player )
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+#if INTELLIJ_OUTLINE_SECTION_MARKER
+void function _____________ClientFuncs___________________________(){}
+#endif
 
 
 void function OnClientAnimEvent_weapon_riot_drill( entity weapon, string name )
@@ -914,210 +798,70 @@ void function OnClientAnimEvent_weapon_riot_drill( entity weapon, string name )
 		ClientScreenShake( SHAKE_AMPLITUDE, SHAKE_FREQUENCY, SHAKE_DURATION, SHAKE_DIRECTION )
 }
 
-void function ServerCallback_CancelPlacement( entity player )
-{
-	player.Signal( "DeployableBreachChargePlacement_End" )
-}
-
 void function SetBreachChargeDeployed( bool state )
 {
 	file.breachChargeDeployed = state
 }
 
-void function DestroyBreachChargeProxy( entity ent )
-{
-	Assert( IsNewThread(), "Must be threaded off" )
-	EndSignal( ent, "OnDestroy" )
-
-	if ( file.breachChargeDeployed )
-		wait 0.225
-
-	ent.Destroy()
-}
-
-void function RiotDrill_OnPropScriptCreated( entity ent )
-{
-	switch ( ent.GetScriptName() )
-	{
-		case "concussive_breach_marker":
-			thread RiotDrill_CreateHUDMarker( ent )
-			break
-	}
-}
-
-void function RiotDrill_CreateHUDMarker( entity marker )
-{
-	entity localClientPlayer = GetLocalClientPlayer()
-
-	EndSignal( marker, "OnDestroy" )
-
-	if ( !GamePlayingOrSuddenDeath() )
-		return
-
-	var topology = CreateRUITopology_Worldspace( <0,0,0>, <0,0,0>, 32, 32 )
-	var ruiPlane = RuiCreate( $"ui/concussive_breach_timer.rpak", topology, RUI_DRAW_WORLD, 0 )
-	RuiTopology_SetParent( topology, marker )
-
-	RuiSetGameTime( ruiPlane, "startTime", Time() )
-	RuiSetFloat( ruiPlane, "lifeTime", RiotDrill_GetDuration( marker.GetBossPlayer() ) )
-
-	OnThreadEnd(
-		function() : ( ruiPlane, topology )
-		{
-			RuiDestroy( ruiPlane )
-			RuiTopology_Destroy( topology )
-		}
-	)
-
-	WaitForever()
-}
-
-void function DeployableBreachChargePlacementThink( entity player )
+void function DeployableBreachChargePlacementThink( entity player, entity weapon )
 {
 	EndSignal( player, "DeployableBreachChargePlacement_End", "OnDeath", "OnDestroy", SIGNAL_BLEEDOUT_STATE_CHANGED )
+	EndSignal( weapon, "OnDestroy" )
 
 	const vector COLOR_DEPTH_UNKNOWN	= <255, 122, 0>
 	const vector COLOR_DEPTH_START 		= <255, 122, 0>
 	const vector COLOR_DEPTH_MID 		= <255, 210, 73>
 	const vector COLOR_DEPTH_END 		= <255, 255, 255>
 
-	asset breachStartModel				= RIOT_DRILL_SPIKE
-	asset breachDrillModel				= RIOT_DRILL_DRILL
-	string breachStartModelAttachment	= "muzzle_flash"
-	string breachDrillModelAttachment	= "ORIGIN"
-
-	if ( file.fxOption_hideModels )
-	{
-		breachStartModel = RIOT_DRILL_EMPTY_MODEL
-		breachDrillModel = RIOT_DRILL_EMPTY_MODEL
-		breachStartModelAttachment = "ORIGIN"
-		breachDrillModelAttachment = "ORIGIN"
-	}
-
-	entity breachCharge_startProxy = CreateBreachChargeProxy( breachStartModel )
-	breachCharge_startProxy.EnableRenderAlways()
-	breachCharge_startProxy.Show()
-
-	int placementFXhandle_Enter = StartParticleEffectOnEntity( breachCharge_startProxy, GetParticleSystemIndex( RIOT_DRILL_PLACEMENT_ENTER ),
-		FX_PATTACH_POINT_FOLLOW, breachCharge_startProxy.LookupAttachment( breachStartModelAttachment ) )
-
-	entity breachCharge_endProxy = CreateBreachChargeProxy( breachDrillModel )
-	breachCharge_endProxy.EnableRenderAlways()
-	breachCharge_endProxy.Show()
-
-	int placementFXhandle_Exit = StartParticleEffectOnEntity( breachCharge_endProxy, GetParticleSystemIndex( RIOT_DRILL_PLACEMENT_EXIT ),
-		FX_PATTACH_POINT_FOLLOW, breachCharge_endProxy.LookupAttachment( breachDrillModelAttachment ) )
-	EffectSetControlPointVector( placementFXhandle_Exit, 1, ( RIOT_DRILL_PLACEMENT_VALID_COLOR / 255.0 ) )
-
-	EffectAddTrackingForControlPoint( placementFXhandle_Enter, 1, breachCharge_endProxy, FX_PATTACH_POINT_FOLLOW, breachCharge_endProxy.LookupAttachment( breachDrillModelAttachment ), <0,0,0> )
-
 	file.depthRui = CreateFullscreenRui( $"ui/mm_riot_drill.rpak" )
 
 	OnThreadEnd(
-		function() : ( breachCharge_startProxy, breachCharge_endProxy, placementFXhandle_Enter, placementFXhandle_Exit )
+		function() : ( weapon )
 		{
-			CleanupFXHandle( placementFXhandle_Enter, true, false )
-			CleanupFXHandle( placementFXhandle_Exit, true, false )
-
-			if ( IsValid( breachCharge_startProxy ) )
-				thread DestroyBreachChargeProxy( breachCharge_startProxy )
-
-			if ( IsValid( breachCharge_endProxy ) )
-				thread DestroyBreachChargeProxy( breachCharge_endProxy )
-
-			Remote_ServerCallFunction( "ClientCallback_DrillError_Off" )
-
 			if ( file.depthRui != null )
 			{
 				RuiDestroyIfAlive( file.depthRui )
 				file.depthRui = null
 			}
+			weapon.SetGrenadeIndicatorEffectUseBlockedFX( false )
 		}
 	)
 
-	int currentResult = -1
-
+	bool previousResultWasSuccess = true
 	while ( player.IsUsingOffhandWeapon( eActiveInventorySlot.altHand ) )
 	{
-		RiotDrillPlacementInfo placementInfo = GetRiotDrillPlacementInfo( player, [] )
+		RiotDrillPlacementInfo placementInfo = GetRiotDrillPlacementInfo( player, weapon, [] )
 
-		vector forward = AnglesToForward( placementInfo.startAngles )
+		float distance = -1.0
+		vector color = COLOR_DEPTH_UNKNOWN
 
-		breachCharge_startProxy.SetOrigin( placementInfo.startOrigin + ( forward * -15.0 ) )
-		breachCharge_startProxy.SetAngles( AnglesCompose( placementInfo.startAngles, <90,0,0> ) )
-
-		breachCharge_endProxy.SetOrigin( placementInfo.endOrigin + ( -30.0 * AnglesToUp( AnglesCompose( placementInfo.endAngles, <-90,0,0> ) ) ) )
-		breachCharge_endProxy.SetAngles( AnglesCompose( placementInfo.endAngles, -<90,0,0> ) )
-
-		vector placementColor
-
-		if ( placementInfo.placementResult == eBreachPlacementResult.SUCCESS )
-			placementColor = ( RIOT_DRILL_PLACEMENT_VALID_COLOR / 255.0 )
-		else if ( placementInfo.placementResult == eBreachPlacementResult.FAILED_WALL_TOO_THICK && file.balance_riotDrillAllowThick )
-			placementColor = ( RIOT_DRILL_PLACEMENT_CAUTION_COLOR / 255.0 )
-		else
-			placementColor = ( RIOT_DRILL_PLACEMENT_ERROR_COLOR / 255.0 )
-
-		if ( EffectDoesExist( placementFXhandle_Enter ) )
-			EffectSetControlPointVector( placementFXhandle_Enter, 1, placementColor )
-
-		currentResult = placementInfo.placementResult
-
-		if ( placementInfo.hide || placementInfo.placementResult == eBreachPlacementResult.FAILED_GENERIC )
+		bool resultWasSuccess = true
+		switch ( placementInfo.placementResult )
 		{
-			breachCharge_startProxy.Hide()
-			breachCharge_endProxy.Hide()
+			case eBreachPlacementResult.FAILED_GENERIC:
+			case eBreachPlacementResult.FAILED_OUT_OF_RANGE:
+			case eBreachPlacementResult.FAILED_WALL_TOO_THICK:
+			case eBreachPlacementResult.FAILED_SAFETY_CATCH:
+				resultWasSuccess = false
+				break
+			default:
+				distance = Distance( placementInfo.startOrigin, placementInfo.endOrigin )
+				float distanceFrac = distance / tuning.maxThickness
+				color = GetTriLerpColor( distanceFrac, COLOR_DEPTH_END, COLOR_DEPTH_MID, COLOR_DEPTH_START, 0.6, 0.3 )
+				resultWasSuccess = true
 		}
-		else
+
+		if ( resultWasSuccess != previousResultWasSuccess )
 		{
-			float distance = Distance( placementInfo.startOrigin, placementInfo.endOrigin )
-			float distanceFrac = distance / file.balance_riotDrillMaxThickness
-			vector color = GetTriLerpColor( distanceFrac, COLOR_DEPTH_END, COLOR_DEPTH_MID, COLOR_DEPTH_START, 0.6, 0.3 )
-
-			if ( placementInfo.placementResult == eBreachPlacementResult.FAILED_OUT_OF_RANGE
-				|| placementInfo.placementResult == eBreachPlacementResult.FAILED_WALL_TOO_THICK
-				|| placementInfo.placementResult == eBreachPlacementResult.FAILED_SAFETY_CATCH )
-			{
-				color = COLOR_DEPTH_UNKNOWN
-				distance = -1.0
-				breachCharge_startProxy.Hide()
-				breachCharge_endProxy.Hide()
-				Remote_ServerCallFunction( "ClientCallback_DrillError_On" )
-			}
-			
-			
-			
-			
-			
-			
-			
-			else
-			{
-				breachCharge_startProxy.Show()
-				breachCharge_endProxy.Show()
-				Remote_ServerCallFunction( "ClientCallback_DrillError_Off" )
-			}
-
-			RuiSetFloat( file.depthRui, "depth", distance )
-			RuiSetFloat3( file.depthRui, "infoTextColorRGB", ( color / 255.0 ) )
-
-			DeployableModelHighlight( breachCharge_endProxy )
+			previousResultWasSuccess = resultWasSuccess
+			weapon.SetGrenadeIndicatorEffectUseBlockedFX( !resultWasSuccess )
 		}
+
+		RuiSetFloat( file.depthRui, "depth", distance )
+		RuiSetFloat3( file.depthRui, "infoTextColorRGB", ( color / 255.0 ) )
+
 		WaitFrame()
 	}
-}
-
-entity function CreateBreachChargeProxy( asset modelName )
-{
-	entity breachCharge = CreateClientSidePropDynamic( <0, 0, 0>, <0, 0, 0>, modelName )
-	breachCharge.kv.renderamt = 255
-	breachCharge.kv.rendermode = 3
-	breachCharge.kv.rendercolor = "255 255 255 255"
-
-	breachCharge.Anim_Play( "ref" )
-	breachCharge.Hide()
-
-	return breachCharge
 }
 
 void function RiotDrill_AddThreatIndicator( entity dangerZone )
@@ -1134,57 +878,28 @@ void function RiotDrill_AddThreatIndicator( entity dangerZone )
 
 
 
+#if INTELLIJ_OUTLINE_SECTION_MARKER
+void function _____________WeaponFuncs___________________________(){}
+#endif
 
 
-
-
-
-var function OnWeaponTossCancel_weapon_riot_drill( entity weapon, WeaponPrimaryAttackParams attackParams )
+void function OnViewPlayerChanged( entity player )
 {
-	entity player = weapon.GetOwner()
+	player.Signal( "DeployableBreachChargePlacement_End" )
 
-
-
-
-
-	return 0
+	entity weapon = GetRiotDrillFromPlayerIfActive( player )
+	if ( weapon != null )
+	{
+		thread DeployableBreachChargePlacementThink( player, weapon )
+	}
 }
+
 
 var function OnWeaponTossReleaseAnimEvent_weapon_riot_drill( entity weapon, WeaponPrimaryAttackParams attackParams )
 {
 	entity player = weapon.GetOwner()
 
-	RiotDrillPlacementInfo placementInfo = GetRiotDrillPlacementInfo( weapon.GetOwner(), [] )
-	bool resultIsAllowedThickBreach = file.balance_riotDrillAllowThick && ( placementInfo.placementResult == eBreachPlacementResult.FAILED_WALL_TOO_THICK )
-	bool resultIsAllowedOutRangeBreach = file.balance_riotDrillAllowOutRange && ( placementInfo.placementResult == eBreachPlacementResult.FAILED_OUT_OF_RANGE )
-	bool resultIsAllowedPlayerTarget = file.balance_riotDrillPlayerCollide && ( placementInfo.placementResult == eBreachPlacementResult.FAILED_SAFETY_CATCH )
-
-	if ( ( placementInfo.placementResult != eBreachPlacementResult.SUCCESS ) )
-	{
-		if ( !resultIsAllowedThickBreach && !resultIsAllowedOutRangeBreach && !resultIsAllowedPlayerTarget )
-		{
-			weapon.DoDryfire()
-			return 0
-		}
-	}
-
 	bool ignite = false
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -1234,7 +949,7 @@ int function RiotDrill_FireProjectile( entity weapon, WeaponPrimaryAttackParams 
 
 
 
-	return weapon.GetWeaponSettingInt( eWeaponVar.ammo_per_shot )
+	return weapon.GetAmmoPerShot()
 }
 
 void function OnWeaponActivate_riot_drill( entity weapon )
@@ -1247,7 +962,7 @@ void function OnWeaponActivate_riot_drill( entity weapon )
 		if ( !InPrediction() ) 
 			return
 		if ( ownerPlayer == GetLocalViewPlayer() )
-			thread DeployableBreachChargePlacementThink( ownerPlayer )
+			thread DeployableBreachChargePlacementThink( ownerPlayer, weapon )
 
 }
 void function OnWeaponDeactivate_riot_drill( entity weapon )
@@ -1293,7 +1008,7 @@ void function OnProjectileCollision_weapon_riot_drill( entity projectile, vector
 
 
 
-	if ( file.balance_riotDrillPlayerCollide && isBounceTarget )
+	if ( isBounceTarget )
 		return
 
 
@@ -1362,19 +1077,21 @@ void function OnProjectileCollision_weapon_riot_drill( entity projectile, vector
 }
 
 
+#if INTELLIJ_OUTLINE_SECTION_MARKER
+void function _____________Placement___________________________(){}
+#endif
 
 
-
-RiotDrillPlacementInfo function GetRiotDrillPlacementInfo( entity player, array<entity> ignoreEnts, bool debugDrawTrace = false )
+RiotDrillPlacementInfo function GetRiotDrillPlacementInfo( entity player, entity weapon, array<entity> ignoreEnts )
 {
 	int placementResult = eBreachPlacementResult.SUCCESS
 
-	array<entity> ignoreArray = file.balance_riotDrillPlayerCollide ? [ player ] : GetPlayerArray()
+	array<entity> ignoreArray = [ player ]
 	ignoreArray.extend( GetPlayerDecoyArray() )
 	ignoreArray.extend( ignoreEnts )
 
 	vector traceStart = player.EyePosition()
-	vector traceEnd	= traceStart + ( player.GetViewVector() * file.balance_riotDrillRange )
+	vector traceEnd	= traceStart + ( player.GetViewVector() * tuning.range )
 
 	TraceResults traceResults = TraceLineHighDetail( traceStart, traceEnd, ignoreArray, TRACE_MASK_SHOT, TRACE_COLLISION_GROUP_NONE, player )
 	entity testHitEnt = traceResults.hitEnt
@@ -1394,7 +1111,7 @@ RiotDrillPlacementInfo function GetRiotDrillPlacementInfo( entity player, array<
 			ignoreEnts = [ traceResults.hitEnt ]
 		else
 			ignoreEnts.append( traceResults.hitEnt )
-		return GetRiotDrillPlacementInfo( player, ignoreEnts, debugDrawTrace )
+		return GetRiotDrillPlacementInfo( player, weapon, ignoreEnts )
 	}
 
 	RiotDrillPlacementInfo placementInfo
@@ -1402,16 +1119,16 @@ RiotDrillPlacementInfo function GetRiotDrillPlacementInfo( entity player, array<
 	placementInfo.startAngles = player.EyeAngles()
 	placementInfo.startSurfaceNormal = traceResults.surfaceNormal
 	placementInfo.placementResult = placementResult
-	placementInfo.hide = false
 	placementInfo.hitEnt = traceResults.hitEnt
 
 	if ( placementInfo.placementResult == eBreachPlacementResult.SUCCESS)
-		placementInfo.placementResult = FindEndSpikeLocation( player, placementInfo, debugDrawTrace )
+		placementInfo.placementResult = FindEndSpikeLocation( player, placementInfo )
 
 	return placementInfo
 }
 
-int function FindEndSpikeLocation( entity player, RiotDrillPlacementInfo placementInfo, bool debugDrawTrace = false )
+
+int function FindEndSpikeLocation( entity player, RiotDrillPlacementInfo placementInfo )
 {
 	const vector HULL_TRACE_MIN = <-4, -4, 0>
 	const vector HULL_TRACE_MAX = <4, 4, 32>
@@ -1423,12 +1140,12 @@ int function FindEndSpikeLocation( entity player, RiotDrillPlacementInfo placeme
 
 	if( PlayerHasPassive( player, ePassives.PAS_TAC_UPGRADE_TWO ) ) 
 	{
-		breachTraceTresults = BreachTrace( pos, forward, HULL_TRACE_MIN, HULL_TRACE_MAX, 728.0 )
+		breachTraceTresults = BreachTrace( pos, forward, HULL_TRACE_MIN, HULL_TRACE_MAX, tuning.maxThicknessUpgradeOverride )
 	}
 	else
 
 	{
-		breachTraceTresults = BreachTrace( pos, forward, HULL_TRACE_MIN, HULL_TRACE_MAX, 512.0 )
+		breachTraceTresults = BreachTrace( pos, forward, HULL_TRACE_MIN, HULL_TRACE_MAX, tuning.maxThickness )
 	}
 
 	if ( breachTraceTresults.result == BREACH_TRACE_RESULT_SUCCESS )
@@ -1437,7 +1154,7 @@ int function FindEndSpikeLocation( entity player, RiotDrillPlacementInfo placeme
 		placementInfo.endOrigin        = breachTraceTresults.endPos
 		placementInfo.endSurfaceNormal = breachTraceTresults.surfaceNormal
 	}
-	else if ( breachTraceTresults.result == BREACH_TRACE_RESULT_WALL_TOO_THICK && file.balance_riotDrillAllowThick )
+	else if ( breachTraceTresults.result == BREACH_TRACE_RESULT_WALL_TOO_THICK )
 	{
 		placementInfo.endAngles = placementInfo.startAngles
 		placementInfo.endOrigin = placementInfo.startOrigin

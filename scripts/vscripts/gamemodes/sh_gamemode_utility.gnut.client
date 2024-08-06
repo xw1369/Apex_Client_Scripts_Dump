@@ -66,6 +66,10 @@ global function GamemodeUtility_GetMatchTimeLimitWarning
 global function GamemodeUtility_GetMaxPlayersToShowOnPodium 
 global function GamemodeUtility_IsSpectatorEnabled 
 global function GamemodeUtility_IsPlacementPopupEnabled 
+global function GamemodeUtility_GetPlayerArrayOfTeamOrAlliance 
+global function GamemodeUtility_GetPlayerTeamOrAlliance 
+global function GamemodeUtility_GetObjectiveProgressPercentIntFromFloat 
+global function GamemodeUtility_GetLoadoutBonusOrdinanceCount 
 
 
 
@@ -553,6 +557,14 @@ bool function GamemodeUtility_GetKillReplayActive()
 
 
 
+int function GamemodeUtility_GetLoadoutBonusOrdinanceCount()
+{
+	return GetCurrentPlaylistVarInt( "set_loadout_bonus_ordinance_count", 1 )
+}
+
+
+
+
 
 
 
@@ -575,6 +587,9 @@ void function GamemodeUtility_AddCallback_OnPlayerJoinedMatchInProgress( void fu
 	Assert( !file.onPlayerJoinedMatchInProgressCallbackFuncs.contains( func ), "GAMEMODE UTILITY: Already added " + string( func ) + " to onPlayerJoinedMatchInProgressCallbackFuncs" )
 	file.onPlayerJoinedMatchInProgressCallbackFuncs.append( func )
 }
+
+
+
 
 
 
@@ -888,6 +903,8 @@ void function RunVictimSquadMapScan_Thread( int victimTeam )
 		wait totalScanDurationWithFadeOut
 	}
 }
+
+
 
 
 
@@ -2284,8 +2301,6 @@ bool function GamemodeUtility_IsTeamOrAllianceEliminated( int teamOrAlliance )
 
 
 
-
-
 bool function GamemodeUtility_IsPlayerAbandoning( entity player )
 {
 	if ( !GamemodeUtility_GetMixtapeAbandonPenaltyActive() )
@@ -2937,7 +2952,6 @@ bool function GamemodeUtility_GetMixtapeAbandonPenaltyActive()
 
 
 
-
 int function GamemodeUtility_GetMaxDroppedGrenadesOnDeath()
 {
 	return GetCurrentPlaylistVarInt( "grenade_ondeath_max_spawncount", 1 )
@@ -3209,6 +3223,56 @@ bool function GamemodeUtility_GetIsTeamIndexValidPlayerTeam( int teamIndex )
 
 
 
+
+
+
+bool function GetPlaylistVar_AllowThirdPerson()
+{
+	return GetCurrentPlaylistVarBool( "allow_third_person", false )
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+array < entity > function GamemodeUtility_GetPlayerArrayOfTeamOrAlliance( int teamOrAlliance, bool shouldReturnLivingPlayersOnly )
+{
+	if ( shouldReturnLivingPlayersOnly )
+		return AllianceProximity_IsUsingAlliances() ? AllianceProximity_GetAllPlayersInAlliance( teamOrAlliance, true ) : GetPlayerArrayOfTeam_Alive( teamOrAlliance )
+
+	return AllianceProximity_IsUsingAlliances() ? AllianceProximity_GetAllPlayersInAlliance( teamOrAlliance, false ) : GetPlayerArrayOfTeam( teamOrAlliance )
+}
+
+
+
+
+
+int function GamemodeUtility_GetPlayerTeamOrAlliance( entity player )
+{
+	return AllianceProximity_IsUsingAlliances() ? AllianceProximity_GetAllianceFromTeam( player.GetTeam() ) : player.GetTeam()
+}
+
+
+
+
+int function GamemodeUtility_GetObjectiveProgressPercentIntFromFloat( float progressPercent )
+{
+	const int PERCENTAGE_MULTIPLIER = 100
+	return int( progressPercent * PERCENTAGE_MULTIPLIER )
+}
 
 
 

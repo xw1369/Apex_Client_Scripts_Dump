@@ -300,7 +300,7 @@ void function RemoteFunctions_Init_Begin()
 
 
 
-			Ability_Shadow_Zombie_RegisterNetworking()
+
 
 
 
@@ -385,10 +385,8 @@ void function RemoteFunctions_Init_Begin()
 			Remote_RegisterClientFunction( "ServerCallback_ApplyScreenShake", "entity", "vector", -1.0, 1.0, 32 ) 
 			Remote_RegisterClientFunction( "ServerCallback_DoDamageIndicator", "entity", "entity" )
 			Remote_RegisterClientFunction( "ServerToClient_ShowHealthRUI", "entity", "entity", "float", 0.0, 99.0, 8 )
+			Remote_RegisterClientFunction( "ServerToClient_ShowHealthRUIWithLosCheck", "entity", "entity", "float", 0.0, 99.0, 8, "float", 0.0, 99.0, 8 )
 			Remote_RegisterClientFunction( "ServerToClient_SpawnedSonicBlast", "entity", "int", 0, 9999, "vector", -32000.0, 32000.0, 32, "vector", -32000.0, 32000.0, 32, "float", 0.0, 32000.0, 32 )
-
-
-
 
 
 
@@ -512,12 +510,11 @@ void function RemoteFunctions_Init_Begin()
 
 
 
+
+
+
 		LoadoutSelection_RegisterNetworking()
 		GamemodeUtility_RegisterNetworking()
-
-
-
-
 
 
 			EvacShip_RegisterNetworking()
@@ -558,10 +555,7 @@ void function RemoteFunctions_Init_Begin()
 			PathTT_OnNetworkRegistration()
 
 
-
 			Wattson_TT_Register_Networking()
-
-
 			Rampart_TT_RegisterNetworking()
 			CryptoTT_OnNetworkRegistration()
 			Bloodhound_TT_RegisterNetworking()
@@ -685,10 +679,6 @@ void function RemoteFunctions_Init_Begin()
 
 
 
-
-
-
-
 	
 	Remote_RegisterClientFunction( "ServerCallback_PlayScreenFXWarpJump" )
 
@@ -795,9 +785,12 @@ void function RemoteFunctions_Init_Begin()
 
 	Remote_RegisterServerFunction( "ClientCallback_ViewingMainLobbyPage" )
 	Remote_RegisterServerFunction( "ClientCallback_MarkHeirloomShopPopupAsSeen" )
-	Remote_RegisterServerFunction( "ClientCallback_MarkQuestPopupAsSeen" )
 	Remote_RegisterServerFunction( "ClientCallback_MarkLegendTokensPopupAsSeen" )
 	Remote_RegisterServerFunction( "ClientCallback_SetSeasonalHubButtonClickedSeason" )
+	Remote_RegisterServerFunction( "ClientCallback_MarkChallengesInfoDialogAsSeen" )
+	Remote_RegisterServerFunction( "ClientCallback_MarkNPPInfoDialogAsSeen" )
+	Remote_RegisterServerFunction( "ClientCallback_MarkCompletedNPPInfoDialogAsSeen" )
+	Remote_RegisterServerFunction( "ClientCallback_MarkNPPChallengeInfoDialogAsSeen" )
 	Remote_RegisterServerFunction( "ClientCallback_MarkCurrencyExpirationPopupAsSeen", "int", INT_MIN, INT_MAX  )
 
 
@@ -820,7 +813,10 @@ void function RemoteFunctions_Init_Begin()
 
 	
 	Remote_RegisterServerFunction( "ClientCallback_ClientStatus", "bool" )
-	Remote_RegisterServerFunction( "ClientCallback_SkipDeathCam" )
+	if ( !IsLobby() )
+	{
+		Remote_RegisterServerFunction( "ClientCallback_SkipDeathCam" )
+	}
 
 	
 	Remote_RegisterServerFunction( "ClientCallback_LeaveMatch" )
@@ -858,11 +854,13 @@ void function RemoteFunctions_Init_Begin()
 	Remote_RegisterServerFunction( "ClientToServer_MarkAllBoostsAsSeen" )
 
 	
+	Remote_RegisterClientFunction( "Dev_BuildTextInfoPanel", "bool", "int", 0, 512 )
 	Remote_RegisterClientFunction( "Dev_CreateTextInfoPanel", "vector", -MAX_MAP_BOUNDS, MAX_MAP_BOUNDS, 32, "vector", -MAX_MAP_BOUNDS, MAX_MAP_BOUNDS, 32, "bool", "float", -10000.0, 10000.0, 32 )
 	Remote_RegisterClientFunction( "Dev_CreateTextInfoPanelWithID", "vector", -MAX_MAP_BOUNDS, MAX_MAP_BOUNDS, 32, "vector", -MAX_MAP_BOUNDS, MAX_MAP_BOUNDS, 32, "bool", "float", -10000.0, 10000.0, 32, "int", 0, INT_MAX )
 	Remote_RegisterClientFunction( "Dev_DestroyTextInfoPanelWithID", "int", 0, INT_MAX )
 
 	Remote_RegisterClientFunction( "ServerToClient_ScreenCoverTransition", "float", 0.0, 5000.0, 32, "bool" )
+	Remote_RegisterClientFunction( "ServerToClient_ScreenCoverTransitionSuddenDeath", "float", 0.0, 5000.0, 32 )
 
 	
 	Remote_RegisterClientFunction( "ServerCallback_WatchForSyncedMeleeCancelPeriod", "float", 0.0, 10.0 )
@@ -875,7 +873,7 @@ void function RemoteFunctions_Init_Begin()
 	Remote_RegisterClientFunction( "ServerCallback_HideJumpPadHint" )
 
 	Remote_RegisterServerFunction ( "ClientCallback_UpdateMythicChallenges" )
-	Remote_RegisterServerFunction ( "ClientCallback_ToggleFavoriteChallenge", "int", INT_MIN, INT_MAX )
+	Remote_RegisterServerFunction ( "ClientCallback_ToggleFavoriteChallenge", "int", 0, INT_MAX )
 
 
 		Remote_RegisterClientFunction( "TrackingVision_DisplayEnemyDirection_ServerCallback", "vector", -FLT_MAX, FLT_MAX, 32, "vector", -FLT_MAX, FLT_MAX, 32, "vector", -FLT_MAX, FLT_MAX, 32 )
@@ -926,6 +924,10 @@ void function RemoteFunctions_Init_Begin()
 	Remote_RegisterClientFunction( "ServertoClient_LTM_AnnouncementSplash" )
 
 
+	Candy_RegisterNetworking()
+
+
+
 	if ( !IsLobby() )
 	{
 		ClSquadRequeue_RegisterNetworkFunctions()
@@ -961,13 +963,11 @@ void function RemoteFunctions_Init_Begin()
 				RunUIScript( "UICallback_SetUIVar", "uiDisableDev", newVal )
 			} )
 
-
 	Remote_RegisterUIFunction( "ServerCallback_GamemodeSelectorInitialize" )
 	Remote_RegisterServerFunction( "ClientCallback_GamemodeSelectorDismiss", "int", 0, GAMEMODE_MAX_SEEN_INDEX )
 
 
-
-
+		Remote_RegisterServerFunction( "UICallback_FTUEFlow_SetFTUEFlowStage", "int", 0, 100 )
 
 
 	Remote_RegisterServerFunction( "ClientCallback_RequestPlayerLastRank" )

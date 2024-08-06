@@ -8,6 +8,8 @@ global function DeactivateHeartbeatSensor
 global function GetHeartbeatSensorRange
 
 
+global function HeartbeatSensor_OnPlayerAddWeaponMod
+global function HeartbeatSensor_OnPlayerRemoveWeaponMod
 
 
 
@@ -120,7 +122,9 @@ void function PassiveHeartbeatSensor_Init()
 {
 	PrecacheWeapon( $"mp_ability_heartbeat_sensor" )
 	RegisterSignal( "DestroyHeartbeatSensor" ) 
-	RegisterSignal( "EndHeartbeatSensorUI" ) 
+
+		RegisterSignal( "EndHeartbeatSensorUI" ) 
+
 	RegisterSignal( "DeactivateHeartbeatSensor" )
 
 	file.heartbeatSensorRange = HEARTBEAT_SENSOR_NATURAL_RANGE / INCHES_TO_METERS
@@ -162,8 +166,8 @@ void function PassiveHeartbeatSensor_Init()
 	AddCallback_OnPlayerZoomOut( PlayerZoomOutCallback )
 
 
-
-
+		AddCallback_OnPlayerAddedWeaponMod( HeartbeatSensor_OnPlayerAddWeaponMod )
+		AddCallback_OnPlayerRemovedWeaponMod( HeartbeatSensor_OnPlayerRemoveWeaponMod )
 
 }
 
@@ -177,8 +181,6 @@ void function HeartbeatSensor_OnPassiveChanged( entity player, int passive, bool
 
 	if ( didHave )
 	{
-
-
 
 
 
@@ -258,44 +260,42 @@ void function PlayerZoomInCallback( entity player )
 	if ( !PlayerHasPassive( player, ePassives.PAS_PARIAH ) )
 		return
 
-
 	if ( !IsAlive( player ) )
 		return
 
-	if ( player == GetLocalViewPlayer() )
-	{
+
+
+		if ( player != GetLocalViewPlayer() )
+			return
+
 		InitializeHeartbeatSensorUI( player )
 
 		
 		
 		entity turret = player.GetTurret()
+		bool playerIsUsingTurret = IsValid( turret )
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-			if ( IsValid( turret ) )
+			
+			if ( playerIsUsingTurret || player.GetAkimboState() == AKIMBO_STATE_ACTIVE || player.GetAkimboState() == AKIMBO_STATE_OFFHAND  )
 			{
-					ActivateHeartbeatSensor( player, false )
+				entity heartbeatWeapon = player.GetOffhandWeapon( HEARTBEAT_SENSOR_OFFHAND_INDEX )
+
+				if ( !IsValid( heartbeatWeapon ) || !IsHeartbeatSensorWeaponEnabled( heartbeatWeapon ) )
+					return
+
+				ActivateHeartbeatSensor( player )
+
+				if( playerIsUsingTurret )
+				{
 					thread TurretHeartbeatSensor_Thread( player )
+				}
 			}
 
-	}
+
+
+
+
 
 
 
@@ -314,21 +314,21 @@ void function HeartbeatSensor_OnLocalViewPlayerChanged( entity player )
 	else
 	{
 		
-		if ( PlayerIsInADS( player, false ) )
-		{
-			if ( file.heartbeatSensorRui == null )
-			{
-				entity heartbeatSensor = player.GetOffhandWeapon( HEARTBEAT_SENSOR_OFFHAND_INDEX )
-				if ( IsValid( heartbeatSensor ) )
-				{
-					
-					if ( heartbeatSensor.IsWeaponActivated() )
-					{
-						ActivateHeartbeatSensor( player, false )
-					}
-				}
-			}
-		}
+		if ( !PlayerIsInADS( player, false ) )
+			return
+
+		if ( file.heartbeatSensorRui != null )
+			return
+
+		entity heartbeatSensor = player.GetOffhandWeapon( HEARTBEAT_SENSOR_OFFHAND_INDEX )
+		if ( !IsValid( heartbeatSensor ) )
+			return
+
+		
+		if ( !IsHeartbeatSensorWeaponEnabled( heartbeatSensor ) )
+			return
+
+		ActivateHeartbeatSensor( player )
 	}
 }
 
@@ -346,7 +346,7 @@ void function TurretHeartbeatSensor_Thread( entity player )
 			{
 				if ( IsValid( player ) )
 				{
-					DeactivateHeartbeatSensor( player, false )
+					DeactivateHeartbeatSensor( player )
 
 					
 					player.Signal( "EndHeartbeatSensorUI" )
@@ -366,8 +366,6 @@ void function PlayerZoomOutCallback( entity player )
 		player.Signal("EndHeartbeatSensorUI")
 	}
 
-
-
 }
 
 void function OnWeaponActivate_ability_heartbeat_sensor( entity weapon )
@@ -379,7 +377,6 @@ void function OnWeaponActivate_ability_heartbeat_sensor( entity weapon )
 
 	if ( !PlayerHasPassive( player, ePassives.PAS_PARIAH ) )
 		return
-
 
 	bool isUnarmed = true
 	string activeWeaponName = player.GetActiveWeapon( eActiveInventorySlot.mainHand ).GetWeaponClassName()
@@ -394,11 +391,10 @@ void function OnWeaponActivate_ability_heartbeat_sensor( entity weapon )
 	if( !isUnarmed && GetCurrentPlaylistVarBool( "seer_heartbeat_sensor_unarmed_only", HEARTBEAT_SENSOR_UNARMED_ONLY ) )
 		return
 
-	thread DelayedActivateHeartbeatSensor_Thread( player, false )
-
+	thread DelayedActivateHeartbeatSensor_Thread( player )
 }
 
-void function DelayedActivateHeartbeatSensor_Thread( entity player, bool fromTac )
+void function DelayedActivateHeartbeatSensor_Thread( entity player )
 {
 	EndSignal( player, "OnDeath" )
 	EndSignal( player, "OnDestroy" )
@@ -433,10 +429,11 @@ void function DelayedActivateHeartbeatSensor_Thread( entity player, bool fromTac
 			return
 		if ( !PlayerIsInADS( player, false ) )
 			return
+
 		WaitFrame()
 	}
 
-	ActivateHeartbeatSensor( player, fromTac )
+	ActivateHeartbeatSensor( player )
 }
 
 
@@ -450,7 +447,7 @@ void function OnWeaponDeactivate_ability_heartbeat_sensor( entity weapon )
 	if ( !PlayerHasPassive( player, ePassives.PAS_PARIAH ) )
 		return
 
-	DeactivateHeartbeatSensor( player, false )
+	DeactivateHeartbeatSensor( player )
 }
 
 bool function OnWeaponAttemptOffhandSwitch_ability_heartbeat_sensor( entity weapon )
@@ -461,9 +458,9 @@ bool function OnWeaponAttemptOffhandSwitch_ability_heartbeat_sensor( entity weap
 		return false
 
 
-
-
-
+		
+		if ( player.GetAkimboState() == AKIMBO_STATE_ACTIVE || player.GetAkimboState() == AKIMBO_STATE_OFFHAND )
+			return false
 
 
 	return PlayerHasPassive( player, ePassives.PAS_PARIAH )
@@ -590,54 +587,6 @@ void function HeartbeatSensorTogglePressed( entity player )
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 void function OnClientConnectionChanged( entity player )
 {
 
@@ -673,8 +622,7 @@ void function SetupHeartbeatSensorUI( entity player )
 	InitializeHeartbeatSensorUI( player )
 	entity heartbeatSensor = player.GetOffhandWeapon( HEARTBEAT_SENSOR_OFFHAND_INDEX )
 
-	
-	if ( heartbeatSensor.IsWeaponActivated() )
+	if ( PlayerIsInADS( player, false ) && IsHeartbeatSensorWeaponEnabled( heartbeatSensor ) )
 	{
 		RuiSetBool( file.heartbeatSensorRui, "heartbeatSensorEnabled", true )
 	}
@@ -694,12 +642,10 @@ void function InitializeHeartbeatSensorUI( entity player )
 		entity activeWeapon = player.GetActiveWeapon( eActiveInventorySlot.mainHand )
 		thread CL_HeartSeekerRUIThread( player, activeWeapon )
 	}
-
-
 }
 
 
-void function ActivateHeartbeatSensor( entity player, bool fromTac )
+void function ActivateHeartbeatSensor( entity player, bool fromTac = false)
 {
 
 
@@ -1032,9 +978,9 @@ void function ShowHeartbeatSensorRange_Thread( entity player )
 }
 
 
-void function DeactivateHeartbeatSensor( entity player, bool fromTac )
+void function DeactivateHeartbeatSensor( entity player, bool fromTac = false )
 {
-	player.Signal("DeactivateHeartbeatSensor")
+	player.Signal( "DeactivateHeartbeatSensor" )
 
 
 		if ( player == GetLocalViewPlayer() )
@@ -1054,7 +1000,7 @@ void function DeactivateHeartbeatSensor( entity player, bool fromTac )
 			
 			if ( IsSpectating() || player.Player_IsSkywardLaunching() )
 			{
-				player.Signal("EndHeartbeatSensorUI")
+				player.Signal( "EndHeartbeatSensorUI" )
 			}
 
 			player.Signal( "EndHeartbeatSensorVictimManager" )
@@ -1258,7 +1204,6 @@ void function HeartseekerAddWatchTarget( PlayersInViewInfo victimInfo, float wat
 	float watchRangeSqr = pow( watchRange, 2 )
 	entity player = GetLocalViewPlayer()
 	thread DoVictimHeartbeat_Thread( player, victimInfo.player, watchRangeSqr )
-	
 }
 
 void function DoVictimHeartbeat_Thread( entity player, entity victim, float watchRangeSqr )
@@ -1362,34 +1307,6 @@ void function DoVictimHeartbeat_Thread( entity player, entity victim, float watc
 		wait scaledWait - beatSoundTime
 	}
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 bool function IsVicitmInTacRange( PlayersInViewInfo data )
 {
@@ -1703,50 +1620,61 @@ float function GetHeartbeatSensor_Range_Sqr( entity player )
 	return result
 }
 
+bool function IsHeartbeatSensorWeaponEnabled( entity weapon )
+{
+	array<string> mods = weapon.GetMods()
+
+	return !mods.contains( "disabled" )
+}
 
 
+void function HeartbeatSensor_OnPlayerAddWeaponMod( entity player, entity weapon, string mod )
+{
+	if ( !IsAlive( player ) )
+		return
+
+	if ( !IsValid( weapon ) )
+		return
 
 
+		if ( player != GetLocalViewPlayer() )
+			return
 
 
+	if ( weapon.GetWeaponClassName() != HEARTBEAT_SENSOR_WEAPON_NAME )
+		return
+
+	if( mod != "disabled" )
+		return
+
+	if ( player.GetAkimboState() != AKIMBO_STATE_ACTIVE && player.GetAkimboState() != AKIMBO_STATE_OFFHAND )
+		return
+
+	DeactivateHeartbeatSensor( player )
+}
+
+void function HeartbeatSensor_OnPlayerRemoveWeaponMod( entity player, entity weapon, string mod )
+{
+	if ( !IsAlive( player ) )
+		return
+
+	if ( !IsValid( weapon ) )
+		return
 
 
+		if ( player != GetLocalViewPlayer() )
+			return
 
 
+	if ( weapon.GetWeaponClassName() != HEARTBEAT_SENSOR_WEAPON_NAME )
+		return
 
+	if( mod != "disabled" )
+		return
 
+	if ( player.GetAkimboState() != AKIMBO_STATE_ACTIVE && player.GetAkimboState() != AKIMBO_STATE_OFFHAND )
+		return
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+	ActivateHeartbeatSensor( player )
+}
       

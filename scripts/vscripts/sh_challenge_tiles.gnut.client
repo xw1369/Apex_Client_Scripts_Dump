@@ -1,0 +1,1892 @@
+
+
+global function Sh_Challenge_Tiles_Init
+global function ChallengeTiles_IsEnabled
+global function ChallengeTile_GetActiveTiles
+global function ChallengeTile_GetActiveTileByGUID
+global function ChallengeTile_GetActiveBlocks
+global function ChallengeTileFlav_GetActiveTilesOfCategory
+
+
+
+
+
+
+global function ChallengeTileFlav_GetAllLinkedCollectionChallenges
+global function ChallengeTile_HasDeepLink
+global function ChallengeTile_GetCompletedChallengeCount
+global function ChallengeTile_GetChallengeCount
+global function ChallengeTile_HasBRChallenges
+global function ChallengeTile_HasNBRChallenges
+global function ChallengeTile_IsCompleted
+
+
+
+
+
+
+
+
+
+global function ChallengeBlock_GetCompletedChallengeCount
+global function ChallengeBlock_GetChallengeCount
+global function ChallengeBlock_HasBRChallenges
+global function ChallengeBlock_HasNBRChallenges
+
+
+
+
+
+global function Challenge_isNBRChallenge
+global function Challenge_isBRChallenge
+global function Challenge_HasNBRChallenge
+global function Challenge_HasBRChallenge
+
+#if DEV
+global function ChallengeTile_PrintTiles
+#endif
+
+typedef ChallengeTileCategory int
+typedef ChallengeBlockDisplayBehavior int
+typedef ChallengeTileFlavsByCategory table< ChallengeTileCategory, array< ItemFlavor > >
+
+global enum eChallengeBlockDisplayBehavior
+{
+	AUTO_SKIP_TO_BLOCK, 
+	ALWAYS_DISPLAY 
+}
+
+
+global enum eChallengeBlockType
+{
+	DEFAULT, 
+}
+
+
+global enum eChallengeTileCategory
+{
+	TRACKED,
+	DAILY,
+	WEEKLY,
+	EVENT,
+	BEGINNER
+}
+
+global enum eChallengeBlockLockReasonState
+{
+	LOCKED,
+	PROGRESSABLE,
+	COMPLETED
+}
+
+global struct ChallengeTile_DeepLinkConfig
+{
+	string linkType 
+	string link 
+	string label 
+	asset icon 
+}
+
+global struct ChallengeTile_LobbyWidgetConfig
+{
+	ItemFlavor ornull featuredChallenge
+	asset headerImageBackground
+	string headerLabel
+	string challengeCategoryString
+	string linkType 
+	string link 
+	bool showBPBadge
+}
+
+global struct ChallengeBlockLockReason
+{
+	string reason
+	int    state
+}
+
+global struct ChallengeBlock
+{
+	int blockType 
+	string title
+	string rewards
+	int startDate
+	int endDate
+	array<ItemFlavor> challenges
+
+	
+	bool locked
+	array<ChallengeBlockLockReason> lockReasons
+
+	void functionref( ChallengeBlock, entity ) ornull customBlockSort 
+}
+
+typedef BlockSortFunc void functionref( ChallengeBlock, entity )
+
+global struct ChallengeTile
+{
+	SettingsAssetGUID tileId
+	ChallengeTileCategory tileCategory 
+	ChallengeBlockDisplayBehavior challengeBlockDisplayBehavior 
+
+	bool isEvergreen
+	bool isFeatured
+	int startDate
+	int endDate
+	string title
+	string featuredRewards
+	asset keyArt
+	asset timerIcon
+
+	array<ChallengeBlock> blocks
+	int totalChallenges
+
+	ChallengeTile_DeepLinkConfig& deepLinkConfig
+	ChallengeTile_LobbyWidgetConfig& lobbyWidgetConfig
+}
+
+
+const string PLAYLIST_KILLSWITCH_VAR = "challenge_tiles_enabled"
+
+
+enum eEventTileType
+{
+	CUSTOM,
+	BUFFET,
+	EVENT_SHOP
+}
+
+
+const string BLOCK_DAILIES_TITLE = "#BLOCK_DAILIES_TITLE"
+
+
+
+
+
+
+struct FileStruct_ChallengeTiles
+{
+	array< ChallengeTile > activeTiles
+}
+FileStruct_ChallengeTiles& file
+
+struct
+{
+	array<void functionref()> Callbacks_OnTileAdded
+}callback
+
+void function Sh_Challenge_Tiles_Init()
+{
+	FileStruct_ChallengeTiles localChallengeTileData
+	file = localChallengeTileData
+
+	AddCallback_RegisterRootItemFlavors( ChallengeTileImport_RegisterItemFlavs )
+}
+
+bool function ChallengeTiles_IsEnabled()
+{
+	bool isEnabled = GetCurrentPlaylistVarBool( PLAYLIST_KILLSWITCH_VAR, true )
+	return isEnabled
+}
+
+void function ChallengeTileImport_RegisterItemFlavs()
+{
+	
+	ChallengeTileImport_FromBaseItemFlavs( "challengeTiles" )
+	
+}
+
+void function ChallengeTileImport_FromBaseItemFlavs( string baseItemFlavArrayName )
+{
+	foreach ( asset tileAsset in GetBaseItemFlavorsFromArray( baseItemFlavArrayName ) )
+	{
+		if ( tileAsset == $"" )
+		{
+			continue
+		}
+
+		ItemFlavor ornull tileFlav = RegisterItemFlavorFromSettingsAsset( tileAsset )
+		if ( tileFlav )
+		{
+			expect ItemFlavor( tileFlav )
+			if ( GetGlobalSettingsBool( tileAsset, "useParentEventTimes" ) )
+			{
+				ItemFlavor parentFlavor = GetItemFlavorByAsset( GetGlobalSettingsAsset( tileAsset, "parentItemFlavor" ) )
+				
+				if ( ItemFlavor_GetType( parentFlavor ) == eItemType.battlepass )
+				{
+					table< string, string > metaData
+
+					metaData[ "defaultStartTime" ] <- string(BattlePassV2_GetStartUnixTime( parentFlavor ))
+					metaData[ "defaultFinishTime" ] <- string(BattlePassV2_GetFinishUnixTime( parentFlavor ))
+
+					tileFlav.metaData = metaData
+				}
+				else
+				{
+					tileFlav.metaData = parentFlavor.metaData
+				}
+			}
+
+			bool shouldImportAsset               = GetGlobalSettingsBool( tileAsset, "shouldImportCollection" )
+			asset linkedChallengeCollectionAsset = GetGlobalSettingsAsset( tileAsset, "linkedChallengeCollection" )
+			if ( shouldImportAsset && linkedChallengeCollectionAsset != $"" )
+			{
+				RegisterItemFlavorFromSettingsAsset( linkedChallengeCollectionAsset )
+			}
+		}
+	}
+}
+
+bool function ChallengeTile_IsActive( ChallengeTile tile )
+{
+	int now = GetUnixTimestamp()
+
+	bool hasStarted = now > tile.startDate
+	bool hasEnded   = now >= tile.endDate
+
+	int challengeCount = ChallengeTile_GetChallengeCount( tile ) 
+	return challengeCount > 0 && hasStarted && !hasEnded
+}
+
+int function ChallengeTile_GetChallengeCount( ChallengeTile tile )
+{
+	int count = 0
+	foreach ( ChallengeBlock block in tile.blocks )
+	{
+		count += block.challenges.len()
+	}
+
+	return count
+}
+
+struct TileSearchResult
+{
+	int tileIndex
+	int blockIndex
+	int challengeIndex
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+bool function ChallengeTile_HasBRChallenges( ChallengeTile tile )
+{
+	foreach ( ChallengeBlock block in tile.blocks )
+	{
+		if ( ChallengeBlock_HasBRChallenges( block ) )
+			return true
+	}
+	return false
+}
+
+bool function ChallengeTile_HasNBRChallenges( ChallengeTile tile )
+{
+	foreach ( ChallengeBlock block in tile.blocks )
+	{
+		if ( ChallengeBlock_HasNBRChallenges( block ) )
+			return true
+	}
+	return false
+}
+
+int function ChallengeTile_GetCompletedChallengeCount( ChallengeTile tile, entity player )
+{
+	array<ItemFlavor> challenges
+	foreach ( int index, ChallengeBlock block in tile.blocks )
+	{
+		bool isNarrativeBlock = false
+		if ( index == tile.blocks.len() - 1 )
+		{
+			foreach( challenge in block.challenges )
+			{
+				isNarrativeBlock = Challenge_IsNarrativeChallenge( challenge )
+				break
+			}
+		}
+
+		if ( !isNarrativeBlock )
+			challenges.extend( block.challenges )
+	}
+	return GetCompletedChallengeCount( player, challenges )
+}
+
+bool function ChallengeTile_IsCompleted( ChallengeTile tile, entity player )
+{
+	foreach( ChallengeBlock block in tile.blocks )
+	{
+		if ( block.locked )
+			return false
+	}
+	return ChallengeTile_GetCompletedChallengeCount( tile, player ) == ChallengeTile_GetChallengeCount( tile )
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+int function ChallengeBlock_GetCompletedChallengeCount( ChallengeBlock block, entity player )
+{
+	return GetCompletedChallengeCount( player, block.challenges )
+}
+
+int function ChallengeBlock_GetChallengeCount( ChallengeBlock block )
+{
+	return block.challenges.len()
+}
+
+bool function ChallengeBlock_HasBRChallenges( ChallengeBlock block )
+{
+	foreach ( ItemFlavor challenge in block.challenges )
+	{
+		if ( Challenge_HasBRChallenge( challenge ) )
+			return true
+	}
+	return false
+}
+
+bool function ChallengeBlock_HasNBRChallenges( ChallengeBlock block )
+{
+	foreach ( ItemFlavor challenge in block.challenges )
+	{
+		if ( Challenge_HasNBRChallenge( challenge ) )
+			return true
+	}
+	return false
+}
+
+bool function Challenge_HasNBRChallenge( ItemFlavor challenge )
+{
+	if ( Challenge_IsEitherOr( challenge ) )
+	{
+		int gameMode = Challenge_GetGameMode( challenge, true )
+		if ( (gameMode != eChallengeGameMode.BATTLE_ROYALE && gameMode != eChallengeGameMode.ANY ) && gameMode != eChallengeGameMode.NON_MODE )
+			return true
+	}
+	int gameMode = Challenge_GetGameMode( challenge )
+	return (gameMode != eChallengeGameMode.BATTLE_ROYALE && gameMode != eChallengeGameMode.ANY ) && gameMode != eChallengeGameMode.NON_MODE
+}
+
+bool function Challenge_HasBRChallenge( ItemFlavor challenge )
+{
+	if ( Challenge_IsEitherOr( challenge ) )
+	{
+		int gameMode = Challenge_GetGameMode( challenge, true )
+		if ( gameMode == eChallengeGameMode.BATTLE_ROYALE )
+			return true
+	}
+	int gameMode = Challenge_GetGameMode( challenge )
+	return gameMode == eChallengeGameMode.BATTLE_ROYALE
+}
+
+bool function Challenge_isNBRChallenge( ItemFlavor challenge, bool isAlt = false )
+{
+	int gameMode = Challenge_GetGameMode( challenge, isAlt )
+	return (gameMode != eChallengeGameMode.BATTLE_ROYALE && gameMode != eChallengeGameMode.ANY ) && gameMode != eChallengeGameMode.NON_MODE
+}
+
+bool function Challenge_isBRChallenge( ItemFlavor challenge, bool isAlt = false)
+{
+	return Challenge_GetGameMode( challenge, isAlt ) == eChallengeGameMode.BATTLE_ROYALE
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+array<ChallengeTile> function ChallengeTile_GenerateModels()
+{
+	array<ChallengeTile> challengeTiles
+
+	
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+	printf( "%s: Challenge Tiles:\n", FUNC_NAME() )
+	foreach ( tile in challengeTiles )
+	{
+		printf( "%s:\t: category: %i | guid: %i | numChallenges: %i ", FUNC_NAME(), tile.tileCategory, tile.tileId, ChallengeTile_GetChallengeCount( tile ) )
+	}
+	return challengeTiles
+}
+
+array<ChallengeTile> function ChallengeTile_GetActiveTiles()
+{
+	return file.activeTiles
+}
+
+ChallengeTile function ChallengeTile_GetActiveTileByGUID( SettingsAssetGUID guid )
+{
+
+	foreach( tile in file.activeTiles )
+	{
+		if ( tile.tileId == guid )
+		{
+			return tile
+		}
+	}
+
+	Assert( false, format( "Attempted to call %s for inactive tile with id %i", FUNC_NAME(), guid ) )
+	unreachable
+}
+
+array<int> function ChallengeTile_GetActiveTileIndexesByCategory( ChallengeTileCategory tileCategory )
+{
+	array<int> tileIndexes
+	foreach ( int index, ChallengeTile tile in ChallengeTile_GetActiveTiles() )
+	{
+		if ( tile.tileCategory == tileCategory )
+		{
+			tileIndexes.append( index )
+		}
+	}
+	return tileIndexes
+}
+
+array<ChallengeTile> function ChallengeTile_GetActiveTilesByCategory( ChallengeTileCategory tileCategory )
+{
+	array<ChallengeTile> tiles
+	foreach ( ChallengeTile tile in ChallengeTile_GetActiveTiles() )
+	{
+		if ( tile.tileCategory == tileCategory )
+		{
+			tiles.append( tile )
+		}
+	}
+	return tiles
+}
+
+array<ChallengeBlock> function ChallengeTile_GetActiveBlocks( ChallengeTile tile )
+{
+	return tile.blocks
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ChallengeTileFlavsByCategory function ChallengeTile_GetActiveTileFlavsByCategory()
+{
+	array<ItemFlavor> registeredTileFlavs = GetAllItemFlavorsOfType( eItemType.challenge_tile )
+	ChallengeTileFlavsByCategory tilesByCategory = {}
+
+	
+	foreach ( ChallengeTileCategory category in eChallengeTileCategory )
+	{
+		tilesByCategory[ category ] <- []
+	}
+
+	
+	int now = GetUnixTimestamp()
+	foreach ( ItemFlavor tileFlav in registeredTileFlavs )
+	{
+		ChallengeTileCategory category = ChallengeTileFlav_GetCategory( tileFlav )
+		if ( ChallengeTileFlav_IsEvergreen( tileFlav ) || CalEvent_IsActive( tileFlav, now ) )
+		{
+			
+			if ( category != eChallengeTileCategory.EVENT && tilesByCategory[ category ].len() >= 1 )
+			{
+				Assert( false, format( "There should only be 1 kind of active tile with category %i. Existing: %i, Upcoming: %i", category, tilesByCategory[ category ][0].guid, tileFlav.guid ) )
+			}
+			else
+			{
+				tilesByCategory[ category ].append( tileFlav )
+			}
+		}
+	}
+	return tilesByCategory
+}
+
+array< ItemFlavor > function ChallengeTileFlav_GetActiveTilesOfCategory( ChallengeTileCategory category )
+{
+	return ChallengeTile_GetActiveTileFlavsByCategory()[ category ]
+}
+
+
+
+ChallengeTileCategory function ChallengeTileFlav_GetCategory( ItemFlavor itemFlav )
+{
+	Assert( ItemFlavor_GetType( itemFlav ) == eItemType.challenge_tile )
+	Assert( IsItemFlavorStructValid( itemFlav.guid, eValidation.ASSERT ) )
+	string enumKey = GetGlobalSettingsString( ItemFlavor_GetAsset( itemFlav ), "challengeTileCategory" )
+	Assert( enumKey in eChallengeTileCategory, "Invalid eChallengeTileCategory enum value: " + enumKey )
+	return eChallengeTileCategory[enumKey]
+}
+
+ChallengeCollection function ChallengeTileFlav_GetLinkedCollection( ItemFlavor tileFlav )
+{
+	Assert( ItemFlavor_GetType( tileFlav ) == eItemType.challenge_tile )
+	ChallengeTileCategory tileCategory = ChallengeTileFlav_GetCategory( tileFlav )
+	asset linkedCollectionAsset        = GetGlobalSettingsAsset( ItemFlavor_GetAsset( tileFlav ), "linkedChallengeCollection" )
+	Assert( linkedCollectionAsset != $"" )
+
+	ItemFlavor linkedCollection = GetItemFlavorByAsset(linkedCollectionAsset)
+	ChallengeCollection collection = ChallengeCollection_GetByGUID( linkedCollection.guid )
+	return collection
+}
+
+bool function ChallengeTileFlav_IsEvergreen( ItemFlavor tileFlav )
+{
+	return GetGlobalSettingsBool( ItemFlavor_GetAsset( tileFlav ), "isEvergreen" )
+}
+
+array< ItemFlavor > function ChallengeTileFlav_GetAllLinkedCollectionChallenges( ItemFlavor tileFlav )
+{
+	Assert( ItemFlavor_GetType( tileFlav ) == eItemType.challenge_tile )
+	asset tileAsset = ItemFlavor_GetAsset( tileFlav )
+	ChallengeTileCategory category = ChallengeTileFlav_GetCategory( tileFlav )
+
+	
+	bool hasLinkedCollection = category == eChallengeTileCategory.BEGINNER || (category == eChallengeTileCategory.EVENT && GetGlobalSettingsInt( tileAsset, "eventTileType" ) == eEventTileType.CUSTOM )
+	if ( !hasLinkedCollection )
+	{
+		return []
+	}
+
+	ChallengeCollection collection = ChallengeTileFlav_GetLinkedCollection( tileFlav )
+	return ChallengeCollection_GetAllChallenges( collection )
+}
+
+bool function ChallengeTile_HasDeepLink( ChallengeTile tile )
+{
+	return tile.deepLinkConfig.linkType != ""
+}
+
+
+
+
+
+
+
+
+
+
+
+ChallengeTile function TileBuild_FromItemFlav( ItemFlavor itemFlav )
+{
+	ChallengeTile challengeTile
+	asset tileAsset = ItemFlavor_GetAsset( itemFlav )
+	challengeTile.tileCategory = ChallengeTileFlav_GetCategory( itemFlav )
+
+	challengeTile.tileId = itemFlav.guid
+	challengeTile.isEvergreen = ChallengeTileFlav_IsEvergreen( itemFlav )
+	challengeTile.startDate = CalEvent_GetStartUnixTime( itemFlav )
+	challengeTile.endDate = CalEvent_GetFinishUnixTime( itemFlav )
+
+
+
+	challengeTile.featuredRewards = GetGlobalSettingsString( tileAsset, "featuredRewards" )
+	challengeTile.keyArt = GetGlobalSettingsAsset( tileAsset, "keyArt" )
+	challengeTile.timerIcon = GetGlobalSettingsAsset( tileAsset, "timerIcon" )
+	challengeTile.challengeBlockDisplayBehavior = eChallengeBlockDisplayBehavior.AUTO_SKIP_TO_BLOCK 
+	challengeTile.blocks = []
+	challengeTile.deepLinkConfig = TileBuild_DeepLinkConfig( itemFlav )
+
+	challengeTile.isFeatured = GetGlobalSettingsBool( ItemFlavor_GetAsset( itemFlav ), "isFeatured" )
+	challengeTile.lobbyWidgetConfig = TileBuild_LobbyWidgetConfig( itemFlav )
+	return challengeTile
+}
+
+ChallengeTile_DeepLinkConfig function TileBuild_DeepLinkConfig( ItemFlavor itemFlav )
+{
+	asset tileAsset = ItemFlavor_GetAsset( itemFlav )
+	ChallengeTile_DeepLinkConfig deepLinkConfig
+	deepLinkConfig.linkType = GetGlobalSettingsString( tileAsset, "tileLinkType" )
+	deepLinkConfig.link     = GetGlobalSettingsString( tileAsset, "tileLink" )
+	deepLinkConfig.label    = GetGlobalSettingsString( tileAsset, "tileLinkLabel" )
+	deepLinkConfig.icon     = GetGlobalSettingsAsset( tileAsset, "linkIcon" )
+
+	return deepLinkConfig
+}
+
+ChallengeTile_LobbyWidgetConfig function TileBuild_LobbyWidgetConfig( ItemFlavor itemFlav )
+{
+	asset tileAsset = ItemFlavor_GetAsset( itemFlav )
+	ChallengeTile_LobbyWidgetConfig lobbyWidgetConfig
+
+	asset featuredChallengeAsset = GetGlobalSettingsAsset( tileAsset, "widget_featuredChallenge" )
+	if ( featuredChallengeAsset != $"" && IsValidItemFlavorSettingsAsset( featuredChallengeAsset ) )
+	{
+		lobbyWidgetConfig.featuredChallenge = GetItemFlavorByAsset( featuredChallengeAsset )
+	}
+
+	lobbyWidgetConfig.headerImageBackground   = GetGlobalSettingsAsset( tileAsset, "widget_headerImageBackground" )
+	lobbyWidgetConfig.headerLabel             = GetGlobalSettingsString( tileAsset, "widget_headerLabel" )
+	lobbyWidgetConfig.challengeCategoryString = GetGlobalSettingsString( tileAsset, "widget_challengeCategoryString" )
+	lobbyWidgetConfig.linkType                = GetGlobalSettingsString( tileAsset, "widget_deepLinkType" )
+	lobbyWidgetConfig.link                    = GetGlobalSettingsString( tileAsset, "widget_deepLink" )
+	lobbyWidgetConfig.showBPBadge             = GetGlobalSettingsBool( tileAsset, "widget_showBPBadge" )
+
+	return lobbyWidgetConfig
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+void function ChallengeTile_PrintBlock( ChallengeBlock block )
+{
+	string fn = FUNC_NAME()
+	printf( "%s: Block %s\n", fn, block.title )
+	foreach( challenge in block.challenges )
+	{
+		printf( "%s:\tChallenge %i", fn, challenge.guid )
+	}
+}
+
+void function ChallengeTile_PrintTile( ChallengeTile tile )
+{
+	string fn = FUNC_NAME()
+	printf( "%s: Tile %i: %s------\n", fn, tile.tileId, tile.title )
+	printf( "%s: tileCategory: %i \n", fn, tile.tileCategory )
+	printf( "%s: startDate: %i, endDate: %i \n", fn, tile.startDate, tile.endDate )
+	printf( "%s: featuredRewards: %s \n", fn, tile.featuredRewards )
+	printf( "%s: Blocks: \n", fn )
+	foreach( block in tile.blocks )
+	{
+		ChallengeTile_PrintBlock( block )
+	}
+
+	if ( ChallengeTile_HasDeepLink( tile ) )
+	{
+		printf( "%s: linkType: %s \n", fn, tile.deepLinkConfig.linkType )
+		printf( "%s: link: %s \n", fn, tile.deepLinkConfig.link )
+		printf( "%s: label: %s \n", fn, tile.deepLinkConfig.label )
+	}
+
+
+	printf( "%s: Tile %i end------", fn, tile.tileId )
+}
+
+#if DEV
+	void function ChallengeTile_PrintTiles()
+	{
+		printf( "%s: %i tiles \n", FUNC_NAME(), file.activeTiles.len() )
+		foreach( tile in file.activeTiles )
+		{
+			ChallengeTile_PrintTile( tile )
+		}
+
+	}
+#endif
+
+                                

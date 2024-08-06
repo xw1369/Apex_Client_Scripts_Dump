@@ -44,9 +44,7 @@ struct
 
 
 
-
 		array < vector > blockBalloonCreationOrigins
-
 } file
 
 
@@ -110,8 +108,6 @@ void function ClCommonStoryEvents_Init()
 }
 
 
-
-
 void function ParseBalloonPlaylist()
 {
 	int numBalloonBlock = GetCurrentPlaylistVarInt( "balloon_block_count", 0 )
@@ -126,13 +122,12 @@ void function ParseBalloonPlaylist()
 }
 
 
-
 void function EntitiesDidLoad()
 {
-	if ( IsNightMap() && GetCurrentPlaylistVarBool( "UseNocAnnouncerAtNight", true ) )
-	{
-		SurvivalCommentary_SetHost( eSurvivalHostType.NOC )
-	}
+
+
+
+
 
 
 

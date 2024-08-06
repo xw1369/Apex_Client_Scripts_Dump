@@ -84,6 +84,7 @@ global struct ClGlobals
 	array<void functionref( entity )> onWeaponChangedCallbacks
 	array<void functionref( entity player, entity weapon, string weaponName, int ammoUsed, vector attackOrigin, vector attackDir )> onWeaponAttackCallbacks
 	array<void functionref( entity player, entity weapon )> onPlayerOverheatCallbacks
+	array<void functionref( entity player )> onPlayerClimbHighJumpedCallbacks
 
 	void functionref() scoreEventOverrideFunc
 

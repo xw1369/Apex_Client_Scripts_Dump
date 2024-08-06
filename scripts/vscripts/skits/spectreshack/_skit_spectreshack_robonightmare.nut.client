@@ -3949,6 +3949,12 @@ bool function IsSpectreShackSmartLootLocked ( entity cargoBin )
 entity function GetSpectreShackSmartLootBinForLoot( entity lootEnt )
 {
 	entity parentEnt = lootEnt.GetParent()
+
+
+		if ( LootBinReset_IsLootBin_Mythic( parentEnt ) )
+			return null
+
+
 	if ( IsValid(parentEnt) && parentEnt.GetScriptName() == LOOT_BIN_SCRIPTNAME )
 		return parentEnt
 

@@ -5,6 +5,12 @@ global function TempUnlock_GetLatestActiveEvent
 global function TempUnlock_IsCharacterUnlocked
 global function TempUnlock_WillCharacterUnlockDuringEvent
 global function TempUnlock_GetActiveUnlockedCharacters
+global function TempUnlock_HasCharacterUnlock
+global function TempUnlock_GetCharacterUnlockChallengeSets
+global function TempUnlock_GetCharacterUnlockFeaturedChallenge
+global function TempUnlock_GetCharacterUnlockChallenges
+global function TempUnlock_GetCurrentCharacterUnlockChallenges
+global function TempUnlock_GetCurrentCharacterUnlockFeaturedChallenge
 
 const PLAYLIST_KILLSWITCH_VAR = "temp_unlock_flav_enabled"
 
@@ -147,4 +153,101 @@ array<ItemFlavor> function TempUnlock_GetActiveUnlockedCharacters( ItemFlavor te
 	}
 
 	return characters
+}
+
+
+bool function TempUnlock_HasCharacterUnlock( ItemFlavor tempUnlockEvent )
+{
+	asset tempUnlockAsset = ItemFlavor_GetAsset( tempUnlockEvent )
+	var settingsBlock = GetSettingsBlockForAsset( ItemFlavor_GetAsset( tempUnlockEvent ) )
+	int numCharacterUnlocks = GetSettingsArraySize( GetSettingsBlockArray( settingsBlock, "characters" ) )
+	return numCharacterUnlocks > 0
+}
+
+
+array<ChallengeSet> function TempUnlock_GetCharacterUnlockChallengeSets( ItemFlavor tempUnlockEvent )
+{
+	array<ChallengeSet> challengeSets = []
+	asset tempUnlockAsset = ItemFlavor_GetAsset( tempUnlockEvent )
+
+	foreach ( var characterBlock in IterateSettingsAssetArray( tempUnlockAsset, "characters" ) )
+	{
+		asset challengeSetAsset = GetSettingsBlockAsset( characterBlock, "challengeSet" )
+		if ( challengeSetAsset != $"" )
+		{
+			ItemFlavor challengeSetFlav = GetItemFlavorByAsset( challengeSetAsset )
+			ChallengeSet challengeSet = ChallengeSet_GetByGUID( challengeSetFlav.guid )
+			challengeSets.append( challengeSet )
+		}
+	}
+	return challengeSets
+}
+
+
+ItemFlavor ornull function TempUnlock_GetCharacterUnlockFeaturedChallenge( ItemFlavor tempUnlockEvent )
+{
+	ItemFlavor ornull characterUnlockChallenge
+	array<ChallengeSet> challengeSets = TempUnlock_GetCharacterUnlockChallengeSets( tempUnlockEvent )
+	if ( challengeSets.len() == 0 )
+	{
+		return null
+	}
+
+	
+	ChallengeSet topChallengeSet = challengeSets[0]
+	return topChallengeSet.mainChallenge
+}
+
+
+array<ItemFlavor> function TempUnlock_GetCharacterUnlockChallenges( ItemFlavor tempUnlockEvent )
+{
+	array<ItemFlavor> challenges = []
+	array<ChallengeSet> challengeSets = TempUnlock_GetCharacterUnlockChallengeSets( tempUnlockEvent )
+	foreach ( challengeSet in challengeSets )
+	{
+		challenges.extend( challengeSet.challenges )
+	}
+
+	return challenges
+}
+
+
+array<ItemFlavor> function TempUnlock_GetCurrentCharacterUnlockChallenges( entity player )
+{
+	array<ItemFlavor> challenges
+	int now = GetUnixTimestamp()
+
+	
+	foreach ( ItemFlavor tempUnlockEvent in TempUnlock_GetActiveEvents( now ) )
+	{
+		if ( TempUnlock_HasCharacterUnlock( tempUnlockEvent ) )
+		{
+			array<ItemFlavor> unlockChallenges = TempUnlock_GetCharacterUnlockChallenges( tempUnlockEvent )
+			foreach( challenge in unlockChallenges )
+			{
+				if ( Challenge_IsAssigned( player, challenge ) )
+				{
+					challenges.append( challenge )
+				}
+			}
+			break
+		}
+	}
+
+	return challenges
+}
+
+
+ItemFlavor ornull function TempUnlock_GetCurrentCharacterUnlockFeaturedChallenge( entity player )
+{
+	int now = GetUnixTimestamp()
+	foreach ( ItemFlavor tempUnlockEvent in TempUnlock_GetActiveEvents( now ) )
+	{
+		
+		if ( TempUnlock_HasCharacterUnlock( tempUnlockEvent ) )
+		{
+			return TempUnlock_GetCharacterUnlockFeaturedChallenge( tempUnlockEvent )
+		}
+	}
+	return null
 }

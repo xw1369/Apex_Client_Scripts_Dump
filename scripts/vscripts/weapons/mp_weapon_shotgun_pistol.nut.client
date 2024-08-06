@@ -1,7 +1,8 @@
 
-
-
-
+global function MpWeaponShotgunPistol_Init
+global function OnWeaponActivate_weapon_shotgun_pistol
+global function OnWeaponDeactivate_weapon_shotgun_pistol
+global function OnWeaponAkimboStateChanged_weapon_shotgun_pistol
 
 global function OnWeaponPrimaryAttack_weapon_shotgun_pistol
 global function OnProjectileCollision_weapon_shotgun_pistol
@@ -15,16 +16,9 @@ global function OnProjectileCollision_weapon_shotgun_pistol
 
 
 
-
-
-
-
-
-
-
-
-
-
+void function MpWeaponShotgunPistol_Init()
+{
+}
 
 
 var function OnWeaponPrimaryAttack_weapon_shotgun_pistol( entity weapon, WeaponPrimaryAttackParams attackParams )
@@ -191,20 +185,59 @@ void function OnProjectileCollision_weapon_shotgun_pistol( entity projectile, ve
 
 
 
+void function UpdateAkimboMozamShotgunBoltPairing( entity weapon )
+{
+	if ( !IsValid( weapon ) )
+		return
 
+	bool isPredictedOrServer = InPrediction() && IsFirstTimePredicted()
 
 
 
+	if ( !isPredictedOrServer )
+		return
 
+	const string BOLT_MOD_BASE_2 = "shotgun_bolt_"
+	const string AKIMBO_SUFFIX = "_akimbo_active"
+	array<string> levels = ["l1", "l2", "l3"]
 
+		levels.append( "l4" )
 
 
+	
+	
+	if ( weapon.HasMod( "akimbo_active" ) )
+	{
 
+		foreach ( string level in levels )
+		{
+			string boltModBase = BOLT_MOD_BASE_2 + level
+			string boltModDT = boltModBase + AKIMBO_SUFFIX
 
+			weapon.RemoveMod( boltModDT )
 
+			if ( weapon.HasMod( boltModBase ) )
+				weapon.AddMod( boltModDT )
+		}
+	}
+	else
+	{
+		foreach ( string level in levels )
+		{
+			string boltModAkimbo = BOLT_MOD_BASE_2 + level + AKIMBO_SUFFIX
 
+			if ( !IsValid( weapon ) )
+				return
 
+			weapon.RemoveMod( boltModAkimbo )
+		}
+	}
+}
+void function OnWeaponActivate_weapon_shotgun_pistol( entity weapon )
+{
+	OnWeaponActivate_weapon_basic_bolt( weapon )
 
+	
 
 
 
@@ -216,63 +249,23 @@ void function OnProjectileCollision_weapon_shotgun_pistol( entity projectile, ve
 
 
 
+}
 
+void function OnWeaponDeactivate_weapon_shotgun_pistol( entity weapon )
+{
+	
+}
 
+void function OnWeaponAkimboStateChanged_weapon_shotgun_pistol( entity weapon, entity player, int currentAkimboState )
+{
 
+		if ( player != GetLocalViewPlayer() || weapon.IsAkimboAlthand() )
+			return
 
+		UpdateHudDataForMainWeapons( player, weapon )
 
+		var weaponRui = GetWeaponRui()
+		OnPrimaryWeaponStatusUpdate_Akimbo( weapon, weaponRui )
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+}
                

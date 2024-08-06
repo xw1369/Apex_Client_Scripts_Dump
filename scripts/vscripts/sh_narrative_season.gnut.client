@@ -1,0 +1,381 @@
+
+
+global function NarrativeChallenges_IsEnabled
+
+
+
+
+
+
+
+
+global function Narrative_GetSeason
+global function Narrative_GetAllChallenges
+global function Narrative_CompareChallengeSortOrder
+global function Narrative_ChallengeIsUnlocked
+global function StatsRegister_NarrativeChallenges
+global function NarrativeChallenge_GetStatRef
+
+#if DEV
+	global function Narrative_DevPrint
+#endif
+
+global function Sh_Narrative_Season_Init
+
+struct NarrativeChallengeMetadata
+{
+	ItemFlavor& challenge
+
+	int displayOrder
+	int week
+	ItemFlavor& battlepass
+	ItemFlavor& radioPlay
+	string description
+}
+
+typedef ChallengeToNarrativeMetadataTable table<ItemFlavor, NarrativeChallengeMetadata>
+
+struct FileStruct_Narrative
+{
+	ChallengeToNarrativeMetadataTable challengeToNarrativeData
+	ItemFlavor activeNarrative
+}
+FileStruct_Narrative& file
+
+const string PLAYLIST_KILLSWITCH_VAR = "narrative_challenges_enabled"
+
+
+bool function NarrativeChallenges_IsEnabled()
+{
+	bool isEnabled = GetCurrentPlaylistVarBool( PLAYLIST_KILLSWITCH_VAR, true )
+	return isEnabled
+}
+
+void function Sh_Narrative_Season_Init()
+{
+	FileStruct_Narrative narrativeData
+	file = narrativeData
+
+	AddCallback_OnItemFlavorRegistered( eItemType.narrative_season, NarrativeImport_OnItemFlavorRegistered )
+}
+
+void function NarrativeImport_OnItemFlavorRegistered( ItemFlavor narrativeFlav )
+{
+	asset narrativeAsset = ItemFlavor_GetAsset( narrativeFlav )
+	asset parentAsset = GetGlobalSettingsAsset( narrativeAsset, "parentItemFlavor" )
+	Assert( parentAsset != "", format( "Parent itemflavor must be set for narrative %i", narrativeFlav.guid ) )
+	ItemFlavor season = GetItemFlavorByAsset( parentAsset )
+	Assert( ItemFlavor_GetType( season ) == eItemType.calevent_season )
+
+	
+	int now = GetUnixTimestamp()
+	if ( CalEvent_GetFinishUnixTime( season ) <= now || now < CalEvent_GetStartUnixTime( season ) )
+	{
+		return
+	}
+
+	
+	foreach ( var weekBlock in IterateSettingsAssetArray( narrativeAsset, "radioPlays" ) )
+	{
+		asset radioPlayAsset = GetSettingsBlockAsset( weekBlock, "flav" )
+		
+		bool alreadyImported = IsValidItemFlavorSettingsAsset( radioPlayAsset )
+		if ( radioPlayAsset != $"" && !alreadyImported )
+		{
+			ItemFlavor ornull radioFlav = RegisterItemFlavorFromSettingsAsset( radioPlayAsset )
+		}
+	}
+
+	int displayOrder = 0
+	foreach ( var weekBlock in IterateSettingsAssetArray( narrativeAsset, "weeklies" ) )
+	{
+		bool shouldRegisterChallengeAsset = GetSettingsBlockBool( weekBlock, "shouldRegisterChallenge" )
+		asset linkedChallengeAsset = GetSettingsBlockAsset( weekBlock, "challenge" )
+		asset linkedRadioPlayAsset = GetSettingsBlockAsset( weekBlock, "radioPlay" )
+		asset linkedBattlepassAsset = GetSettingsBlockAsset( weekBlock, "battlepass" )
+
+		
+		ItemFlavor challengeFlav
+		if ( shouldRegisterChallengeAsset )
+		{
+			ItemFlavor ornull newChallengeFlav = RegisterItemFlavorFromSettingsAsset( linkedChallengeAsset )
+			Assert( newChallengeFlav != null, format( " Error registering challenge '%s'", string( linkedChallengeAsset ) ) )
+			expect ItemFlavor( newChallengeFlav )
+			challengeFlav = newChallengeFlav
+			RegisterChallengeSource( challengeFlav, narrativeFlav, displayOrder )
+		}
+		else
+		{
+			challengeFlav = GetItemFlavorByAsset( linkedChallengeAsset )
+		}
+
+		NarrativeChallengeMetadata narrativeData
+		narrativeData.challenge = challengeFlav
+		narrativeData.radioPlay = GetItemFlavorByAsset( linkedRadioPlayAsset )
+		narrativeData.battlepass = GetItemFlavorByAsset( linkedBattlepassAsset )
+		narrativeData.description = GetSettingsBlockString( weekBlock, "description" )
+		narrativeData.week = GetSettingsBlockInt( weekBlock, "weekNumber" )
+		narrativeData.displayOrder = displayOrder++
+
+		file.challengeToNarrativeData[ narrativeData.challenge ] <- narrativeData
+	}
+}
+
+NarrativeChallengeMetadata function Narrative_GetDataForChallenge( ItemFlavor challengeFlav )
+{
+	Assert( ItemFlavor_GetType( challengeFlav ) == eItemType.challenge )
+	return file.challengeToNarrativeData[ challengeFlav ]
+}
+
+#if DEV
+void function Narrative_DevPrint()
+{
+	foreach( ItemFlavor challenge, narrData in file.challengeToNarrativeData )
+	{
+		printf(" Narrative_dp:; [%i]: BP %i Week %i | Desc: %s\n", challenge.guid, narrData.battlepass.guid, narrData.week, narrData.description )
+	}
+}
+#endif
+
+
+ItemFlavor function Narrative_GetRadioPlay( ItemFlavor challengeFlav )
+{
+	Assert( Challenge_IsNarrativeChallenge( challengeFlav ) )
+	return Narrative_GetDataForChallenge( challengeFlav ).radioPlay
+}
+
+void function StatsRegister_NarrativeChallenges()
+{
+	array<ItemFlavor> challenges = GetAllNarrativeChallengeFlavs()
+	foreach( ItemFlavor challenge in challenges )
+	{
+		RegisterAccumulatedStat_Int( null, NarrativeChallenge_GetStatRef( challenge ), eChallengeGameMode.NON_MODE, CHALLENGES_CALC_DEPENDS )
+	}
+}
+
+string function NarrativeChallenge_GetStatRef( ItemFlavor challengeFlav )
+{
+	if ( Challenge_IsNarrativeChallenge( challengeFlav ) )
+	{
+		return format( "narrativeChallenge_%s", ItemFlavor_GetGUIDString( challengeFlav ) )
+	}
+	Assert( false, format( "%s is not a narrative challenge!", ItemFlavor_GetAssetName( challengeFlav ) ) )
+	return ""
+}
+
+array<ItemFlavor> function GetAllNarrativeChallengeFlavs()
+{
+	array<ItemFlavor> result
+	array<ItemFlavor> challengeFlavs = GetAllChallenges()
+	foreach( ItemFlavor challengeFlav in challengeFlavs )
+	{
+		if ( Challenge_IsNarrativeChallenge( challengeFlav ) )
+		{
+			result.append( challengeFlav )
+		}
+	}
+	return result
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ItemFlavor function Narrative_GetSeason( ItemFlavor narrativeFlav )
+{
+	Assert( ItemFlavor_GetType( narrativeFlav ) == eItemType.narrative_season )
+	asset narrativeAsset = ItemFlavor_GetAsset( narrativeFlav )
+	asset parentAsset = GetGlobalSettingsAsset( narrativeAsset, "parentItemFlavor" )
+
+	return GetItemFlavorByAsset( parentAsset )
+}
+
+array<ItemFlavor> function Narrative_GetAllChallenges( ItemFlavor narrativeFlav )
+{
+	array<ItemFlavor> challenges
+
+	if ( !NarrativeChallenges_IsEnabled() )
+	{
+		return challenges
+	}
+	Assert( ItemFlavor_GetType( narrativeFlav ) == eItemType.narrative_season )
+
+	asset narrativeAsset = ItemFlavor_GetAsset( narrativeFlav )
+
+	foreach ( var weekBlock in IterateSettingsAssetArray( narrativeAsset, "weeklies" ) )
+	{
+		asset challengeAsset = GetSettingsBlockAsset( weekBlock, "challenge" )
+		if ( challengeAsset != $"" && IsValidItemFlavorSettingsAsset( challengeAsset ) )
+		{
+			challenges.push( GetItemFlavorByAsset( challengeAsset ) )
+		}
+		else
+		{
+			Warning( "Invalid narrative challenge asset '%s' ", string( challengeAsset ) )
+		}
+	}
+	return challenges
+}
+
+int function Narrative_CompareChallengeSortOrder( ItemFlavor challengeA, ItemFlavor challengeB )
+{
+	Assert( Challenge_IsNarrativeChallenge( challengeA ) && Challenge_IsNarrativeChallenge( challengeB ) )
+
+	NarrativeChallengeMetadata narrativeA = Narrative_GetDataForChallenge( challengeA )
+	NarrativeChallengeMetadata narrativeB = Narrative_GetDataForChallenge( challengeB )
+
+	bool firstChallengeHappensBeforeSecondChallenge = narrativeA.displayOrder <= narrativeB.displayOrder
+	return firstChallengeHappensBeforeSecondChallenge ? -1 : 1
+}
+
+
+bool function Narrative_ChallengeIsUnlocked( ItemFlavor challengeFlav )
+{
+	Assert( ItemFlavor_GetType( challengeFlav ) == eItemType.challenge )
+	NarrativeChallengeMetadata narrativeData = Narrative_GetDataForChallenge( challengeFlav )
+	return Narrative_Metadata_IsWeeklyUnlocked( narrativeData )
+}
+
+
+bool function Narrative_Metadata_BPIsCurrentlyActive( NarrativeChallengeMetadata narrativeData )
+{
+	bool isBPCurrentlyActive = narrativeData.battlepass == GetActiveBattlePass()
+
+	if ( isBPCurrentlyActive && BattlePassV2_IsV2BattlePass( narrativeData.battlepass ) )
+	{
+		int now = GetUnixTimestamp()
+		isBPCurrentlyActive = BattlePassV2_GetStartUnixTime( narrativeData.battlepass ) <= now && now < BattlePassV2_GetFinishUnixTime( narrativeData.battlepass )
+	}
+
+	return isBPCurrentlyActive
+}
+
+
+bool function Narrative_MetaData_BPHasFinished( NarrativeChallengeMetadata narrativeData )
+{
+	
+	bool bpWasOrIsActive = Narrative_Metadata_BPIsCurrentlyActive( narrativeData )
+
+	if ( BattlePassV2_IsV2BattlePass( narrativeData.battlepass ) )
+	{
+		return BattlePassV2_GetFinishUnixTime( narrativeData.battlepass ) <= GetUnixTimestamp()
+	}
+
+	return bpWasOrIsActive
+}
+
+
+
+
+
+bool function Narrative_MetaData_WeekHasStarted( NarrativeChallengeMetadata narrativeData )
+{
+
+
+	if ( BattlePassV2_IsV2BattlePass( narrativeData.battlepass ) && Narrative_MetaData_BPHasFinished( narrativeData ) )
+	{
+		return true
+	}
+
+
+	
+	if ( Narrative_Metadata_BPIsCurrentlyActive( narrativeData ) )
+	{
+		return narrativeData.week <= GetCurrentBattlePassWeek()
+	}
+	return false
+}
+
+
+bool function Narrative_Metadata_IsWeeklyUnlocked( NarrativeChallengeMetadata narrativeData )
+{
+	
+	if ( Narrative_MetaData_WeekHasStarted( narrativeData ) )
+	{
+		return true
+	}
+	return false
+}
+                                

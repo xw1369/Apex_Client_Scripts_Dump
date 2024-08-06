@@ -758,6 +758,7 @@ array< int > function AllianceProximity_GetPopulatedTeamsInAlliance( int allianc
 
 
 
+
 int function AllianceProximity_GetRepresentativeTeamForAlliance( int alliance )
 {
 #if DEV

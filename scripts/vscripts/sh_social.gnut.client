@@ -463,6 +463,9 @@ struct
 
 
 
+
+
+
 ItemFlavor function GetItemFlavorForCommunityUserInfo( CommunityUserInfo userInfo, int slotIndex, int itemType )
 {
 	ItemFlavor ornull requestedFlavor = GetItemFlavorOrNullByGUID( userInfo.charData[slotIndex], itemType )
@@ -544,7 +547,7 @@ int function GetBadgeDataIntegerFromCommunityUserInfo( CommunityUserInfo userInf
 ItemFlavor function GetTrackerItemFlavorForCommunityUserInfo( CommunityUserInfo userInfo, ItemFlavor character, int trackerIndex )
 {
 	LoadoutEntry entry                  = Loadout_GladiatorCardStatTracker( character, trackerIndex )
-	ItemFlavor ornull trackerItemFlavor = GetItemFlavorOrNullByGUID( userInfo.charData[ ePlayerStryderCharDataArraySlots.BANNER_TRACKER1 + 2 * trackerIndex], eItemType.gladiator_card_stat_tracker )
+	ItemFlavor ornull trackerItemFlavor = GetItemFlavorOrNullByGUID( userInfo.charData[ ePlayerStryderCharDataArraySlots.BANNER_TRACKER1_STAT + 2 * trackerIndex], eItemType.gladiator_card_stat_tracker )
 	if ( trackerItemFlavor == null )
 		trackerItemFlavor = GetDefaultItemFlavorForLoadoutSlot( EHI_null, entry )
 

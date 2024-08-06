@@ -18,6 +18,7 @@ global function GameMode_AreRoundsEnabled
 global function GameMode_IsActive
 global function GameMode_IsActiveForPlaylist
 global function GameMode_VerifyActiveMode
+global function RespawnBeacons_PLV_Enabled
 
 global function GameModeVariant_GetByDevName
 global function GameModeVariant_GetName
@@ -30,6 +31,9 @@ global function GameModeVariant_IsActiveForPlaylist
 
 global function GameMode_DoesModeDisplayIconsForAllFriendlyTeams
 global function GameMode_DoesModeDisplayIconsForAllTeams
+
+
+
 
 
 
@@ -115,6 +119,9 @@ global enum eGameModeVariants
 
 
 
+
+
+
 	SURVIVAL_CAMPFIRE,
 
 
@@ -147,10 +154,10 @@ global enum eGameModeVariants
 
 
 
-	SURVIVAL_SHADOW_ARMY,
 
 
-	SURVIVAL_SHADOW_ROYALE,
+
+
 
 
 
@@ -301,6 +308,20 @@ void function GameModes_Init()
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 	GameModeVariant_Create( eGameModeVariants.SURVIVAL_TRAINING, eGameModes.SURVIVAL )
 	GameModeVariant_SetPlaylistFlag( eGameModeVariants.SURVIVAL_TRAINING, "survival_training" )
 
@@ -334,6 +355,14 @@ void function GameModes_Init()
 	GameModeVariant_SetPlaylistFlag( eGameModeVariants.SURVIVAL_AIRDROPEXTRA, "airdrop_ltm_enabled" )
 
 		GameModeVariant_AddSharedInit( eGameModeVariants.SURVIVAL_AIRDROPEXTRA, AirdropExtra_Init )
+
+
+
+
+
+
+
+
 
 
 
@@ -540,12 +569,6 @@ void function GameModes_Init()
 
 
 
-		GameModeVariant_Create( eGameModeVariants.SURVIVAL_SHADOW_ARMY, eGameModes.SURVIVAL )
-		GameModeVariant_SetPlaylistFlag( eGameModeVariants.SURVIVAL_SHADOW_ARMY, "is_shadow_army_gamemode" )
-		GameModeVariant_SetDevName( eGameModeVariants.SURVIVAL_SHADOW_ARMY, GAMEMODE_SHADOW_ARMY )
-
-			GameModeVariant_AddSharedInit( eGameModeVariants.SURVIVAL_SHADOW_ARMY, ShadowArmy_Init )
-			GameModeVariant_AddSharedInit( eGameModeVariants.SURVIVAL_SHADOW_ARMY, ShadowArmy_RespawnBeacon_Init )
 
 
 
@@ -556,12 +579,18 @@ void function GameModes_Init()
 
 
 
-			GameModeVariant_Create( eGameModeVariants.SURVIVAL_SHADOW_ROYALE, eGameModes.SURVIVAL )
-			GameModeVariant_SetPlaylistFlag( eGameModeVariants.SURVIVAL_SHADOW_ROYALE, "shadow_royale_mode" )
-			GameModeVariant_SetDevName( eGameModeVariants.SURVIVAL_SHADOW_ROYALE, GAMEMODE_SHADOW_ROYALE )
 
-				GameModeVariant_AddSharedInit( eGameModeVariants.SURVIVAL_SHADOW_ROYALE, ShGameModeShadowRoyale_Init )
-				GameModeVariant_AddSharedInit( eGameModeVariants.SURVIVAL_SHADOW_ROYALE, ShPlayerPet_Init )
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -767,6 +796,10 @@ void function GameModes_Init()
 
 
 
+
+
+
+
 	
 	GameModeVariant_Create( eGameModeVariants.SURVIVAL_SOLOS, eGameModes.SURVIVAL )
 	GameModeVariant_SetDevName( eGameModeVariants.SURVIVAL_SOLOS, GAMEMODE_SURVIVAL_SOLOS )
@@ -808,6 +841,14 @@ void function GameModes_Init()
 	GameModeVariant_SetName( eGameModeVariants.SURVIVAL_QUADS, "#SURVIVAL_MODE_QUADS" )
 	GameModeVariant_SetPlaylistFlag( eGameModeVariants.SURVIVAL_QUADS, "gamemode_survival_quads_active" )
 
+
+
+
+
+
+
+
+	
 
 
 
@@ -1154,7 +1195,7 @@ int function GameModeVariant_GetActiveMode()
 {
 	foreach( variantId, modeSettings in file.variantDefs )
 	{
-		if ( GetCurrentPlaylistVarBool( file.variantDefs[ variantId ].playlist_flag, false ) )
+		if ( GameModeVariant_IsActive( variantId ) )
 		{
 			return variantId
 		}
@@ -1306,3 +1347,31 @@ bool function GameMode_DoesModeDisplayIconsForAllTeams( string mode )
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+bool function RespawnBeacons_PLV_Enabled()
+{
+	bool result = GetCurrentPlaylistVarBool( "respawn_beacons_enabled", true )
+
+		result = result && !Freespawns_RespawnBeacons_Disabled()
+
+	return( result )
+}

@@ -29,6 +29,8 @@ global function GRXCurrency_GetPreviewModel
 global function GRXCurrency_GetRewardIcon
 global function GRXCurrencyBundle_GetCurrencyFlav
 global function GRXCurrencyBundle_GetValue
+global function AccountFlag_GetPreviewModel
+global function AccountFlag_GetRewardIcon
 global function GRX_IsInventoryReady
 global function GRX_HasInventoryEverBeenReady
 global function GRX_GetNumberOfOwnedItemsByPlayer
@@ -222,6 +224,12 @@ global function GRXPack_GetTickSoundAlias
 
 
 
+
+
+
+
+
+
 global function GRX_GetMostRecentPackOpeningResults
 global function GRXPack_GetCustomColor
 global function GRXPack_GetCustomCountTextCol
@@ -279,6 +287,7 @@ global function ClientCodeCallback_GRXPackOpened
 
 
 
+
 global const int MAX_REWARDS_PER_REWARD_SEQ_CALL = 255
 
 global const int QUEUED_REWARDS_MAX_COUNT = 12
@@ -290,9 +299,8 @@ const int QUEUED_REWARDS_MAX_ITEMS_COUNT = 1
 
 
 
-const bool GRX_DEBUG_PRINTS = true
-
 const string SHOP_TAB_ALIAS = "shop"
+const string TRUSTED_OVERRIDE_ACCOUNT_ATTRIBUTE_NAME = "trusted"
 
 
 
@@ -311,6 +319,17 @@ global enum eItemFlavorGRXMode
 	OWNERSHIP_TARGET = -1337,
 	MULTIPLE_OWNERSHIP_TARGET = -9001,
 }
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -717,7 +736,11 @@ struct PlayerGRXScriptState
 
 
 
+
 }
+
+
+
 
 
 
@@ -807,9 +830,8 @@ struct FileStruct_LifetimeLevel
 
 
 
-#if GRX_DEBUG_PRINTS
-		bool GRX_DEBUG_PRINTS_disableTemporarily = false
-#endif
+
+	bool GRX_DEBUG_PRINTS_disableTemporarily = false
 }
 FileStruct_LifetimeLevel& fileLevel
 
@@ -878,6 +900,20 @@ void function ShGRX_LevelInit()
 
 		foreach ( asset currencyBundleAsset in GetBaseItemFlavorsFromArray( "currencyBundles" ) )
 			RegisterItemFlavorFromSettingsAsset( currencyBundleAsset )
+
+		foreach ( asset accountFlagAsset in GetBaseItemFlavorsFromArray( "accountFlags" ) )
+		{
+			ItemFlavor ornull flagFlav = RegisterItemFlavorFromSettingsAsset( accountFlagAsset )
+
+
+
+
+
+
+
+
+
+		}
 	} )
 	AddCallback_OnItemFlavorRegistered( eItemType.account_currency_bundle, AssertCurrencyBundlePlaylistVarsAreValid )
 
@@ -1040,7 +1076,7 @@ bool function IsValidItemFlavorGRXIndex( int index, int validationBehavior = eVa
 	{
 		foreach ( int grxIndex, ItemFlavor flav in fileLevel.grxIndexItemFlavorMap )
 		{
-			Warning( "##### R5DEV-47389: %d = %s", grxIndex, string(ItemFlavor_GetAsset( flav )) )
+			GRX_Warning( "##### R5DEV-47389: %d = %s", grxIndex, string(ItemFlavor_GetAsset( flav )) )
 		}
 	}
 
@@ -1254,6 +1290,23 @@ int function GRXCurrencyBundle_GetValue( ItemFlavor flav )
 
 
 
+asset function AccountFlag_GetPreviewModel( ItemFlavor flav )
+{
+	Assert( ItemFlavor_GetType( flav ) == eItemType.account_flag )
+	return GetGlobalSettingsAsset( ItemFlavor_GetAsset( flav ), "previewMdl" )
+}
+
+
+
+
+asset function AccountFlag_GetRewardIcon( ItemFlavor flav )
+{
+	Assert( ItemFlavor_GetType( flav ) == eItemType.account_flag )
+	return GetGlobalSettingsAsset( ItemFlavor_GetAsset( flav ), "rewardIcon" )
+}
+
+
+
 
 bool function GRX_IsInventoryReady( entity player = null )
 {
@@ -1353,6 +1406,28 @@ bool function GRX_IsItemOwnedByPlayer_AllowOutOfDateData( ItemFlavor flav, entit
 }
 bool function IsItemOwnedByPlayerInternal( ItemFlavor flav, entity player = null )
 {
+#if DEV
+		
+		if ( ItemFlavor_GetType( flav ) == eItemType.character )
+		{
+			var stackInfos = getstackinfos( 3 ) 
+			if ( stackInfos != null )
+			{
+				expect table(stackInfos)
+				string funcName = expect string(stackInfos.func)
+				const array< string > FUNCS_THAT_CAN_CHECK_CHARACTER_OWNERSHIP_DIRECTLY = [
+					"Loadout_IsCharacterUnlockedForPlayer"
+					"Loadout_IsCharacterStillPurchasableByPlayer", 
+					"PurchaseDialog", 
+					"GRXOffer_IsFullyClaimed", 
+					"Loadout_IsCharacterOwnedByPlayerIngoringUnlockSources", 
+				]
+				Assert( FUNCS_THAT_CAN_CHECK_CHARACTER_OWNERSHIP_DIRECTLY.contains( funcName ) )
+			}
+		}
+#endif
+
+
 
 
 
@@ -1374,7 +1449,7 @@ bool function IsItemOwnedByPlayerInternal( ItemFlavor flav, entity player = null
 		if ( ownershipTargetOverride != null )
 			return IsItemOwnedByPlayerInternal( expect ItemFlavor(ownershipTargetOverride), player )
 
-		Warning( "Item flavor %s is set to use GRX ownership of another item but it isn't a valid item: %s", string(ItemFlavor_GetAsset( flav )), string(GetGlobalSettingsAsset( ItemFlavor_GetAsset( flav ), "ownershipTarget" )) )
+		GRX_Warning( "Item flavor %s is set to use GRX ownership of another item but it isn't a valid item: %s", string(ItemFlavor_GetAsset( flav )), string(GetGlobalSettingsAsset( ItemFlavor_GetAsset( flav ), "ownershipTarget" )) )
 		return false
 	}
 
@@ -1383,7 +1458,7 @@ bool function IsItemOwnedByPlayerInternal( ItemFlavor flav, entity player = null
 		array< ItemFlavor > ownershipTargetList = ItemFlavor_GetGRXMultipleOwnershipRequirementsList( flav )
 		if ( ownershipTargetList.len() == 0 )
 		{
-			Warning( "Item flavor %s is set to use GRX ownership of a set of items, but the set was empty: %s", string( ItemFlavor_GetAsset( flav ) ) )
+			GRX_Warning( "Item flavor %s is set to use GRX ownership of a set of items, but the set was empty: %s", string( ItemFlavor_GetAsset( flav ) ) )
 			return false
 		}
 
@@ -1423,7 +1498,7 @@ bool function IsItemOwnedByPlayerInternal( ItemFlavor flav, entity player = null
 				ItemFlavor rewardFlav = GetItemFlavorByGUID( rewardGUID )
 				if ( flav.guid == rewardFlav.guid )
 				{
-					printf( "%s() - reporting queued GRX reward as owned instead of relying on GRX_Inventory call or persistence cache --- this should be temporary and should resolve on next successful GRX refresh", FUNC_NAME() )
+					GRX_Info( "reporting queued GRX reward as owned instead of relying on GRX_Inventory call or persistence cache --- this should be temporary and should resolve on next successful GRX refresh" )
 					return true
 				}
 			}
@@ -2673,6 +2748,21 @@ ItemFlavorBag function GRX_GetMostRecentPackOpeningResults()
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 asset function GRXPack_GetOpenButtonIcon( ItemFlavor flav )
 {
 	Assert( ItemFlavor_GetType( flav ) == eItemType.account_pack )
@@ -3222,6 +3312,27 @@ bool function GRXPack_PlayerOwnsAllItemsInPack( entity player, ItemFlavor pack )
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 #if DEV
 ItemFlavorBag ornull DEV_GRX_ForcePackResults_resultsOrNull
 void function DEV_GRX_ForcePackResults( int packError, ... )
@@ -3244,67 +3355,75 @@ void function DEV_GRX_ForcePackResults( int packError, ... )
 }
 #endif
 
-
-
-string function GRX_DBG_PREFIX()
+void function GRX_Warning( string fmt, ... )
 {
-
-
-
-		string vm = "CL"
-
-
-
-	return "<><>GRX<><> " + vm + " " + FUNC_NAME( 1 )
-}
-
-
-void function GRXDbg( entity player, string label, ... )
-{
-	table stackInfos = expect table(getstackinfos( 2 ))
-	string str       = format( "[GRXDbg %s %s %s %d %s] %s",
-		expect string(stackInfos.src),
-		SERVER ? "SV" : CLIENT ? "CL" : UI ? "UI" : "??",
-		expect string(stackInfos.func),
-		expect int(stackInfos.line),
-		string(player),
-		label
-	)
-	for ( int argIdx = 0; argIdx < vargc; argIdx += 2 )
+	if ( GetConVarInt( "mtx_debug_level" ) < GRX_DEBUG_LEVEL_WARN )
 	{
-		if ( argIdx > 0 )
-			str += "; "
-
-		string key = expect string(vargv[argIdx + 0])
-		var val    = vargv[argIdx + 1]
-		str += key
-		str += "= "
-		str += string(val)
+		return
 	}
-	str += "\n"
-	print( str )
-	
+
+	table stackInfos = expect table(getstackinfos( 2 ))
+
+	array< var > vargs
+	for ( int i = 0; i < vargc; ++i )
+	{
+		vargs.append( vargv[i] )
+	}
+
+	Warning( "[GRX][%s] %s\n", stackInfos.func, vformat( fmt, vargs ) )
+}
+void function GRX_Info( string fmt, ... )
+{
+#if DEV
+	if ( fileLevel.GRX_DEBUG_PRINTS_disableTemporarily )
+	{
+		return
+	}
+
+	if ( GetConVarInt( "mtx_debug_level" ) < GRX_DEBUG_LEVEL_INFO )
+	{
+		return
+	}
+
+	table stackInfos = expect table(getstackinfos( 2 ))
+
+	array< var > vargs
+	for ( int i = 0; i < vargc; ++i )
+	{
+		vargs.append( vargv[i] )
+	}
+
+	printf( "[GRX][%s] %s\n", stackInfos.func, vformat( fmt, vargs ) )
+#endif
 }
 
+void function GRX_Trace( string fmt, ... )
+{
+#if DEV
+	if ( fileLevel.GRX_DEBUG_PRINTS_disableTemporarily )
+	{
+		return
+	}
+
+	if ( GetConVarInt( "mtx_debug_level" ) < GRX_DEBUG_LEVEL_TRACE )
+	{
+		return
+	}
+
+	table stackInfos = expect table(getstackinfos( 2 ))
 
 
+	array< var > vargs
+	for ( int i = 0; i < vargc; ++i )
+	{
+		vargs.append( vargv[i] )
+	}
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+	string message = format( "[GRX][%s] %s\n", stackInfos.func, vformat( fmt, vargs ) )
+	printf( message )
+	SpamLog( message )
+#endif
+}
 
 
 
@@ -3704,7 +3823,6 @@ PlayerGRXScriptState function GetPlayerGRXScriptState( entity player )
 		return fileLevel.localGRXState
 
 }
-
 
 
 
@@ -5026,19 +5144,6 @@ void function UIToClient_GRXInventoryCleanStateChange( bool isClean, int marketp
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
 #if DEV
 
 
@@ -5076,6 +5181,16 @@ void function UIToClient_GRXInventoryCleanStateChange( bool isClean, int marketp
 
 
 #endif
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -6225,28 +6340,20 @@ void function ClientCodeCallback_GRXPackOpened( array<int> balanceDiffs, array<i
 		Newness_TEMP_MarkItemAsNewAndInformServer( flav )
 	}
 
-#if GRX_DEBUG_PRINTS
-		if ( !fileLevel.GRX_DEBUG_PRINTS_disableTemporarily )
-		{
-			GRXDbg( null, "" )
-			foreach ( int flavIndex, ItemFlavor flav in bag.flavors )
-			{
-				GRXDbg( null, "",
-					"flav", DEV_DescItemFlavor( flav ),
-					"name", Localize( ItemFlavor_GetLongName( flav ) ),
-					"qty", bag.quantities[flavIndex] )
-			}
-		}
-#endif
+	foreach ( int flavIndex, ItemFlavor flav in bag.flavors )
+	{
+		GRX_Info( "flav: %s, name: %s, qty: %d",
+			DEV_DescItemFlavor( flav ),
+			Localize( ItemFlavor_GetLongName( flav ) ),
+			bag.quantities[flavIndex]
+		)
+	}
 
 	
 	if ( packError != GRX_INVENTORYERROR_NONE )
 	{
 		bag.associatedError = packError
-#if GRX_DEBUG_PRINTS
-			if ( !fileLevel.GRX_DEBUG_PRINTS_disableTemporarily )
-				GRXDbg( null, "", "packError", packError )
-#endif
+		GRX_Info( "packError: %d", packError )
 	}
 
 #if DEV
@@ -6265,7 +6372,7 @@ void function ClientCodeCallback_GRXPackOpened( array<int> balanceDiffs, array<i
 		}
 		else if ( DEV_GRX_ForcePackResults_resultsOrNull != null )
 		{
-			printt( "PACK RESULTS FORCED!!" )
+			GRX_Info( "PACK RESULTS FORCED!!" )
 			bag = expect ItemFlavorBag(DEV_GRX_ForcePackResults_resultsOrNull)
 		}
 #endif
@@ -6718,15 +6825,11 @@ void function ClientCodeCallback_GRXPackOpened( array<int> balanceDiffs, array<i
 
 
 
-
-
-
-
 void function AssertCurrencyBundlePlaylistVarsAreValid( ItemFlavor bundle )
 {
 	
 	if ( GRXCurrencyBundle_GetValue( bundle ) <= 0 )
-		Warning( "Playlist must contain this var: %s", "grx_" + ItemFlavor_GetGRXAlias( bundle ) + "_count" )
+		GRX_Warning( "Playlist must contain this var: %s", "grx_" + ItemFlavor_GetGRXAlias( bundle ) + "_count" )
 }
 
 void function RegisterStickerPacksWithRewards( ItemFlavor pack )
@@ -6746,6 +6849,32 @@ array<ItemFlavor> function GRX_GetStickerPacksWithRewards()
 {
 	return fileLevel.stickerPacksWithRewards
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -7114,6 +7243,86 @@ bool function GRX_IsItemCoveredByOfferRestrictions( ItemFlavor flav )
 
 
 #endif
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

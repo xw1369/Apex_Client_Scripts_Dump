@@ -1,5 +1,10 @@
 
 global function Candy_Init
+global function Candy_RegisterNetworking
+
+
+global function Candy_PickupAnnoucement
+
 
 const int	CANDY_EVO_POINTS_DEFAULT = 75
 const int   CANDY_SHIELD_HEAL = 25
@@ -37,6 +42,11 @@ void function Candy_Init()
 
 }
 
+void function Candy_RegisterNetworking()
+{
+	Remote_RegisterClientFunction( "Candy_PickupAnnoucement", "entity", "int", INT_MIN, INT_MAX, "int", INT_MIN, INT_MAX, "vector", -FLT_MAX, FLT_MAX, 32 )
+}
+
 bool function Candy_ItemPickup( entity pickup, entity player, int pickupFlags, entity deathBox, int ornull desiredCount, LootData data )
 {
 	
@@ -62,22 +72,30 @@ bool function Candy_ItemPickup( entity pickup, entity player, int pickupFlags, e
 
 
 
-		
-		if (player == GetLocalClientPlayer())
-		{
-			AnnouncementMessageRight( GetLocalClientPlayer(), "EVO: +" + EVO_Reward + "\nULT: +" + ULT_Reward + "%", "", <0, 1, 0>, $"", 1.0 )
-
-			
-			int fxIndex = GetParticleSystemIndex( CANDY_PICKUP_WORLD_FX )
-			StartParticleEffectInWorld( fxIndex, pickup.GetOrigin(), <0, 0, 0> )
-		}
-
-		
-		thread Candy_ScreenFx( player )
 
 
 	return true
 }
+
+void function Candy_PickupAnnoucement( entity player, int EVO_Reward, int ULT_Reward, vector pickupLocation )
+{
+	
+	if (player == GetLocalClientPlayer())
+	{
+		string messageText = ( EVO_Reward > 0 ) ? "EVO: +" + EVO_Reward + "\n" : ""
+		messageText += ( ULT_Reward > 0 ) ? "ULT: +" + ULT_Reward + "%" : ""
+		if ( messageText.len() > 0 )
+			AnnouncementMessageRight( GetLocalClientPlayer(), messageText, "", <0, 1, 0>, $"", 1.0 )
+
+		
+		int fxIndex = GetParticleSystemIndex( CANDY_PICKUP_WORLD_FX )
+		StartParticleEffectInWorld( fxIndex, pickupLocation, <0, 0, 0> )
+	}
+
+	
+	thread Candy_ScreenFx( player )
+}
+
 
 
 void function Candy_ScreenFx ( entity player )

@@ -1741,51 +1741,6 @@ SkyDiveTrailPackage function GetSkyDiveTrailPackageForPlayerWithOverrides( entit
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 void function CL_AttemptDropEmote( entity player )
 {
 	printt( "CLIENT EMOTE" )
@@ -1956,7 +1911,7 @@ void function PlayerFreefallActiveChanged( entity player, bool isFreefallActive 
 	if ( isFreefallActive )
 	{
 		ItemFlavor flavor = LoadoutSlot_GetItemFlavor( ToEHI( player ), Loadout_Character() );
-		bool isValk = ItemFlavor_GetAsset( flavor ) == VALK_ITEMFLAVOR
+		bool isValk = ItemFlavor_GetAsset( flavor ) == VALKYRIE_ITEMFLAV
 		bool playerSkywardUsed
 
 		
@@ -2719,6 +2674,10 @@ bool function IsCaptureCameraEnabled()
 	return GetBugReproNum() == 333
 }
 #endif
+
+
+
+
 
 
 

@@ -1,5 +1,7 @@
 global function Sh_Challenge_Sets_Init
 global function ChallengeCollection_IsEnabled
+global function ChallengeCollection_IsEvergreen
+global function ChallengeCollection_IsInActiveTimePeriod
 global function ChallengeCollection_GetActiveState
 global function ChallengeCollection_GetRegisteredCollections
 global function ChallengeCollection_GetActiveCollections
@@ -14,15 +16,24 @@ global function ChallengeCollection_GetCharacterUnlockChallenge
 global function ChallengeCollection_GetProgress
 global function ChallengeCollection_IsComplete
 global function ChallengeCollection_GetFirstViewedTime
+global function ChallengeCollection_GetNextSetUnlockTimeForPlayer
 
 
 
 global function ChallengeCollection_GetEndTime
 global function ChallengeSet_GetByGUID
+global function ChallengeSet_GetUnlockConditions
+global function ChallengeSet_IsUnlockedForPlayer
 global function ChallengeSet_GetMainChallenge
 global function ChallengeSet_GetChallenges
 global function ChallengeSet_GetProgress
 global function ChallengeSet_IsComplete
+global function ChallengeSet_GetPersonalTimerForPlayer
+global function ChallengeSet_GetMinimumNumberOfChallengesCompletedForUnlock
+global function ChallengeSet_MeetsUnlockCompletionRequirements
+
+
+
 
 
 
@@ -33,7 +44,17 @@ global struct ChallengeSet
 {
 	ItemFlavor&         itemFlav 
 	ItemFlavor&         mainChallenge 
+	ItemFlavor ornull   parentCollection
+	ChallengeSet ornull	prevLinkInChain
+	ChallengeSet ornull	nextLinkInChain
 	array< ItemFlavor > challenges
+
+	int globalUnlockTimetamp = 0
+	bool hasPersonalTimestamp = false
+	int personalUnlockHour = -1
+	bool requiresPriorSetMetaCompletion = false
+	int metaSetCompletionPercentage = 0
+	int spanKind
 }
 
 global struct ChallengeCollection
@@ -43,6 +64,11 @@ global struct ChallengeCollection
 	array< ChallengeSet > challengeSets
 
 	int baseAvailabilitySeconds = 0
+	bool hasGlobalTimestamps = false
+	bool hasPersonalTimestamps = false
+	int personalUnlockHour = -1
+	bool requiresPriorSetMetaCompletion = false
+	int metaSetCompletionPercentage = 0
 }
 
 global enum eChallengeCollectionActiveState
@@ -53,8 +79,19 @@ global enum eChallengeCollectionActiveState
 	INACTIVE_KEPLER
 }
 
+global enum eChallengeSetUnlockConditions
+{
+	GLOBAL_TIMESTAMP = 1 << 0,
+	PERSONAL_TIMESTAMP = 1 << 1,
+	PRIOR_SET_META_COMPLETION = 1 << 2,
+}
+
 
 const PLAYLIST_KILLSWITCH_VAR = "challenge_collections_enabled"
+const int NUM_CHALLENGE_CHAINS = 5 
+const string CHALLENGE_SET_UNLOCK_PVAR = "challengeSetUnlocks"
+const string CHALLENGE_SET_UNLOCK_GUID_PVAR = "guid"
+const string CHALLENGE_SET_UNLOCK_TIMESTAMP_PVAR = "unlockTimestamp"
 
 
 
@@ -71,11 +108,44 @@ void function Sh_Challenge_Sets_Init()
 {
 	FileStruct_ChallengeSets fileStruct
 	file = fileStruct
-	AddCallback_OnItemFlavorRegistered( eItemType.calevent_challenge_collection, RegisterChallengeCollectionFlavs )
+	AddCallback_RegisterRootItemFlavors( RegisterBaseChallengeCollectionFlavs )
+	AddCallback_OnItemFlavorRegistered( eItemType.challenge_collection, RegisterChallengeCollectionFlavs )
+
+
+		if ( IsLobby() )
+			AddCallback_OnPersistentDataReady( UpdateLocalUTCOffset )
 
 
 
 
+
+}
+
+
+void function UpdateLocalUTCOffset( entity player )
+{
+	const int ONE_DAY_IN_SECONDS = 24 * 60 * 60
+	int now = GetUnixTimestamp()
+	if ( now > player.GetPersistentVarAsInt( "lastTimePlayed" ) + ONE_DAY_IN_SECONDS )
+	{
+		int offset = GetUTCOffsetHours()
+		Remote_ServerCallFunction( "ClientCallback_Challenge_SetTimeZoneOffsetHours", offset )
+	}
+}
+
+
+void function RegisterBaseChallengeCollectionFlavs()
+{
+	
+	foreach ( asset assetData in GetBaseItemFlavorsFromArray( "challengeCollections" ) )
+	{
+		if ( assetData == $"" )
+		{
+			continue
+		}
+
+		RegisterItemFlavorFromSettingsAsset( assetData )
+	}
 }
 
 void function RegisterChallengeCollectionFlavs( ItemFlavor challengeCollectionItemFlav )
@@ -83,9 +153,28 @@ void function RegisterChallengeCollectionFlavs( ItemFlavor challengeCollectionIt
 	asset challengeCollectionAsset = ItemFlavor_GetAsset( challengeCollectionItemFlav )
 	SettingsAssetGUID collectionGUID =  ItemFlavor_GetGUID( challengeCollectionItemFlav )
 
+	if ( GetGlobalSettingsBool( challengeCollectionAsset, "useParentEventTimes" ) )
+	{
+		ItemFlavor parentFlavor = GetItemFlavorByAsset( GetGlobalSettingsAsset( challengeCollectionAsset, "parentItemFlavor" ) )
+		Assert( parentFlavor.metaData != null )
+		challengeCollectionItemFlav.metaData = parentFlavor.metaData
+	}
+
 	ChallengeCollection challengeCollection
 	challengeCollection.itemFlav      = challengeCollectionItemFlav
 	challengeCollection.mainChallenge = RegisterMainChallenge( challengeCollectionAsset, collectionGUID )
+	int timeSpan = Challenge_GetTimeSpanKind ( challengeCollection.mainChallenge )
+
+	challengeCollection.hasGlobalTimestamps = GetGlobalSettingsBool( challengeCollectionAsset, "hasGlobalTimer" )
+	challengeCollection.hasPersonalTimestamps = GetGlobalSettingsBool( challengeCollectionAsset, "hasPersonalTimer" )
+	if ( challengeCollection.hasPersonalTimestamps )
+		challengeCollection.personalUnlockHour = GetGlobalSettingsInt( challengeCollectionAsset, "unlockHour" )
+
+	challengeCollection.requiresPriorSetMetaCompletion = challengeCollection.hasPersonalTimestamps || GetGlobalSettingsBool( challengeCollectionAsset, "hasMetaChallengeCompletion" )
+	challengeCollection.metaSetCompletionPercentage = GetGlobalSettingsInt( challengeCollectionAsset, "priorCompletionPercent" )
+
+	ChallengeSet lastSet
+	int setIdx = 0
 	foreach ( var challengeSetData in IterateSettingsAssetArray( challengeCollectionAsset, "challengeSets" ) )
 	{
 		ItemFlavor ornull challengeSetFlav = RegisterItemFlavorFromSettingsAsset( GetSettingsBlockAsset( challengeSetData, "challengeSet" ) )
@@ -98,7 +187,39 @@ void function RegisterChallengeCollectionFlavs( ItemFlavor challengeCollectionIt
 		expect ItemFlavor( challengeSetFlav )
 
 		ChallengeSet challengeSet = RegisterChallengeSetData( challengeSetFlav, challengeCollection )
+		challengeSet.parentCollection = challengeCollectionItemFlav
+		challengeSet.spanKind = timeSpan
+
+		if ( challengeCollection.hasGlobalTimestamps )
+		{
+			int ornull timeStamp = DateTimeStringToUnixTimestamp( GetSettingsBlockString( challengeSetData, "globalTimer" ) )
+			Assert( timeStamp != null )
+			if ( timeStamp != null )
+				challengeSet.globalUnlockTimetamp = expect int( timeStamp )
+		}
+
+		if ( challengeCollection.hasPersonalTimestamps )
+		{
+			challengeSet.hasPersonalTimestamp = true
+			challengeSet.personalUnlockHour = challengeCollection.personalUnlockHour
+		}
+
+		if ( challengeCollection.requiresPriorSetMetaCompletion )
+		{
+			challengeSet.requiresPriorSetMetaCompletion = true
+			challengeSet.metaSetCompletionPercentage = challengeCollection.metaSetCompletionPercentage
+		}
+
 		challengeCollection.challengeSets.append( challengeSet )
+
+		if ( setIdx > 0 )
+		{
+			lastSet.nextLinkInChain = challengeSet
+			challengeSet.prevLinkInChain = lastSet
+		}
+
+		lastSet = challengeSet
+		setIdx++
 	}
 
 	if ( GetGlobalSettingsBool( challengeCollectionAsset, "hasAvailabilityPeriod" ) )
@@ -126,13 +247,15 @@ ChallengeSet function RegisterChallengeSetData( ItemFlavor challengeSetFlav, Cha
 	ChallengeSet challengeSet
 	challengeSet.itemFlav      = challengeSetFlav
 	challengeSet.mainChallenge = RegisterMainChallenge( challengeSetAsset, ItemFlavor_GetGUID( challengeSetFlav ) )
+
+	int sortOrdinal = 0
 	foreach ( var challengeData in IterateSettingsAssetArray( challengeSetAsset, "challenges" ) )
 	{
 		ItemFlavor ornull challengeFlav = RegisterItemFlavorFromSettingsAsset( GetSettingsBlockAsset( challengeData, "challenge" ) )
 		if ( challengeFlav != null )
 		{
 			expect ItemFlavor( challengeFlav )
-			RegisterChallengeSource( challengeFlav, challengeSetFlav, 0 )
+			RegisterChallengeSource( challengeFlav, challengeSetFlav, sortOrdinal++ )
 			challengeSet.challenges.append( challengeFlav )
 		}
 	}
@@ -152,6 +275,18 @@ bool function ChallengeCollection_IsEnabled()
 	return isEnabled
 }
 
+bool function ChallengeCollection_IsEvergreen( ChallengeCollection collection )
+{
+	bool isEvergreen = GetGlobalSettingsBool( ItemFlavor_GetAsset( collection.itemFlav ), "isEvergreen" )
+	return isEvergreen
+}
+
+
+bool function ChallengeCollection_IsInActiveTimePeriod( ChallengeCollection collection, int currentTime )
+{
+	return ChallengeCollection_IsEvergreen( collection ) || CalEvent_IsActive( collection.itemFlav, currentTime )
+}
+
 int function ChallengeCollection_GetActiveState( entity player, ChallengeCollection challengeCollection )
 {
 	int currentTime = GetUnixTimestamp()
@@ -168,7 +303,7 @@ int function ChallengeCollection_GetActiveState( entity player, ChallengeCollect
 		return eChallengeCollectionActiveState.INACTIVE_AVAILABILITY_SECONDS
 	}
 
-	if ( !CalEvent_IsActive( challengeCollection.itemFlav, currentTime ) )
+	if ( !ChallengeCollection_IsInActiveTimePeriod( challengeCollection, currentTime ) )
 	{
 		return eChallengeCollectionActiveState.INACTIVE_CALEVENT
 	}
@@ -195,7 +330,7 @@ array< ChallengeCollection > function ChallengeCollection_GetActiveCollections()
 	
 	foreach ( collection in file.challengeCollections )
 	{
-		if ( CalEvent_IsActive( collection.itemFlav, GetUnixTimestamp() ) )
+		if ( ChallengeCollection_IsInActiveTimePeriod( collection, GetUnixTimestamp() ) )
 		{
 			activeChallengeCollections.push( collection )
 		}
@@ -217,7 +352,7 @@ array< ChallengeSet > function ChallengeCollection_GetAllChallengeSets( Challeng
 
 ItemFlavor function ChallengeCollection_GetMainChallenge( ItemFlavor challengeCollectionFlav )
 {
-	Assert( ItemFlavor_GetType( challengeCollectionFlav ) == eItemType.calevent_challenge_collection )
+	Assert( ItemFlavor_GetType( challengeCollectionFlav ) == eItemType.challenge_collection )
 	ItemFlavor challenge = GetItemFlavorByAsset( GetGlobalSettingsAsset( ItemFlavor_GetAsset( challengeCollectionFlav ), "mainChallengeFlav" ) )
 	return challenge
 }
@@ -234,6 +369,7 @@ array< ItemFlavor > function ChallengeCollection_GetAllMainChallenges( Challenge
 	return challenges
 }
 
+
 array< ItemFlavor > function ChallengeCollection_GetAllChallenges( ChallengeCollection challengeCollection )
 {
 	array<ItemFlavor> challenges
@@ -242,13 +378,10 @@ array< ItemFlavor > function ChallengeCollection_GetAllChallenges( ChallengeColl
 		challenges.append( challengeCollection.mainChallenge )
 		foreach ( ChallengeSet set in challengeCollection.challengeSets )
 		{
-			if ( CalEvent_HasStarted( set.itemFlav, GetUnixTimestamp() ) )
+			challenges.append( set.mainChallenge )
+			foreach ( ItemFlavor challenge in set.challenges )
 			{
-				challenges.append( set.mainChallenge )
-				foreach ( ItemFlavor challenge in set.challenges )
-				{
-					challenges.append( challenge )
-				}
+				challenges.append( challenge )
 			}
 		}
 	}
@@ -380,11 +513,61 @@ int function ChallengeCollection_GetEndTime( entity player, ChallengeCollection 
 
 	if ( availabilitySeconds <= 0 || firstViewedTime <= 0 )
 	{
-		return CalEvent_GetFinishUnixTime( challengeCollection.itemFlav )
+		int finishTime = ChallengeCollection_IsEvergreen( challengeCollection ) ? UNIX_TIME_FALLBACK_2038 : CalEvent_GetFinishUnixTime( challengeCollection.itemFlav )
+		return finishTime
 	}
 
 	return firstViewedTime + availabilitySeconds
 }
+
+int function ChallengeCollection_GetNextSetUnlockTimeForPlayer( entity player )
+{
+
+
+
+
+	int nextUnlockTime = INT_MAX
+	int now = GetUnixTimestamp()
+
+	table< int, ChallengeCollection > challengeCollections = ChallengeCollection_GetRegisteredCollections()
+	foreach( ChallengeCollection challengeCollection in challengeCollections )
+	{
+		int activeState = ChallengeCollection_GetActiveState( player, challengeCollection )
+		if ( activeState == eChallengeCollectionActiveState.ACTIVE )
+		{
+			foreach ( ChallengeSet challengeSet in challengeCollection.challengeSets )
+			{
+				if ( !ChallengeSet_IsUnlockedForPlayer( player, challengeSet ) )
+				{
+					if ( challengeCollection.hasGlobalTimestamps && challengeSet.globalUnlockTimetamp > now && challengeSet.globalUnlockTimetamp < nextUnlockTime )
+						nextUnlockTime = challengeSet.globalUnlockTimetamp
+
+					if ( challengeCollection.hasPersonalTimestamps )
+					{
+						int personalTimer = ChallengeSet_GetPersonalTimerForPlayer( player, challengeSet )
+						if ( personalTimer > now && personalTimer < nextUnlockTime )
+							nextUnlockTime = personalTimer
+					}
+				}
+			}
+		}
+		else if ( activeState == eChallengeCollectionActiveState.INACTIVE_CALEVENT )
+		{
+			int start = CalEvent_GetStartUnixTime( challengeCollection.itemFlav )
+			if ( start > now && start < nextUnlockTime )
+				nextUnlockTime = start
+		}
+	}
+
+	return nextUnlockTime
+}
+
+
+
+
+
+
+
 
 
 
@@ -424,9 +607,63 @@ ChallengeSet function ChallengeSet_GetByGUID( SettingsAssetGUID guid )
 	return file.challengeSets[ guid ]
 }
 
+int function ChallengeSet_GetUnlockConditions( ChallengeSet challengeSet )
+{
+	int conditionsMask = 0
+
+	if ( challengeSet.globalUnlockTimetamp > 0 )
+		conditionsMask = conditionsMask | eChallengeSetUnlockConditions.GLOBAL_TIMESTAMP
+
+	if ( challengeSet.hasPersonalTimestamp )
+		conditionsMask = conditionsMask | eChallengeSetUnlockConditions.PERSONAL_TIMESTAMP
+
+	if ( challengeSet.requiresPriorSetMetaCompletion )
+		conditionsMask = conditionsMask | eChallengeSetUnlockConditions.PRIOR_SET_META_COMPLETION
+
+	return conditionsMask
+}
+
+bool function ChallengeSet_IsUnlockedForPlayer( entity player, ChallengeSet challengeSet )
+{
+
+
+
+
+	bool isUnlocked = true
+	int now = GetUnixTimestamp()
+
+	if ( challengeSet.globalUnlockTimetamp > 0 && now < challengeSet.globalUnlockTimetamp )
+	{
+		isUnlocked = false
+	}
+
+	if ( challengeSet.hasPersonalTimestamp && now < ChallengeSet_GetPersonalTimerForPlayer( player, challengeSet ) )
+	{
+		isUnlocked = false
+	}
+
+	if ( challengeSet.requiresPriorSetMetaCompletion && challengeSet.prevLinkInChain != null )
+	{
+		ChallengeSet ornull prevLink = challengeSet.prevLinkInChain
+		expect ChallengeSet( prevLink )
+
+		if ( !ChallengeSet_MeetsUnlockCompletionRequirements( player, prevLink ) )
+		{
+			isUnlocked = false
+		}
+	}
+
+
+	if ( challengeSet.spanKind == eChallengeTimeSpanKind.BEGINNER && !NPP_GetIsActiveNPP( player )  )
+		isUnlocked = false
+
+
+	return isUnlocked
+}
+
 ItemFlavor function ChallengeSet_GetMainChallenge( ItemFlavor challengeSetFlav )
 {
-	Assert( ItemFlavor_GetType( challengeSetFlav ) == eItemType.calevent_challenge_set )
+	Assert( ItemFlavor_GetType( challengeSetFlav ) == eItemType.challenge_set )
 	ItemFlavor challenge = GetItemFlavorByAsset( GetGlobalSettingsAsset( ItemFlavor_GetAsset( challengeSetFlav ), "mainChallengeFlav" ) )
 	return challenge
 }
@@ -451,6 +688,16 @@ int function ChallengeSet_GetProgress( entity player, ChallengeSet challengeSet 
 	return progress
 }
 
+int function ChallengeSet_GetMinimumNumberOfChallengesCompletedForUnlock( entity player, ChallengeSet challengeSet )
+{
+	return int( ceil( float( challengeSet.metaSetCompletionPercentage ) / 100.0 * float( challengeSet.challenges.len() ) ) )
+}
+
+bool function ChallengeSet_MeetsUnlockCompletionRequirements( entity player, ChallengeSet challengeSet )
+{
+	return ChallengeSet_GetProgress( player, challengeSet ) >= ChallengeSet_GetMinimumNumberOfChallengesCompletedForUnlock( player, challengeSet )
+}
+
 bool function ChallengeSet_IsComplete( entity player, ChallengeSet challengeSet )
 {
 	int goal = challengeSet.challenges.len()
@@ -458,3 +705,67 @@ bool function ChallengeSet_IsComplete( entity player, ChallengeSet challengeSet 
 
 	return progress >= goal
 }
+
+int function ChallengeSet_GetPersonalTimerForPlayer( entity player, ChallengeSet challengeSet )
+{
+	for ( int i = 0; i < NUM_CHALLENGE_CHAINS; i++ )
+	{
+
+			if ( player.GetPersistentVarAsInt( format( "%s[%d].%s", CHALLENGE_SET_UNLOCK_PVAR, i, CHALLENGE_SET_UNLOCK_GUID_PVAR ) ) == challengeSet.itemFlav.guid )
+			{
+				return player.GetPersistentVarAsInt( format( "%s[%d].%s", CHALLENGE_SET_UNLOCK_PVAR, i, CHALLENGE_SET_UNLOCK_TIMESTAMP_PVAR ) )
+			}
+
+
+
+
+
+
+	}
+
+	return UNIX_TIME_FALLBACK_1970
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

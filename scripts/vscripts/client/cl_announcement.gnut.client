@@ -16,10 +16,10 @@ global const int ANNOUNCEMENT_STYLE_ROUND_WON = 13
 global const int ANNOUNCEMENT_STYLE_RATING_LEADER = 14
 global const int ANNOUNCEMENT_STYLE_TDM_ROUND_WON = 15
 
-	global const int ANNOUNCEMENT_STYLE_STRIKE = 16
-	global const int ANNOUNCEMENT_STYLE_MILESTONE_SMALL = 17
-	global const int ANNOUNCEMENT_STYLE_FINAL_RING_NO_RESPAWNS= 18
+global const int ANNOUNCEMENT_STYLE_STRIKE = 16
 
+global const int ANNOUNCEMENT_STYLE_MILESTONE_SMALL = 17
+global const int ANNOUNCEMENT_STYLE_FINAL_RING_NO_RESPAWNS = 18
 
 
 	global const int ANNOUNCEMENT_STYLE_LEVEL_UP = 19
@@ -627,13 +627,11 @@ void function AnnouncementMessage_DisplayOnHud( AnnouncementData announcement )
 				RuiSetImage( rui, "iconImage", announcement.icon )
 			break
 
-
 		case ANNOUNCEMENT_STYLE_MILESTONE_SMALL:
 			rui = RuiCreate( $"ui/announcement_milestone_small.rpak", clGlobal.topoFullScreen, RUI_DRAW_POSTEFFECTS, RUI_SORT_SCREENFADE + 1 )
 			if ( announcement.soundAlias != "" )
 				EmitSoundOnEntity( player, announcement.soundAlias )
 			break
-
 
 		case ANNOUNCEMENT_STYLE_OBJECTIVE:
 			if ( announcement.drawOverScreenFade )
@@ -650,10 +648,9 @@ void function AnnouncementMessage_DisplayOnHud( AnnouncementData announcement )
 				EmitSoundOnEntity( player, announcement.soundAlias )
 			break
 
-
 		case ANNOUNCEMENT_STYLE_FINAL_RING_NO_RESPAWNS:
 			customAnnouncement = true
-			rui = RuiCreate( $"ui/announcement_strikeout_norespawns.rpak", clGlobal.topoFullScreen, RUI_DRAW_POSTEFFECTS, 0 )
+			rui = RuiCreate( $"ui/announcement_norespawns.rpak", clGlobal.topoFullScreen, RUI_DRAW_POSTEFFECTS, 0 )
 
 			RuiSetGameTime( rui, "startTime", Time() )
 
@@ -671,7 +668,6 @@ void function AnnouncementMessage_DisplayOnHud( AnnouncementData announcement )
 
 			EmitSoundOnEntity( player, announcement.soundAlias )
 			break
-
 
 		case ANNOUNCEMENT_STYLE_CIRCLE_WARNING:
 			customAnnouncement = true
@@ -827,11 +823,11 @@ int function Announcement_GetActivePositionZone()
 		case ANNOUNCEMENT_STYLE_OBJECTIVE:
 		case ANNOUNCEMENT_STYLE_RESULTS:
 		case ANNOUNCEMENT_STYLE_CIRCLE_WARNING:
-
 		case ANNOUNCEMENT_STYLE_FINAL_RING_NO_RESPAWNS:
-		case ANNOUNCEMENT_STYLE_STRIKE:
-		case ANNOUNCEMENT_STYLE_MILESTONE_SMALL:
 
+		case ANNOUNCEMENT_STYLE_STRIKE:
+
+		case ANNOUNCEMENT_STYLE_MILESTONE_SMALL:
 		case ANNOUNCEMENT_STYLE_KILL_LEADER:
 		case ANNOUNCEMENT_STYLE_RATING_LEADER:
 		case ANNOUNCEMENT_STYLE_GOT_TREASURE_PACK:
@@ -903,6 +899,12 @@ void function ServertoClient_LTM_AnnouncementSplash()
 
 		if ( GameModeVariant_IsActiveForPlaylist( playlistName, eGameModeVariants.SURVIVAL_RANKED ) && RankedRumble_IsLatestGameRankedRumble( player ) )
 			messageText = Localize("#RANKED_RUMBLE")
+
+
+
+
+
+
 
 	string subText                = GetCurrentPlaylistVarString( "announce_desc", "#GAMEMODE_ANNOUNCE_SUBTEXT_NONE" )
 	int subTextCount              = GetCurrentPlaylistVarInt( "announce_count", 1 )

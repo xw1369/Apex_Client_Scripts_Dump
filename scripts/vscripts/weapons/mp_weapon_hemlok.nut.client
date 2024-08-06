@@ -10,7 +10,7 @@ void function OnWeaponActivate_hemlok( entity weapon )
 		{
 			SmartReloadSettings settings
 			settings.OverloadedAmmo				 = GetWeaponInfoFileKeyField_GlobalInt( HEMLOK_CLASS_NAME, OVERLOAD_AMMO_SETTING )
-			settings.LowAmmoFrac				 = GetWeaponInfoFileKeyField_GlobalFloat( HEMLOK_CLASS_NAME, LOW_AMMO_FAC_SETTING )
+			settings.LowAmmoFrac				 = GetWeaponInfoFileKeyField_GlobalFloat( HEMLOK_CLASS_NAME, SMART_RELOAD_LOW_AMMO_FRAC_SETTING )
 
 			OnWeaponActivate_Smart_Reload ( weapon, settings )
 		}

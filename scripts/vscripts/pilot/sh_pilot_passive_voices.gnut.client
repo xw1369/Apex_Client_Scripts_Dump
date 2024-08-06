@@ -150,8 +150,6 @@ void function Sh_PassiveVoices_Init()
 
 
 
-
-
 }
 
 bool function IsViewTypeCategory( int catId )

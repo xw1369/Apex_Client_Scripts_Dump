@@ -40,7 +40,12 @@ global  const float SNIPERULT_HEALINGDENIED_DURATION = 15
 
 const float SNIPERULT_WHIZ_BY_SCAN_DURATION = 1
 const float SNIPERULT_PLAYER_MARKED_DURATION = 10
-const float SNIPERULT_VANTAGE_DMG_SCALE = 2
+
+const float SNIPERULT_VANTAGE_DMG_SCALE = 2.5
+
+
+
+
 const float SNIPERULT_TEAM_DMG_SCALE = 1.15
 
 
@@ -115,7 +120,7 @@ void function SniperUlt_Init()
 
 		RegisterSignal( "SniperUlt_Mark_StopSignal" )
 
-
+		RegisterSignal( "End_UltAccelHintThread" )
 
 
 		
@@ -143,10 +148,10 @@ void function OnWeaponActivate_ability_sniper_ult( entity weapon )
 
 
 
-
-
-
-
+	if ( IsValid( weaponOwner ) )
+	{
+		thread UltAccelHintThread( weaponOwner, weapon )
+	}
 
 
 
@@ -162,8 +167,8 @@ void function OnWeaponDeactivate_ability_sniper_ult( entity weapon )
 {
 
 
-
-
+	if ( IsValid(weapon) )
+		weapon.Signal( "End_UltAccelHintThread" )
 
 
 
@@ -894,42 +899,42 @@ void function SniperUlt_Mark_Client_Stop( entity ent, int statusEffect, bool act
 }
 
 
+void function UltAccelHintThread( entity player, entity weapon )
+{
+	if ( !IsValid(player) )
+		return
 
+	if ( player != GetLocalViewPlayer() )
+		return
 
+	if ( !IsValid( weapon ) )
+		return
 
+	weapon.Signal( "End_UltAccelHintThread" )
+	weapon.EndSignal( "End_UltAccelHintThread" )
 
+	OnThreadEnd(
+		function() : ( )
+		{
+			HidePlayerHint( "#VANTAGE_ULT_ACCEL_HINT" )
+		}
+	)
 
+	while( true )
+	{
+		if ( Consumable_CanUseConsumable( player, eConsumableType.ULTIMATE, false ) )
+		{
+			const float ULT_HINT_DEBOUNCE = 20
+			float timeSinceLastUltHint = Time() - file.timeLastUltHint
+			if ( timeSinceLastUltHint > ULT_HINT_DEBOUNCE )
+			{
+				file.timeLastUltHint = Time()
+				AddPlayerHint( 5.0, 0.25, $"", "#VANTAGE_ULT_ACCEL_HINT", "#SURVIVAL_PICKUP_HEALTH_ULTIMATE" )
+			}
+		}
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+		wait 0.5
+	}
+}
 
 

@@ -117,7 +117,7 @@ void function ClientCodeCallback_ToggleGamePaused( bool isPaused )
 	if ( !file.gameStateRuiCreated )
 		return
 
-	if ( !GetConVarBool( "pause_ui" ) && isPaused )
+	if ( !GetConVarBool( "pause_ui" ) && !GetCurrentPlaylistVarBool( "match_pause_enabled", false ) )
 		return
 
 	RuiSetBool( file.gamestateRui, "showPauseMessage", isPaused )

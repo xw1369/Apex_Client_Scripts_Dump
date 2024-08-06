@@ -30,13 +30,13 @@ global function Respawn_Token_OnReconnect_UpdateRUI
 const string NETFUNC_ANNOUNCEMENT_RESPAWNS_DISABLED = "Respawn_Token_Announcement_RespawnsDisabled"
 const string NETFUNC_ON_RECONNECT_UPDATE_RUI = "Respawn_Token_OnReconnect_UpdateRUI"
 
-const string NETVAR_SQUAD_LIVES = "Squad_Lives"
+const string NETVAR_SQUAD_RESPAWN_TOKENS = "Squad_Respawn_Tokens"
 const string NETVAR_RESPAWN_DISABLED = "Squad_Respawn_Disabled"
 
 const float TIME_ANNOUNCEMENT_RESPAWN_DISABLED = 7.0
-const float TIME_ANNOUNCEMENT_SQUAD_LIVES_REMAINING = 7.0
+const float TIME_ANNOUNCEMENT_SQUAD_RESPAWN_TOKENS_REMAINING = 7.0
 
-const int PRIORITY_ANNOUNCEMENT_SQUAD_LIVES_REMAINING = 1000
+const int PRIORITY_ANNOUNCEMENT_SQUAD_RESPAWN_TOKENS_REMAINING = 1000
 
 
 
@@ -45,13 +45,13 @@ const int PRIORITY_ANNOUNCEMENT_SQUAD_LIVES_REMAINING = 1000
 
 
 const asset RUI_RESPAWN_INFO = $"ui/gamestate_info_survival_solos.rpak"
-const asset RUI_RESPAWN_HUD = $"ui/survival_solos_respawn_token.rpak"
+const asset RUI_RESPAWN_HUD = $"ui/gamestate_survival_respawn_token.rpak"
 
 const string RUIVAR_RESPAWN_DISABLED = "respawnsDisabled"
 
-const string SFX_SQUAD_LIVES_REMAINING_TWO = "UI_3Strikes_Widget_Stinger_Strike1"
-const string SFX_SQUAD_LIVES_REMAINING_ONE = "UI_3Strikes_Widget_Stinger_Strike1"
-const string SFX_SQUAD_LIVES_REMAINING_ZERO = "UI_3Strikes_Widget_Stinger_Strike1"
+const string SFX_SQUAD_RESPAWN_TOKENS_REMAINING_TWO = "UI_3Strikes_Widget_Stinger_Strike1"
+const string SFX_SQUAD_RESPAWN_TOKENS_REMAINING_ONE = "UI_3Strikes_Widget_Stinger_Strike1"
+const string SFX_SQUAD_RESPAWN_TOKENS_REMAINING_ZERO = "UI_3Strikes_Widget_Stinger_Strike1"
 const string SFX_RESPAWN_DISABLED = "UI_3Strikes_RespawningDisabled"
 
 
@@ -71,9 +71,9 @@ struct
 
 
 
-	int squadLives = 0
-	int squadLivesViewPlayer = 0
-	int lastSquadLifeAnnouncement = -1
+	int  squadRespawnTokens = 0
+	int  squadRespawnTokensViewPlayer = 0
+	int  lastSquadRespawnTokenAnnouncement = -1
 	bool canRespawn = false
 	bool isRespawning = false
 
@@ -109,7 +109,7 @@ void function Sh_Respawn_Token_Init()
 
 
 
-	RegisterNetVarIntChangeCallback( NETVAR_SQUAD_LIVES, Respawn_Token_SquadLivesChanged )
+	RegisterNetVarIntChangeCallback( NETVAR_SQUAD_RESPAWN_TOKENS, Respawn_Token_SquadRespawnTokensChanged )
 
 	Announcements_SetOnSetupAnnouncement_RemainingRespawns( Respawn_Token_OnSetupAnnouncement_RemainingRespawns )
 	AddCallback_PlayerFreefallActiveChanged( Respawn_Token_PlayerFreefallActiveChanged )
@@ -125,7 +125,7 @@ void function Sh_Respawn_Token_Init()
 
 void function Sh_Respawn_Token_RegisterNetworking()
 {
-	RegisterNetworkedVariable( NETVAR_SQUAD_LIVES, SNDC_PLAYER_EXCLUSIVE, SNVT_INT, 0.0 )
+	RegisterNetworkedVariable( NETVAR_SQUAD_RESPAWN_TOKENS, SNDC_PLAYER_EXCLUSIVE, SNVT_INT, 0.0 )
 	RegisterNetworkedVariable( NETVAR_RESPAWN_DISABLED, SNDC_PLAYER_EXCLUSIVE, SNVT_BOOL, false )
 
 	Remote_RegisterClientFunction( NETFUNC_ANNOUNCEMENT_RESPAWNS_DISABLED )
@@ -145,9 +145,6 @@ bool function Sh_Respawn_Token_IsPlayerRespawnDisabled( entity player )
 {
 	return player.GetPlayerNetBool( NETVAR_RESPAWN_DISABLED )
 }
-
-
-
 
 
 
@@ -413,16 +410,15 @@ void function Respawn_Token_SetCanLocalPlayerRespawn( bool isRespawning, bool ca
 
 
 
-int function GetPlayerLives( entity player )
+int function _Respawn_Token_GetPlayerRespawnTokens( entity player )
 {
 	if ( !IsValid( player ) )
 	{
 		return 0
 	}
 
-	return player.GetPlayerNetInt( NETVAR_SQUAD_LIVES )
+	return player.GetPlayerNetInt( NETVAR_SQUAD_RESPAWN_TOKENS )
 }
-
 
 
 
@@ -531,8 +527,8 @@ var function Respawn_Token_OnSetupAnnouncement_RemainingRespawns( AnnouncementDa
 		return null
 
 	var rui = RuiCreate( $"ui/announcement_solos_respawns_remaining.rpak", clGlobal.topoFullScreen, RUI_DRAW_POSTEFFECTS, RUI_SORT_SCREENFADE + 1 )
-	RuiSetInt( rui, "squadLives", file.squadLives )
-	RuiSetInt( rui, "strikeTotal", LivesToStrikes( file.squadLives ) )
+	RuiSetInt( rui, "squadLives", file.squadRespawnTokens )
+	RuiSetInt( rui, "strikeTotal", RespawnTokensToStrikes( file.squadRespawnTokens ) )
 
 	EmitSoundOnEntity( player, announcement.soundAlias )
 	return rui
@@ -540,28 +536,33 @@ var function Respawn_Token_OnSetupAnnouncement_RemainingRespawns( AnnouncementDa
 
 
 
-void function Respawn_Token_SquadLivesChanged( entity player, int newValue )
+void function Respawn_Token_SquadRespawnTokensChanged( entity player, int newValue )
 {
 	if ( !IsValid( player ) )
 		return
 
 	if ( player == GetLocalViewPlayer() )
 	{
-		file.squadLivesViewPlayer = newValue
+		file.squadRespawnTokensViewPlayer = newValue
 	}
 
 	if ( player == GetLocalClientPlayer() )
 	{
-		file.squadLives = newValue
+		file.squadRespawnTokens = newValue
 
 		
-		if ( file.squadLives <= -1 )
+		if ( file.squadRespawnTokens <= -1 )
 		{
 			file.squadEliminated = true
 		}
+
+		if ( file.lastSquadRespawnTokenAnnouncement == -1 )
+		{
+			file.lastSquadRespawnTokenAnnouncement = newValue
+		}
 	}
 
-	UpdateRui_SquadLives()
+	UpdateRui_SquadRespawnTokens()
 }
 
 
@@ -571,16 +572,16 @@ void function Respawn_Token_PlayerFreefallActiveChanged( entity player, bool isF
 	if ( !isFreefallActive )
 		return
 
-	if ( file.lastSquadLifeAnnouncement == file.squadLives )
+	if ( file.lastSquadRespawnTokenAnnouncement == file.squadRespawnTokens )
 		return
 
-	Announcement_SquadLivesRemaining()
-	file.lastSquadLifeAnnouncement = file.squadLives
+	Announcement_SquadRespawnTokensRemaining()
+	file.lastSquadRespawnTokenAnnouncement = file.squadRespawnTokens
 }
 
 
 
-void function UpdateRui_SquadLives()
+void function UpdateRui_SquadRespawnTokens()
 {
 	var gamestateRui = ClGameState_GetRui()
 	if ( gamestateRui != null && RuiIsAlive( gamestateRui ) && file.nestedRespawnTokenRui == null || !RuiIsAlive( file.nestedRespawnTokenRui ) )
@@ -591,14 +592,14 @@ void function UpdateRui_SquadLives()
 
 	if ( file.nestedRespawnTokenRui != null && RuiIsAlive( file.nestedRespawnTokenRui ) )
 	{
-		RuiSetInt( file.nestedRespawnTokenRui, "squadLives", maxint( file.squadLives, 0 ) )
-		RuiSetInt( file.nestedRespawnTokenRui, "viewPlayerLives", maxint( file.squadLivesViewPlayer, 0 ) )
+		RuiSetInt( file.nestedRespawnTokenRui, "squadLives", maxint( file.squadRespawnTokens, 0 ) )
+		RuiSetInt( file.nestedRespawnTokenRui, "viewPlayerLives", maxint( file.squadRespawnTokensViewPlayer, 0 ) )
 	}
 
 	if ( IsValid( GetLocalClientPlayer() ) )
 	{
-		bool isRespawning = file.squadLives >= 0 && !file.squadEliminated
-		bool canRespawn = !file.squadEliminated && ( (file.squadLives > 0 && IsAlive( GetLocalClientPlayer() ) ) || (file.squadLives >= 0 && !IsAlive( GetLocalClientPlayer() ) ) )
+		bool isRespawning = file.squadRespawnTokens >= 0 && !file.squadEliminated
+		bool canRespawn = !file.squadEliminated && ( ( file.squadRespawnTokens > 0 && IsAlive( GetLocalClientPlayer() ) ) || ( file.squadRespawnTokens >= 0 && !IsAlive( GetLocalClientPlayer() ) ) )
 
 		Respawn_Token_SetCanLocalPlayerRespawn( isRespawning, canRespawn )
 		RunUIScript( "Respawn_Token_SetCanLocalPlayerRespawn", isRespawning, canRespawn )
@@ -623,40 +624,40 @@ void function UpdateRui_RespawnState( bool newState )
 
 void function Respawn_Token_OnReconnect_UpdateRUI()
 {
-	UpdateRui_SquadLives()
+	UpdateRui_SquadRespawnTokens()
 }
 
 
 
-void function Announcement_SquadLivesRemaining()
+void function Announcement_SquadRespawnTokensRemaining()
 {
 	string message = Localize( "#SURVIVAL_MODE_SOLOS_RESPAWN_TOKEN_USED" )
 	string announcementSFX
 
-	if ( file.squadLives >= 2 )
+	if ( file.squadRespawnTokens >= 2 )
 	{
-		announcementSFX = SFX_SQUAD_LIVES_REMAINING_TWO
+		announcementSFX = SFX_SQUAD_RESPAWN_TOKENS_REMAINING_TWO
 	}
-	else if ( file.squadLives >= 1 )
+	else if ( file.squadRespawnTokens >= 1 )
 	{
-		announcementSFX = SFX_SQUAD_LIVES_REMAINING_ONE
+		announcementSFX = SFX_SQUAD_RESPAWN_TOKENS_REMAINING_ONE
 	}
 	else
 	{
-		announcementSFX = SFX_SQUAD_LIVES_REMAINING_ZERO
+		announcementSFX = SFX_SQUAD_RESPAWN_TOKENS_REMAINING_ZERO
 	}
 
 	AnnouncementData announcement = Announcement_Create( message )
 	announcement.priority = 202 
 
-	Announcement_SetDuration( announcement, TIME_ANNOUNCEMENT_SQUAD_LIVES_REMAINING )
+	Announcement_SetDuration( announcement, TIME_ANNOUNCEMENT_SQUAD_RESPAWN_TOKENS_REMAINING )
 	Announcement_SetStyle( announcement, ANNOUNCEMENT_STYLE_REMAINING_RESPAWNS )
-	Announcement_SetPriority( announcement, PRIORITY_ANNOUNCEMENT_SQUAD_LIVES_REMAINING )
+	Announcement_SetPriority( announcement, PRIORITY_ANNOUNCEMENT_SQUAD_RESPAWN_TOKENS_REMAINING )
 
 	AnnouncementFromClass( GetLocalViewPlayer(), announcement )
 	EmitSoundOnEntity( GetLocalViewPlayer(), announcementSFX )
 
-	UpdateRui_SquadLives()
+	UpdateRui_SquadRespawnTokens()
 }
 
 
@@ -684,12 +685,12 @@ void function Respawn_Token_Announcement_RespawnsDisabled()
 	}
 
 	UpdateRui_RespawnState( false )
-	UpdateRui_SquadLives()
+	UpdateRui_SquadRespawnTokens()
 }
 
 
 
-int function Respawn_Token_GetMaxSquadLives()
+int function Respawn_Token_GetMaxSquadRespawnTokens()
 {
 	return GetStartingRespawnCount() + 1
 }
@@ -708,7 +709,7 @@ bool function Respawn_Token_IsPlayerWaitingForRespawn( entity player )
 		return false
 
 	
-	return ( file.squadLives >= 0 )
+	return ( file.squadRespawnTokens >= 0 )
 }
 
 
@@ -729,12 +730,12 @@ bool function Respawn_Token_IsPlayerWaitingForRespawn( entity player )
 
 
 
-int function LivesToStrikes( int lives )
+int function RespawnTokensToStrikes( int respawnTokens )
 {
 	
 	const int MAX_STRIKES = 3
 
-	int strikes = minint( MAX_STRIKES - lives - 1, 3 )
+	int strikes = minint( MAX_STRIKES - respawnTokens - 1, 3 )
 	return maxint( strikes, 0 )
 }
 

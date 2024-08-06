@@ -6,6 +6,9 @@ global function MpSpaceElevator_Init
 
 
 
+
+
+
 global function ServerToClient_SpaceElevatorTacProgressRuiStart
 
 
@@ -20,6 +23,12 @@ const asset ELEVATOR_BASE_FX = $"P_wpn_grav_lift_base"
 const asset ELEVATOR_TOP_FX = $"P_wpn_grav_lift_top"
 
 const asset FX_PROJECTILE_DESTROYED = $"P_projectile_melted"
+
+
+const asset ELEVATOR_ENV_BASE_FX = $"P_env_grav_lift_base"
+const asset ELEVATOR_ENV_SHAFT_FX = $"P_env_grav_lift_column"
+const asset ELEVATOR_ENV_TOP_FX = $"P_env_grav_lift_top"
+
 
 
 const string SPACEELEVATOR_SOUND_NEWT_IDLE_LOOP = "Nova_Tac_Upper_Active"
@@ -92,6 +101,24 @@ struct ElevatorEffectData
 	int forceStandHandle = -1
 }
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 struct
 {
 
@@ -119,6 +146,9 @@ void function MpSpaceElevator_Init()
 	
 	PrecacheParticleSystem( SPACEELEVATOR_SHAFT_FX )
 	PrecacheParticleSystem( FX_PROJECTILE_DESTROYED )
+	PrecacheParticleSystem( ELEVATOR_ENV_BASE_FX )
+	PrecacheParticleSystem( ELEVATOR_ENV_SHAFT_FX )
+	PrecacheParticleSystem( ELEVATOR_ENV_TOP_FX )
 
 
 
@@ -132,6 +162,8 @@ void function MpSpaceElevator_Init()
 	RegisterSignal( "SpaceElevator_StopVisualBlend" )
 
 	Remote_RegisterClientFunction( "ServerToClient_SpaceElevatorTacProgressRuiStart", "entity" )
+
+
 
 
 
@@ -184,7 +216,7 @@ int function GetSpaceElevatorHeight( entity player )
 
 float function GetSpaceElevatorLifetime( entity player )
 {
-	float result = SPACEELEVATOR_TUNING_LIFETIME
+	float result = GetCurrentPlaylistVarFloat( "gravity_lift_lifetime", SPACEELEVATOR_TUNING_LIFETIME )
 
 		if( PlayerHasPassive( player, ePassives.PAS_TAC_UPGRADE_ONE ) ) 
 		{
@@ -201,6 +233,44 @@ float function GetSpaceElevatorLifetime( entity player )
 
 	return result
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1063,8 +1133,6 @@ void function SPACEELEVATOR_InTriggerThread( entity trigger, entity player )
 
 	}
 
-	const TICK_RATE = 0.1
-	int lastStatusEffectIdKR = -1
 	bool shouldKeepInside    = false
 	while( trigger.IsTouching( player ) || shouldKeepInside )
 	{
@@ -1077,7 +1145,7 @@ void function SPACEELEVATOR_InTriggerThread( entity trigger, entity player )
 		{
 			if ( SPACEELEVATOR_DEBUG )
 			{
-				DebugDrawSphere( player.GetOrigin(), 11, <75, 0, 150>, true, TICK_RATE )
+				DebugDrawSphere( player.GetOrigin(), 11, <75, 0, 150>, true, 0.1 )
 			}
 
 			if ( !StatusEffect_HasSeverity( player, eStatusEffect.in_space_elevator ) )
@@ -1142,7 +1210,7 @@ void function SPACEELEVATOR_InTriggerThread( entity trigger, entity player )
 
 
 		}
-		wait TICK_RATE
+		WaitFrame()
 	}
 }
 
@@ -1344,5 +1412,54 @@ void function CL_SpaceElevatorProgressRUIThread( entity player, entity base )
 		WaitFrame()
 	}
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 

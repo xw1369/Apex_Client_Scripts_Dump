@@ -718,6 +718,15 @@ void function PassiveMedic_Init()
 
 
 
+
+
+
+
+
+
+
+
+
 void function AttemptCancelRevive( entity player )
 {
 	if( !player.ContextAction_IsBeingRevived() )

@@ -2,8 +2,6 @@ global function PassiveVantage_Init
 global function PassiveVantage_IsInCompatibleWeaponConfig
 
 
-global function PlayVantageSpottedPingSounds
-
 
 
 
@@ -115,6 +113,9 @@ void function Vantage_PlayerZoomInCallback( entity player )
 		if ( !PlayerHasPassive( player, ePassives.PAS_VANTAGE ) )
 			return
 
+		if( !IsFirstTimePredicted() )
+			return
+
 		ActivateSniperRecon( player )
 
 }
@@ -154,6 +155,11 @@ void function DeactivateSniperRecon( entity player )
 
 void function Vantage_PlayerZoomOutCallback( entity player )
 {
+
+		if( !IsFirstTimePredicted() )
+			return
+
+
 	DeactivateSniperRecon( player )
 }
 
@@ -177,6 +183,13 @@ string function Vantage_EditScopesLootDesc( string lootRef, entity player, strin
 	}
 	return finalDesc
 }
+
+
+
+
+
+
+
 
 
 
@@ -353,12 +366,12 @@ bool function PassiveVantage_isCompatibleOptic( string opticRef )
 		return false
 
 
-
-
-
-
-
-
+		if ( 	opticRef == "optic_cq_hcog_classic" || 		
+				opticRef == "optic_cq_holosight" || 		
+				opticRef == "optic_cq_holosight_variable" )
+		{
+			return true
+		}
 
 
 	if ( 	opticRef == "optic_cq_hcog_bruiser" || 		
@@ -375,6 +388,9 @@ bool function PassiveVantage_isCompatibleOptic( string opticRef )
 
 bool function PassiveVantage_IsInCompatibleWeaponConfig( entity weapon )
 {
+
+	return true
+
 	
 	if ( IsBitFlagSet( weapon.GetWeaponTypeFlags(), WPT_ULTIMATE ) ||
 			IsBitFlagSet( weapon.GetWeaponTypeFlags(), WPT_VIEWHANDS ) )
@@ -399,51 +415,3 @@ bool function PassiveVantage_IsInCompatibleWeaponConfig( entity weapon )
 
 	return true
 }
-
-
-void function PlayVantageSpottedPingSounds( entity player, entity subjectEnt, var soundToWaitOn, CommsOptions opt )
-{
-	if ( !IsValid( player ) )
-		return
-
-	waitthread SuspendMainDialogueQueueForDurationOfSound( player, soundToWaitOn )
-
-	if ( !IsValid( player ) )
-		return
-
-	int armorTier             = EquipmentSlot_GetEquipmentTier( subjectEnt, "armor" )
-	array<entity> teamPlayers = GetPlayerArrayOfTeam( subjectEnt.GetTeam() )
-	int teamCount             = teamPlayers.len()
-
-	string vantageSoundName = ""
-	var vantageSoundHandle
-
-	string string1p3p       = opt.isFirstPerson ? "_1p" : "_3p"
-	string calmUrgentString = opt.isUrgent ? "_urgent" : "_calm"
-
-	vantageSoundName   = "diag_mp_test_ping_passiveShield" + calmUrgentString + string1p3p
-	vantageSoundHandle = EmitSoundOnEntity( player, vantageSoundName )
-	waitthread SuspendMainDialogueQueueForDurationOfSound( player, vantageSoundHandle )
-	
-
-	if ( !IsValid( player ) )
-		return
-
-	vantageSoundName   = "diag_mp_wraith_ping_typeLevel" + armorTier + calmUrgentString + string1p3p
-	vantageSoundHandle = EmitSoundOnEntity( player, vantageSoundName )
-	waitthread SuspendMainDialogueQueueForDurationOfSound( player, vantageSoundHandle )
-
-	if ( !IsValid( player ) )
-		return
-
-	string squadString = "Solo"
-	if ( teamCount == 2 )
-		squadString = "Duo"
-	else if ( teamCount >= 3 )
-		squadString = "Full"
-
-	vantageSoundName   = "diag_mp_test_ping_passiveSquad" + squadString + calmUrgentString + string1p3p
-	vantageSoundHandle = EmitSoundOnEntity( player, vantageSoundName )
-	waitthread SuspendMainDialogueQueueForDurationOfSound( player, vantageSoundHandle )
-}
-

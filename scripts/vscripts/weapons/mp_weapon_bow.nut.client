@@ -150,6 +150,7 @@ void function MpWeaponBow_Init()
 
 
 
+
 	file.fxLightAssets1p = {}
 	string settingStr
 	foreach ( string optic, array<string> attachments in fxLightPointsForOptic )
@@ -171,7 +172,6 @@ void function MpWeaponBow_Init()
 
 
 		RegisterConCommandTriggeredCallback( "+weaponcycle", AttemptCancelCharge )
-		
 		RegisterConCommandTriggeredCallback( "+reload", AttemptCancelCharge )
 
 
@@ -929,6 +929,21 @@ void function StopChargeFX( entity weapon )
 		weapon.StopWeaponEffect( fx1p, $"" )
 	}
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

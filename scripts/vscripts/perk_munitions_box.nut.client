@@ -47,6 +47,9 @@ global function Perk_MunitionsBox_IsEntMunitionsBox
 
 
 
+
+
+
 global function MunitionsBox_ServerToClient_DisplayOpenedMunitionsBoxPrompt
 
 
@@ -54,6 +57,11 @@ void function Perk_MunitionsBox_Init()
 {
 	if ( GetCurrentPlaylistVarBool( "disable_perk_munitions_box", false ) )
 		return
+
+
+	if ( !LootBin_ArePerkBinsEnabled() )
+		return
+
 
 	PerkInfo munitionsBox
 	munitionsBox.perkId          = ePerkIndex.MUNITIONS_BOX
@@ -213,7 +221,11 @@ bool function CanPlayerUseMunitionsBox( entity player )
 
 bool function Perk_MunitionsBox_IsEntMunitionsBox( entity ent )
 {
-	return ent.GetScriptName() == LOOT_BIN_SCRIPTNAME && ent.GetSkin() == ent.GetSkinIndexByName( MUNITIONS_BOX_LOOT_BIN_SKIN_NAME )
+
+		return ent.GetScriptName() == LOOT_BIN_SCRIPTNAME && ( ent.GetSkin() == ent.GetSkinIndexByName( MUNITIONS_BOX_LOOT_BIN_SKIN_NAME ) || ent.GetSkin() == ent.GetSkinIndexByName( ASSAULT_BIN_RESET_SKIN_NAME ) )
+
+
+
 }
 
 void function OnMunitionsBoxSpawned( entity ent )
@@ -231,6 +243,70 @@ void function OnMunitionsBoxSpawned( entity ent )
 
 	Perks_AddMinimapEntityForPerk( ePerkIndex.MUNITIONS_BOX, ent )
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

@@ -260,12 +260,12 @@ void function RankedRumble_FillCupsToContainer()
 
 }
 
-bool function RankedRumble_IsRunningRankedRumble()
+bool function RankedRumble_IsRunningRankedRumble( int timeOverride = 0 )
 {
 	if ( !GetConVarBool( RANKED_RUMBLE_CONVAR ) )
 		return false
 
-	return RankedRumble_CurrentRankedRumbleGUID() != ASSET_SETTINGS_UNIQUE_ID_INVALID
+	return RankedRumble_CurrentRankedRumbleGUID( timeOverride ) != ASSET_SETTINGS_UNIQUE_ID_INVALID
 }
 
 bool function RankedRumble_IsRankedRumbleRevealed()
@@ -341,11 +341,11 @@ bool function RankedRumble_IsRegisteredRankedRumble( entity player )
 	return false
 }
 
-SettingsAssetGUID function RankedRumble_CurrentRankedRumbleGUID()
+SettingsAssetGUID function RankedRumble_CurrentRankedRumbleGUID( int timeOverride = 0  )
 {
 	if ( !GetConVarBool( RANKED_RUMBLE_CONVAR ) )
 		return ASSET_SETTINGS_UNIQUE_ID_INVALID
-	int timeNow = GetUnixTimestamp()
+	int timeNow = timeOverride == 0 ? GetUnixTimestamp() : timeOverride
 	foreach ( SettingsAssetGUID containerGUID, RankedRumbleContainerInfo info in fileLevel.rankedRumbleContainers )
 	{
 		if ( info.startTime < timeNow && info.finishTime > timeNow )
@@ -451,6 +451,8 @@ SettingsAssetGUID function RankedRumble_GetRankedCupFromContainer( entity player
 	table scorePosition = RankedRumble_GetHighestRankedScoreAndPositionAcrossPlatforms( player )
 	int playerRankedScore = expect int( scorePosition.score )
 	int ladderPosition = expect int( scorePosition.position )
+	int numPlayersOnLadder = Ranked_GetNumPlayersOnLadder()
+	bool isOnPredatorLadder = (ladderPosition > 0) && (numPlayersOnLadder > 0) && (ladderPosition <= numPlayersOnLadder)
 
 	int candidateCupID = 0
 	int candidateCupMinScore = 0
@@ -459,9 +461,9 @@ SettingsAssetGUID function RankedRumble_GetRankedCupFromContainer( entity player
 		CupBakeryAssetData cupData = allCupData[cupID]
 		if ( playerRankedScore >= cupData.entryRestrictions.minRankScore && cupData.entryRestrictions.minRankScore >= candidateCupMinScore )
 		{
-			if ( cupData.entryRestrictions.minRankString == "#RANKED_TIER_MASTER" && ladderPosition >= 0 )
+			if ( cupData.entryRestrictions.minRankString == "#RANKED_TIER_MASTER" && isOnPredatorLadder )
 				continue
-			if ( cupData.entryRestrictions.minRankString == "#RANKED_TIER_APEX_PREDATOR" && ladderPosition < 0 )
+			if ( cupData.entryRestrictions.minRankString == "#RANKED_TIER_APEX_PREDATOR" && !isOnPredatorLadder )
 				continue
 			Assert( platform in mainCupInfo.platformCups )
 			candidateCupID = mainCupInfo.platformCups[platform]
@@ -524,7 +526,19 @@ table function RankedRumble_GetHighestRankedScoreAndPositionAcrossPlatforms( ent
 {
 
 		if ( !IsLocalClientEHIValid() )
+		{
+#if DEV
+				if ( GetConVarBool( "enableRankedRumblePositionLog" ) )
+					printt( "RankedRumble_GetHighestRankedScoreAndPositionAcrossPlatforms !IsLocalClientEHIValid" )
+#endif
 			return { score = 0, position = 0 }
+		}
+
+
+
+
+
+
 
 
 
@@ -534,7 +548,13 @@ table function RankedRumble_GetHighestRankedScoreAndPositionAcrossPlatforms( ent
 
 
 		if ( !IsConnected() )
+		{
+#if DEV
+				if ( GetConVarBool( "enableRankedRumblePositionLog" ) )
+					printt( "RankedRumble_GetHighestRankedScoreAndPositionAcrossPlatforms !IsConnected" )
+#endif
 			return { score = 0, position = 0 }
+		}
 
 
 	int highestScore = -1
@@ -563,17 +583,36 @@ table function RankedRumble_GetHighestRankedScoreAndPositionAcrossPlatforms( ent
 
 
 		EHIScriptStruct ehiss = GetEHIScriptStruct( LocalClientEHI() )
+#if DEV
+			if ( GetConVarBool( "enableRankedRumblePositionLog" ) )
+			{
+				foreach( platform, position in ehiss.platformLadderPosition )
+					printt( "RankedRumble_GetHighestRankedScoreAndPositionAcrossPlatforms ehiss info", platform, position )
+			}
+#endif
 		if ( highestPlatform in ehiss.platformLadderPosition )
 		{
 			highestPosition = ehiss.platformLadderPosition[highestPlatform]
+#if DEV
+				if ( GetConVarBool( "enableRankedRumblePositionLog" ) )
+					printt( "RankedRumble_GetHighestRankedScoreAndPositionAcrossPlatforms in ehiss", highestPlatform, highestPosition )
+#endif
 		}else
 		{
 #if RANKED_RUMBLE_DEBUG
 				if ( Ranked_HasActiveLadderOnlyDivision() && highestScore >= Ranked_GetActiveLadderOnlyDivisionData().scoreMin )
 					printt( "platformLadderPosition is not available! platform:" + highestPlatform )
 #endif
+#if DEV
+				if ( GetConVarBool( "enableRankedRumblePositionLog" ) )
+					printt( "RankedRumble_GetHighestRankedScoreAndPositionAcrossPlatforms NOT in ehiss", highestPlatform )
+#endif
 		}
 
+#if DEV
+		if ( GetConVarBool( "enableRankedRumblePositionLog" ) )
+			printt( "RankedRumble_GetHighestRankedScoreAndPositionAcrossPlatforms finish", highestScore, highestPosition )
+#endif
 	return { score = highestScore, position = highestPosition }
 }
 

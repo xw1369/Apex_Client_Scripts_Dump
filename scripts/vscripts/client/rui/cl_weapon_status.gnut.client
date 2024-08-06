@@ -45,6 +45,10 @@ global function UpdateWeaponEnergizeRui
 global function OnPrimaryWeaponStatusUpdate_Energize
 global function ShouldShowChargeBar_Energize
 
+
+global function OnPrimaryWeaponStatusUpdate_Akimbo
+
+
 global function UpdateAmmoMinToFireForTacRui
 global function ClWeaponStatus_OverrideReloadHintText
 
@@ -89,6 +93,10 @@ struct
 
 	array<vector> firingModeIndicatorColorOverrides
 
+
+	array<entity> hasShownAkimboHintWeapons
+
+
 #if DEV
 		bool devTestingUltimateStates
 #endif
@@ -104,9 +112,8 @@ void function ClWeaponStatus_Init()
 	AddCallback_OnPlayerLifeStateChanged( OnLifeStateChanged )
 	AddCallback_PlayerClassChanged( OnPlayerClassChanged )
 
-	AddCallback_OnPlayerAddWeaponMod( OnPlayerAddWeaponMod )
-	AddCallback_OnPlayerRemoveWeaponMod( OnPlayerRemoveWeaponMod )
-
+	AddCallback_OnPlayerAddedToggleWeaponMod( OnPlayerAddedToggleWeaponMod_CL_Weapon_Status )
+	AddCallback_OnPlayerRemovedToggleWeaponMod( OnPlayerRemovedToggleWeaponMod_CL_Weapon_Status )
 	AddCallback_KillReplayEnded( OnKillReplayEnded )
 
 	AddCallback_OnCommsMenuStateChanged( AmmoStatusHint_OnCommsMenu )
@@ -118,6 +125,9 @@ void function ClWeaponStatus_Init()
 	AddCallback_GameStateEnter( eGameState.Playing, UpdateAmmoStatusVisibility )
 
 	AddCallback_OnPrimaryWeaponStatusUpdate( OnPrimaryWeaponStatusUpdate_Energize )
+
+	AddCallback_OnPrimaryWeaponStatusUpdate( OnPrimaryWeaponStatusUpdate_Akimbo )
+
 	AddCallback_ShouldShowChargeBar( ShouldShowChargeBar_Energize )
 
 	if ( GetCurrentPlaylistVarBool( "hud_ultimate_ready_video", false ) )
@@ -222,7 +232,6 @@ void function ClWeaponStatus_AddClient( entity player )
 		RuiTrackFloat( rui, "reloadingFrac", GetLocalClientPlayer(), RUI_TRACK_WEAPON_RELOAD_FRACTION )
 		RuiTrackFloat( rui, "minAmmoToFireFrac", GetLocalClientPlayer(), RUI_TRACK_WEAPON_CLIP_MIN_AMMO_FRACTION )
 		RuiTrackBool( rui, "canShowReloadHint", null, RUI_TRACK_CAN_SHOW_RELOAD_PROMPT )
-
 
 		file.ammo_status_hint = rui
 		if  ( AmmoSatusIsDisabled() )
@@ -456,6 +465,7 @@ void function UpdateHudDataForMainWeapons( entity player, entity selectedWeapon 
 	bool isTurret = IsTurretWeapon( selectedWeapon )
 	bool isHMG = IsHMGWeapon( selectedWeapon )
 	bool isMelee = IsMeleeWeapon( selectedWeapon )
+	bool isCrateWeapon = IsValid( selectedWeapon ) && selectedWeapon.HasMod( "crate" )
 	isTurret = isTurret || isHMG
 
 	entity slingWeapon = null
@@ -665,20 +675,27 @@ void function UpdateHudDataForMainWeapons( entity player, entity selectedWeapon 
 		file.lastSelectedPrimaryWeapon = selectedWeapon
 
 		float lowAmmoFrac = selectedWeapon.GetWeaponSettingFloat( eWeaponVar.low_ammo_fraction )
-		if( !GetInfiniteAmmo( selectedWeapon ) )
-		{
-			RuiSetFloat( file.ammo_status_hint, "lowAmmoFrac", lowAmmoFrac )
-		}
-		else
-		{
-			RuiSetFloat( file.ammo_status_hint, "lowAmmoFrac", 0.0 )
-		}
+		RuiSetFloat( file.ammo_status_hint, "lowAmmoFrac", lowAmmoFrac )
 
 		bool canShowWeaponCycleHint = CanShowWeaponCycleHint( selectedWeapon, weaponInSlot0, weaponInSlot1 )
 		RuiSetBool( file.ammo_status_hint, "canShowWeaponCycleHint", canShowWeaponCycleHint )
 
 		bool canShowReloadHint = CanShowReloadHint()
 		RuiSetBool( file.ammo_status_hint, "canShowReloadHint", canShowReloadHint )
+
+		LootData ammoLootData = SURVIVAL_Loot_GetLootDataByRef( AmmoType_GetRefFromIndex( selectedWeapon.GetWeaponAmmoPoolType() ) )
+		int stackSize = SURVIVAL_GetInventorySlotCountForPlayer( player, ammoLootData )
+		int minReserveAmmo = stackSize / 3
+		float minReserveAmmoFrac = float( minReserveAmmo ) / float( 2000 )
+		if ( isCrateWeapon )
+		{
+			minReserveAmmo = selectedWeapon.GetWeaponSettingInt( eWeaponVar.ammo_stockpile_max ) / 6
+			minReserveAmmoFrac = float( minReserveAmmo ) / float( selectedWeapon.GetWeaponSettingInt( eWeaponVar.ammo_stockpile_max ) )
+		}
+
+		string lowAmmoText = GetLowAmmoTypeString( selectedWeapon.GetWeaponAmmoPoolType(), isCrateWeapon )
+		RuiSetFloat( file.ammo_status_hint, "minReserveAmmoFrac", minReserveAmmoFrac )
+		RuiSetString( file.ammo_status_hint, "lowAmmoOverrideText",  lowAmmoText )
 	}
 	else if ( isOffhandUsesAmmoStatus )
 	{
@@ -736,12 +753,20 @@ void function UpdateHudDataForHMG( entity player, entity selectedWeapon, var rui
 	UpdateRUIWeaponData( player, rui, selectedWeapon, 0, false )
 	UpdateRUIWeaponData( player, rui, selectedWeapon, 1, true )
 
-	RuiSetString( rui, "weaponNameTab0", "#WPN_MOBILE_HMG_COOLDOWN" )
+
+		RuiSetString( rui, "weaponNameTab0", "" )
+
+
+
 	RuiSetFloat3( rui, "ammoColorTab0", <0.1, 0.1, 0.1> )
 	RuiSetFloat3( rui, "ammoColorTab1", <0.8, 0.1, 0.8> )
 
 	RuiSetBool( rui, "hideInfiniteAmmoSymbol", true )
-	RuiSetString( rui, "weaponSwitchOverride", "%&scriptcommand3%" )
+
+		RuiSetString( rui, "weaponSwitchOverride", "" )
+
+
+
 	RuiSetImage( rui, "hudOverrideIcon", $"rui/weapon_icons/r5/weapon_rampart_turret" )
 	RuiSetBool( rui, "useHudOverrideIcon", true )
 
@@ -761,6 +786,15 @@ void function UpdateHudDataForSling( entity player, entity selectedWeapon, var r
 	RuiSetBool( rui, "noMainWeaponEquiped", false )
 
 	UpdateRUIWeaponData( player, rui, selectedWeapon, 1, true )
+
+	LootData ammoLootData = SURVIVAL_Loot_GetLootDataByRef( AmmoType_GetRefFromIndex( selectedWeapon.GetWeaponAmmoPoolType() ) )
+	int stackSize = SURVIVAL_GetInventorySlotCountForPlayer( player, ammoLootData )
+	int minReserveAmmo = stackSize / 3
+	float minReserveAmmoFrac = float( minReserveAmmo ) / float( 2000 )
+
+	string lowAmmoText = GetLowAmmoTypeString( selectedWeapon.GetWeaponAmmoPoolType(), false )
+	RuiSetFloat( file.ammo_status_hint, "minReserveAmmoFrac", minReserveAmmoFrac )
+	RuiSetString( file.ammo_status_hint, "lowAmmoOverrideText",  lowAmmoText )
 
 	array<string> attachments = GetAllAttachmentPoints()
 	foreach ( attachmentName in attachments )
@@ -831,7 +865,7 @@ void function UpdateHudDataForPrimaryWeaponsWhileSlingEquipped( entity player, e
 			slot0AmmoColor   = SrgbToLinear( GetAmmoColorByType( "supply_drop" ) )
 
 		RuiSetFloat3( slingPassiveRui, "slot0BorderColor", slot0AmmoColor )
-		RuiSetImage( slingPassiveRui, "slot0WeaponIcon", weaponSlot0.GetWeaponSettingAsset( eWeaponVar.hud_icon ) )
+		RuiSetImage( slingPassiveRui, "slot0WeaponIcon", weaponSlot0Data.hudIcon )
 		WeaponRuiUpdateMastery( slingPassiveRui, weaponSlot0, "slot0WeaponIconMastered", "slot0WeaponIconIsMastered", "slot0MoreSparksMastered" )
 	}
 	else
@@ -852,7 +886,7 @@ void function UpdateHudDataForPrimaryWeaponsWhileSlingEquipped( entity player, e
 			slot1AmmoColor   = SrgbToLinear( GetAmmoColorByType( "supply_drop" ) )
 
 		RuiSetFloat3( slingPassiveRui, "slot1BorderColor", slot1AmmoColor )
-		RuiSetImage( slingPassiveRui, "slot1WeaponIcon", weaponSlot1.GetWeaponSettingAsset( eWeaponVar.hud_icon ) )
+		RuiSetImage( slingPassiveRui, "slot1WeaponIcon", weaponSlot1Data.hudIcon )
 		WeaponRuiUpdateMastery( slingPassiveRui, weaponSlot1, "slot1WeaponIconMastered", "slot1WeaponIconIsMastered", "slot1MoreSparksMastered" )
 	}
 	else
@@ -1008,6 +1042,10 @@ void function UpdateRUIWeaponData( entity player, var rui, entity weapon, int ta
 		RuiSetInt( rui, "weaponTabSelected", tabIndex )
 		RuiSetString( rui, "skinName", "" )
 		RuiSetInt( rui, "skinTier", 0 )
+
+
+			OnPrimaryWeaponStatusUpdate_Akimbo( weapon, rui )
+
 	}
 
 	if ( IsValid( weapon ) )
@@ -1087,6 +1125,18 @@ void function UpdateRUIWeaponData( entity player, var rui, entity weapon, int ta
 					RuiSetBool( rui, "passiveInfiniteClips", true )
 				else
 					RuiSetBool( rui, "passiveInfiniteClips", false )
+
+
+					vector hudIconOffset = <0, 0, 0>
+					if ( IsWeaponKeyFieldDefined( weapon.GetWeaponClassName(), "is_akimbo_weapon" ) && GetWeaponInfoFileKeyField_GlobalBool( weaponData.baseWeapon, "is_akimbo_weapon" )
+							&& !( SURVIVAL_Weapon_IsAttachmentLocked( GetWeaponClassNameWithLockedSet( weapon ) ) && !weapon.HasMod( WEAPON_LOCKEDSET_MOD_AKIMBO ) ) )
+					{
+						if ( weapon.GetWeaponClassName() == "mp_weapon_semipistol" )
+							hudIconOffset = <0.065, 0.08, 0>
+					}
+
+					RuiSetFloat2( rui, "hudIconOffset", hudIconOffset )
+
 			}
 		}
 	}
@@ -1314,6 +1364,15 @@ void function PrimaryWeapon_UpdateFireSelectHUD( entity weapon )
 		 else
 			 SetWeaponToggleHUD( $"rui/hud/weapon_toggle/choke_disabled", "#ENERGY_CHOKE_DISABLED", 2, 1 )
 	 }
+
+
+
+
+
+
+
+
+
 	else
 	{
 		LootData weaponData
@@ -1342,6 +1401,13 @@ void function PrimaryWeapon_UpdateFireSelectHUD( entity weapon )
 			ClearWeaponToggleHUD()
 		}
 	}
+
+
+	
+	var rui = ClWeaponStatus_GetWeaponHudRui( GetLocalViewPlayer() )
+	bool akimboActive = weapon.HasMod( "akimbo_active" ) || weapon.HasMod( "akimbo_offhand" )
+	RuiSetBool( rui, "sightDisabled", akimboActive )
+
 }
 
 
@@ -1586,10 +1652,10 @@ bool function WeaponHasFireModeSelect( entity weapon )
 	else if ( DoesModExist( weapon, "alt_ammo" ) ) 
 		return true
 
-
-
-
-
+	else if ( IsModActive( weapon, "akimbo_active" ) )
+		return true
+	else if ( IsModActive( weapon, "akimbo_disable" ) )
+		return true
 
 	return false
 }
@@ -1692,13 +1758,13 @@ int function GetWeaponCurrentFireModeIndex( entity weapon )
 			return 0
 	}
 
-
-
-
-
-
-
-
+		if ( DoesModExist( weapon, "akimbo_active" ) )
+		{
+			if (IsModActive( weapon, "akimbo_active" ))
+				return 0
+			else
+				return 1
+		}
 
 
 	return 0
@@ -1823,7 +1889,7 @@ void function UpdateChokeHint( entity player, entity weapon, string mod )
 }
 
 
-void function OnPlayerAddWeaponMod( entity player, entity weapon, string mod )
+void function OnPlayerAddedToggleWeaponMod_CL_Weapon_Status( entity player, entity weapon, string mod )
 {
 	if ( IsModAltfireMod( mod ) )
 	{
@@ -1837,7 +1903,7 @@ void function OnPlayerAddWeaponMod( entity player, entity weapon, string mod )
 }
 
 
-void function OnPlayerRemoveWeaponMod( entity player, entity weapon, string mod )
+void function OnPlayerRemovedToggleWeaponMod_CL_Weapon_Status( entity player, entity weapon, string mod )
 {
 	if ( IsModAltfireMod( mod ) )
 	{
@@ -2009,7 +2075,20 @@ void function InitWeaponRuiTracks( var rui, entity player, entity weapon )
 
 	RuiSetBool( rui, "ammoPoolVisible", weapon.GetWeaponSettingBool( eWeaponVar.uses_ammo_pool ) )
 
-	RuiTrackImage( rui, "hudIcon", weapon, RUI_TRACK_WEAPON_HUD_ICON )
+
+	bool isAkimboWeapon = GetWeaponInfoFileKeyField_GlobalBool( weapon.GetWeaponClassName(), "is_akimbo_weapon" ) && !( SURVIVAL_Weapon_IsAttachmentLocked( GetWeaponClassNameWithLockedSet( weapon ) ) && !weapon.HasMod( WEAPON_LOCKEDSET_MOD_AKIMBO ) )
+	if ( isAkimboWeapon )
+	{
+		RuiTrackImage( rui, "hudIcon", weapon, RUI_TRACK_WEAPON_HUD_ICON_AKIMBO )
+	}
+	else
+	{
+		RuiTrackImage( rui, "hudIcon", weapon, RUI_TRACK_WEAPON_HUD_ICON )
+	}
+
+
+
+
 	WeaponRuiUpdateMastery( rui, weapon )
 }
 
@@ -2032,7 +2111,20 @@ void function WeaponRuiUpdateMastery( var rui, entity weapon, string ruiHudIconM
 		}
 	}
 
-	RuiSetImage( rui, ruiHudIconMastered, masteredHudIcon )
+
+		bool isAkimboWeapon = GetWeaponInfoFileKeyField_GlobalBool( weapon.GetWeaponClassName(), "is_akimbo_weapon" ) && !( SURVIVAL_Weapon_IsAttachmentLocked( GetWeaponClassNameWithLockedSet( weapon ) ) && !weapon.HasMod( WEAPON_LOCKEDSET_MOD_AKIMBO ) )
+		if ( isAkimboWeapon )
+		{
+			RuiTrackImage( rui, ruiHudIconMastered, weapon, RUI_TRACK_WEAPON_HUD_ICON_AKIMBO_MASTERED )
+		}
+		else
+		{
+			RuiSetImage( rui, ruiHudIconMastered, masteredHudIcon )
+		}
+
+
+
+
 	RuiSetBool( rui, ruiHasMoreSparks, hasMoreSparks )
 
 	ItemFlavor ornull weaponItemOrNull = GetWeaponItemFlavorByClass( weapon.GetWeaponClassName() )
@@ -2041,6 +2133,13 @@ void function WeaponRuiUpdateMastery( var rui, entity weapon, string ruiHudIconM
 		expect ItemFlavor( weaponItemOrNull )
 
 		RuiSetBool( rui, ruiIsMastered, Mastery_GetWeaponLevel( weaponItemOrNull ) >= 100 )
+
+
+
+
+
+
+
 	}
 	else
 	{
@@ -2397,6 +2496,21 @@ void function TrackPlayerDebuffInfo( entity player, var rui )
 		}
 
 
+
+			bool canSelfRevive = Freespawns_SelfRevive_CanDo( player )
+			bool hasStatusEffect = StatusEffect_HasSeverity( player, FREESPAWNS_SELFREVIVE_STATUSEFFECT_INDEX )
+			
+			
+			
+			
+			if( canSelfRevive && hasStatusEffect )
+			{
+				debuffInfo debuff
+				debuff.timeRemaining = 90
+				debuff.duration = 90
+				debuff.icon = $"hud/proto_freespawns_selfrevive"
+				debuffQueue.append( debuff )
+			}
 
 
 		foreach ( int index, debuff in debuffQueue )
@@ -3122,6 +3236,34 @@ void function UpdateWeaponEnergizeRui( entity player, entity weapon, asset cross
 	}
 }
 
+
+void function OnPrimaryWeaponStatusUpdate_Akimbo( entity selectedWeapon, var weaponRui )
+{
+	if ( !IsValid( selectedWeapon ) )
+		return
+
+	bool weaponCanAkimbo = IsWeaponKeyFieldDefined( selectedWeapon.GetWeaponClassName(), "is_akimbo_weapon" ) && GetWeaponInfoFileKeyField_GlobalBool( selectedWeapon.GetWeaponClassName(), "is_akimbo_weapon" )
+	bool weaponIsMissingPair = weaponCanAkimbo && !SURVIVAL_Weapon_IsAttachmentLocked( GetWeaponClassNameWithLockedSet( selectedWeapon ) ) && !selectedWeapon.IsAkimboAvailable()
+
+	if ( weaponIsMissingPair && !file.hasShownAkimboHintWeapons.contains( selectedWeapon ) && !selectedWeapon.HasMod( WARLORDS_IRE_MOD_NAME ) )
+	{
+		RuiSetBool( weaponRui, "showWeaponHintInfo", true )
+		RuiSetString( weaponRui, "weaponHintInfoText", Localize( "#AKIMBO_PICK_UP_2ND_WEAPON", GetWeaponInfoFileKeyField_GlobalString( selectedWeapon.GetWeaponClassName(), "shortprintname" ) ) )
+		RuiSetWallTimeWithOffset( weaponRui, "fadeWeaponHintInfoStartTime", 3.0 )
+
+		file.hasShownAkimboHintWeapons.append( selectedWeapon )
+	}
+	else if ( !weaponIsMissingPair || selectedWeapon.HasMod( WARLORDS_IRE_MOD_NAME ) )
+	{
+		RuiSetBool( weaponRui, "showWeaponHintInfo", false )
+		RuiSetString( weaponRui, "weaponHintInfoText", "" )
+		RuiSetWallTimeBad( weaponRui, "fadeWeaponHintInfoStartTime" )
+	}
+
+
+}
+
+
 void function OnPrimaryWeaponStatusUpdate_Energize( entity selectedWeapon, var weaponRui )
 {
 	if ( !IsValid( selectedWeapon ) )
@@ -3150,4 +3292,36 @@ void function ClWeaponStatus_OverrideReloadHintText( string reloadText )
 {
 	if ( file.ammo_status_hint != null && IsValid( file.ammo_status_hint ) )
 		RuiSetString( file.ammo_status_hint, "reloadOverrideText", reloadText )
+}
+
+string function GetLowAmmoTypeString( int ammoType, bool isCrateWeapon )
+{
+	string lowAmmoString = ""
+	if ( isCrateWeapon )
+		return lowAmmoString
+	switch( ammoType )
+	{
+		case( eAmmoPoolType.bullet ):
+			lowAmmoString = "#LOW_AMMO_BULLET"
+			break
+		case( eAmmoPoolType.highcal ):
+			lowAmmoString = "#LOW_AMMO_HIGHCAL"
+			break
+		case( eAmmoPoolType.special ):
+			lowAmmoString = "#LOW_AMMO_SPECIAL"
+			break
+		case( eAmmoPoolType.shotgun ):
+			lowAmmoString = "#LOW_AMMO_SHOTGUN"
+			break
+		case( eAmmoPoolType.sniper ):
+			lowAmmoString = "#LOW_AMMO_SNIPER"
+			break
+		case( eAmmoPoolType.arrows ):
+			lowAmmoString = "#LOW_AMMO_ARROWS"
+			break
+		default:
+			lowAmmoString = "#LOW_AMMO"
+			break
+	}
+	return lowAmmoString
 }

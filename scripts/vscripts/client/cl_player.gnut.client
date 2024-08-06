@@ -67,8 +67,8 @@ struct {
 	array< string > playerDebugStateDynamicFields
 
 
-
-
+	float enemyHealthBarDuration = -1.0
+	bool enemyDamageNumbersEnabled = true
 
 
 } file
@@ -100,6 +100,7 @@ void function ClPlayer_Init()
 	RegisterSignal( "ShieldChanged" )
 	RegisterSignal( "TargetChanged" )
 	RegisterSignal( "OnModelChanged" )
+	RegisterSignal( "ViewPlayerChanged" )
 
 	FlagInit( "DamageDistancePrint" )
 	FlagInit( "EnableTitanModeChange", true )
@@ -128,8 +129,8 @@ void function ClPlayer_Init()
 		ClLiveAPI_Init()
 
 
-
-
+	file.enemyHealthBarDuration = GetCurrentPlaylistVarFloat( "enemy_health_bar_duration", 3.0 )
+	file.enemyDamageNumbersEnabled = GetCurrentPlaylistVarBool( "enemy_damage_numbers_enabled", true )
 
 }
 
@@ -644,16 +645,16 @@ void function ClientCodeCallback_PlayerDidDamage( PlayerDidDamageParams params )
 			hitType = eHitType.VORTEX
 
 
+		if ( victim.IsPlayer() && file.enemyHealthBarDuration > 0.0 )
+		{
+			ShowHealthRUIWithLOSCheck( attacker, victim, file.enemyHealthBarDuration )
+		}
+		if ( file.enemyDamageNumbersEnabled )
+		{
+			DamageFlyout( damageAmount, damagePosition, victim, hitType, damageFlags, damageType, weapon )
+		}
 
 
-
-
-
-
-
-
-
-		DamageFlyout( damageAmount, damagePosition, victim, hitType, damageFlags, damageType, weapon )
 
 
 	}

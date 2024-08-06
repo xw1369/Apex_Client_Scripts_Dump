@@ -38,7 +38,6 @@ global function Entitlement_GetSKUStoreApexCoinCardBaseImage
 
 
 
-
 table<entity, bool> checkedPlayerRewardsSet = {}
 
 global table<string, array< ItemFlavor > > eaAccessRewardRefs
@@ -136,50 +135,6 @@ void function Entitlements_LevelInit()
 
 
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

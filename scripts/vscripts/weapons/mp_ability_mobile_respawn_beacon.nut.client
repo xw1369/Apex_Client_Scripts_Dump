@@ -355,49 +355,6 @@ bool function MobileRespawnBeacon_PLV_FastMRB_Enabled()
 	return( fastMRB_Enabled )
 }
 
-string function MobileRespawnBeacon_PLV_FastMRB_SpawnInType()
-{
-	
-	
-	
-	
-
-	string spawnType = "default"
-
-
-
-
-
-
-
-
-	return( spawnType )
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

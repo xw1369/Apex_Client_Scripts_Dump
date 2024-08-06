@@ -90,6 +90,11 @@ void function Armor_ShieldRegen_Init()
 
 
 
+
+
+
+
+
 	RegisterSignal( "Armor_ShieldRegen_OnDamaged" )
 	RegisterSignal( "Armor_ShieldRegen_OnDisconnect" )
 	file.shieldRegenDelayTime = GetCurrentPlaylistVarFloat( "shield_regen_delay_time", DEFAULT_SHIELD_REGEN_DELAY_TIME )
@@ -109,6 +114,26 @@ void function Armor_ShieldRegen_RegisterNetworking()
 	Remote_RegisterClientFunction( "Armor_ShieldRegen_ServerCallback_RegenTriggerEvent", "bool" )
 	Remote_RegisterClientFunction( "Armor_ShieldRegen_ServerCallback_RegenCancelEvent" )
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -474,4 +499,9 @@ void function ShieldRegen_RegenTriggerNotice_Thread( bool skipDelay )
 bool function Armor_ShieldRegen_IsUsingShieldRegen()
 {
 	return GetCurrentPlaylistVarBool( "use_shield_regen", false )
+}
+
+bool function GetPlaylistVar_KillStartsShieldRegen()
+{
+	return GetCurrentPlaylistVarBool( "mode_shield_regen_starts_from_kill", false )
 }

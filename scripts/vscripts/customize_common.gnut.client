@@ -208,6 +208,39 @@ const array<vector> skydiveSmokeColors = [
 ]
 global function GetSkydiveSmokeColorForTeam
 
+const array<string> thematicTeamNames = [
+	"#TEAM_1",
+	"#TEAM_2",
+	"#TEAM_3",
+	"#TEAM_4",
+	"#TEAM_5",
+	"#TEAM_6",
+	"#TEAM_7",
+	"#TEAM_8",
+	"#TEAM_9",
+	"#TEAM_10",
+	"#TEAM_11",
+	"#TEAM_12",
+	"#TEAM_13",
+	"#TEAM_14",
+	"#TEAM_15",
+	"#TEAM_16",
+	"#TEAM_17",
+	"#TEAM_18",
+	"#TEAM_19",
+	"#TEAM_20",
+	"#TEAM_21",
+	"#TEAM_22",
+	"#TEAM_23",
+	"#TEAM_24",
+	"#TEAM_25",
+	"#TEAM_26"
+]
+global function UseThematicTeamNames
+
+global function GetThematicTeamName
+
+
 
 
 
@@ -250,6 +283,59 @@ vector function GetSkydiveSmokeColorForTeam( int team )
 	vector teamSkyDiveColor = skydiveSmokeColors[ team % skydiveSmokeColors.len() ]
 	return teamSkyDiveColor
 }
+
+bool function UseThematicTeamNames()
+{
+	return GetCurrentPlaylistVarBool( SURVIVAL_HUD_USETHEMATICTEAMNAMES_PVAR, false )
+}
+
+
+string function GetThematicTeamName( int teamIndex )
+{
+	int squadIndex = Squads_GetSquadUIIndex( teamIndex )
+	return thematicTeamNames[ squadIndex % thematicTeamNames.len() ]
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1573,6 +1659,7 @@ asset function CustomizeMenu_GetRewardButtonImage( ItemFlavor flavor )
 			}
 			break
 
+		case eItemType.account_flag:
 		case eItemType.battlepass:
 		case eItemType.image_2d:
 		case eItemType.skydive_emote:
@@ -1670,9 +1757,9 @@ asset function CustomizeMenu_GetRewardButtonImage( ItemFlavor flavor )
 			buttonImage = $"rui/menu/buttons/battlepass/sticker"
 			break
 
-		case eItemType.event_ability:
-			buttonImage = ItemFlavor_GetIcon( flavor )
-			break
+
+
+
 
 
 		case eItemType.artifact_component_deathbox:

@@ -85,14 +85,7 @@ global const HIGHLIGHT_COLOR_FRIENDLY = <0.34, 0.59, 0.86>
 global const HIGHLIGHT_COLOR_ENEMY = <1, 0.36, 0.12> 
 
 
-
-
-
-
-
-
-
-
+const float ENEMY_ASSIST_HIGHLIGHT_MAX_RADIUS = 8.0
 
 
 global string HIGHLIGHT_BLOODHOUND_SONAR = "bloodhound_sonar"
@@ -109,6 +102,13 @@ global enum eHighlightGenericType
 	OWNED
 
 	_count
+}
+
+global enum eShowHealthbarMode
+{
+	ALWAYS,
+	REQUIRE_LOS,
+	REQUIRE_LOS_NO_RESTORE
 }
 
 
@@ -136,14 +136,6 @@ void function Highlight_Init()
 	RegisterSignal( "ContextChanged" )
 	RegisterSignal( "ReconScan_HUDRemove" )
 
-
-
-
-
-
-
-
-
 	if ( IsLobby() )
 		return
 
@@ -159,24 +151,15 @@ void function Highlight_Init()
 		HighlightContext_SetFarFadeDistance( contextId, Nessie_GetHighlightDist() )
 
 
+			contextId = HighlightContext_GetId( "always_on_enemy_assist" )
+			HighlightContext_SetRadius( contextId, ENEMY_ASSIST_HIGHLIGHT_MAX_RADIUS )
+			HighlightContext_SetFarFadeDistance( contextId, GetEnemyAssistFarFadeDistance() )
 
 
 
 
 
 
-
-
-
-
-
-
-
-
-
-			contextId = HighlightContext_GetId( "enemy_nightmap" )
-			HighlightContext_SetRadius( contextId, GetCurrentPlaylistVarFloat( "enemy_nightmap_outline_radius", 1.0 ) )
-			HighlightContext_SetFarFadeDistance( contextId, GetCurrentPlaylistVarFloat( "enemy_nightmap_outline_fade_dist", 3000 ) )
 
 
 		contextId = HighlightContext_GetId( HIGHLIGHT_BLOODHOUND_SONAR )
@@ -414,19 +397,19 @@ void function Highlight_ClearEnemyHighlight( entity ent )
 }
 
 
-void function Highlight_SetEnemyHighlightNightmap( entity player )
-{
-	if ( GameModeVariant_IsActive( eGameModeVariants.SURVIVAL_SHADOW_ARMY ) )
-	{
-
-			if ( IsPlayerShadowZombie( player ) && GetCurrentPlaylistVarBool( "enemy_nightmap_outline_enable_for_shadows", false ) == false )
-				return
 
 
-		Highlight_SetEnemyHighlight( player, "enemy_nightmap" )
-		return
-	}
-}
+
+
+
+
+
+
+
+
+
+
+
 
 
 void function SetDefaultMPEnemyHighlight( entity ent )
@@ -571,7 +554,7 @@ void function OnSettingsUpdated()
 	file.colorblindMode = GetConVarInt( "colorblind_mode" )
 }
 
-void function ManageHighlightEntity( entity ent, float distanceSqr = 0.0 )
+void function ManageHighlightEntity( entity ent )
 {
 	if ( !IsValid( ent ) )
 		return
@@ -585,11 +568,11 @@ void function ManageHighlightEntity( entity ent, float distanceSqr = 0.0 )
 	HighlightContextResult result
 	if ( checkPureObserver )
 	{
-		result = GetHighlightContextForEnt( GetLocalClientPlayer(), ent, distanceSqr )
+		result = GetHighlightContextForEnt( GetLocalClientPlayer(), ent )
 	}
 	else
 	{
-		result = GetHighlightContextForEnt( GetLocalViewPlayer(), ent, distanceSqr )
+		result = GetHighlightContextForEnt( GetLocalViewPlayer(), ent )
 	}
 
 	if ( result.contextId != ent.Highlight_GetCurrentContext() )
@@ -800,15 +783,16 @@ void function ClHighlight_UpdateHighlightFlags( entity ent, int contextId, int t
 			break
 
 
-
-
-
-
-
-
-
-
-
+		case eHighlightDrawFunc.ENEMY_ASSIST:
+		{
+			ent.Highlight_SetVisibilityType( HIGHLIGHT_VIS_LOS )
+			ent.Highlight_SetFlag( HIGHLIGHT_FLAG_ADDITIONAL_LOS_CHECKS, true )
+			ent.Highlight_SetFlag( HIGHLIGHT_FLAG_CHECK_START_SOLID, true )
+			ent.Highlight_SetFlag( HIGHLIGHT_FLAG_ENABLE_PER_ENTITY_CULLING, true )
+			ent.Highlight_SetFadeInTime( 0.1 )
+			ent.Highlight_SetFadeOutTime( 0.1 )
+		}
+			break
 
 	}
 }
@@ -1007,7 +991,7 @@ bool function UseDefaultOwnedHighlightBehavior( entity ent )
 }
 
 
-HighlightContextResult  function GetHighlightContextForEnt( entity viewPlayer, entity ent, float distanceSqr = 0.0 )
+HighlightContextResult  function GetHighlightContextForEnt( entity viewPlayer, entity ent )
 {
 	HighlightContextResult result
 	int viewTeam = -1
@@ -1120,11 +1104,17 @@ HighlightContextResult  function GetHighlightContextForEnt( entity viewPlayer, e
 
 
 
+
 			if ( StatusEffect_HasSeverity( ent, eStatusEffect.sonar_detected ) && (viewPlayerEmoting || ent.IsHighlightEnabledForTeam( GetHighlightId( HIGHLIGHT_BLOODHOUND_SONAR ), viewTarget.GetTeam() )) )
 
 			{
-				result.contextId = GetHighlightId( HIGHLIGHT_BLOODHOUND_SONAR )
-				return result
+
+
+
+				{
+					result.contextId = GetHighlightId( HIGHLIGHT_BLOODHOUND_SONAR )
+					return result
+				}
 			}
 
 
@@ -1220,32 +1210,11 @@ HighlightContextResult  function GetHighlightContextForEnt( entity viewPlayer, e
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+			else if ( IsEnemyAssistHighlightEnabled() && ( ent.IsPlayer() || entIsDecoy ) && IsEnemyTeam( viewPlayer.GetTeam(), ent.GetTeam() ))
+			{
+				result.contextId = GetHighlightId( "always_on_enemy_assist" )
+				return result
+			}
 
 			if ( Highlight_ShouldObserverHighlight( viewPlayer, ent ) )
 			{
@@ -1267,12 +1236,26 @@ HighlightContextResult  function GetHighlightContextForEnt( entity viewPlayer, e
 	return result
 }
 
-var function ReconScan_ShowHudForTarget( entity player, entity enemy, bool pinToEdge = true, asset ruiFile = $"ui/recon_scan_target.rpak", void functionref( var, entity, entity ) populateInfoCallback = null )
+var function ReconScan_ShowHudForTarget( entity player, entity enemy, int mode, bool pinToEdge = false, asset ruiFile = $"ui/recon_scan_target.rpak", void functionref( var, entity, entity ) populateInfoCallback = null )
 {
 	if ( !(enemy in player.p.reconScannedByThisPlayerRefCount) )
+	{
 		player.p.reconScannedByThisPlayerRefCount[enemy] <- 0
+		player.p.reconScannedByThisPlayerRequiresLOSRefCount[enemy] <- 0
+		player.p.reconScannedByThisPlayerRequiresLOSHideNonPermCount[enemy] <- 0
+	}
 
 	player.p.reconScannedByThisPlayerRefCount[enemy]++
+	if ( mode == eShowHealthbarMode.REQUIRE_LOS || mode == eShowHealthbarMode.REQUIRE_LOS_NO_RESTORE )
+	{
+		player.p.reconScannedByThisPlayerRequiresLOSRefCount[enemy]++
+
+		if ( mode == eShowHealthbarMode.REQUIRE_LOS )
+		{
+			player.p.reconScannedByThisPlayerRequiresLOSHideNonPermCount[enemy]++
+		}
+	}
+
 	if ( player.p.reconScannedByThisPlayerRefCount[enemy] > 1 )
 	{
 		if ( !(enemy in player.p.reconScanRUIs) )
@@ -1283,8 +1266,6 @@ var function ReconScan_ShowHudForTarget( entity player, entity enemy, bool pinTo
 
 		return player.p.reconScanRUIs[enemy]
 	}
-	int distance = int(Distance( player.GetOrigin(), enemy.GetOrigin() ))
-
 
 	var rui = RuiCreate( ruiFile, clGlobal.topoFullScreen, RUI_DRAW_HUD, RuiCalculateDistanceSortKey( player.EyePosition(), enemy.GetOrigin() ) )
 	InitHUDRui( rui )
@@ -1293,6 +1274,9 @@ var function ReconScan_ShowHudForTarget( entity player, entity enemy, bool pinTo
 	RuiSetBool( rui, "pinToEdge", pinToEdge )
 	RuiSetBool( rui, "showClampArrow", true )
 	RuiSetString( rui, "hint", "" )
+
+	if (enemy.IsPlayer() && enemy.GetPlayerSettingsMods().contains( "targetinfo_ffa_squad" ) )
+		RuiSetFloat( rui, "yOffset", -40 )
 
 	RuiKeepSortKeyUpdated( rui, true, "pos" )
 
@@ -1308,7 +1292,6 @@ var function ReconScan_ShowHudForTarget( entity player, entity enemy, bool pinTo
 	{
 		return null
 	}
-
 
 	int armorTier = EquipmentSlot_GetEquipmentTier( refEntity, "armor" )
 	LootData data = EquipmentSlot_GetEquippedLootDataForSlot( refEntity, "armor" )
@@ -1364,6 +1347,7 @@ var function ReconScan_ShowHudForTarget( entity player, entity enemy, bool pinTo
 
 	return rui
 }
+
 void function ReconScan_TrackTargetData( entity refEntity, entity enemy, entity player )
 {
 	refEntity.EndSignal("ReconScan_HUDRemove")
@@ -1374,6 +1358,9 @@ void function ReconScan_TrackTargetData( entity refEntity, entity enemy, entity 
 
 	refEntity.EndSignal("OnDeath")
 	refEntity.EndSignal("OnDestroy")
+
+	player.EndSignal("OnDeath")
+	player.EndSignal("OnDestroy")
 
 	int curArmorTier = EquipmentSlot_GetEquipmentTier( refEntity, "armor" )
 	int newArmorTier = 0
@@ -1397,15 +1384,20 @@ void function ReconScan_TrackTargetData( entity refEntity, entity enemy, entity 
 
 	while( true )
 	{
+		if ( !IsValid( player ) || !IsValid( refEntity ) )
+			break
+
 		var rui = null
 
 		if ( enemy in player.p.reconScanRUIs )
 		{
-			rui = player.p.reconScanRUIs[enemy]
+			 rui = player.p.reconScanRUIs[enemy]
 		}
 
 		
-		if( rui != null )
+		if( rui != null
+				&& enemy in player.p.reconScannedByThisPlayerRefCount
+				&& enemy in player.p.reconScannedByThisPlayerRequiresLOSRefCount )
 		{
 			newArmorTier = EquipmentSlot_GetEquipmentTier( refEntity, "armor" )
 
@@ -1448,20 +1440,55 @@ void function ReconScan_TrackTargetData( entity refEntity, entity enemy, entity 
 				RuiSetBool( rui, "useShadowFormFrame", curIsShadowForm )
 			}
 
+
+			Assert( player.p.reconScannedByThisPlayerRefCount[enemy] >= player.p.reconScannedByThisPlayerRequiresLOSRefCount[enemy],
+				"Ref count of total scans (" + player.p.reconScannedByThisPlayerRefCount[enemy] + ") below los scans (" + player.p.reconScannedByThisPlayerRequiresLOSRefCount[enemy] + ")")
+
+			if ( player.p.reconScannedByThisPlayerRequiresLOSRefCount[enemy] == player.p.reconScannedByThisPlayerRefCount[enemy] )
+			{
+				vector pos = enemy.EyePosition()
+				vector playerEyePos = player.EyePosition()
+				TraceResults losResults = TraceLine( playerEyePos, pos, [player, enemy], TRACE_MASK_BLOCKLOS, TRACE_COLLISION_GROUP_NONE )
+
+				if ( losResults.fraction < 1.0 )
+				{
+					RuiSetBool( rui, "isVisible", false )
+				}
+				else if ( player.p.reconScannedByThisPlayerRequiresLOSHideNonPermCount[enemy] > 0 )
+				{
+					 RuiSetBool( rui, "isVisible", true )
+				}
+			}
+			else
+			{
+				RuiSetBool( rui, "isVisible", true )
+			}
 		}
 		wait 0.1
 	}
 }
 
-void function ReconScan_RemoveHudForTarget( entity player, entity enemy )
+void function ReconScan_RemoveHudForTarget( entity player, entity enemy, int mode )
 {
 	if (!(enemy in player.p.reconScannedByThisPlayerRefCount))
 	{
-		player.p.reconScannedByThisPlayerRefCount[enemy] <- 0
 		return
 	}
 
+	Assert( (enemy in player.p.reconScannedByThisPlayerRefCount), "uh oh spagettios. This can't happen" )
+	Assert( player.p.reconScannedByThisPlayerRefCount[enemy] > 0, "Trying to remove health bar from someone who doesn't have it!" )
+	Assert( mode == eShowHealthbarMode.ALWAYS || player.p.reconScannedByThisPlayerRequiresLOSRefCount[enemy] > 0, "Trying to remove health bar from someone who doesn't have it!" )
+
 	player.p.reconScannedByThisPlayerRefCount[enemy]--
+	if ( mode == eShowHealthbarMode.REQUIRE_LOS || mode == eShowHealthbarMode.REQUIRE_LOS_NO_RESTORE )
+	{
+		player.p.reconScannedByThisPlayerRequiresLOSRefCount[enemy]--
+
+		if ( mode == eShowHealthbarMode.REQUIRE_LOS )
+		{
+			player.p.reconScannedByThisPlayerRequiresLOSHideNonPermCount[enemy]--
+		}
+	}
 	if ( player.p.reconScannedByThisPlayerRefCount[enemy] > 0 )
 		return
 
@@ -1553,18 +1580,6 @@ bool function ShouldMaggieHighlight( entity viewPlayer, entity ent )
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
 bool function ShouldAssassinsInstinctHighlight( entity viewPlayer, entity ent )
 {
 	if ( !PlayerHasPassive( viewPlayer, ePassives.PAS_REVENANT_REWORK ) )
@@ -1625,11 +1640,11 @@ void function Highlight_SetGameModeEnemyHighlight( entity player )
 		return
 
 
-		if ( GameModeVariant_IsActive( eGameModeVariants.SURVIVAL_SHADOW_ARMY ) )
-		{
-			Highlight_SetEnemyHighlightNightmap( player )
-			return
-		}
+
+
+
+
+
 
 
 	

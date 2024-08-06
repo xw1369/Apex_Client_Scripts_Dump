@@ -179,6 +179,16 @@ void function OnWeaponChargeEnd_ability_mirage_ultimate( entity weapon )
 
 
 
+
+
+
+
+
+
+
+
+
+
 float function GetMirageCloakDuration( entity player, float duration )
 {
 
@@ -209,12 +219,33 @@ bool function OnWeaponChargeBegin_ability_mirage_ultimate( entity weapon )
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 	return true
 }
 
 
 bool function ShouldDoKaleidoscopeUltimate()
 {
+
+
+
+
+
 	return GetCurrentPlaylistVarBool( "mirage_kaleidoscope_ulti_enabled", true )
 }
 

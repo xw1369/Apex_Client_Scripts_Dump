@@ -281,6 +281,19 @@ void function RemovePlayerClassModAfterDuration( entity player, string mod, floa
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
 void function StimVisualsEnabled( entity ent, int statusEffect, bool actuallyChanged )
 {
 	if ( ent != GetLocalViewPlayer() )

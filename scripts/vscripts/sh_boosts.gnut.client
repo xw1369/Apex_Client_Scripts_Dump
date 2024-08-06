@@ -1913,7 +1913,7 @@ bool function PlatformConditionsMet( entity player, Boost boost, bool currentMat
 
 
 
-		string playerHardware = GetUnspoofedPlayerHardware()
+		string playerHardware = GetPlayerHardware()
 
 	array< string > platformConditions = boost.platformConditions
 	if ( DEBUG_PRINT_BOOSTS )

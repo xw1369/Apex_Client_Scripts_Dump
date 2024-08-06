@@ -1,5 +1,5 @@
 
-global function Perk_ExtraBinLoot_Init
+global function Perk_BannerCrafting_Init
 global function Perk_ExpiredBannerRecovery_Enabled
 global function Perk_Get_CraftedBannerTimeoutDuration
 
@@ -25,9 +25,12 @@ global const string CRAFTED_BANNER_MODEL_NAME = "mdl/props/ultimate_accelerant/u
 
 const bool ALLOW_EXPIRED_BANNERS_ONLY = false
 
-void function Perk_ExtraBinLoot_Init()
+void function Perk_BannerCrafting_Init()
 {
-	if ( GetCurrentPlaylistVarBool( "disable_perk_extra_bin_loot", false ) )
+	RegisterSignal( "RecoveredExpiredDNA" )
+	RegisterSignal( "BannerCraftingDisabled" )
+
+	if ( GetCurrentPlaylistVarBool( "disable_perk_banner_crafting", false ) )
 		return
 
 	PerkInfo bannerCrafting
@@ -43,9 +46,6 @@ void function Perk_ExtraBinLoot_Init()
 
 
 	Perks_RegisterClassPerk( bannerCrafting )
-
-	RegisterSignal( "RecoveredExpiredDNA" )
-	RegisterSignal( "BannerCraftingDisabled" )
 
 
 

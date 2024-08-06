@@ -1795,8 +1795,6 @@ array<entity> function GetAirDropTraceIgnoreEntArray()
 
 
 
-
-
 bool function IsNearAirdropBadPlace( vector origin, entity realmEnt = null )
 {
 	

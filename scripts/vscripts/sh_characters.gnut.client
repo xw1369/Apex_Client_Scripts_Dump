@@ -3,7 +3,11 @@ global function ShCharacters_LevelInit
 global function Loadout_Character
 global function GetAllCharacters
 global function GetAllCharacterGUIDStringsForStats
+global function Character_BotMode_AreAllCharactersPlayableForPlayer
 global function Character_IsCharacterOwnedByPlayer
+
+global function Character_IsUnlockableInNewPlayerPass
+
 global function CharacterClass_GetSetFile
 global function CharacterClass_GetShippingStatus
 global function CharacterClass_GetIsShippingCharacter
@@ -83,9 +87,13 @@ global function GetPlayerSettingBaseHealth
 global function GetPlayerSettingBaseShield
 
 
-global const asset CHARACTER_DUMMIE = $"settings/itemflav/character/dummie.rpak"
-global const asset CHARACTER_RANDOM = $"settings/itemflav/character/random.rpak"
-global const asset VALK_ITEMFLAVOR = $"settings/itemflav/character/valkyrie.rpak"
+global const asset CHARACTER_DUMMIE		= $"settings/itemflav/character/dummie.rpak"
+global const asset CHARACTER_RANDOM		= $"settings/itemflav/character/random.rpak"
+
+global const asset BLOODHOUND_ITEMFLAV	= $"settings/itemflav/character/bloodhound.rpak"
+global const asset PATHFINDER_ITEMFLAV	= $"settings/itemflav/character/pathfinder.rpak"
+global const asset GIBRALTAR_ITEMFLAV	= $"settings/itemflav/character/gibraltar.rpak"
+global const asset VALKYRIE_ITEMFLAV	= $"settings/itemflav/character/valkyrie.rpak"
 
 
 
@@ -270,7 +278,16 @@ struct
 
 		table<ItemFlavor, int>	characterRoleOverride
 
+
+		table< SettingsAssetGUID, bool > charactersUnlockableInNPP
+
 } file
+
+
+const string BOT_PLAYGROUND_ALL_LEGENDS_PLAYABLE_PVAR = "hasNPPAllLegendsPlayableInBotPlayground" 
+const string BOT_PLAYGROUND_PLAYLIST_NAME = "survival_bot_playground"
+const int BOT_PLAYGROUND_ALL_LEGENDS_PLAYABLE_ACCOUNT_FLAG_GUID = 611351187
+
 
 
 
@@ -984,8 +1001,14 @@ float function CharacterClass_GetDamageSlowDebounce( ItemFlavor flavor )
 float function CharacterClass_GetDamageScale( ItemFlavor flavor )
 {
 	string characterRef = ItemFlavor_GetCharacterRef( flavor )
-	float damageScale = file.characterDamageData[ characterRef ].damageScale
 
+	float damageScaleOverride = GetCurrentPlaylistVarFloat( "character_damage_scale_override", -1 )
+	if ( damageScaleOverride >= 0 )
+	{
+		return damageScaleOverride
+	}
+
+	float damageScale = file.characterDamageData[ characterRef ].damageScale
 	return damageScale
 }
 
@@ -1074,6 +1097,9 @@ vector function CharacterClass_GetMenuZoomOffset( ItemFlavor flavor )
 
 
 
+
+
+
 bool function IsCharacterGRXUnlockedForLoadoutSlot( EHI playerEHI, ItemFlavor itemFlavor, bool shouldIgnoreGRX = false, bool shouldIgnoreOtherSlots = false )
 {
 	switch( IsItemFlavorGRXUnlockedForLoadoutSlotHelper( playerEHI, itemFlavor, shouldIgnoreGRX, shouldIgnoreOtherSlots ) )
@@ -1090,6 +1116,20 @@ bool function IsCharacterGRXUnlockedForLoadoutSlot( EHI playerEHI, ItemFlavor it
 	unreachable
 }
 
+bool function Character_BotMode_AreAllCharactersPlayableForPlayer( entity player = null )
+{
+
+		bool hasAllLegendsPlayable = false
+
+
+
+			hasAllLegendsPlayable = expect bool( player.GetPersistentVar( BOT_PLAYGROUND_ALL_LEGENDS_PLAYABLE_PVAR ) )
+
+	if ( GetCurrentPlaylistName() == BOT_PLAYGROUND_PLAYLIST_NAME && hasAllLegendsPlayable )
+		return true
+
+	return false
+}
 
 bool function Character_IsCharacterOwnedByPlayer( ItemFlavor character, entity player = null )
 {
@@ -1105,9 +1145,14 @@ bool function Character_IsCharacterOwnedByPlayer( ItemFlavor character, entity p
 
 
 
+
+	if ( Character_BotMode_AreAllCharactersPlayableForPlayer( player ) )
+		return true
+
+
 	if( GRX_HasInventoryEverBeenReady( player ) )
 	{
-		return GRX_IsItemOwnedByPlayer_AllowOutOfDateData( character, player )
+		return Loadout_IsCharacterUnlockedForPlayer( player, character )
 	}
 
 	bool alwaysOwnsChar = ( ItemFlavor_GetGRXMode( character ) == eItemFlavorGRXMode.NONE )
@@ -1118,6 +1163,73 @@ bool function Character_IsCharacterOwnedByPlayer( ItemFlavor character, entity p
 
 	return expect bool ( player.GetPersistentVar( "cachedCharacterOwnership[" + ItemFlavor_GetGUIDString( character ) + "]" ) )
 }
+
+
+bool function Character_IsUnlockableInNewPlayerPass( ItemFlavor characterFlav )
+{
+	Assert( ItemFlavor_GetType( characterFlav ) == eItemType.character )
+
+
+
+		ItemFlavor ornull pass
+
+			pass = NPP_GetPlayerActiveNPP( GetLocalClientPlayer() )
+
+
+		if ( pass == null )
+			return false
+
+		expect ItemFlavor( pass )
+
+		Assert( ItemFlavor_GetType( pass ) == eItemType.battlepass )
+		Assert( BattlePassV2_IsV2BattlePass( pass ), "Character_IsUnlockableInNewPlayerPass: BP asset must be v2 (i.e. define a v2 reward schedule) in order to get v2 rewards." )
+
+		if ( file.charactersUnlockableInNPP.len() > 0 )
+		{
+			if ( characterFlav.guid in file.charactersUnlockableInNPP )
+			{
+				return file.charactersUnlockableInNPP[characterFlav.guid]
+			}
+			return false
+		}
+
+		var scheduleDT = BattlePassV2_GetScheduleDatatable( pass )
+		int rowIndex = 0
+		int numRows = GetDataTableRowCount( scheduleDT )
+
+		while ( rowIndex < numRows )
+		{
+			asset rewardAsset 	= GetDataTableAsset( scheduleDT, rowIndex, GetDataTableColumnByName( scheduleDT, "reward" ) )
+			if ( rewardAsset != $"" )
+			{
+				if ( IsValidItemFlavorSettingsAsset( rewardAsset ) )
+				{
+					ItemFlavor item = GetItemFlavorByAsset( rewardAsset )
+					int itemType = ItemFlavor_GetType( item )
+					if ( itemType == eItemType.character )
+					{
+						if ( !(item.guid in file.charactersUnlockableInNPP) )
+						{
+							file.charactersUnlockableInNPP[item.guid] <- true 
+						}
+					}
+				}
+			}
+			rowIndex++
+		}
+
+		if ( characterFlav.guid in file.charactersUnlockableInNPP )
+		{
+			return file.charactersUnlockableInNPP[characterFlav.guid]
+		}
+
+		file.charactersUnlockableInNPP[characterFlav.guid] <- false 
+
+
+
+	return false
+}
+
 
 
 array<ItemFlavor> function GetCharacterButtonOrder( array<ItemFlavor> allCharacters, int totalButtons )

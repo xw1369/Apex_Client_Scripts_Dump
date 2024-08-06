@@ -4,9 +4,14 @@ global function ShLootCreeps_Init
 
 
 
+
+
+
+
 const int MAX_ACTIVE_LOOTBIN_CREEPS = 10
 global const asset MODEL_INFECTED = $"mdl/Humans/grunts/imc_grunt_lmg_corpse.rmdl"
 global const asset MODEL_SPIDER = $"mdl/creatures/spider/spider.rmdl"
+
 
 
 
@@ -62,6 +67,9 @@ enum eLootCreepType
 
 
 
+
+
+
 void function ShLootCreeps_Init()
 {
 	if ( !GetCurrentPlaylistVarBool( "loot_creeps_enabled", false ) )
@@ -84,6 +92,13 @@ void function ShLootCreeps_Init()
 		PrecacheModel( MODEL_INFECTED )
 		PrecacheParticleSystem( DEATH_FX_INFECTED )
 	}
+
+
+
+
+
+
+
 
 	if ( shouldInitGenericCreepAssets )
 	{
@@ -113,6 +128,25 @@ void function ShLootCreeps_Init()
 
 
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -855,6 +889,12 @@ bool function ShouldPrecacheLootCreep( int lootCreepType )
 	return false
 
 }
+
+
+
+
+
+
 
 
 

@@ -87,6 +87,7 @@ global function GetPlayerLadderPosPrevSeasonFromEHI
 global function GetPlayerNameUnlessAnonymized
 global function ShouldPlayerNameBeAnonymized
 global function GetCachedObsfuscatedNameByName
+global function GetEHIFromUID
 
 
 
@@ -641,7 +642,7 @@ void function ShEHI_OnPlayerCreated( entity ent )
 		ehiss.uid = ent.GetUserID()
 		ehiss.unspoofedUid = ent.GetUnspoofedPlatformUserIdStr()
 		ehiss.playerEAID = ent.GetEadpUserIdStr()
-		ehiss.hardware = ent.GetUnspoofedHardware()
+		ehiss.hardware = ent.GetHardwareName()
 
 		if ( fileLevel.localClientEHI == EHI_null && ehiss.isLocalClientPlayer )
 		{
@@ -836,6 +837,17 @@ string function GetCachedObsfuscatedNameByName( string playerName )
 		return fileLevel.obfuscatedNameMap[playerName]
 
 	return "Player"
+}
+
+EHI function GetEHIFromUID ( string playerUid )
+{
+	foreach ( EHI ehi, EHIScriptStruct ehiss in fileLevel.eehScriptStructMap )
+	{
+		if ( ehiss.uid == playerUid )
+			return ehi
+	}
+
+	return EHI_null
 }
 
 

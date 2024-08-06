@@ -4,6 +4,8 @@ global function OnWeaponActivate_ability_transport_portal_datapad
 global function OnWeaponDeactivate_ability_transport_portal_datapad
 global function OnWeaponPrimaryAttack_ability_transport_portal_datapad
 
+global function TransportPortalDatapad_UseSpecialKnockedAnims
+
 
 
 
@@ -41,7 +43,7 @@ const bool TRANSPORT_PORTAL_DATAPAD_DEBUG = true
 
 struct{
 	float warpDelayAfterUse = 2.0
-	float warpDelayAfterUseAdditionalWhenKnocked = 1.0
+	float warpDelayAfterUseAdditionalWhenKnocked = 0.0
 
 	bool canCancel = true
 	bool cancelOnDamage = false
@@ -86,6 +88,11 @@ void function SetupTuning()
 
 	tuning.cancelOnDamage =							GetCurrentPlaylistVarBool	( "alter_ult_cancelOnDamage", tuning.cancelOnDamage )
 	tuning.cancelOnNonBulletDamage =				GetCurrentPlaylistVarBool	( "alter_ult_cancelOnNonBulletDamage", tuning.cancelOnNonBulletDamage )
+}
+
+bool function TransportPortalDatapad_UseSpecialKnockedAnims()
+{
+	return tuning.warpDelayAfterUseAdditionalWhenKnocked > 0
 }
 
 
@@ -256,6 +263,14 @@ var function OnWeaponPrimaryAttack_ability_transport_portal_datapad( entity weap
 
 
 	return 1
+}
+
+string function GetChannelSFX( bool isKnocked, bool get1pSound )
+{
+	if ( isKnocked && TransportPortalDatapad_UseSpecialKnockedAnims() )
+		return get1pSound ? TRANSPORT_PORTAL_START_CHANNEL_KNOCKED_SOUND_1P : TRANSPORT_PORTAL_START_CHANNEL_KNOCKED_SOUND_3P
+
+	return get1pSound ? TRANSPORT_PORTAL_START_CHANNEL_SOUND_1P : TRANSPORT_PORTAL_START_CHANNEL_SOUND_3P
 }
 
 
@@ -432,7 +447,7 @@ void function SetupFxAndSound( entity player, float chargeFrac, bool forceSoundF
 	float channelTime = tuning.warpDelayAfterUse + (playerIsKnocked ? tuning.warpDelayAfterUseAdditionalWhenKnocked : 0.0)
 	float channelTimeElapsed = chargeFrac * channelTime
 	float soundTotalTime = channelTime
-	string sound = playerIsKnocked ? TRANSPORT_PORTAL_START_CHANNEL_KNOCKED_SOUND_1P : TRANSPORT_PORTAL_START_CHANNEL_SOUND_1P
+	string sound = GetChannelSFX( playerIsKnocked, true )
 
 	if ( forceSoundFromStart )
 	{

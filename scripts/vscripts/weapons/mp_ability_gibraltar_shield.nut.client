@@ -6,15 +6,23 @@ global function OnWeaponChargeBegin_ability_gibraltar_shield
 global function OnWeaponChargeEnd_ability_gibraltar_shield
 global function OnWeaponOwnerChanged_ability_gibraltar_shield
 
+
+global function OnCreateChargeEffect_ability_gibraltar_shield
+
+
+global function IsGibraltarGunShieldEnt
 global function GibraltarShield_RegisterNetworkFunctions
 
 
 
 
 
-global string GIBRALTAR_GUN_SHIELD_NAME = "gibraltar_gun_shield"
+
+global const string GIBRALTAR_GUN_SHIELD_NAME = "gibraltar_gun_shield"
 
 const vector SHIELD_ANGLE_OFFSET = <0, -90, 0>
+const vector FX_GUN_SHILED_COLOR_1P = <125, 180, 255>
+const vector FX_BUFFED_GUN_SHILED_COLOR_1P = <222, 157, 18> 
 const asset FX_GUN_SHIELD_WALL = $"P_gun_shield_gibraltar_3P"
 const asset FX_GUN_SHIELD_BREAK = $"P_gun_shield_gibraltar_break_CP_3P"
 const asset FX_GUN_SHIELD_BREAK_FP = $"P_gun_shield_gibraltar_break_CP_FP"
@@ -42,6 +50,11 @@ struct
 
 } file
 
+bool function IsGibraltarGunShieldEnt( entity ent )
+{
+	return ent.GetScriptName() == GIBRALTAR_GUN_SHIELD_NAME
+}
+
 void function MpAbilityGibraltarShield_Init()
 {
 	PrecacheWeapon( $"mp_ability_gibraltar_shield" )
@@ -57,6 +70,12 @@ void function MpAbilityGibraltarShield_Init()
 
 
 		RegisterConCommandTriggeredCallback( "+scriptCommand5", GunShieldTogglePressed )
+
+
+
+
+
+
 
 
 
@@ -82,8 +101,8 @@ void function GunShieldTogglePressed( entity player )
 		return
 
 
-
-
+		if ( !WeaponAllowsShield(activeWeapon))
+			return
 
 
 	if ( activeWeapon.IsWeaponAdsButtonPressed() || activeWeapon.IsWeaponInAds() )
@@ -141,8 +160,8 @@ bool function WeaponAllowsShield( entity weapon )
 		return false
 
 
-
-
+		if ( weapon.IsAkimboAvailable() && !weapon.IsAkimboDisabled() )
+			return false
 
 
 	return true
@@ -243,6 +262,61 @@ void function OnWeaponChargeEnd_ability_gibraltar_shield( entity weapon )
 	weapon.StopWeaponSound( SOUND_PILOT_GUN_SHIELD_3P )
 }
 
+
+void function OnCreateChargeEffect_ability_gibraltar_shield( entity weapon, int fxHandle )
+{
+	entity player = weapon.GetWeaponOwner()
+
+	if ( !IsValid( player ) )
+		return
+
+	thread GribraltarShield_1pShieldColorFX( player, fxHandle )
+}
+
+void function GribraltarShield_1pShieldColorFX( entity player, int fxHandle )
+{
+	if ( !IsValid( player ) )
+		return
+
+	player.EndSignal( "OnDeath" )
+
+	bool hasGunshieldGenerator = false
+	if( player.GetSharedEnergyTotal() > 50 ) 
+		hasGunshieldGenerator = true
+
+	vector color
+	while ( PlayerIsInADS( player ) )
+	{
+		if ( !IsValid( player ) )
+			return
+
+		if ( hasGunshieldGenerator )
+		{
+			color = FX_BUFFED_GUN_SHILED_COLOR_1P
+		}
+		else
+		{
+			color = FX_GUN_SHILED_COLOR_1P
+		}
+
+		if ( player.GetSharedEnergyCount() <= 0 )
+		{
+			if ( EffectDoesExist( fxHandle ) )
+				EffectSetControlPointVector( fxHandle, 2, <0, 0, 0> )
+		}
+		else
+		{
+			float frac = float( player.GetSharedEnergyCount() ) / float( player.GetSharedEnergyTotal() )
+			vector colorVec = GetTriLerpColor( frac, COLOR_WHITE, LerpVector( color, <255, 255, 255>, 0.5 ), color, 0.6, 0.3 )
+			if ( EffectDoesExist( fxHandle ) )
+				EffectSetControlPointVector( fxHandle, 2, colorVec )
+		}
+
+		WaitFrame()
+	}
+}
+
+
 bool function OnWeaponAttemptOffhandSwitch_ability_gibraltar_shield( entity weapon )
 {
 	entity player = weapon.GetWeaponOwner()
@@ -255,7 +329,8 @@ bool function OnWeaponAttemptOffhandSwitch_ability_gibraltar_shield( entity weap
 	{
 
 
-
+				if ( file.shieldRegenRui != null )
+					RuiSetBool( file.shieldRegenRui, "weaponAllowedToUseShield", false )
 
 
 		return false
@@ -268,6 +343,22 @@ var function OnWeaponPrimaryAttack_ability_gibraltar_shield( entity weapon, Weap
 {
 	return 0
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

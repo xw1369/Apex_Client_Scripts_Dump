@@ -30,7 +30,7 @@ global function CalEvent_GetUnixTimePlaylistOverride
 global function Season_GetBattlePass
 global function Season_GetSeasonText
 global function BattlePass_GetSeason
-global function GetNextEventStartUnixTime
+global function GetNextChallengeEventStartUnixTime
 
 global function IsValidItemFlavorCalEventRef
 global function GetItemFlavorByCalEventRef
@@ -44,6 +44,11 @@ global function GetCalEventBeingProcessed
 
 global function SeasonQuest_GetQuestForSeason
 global function SeasonQuest_GetSeasonForQuest
+
+
+global function Season_HasBattlePassV2
+global function Season_GetBattlePassV2
+
 
 
 
@@ -85,6 +90,13 @@ global int UNIX_TIME_FALLBACK_2038 = 2145916800
 
 
 
+struct BattlePassV2ConfigStruct
+{
+	int startTime
+	int finishTime
+	ItemFlavor& flav
+}
+
 struct FileStruct_LifetimeLevel
 {
 	table<ItemFlavor, ItemFlavor> seasonBattlePassMap
@@ -111,9 +123,21 @@ struct FileStruct_LifetimeLevel
 
 	bool useIsVisible = false
 	
+
+
+		table< ItemFlavor, bool > seasonIsBattlePassV2Map
+		table< ItemFlavor, array< BattlePassV2ConfigStruct > > seasonBattlePassV2Map
+		table< ItemFlavor, ItemFlavor > battlePassV2SeasonMap
+
 }
 FileStruct_LifetimeLevel& fileLevel
 
+
+
+global const array<int> ITEM_TYPES_WITH_DATETIME_ATTRIBUTES = [
+	eItemType.challenge_collection,
+	eItemType.challenge_tile,
+]
 
 
 
@@ -168,10 +192,78 @@ void function ShCalEvent_LevelInit()
 
 			if ( eventItemType == eItemType.calevent_season )
 			{
-				ItemFlavor ornull passOrNull = RegisterItemFlavorFromSettingsAsset( GetGlobalSettingsAsset( ItemFlavor_GetAsset( event ), "battlepassFlav" ) )
-				fileLevel.seasonBattlePassMap[event] <- expect ItemFlavor(passOrNull)
-				fileLevel.battlePassSeasonMap[expect ItemFlavor(passOrNull)] <- event
+				ItemFlavor ornull passOrNull
+				asset battlepassV1Asset = GetGlobalSettingsAsset( ItemFlavor_GetAsset( event ), "battlepassFlav" )
+				if ( battlepassV1Asset != $"" )
+				{
+					ItemFlavor bpv1flav = expect ItemFlavor( RegisterItemFlavorFromSettingsAsset( battlepassV1Asset ) )
+					fileLevel.seasonBattlePassMap[event] <- bpv1flav
+					fileLevel.battlePassSeasonMap[ bpv1flav ] <- event
+				}
 
+
+					array< var > bpv2SettingsArray =  IterateSettingsAssetArray( ItemFlavor_GetAsset( event ), "battlepassV2Flavs" )
+
+					if ( bpv2SettingsArray.len() == 0 )
+					{
+						fileLevel.seasonIsBattlePassV2Map[ event ] <- false
+					}
+					else
+					{
+						fileLevel.seasonIsBattlePassV2Map[ event ] <- true
+						foreach ( var block in bpv2SettingsArray )
+						{
+							ItemFlavor ornull bpv2FlavOrNull = RegisterItemFlavorFromSettingsAsset( GetSettingsBlockAsset( block, "flavor" ) )
+							if ( bpv2FlavOrNull != null )
+							{
+								ItemFlavor bpv2Flav = expect ItemFlavor( bpv2FlavOrNull )
+								BattlePassV2ConfigStruct config
+
+								config.flav = bpv2Flav
+								config.startTime = BattlePassV2_GetStartUnixTime( bpv2Flav )
+								config.finishTime = BattlePassV2_GetFinishUnixTime( bpv2Flav )
+
+#if DEV
+									
+									
+									
+									
+									
+									
+									
+
+									
+									
+									
+
+									foreach ( ItemFlavor seasonFlav, array< BattlePassV2ConfigStruct > seasonConfigArray in fileLevel.seasonBattlePassV2Map )
+									{
+										foreach ( iterConfig in seasonConfigArray )
+										{
+											Assert( ( config.finishTime < iterConfig.startTime || config.startTime > iterConfig.finishTime ),
+												format(
+													"BattlePassV2 assets cannot overlap in a season -- please check season (%s) and bpv2 asset (%s)",
+													ItemFlavor_GetAssetName ( event ),
+													ItemFlavor_GetAssetName ( iterConfig.flav )
+												)
+											)
+										}
+									}
+#endif
+
+								if ( !( event in fileLevel.seasonBattlePassV2Map ) )
+								{
+									fileLevel.seasonBattlePassV2Map[ event ] <- []
+								}
+
+								fileLevel.seasonBattlePassV2Map[ event ].append( config )
+								fileLevel.battlePassV2SeasonMap[ bpv2Flav ] <- event
+							}
+						}
+					}
+
+
+				
 				asset seasonQuestAsset = GetGlobalSettingsAsset( ItemFlavor_GetAsset( event ), "seasonquestFlav" )
 				if ( seasonQuestAsset != $"" )
 				{
@@ -180,6 +272,14 @@ void function ShCalEvent_LevelInit()
 					fileLevel.seasonToQuestMap[event] <- questOrNull
 					fileLevel.questToSeasonMap[questOrNull] <- event
 				}
+
+
+					asset seasonNarrativeAsset = GetGlobalSettingsAsset( ItemFlavor_GetAsset( event ), "narrativeFlav")
+					if ( seasonNarrativeAsset != $"" )
+					{
+						RegisterItemFlavorFromSettingsAsset( seasonNarrativeAsset )
+					}
+
 
 				
 				foreach ( ItemFlavor otherEvent in fileLevel.allSeasons )
@@ -458,6 +558,7 @@ bool function CalEvent_IsActive( ItemFlavor event, int t )
 
 
 
+
 int function CalEvent_GetRevealUnixTime( ItemFlavor flav )
 {
 	Assert( ItemFlavor_GetType( flav ) > eItemType._CALEVENT_RANGE_START && ItemFlavor_GetType( flav ) < eItemType._CALEVENT_RANGE_END )
@@ -468,6 +569,7 @@ int function CalEvent_GetRevealUnixTime( ItemFlavor flav )
 
 	return CalEvent_GetUnixTimeBySettingString( flav, "revealUnixTime", UNIX_TIME_FALLBACK_1970, false )
 }
+
 
 
 
@@ -488,7 +590,10 @@ int function CalEvent_GetHideUnixTime( ItemFlavor flav )
 
 int function CalEvent_GetStartUnixTime( ItemFlavor flav )
 {
-	Assert( ItemFlavor_GetType( flav ) > eItemType._CALEVENT_RANGE_START && ItemFlavor_GetType( flav ) < eItemType._CALEVENT_RANGE_END )
+
+
+
+
 
 	int ornull startTime = CalEvent_GetUnixTimePlaylistOverride( flav, "_start_time" )
 	if ( startTime != null )
@@ -498,7 +603,10 @@ int function CalEvent_GetStartUnixTime( ItemFlavor flav )
 	{
 		table<string,string> ornull metaData = ItemFlavor_GetMetaData( flav )
 		expect table<string, string>(metaData)
-		return int(metaData[ "defaultStartTime" ])
+		if ( "defaultStartTime" in metaData )
+		{
+			return int(metaData[ "defaultStartTime" ])
+		}
 	}
 
 	return CalEvent_GetUnixTimeBySettingString( flav, "defaultStartTime", UNIX_TIME_FALLBACK_2038 )
@@ -509,7 +617,10 @@ int function CalEvent_GetStartUnixTime( ItemFlavor flav )
 
 int function CalEvent_GetFinishUnixTime( ItemFlavor flav )
 {
-	Assert( ItemFlavor_GetType( flav ) > eItemType._CALEVENT_RANGE_START && ItemFlavor_GetType( flav ) < eItemType._CALEVENT_RANGE_END )
+
+
+
+
 
 	int ornull finishTime = CalEvent_GetUnixTimePlaylistOverride( flav, "_finish_time" )
 	if ( finishTime != null )
@@ -519,7 +630,10 @@ int function CalEvent_GetFinishUnixTime( ItemFlavor flav )
 	{
 		table<string,string> ornull metaData = ItemFlavor_GetMetaData( flav )
 		expect table<string, string>(metaData)
-		return int(metaData[ "defaultFinishTime" ])
+		if ( "defaultFinishTime" in metaData )
+		{
+			return int(metaData[ "defaultFinishTime" ])
+		}
 	}
 
 	return CalEvent_GetUnixTimeBySettingString( flav, "defaultFinishTime", UNIX_TIME_FALLBACK_1970 )
@@ -530,7 +644,10 @@ int function CalEvent_GetFinishUnixTime( ItemFlavor flav )
 
 int function CalEvent_GetUnixTimeBySettingString( ItemFlavor flav, string settingString, int defaultUnixTime, bool showWarning = true )
 {
-	Assert( ItemFlavor_GetType( flav ) > eItemType._CALEVENT_RANGE_START && ItemFlavor_GetType( flav ) < eItemType._CALEVENT_RANGE_END )
+
+
+
+
 
 	string str = GetGlobalSettingsString( ItemFlavor_GetAsset( flav ), settingString )
 	if ( str != "" )
@@ -554,7 +671,10 @@ int function CalEvent_GetUnixTimeBySettingString( ItemFlavor flav, string settin
 
 int ornull function CalEvent_GetUnixTimePlaylistOverride( ItemFlavor flav, string postFixString )
 {
-	Assert( ItemFlavor_GetType( flav ) > eItemType._CALEVENT_RANGE_START && ItemFlavor_GetType( flav ) < eItemType._CALEVENT_RANGE_END )
+
+
+
+
 
 	string playlistVarName = ItemFlavor_GetGUIDString( flav ) + postFixString
 
@@ -594,6 +714,35 @@ int ornull function CalEvent_GetUnixTimePlaylistOverride( ItemFlavor flav, strin
 
 
 
+
+
+
+
+
+
+bool function Season_HasBattlePassV2( ItemFlavor flav )
+{
+	Assert( IsCalEvent( ItemFlavor_GetType( flav ) ) )
+	return fileLevel.seasonIsBattlePassV2Map[ flav ]
+}
+
+ItemFlavor ornull function Season_GetBattlePassV2( ItemFlavor flav )
+{
+	Assert( IsCalEvent( ItemFlavor_GetType( flav ) ) )
+	Assert( Season_HasBattlePassV2( flav ) )
+
+	int unixTimeNow = GetUnixTimestamp()
+	foreach ( BattlePassV2ConfigStruct config in fileLevel.seasonBattlePassV2Map[ flav ] )
+	{
+		if ( unixTimeNow >= config.startTime && unixTimeNow <= config.finishTime )
+		{
+			return config.flav
+		}
+	}
+
+	Warning( format( "No valid BattlePassV2 for our current time (%d) and season (%s)", unixTimeNow, ItemFlavor_GetAssetName( flav ) ) )
+	return null
+}
 
 
 
@@ -647,13 +796,20 @@ ItemFlavor ornull function SeasonQuest_GetSeasonForQuest( ItemFlavor flav )
 
 
 
-int function GetNextEventStartUnixTime()
+int function GetNextChallengeEventStartUnixTime()
 {
 	Assert( IsItemFlavorRegistrationFinished() )
 
-	array<ItemFlavor> events = GetAllItemFlavorsOfType( eItemType.calevent_buffet )
-	int now                  = GetUnixTimestamp()
-	int bestTime             = INT_MAX
+	int now      = GetUnixTimestamp()
+	int bestTime = INT_MAX
+
+	array<ItemFlavor> events = [] 
+	events.extend( GetAllItemFlavorsOfType( eItemType.calevent_buffet ) )
+	events.extend( GetAllItemFlavorsOfType( eItemType.calevent_event_shop ) )
+	events.extend( GetAllItemFlavorsOfType( eItemType.calevent_collection ) )
+	events.extend( GetAllItemFlavorsOfType( eItemType.calevent_reward_campaign ) )
+	events.extend( GetAllItemFlavorsOfType( eItemType.calevent_story_challenges ) )
+	events.extend( GetAllItemFlavorsOfType( eItemType.calevent_themedshop ) )
 
 	foreach ( ItemFlavor ev in events )
 	{

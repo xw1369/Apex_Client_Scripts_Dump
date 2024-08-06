@@ -1,9 +1,7 @@
-
 global function MpWeaponOctaneKnifePrimaryRt01_Init
 
 global function OnWeaponActivate_weapon_octane_knife_rt01_primary
 global function OnWeaponDeactivate_weapon_octane_knife_rt01_primary
-
 
 
 
@@ -20,7 +18,6 @@ const table<string, table< int, int > > HEIRLOOM_SKIN_REMAP =
 	},
 }
 
-
 void function MpWeaponOctaneKnifePrimaryRt01_Init()
 {
 	
@@ -33,11 +30,7 @@ void function MpWeaponOctaneKnifePrimaryRt01_Init()
 
 
 
-
-
 }
-
-
 
 
 
@@ -79,4 +72,3 @@ void function OnWeaponDeactivate_weapon_octane_knife_rt01_primary( entity weapon
 
 
 }
-                              

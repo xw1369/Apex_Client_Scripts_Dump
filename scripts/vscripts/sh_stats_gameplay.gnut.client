@@ -5,6 +5,12 @@ global function StatsRegister_Gameplay
 
 
 
+
+
+
+
+
+
 struct FileStruct_LifetimeLevel
 {
 	table< string, table< string, bool > > weaponStatCategoryWeaponItemRefSet
@@ -135,11 +141,34 @@ void function StatsRegister_Gameplay()
 
 	
 
+		CAREER_STATS.akimbo_damage_done = RegisterAccumulatedStat_Int( null, "akimbo_damage_done", eChallengeGameMode.BATTLE_ROYALE, CHALLENGES_CALC_DEPENDS )
+		CAREER_STATS.akimbo_dooms = RegisterAccumulatedStat_Int( null, "akimbo_dooms", eChallengeGameMode.BATTLE_ROYALE, CHALLENGES_CALC_DEPENDS )
+		CAREER_STATS.akimbo_kills = RegisterAccumulatedStat_Int( null, "akimbo_kills", eChallengeGameMode.BATTLE_ROYALE, CHALLENGES_CALC_DEPENDS )
+
+		CAREER_STATS.akimbo_damage_done_any_mode = RegisterAccumulatedStat_Int( null, "akimbo_damage_done_any_mode", eChallengeGameMode.ANY, CHALLENGES_CALC_DEPENDS )
+		CAREER_STATS.akimbo_dooms_any_mode = RegisterAccumulatedStat_Int( null, "akimbo_dooms_any_mode", eChallengeGameMode.ANY, CHALLENGES_CALC_DEPENDS )
+		CAREER_STATS.akimbo_kills_any_mode = RegisterAccumulatedStat_Int( null, "akimbo_kills_any_mode", eChallengeGameMode.ANY, CHALLENGES_CALC_DEPENDS )
+
+
+	
+
 		CAREER_STATS.assault_games_played = RegisterAccumulatedStat_Int( null, "assault_games_played", eChallengeGameMode.ANY, CHALLENGES_CALC_DEPENDS )
 		CAREER_STATS.skirmisher_games_played = RegisterAccumulatedStat_Int( null, "skirmisher_games_played", eChallengeGameMode.ANY, CHALLENGES_CALC_DEPENDS )
 		CAREER_STATS.recon_games_played = RegisterAccumulatedStat_Int( null, "recon_games_played", eChallengeGameMode.ANY, CHALLENGES_CALC_DEPENDS )
 		CAREER_STATS.controller_games_played = RegisterAccumulatedStat_Int( null, "controller_games_played", eChallengeGameMode.ANY, CHALLENGES_CALC_DEPENDS )
 		CAREER_STATS.support_games_played = RegisterAccumulatedStat_Int( null, "support_games_played", eChallengeGameMode.ANY, CHALLENGES_CALC_DEPENDS )
+
+		CAREER_STATS.assault_damage_done = RegisterAccumulatedStat_Int( null, "assault_damage_done", eChallengeGameMode.BATTLE_ROYALE, CHALLENGES_CALC_DEPENDS )
+		CAREER_STATS.skirmisher_damage_done = RegisterAccumulatedStat_Int( null, "skirmisher_damage_done", eChallengeGameMode.BATTLE_ROYALE, CHALLENGES_CALC_DEPENDS )
+		CAREER_STATS.recon_damage_done = RegisterAccumulatedStat_Int( null, "recon_damage_done", eChallengeGameMode.BATTLE_ROYALE, CHALLENGES_CALC_DEPENDS )
+		CAREER_STATS.controller_damage_done = RegisterAccumulatedStat_Int( null, "controller_damage_done", eChallengeGameMode.BATTLE_ROYALE, CHALLENGES_CALC_DEPENDS )
+		CAREER_STATS.support_damage_done = RegisterAccumulatedStat_Int( null, "support_damage_done", eChallengeGameMode.BATTLE_ROYALE, CHALLENGES_CALC_DEPENDS )
+
+		CAREER_STATS.assault_kills = RegisterAccumulatedStat_Int( null, "assault_kills", eChallengeGameMode.BATTLE_ROYALE, CHALLENGES_CALC_DEPENDS )
+		CAREER_STATS.skirmisher_kills = RegisterAccumulatedStat_Int( null, "skirmisher_kills", eChallengeGameMode.BATTLE_ROYALE, CHALLENGES_CALC_DEPENDS )
+		CAREER_STATS.recon_kills = RegisterAccumulatedStat_Int( null, "recon_kills", eChallengeGameMode.BATTLE_ROYALE, CHALLENGES_CALC_DEPENDS )
+		CAREER_STATS.controller_kills = RegisterAccumulatedStat_Int( null, "controller_kills", eChallengeGameMode.BATTLE_ROYALE, CHALLENGES_CALC_DEPENDS )
+		CAREER_STATS.support_kills = RegisterAccumulatedStat_Int( null, "support_kills", eChallengeGameMode.BATTLE_ROYALE, CHALLENGES_CALC_DEPENDS )
 
 		CAREER_STATS.weapon_supply_bins_looted = RegisterAccumulatedStat_Int( null, "weapon_supply_bins_looted", eChallengeGameMode.BATTLE_ROYALE, CHALLENGES_CALC_DEPENDS )
 		CAREER_STATS.care_packages_revealed = RegisterAccumulatedStat_Int( null, "care_packages_revealed", eChallengeGameMode.BATTLE_ROYALE, CHALLENGES_CALC_DEPENDS )
@@ -214,7 +243,7 @@ void function StatsRegister_Gameplay()
 	
 	StatEnumStruct character_weaponcategory_SES = GetRegisteredStatEnumStruct( eStatEnumStructRefs.CHARACTER_WEAPONCATEGORY )
 
-	CAREER_STATS.character_weaponcategory_kills = RegisterAccumulatedStat_Int( character_weaponcategory_SES, "kills", eChallengeGameMode.BATTLE_ROYALE, DELAY_WRITE_BACK_UNTIL_MATCH_END )
+	CAREER_STATS.character_weaponcategory_kills = RegisterAccumulatedStat_Int( character_weaponcategory_SES, "kills", eChallengeGameMode.BATTLE_ROYALE, CHALLENGES_CALC_DEPENDS )
 	CAREER_STATS.character_weaponcategory_dooms = RegisterAccumulatedStat_Int( character_weaponcategory_SES, "dooms", eChallengeGameMode.BATTLE_ROYALE, CHALLENGES_CALC_DEPENDS )
 	CAREER_STATS.character_weaponcategory_damage_done = RegisterAccumulatedStat_Int( character_weaponcategory_SES, "damage_done", eChallengeGameMode.BATTLE_ROYALE, CHALLENGES_CALC_DEPENDS )
 	CAREER_STATS.character_weaponcategory_shots = RegisterAccumulatedStat_Int( character_weaponcategory_SES, "shots", eChallengeGameMode.BATTLE_ROYALE, DELAY_WRITE_BACK_UNTIL_MATCH_END )
@@ -636,6 +665,21 @@ StatCalcFuncInfo function SetupGetElite888StatusForStat( StatEntry calcEntry, ar
 
 	return info
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

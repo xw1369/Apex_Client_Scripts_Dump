@@ -397,18 +397,6 @@ var function Grenade_OnWeaponTossReleaseAnimEvent( entity weapon, WeaponPrimaryA
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
 var function Grenade_OnWeaponTossCancelDrop( entity weapon, WeaponPrimaryAttackParams attackParams )
 {
 	return 0

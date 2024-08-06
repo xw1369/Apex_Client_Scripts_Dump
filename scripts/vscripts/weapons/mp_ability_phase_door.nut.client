@@ -989,6 +989,27 @@ void function _____________CreatePhaseDoor___________________________(){}
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 #if INTELLIJ_OUTLINE_SECTION_MARKER
 void function _____________CreatePortalExtensions___________________________(){}
 #endif
@@ -1216,6 +1237,18 @@ bool function PortalStandardChecks( entity player )
 
 	return true
 }
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

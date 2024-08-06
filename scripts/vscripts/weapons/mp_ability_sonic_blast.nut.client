@@ -28,6 +28,7 @@ const string SONIC_BLAST_MOVER_SCRIPTNAME = "seer_tactical_mover"
 global function ServerCallback_ApplyScreenShake
 global function ServerCallback_DoDamageIndicator
 global function ServerToClient_ShowHealthRUI
+global function ServerToClient_ShowHealthRUIWithLosCheck
 global function ServerToClient_SpawnedSonicBlast
 
 
@@ -87,6 +88,7 @@ struct
 	bool sonicBlastDoesDamage
 	bool sonicBlastInterrupts
 	bool sonicBlastDoesFullSonarScan
+	float sonicBlastScanDurationMultiplierWithSpitCharge
 	int sonicBlastDamage
 
 	bool heartbeatSensorActive
@@ -121,6 +123,7 @@ void function MpAbilitySonicBlast_Init()
 	file.sonicBlastTubeLength = file.sonicBlastRadius * 4.175 
 	file.sonicBlastDamage = GetSonicBlastDamage()
 	file.sonicBlastDoesFullSonarScan = GetSonicBlastDoesSonarScan()
+	file.sonicBlastScanDurationMultiplierWithSpitCharge = GetSonicBlastScanDurationMultiplierWithSpitCharge()
 
 
 		StatusEffect_RegisterEnabledCallback( eStatusEffect.seer_highlight_target, SonarBlast_StartHighlightStatusEffect )
@@ -150,10 +153,12 @@ void function OnWeaponDeactivate_ability_sonic_blast( entity weapon )
 
 
 
-	if ( IsValid( weaponOwner ) )
-	{
-		weaponOwner.Signal( "EndHeartbeatSensorUI" )
-	}
+
+		if ( IsValid( weaponOwner ) )
+		{
+			weaponOwner.Signal( "EndHeartbeatSensorUI" )
+		}
+
 }
 
 void function ChargeUpSound_Thread( entity weapon, entity weaponOwner )
@@ -208,7 +213,9 @@ bool function OnWeaponAttemptOffhandSwitch_weapon_sonic_blast( entity weapon )
 var function OnWeaponTossCancel_weapon_sonic_blast( entity weapon, WeaponPrimaryAttackParams attackParams )
 {
 	entity weaponOwner = weapon.GetWeaponOwner()
-	weaponOwner.Signal( "EndHeartbeatSensorUI" )
+
+		weaponOwner.Signal( "EndHeartbeatSensorUI" )
+
 	weaponOwner.Signal( "SonicBlastCancelled" )
 
 
@@ -871,41 +878,6 @@ var function OnWeaponTossReleaseAnimEvent_weapon_sonic_blast( entity weapon, Wea
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 bool function SonicBlast_TargetEntityShouldBeHighlighted( entity ent )
 {
 
@@ -987,17 +959,24 @@ void function ServerCallback_DoDamageIndicator( entity player, entity attacker )
 	}
 }
 
-
 void function ServerToClient_ShowHealthRUI( entity owner, entity victim, float duration )
 {
-	thread ServerToClient_ShowHealthRUI_Thread( owner, victim, duration )
+	thread ServerToClient_ShowHealthRUI_Thread( owner, victim, duration, 0 )
 }
 
-void function ServerToClient_ShowHealthRUI_Thread( entity owner, entity victim, float duration )
+void function ServerToClient_ShowHealthRUIWithLosCheck( entity owner, entity victim, float duration, float losDuration )
+{
+	thread ServerToClient_ShowHealthRUI_Thread( owner, victim, duration, losDuration )
+}
+
+void function ServerToClient_ShowHealthRUI_Thread( entity owner, entity victim, float noLosDuration, float losRequiredDuration )
 {
 	Assert ( IsNewThread(), "Must be threaded off." )
 
 	if ( !IsValid( victim ) )
+		return
+
+	if ( noLosDuration == 0 && losRequiredDuration == 0 )
 		return
 
 
@@ -1011,7 +990,25 @@ void function ServerToClient_ShowHealthRUI_Thread( entity owner, entity victim, 
 
 
 
-	float endTime = Time() + duration
+	float endTime = Time() + max( losRequiredDuration, noLosDuration)
+	float noLosEndTime = Time() + noLosDuration
+	float losRequiredEndTime = Time() + losRequiredDuration
+
+	PassByReferenceBool noLosRequested
+	PassByReferenceBool losRequiredRequested
+
+	var rui = null
+	if ( noLosDuration > 0 )
+	{
+		noLosRequested.value = true
+		rui = ReconScan_ShowHudForTarget( owner, victim, eShowHealthbarMode.ALWAYS )
+	}
+	if ( losRequiredDuration > 0 )
+	{
+		losRequiredRequested.value = true
+		rui = ReconScan_ShowHudForTarget( owner, victim, eShowHealthbarMode.REQUIRE_LOS )
+	}
+
 	bool visible = true
 
 #if DEV
@@ -1022,16 +1019,34 @@ void function ServerToClient_ShowHealthRUI_Thread( entity owner, entity victim, 
 #endif
 
 	OnThreadEnd(
-		function() : ( owner, victim )
+		function() : ( owner, victim, noLosRequested, losRequiredRequested )
 		{
-			ReconScan_RemoveHudForTarget( owner, victim )
+			if ( noLosRequested.value )
+			{
+				ReconScan_RemoveHudForTarget( owner, victim, eShowHealthbarMode.ALWAYS )
+			}
+			if ( losRequiredRequested.value )
+			{
+				ReconScan_RemoveHudForTarget( owner, victim, eShowHealthbarMode.REQUIRE_LOS )
+			}
 		}
 	)
 
-	var rui = ReconScan_ShowHudForTarget( owner, victim, false )
 
 	while ( Time() < endTime )
 	{
+		if ( noLosRequested.value && Time() >= noLosEndTime )
+		{
+			ReconScan_RemoveHudForTarget( owner, victim, eShowHealthbarMode.ALWAYS )
+			noLosRequested.value = false
+		}
+
+		if ( losRequiredRequested.value && Time() >= losRequiredEndTime )
+		{
+			ReconScan_RemoveHudForTarget( owner, victim, eShowHealthbarMode.REQUIRE_LOS )
+			losRequiredRequested.value = false
+		}
+
 		bool phaseShifted = victim.IsPlayer() ? victim.IsPhaseShiftedOrPending() : false
 
 			bool scanBlocked = IsValid( owner ) && FerroWall_BlockScan( owner.EyePosition(), victim.GetWorldSpaceCenter() )
@@ -1353,6 +1368,11 @@ float function GetSonicBlast_Silence_Duration_Base( entity player )
 			result += GetSonicBlast_Silence_Extension()
 		}
 
+		if ( PlayerHasPassive( player, ePassives.PAS_TAC_UPGRADE_THREE ) ) 
+		{
+			result *= file.sonicBlastScanDurationMultiplierWithSpitCharge
+		}
+
 
 	return result
 }
@@ -1360,6 +1380,11 @@ float function GetSonicBlast_Silence_Duration_Base( entity player )
 bool function GetSonicBlastDoesSonarScan()
 {
 	return GetCurrentPlaylistVarBool( "seer_tac_does_sonar_scan", true )
+}
+
+float function GetSonicBlastScanDurationMultiplierWithSpitCharge()
+{
+	return GetCurrentPlaylistVarFloat( "seer_tac_upgrade_3_mutiplier", 0.5 )
 }
 
 

@@ -377,12 +377,12 @@ void function UIToClient_SurvivalGroundListOpened( var menu )
 			category.itemPadding = 4
 		}
 
-
-
-
-
-
-
+		else if ( enumVal == eLootSortCategories.HEALING )
+		{
+			category.itemWidth   = 100
+			category.itemHeight  = 100
+			category.itemPadding = 4
+		}
 
 		else
 		{
@@ -414,21 +414,21 @@ void function UIToClient_SurvivalGroundListOpened( var menu )
 	}
 
 
+	array<string> healingTypes = [ "health_pickup_health_small", "health_pickup_combo_small", "health_pickup_health_large", "health_pickup_combo_large", "health_pickup_combo_full" ]
+	
+	foreach ( string healingItemType in healingTypes )
+	{
+		DeathBoxEntryData entryData
+		entryData.lootFlav = SURVIVAL_Loot_GetLootDataByRef( healingItemType )
+		entryData.key = entryData.lootFlav.ref
+		fileLevel.deathBoxEntryDataByKey[entryData.key] <- entryData
+		entryData.lootEnts = []
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+		DeathBoxListPanelItem item
+		item.categoryKey = format( "%02d", 99 - eLootSortCategories.HEALING )
+		item.key = entryData.key
+		DeathBoxListPanel_AddItem( fileLevel.listPanel, item )
+	}
 
 
 	thread Delayed_SetCursorToObject( fileLevel.backer )
@@ -1018,10 +1018,10 @@ void function UpdateSurvivalGroundList( SurvivalGroundListUpdateParams params )
 
 		bool shouldSortTop = false
 
-
-
-
-
+		if ( entryData.lootFlav.lootType == eLootType.ARMOR )
+		{
+			shouldSortTop = true
+		}
 
 
 		DeathBoxListPanelItem ornull item = DeathBoxListPanel_GetItemByKey( fileLevel.listPanel, entryData.key )
@@ -1243,8 +1243,13 @@ void function UpdateSurvivalGroundList( SurvivalGroundListUpdateParams params )
 			if ( lootFlavor.lootType == eLootType.MAINWEAPON )
 			{
 				ItemFlavor ornull weaponFlav = GetWeaponItemFlavorByClass( lootFlavor.baseWeapon )
-				if ( weaponFlav != null )
-					icon = ItemFlavor_GetIcon( expect ItemFlavor( weaponFlav ) )
+
+
+					icon = GetWeaponLootIcon_WeaponLootHint( player, lootFlavor )
+
+
+
+
 
 				ammoIcon = lootFlavor.fakeAmmoIcon == $"" ? $"rui/hud/gametype_icons/survival/sur_ammo_unique" : lootFlavor.fakeAmmoIcon
 				string ammoType = GetWeaponAmmoType( lootFlavor.ref )
@@ -1373,6 +1378,9 @@ void function UpdateItem( DeathBoxListPanelItem item )
 	bool isGadget		= (lootFlavor.lootType == eLootType.GADGET)
 	bool isArmor   		= (lootFlavor.lootType == eLootType.ARMOR)
 
+	bool isHealth  		= ( (lootFlavor.lootType == eLootType.HEALTH) && lootFlavor.ref != "health_pickup_ultimate" )
+
+
 
 
 	bool hasSpecialAmmo = (isMainWeapon && !GetWeaponInfoFileKeyField_GlobalBool( lootFlavor.baseWeapon, "uses_ammo_pool" ))
@@ -1462,24 +1470,26 @@ void function UpdateItem( DeathBoxListPanelItem item )
 		}
 	}
 
+	if ( isHealth )
+	{
 
+		 if ( isVendingMachine )
+		 {
+			 title = ""
+		 }
+		else
 
-
-
-
-
-
-
-
-
-
-
-
+		{
+			title = (entryData.totalCount == 0 ? "--" : format( "%d", entryData.totalCount ))
+		}
+	}
 
 
 	else if ( isVendingMachine && isMainWeapon )
 	{
-		
+
+			lootFlavor.hudIcon = GetWeaponLootIcon_WeaponLootHint( GetLocalClientPlayer(), lootFlavor )
+
 	}
 
 	else if ( hasSpecialAmmo )
@@ -1502,6 +1512,10 @@ void function UpdateItem( DeathBoxListPanelItem item )
 	else if ( isMainWeapon )
 	{
 		title = (entryData.totalCount > 1 ? format( "%s   x%d", title, entryData.totalCount ) : title)
+
+
+			lootFlavor.hudIcon = GetWeaponLootIcon_WeaponLootHint( GetLocalClientPlayer(), lootFlavor )
+
 	}
 	else if ( lootFlavor.passive != ePassives.INVALID )
 	{
@@ -1556,7 +1570,7 @@ void function UpdateItem( DeathBoxListPanelItem item )
 	RuiSetBool( rui, "isBlocked", entryData.isBlocked )
 	RuiSetBool( rui, "isClickable", entryData.isClickable )
 
-
+	RuiSetBool( rui, "isHealthItem", isHealth )
 
 
 
@@ -1894,7 +1908,7 @@ void function PerformItemAction( DeathBoxListPanelItem item, bool isAltAction, b
 
 	array<ConsumableInventoryItem> predictedInventory = GetPredictedInventory()
 	int inventoryLimit                                = SURVIVAL_GetInventoryLimit( player )
-	int amountThatWouldBePickedUp                     = SURVIVAL_AddToInventory( predictedInventory, inventoryLimit, lootFlavor, count, SURVIVAL_GetInventorySlotCountForPlayer( player, lootFlavor ), true )
+	int amountThatWouldBePickedUp                     = SURVIVAL_AddToInventory( player, predictedInventory, inventoryLimit, lootFlavor, count, SURVIVAL_GetInventorySlotCountForPlayer( player, lootFlavor ), true )
 	bool isInventoryFull                              = (amountThatWouldBePickedUp == 0)
 
 	LootRef lootRef  = SURVIVAL_CreateLootRef( lootFlavor, bestLootEnt )
@@ -2014,7 +2028,7 @@ array<ConsumableInventoryItem> function GetPredictedInventory()
 		LootData pladLootFlav = SURVIVAL_Loot_GetLootDataByRef( plad.lootFlavRef )
 
 		if ( plad.count > 0 )
-			SURVIVAL_AddToInventory( predictedInventory, inventoryLimit, pladLootFlav, plad.count, SURVIVAL_GetInventorySlotCountForPlayer( localPlayer, pladLootFlav ), true )
+			SURVIVAL_AddToInventory( localPlayer, predictedInventory, inventoryLimit, pladLootFlav, plad.count, SURVIVAL_GetInventorySlotCountForPlayer( localPlayer, pladLootFlav ), true )
 		else
 			SURVIVAL_RemoveFromInventory( localPlayer, predictedInventory, pladLootFlav, -plad.count )
 	}
@@ -2094,7 +2108,7 @@ void function SendItemActionCommand( DeathBoxEntryData entryData, int count, ent
 	{
 		array<ConsumableInventoryItem> predictedInventory = GetPredictedInventory()
 		int inventoryLimit = SURVIVAL_GetInventoryLimit( localPlayer )
-		int numAdded       = SURVIVAL_AddToInventory( predictedInventory, inventoryLimit, entryData.lootFlav, plad.count, SURVIVAL_GetInventorySlotCountForPlayer( localPlayer, entryData.lootFlav ), true )
+		int numAdded       = SURVIVAL_AddToInventory( localPlayer, predictedInventory, inventoryLimit, entryData.lootFlav, plad.count, SURVIVAL_GetInventorySlotCountForPlayer( localPlayer, entryData.lootFlav ), true )
 		plad.count = numAdded
 	}
 

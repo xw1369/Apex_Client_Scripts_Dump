@@ -12,6 +12,7 @@ global const string DIRTY_BOMB_TARGETNAME = "caustic_trap"
 global const string CAUSTIC_DIRTY_BOMB_WEAPON_CLASS_NAME = "mp_weapon_dirty_bomb"
 
 const asset DIRTY_BOMB_CANISTER_MODEL = $"mdl/props/caustic_gas_tank/caustic_gas_tank.rmdl"
+const asset DIRTY_BOMB_CANISTER_FRIENDLY_MODEL = $"mdl/props/caustic_gas_tank/caustic_gas_tank_friendly.rmdl"
 
 
 const asset DIRTY_BOMB_CANISTER_MODEL_BIG = $"mdl/props/caustic_gas_tank/caustic_gas_tank_big.rmdl"
@@ -71,6 +72,7 @@ struct
 
 
 
+
 } file
 
 void function MpWeaponDirtyBomb_Init()
@@ -89,11 +91,11 @@ void function MpWeaponDirtyBomb_Init()
 		RegisterMinimapPackage( "prop_script", eMinimapObject_prop_script.DIRTY_BOMB, MINIMAP_OBJECT_RUI, MinimapPackage_DirtyBomb, FULLMAP_OBJECT_RUI, MinimapPackage_DirtyBomb )
 
 
+		if( Perk_QuickPackup_RemoteInteractEnabled() )
+		{
+			
 
-
-
-
-
+		}
 
 
 }
@@ -118,6 +120,9 @@ void function DirtyBombPrecache()
         PrecacheParticleSystem( DIRTY_BOMB_CANISTER_EXPLODE_FX )
 
 	PrecacheModel( DIRTY_BOMB_CANISTER_MODEL )
+
+	if ( GetCurrentPlaylistVarBool( "enable_caustic_friendly_traps", true ) )
+		PrecacheModel( DIRTY_BOMB_CANISTER_FRIENDLY_MODEL )
 
 
 		PrecacheModel( DIRTY_BOMB_CANISTER_MODEL_BIG )
@@ -1124,12 +1129,86 @@ void function DirtyBombPrecache()
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+void function DirtyBomb_OnGainFocus( entity ent )
+{
+	if ( !IsValid( ent ) )
+		return
+
+	entity player = GetLocalViewPlayer()
+	if ( !IsValid( player ) )
+		return
+
+	if ( player == ent.GetBossPlayer() && ent.GetTargetName() == DIRTY_BOMB_TARGETNAME )
+	{
+		CustomUsePrompt_SetText( Localize( "#QUICK_PACKUP_PROMPT" ) )
+		CustomUsePrompt_Show( ent )
+	}
+}
+
+void function DirtyBomb_OnLoseFocus( entity ent )
+{
+	CustomUsePrompt_ClearForAny()
+}
+
+
 void function DirtyBomb_OnPropScriptCreated( entity ent )
 {
 	switch ( ent.GetScriptName() )
 	{
 		case DIRTY_BOMB_TARGETNAME:
 			AddEntityCallback_GetUseEntOverrideText( ent, DirtyBomb_UseTextOverride )
+
+			SetCallback_ShouldUseBlockReloadCallback( ent, Perk_QuickPackup_ShoudUseBlockReload )
+
 			break
 
 		case DIRTY_BOMB_CLOUD_HOST_TARGETNAME:

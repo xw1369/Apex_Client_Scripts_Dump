@@ -15,6 +15,9 @@ global function SpawnGroupSkydive_SetCallback_GetSquadSpawnDelay
 
 
 
+
+
+
 global function SpawnSquadSkyDive_GetRemainingRespawnsForAllPlayersInSquad
 global function SpawnGroupSkydive_ShouldTeamHavePoolOfRespawns
 
@@ -36,6 +39,7 @@ struct
 
 
 
+
 } file
 
 void function ShSpawnSquadSkyDive_Init()
@@ -43,6 +47,7 @@ void function ShSpawnSquadSkyDive_Init()
 	if ( GetRespawnStyle() != eRespawnStyle.SPAWN_GROUP_SKYDIVE )
 		return
 	print( "Respawn style is SPAWN_GROUP_SKYDIVE\n" )
+
 
 
 
@@ -770,6 +775,71 @@ int function SpawnSquadSkyDive_GetRemainingRespawnsForAllPlayersInSquad( int tea
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 float function SpawnGroupSkydive_GetSquadSpawnDelay( int team )
 {
 	float spawnDelay = GetCurrentPlaylistVarFloat( "respawn_cooldown", 5.0 )
@@ -786,6 +856,14 @@ void function SpawnGroupSkydive_SetCallback_GetSquadSpawnDelay( float functionre
 	Assert( file.GetSquadSpawnDelay_Callback == null )
 	file.GetSquadSpawnDelay_Callback = func
 }
+
+
+
+
+
+
+
+
 
 
 

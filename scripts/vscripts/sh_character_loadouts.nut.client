@@ -29,6 +29,9 @@ global function ParseConsumableLoadoutText
 
 
 
+
+
+
 global struct WeaponLoadout {
 	array< string > weaponRefs
 	table< string, array< string > > weaponAttachmentsByWeapon
@@ -49,6 +52,11 @@ struct {
 	table< string, array<string> >                 characterFlavorToDisplayedEquipmentLoadout
 
 	int identicalLoadoutIndex = -1
+
+
+
+
+
 
 
 		var           loadoutInfoRui = null
@@ -77,6 +85,8 @@ void function CharacterLoadouts_Init()
 	SetDefaultLoadouts()
 
 	PopulateCharacterLoadouts()
+
+
 
 
 
@@ -690,6 +700,13 @@ void function Init_CharacterClassToLoadoutNameTable()
 
 
 
+
+
+
+
+
+
+
 void function Callback_OnCharacterSelectOpened()
 {
 	file.is16x10 = GetNearestAspectRatio( GetScreenSize().width, GetScreenSize().height ) == 1.6
@@ -936,6 +953,105 @@ array<string> function CharacterLoadouts_GetEquipmentLoadoutArray( ItemFlavor ch
 {
 	return file.characterFlavorToEquipmentLoadout[ItemFlavor_GetCharacterRef( character ).tolower()]
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

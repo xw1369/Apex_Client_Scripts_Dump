@@ -50,6 +50,13 @@ global enum eSurvivalSolosStat {
 	EXTRA_LIVES_PRESERVED = 6,
 }
 
+struct
+{
+
+		bool soloSplashAnnounceDisplayed = false
+
+} file
+
 
 
 void function Sh_Survival_Solos_Init()
@@ -60,6 +67,10 @@ void function Sh_Survival_Solos_Init()
 
 
 
+
+
+
+		AddCallback_PlayerFreefallActiveChanged( Survival_Solos_PlayerFreefallActiveChanged )
 
 }
 
@@ -79,6 +90,20 @@ void function Sh_Survival_Solos_RegisterNetworking()
 
 
 
+
+
+
+void function Survival_Solos_PlayerFreefallActiveChanged( entity player, bool isFreefallActive )
+{
+	if ( file.soloSplashAnnounceDisplayed )
+		return
+
+	if ( !isFreefallActive )
+		return
+
+	Announcement_SplashSolo()
+	file.soloSplashAnnounceDisplayed = true
+}
 
 
 

@@ -19,11 +19,7 @@ const int 	CREEPING_BOMBARDMENT_STEP_COUNT		= 6
 const float CREEPING_BOMBARDMENT_STEP_INTERVAL 	= 0.75
 const float CREEPING_BOMBARDMENT_DELAY 			= 2.0 
 
-
 const float CREEPING_BOMBARDMENT_SHELLSHOCK_DURATION = 6.0
-
-
-
 
 const asset FX_CREEPING_BOMBARDMENT_FLARE = $"P_bFlare"
 const asset FX_CREEPING_BOMBARDMENT_GLOW_FP = $"P_bFlare_glow_FP"
@@ -119,6 +115,18 @@ void function OnProjectileCollision_WeaponCreepingBombardment( entity projectile
 	projectile.GrenadeIgnite()
 	projectile.SetDoesExplode( false )
 }
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

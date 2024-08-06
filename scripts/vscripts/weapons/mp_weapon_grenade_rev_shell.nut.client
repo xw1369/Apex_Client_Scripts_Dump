@@ -14,6 +14,10 @@ global function ClientRevShellTargetFX
 
 const asset REV_SHELL_MODEL = $"mdl/weapons/skull_grenade/skull_grenade_base_v.rmdl"
 const asset REV_SHELL_MODEL_V1 = $"mdl/weapons/skull_grenade/skull_grenade_base_v_v1.rmdl"
+
+
+
+
 const asset VFX_REV_SHELL_DESTROY = $"P_destroy_exp_rev"
 const asset VFX_REV_SHELL_FIZZLE = $"P_wpn_grenade_rev_fizzle"
 const asset VFX_REV_SHELL_LOCK_ON = $"P_revNade_lockon_sprite"
@@ -33,6 +37,7 @@ const string REV_SHELL_LOCKED_ON_AGGRESSOR_SOUND = "ui_revshellseeker_aggressor_
 const string REV_SHELL_ON_THROWN = "weapon_revshellseeker_seekingloop_3p"
 const string REV_SHELL_SHELL_TOSS = "diag_mp_nocNotify_bc_shellToss_3p"
 const string REV_SHELL_WARNING_BEEP = "weapon_revshellseeker_explosivewarningbeep_3p"
+const string CYBER_REV_SHELL_WEAPON_NAME = "mp_weapon_grenade_cyber_rev_shell"
 
 
 const float SPEED_CHANGE_DISTANCE_THRESHOLD = 800.0 
@@ -58,6 +63,10 @@ void function RevShell_Init()
 	RegisterSignal( "RevShellEnd" )
 	PrecacheModel( REV_SHELL_MODEL )
 	PrecacheModel( REV_SHELL_MODEL_V1 )
+
+
+
+
 	PrecacheParticleSystem( VFX_REV_SHELL_DESTROY )
 	PrecacheParticleSystem( VFX_REV_SHELL_FIZZLE )
 	PrecacheParticleSystem( VFX_REV_SHELL_LOCK_ON )
@@ -65,7 +74,10 @@ void function RevShell_Init()
 	PrecacheParticleSystem( VFX_REV_SHELL_EYE_GLOW_VOICE )
 	Remote_RegisterClientFunction( "ClientRevShellTargetFX", "entity", "entity" )
 
-	SURVIVAL_Loot_RegisterConditionalCheck( "mp_weapon_grenade_rev_shell", Rev_Shell_ConditionalCheck )
+	SURVIVAL_Loot_RegisterConditionalCheck( "mp_weapon_grenade_rev_shell", Rev_Shell_ConditionalCheck)
+
+
+
 
 	CLOSE_CHASE_SPEED = GetCurrentPlaylistVarFloat( "rev_shell_close_chase_speed", CLOSE_CHASE_SPEED )
 	FAR_CHASE_SPEED = GetCurrentPlaylistVarFloat( "rev_shell_far_chase_speed", FAR_CHASE_SPEED )
@@ -179,6 +191,11 @@ var function Grenade_OnWeaponTossReleaseAnimEvent_RevShell( entity weapon, Weapo
 	weapon.EmitWeaponSound_1p3p( GetGrenadeThrowSound_1p( weapon ), GetGrenadeThrowSound_3p( weapon ) )
 	EmitSoundOnEntity( grenade, REV_SHELL_SHELL_TOSS )
 	PlayerUsedOffhand( weaponOwner, weapon, true, grenade ) 
+
+
+
+
+
 
 
 

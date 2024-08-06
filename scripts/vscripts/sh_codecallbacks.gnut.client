@@ -95,8 +95,10 @@ global function CodeCallback_OnWeaponAttack
 global function AddCallback_OnWeaponAttack
 global function RemoveCallback_OnWeaponAttack
 
+global function CodeCallback_OnPlayerClimbHighJumped
 global function CodeCallback_OnPlayerOverheat
 global function AddCallback_OnPlayerOverheat
+global function AddCallback_OnPlayerClimbHighJumped
 
 global function CodeCallback_GetExtendedRangeUseEntitiesForPlayer
 global function AddGetExtendedRangeUseEntityCallback
@@ -125,6 +127,7 @@ struct
 	table<entity , entity>							  playerPreviousActiveWeapon
 
 	array< void functionref( entity, array<entity> ) > getExtendedRangeUseEntityCallbacks
+	array< void functionref( entity ) > onWeaponDisabledCallbacks
 } file
 
 void function CodeCallbacksShared_Init()
@@ -196,7 +199,8 @@ bool function CodeCallback_CanUseEntity( entity player, entity ent, int useFlags
 	if ( player.IsPhaseShifted() )
 		return false
 
-	if ( GetGameState() == eGameState.WinnerDetermined || GetGameState() > eGameState.Epilogue )
+	int gameState = GetGameState()
+	if ( gameState == eGameState.WinnerDetermined || gameState > eGameState.Epilogue )
 		return false
 
 	if ( ent == player )
@@ -207,12 +211,11 @@ bool function CodeCallback_CanUseEntity( entity player, entity ent, int useFlags
 		
 		if ( Leech_IsLeechable( ent ) )
 			return false
+		if ( !IsAlive( ent ) )
+			return false
 	}
 
 	if ( player.IsTitan() )
-		return false
-
-	if ( ent.IsNPC() && !IsAlive( ent ) )
 		return false
 
 	if ( ent.e.canUseEntityCallback != null )
@@ -536,10 +539,7 @@ void function CancelDisembark( entity player )
 
 void function CodeCallback_OnUseStart( entity player )
 {
-	if ( IsValid( player.GetUseEntity() ) )
-	{
-		player.p.lastUseTime = Time()
-	}
+	player.p.lastUseTime = Time()
 }
 
 void function CodeCallback_OnUseEnd( entity player )
@@ -857,24 +857,6 @@ string function CodeCallback_GetLatestArenaPeriodName()
 }
 
 
-void function CodeCallback_OnWeaponDisable( entity weapon )
-{
-	entity weaponOwner = weapon.GetWeaponOwner()
-	if ( !IsAlive( weaponOwner ) )
-		return
-
-	if ( !weaponOwner.IsPlayer() )
-		return
-
-	if ( !IsPilot( weaponOwner ) )
-		return
-
-	if ( weaponOwner != GetLocalClientPlayer() || weaponOwner != GetLocalViewPlayer() )
-		return
-
-	HidePlayerHint( "#NO_RESERVE_AMMO" )
-}
-
 void function ClientCodeCallback_PartyUpdated()
 {
 	printt( "ClientCodeCallback_PartyUpdated" )
@@ -952,6 +934,37 @@ void function RemoveCallback_OnClientPartyMemberAdded( void functionref() callba
 }
 
 
+void function AddCallback_OnWeaponDisable( void functionref( entity ) callbackFunc )
+{
+	Assert( !file.onWeaponDisabledCallbacks.contains( callbackFunc ), "Already added " + string( callbackFunc ) + "to list of OnWeaponDisable callbacks")
+	file.onWeaponDisabledCallbacks.append( callbackFunc )
+}
+
+void function CodeCallback_OnWeaponDisable( entity weapon )
+{
+	entity weaponOwner = weapon.GetWeaponOwner()
+	if ( !IsAlive( weaponOwner ) )
+		return
+
+	if ( !weaponOwner.IsPlayer() )
+		return
+
+	if ( !IsPilot( weaponOwner ) )
+		return
+
+
+		if ( weaponOwner == GetLocalClientPlayer() && weaponOwner == GetLocalViewPlayer() )
+		{
+			HidePlayerHint( "#NO_RESERVE_AMMO" )
+		}
+
+
+	foreach ( callbackFunc in file.onWeaponDisabledCallbacks )
+	{
+		callbackFunc( weapon )
+	}
+}
+
 void function CodeCallback_GivePlayerDoubleJump ( entity player )
 {
 
@@ -1005,6 +1018,21 @@ void function CodeCallback_OnWeaponAttack( entity player, entity weapon, string 
 
 }
 
+void function CodeCallback_OnPlayerClimbHighJumped( entity player )
+{
+
+
+
+
+
+
+		foreach ( callbackFunc in clGlobal.onPlayerClimbHighJumpedCallbacks )
+		{
+			callbackFunc( player )
+		}
+
+}
+
 void function CodeCallback_OnPlayerOverheat( entity player, entity weapon )
 {
 
@@ -1039,6 +1067,17 @@ void function AddCallback_OnPlayerOverheat( void functionref( entity player, ent
 
 		Assert( !clGlobal.onPlayerOverheatCallbacks.contains( callbackFunc ), "Already added " + string( callbackFunc ) )
 		clGlobal.onPlayerOverheatCallbacks.append( callbackFunc )
+
+}
+
+void function AddCallback_OnPlayerClimbHighJumped( void functionref( entity player ) callbackFunc )
+{
+
+
+
+
+		Assert( !clGlobal.onPlayerClimbHighJumpedCallbacks.contains( callbackFunc ), "Already added " + string( callbackFunc ) )
+		clGlobal.onPlayerClimbHighJumpedCallbacks.append( callbackFunc )
 
 }
 

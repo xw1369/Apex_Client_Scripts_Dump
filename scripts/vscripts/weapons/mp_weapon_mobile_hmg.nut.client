@@ -20,6 +20,8 @@ global function MobileHMG_RegisterNetworkFunctions
 
 
 
+
+
 global function OnClientAnimEvent_weapon_mobile_hmg
 
 
@@ -65,6 +67,9 @@ const string MOBILE_HMG_ACTIVATE_SIGNAL = "mobile_hmg_activate"
 global const string MOBILE_HMG_ACTIVE_MOD = "mobile_hmg_active"
 global const string MOBILE_HMG_FAST_SWITCH_MOD = "mobile_hmg_fast_switch"
 
+const string MOBILE_HMG_ACTIVE_AMMO_MOD = "mobile_hmg_active_ammo"
+
+
 
 const float MAX_REFUND_PERCENTAGE = 0.75
 
@@ -95,7 +100,14 @@ void function MpWeaponMobileHMG_Init()
 
 
 	RegisterConCommandTriggeredCallback( "+scriptCommand5", PlacementModeTogglePressed )
-	RegisterConCommandTriggeredCallback( "+scriptCommand3", ForceCooldownPressed )
+
+
+
+
+
+
+
+
 
 }
 
@@ -361,6 +373,27 @@ void function OnWeaponReload_weapon_mobile_hmg( entity weapon, int milestoneInde
 
 }
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 void function OnAnimEvent_weapon_mobile_hmg( entity weapon, string eventName )
 {
 
@@ -403,8 +436,28 @@ void function OnWeaponZoomFOVToggle_weapon_mobile_hmg( entity weapon, float targ
 void function MobileHMG_RegisterNetworkFunctions()
 {
 	Remote_RegisterServerFunction( "ClientCallback_ToggleMobileHMGPlacementMode" )
-	Remote_RegisterServerFunction( "ClientCallback_ForceCooldown" )
+
+
+
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -698,22 +751,24 @@ void function PlacementModeTogglePressed( entity player )
 		Remote_ServerCallFunction( "ClientCallback_ToggleMobileHMGPlacementMode" )
 }
 
-void function ForceCooldownPressed( entity player )
-{
-	if ( player != GetLocalViewPlayer() )
-		return
 
-	entity activeWeapon = player.GetActiveWeapon( eActiveInventorySlot.mainHand )
-	if ( !IsValid( activeWeapon ) )
-		return
 
-	entity ultWeapon = player.GetOffhandWeapon( OFFHAND_ULTIMATE )
-	entity placementWeapon = player.GetOffhandWeapon( OFFHAND_RIGHT )
-	if( activeWeapon == ultWeapon && ultWeapon.GetWeaponClassName() == MOBILE_HMG_WEAPON_NAME )
-		Remote_ServerCallFunction( "ClientCallback_ForceCooldown" )
-	else if( activeWeapon == placementWeapon && placementWeapon.GetWeaponClassName() == MOUNTED_TURRET_PLACEABLE_WEAPON_NAME )
-		Remote_ServerCallFunction( "ClientCallback_ForceCooldown" )
-}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 float function GetMaxRefundPercentage()

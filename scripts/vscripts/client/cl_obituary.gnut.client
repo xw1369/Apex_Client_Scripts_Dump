@@ -142,10 +142,10 @@ ObitEntityInfo function Obituary_GetEntityInfo( entity ent, int damageSourceId, 
 
 		
 
-			if ( IsRevTakeover() )
-			{
-				info.displayColor = Teams_GetTeamColor( entTeam ) * 255
-			}
+
+
+
+
 
 	}
 

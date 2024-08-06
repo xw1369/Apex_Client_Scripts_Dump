@@ -1,4 +1,3 @@
-
 global function MeleeOctaneKnifeRt01_Init
 
 global function OnWeaponActivate_melee_octane_knife_rt01
@@ -73,4 +72,3 @@ void function OnWeaponDeactivate_melee_octane_knife_rt01( entity weapon )
 
 
 }
-                              

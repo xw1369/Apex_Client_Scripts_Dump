@@ -9,6 +9,10 @@ global function TreasureBox_SecondsUntilNextPickup
 
 void function TreasureBox_SharedInit()
 {
+	
+	if ( !GetPlaylistVar_TreasurePacksEnabled() )
+		return
+
 
 	RegisterCustomItemPromptUpdate( "treasure_box", TreasureBox_UpdateLootRuiWithData )
 
@@ -262,5 +266,10 @@ bool function TreasureBox_PlayerCanPickUpItem( entity player )
 
 	int delta = TreasureBox_SecondsUntilNextPickup( player, quest )
 	return (delta <= 0)
+}
+
+bool function GetPlaylistVar_TreasurePacksEnabled()
+{
+	return GetCurrentPlaylistVarBool( "treasure_packs_enabled", false )
 }
 

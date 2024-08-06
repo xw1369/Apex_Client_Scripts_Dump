@@ -644,7 +644,7 @@ void function ClientCodeCallback_UIScriptResetComplete()
 void function ClientCodeCallback_PerformSelfReport()
 {
 
-	int hardwareID = GetHardwareFromName(GetUnspoofedPlayerHardware())
+	int hardwareID = GetHardwareFromName(GetPlayerHardware())
 	string uid  = GetPlayerUID()
 	string name = GetPlayerName()
 	string eaid = EADP_GetEadpIdFromFirstPartyID(uid, hardwareID)

@@ -23,8 +23,12 @@ global function DEV_BattleSense_ServerCallback_DebugEnd
 
 const string PVAR_BATTLE_SENSE_DISTANCE = "battle_sense_distance"
 const string PVAR_BATTLE_SENSE_ENABLED = "battle_sense_enabled"
+const string PVAR_BATTLE_SENSE_TRACK_SKYDIVE = "battle_sense_track_skydive"
+const string PVAR_BATTLE_SENSE_TRACK_GROUND = "battle_sense_track_ground"
 const float PVAR_BATTLE_SENSE_DISTANCE_DEFAULT = 768.0
 const bool PVAR_BATTLE_SENSE_ENABLED_DEFAULT = false
+const bool PVAR_BATTLE_SENSE_TRACK_SKYDIVE_DEFAULT = true
+const bool PVAR_BATTLE_SENSE_TRACK_GROUND_DEFAULT = true
 
 const string NETFUNC_UPDATE_START = "BattleSense_ServerCallback_UpdateStart"
 const string NETFUNC_UPDATE_END = "BattleSense_ServerCallback_UpdateEnd"
@@ -259,10 +263,20 @@ bool function BattleSense_ShouldBeActivated( entity player )
 	array< entity > allEnemies = GetPlayerArrayOfEnemies_Alive( player.GetTeam() )
 	vector playerPos = player.GetOrigin()
 	float senseDistance = GetPlaylistVar_BattleSenseDistance()
+	bool trackSkydive = GetPlaylistVar_BattleSense_TrackSkydive()
+	bool trackGround = GetPlaylistVar_BattleSense_TrackGround()
 
 	array< entity > nearbyEnemies = GetEntitiesFromArrayNearPos( allEnemies, playerPos, senseDistance )
 
-	return ( nearbyEnemies.len() > 0 )
+	array< entity > filteredNearbyEnemies
+	foreach( entity nearbyPlayer in nearbyEnemies )
+	{
+		bool isSkyDiving = nearbyPlayer.Player_IsSkydiving()
+		if( ( trackSkydive && isSkyDiving ) || ( trackGround && !isSkyDiving ) )
+			filteredNearbyEnemies.append( nearbyPlayer )
+	}
+
+	return ( filteredNearbyEnemies.len() > 0 )
 }
 
 
@@ -361,3 +375,14 @@ bool function IsBattleSenseEnabled()
 {
 	return GetCurrentPlaylistVarBool( PVAR_BATTLE_SENSE_ENABLED, PVAR_BATTLE_SENSE_ENABLED_DEFAULT )
 }
+
+bool function GetPlaylistVar_BattleSense_TrackSkydive()
+{
+	return GetCurrentPlaylistVarBool( PVAR_BATTLE_SENSE_TRACK_SKYDIVE, PVAR_BATTLE_SENSE_TRACK_SKYDIVE_DEFAULT )
+}
+
+bool function GetPlaylistVar_BattleSense_TrackGround()
+{
+	return GetCurrentPlaylistVarBool( PVAR_BATTLE_SENSE_TRACK_GROUND, PVAR_BATTLE_SENSE_TRACK_GROUND_DEFAULT )
+}
+

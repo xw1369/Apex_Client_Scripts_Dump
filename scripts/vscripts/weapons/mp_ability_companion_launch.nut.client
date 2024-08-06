@@ -148,11 +148,11 @@ void function Companion_Launch_Init()
 	
 
 
+	RegisterConCommandTriggeredCallback( "+weaponcycle", AttemptCancelLaunch )
+	RegisterConCommandTriggeredCallback( "+melee", AttemptCancelLaunch )
 
 
-
-
-
+	Remote_RegisterServerFunction( "ClientToServer_AttemptCancelLaunch" )
 
 }
 
@@ -674,7 +674,10 @@ int function CanLaunchToCompanion( entity player, entity companion )
 	}
 
 
-	bool shouldCheckBlocked = GetCurrentPlaylistVarBool( "vantage_los_check_blocked", true )
+	bool shouldCheckBlocked = GetCurrentPlaylistVarBool( "vantage_los_check_blocked", false )
+
+
+
 	if ( shouldCheckBlocked )
 	{
 		

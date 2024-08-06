@@ -17,9 +17,13 @@ global function Waypoint_MarkAsAcknowledgedLocally
 global function Waypoints_RegisterCustomType
 global function Waypoints_GetActiveLootPings
 
+global function Waypoints_CreateMinimapRuis
+global function Waypoints_CleanupMinimapRuis
+
 global function SetWaypointRui_HUD
 
 global function UpdateWaypointRuiVisibility
+global function SetWaypointRuiMaxDrawDistance
 
 global function PlayerIsPingMuted
 global function WaypointOwnerIsMuted
@@ -613,6 +617,11 @@ void function UpdateWaypointRuiVisibility()
 	}
 }
 
+void function SetWaypointRuiMaxDrawDistance( var rui, float maxDrawDistance )
+{
+	if ( RuiIsAlive( rui ) )
+		RuiSetFloat( rui, "maxDrawDistance", maxDrawDistance )
+}
 
 
 bool function ShouldHighlightForPing( entity wp, entity pingedEnt )
@@ -2120,6 +2129,16 @@ void function PingPerkEnt( entity wp )
 		return
 	}
 
+	if ( pingType == ePingType.CAREPACKAGE_INSIGHT || pingType == ePingType.CAREPACKAGE_INSIGHT_LOOTED )
+	{
+		string lootString = wp.GetWaypointString( 0 )
+
+		if ( SURVIVAL_Loot_IsRefValid( lootString ) == false )
+		{
+			return
+		}
+	}
+
 	
 	if ( AllianceProximity_IsUsingAllianceProximity() && !IsPVEMode() )
 	{
@@ -2594,26 +2613,6 @@ void function InstanceLocationPing_Thread( entity wp )
 			break
 
 
-		case ePingType.CAREPACKAGE_INSIGHT_FUTURE:
-			RuiSetString( rui, "promptText", Localize( "#PROMPT_CAREPACKAGE_INSIGHT" ) )
-			RuiSetGameTime( rui, "startTime", Time() )
-			RuiSetFloat( rui, "iconSize", 56.0 )
-			RuiSetFloat( rui, "iconSizePinned", 72.0 )
-			RuiSetBool( rui, "completeADSFade", true )
-			RuiSetBool( rui, "useInactiveScalar", false )
-			RuiSetImage( rui, "animImage", $"" )
-			string lootRef = wp.GetWaypointString( 0 )
-			asset lootIcon = $""
-			if( lootRef != "" )
-			{	LootData ld = SURVIVAL_Loot_GetLootDataByRef( lootRef )
-				lootIcon = ld.hudIcon
-				RuiSetFloat3( rui, "iconColor", SrgbToLinear( GetKeyColor( COLORID_TEXT_LOOT_TIER0, ld.tier ) / 255.0 ) )
-				RuiSetImage( rui, "iconImage", lootIcon )
-			}
-
-			thread SetMaxDrawDistanceOnRuiAfterDelay( rui, wp, 10, 500 )
-			break
-
 		case ePingType.CAREPACKAGE_INSIGHT:
 			RuiSetFloat( rui, "iconSize", 56.0 )
 			RuiSetFloat( rui, "iconSizePinned", 72.0 )
@@ -2680,10 +2679,46 @@ void function InstanceLocationPing_Thread( entity wp )
 
 	}
 
-	if ( IsValid( owner ) && owner.IsPlayer() )
+	bool isObjectiveLocationPing = false
+	if ( IsValid( owner ) )
 	{
-		RuiTrackBool( rui, "ownerIsJumpmaster", owner, RUI_TRACK_SCRIPT_NETWORK_VAR_BOOL, GetNetworkedVariableIndex( "isJumpmaster" ) )
-		RuiTrackInt( rui, "ownerTeamMemberIndex", owner, RUI_TRACK_PLAYER_TEAM_MEMBER_INDEX )
+		if ( owner.IsPlayer() )
+		{
+			RuiTrackBool( rui, "ownerIsJumpmaster", owner, RUI_TRACK_SCRIPT_NETWORK_VAR_BOOL, GetNetworkedVariableIndex( "isJumpmaster" ) )
+			RuiTrackInt( rui, "ownerTeamMemberIndex", owner, RUI_TRACK_PLAYER_TEAM_MEMBER_INDEX )
+		}
+		else if ( owner.GetNetworkedClassName() == PLAYER_WAYPOINT_CLASSNAME )
+		{
+			switch ( owner.GetWaypointType() )
+			{
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+				case eWaypoint.TREASUREHUNT_OBJECTIVE:
+				{
+					isObjectiveLocationPing = true
+					break
+				}
+
+				default:
+				{
+					break
+				}
+			}
+		}
 	}
 
 	RuiTrackBool( rui, "viewPlayerIsOwner", wp, RUI_TRACK_ENT_IS_OWNED_BY_VIEWPLAYER )
@@ -2724,7 +2759,9 @@ void function InstanceLocationPing_Thread( entity wp )
 		RuiSetFloat( rui, "maxDrawDistance", GetCurrentPlaylistVarFloat( "waypoint_max_dist_check_default", 2000.0 ) )
 
 	bool noCreateForMinimap = ((wp.GetWaypointGroupFlags() & WPGF_NO_CREATE_MINIMAP_ICONS) != 0)
-	if ( !noCreateForMinimap && ((ms > ePlayerMatchState.STAGING_AREA) || (pingType == ePingType.MAP_WAYPOINT)) )
+	
+	
+	if ( !isObjectiveLocationPing && !noCreateForMinimap && ((ms > ePlayerMatchState.STAGING_AREA) || (pingType == ePingType.MAP_WAYPOINT)) )
 	{
 		Assert( wp.wp.ruiMinimap == null )
 		wp.wp.ruiMinimap = AddLocationPingToMinimapNoClamp( wp, minimapIcon, MINIMAP_SIZE_BIG, iconScale )
@@ -2783,6 +2820,115 @@ void function InstanceLocationPing_Thread( entity wp )
 			thread AllianceProximity_ManageIconVisibility_Thread( wp, wp.wp.ruiMinimap, false, false )
 			thread AllianceProximity_ManageIconVisibility_Thread( wp, wp.wp.ruiFullmap, true, false )
 		}
+	}
+}
+
+void function Waypoints_CreateMinimapRuis( entity waypoint )
+{
+	if ( !IsValid( waypoint ) )
+		return
+
+	bool noCreateForMinimap = ((waypoint.GetWaypointGroupFlags() & WPGF_NO_CREATE_MINIMAP_ICONS) != 0)
+	if ( noCreateForMinimap )
+		return
+
+	entity owner = waypoint.GetOwner()
+	if ( !IsValid( owner ) )
+	{
+		printt( "Ping has no owner" )
+		return
+	}
+
+	int wpType = waypoint.GetWaypointType()
+	Assert( wpType == eWaypoint.PING_LOCATION || wpType == eWaypoint.BASIC_LOCATION )
+
+	entity viewPlayer = GetLocalViewPlayer()
+	Assert( IsValid( viewPlayer ) )
+	Assert( viewPlayer.GetTeamMemberIndex() >= 0 )
+
+	int pingType = Waypoint_GetPingTypeForWaypoint( waypoint )
+	entity pingedEnt = GetPingedEntForLocWaypoint( waypoint )
+	ItemFlavor ornull pingFlavor = Ping_ItemFlavorForPing( viewPlayer, pingType, pingedEnt )
+
+	asset minimapIcon   = Ping_IconForPing_Minimap( viewPlayer, pingType, pingedEnt, owner )
+	asset fullmapIcon   = Ping_IconForPing_Bigmap( viewPlayer, pingType, pingedEnt, owner )
+	bool iconIsAdditive = Ping_IconForPing_IsAdditive( viewPlayer, pingType, pingedEnt, owner )
+	vector iconScale    = Ping_IconScaleForPing( viewPlayer, pingType, pingedEnt, owner )
+	vector lineColor    = SrgbToLinear( Ping_LineColorForPing_Hud( pingType ) )
+	bool isSameTeam     = (owner.GetTeam() == viewPlayer.GetTeam())
+	int ms 				= PlayerMatchState_GetFor( viewPlayer )
+
+	
+	if ( !isSameTeam && AllianceProximity_ShouldTryToTransmitPingOrIconToAlliance( true, pingType ) )
+	{
+		int viewPlayerAlliance = AllianceProximity_GetAllianceFromTeam( viewPlayer.GetTeam() )
+		if ( viewPlayerAlliance != -1 )
+		{
+			isSameTeam = IsTeamInAlliance( owner.GetTeam(), viewPlayerAlliance )
+		}
+	}
+
+	vector iconColor
+	if ( pingFlavor != null )
+	{
+		expect ItemFlavor( pingFlavor )
+		iconColor = SrgbToLinear( PingFlavor_GetColor( pingFlavor, owner.GetTeamMemberIndex() ) )
+	}
+	else
+	{
+		iconColor = SrgbToLinear( Ping_IconColorForPing_Hud( pingType, isSameTeam ) )
+	}
+
+
+	if ( (ms > ePlayerMatchState.STAGING_AREA) || (pingType == ePingType.MAP_WAYPOINT) )
+	{
+		Assert( waypoint.wp.ruiMinimap == null )
+		waypoint.wp.ruiMinimap = AddLocationPingToMinimapNoClamp( waypoint, minimapIcon, MINIMAP_SIZE_BIG, iconScale )
+		RuiSetFloat3( waypoint.wp.ruiMinimap, "objColor", iconColor )
+		RuiSetBool( waypoint.wp.ruiMinimap, "additive", iconIsAdditive )
+		if ( iconIsAdditive )
+			RuiSetInt( waypoint.wp.ruiMinimap, "lootTier", 1 )
+
+		Assert( waypoint.wp.ruiFullmap == null )
+		waypoint.wp.ruiFullmap = AddLocationPingToFullmap( waypoint, fullmapIcon, FULLMAP_SIZE_BIG, iconScale )
+		RuiSetFloat3( waypoint.wp.ruiFullmap, "objColor", iconColor )
+		RuiSetBool( waypoint.wp.ruiFullmap, "additive", iconIsAdditive )
+		if ( iconIsAdditive )
+			RuiSetInt( waypoint.wp.ruiFullmap, "lootTier", 1 )
+		Fullmap_AddRui( waypoint.wp.ruiFullmap )
+	}
+
+	
+	if ( AllianceProximity_ShouldTryToTransmitPingOrIconToAlliance( true, pingType ) )
+	{
+		
+		if ( pingType != ePingType.PING_CAPTURE_OBJECTIVE_DEFEND && pingType != ePingType.PING_CAPTURE_OBJECTIVE_ATTACK )
+		{
+			thread AllianceProximity_ManageIconVisibility_Thread( waypoint, waypoint.wp.ruiMinimap, false, false )
+			thread AllianceProximity_ManageIconVisibility_Thread( waypoint, waypoint.wp.ruiFullmap, true, false )
+		}
+	}
+}
+
+void function Waypoints_CleanupMinimapRuis( entity waypoint )
+{
+	if ( !IsValid( waypoint ) )
+		return
+
+	
+	if ( null != waypoint.wp.ruiMinimap )
+	{
+		Minimap_CommonCleanup( waypoint.wp.ruiMinimap )
+		RuiDestroyIfAlive( waypoint.wp.ruiMinimap )
+		waypoint.wp.ruiMinimap = null
+	}
+
+	
+	if ( null != waypoint.wp.ruiFullmap )
+	{
+		Fullmap_RemoveRui( waypoint.wp.ruiFullmap )
+		RuiDestroyIfAlive( waypoint.wp.ruiFullmap )
+		waypoint.wp.ruiFullmap = null
 	}
 }
 
@@ -3146,24 +3292,6 @@ array<entity> function Waypoints_GetActiveLootPings()
 {
 	return s_activeLootPings
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

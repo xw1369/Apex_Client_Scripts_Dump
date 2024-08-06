@@ -45,8 +45,21 @@
 
 
 
+
+
+
+
+
+
+
+
+
+
 global function ServerCallback_MonitorCommsMenuUsage
 global function ServerCallback_SetCommsDialogueEnabled
+
+
+
 
 
 const string RESPAWN_CHAMBER_TARGET_NAME = "TrainingRespawnChamber"
@@ -172,9 +185,15 @@ global function Tutorial_TryAction_OpenLootBin2
 global function Tutorial_TryAction_TakeFrag
 global function Tutorial_TryAction_TakeThermite
 global function Tutorial_TryAction_TakeHealth
+
+
+
 global function Tutorial_TryAction_SwapGrenade
 global function Tutorial_TryAction_ThrewGrenade
 global function Tutorial_TryAction_UseHealth
+
+
+
 global function Tutorial_TryAction_PickedUpWeapon
 global function Tutorial_TryAction_PickedUpAmmo
 global function Tutorial_TryAction_ShotTrainingTargets
@@ -211,9 +230,15 @@ struct PlayerTrainingData
 	bool   pickedUpFrag
 	bool   pickedUpThermite
 	bool   pickedUpHealth
+
+
+
 	bool   swappedGrenade
 	bool   usedHealth
 	bool   usedHealthDialoguePlayed
+
+
+
 	bool   threwGrenade
 	bool   threwGrenadeDialoguePlayed
 	bool   shotTrainingTargets
@@ -337,6 +362,15 @@ void function ShSurvivalTraining_Init()
 
 
 
+
+
+
+
+
+
+
+
+
 		AddLocalPlayerFunc( Training_AddPlayer )
 		AddCallback_OnClientScriptInit( OnLocalClientConnected )
 		AddTargetNameCreateCallback( RESPAWN_CHAMBER_TARGET_NAME, RespawnChamberCreated )
@@ -358,6 +392,10 @@ void function RespawnChamberCreated( entity ent )
 void function Training_EntitiesDidLoad()
 {
 	printt( "Training: EntitiesDidLoad" )
+
+
+
+
 
 
 
@@ -475,6 +513,36 @@ bool function IsStagingMU1()
 {
 	return( GetMapName() == "mp_rr_canyonlands_staging_mu1" )
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -2745,6 +2813,243 @@ void function QuitToLobbyDelayed( entity player, float time )
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 void function TrainingDeathBoxCreated( entity ent )
 {
 	if ( ent.GetTargetName() == DEATH_BOX_TARGETNAME_TRAINING )
@@ -3071,6 +3376,23 @@ bool function Tutorial_TryAction_TakeHealth( entity player, InputHint inputHint 
 }
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 bool function Tutorial_TryAction_SwapGrenade( entity player, InputHint inputHint )
 {
 
@@ -3127,6 +3449,29 @@ bool function Tutorial_TryAction_UseHealth( entity player, InputHint inputHint )
 
 	return true
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 bool function Tutorial_TryAction_PickedUpWeapon( entity player, InputHint inputHint )
@@ -3414,6 +3759,13 @@ void function ServerCallback_MonitorCommsMenuUsage_thread( int type )
 	float openMenuDuration = 0.0
 	int menuStyle          = type == 0 ? eCommsMenuStyle.ORDNANCE_MENU : eCommsMenuStyle.PING_MENU
 
+
+
+
+
+
+
+
 	while( IsValid( player ) )
 	{
 		if ( IsCommsMenuActive() && CommsMenu_GetCurrentCommsMenu() == menuStyle )
@@ -3438,6 +3790,32 @@ void function ServerCallback_SetCommsDialogueEnabled( int enabled )
 	else
 		SetCommsDialogueEnabled( false )
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

@@ -510,7 +510,6 @@ void function Dev_Survival_InfoMessageAndCrashDelayed()
 void function SurvivalCommentary_SetStringCallback(string functionref ( int ) stringCallback )
 {
 	file.getCommentaryString = stringCallback
-	printt("SurvivalCommentary_SetStringCallback called - Shicks" )
 }
 
 string function SurvivalCommentary_GetCommentaryString( int infoId )

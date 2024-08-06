@@ -58,6 +58,7 @@ global function ServerToClient_SetClientChargeTime
 
 
 
+
 global function Consumable_IsValidModCommand
 global function Consumable_IsHealthItem
 global function Consumable_IsShieldItem
@@ -79,6 +80,9 @@ global enum eConsumableType
 
 
 	ULTIMATE
+
+
+
 
 	_count
 }
@@ -142,6 +146,9 @@ enum eUseConsumableResult
 	DENY_DEATH_TOTEM,
 
 	DENY_SHIELD_HEAL_DENIED
+
+
+
 
 	DENY_
 	COUNT,
@@ -379,6 +386,20 @@ void function Consumable_Init()
 		file.consumableTypeToInfo[ eConsumableType.ULTIMATE ] <- ultimateBattery
 	}
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 	file.modNameToConsumableType[ "health_small" ] <-        eConsumableType.HEALTH_SMALL
 	file.modNameToConsumableType[ "health_large" ] <-        eConsumableType.HEALTH_LARGE
 	file.modNameToConsumableType[ "shield_small" ] <-        eConsumableType.SHIELD_SMALL
@@ -392,6 +413,9 @@ void function Consumable_Init()
 	file.modNameToConsumableType[ "ultimate_battery" ] <-    eConsumableType.ULTIMATE
 
 	file.modNameToConsumableType[ "ultimate_battery_fast" ] <-    eConsumableType.ULTIMATE
+
+
+
 
 
 
@@ -421,7 +445,10 @@ void function Consumable_Init()
 
 
 
-		AddCallback_OnPassiveChanged( ePassives.PAS_ULT_UPGRADE_ONE, UpgradedUltAccel_PassiveToggle )
+		AddCallback_OnPassiveChanged( ePassives.PAS_ULT_UPGRADE_ONE, UpgradedUltAccel_PassiveToggle )  
+
+		AddCallback_OnPassiveChanged( ePassives.PAS_ULT_ACCEL_CHARGE, UpgradedUltAccel_PassiveToggle ) 
+
 
 }
 
@@ -436,6 +463,16 @@ void function Consumable_Init()
 
 
 
+bool function ShouldHaveFastUltAccel( entity player )
+{
+	bool shouldHaveFastUltAccel = PlayerHasPassive( player, ePassives.PAS_ULT_UPGRADE_ONE) && PlayerHasPassive( player, ePassives.PAS_BATTERY_POWERED )
+
+	shouldHaveFastUltAccel = shouldHaveFastUltAccel || PlayerHasPassive( player, ePassives.PAS_ULT_ACCEL_CHARGE)
+
+
+	return shouldHaveFastUltAccel
+}
+
 void function UpgradedUltAccel_PassiveToggle( entity player, int pas, bool didHave, bool nowHas )
 {
 
@@ -443,7 +480,12 @@ void function UpgradedUltAccel_PassiveToggle( entity player, int pas, bool didHa
 			return
 
 
-	if ( PlayerHasPassive( player, ePassives.PAS_BATTERY_POWERED ) )
+	bool shouldToggleFastUltAccel = ( pas == ePassives.PAS_ULT_UPGRADE_ONE && PlayerHasPassive( player, ePassives.PAS_BATTERY_POWERED ) )
+
+	shouldToggleFastUltAccel = shouldToggleFastUltAccel || pas == ePassives.PAS_ULT_ACCEL_CHARGE
+
+
+	if ( shouldToggleFastUltAccel )
 	{
 		if ( nowHas )
 		{
@@ -472,6 +514,8 @@ void function UpgradedUltAccel_PassiveToggle( entity player, int pas, bool didHa
 		}
 	}
 }
+
+
 
 
 
@@ -677,7 +721,7 @@ void function OnWeaponActivate_Consumable( entity weapon )
 
 		if( file.clientPlayerNextMod == "ultimate_battery" )
 		{
-			if( PlayerHasPassive( weaponOwner, ePassives.PAS_BATTERY_POWERED ) && PlayerHasPassive( weaponOwner, ePassives.PAS_ULT_UPGRADE_ONE ) )
+			if( ShouldHaveFastUltAccel( weapon.GetOwner() ) )
 				file.clientPlayerNextMod = "ultimate_battery_fast"
 		}
 
@@ -851,6 +895,10 @@ void function OnWeaponActivate_Consumable( entity weapon )
 
 
 
+
+
+
+
 		thread Consumable_DisplayProgressBar( weaponOwner, weapon, consumableRecoveryType )
 
 }
@@ -865,6 +913,10 @@ void function OnWeaponDeactivate_Consumable( entity weapon )
 		return
 
 	ConsumablePersistentData useData
+
+
+
+
 
 
 
@@ -1285,6 +1337,11 @@ var function OnWeaponPrimaryAttack_Consumable( entity weapon, WeaponPrimaryAttac
 	{
 		return 1
 	}
+
+
+
+
+
 
 
 
@@ -1839,6 +1896,15 @@ string function GetCanUseResultString( int consumableUseActionResult )
 
 		case eUseConsumableResult.DENY_DEATH_TOTEM:
 			return "#DENY_DEATH_TOTEM"
+
+
+
+
+
+
+
+
+
 		default:
 			return ""
 	}
@@ -2351,6 +2417,16 @@ void function ServerToClient_SetClientChargeTime( int consumableType, float char
 
 
 
+
+
+
+
+
+
+
+
+
+
 bool function Consumable_CanUseUltAccel( entity player , bool checkMinToFire = true )
 {
 	entity ult = player.GetOffhandWeapon( OFFHAND_ULTIMATE )
@@ -2372,8 +2448,10 @@ bool function Consumable_CanUseUltAccel( entity player , bool checkMinToFire = t
 	if ( ult.GetWeaponPrimaryClipCount() == maxClipCount )
 		return false
 
-	if( ult.HasMod( MOBILE_HMG_ACTIVE_MOD ) )
-		return false
+
+
+
+
 
 	return true
 }
@@ -2538,8 +2616,8 @@ int function Consumable_GetConsumableRecoveryType( int consumableType )
 bool function Consumable_CanUseConsumable( entity player, int consumableType, bool printReason = true )
 {
 
-		if ( IsPlayerShadowZombie( player ) )
-			return false
+
+
 
 
 
@@ -2673,9 +2751,20 @@ int function TryUseConsumable( entity player, int consumableType )
 		if ( !ultimateAbility.IsReadyToFire() )
 			return eUseConsumableResult.DENY_ULT_NOTREADY
 
-		if( ultimateAbility.HasMod( MOBILE_HMG_ACTIVE_MOD ) || ultimateAbility.HasMod( ULTIMATE_ACTIVE_MOD_STRING ) )
-			return eUseConsumableResult.DENY_ULT_NOTREADY
+
+			if( ultimateAbility.HasMod( ULTIMATE_ACTIVE_MOD_STRING ) )
+
+
+
+				return eUseConsumableResult.DENY_ULT_NOTREADY
 	}
+
+
+
+
+
+
+
 	else
 	{
 		int currentHealth  = player.GetHealth()
@@ -2700,11 +2789,6 @@ int function TryUseConsumable( entity player, int consumableType )
 					needShield    = needShield || (partnerCurrentShields < partner.GetShieldHealthMax())
 				}
 			}
-
-
-
-
-
 
 
 

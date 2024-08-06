@@ -42,8 +42,12 @@ global function test_itemflavorsdump
 
 
 
+
+
+
 global function test_help
 global function test_tiptext
+
 
 
 
@@ -78,6 +82,7 @@ void function test_init()
 	RegisterSignal("tooManyMoverTestEnd")
 	RegisterSignal("ExecutionTestTriggered")
 	RegisterSignal("ExecutionTestEnded")
+	RegisterSignal("DeathboxTestEnd")
 }
 
 void function test_itemflavorsdump( string filter )
@@ -110,6 +115,128 @@ void function test_itemflavorsdump( string filter )
 	else
 		printt( "Failed to write " + count + " entries to '" + fullPathAndName + "'.  This directory must pre-exist.")
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

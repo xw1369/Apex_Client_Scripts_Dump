@@ -15,6 +15,7 @@ global function GetTeammateAtIndex
 
 global function Cl_Squad_GetTeammates
 global function CL_Squad_GetPlayerInfo
+global function GetSquadmateEHIFromUID
 
 global struct PlayerInfo
 {
@@ -86,13 +87,24 @@ PlayerInfo function CL_Squad_GetPlayerInfo( entity player )
 	info.player = player
 	info.uid = player.GetUserID()
 	info.eaid = player.GetEadpUserIdStr()
-	info.hardware = player.GetUnspoofedHardware()
+	info.hardware = player.GetHardwareName()
 	info.unspoofedUid = player.GetUnspoofedPlatformUserIdStr()
 	info.team = player.GetTeam()
 	info.ehi = ToEHI( player )
 	info.lastTimeActive = Time()
 
 	return info
+}
+
+EHI function GetSquadmateEHIFromUID ( string uid )
+{
+	foreach ( teammate in file.teammates )
+	{
+		if ( uid == teammate.uid )
+			return teammate.ehi
+	}
+
+	return EHI_null
 }
 
 void function UICallback_DestroyAllClientGladCardData()
@@ -309,7 +321,7 @@ void function UICallback_PopulateClientGladCard( var panel, var elem, var muteBu
 				switch ( reportStyle )
 				{
 					case 1: 
-						canReport = CrossplayUserOptIn() ? true : teammateInfo.hardware == GetLocalClientPlayer().GetUnspoofedHardware()
+						canReport = CrossplayUserOptIn() ? true : teammateInfo.hardware == GetLocalClientPlayer().GetHardwareName()
 						break
 
 					case 2: 
@@ -379,7 +391,7 @@ void function UICallback_PopulateClientGladCard( var panel, var elem, var muteBu
 	}
 	else
 	{
-		hardware = player.GetUnspoofedHardware()
+		hardware = player.GetHardwareName()
 	}
 
 	if ( displayType == eGladCardPresentation.FRONT_CLEAN )
@@ -632,7 +644,7 @@ void function UICallback_InviteSquadMate( var button )
 	{
 		expect PlayerInfo( teammateInfo )
 
-		int localHardwareId = GetHardwareFromName( GetLocalClientPlayer().GetUnspoofedHardware() )
+		int localHardwareId = GetHardwareFromName( GetLocalClientPlayer().GetHardwareName() )
 		if ( localHardwareId != GetHardwareFromName( teammateInfo.hardware ) )
 		{
 			RunUIScript( "ClientToUI_InviteToPlayByEAID", teammateInfo.eaid.tostring() )

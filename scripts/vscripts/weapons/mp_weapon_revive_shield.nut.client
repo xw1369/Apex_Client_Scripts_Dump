@@ -9,6 +9,7 @@ global function OnWeaponDeactivate_revive_shield
 global function ReviveShield_GetMaxShieldHealthFromTier
 global function IsEntNewcastleReviver
 global function IsEntNewcastleReviveTarget
+global function IsNewcastleReviveShieldEnt
 
 
 
@@ -30,6 +31,8 @@ global function ServerToClient_RemoveCancelNewcastleReviveHintForPlayer
 
 const bool REVIVE_SHIELD_DEBUG = false
 const bool REVIVE_SHIELD_GIVES_KD_BONUS = true
+
+global const string NEWCASTLE_REVIVE_SHIELD_SCRIPTNAME = "newcastle_revive_shield"
 
 const REVIVE_SHIELD_FX_WALL_FP 							= $"P_NC_down_shield_CP"
 const REVIVE_SHIELD_FX_WALL 							= $"P_NC_down_shield_CP"
@@ -117,6 +120,7 @@ struct
 void function MpWeaponReviveShield_Init()
 {
 	PrecacheWeapon( $"mp_weapon_revive_shield" )
+	PrecacheScriptString( NEWCASTLE_REVIVE_SHIELD_SCRIPTNAME )
 
 	
 	file.isReviveWithKDShieldValue 	= GetCurrentPlaylistVarBool( "axiom_revive_shield_vKDValue", REVIVE_SHIELD_GIVES_KD_BONUS )
@@ -173,6 +177,10 @@ void function MpWeaponReviveShield_Init()
 
 		AddCallback_EditLootDesc( Axiom_EditKnockdownLootDesc )
 
+}
+bool function IsNewcastleReviveShieldEnt( entity ent )
+{
+	return ent.GetScriptName() == NEWCASTLE_REVIVE_SHIELD_SCRIPTNAME
 }
 
 
@@ -598,6 +606,8 @@ void function OnWeaponOwnerChanged_revive_shield( entity weapon, WeaponOwnerChan
 void function OnWeaponActivate_revive_shield( entity weapon )
 {
 	entity weaponOwner = weapon.GetWeaponOwner()
+
+
 
 
 

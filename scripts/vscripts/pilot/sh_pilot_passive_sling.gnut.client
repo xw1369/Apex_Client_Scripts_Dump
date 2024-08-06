@@ -21,6 +21,10 @@ global function IsPlayerSwitchingToSlingWeapon
 
 
 
+
+
+
+
 global function GetSlingPassiveRui
 global function CreateSlingPassiveRui_Internal
 global function DestroySlingPassiveRui
@@ -31,10 +35,17 @@ global function AttemptWeaponSlingSwap
 
 
 global const int SLING_WEAPON_SLOT = WEAPON_INVENTORY_SLOT_PRIMARY_4
+global const int SLING_AKIMBO_WEAPON_SLOT = SLING_WEAPON_SLOT + WEAPON_INVENTORY_SLOT_AKIMBO_START
 global const string SLING_EQUIPMENT_SLOT_NAME = "sling_weapon"
 
 global const string BALLISTIC_SLING_WEAPON_EQIPPED_1P = "Ballistic_Passive_EquipToSling_1P"
 const string BALLISTIC_SLING_EQUIPPING_SLING_WEAPON_1P = "Ballistic_Passive_EquipSling_1P"
+
+global struct PreSlingWeaponData
+{
+	string ref = ""
+	bool wasAkimbo = false
+}
 
 struct
 {
@@ -145,23 +156,28 @@ bool function IsPlayerSwitchingToSlingWeapon( entity player )
 }
 
 
-string function GetSlingWeaponRefForPlayerUpgradeLevel( entity player, string baseWeaponRef )
+string function GetSlingWeaponRefForPlayerUpgradeLevel( entity player, string baseWeaponRef, bool isAkimbo = false )
 {
 	if( !IsValid( player ) )
 		return baseWeaponRef
 
 	string retString = baseWeaponRef
 
+
+		if( isAkimbo )
+			retString += WEAPON_SUFFIX_AKIMBO
+
+
 	if( PlayerHasPassive( player, ePassives.PAS_PAS_UPGRADE_ONE ) )
  	{
 		int curLevel = UpgradeCore_GetPlayerLevel( player )
 	 	if( curLevel >= 2 && SURVIVAL_Loot_IsRefValid( baseWeaponRef + WEAPON_LOCKEDSET_SUFFIX_PURPLESET ) )
 	 	{
-			retString = baseWeaponRef + WEAPON_LOCKEDSET_SUFFIX_PURPLESET
+			retString += WEAPON_LOCKEDSET_SUFFIX_PURPLESET
 	 	}
 	 	else if( curLevel == 1 )
 	 	{
-			retString = baseWeaponRef + WEAPON_LOCKEDSET_SUFFIX_BLUESET
+			retString += WEAPON_LOCKEDSET_SUFFIX_BLUESET
 	 	}
  	}
 	return retString
@@ -196,7 +212,121 @@ void function PassiveSling_OnPassiveChanged( entity player, int passive, bool di
 
 
 
+
+
+
+
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -562,8 +692,8 @@ void function UpdateSlingPassiveRui( entity player )
 
 	if ( IsValid( slingWeapon ) )
 	{
-		string weaponRef = slingWeapon.GetWeaponClassName()
-		LootData data = SURVIVAL_Loot_GetLootDataByRef( weaponRef )
+		string weaponRef = GetWeaponClassNameWithLockedSet( slingWeapon )
+		LootData data = SURVIVAL_GetLootDataFromWeapon( slingWeapon )
 		string ammoTypeRef = GetWeaponAmmoType( weaponRef )
 		asset ammoIcon = $""
 		vector ammoColor = < 1.0, 1.0, 1.0 >

@@ -224,6 +224,10 @@ global enum eLootType
 
 
 
+
+
+
+
 	_count
 }
 
@@ -519,6 +523,14 @@ void function SURVIVAL_Loot_All_InitShared()
 				data.craftingIcon = GetWeaponInfoFileKeyFieldAsset_Global( data.baseWeapon, "crafting_icon" )
 
 
+				
+				if ( IsWeaponKeyFieldDefined( data.baseWeapon, "is_akimbo_weapon" ) && GetWeaponInfoFileKeyField_GlobalBool( data.baseWeapon, "is_akimbo_weapon" ) && data.baseMods.contains( "locked_akimbo" ) )
+				{
+					data.hudIcon = GetWeaponInfoFileKeyFieldAsset_Global( data.baseWeapon, "hud_icon_akimbo_active" )
+				}
+
+
+
 					
 					if ( !OverridePickupModel_Weapon ( data ) )
 					{
@@ -630,8 +642,8 @@ void function SURVIVAL_Loot_All_InitShared()
 				break
 
 			case eLootType.AMMO:
-				data.countPerDrop = int( GetCurrentPlaylistVarFloat( "loot_ammo_scale_per_drop", 1.0 ) * float( data.countPerDrop ) )
-				data.inventorySlotCount = int( GetCurrentPlaylistVarFloat( "inventory_ammo_scale_stacksize", 1.0 ) * float( data.inventorySlotCount ) )
+				data.countPerDrop = GetCurrentPlaylistVarInt( "loot_ammo_per_drop_override_" + data.ref, data.countPerDrop )
+				data.inventorySlotCount = GetCurrentPlaylistVarInt( "inventory_ammo_stacksize_override_" + data.ref, data.inventorySlotCount )
 				break
 
 			case eLootType.ATTACHMENT:
@@ -715,9 +727,9 @@ bool function OverridePickupModel_Weapon ( LootData data )
 	
 
 
-
-
-
+		bool isLockedAkimbo = data.baseMods.contains( WEAPON_LOCKEDSET_MOD_AKIMBO )
+		if ( isLockedAkimbo )
+			return true
 
 
 
@@ -1328,6 +1340,34 @@ void function RemoveCallback_EditLootDesc( string functionref( string, entity, s
 	Assert( file.editLootDescCallbacks.contains( callback ), "Tried to remove a callback that was not added" )
 	file.editLootDescCallbacks.fastremovebyvalue( callback )
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

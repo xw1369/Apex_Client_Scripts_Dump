@@ -574,8 +574,6 @@ void function DisplayRuiForLootVaultPanel_Internal( var rui, asset icon, float s
 
 
 
-
-
 bool function ChargePylon_CanUse( entity user, entity button, int useFlags )
 {
 	if ( Bleedout_IsBleedingOut( user ) )

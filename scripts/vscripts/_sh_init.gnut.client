@@ -141,7 +141,7 @@ void function SV_CL_Init()
 
 		Perks_Init()
 		Perk_BeaconScan_Init()
-		Perk_ExtraBinLoot_Init()
+		Perk_BannerCrafting_Init()
 		Perk_CarePackageInsight_Init()
 		Perk_ExtraFirepower_Init()
 		Perk_KillBoostUlt_Init()
@@ -200,13 +200,16 @@ void function SV_CL_Init()
 	ShBattlepassPurchasableXP_LevelInit()
 	Sh_Boosts_Init()
 
-		ShEventAbilities_Init()
-		ShPassiveLootHighlight_Init()
-		ShPassiveKnockAdrenaline_Init()
-		ShPassiveSquadwipeBoost_Init()
+
+
+
+
 
 	ShMusic_LevelInit()
 	ShBattlePass_LevelInit()
+
+	ShNPP_LevelInit()
+
 
 	ShCups_LevelInit()
 
@@ -239,13 +242,16 @@ void function SV_CL_Init()
 	MeleeSyncedShared_Init()
 	ShArtifacts_LevelInit()
 
+
+
 	AllianceProximity_Init()
 	ShPing_Init()
 	ShQuickchat_Init()
 	ShChallenges_LevelInit_PreStats()
 	Sh_Challenge_Sets_Init()
 
-
+	Sh_Challenge_Tiles_Init()
+	Sh_Narrative_Season_Init()
 
 	AutogenStats_Init()
 	Sh_Kepler_Init()
@@ -290,8 +296,9 @@ void function SV_CL_Init()
 
 
 
-
-
+	Perk_QuickPackup_Init()
+	Perk_RingExpert_Init()
+	Perk_ScoutExpert_Init()
 
 
 
@@ -409,7 +416,7 @@ void function SV_CL_Init()
 	Nessie_Init()
 
 
-		ShAbilityShadowZombie_Init()
+
 
 
 	SURVIVAL_EquipmentSlot_InitShared()
@@ -468,10 +475,7 @@ void function SV_CL_Init()
 
 	
 	CryptoTT_Init()
-
-
-		Wattson_TT_Init()
-
+	Wattson_TT_Init()
 
 
 		Caustic_TT_Init()
@@ -510,6 +514,10 @@ void function SV_CL_Init()
 
 
 
+
+
+
+
 		SpectreShacks_MapInit()
 
 
@@ -534,6 +542,10 @@ void function SV_CL_Init()
 
 		Candy_Init()
 		RevShell_Init()
+
+
+
+		EnemyHealthBar_Init()
 
 
 
@@ -563,7 +575,7 @@ void function SV_CL_Init()
 
 
 
-
+		Sh_Lootbin_Reset_Init()
 
 
 
@@ -595,7 +607,12 @@ void function SV_CL_Init()
 #if DEV
 		SpawnDebugger_Init()
 #endif
+
+	SmokeTest_Shared_Init()
 } 
+
+
+
 
 
 
@@ -991,7 +1008,7 @@ void function Shared_Lobby_Init()
 
 		Perks_Init()
 		Perk_BeaconScan_Init()
-		Perk_ExtraBinLoot_Init()
+		Perk_BannerCrafting_Init()
 		Perk_CarePackageInsight_Init()
 		Perk_ExtraFirepower_Init()
 		Perk_KillBoostUlt_Init()
@@ -1008,7 +1025,9 @@ void function Shared_Lobby_Init()
 
 
 
-
+	Perk_QuickPackup_Init()
+	Perk_RingExpert_Init()
+	Perk_ScoutExpert_Init()
 
 
 
@@ -1049,11 +1068,14 @@ void function Shared_Lobby_Init()
 	ShBattlepassPresaleVoucher_LevelInit()
 	ShBattlepassPurchasableXP_LevelInit()
 
-		ShEventAbilities_Init()
+
 
 	Sh_Boosts_Init()
 	ShMusic_LevelInit()
 	ShBattlePass_LevelInit()
+
+	ShNPP_LevelInit()
+
 
 	ShCups_LevelInit()
 
@@ -1072,12 +1094,16 @@ void function Shared_Lobby_Init()
 	MeleeShared_Init()
 	MeleeSyncedShared_Init()
 	ShArtifacts_LevelInit()
+
+
+
 	ShPing_Init()
 	ShQuickchat_Init()
 	ShChallenges_LevelInit_PreStats()
 	Sh_Challenge_Sets_Init()
 
-
+	Sh_Challenge_Tiles_Init()
+	Sh_Narrative_Season_Init()
 
 	AutogenStats_Init()
 

@@ -19,6 +19,11 @@ global function Perks_GetSettingsInfoForClassRole
 global function Perks_GetSettingsInfoForPerk
 
 
+global function Perks_S22UpdateEnabled
+global function Perks_AllClassesCanScanBeacons
+
+
+
 
 
 
@@ -32,6 +37,10 @@ global function Perks_AddMinimapEntityForPerk
 global function Perks_GetIconForPerk
 global function Perks_GetRoleForPlayer
 global function Perks_AddPerk
+
+
+
+
 
 
 
@@ -81,8 +90,11 @@ global enum ePerkIndex
 
 
 
-
-
+	AMMUVISION,
+	RING_EXPERT,
+	KNOCK_EXPERT,
+	EXPLOSIVE_EXPERT,
+	SCOUT_EXPERT,
 
 
 
@@ -131,8 +143,8 @@ global struct ClassRoleSettingsInfo
 	asset icon
 
 
-
-
+	string classUpgradeName
+	string classUpgradeDescription
 
 }
 
@@ -160,6 +172,9 @@ struct
 	table< int, ClassRoleSettingsInfo >  classRoleToSettingsTable
 	table< int, PerkSettingsInfo  >		 perkToPerkSettingsTable
 	table< int, PerkInfo > 				 perkInfoTable
+
+	table< int, PerkInfo > 				 perkInfoTableReserve
+
 	table< ItemFlavor, int > 		 	 characterToRoleTable
 
 	table< entity, bool > 			  	 worldspacePerkIconVisibility
@@ -252,10 +267,10 @@ void function OnItemFlavorRegistered_Class( ItemFlavor characterClass )
 	}
 
 
-
-
-
-
+	if( Perks_AllClassesCanScanBeacons() && !perks.contains( ePerkIndex.BEACON_SCAN ) )
+	{
+		perks.append( ePerkIndex.BEACON_SCAN )
+	}
 
 
 	ClassRoleSettingsInfo settingsInfo
@@ -272,8 +287,8 @@ void function OnItemFlavorRegistered_Class( ItemFlavor characterClass )
 	settingsInfo.uiColor = color
 
 
-
-
+	settingsInfo.classUpgradeDescription = GetGlobalSettingsString( classAsset, "localizationKey_DESCRIPTION_LONG" )
+	settingsInfo.classUpgradeName = GetGlobalSettingsString( classAsset, "localizationKey_NAME_SHORT" )
 
 
 
@@ -319,8 +334,15 @@ PerkSettingsInfo function Perks_GetSettingsInfoForPerk( int perk )
 }
 
 
+bool function Perks_S22UpdateEnabled()
+{
+	return GetCurrentPlaylistVarBool( "perks_s22_update_enabled", true )
+}
 
-
+bool function Perks_AllClassesCanScanBeacons()
+{
+	return GetCurrentPlaylistVarBool( "perks_all_classes_can_scan_beacons", false )
+}
 
 
 
@@ -438,10 +460,11 @@ void function OnPlayerClassChanged( entity player )
 	{
 		if ( activePerkIndex > ePerkIndex.INVALID && activePerkIndex < ePerkIndex.COUNT )
 		{
-			Assert( activePerkIndex in file.perkInfoTable, "Trying to deactivate a perk that doesn't exist in the table, ID = " + activePerkIndex )
-
-			if ( file.perkInfoTable[ activePerkIndex ].deactivateCallback != null )
-				file.perkInfoTable[ activePerkIndex ].deactivateCallback( player )
+			if ( activePerkIndex in file.perkInfoTable )
+			{
+				if ( file.perkInfoTable[ activePerkIndex ].deactivateCallback != null )
+					file.perkInfoTable[ activePerkIndex ].deactivateCallback( player )
+			}
 		}
 	}
 
@@ -475,9 +498,12 @@ void function ApplyPerkWhenCharacterFlavorIsKnown( entity player, EHI playerEHI,
 		player.p.activePerks = clone( perks )
 		foreach ( int perkIndex in perks )
 		{
-			PerkInfo perk = file.perkInfoTable[perkIndex]
-			if ( perk.activateCallback != null )
-				perk.activateCallback( player, characterName )
+			if ( perkIndex in file.perkInfoTable )
+			{
+				PerkInfo perk = file.perkInfoTable[perkIndex]
+				if ( perk.activateCallback != null )
+					perk.activateCallback( player, characterName )
+			}
 		}
 	}
 
@@ -532,8 +558,8 @@ bool function Perks_DoesPlayerHavePerk( entity player, int perkIndex )
 		return false
 
 
-		if ( IsPlayerShadowZombie( player ) )
-			return false
+
+
 
 
 	return player.p.activePerks.contains( perkIndex )
@@ -558,6 +584,9 @@ bool function Perks_IsPerkReady( entity player, int perkIndex )
 
 void function Perks_AddMinimapEntityForPerk( int perkId, entity ent )
 {
+	if ( !( perkId in file.perkInfoTable ) )
+		return
+
 	file.perkInfoTable[perkId].minimapEntities.append( ent )
 
 
@@ -616,6 +645,41 @@ int function GetPingTypeForEntity( entity ent )
 	}
 	return -1
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -869,7 +933,11 @@ void function ServerToClient_HidePerkPropMinimapVisibility( entity prop, int per
 	if( !IsValid( prop ) )
 		return
 	prop.Signal( "HidePerkMinimapVisibility" )
-	file.perkInfoTable[perkId].minimapEntities.fastremovebyvalue(prop)
+
+
+		if( !LootbinReset_AllowPerkBinReuse_Enabled() )
+
+		file.perkInfoTable[perkId].minimapEntities.fastremovebyvalue(prop)
 }
 
 void function Perks_UpdatePerkPropMinimapVisibility( entity player )

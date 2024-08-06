@@ -2279,8 +2279,6 @@ vector arcCornerIn, float arcRadius, float arcStartAng, float arcEndAng )
 
 
 
-
-
 bool function ShDoors_IsDoorGoalToOpen( entity door )
 {
 	if ( door.GetNetworkedClassName() != "door_mover" )

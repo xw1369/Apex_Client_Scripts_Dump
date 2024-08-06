@@ -127,6 +127,9 @@ const table<string, asset> CUSTOM_VARIANT_ROTATIONS_DATATABLE = {
 		[ "SWAT" ] = $"datatable/gamemode_tdm_swat_loadout_rotations.rpak",
 		[ "SHOTTYSNIPERS" ] = $"datatable/gamemode_tdm_shottysnipers_loadout_rotations.rpak",
 
+
+	[ "AKIMBO_LMG" ] = $"datatable/loadouts/loadoutselection_loadout_rotations_akimbo_lmg.rpak",
+
 }
 
 const table<string, asset> CUSTOM_VARIANT_LOADOUTS_DATATABLE = {
@@ -137,6 +140,9 @@ const table<string, asset> CUSTOM_VARIANT_LOADOUTS_DATATABLE = {
 		[ "TDM" ] = $"datatable/gamemode_tdm_selectable_loadouts.rpak",
 		[ "SWAT" ] = $"datatable/gamemode_tdm_swat_selectable_loadouts.rpak",
 		[ "SHOTTYSNIPERS" ] = $"datatable/gamemode_tdm_shottysnipers_selectable_loadouts.rpak",
+
+
+	[ "AKIMBO_LMG" ] = $"datatable/loadouts/loadoutselection_selectable_loadouts_akimbo_lmg.rpak",
 
 }
 
@@ -353,6 +359,7 @@ void function LoadoutSelection_SetDatatableAssets()
 
 		if ( GameModeVariant_IsActive( eGameModeVariants.SURVIVAL_WINTEREXPRESS ) )
 		{
+			Assert( HasCustomLoadoutDefined( "WINTER_EXPRESS" ), "WINTER_EXPRESS custom loadout is not defined" )
 			file.rotationsDatatable = GetCustomLoadoutRotationsDatatable_Asset( "WINTER_EXPRESS" )
 			file.loadoutsDatatable = GetCustomLoadoutDatatable_Asset( "WINTER_EXPRESS" )
 		}
@@ -364,13 +371,22 @@ void function LoadoutSelection_SetDatatableAssets()
 		string customLoadoutName = GetCustomLoadoutName()
 		if ( customLoadoutName != "" )
 		{
-			asset customLoadoutRotation = GetCustomLoadoutRotationsDatatable_Asset( customLoadoutName )
-			asset customLoadout = GetCustomLoadoutDatatable_Asset( customLoadoutName )
-			file.rotationsDatatable = GetCustomLoadoutRotationsDatatable_Asset( customLoadoutName )
-			file.loadoutsDatatable = GetCustomLoadoutDatatable_Asset( customLoadoutName )
+			if ( HasCustomLoadoutDefined( customLoadoutName ) )
+			{
+				asset customLoadoutRotation = GetCustomLoadoutRotationsDatatable_Asset( customLoadoutName )
+				asset customLoadout = GetCustomLoadoutDatatable_Asset( customLoadoutName )
+				file.rotationsDatatable = GetCustomLoadoutRotationsDatatable_Asset( customLoadoutName )
+				file.loadoutsDatatable = GetCustomLoadoutDatatable_Asset( customLoadoutName )
+			}
+			else
+				Warning( customLoadoutName + " custom loadout is not defined" )
 		}
 	}
 
+}
+
+bool function HasCustomLoadoutDefined ( string customName ) {
+	return customName in CUSTOM_VARIANT_ROTATIONS_DATATABLE && customName in CUSTOM_VARIANT_LOADOUTS_DATATABLE
 }
 
 asset function GetCustomLoadoutRotationsDatatable_Asset( string customName ) {
@@ -1216,8 +1232,8 @@ bool function ModeUsesLoadoutWeapons()
 
 
 
-	if ( GameModeVariant_IsActive( eGameModeVariants.SURVIVAL_SHADOW_ARMY ) )
-		return true
+
+
 
 
 	return false

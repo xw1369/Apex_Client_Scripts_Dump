@@ -1,0 +1,246 @@
+
+global function EnemyAssistHighlight_Init
+global function IsEnemyAssistHighlightEnabled
+
+
+global function ManageHighlightOtherPlayers
+global function SetEnemyHighLightOnOff
+global function GetEnemyAssistFarFadeDistance
+global function EnemyAssistHighlight_SV2CL_ManageHighlightOtherPlayers
+global function GetAlwaysOnHighlightRadius
+#if DEV
+global function DEV_EnemyAssistHighlight_EnableDebugDraw
+global function DEV_SetEnemyDistanceWeight
+global function DEV_SetEnemyFOVWeight
+global function DEV_SetFOVScaleFactor
+#endif
+
+global const MAX_ENEMIES_TO_HIGHLIGHT = 10
+
+
+struct
+{
+
+	int defaultNumEnemiesToHighlight = 5
+	float defaultEnemyAssistHighlightFarFadeDistance = 30.0 * METERS_TO_INCHES
+	float enemyDistanceWeight = 1.0
+	float enemyFOVWeight = 0.5
+	float fovScaleFactor = 1.3 
+	float defaultHighLightRadius = 1.5
+
+#if DEV
+	bool debugDrawEnemyScore = false
+#endif
+
+
+} file
+
+void function EnemyAssistHighlight_Init()
+{
+	Remote_RegisterClientFunction( "EnemyAssistHighlight_SV2CL_ManageHighlightOtherPlayers" )
+
+		AddCreateCallback( "player", OnPlayerCreated )
+		AddCallback_OnPlayerChangedTeam( OnPlayerChangedTeam )
+		RegisterSignal( "EndEnemyAssistHighlightThread" )
+		file.defaultHighLightRadius = GetCurrentPlaylistVarFloat( "enemy_assist_highlight_radius", file.defaultHighLightRadius )
+		InitHighlightRadius()
+
+}
+
+bool function IsEnemyAssistHighlightEnabled()
+{
+	bool highlightDisabled = GetCurrentPlaylistVarBool( "always_on_highlight_disable", false )
+	return !highlightDisabled && GetConVarBool( "hud_setting_showEnemyHighlight" )
+}
+
+
+void function SetEnemyHighLightOnOff( string OnOff )
+{
+	entity player = GetLocalViewPlayer()
+	if ( !IsValid( player ) )
+		return
+
+	if ( OnOff == "Off" )
+	{
+		Signal( player, "EndEnemyAssistHighlightThread" )
+		ManageHighlightOtherPlayers( player )
+	}
+	else if ( OnOff == "On" )
+	{
+		Signal( player, "EndEnemyAssistHighlightThread" )
+		thread EnemyAssistHighlight_MainThread( player )
+		ManageHighlightOtherPlayers( player )
+	}
+}
+
+void function OnPlayerCreated( entity player )
+{
+	if 	( !IsValid( player ) || player != GetLocalViewPlayer() )
+		return
+
+	if ( IsEnemyAssistHighlightEnabled() )
+		thread EnemyAssistHighlight_MainThread( player )
+}
+
+void function OnPlayerChangedTeam( entity player, int oldTeam, int newTeam)
+{
+	if ( !IsValid( player ) || oldTeam == newTeam )
+		return
+
+	if ( player != GetLocalViewPlayer() )
+		ManageHighlightEntity( player )
+	else
+		ManageHighlightOtherPlayers( player )
+}
+
+void function ManageHighlightOtherPlayers( entity player )
+{
+	array<entity> players = GetPlayerArray_Alive()
+	players.extend( GetPlayerDecoyArray() )
+	foreach ( entity ent in players )
+	{
+		if( !IsValid( ent ) || ent == player )
+			continue
+		ManageHighlightEntity( ent )
+	}
+}
+
+void function EnemyAssistHighlight_SV2CL_ManageHighlightOtherPlayers()
+{
+	entity player = GetLocalViewPlayer()
+	if ( IsValid( player ) )
+		ManageHighlightOtherPlayers( player )
+}
+
+void function EnemyAssistHighlight_MainThread( entity player )
+{
+	if ( !IsValid( player ) || !player.IsPlayer() )
+		return
+
+	Signal( player, "EndEnemyAssistHighlightThread" )
+	EndSignal( player, "EndEnemyAssistHighlightThread" )
+	EndSignal( player, "OnDestroy" )
+
+	float maxEnemyDistance = GetEnemyAssistFarFadeDistance()
+	int maxEnemiesHighlighted = minint( MAX_ENEMIES_TO_HIGHLIGHT, GetCurrentPlaylistVarInt("enemy_assist_highlight_num_enemies", file.defaultNumEnemiesToHighlight) )
+
+	while ( true )
+	{
+		if ( !IsValid( player ) )
+			return
+
+		float scalar = GetFovScalar( player )
+		Assert( scalar > 0 )
+		float playerFOV = DEG_TO_RAD * player.GetDefaultFOV() * file.fovScaleFactor / scalar;
+
+		
+		
+		array<EnemyDotDistanceSqrStruct> enemiesDotDistSqr = GetArrayOfEnemies_ScoredByDistanceAndFOV(
+																	  player,
+																	  playerFOV,
+																	  maxEnemyDistance,
+																	  file.enemyDistanceWeight,
+																	  file.enemyFOVWeight,
+																	  true,   
+																	  true    
+																	  )
+
+		int numEnemiesHighlighted = 0
+
+		for ( int i = 0; i < enemiesDotDistSqr.len() ; i++  )
+		{
+			entity enemy = enemiesDotDistSqr[i].enemy
+			if ( !IsValid( enemy ) )
+				continue
+
+			float enemyScore = enemiesDotDistSqr[i].score   
+#if DEV
+				if ( file.debugDrawEnemyScore )
+					DEV_EnemyAssistHighlight_DebugDrawScore( enemiesDotDistSqr[i] )
+#endif
+			if (  numEnemiesHighlighted >= maxEnemiesHighlighted || enemyScore < 0.0 )
+			{
+				for ( ; i < enemiesDotDistSqr.len(); i++ )
+					enemiesDotDistSqr[i].enemy.Highlight_SetFlag( HIGHLIGHT_FLAG_CULL_ENTITY, true )
+				break
+			}
+
+			if ( Bleedout_IsBleedingOut( enemy ) )  
+			{
+				enemy.Highlight_SetFlag( HIGHLIGHT_FLAG_CULL_ENTITY, true )
+				continue
+			}
+
+			
+			if ( !enemy.Highlight_GetFlag( HIGHLIGHT_FLAG_PASSED_VISIBILITY_TEST ) )
+			{
+				enemy.Highlight_SetFlag( HIGHLIGHT_FLAG_CULL_ENTITY, true )
+				continue
+			}
+
+			enemy.Highlight_SetFlag( HIGHLIGHT_FLAG_CULL_ENTITY, false )
+			numEnemiesHighlighted += 1
+		}
+		wait 0.1
+	}
+}
+
+float function GetEnemyAssistFarFadeDistance()  
+{
+	return GetCurrentPlaylistVarFloat( "enemy_assist_highlight_far_fade_distance", file.defaultEnemyAssistHighlightFarFadeDistance )
+}
+
+float function GetAlwaysOnHighlightRadius()
+{
+	return file.defaultHighLightRadius
+}
+
+void function InitHighlightRadius()
+{
+	int contextId = HighlightContext_GetId( "always_on_enemy_assist" )
+	if ( contextId == HIGHLIGHT_INVALID_ID )
+		return
+	HighlightContext_SetParam( contextId, 1, < 85, GetAlwaysOnHighlightRadius(), 0 > )
+}
+
+#if DEV
+void function DEV_SetEnemyDistanceWeight( float weight )
+{
+	file.enemyDistanceWeight = weight
+}
+
+void function DEV_SetEnemyFOVWeight( float weight )
+{
+	file.enemyFOVWeight = weight
+}
+
+void function DEV_EnemyAssistHighlight_EnableDebugDraw( bool val )
+{
+	file.debugDrawEnemyScore = val
+}
+
+void function DEV_EnemyAssistHighlight_DebugDrawScore( EnemyDotDistanceSqrStruct enemyStruct )
+{
+	if ( !IsValid( enemyStruct.enemy ) )
+		return
+
+	float maxDistanceSqr = GetEnemyAssistFarFadeDistance() * GetEnemyAssistFarFadeDistance()
+	if ( enemyStruct.score < 0.0 )
+		return
+
+	string distStr = "dist [" + file.enemyDistanceWeight + "]: " + ( 1.0 - ( enemyStruct.distanceSqr / maxDistanceSqr ) ) + "\n"
+	string cosStr = "cos [" + file.enemyFOVWeight + "]: " + enemyStruct.viewCos + "\n"
+	string scoreStr = "score: "	+ enemyStruct.score
+
+	DebugDrawText( enemyStruct.enemy.GetOrigin() + < 0.0, 0.0, 100.0 >, distStr + cosStr + scoreStr, true, 0.3 )
+}
+
+void function DEV_SetFOVScaleFactor( float scale )
+{
+	file.fovScaleFactor = scale
+}
+#endif
+
+
+
+                                 

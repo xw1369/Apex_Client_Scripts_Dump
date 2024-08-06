@@ -399,11 +399,25 @@ void function DamageFlyout( float damageAmount, vector damagePosition, entity vi
 	{
 		entity shieldOwner = victim.GetOwner()
 
-		if ( IsAmpedWallEnt( victim ) )
+		if ( IsAmpedWallEnt( victim ) || IsMobileShieldEnt( victim ) || IsCastleWallEnt( victim ) )
 		{
 			shieldIcon = $""
 			shieldLevel = 1
 			shieldFrac = isKillShot ? 0.0 : max( 0, ( victim.GetHealth() - damageAmount ) / victim.GetMaxHealth() )
+		}
+
+		else if ( IsLGMGunShieldEnt( victim ) )
+		{
+			shieldIcon = $""
+			shieldLevel = 1
+			shieldFrac = isKillShot ? 0.0 : max( 0, ( victim.GetHealth() - damageAmount ) / HopupGunshield_ShieldHealth() )
+		}
+
+		else if ( IsNewcastleReviveShieldEnt( victim ))
+		{
+			shieldIcon = $""
+			shieldLevel = IncapShield_GetShieldTier( shieldOwner )
+			shieldFrac = isKillShot ? 0.0 : max( 0, ( victim.GetHealth() - damageAmount ) / ReviveShield_GetMaxShieldHealthFromTier( shieldLevel, shieldOwner ) )
 		}
 
 		else if ( IsRedeployBalloonEnt( victim ) )
@@ -413,33 +427,36 @@ void function DamageFlyout( float damageAmount, vector damagePosition, entity vi
 			isStructure = true
 		}
 
-		else if ( IsMobileShieldEnt( victim ) )
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+		else if (IsGibraltarGunShieldEnt( victim ))
 		{
-			shieldIcon = $""
-			shieldLevel = 1
-			shieldFrac = isKillShot ? 0.0 : max( 0, ( victim.GetHealth() - damageAmount ) / victim.GetMaxHealth() )
+					shieldIcon = $""
+					shieldLevel = 1
+					shieldFrac = isKillShot ? 0.0 : max( 0, (shieldOwner.GetSharedEnergyCount() - damageAmount) / shieldOwner.GetSharedEnergyTotal())
 		}
-		else if ( IsCastleWallEnt( victim ) )
-		{
-			shieldIcon = $""
-			shieldLevel = 1
-			shieldFrac = isKillShot ? 0.0 : max( 0, ( victim.GetHealth() - damageAmount ) / victim.GetMaxHealth() )
-		}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 		else if ( IsForgedShadowsShield( victim ) )
 		{
@@ -447,14 +464,6 @@ void function DamageFlyout( float damageAmount, vector damagePosition, entity vi
 			shieldIcon = $""
 			shieldFrac = isKillShot ? 0.0 : max( 0, ( victim.GetHealth() - damageAmount ) / victim.GetMaxHealth() )
 		}
-
-
-
-
-
-
-
-
 		else
 		{
 			if ( IsValid( shieldOwner ) && shieldOwner.IsPlayer() )
@@ -462,8 +471,9 @@ void function DamageFlyout( float damageAmount, vector damagePosition, entity vi
 				if ( Bleedout_IsBleedingOut( shieldOwner ) )
 				{
 					LootData shieldData = EquipmentSlot_GetEquippedLootDataForSlot( shieldOwner, "incapshield" )
-					shieldIcon = shieldData.hudIcon
+					shieldIcon = $""
 					shieldLevel = shieldData.tier
+					shieldFrac = isKillShot ? 0.0 : max( 0, ( victim.GetHealth() - damageAmount ) / float( IncapShield_GetMaxShieldHealthFromTier( IncapShield_GetShieldTier( shieldOwner ) ) ) )
 				}
 				else
 				{
@@ -546,16 +556,33 @@ void function DamageFlyout( float damageAmount, vector damagePosition, entity vi
 
 		if( isExtraShieldShot )
 		{
-			vector armorColor = GetFXRarityColorForTier( GetPlayerExtraShieldsTier( victim ) ) / 255.0
+			int extraShieldTier = maxint( GetPlayerExtraShieldsTier( victim ), UpgradeCore_GetPlayerArmorTier( victim ) + 1 )
+			vector armorColor = GetFXRarityColorForTier( extraShieldTier ) / 255.0
 			RuiSetImage( rui, "shieldBorderIcon", $"rui/hud/gametype_icons/survival/sur_armor_icon" )
 			RuiSetColorAlpha( rui, "shieldBorderColor", armorColor, 1.0 )
 		}
 
-
-
-
-
-
+		else if( victim.IsPlayer() && victim.GetMaxHealth() > 100 && shieldIcon == $"" )
+		{
+			RuiSetImage( rui, "shieldBorderIcon", $"rui/hud/gametype_icons/survival/assault_outline" )
+			RuiSetColorAlpha( rui, "shieldBorderColor", <1.0, 0.0, 0.0>, 1.0 )
+		}
+		else if( StatusEffect_HasSeverity( victim, eStatusEffect.structure_damage_mitigation ) )
+		{
+			int armorTier = UpgradeCore_GetPlayerArmorTier( victim )
+			int shieldMaxHealth = EvolvingArmor_GetCharacterShieldHealthMaxForArmorTier( victim, armorTier )
+			if( victim.GetShieldHealth() > shieldMaxHealth )
+			{
+				int extraShieldTier = maxint( GetPlayerExtraShieldsTier( victim ), UpgradeCore_GetPlayerArmorTier( victim ) + 1 )
+				vector armorColor = GetFXRarityColorForTier( extraShieldTier ) / 255.0
+				RuiSetImage( rui, "shieldBorderIcon", $"rui/hud/gametype_icons/survival/sur_armor_icon" )
+				RuiSetColorAlpha( rui, "shieldBorderColor", armorColor, 1.0 )
+			}
+			else
+			{
+				RuiSetColorAlpha( rui, "shieldBorderColor", <0.0,0.0,0.0>, 0.0 )
+			}
+		}
 
 		else
 		{
@@ -598,16 +625,7 @@ void function DamageFlyout( float damageAmount, vector damagePosition, entity vi
 		flyoutData.viewEntity = GetLocalViewPlayer()
 	}
 
-	float distance = Distance( victim.GetOrigin(), GetLocalViewPlayer().EyePosition() )
-	vector damageFlyoutDisplayPosition = GraphCappedVector( distance, 0, 256, victim.GetWorldSpaceCenter(), victim.GetOrigin() + <0, 0, victim.GetBoundingMaxs().z> )
-
-	if ( victim.GetScriptName() in file.modifyDamageFlyoutForScriptNameCallbacks )
-	{
-		vector functionref( entity, vector ) func = file.modifyDamageFlyoutForScriptNameCallbacks[ victim.GetScriptName() ]
-		damageFlyoutDisplayPosition = func( victim, damageFlyoutDisplayPosition )
-	}
-
-	vector damageTextOffset = <0, -0.015, 0>
+	vector damageTextOffset = <-0.06, -0.02, 0>
 
 	if ( flyoutData.lastDamageFlyoutTime == Time() )
 		flyoutData.damageThisFrame += int( damageAmount )
@@ -627,7 +645,8 @@ void function DamageFlyout( float damageAmount, vector damagePosition, entity vi
 			stackingRui = flyoutData.stackingDamageRui
 		}
 
-		RuiSetFloat3( stackingRui, "pos", damageFlyoutDisplayPosition )
+		RuiKeepSortKeyUpdated( stackingRui, true, "pos" )
+		RuiTrackFloat3( stackingRui, "pos", victim, RUI_TRACK_OVERHEAD_FOLLOW )
 		RuiSetGameTime( stackingRui, "startTime", Time() )
 		RuiSetFloat( stackingRui, "duration", FDT_DURATION )
 		RuiSetFloat( stackingRui, "damageAmount", flyoutData.lastDamageFlyoutDamage + damageAmount )
@@ -638,6 +657,10 @@ void function DamageFlyout( float damageAmount, vector damagePosition, entity vi
 		RuiSetFloat( stackingRui, "shieldFrac", shieldFrac )
 		RuiSetBool( stackingRui, "isCrit", isHeadShot || isCritShot )
 		RuiSetBool( stackingRui, "isSour", isSourShot )
+
+		if ( victim.IsPlayer() && victim.GetPlayerSettingsMods().contains( "targetinfo_ffa_squad" ) )
+			RuiSetFloat( stackingRui, "yOffset", -30 )
+
 		
 		
 		if ( isShieldBreak )
@@ -650,16 +673,33 @@ void function DamageFlyout( float damageAmount, vector damagePosition, entity vi
 
 		if( isExtraShieldShot )
 		{
+			int extraShieldTier = maxint( GetPlayerExtraShieldsTier( victim ), UpgradeCore_GetPlayerArmorTier( victim ) + 1 )
 			RuiSetImage( stackingRui, "shieldBorderIcon", $"rui/hud/gametype_icons/survival/sur_armor_icon" )
-			vector armorColor = GetFXRarityColorForTier( GetPlayerExtraShieldsTier( victim ) ) / 255.0
+			vector armorColor = GetFXRarityColorForTier(  extraShieldTier ) / 255.0
 			RuiSetColorAlpha( stackingRui, "shieldBorderColor", armorColor, 1.0 )
 		}
 
-
-
-
-
-
+		else if( victim.IsPlayer() && victim.GetMaxHealth() > 100 && shieldIcon == $"" )
+		{
+			RuiSetImage( stackingRui, "shieldBorderIcon", $"rui/hud/gametype_icons/survival/assault_outline" )
+			RuiSetColorAlpha( stackingRui, "shieldBorderColor", <1.0, 0.0, 0.0>, 1.0 )
+		}
+		else if( StatusEffect_HasSeverity( victim, eStatusEffect.structure_damage_mitigation ) )
+		{
+			int armorTier = UpgradeCore_GetPlayerArmorTier( victim )
+			int shieldMaxHealth = EvolvingArmor_GetCharacterShieldHealthMaxForArmorTier( victim, armorTier )
+			if( victim.GetShieldHealth() > shieldMaxHealth )
+			{
+				int extraShieldTier = maxint( GetPlayerExtraShieldsTier( victim ), UpgradeCore_GetPlayerArmorTier( victim ) + 1 )
+				vector armorColor = GetFXRarityColorForTier( extraShieldTier ) / 255.0
+				RuiSetImage( stackingRui, "shieldBorderIcon", $"rui/hud/gametype_icons/survival/sur_armor_icon" )
+				RuiSetColorAlpha( stackingRui, "shieldBorderColor", armorColor, 1.0 )
+			}
+			else
+			{
+				RuiSetColorAlpha( stackingRui, "shieldBorderColor", <0.0,0.0,0.0>, 0.0 )
+			}
+		}
 
 		else
 		{
@@ -714,7 +754,8 @@ void function DamageFlyout( float damageAmount, vector damagePosition, entity vi
 			RuiSetGameTime( floatingRui, "startTime", Time() )
 			RuiSetFloat( floatingRui, "duration", FDT_DURATION )
 			RuiSetFloat( floatingRui, "damageAmount", damageAmount )
-			RuiSetFloat3( floatingRui, "pos", damageFlyoutDisplayPosition )
+			RuiKeepSortKeyUpdated( floatingRui, true, "pos" )
+			RuiTrackFloat3( floatingRui, "pos", victim, RUI_TRACK_OVERHEAD_FOLLOW )
 			RuiSetFloat2( floatingRui, "offset", damageTextOffset )
 			RuiSetImage( floatingRui, "shieldIcon", shieldIcon )
 			RuiSetInt( floatingRui, "shieldTier", shieldLevel )
@@ -728,6 +769,9 @@ void function DamageFlyout( float damageAmount, vector damagePosition, entity vi
 
 
 			RuiSetBool( floatingRui, "isShadowForm", isShadowForm )
+
+			if (victim.IsPlayer() && victim.GetPlayerSettingsMods().contains( "targetinfo_ffa_squad" ) )
+				RuiSetFloat( floatingRui, "yOffset", -30 )
 
 
 				if ( isCritShot && isHeadShot && GoldenHorsePurple_HasMod( weapon ) )

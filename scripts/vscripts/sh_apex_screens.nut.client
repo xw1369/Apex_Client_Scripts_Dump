@@ -275,6 +275,8 @@ struct {
 
 		table< int, ScreenOverrideInfo > eventScreenOverrideByScreenPosTable
 
+		float gladcards_update_delay_range
+
 } file
 
 
@@ -400,6 +402,10 @@ void function ShApexScreens_Init()
 		RegisterSignal( "ScreenOff" )
 
 		AddCallback_OnStaticPropRUICreated( ClientStaticPropRUICreated )
+
+
+
+		file.gladcards_update_delay_range = GetConVarFloat("gladcards_update_delay_range")
 
 
 	
@@ -1360,6 +1366,21 @@ void function UpdateScreensContent( array<ApexScreenState> screenList )
 
 		dscd.lifestateOverride = lifestateOverride
 		delayedData.append( dscd )
+	}
+
+	
+	
+	
+	
+	if (delayedData.len() > 5 && file.gladcards_update_delay_range > 0)
+	{
+		int lastIndex = delayedData.len() - 1;
+		for (int x = 0; x <= lastIndex; ++x )
+		{
+			DelayedScreenContentData dscd = delayedData [x]
+			float offsetForSpread = (file.gladcards_update_delay_range * x) / lastIndex;
+			dscd.modeChangeTime += offsetForSpread
+		}
 	}
 
 	thread (void function() : (delayedData) {

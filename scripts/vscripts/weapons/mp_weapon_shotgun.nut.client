@@ -2,18 +2,21 @@ global function MpWeaponShotgun_Init
 global function OnWeaponActivate_weapon_shotgun
 global function OnWeaponDeactivate_weapon_shotgun
 global function OnWeaponPrimaryAttack_weapon_shotgun
+global function OnWeaponReload_weapon_shotgun
 
 
 
 global function OnProjectileCollision_weapon_shotgun
+
+const string EVA8_CLASS_NAME = "mp_weapon_shotgun"
 
 void function MpWeaponShotgun_Init()
 {
 
 
 
-	AddCallback_OnPlayerAddWeaponMod( OnPlayerChangeWeaponMod )
-	AddCallback_OnPlayerRemoveWeaponMod( OnPlayerChangeWeaponMod )
+	AddCallback_OnPlayerAddedToggleWeaponMod( OnPlayerChangeToggleWeaponMod_Shotgun )
+	AddCallback_OnPlayerRemovedToggleWeaponMod( OnPlayerChangeToggleWeaponMod_Shotgun )
 }
 
 void function OnWeaponActivate_weapon_shotgun( entity weapon )
@@ -25,6 +28,22 @@ void function OnWeaponActivate_weapon_shotgun( entity weapon )
 
 		GoldenHorseGreen_OnWeaponActivate( weapon )
 
+
+	if ( weapon.HasMod( "hopup_smart_reload" ) )
+	{
+		SmartReloadSettings settings
+		settings.OverloadedAmmo = GetWeaponInfoFileKeyField_GlobalInt( EVA8_CLASS_NAME, OVERLOAD_AMMO_SETTING )
+		settings.LowAmmoFrac = GetWeaponInfoFileKeyField_GlobalFloat( EVA8_CLASS_NAME, SMART_RELOAD_LOW_AMMO_FRAC_SETTING )
+
+		OnWeaponActivate_Smart_Reload ( weapon, settings )
+	}
+	else
+	{
+
+
+
+
+	}
 }
 
 void function OnWeaponDeactivate_weapon_shotgun( entity weapon )
@@ -34,6 +53,8 @@ void function OnWeaponDeactivate_weapon_shotgun( entity weapon )
 
 		GoldenHorseGreen_OnWeaponDeactivate( weapon )
 
+
+	OnWeaponDeactivate_Smart_Reload ( weapon )
 }
 
 void function UpdateDoubleTapShotgunBoltPairing( entity weapon )
@@ -88,6 +109,10 @@ var function OnWeaponPrimaryAttack_weapon_shotgun( entity weapon, WeaponPrimaryA
 	Fire_EVA_Shotgun( weapon, attackParams, playerFired )
 }
 
+void function OnWeaponReload_weapon_shotgun( entity weapon, int milestoneIndex )
+{
+	OnWeaponReload_Smart_Reload ( weapon, milestoneIndex )
+}
 
 
 
@@ -103,7 +128,8 @@ var function OnWeaponPrimaryAttack_weapon_shotgun( entity weapon, WeaponPrimaryA
 
 
 
-void function OnPlayerChangeWeaponMod( entity player, entity weapon, string mod )
+
+void function OnPlayerChangeToggleWeaponMod_Shotgun( entity player, entity weapon, string mod )
 {
 	if ( IsValid( player ) && mod == "altfire_double_tap" )
 		UpdateDoubleTapShotgunBoltPairing( weapon )

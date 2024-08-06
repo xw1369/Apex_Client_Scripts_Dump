@@ -34,28 +34,28 @@ float function GetStimDuration( )
 void function OnWeaponActivate_ability_octane_stim( entity weapon )
 {
 
+	const string AKIMBO_ACTIVE_MOD = "akimbo_active"
+	entity owner = weapon.GetWeaponOwner()
+	if ( !IsValid( owner ) )
+		return
 
 
+	if ( InPrediction() )
 
+	{
+		if ( owner.GetAkimboState() == AKIMBO_STATE_ACTIVE || owner.GetAkimboState() == AKIMBO_STATE_OFFHAND)
+		{
+			weapon.AddMod( AKIMBO_ACTIVE_MOD )
 
+				if ( owner == GetLocalViewPlayer() )
+					EmitSoundOnEntity( owner,  weapon.GetWeaponSettingString( eWeaponVar.charge_sound_1p ) )
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+		}
+		else
+		{
+			weapon.RemoveMod( AKIMBO_ACTIVE_MOD )
+		}
+	}
 
 }
 

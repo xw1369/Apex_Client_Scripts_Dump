@@ -53,6 +53,7 @@ global function ServerCallback_FreeDM_ChampionSounds
 global function UICallback_FreeDM_OpenCharacterSelect
 global function FreeDM_CloseCharacterSelect
 global function ServerCallback_SetRespawnOverlay
+global function ServerCallback_FreeDM_DisplayScore
 
 
 const string FREEDM_SECONDARY_SCORE_NAME = "FreeDM_SecondaryPoints"
@@ -212,6 +213,8 @@ struct {
 
 
 
+
+
 	bool                          isScoreText = false
 	var        					  introCountdownRUI = null
 	asset functionref( int team ) getCustomIndicatorCallback = null
@@ -299,6 +302,7 @@ void function FreeDM_GamemodeInitShared()
 	Remote_RegisterClientFunction( "ServerCallback_FreeDM_ChampionSounds", "int", 0, 128)
 	Remote_RegisterClientFunction( "FreeDM_CloseCharacterSelect")
 	Remote_RegisterClientFunction( "ServerCallback_SetRespawnOverlay" )
+	Remote_RegisterClientFunction( "ServerCallback_FreeDM_DisplayScore" )
 
 
 		FreeDM_SetDisplayScoreThread( DisplayScore )
@@ -1089,33 +1093,26 @@ void function FreeDM_SetAudioEvent( int event, string eventString )
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 const int FramesToWait = 60 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -2364,6 +2361,7 @@ void function UICallback_FreeDM_OpenCharacterSelect()
 	const bool showLockedCharacters = true
 	bool isJIP = GamemodeUtility_IsJIPPlayerSpawnBonusPending( clientPlayer )
 	HideScoreboard()
+	HideHUD()
 	OpenCharacterSelectMenu( browseMode, showLockedCharacters, isJIP )
 }
 
@@ -2550,6 +2548,26 @@ int function GetPlayMusicOnScore()
 
 
 #endif
+
+
+void function HideHUD()
+{
+	RuiTopology_UpdatePos( clGlobal.topoFullscreenHudPermanent, <0, 0, 0>, <0, 0, 0>, <0, 0, 0> )
+	RuiTopology_UpdatePos( clGlobal.topoFullscreenFullMap, <0, 0, 0>, <0, 0, 0>, <0, 0, 0> )
+	if ( file.scoreTrackerHUDRui != null )
+	{
+		RuiSetBool( file.scoreTrackerHUDRui, "isVisible", false )
+	}
+}
+
+
+
+void function ServerCallback_FreeDM_DisplayScore()
+{
+	if ( file.scoreTrackerHUDRui != null )
+		RuiSetBool( file.scoreTrackerHUDRui, "isVisible", true )
+}
+
 
 #if DEV
 

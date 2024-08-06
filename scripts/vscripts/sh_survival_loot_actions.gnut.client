@@ -711,6 +711,8 @@ bool function PickupAmmo( entity ammoPickup, entity player, int pickupFlags, ent
 
 
 
+
+
 	Assert( numPickedUp <= pickupCount )
 	return numPickedUp == pickupCount
 }
@@ -994,10 +996,10 @@ bool function PickupMainWeapon( entity pickup, entity player, int pickupFlags = 
 {
 	array<entity> primaryWeapons = SURVIVAL_GetPrimaryWeapons( player )
 
+		LootData activeWeaponData = SURVIVAL_Loot_GetLootDataByIndex( pickup.GetSurvivalInt() )
+		bool doDropCurrentWeapon     = (pickupFlags & PICKUP_FLAG_FROM_MENU) > 0 && primaryWeapons.len() > 1 && InventoryHasSingleAkimboWeapon( player, activeWeaponData.ref ) == -1
 
 
-
-		bool doDropCurrentWeapon     = (pickupFlags & PICKUP_FLAG_FROM_MENU) > 0 && primaryWeapons.len() > 1
 
 	bool dontSwitchWeapon        = (pickupFlags & PICKUP_FLAG_DONT_SWITCH_WEAPONS) > 0
 
@@ -1036,10 +1038,10 @@ bool function GiveMainWeapon_Internal( entity pickup, entity player, bool dropCu
 	{
 		array<entity> primaryWeapons = SURVIVAL_GetPrimaryWeapons( player )
 
+		LootData activeWeaponData = SURVIVAL_Loot_GetLootDataByIndex( pickup.GetSurvivalInt() )
+		if ( !dropCurrentWeapon && primaryWeapons.len() > 1 && InventoryHasSingleAkimboWeapon( player, activeWeaponData.ref ) == -1 )
 
 
-
-		if ( !dropCurrentWeapon && primaryWeapons.len() > 1 )
 
 			return false
 	}
@@ -1053,6 +1055,13 @@ bool function GiveMainWeapon_Internal( entity pickup, entity player, bool dropCu
 		if ( dropCurrentWeapon && !SURVIVAL_PlayerAllowedToPickup( player ) )
 			return false
 	}
+
+
+
+
+
+
+
 
 
 

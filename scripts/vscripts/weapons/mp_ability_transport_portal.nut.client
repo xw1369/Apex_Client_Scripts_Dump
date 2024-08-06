@@ -15,6 +15,7 @@ global function TransportPortal_GetReceiverPlayerIsLookingAt
 
 
 
+
 global function ServerToClient_TransportPortal_UltDurationChanged
 global function IsPlayersBeingWarnedAboutNexus
 global function TransportPortal_SetChannelUseTime
@@ -57,6 +58,7 @@ global const string TRANSPORT_PORTAL_WEAPON_NAME = "mp_ability_transport_portal"
 const string TRANSPORT_PORTAL_SERVER_TO_CLIENT_ULT_DURATION_CHANGED = "ServerToClient_TransportPortal_UltDurationChanged"
 
 const string TRANSPORT_PORTAL_CLIENT_TO_SERVER_RECALL_ULT = "ClientToServer_TransportPortal_RecallUlt"
+const string TRANSPORT_PORTAL_CLIENT_TO_SERVER_TRY_CHANNEL = "ClientToServer_TransportPortal_TryChannel"
 
 
 const string TRANSPORT_PORTAL_EXPIRE_TIME_NETVAR = "TransportPortal_ExpireTime"
@@ -78,6 +80,7 @@ const asset TRANSPORT_PORTAL_RECIEVER_ACTIVE = $"P_alter_ulti_prop_activate"
 const asset TRANSPORT_PORTAL_TRANSLOCATOR_IDLE = $"P_alter_ulti_prop_idle_top"
 const asset TRANSPORT_PORTAL_TRANSLOCATOR_ACTIVE = $"P_alter_ulti_prop_activate_top"
 const asset TRANSPORT_PORTAL_CHASE_INACTIVE = $"P_alter_ulti_portal_inactive"
+const asset TRANSPORT_PORTAL_CHASE_PRE_ACTIVE = $"P_alter_ulti_portal_inactive_refrac"
 const asset TRANSPORT_PORTAL_CHASE_ACTIVE = $"P_alter_ulti_portal_init"
 const asset TRANSPORT_PORTAL_DESTROYED = $"P_alter_ulti_portal_prop_exp"
 
@@ -172,6 +175,9 @@ struct{
 	float receiverLifespanUpgradeAmount = 30
 	bool receiverLastsForeverWithUpgrade = true
 
+	bool canUseWithCharacterActionWhenKnocked = true
+	bool allowRemotePackup = false
+
 	float incomingWarningRadius = 15.0
 
 	float maxUseDistance = 200
@@ -230,6 +236,7 @@ void function MpAbilityTransportPortal_Init()
 	PrecacheParticleSystem( TRANSPORT_PORTAL_TRANSLOCATOR_IDLE )
 	PrecacheParticleSystem( TRANSPORT_PORTAL_TRANSLOCATOR_ACTIVE )
 	PrecacheParticleSystem( TRANSPORT_PORTAL_CHASE_INACTIVE )
+	PrecacheParticleSystem( TRANSPORT_PORTAL_CHASE_PRE_ACTIVE )
 	PrecacheParticleSystem( TRANSPORT_PORTAL_CHASE_ACTIVE )
 	PrecacheParticleSystem( TRANSPORT_PORTAL_DESTROYED )
 
@@ -244,7 +251,15 @@ void function MpAbilityTransportPortal_Init()
 	RegisterSignal( TRANSPORT_PORTAL_LONG_HOLD_END )
 
 
-	Remote_RegisterServerFunction( TRANSPORT_PORTAL_CLIENT_TO_SERVER_RECALL_ULT )
+	if ( tuning.allowRemotePackup )
+	{
+		Remote_RegisterServerFunction( TRANSPORT_PORTAL_CLIENT_TO_SERVER_RECALL_ULT )
+	}
+	else if ( tuning.canUseWithCharacterActionWhenKnocked )
+	{
+		Remote_RegisterServerFunction( TRANSPORT_PORTAL_CLIENT_TO_SERVER_TRY_CHANNEL )
+	}
+
 	Remote_RegisterClientFunction( TRANSPORT_PORTAL_SERVER_TO_CLIENT_ULT_DURATION_CHANGED, "entity" )
 
 	AddGetExtendedRangeUseEntityCallback( GetExtendedRangeUseEntityCallbackForPlayer )
@@ -333,6 +348,11 @@ void function SetupTuning()
 	tuning.receiverLifespan = 					GetCurrentPlaylistVarFloat	( "alter_ult_receiverLifespan", tuning.receiverLifespan )
 	tuning.receiverLifespanUpgradeAmount = 		GetCurrentPlaylistVarFloat	( "alter_ult_receiverLifespanUpgradeAmount", tuning.receiverLifespanUpgradeAmount )
 	tuning.receiverLastsForeverWithUpgrade = 	GetCurrentPlaylistVarBool	( "alter_ult_receiverLastsForeverWithUpgrade", tuning.receiverLastsForeverWithUpgrade )
+
+	tuning.canUseWithCharacterActionWhenKnocked = GetCurrentPlaylistVarBool	( "alter_ult_canUseWithCharacterActionWhenKnocked", tuning.canUseWithCharacterActionWhenKnocked )
+	tuning.allowRemotePackup 					= GetCurrentPlaylistVarBool	( "alter_ult_allowRemotePackup", tuning.allowRemotePackup )
+
+	Assert( !(tuning.canUseWithCharacterActionWhenKnocked && tuning.allowRemotePackup), "Can't use both remote packup and character action when knocked! They conflict on controls"  )
 
 	tuning.incomingWarningRadius =				GetCurrentPlaylistVarFloat	( "alter_ult_incomingWarningRadius", tuning.incomingWarningRadius ) * METERS_TO_INCHES
 
@@ -577,9 +597,67 @@ void function OnPropScriptCreated( entity ent )
 
 
 
+
+
+
+
+
+
+
+
+
+entity function GetReceiverForTryChannel( entity player )
+{
+	if ( !IsAlive( player ) )
+		return null
+
+	if ( !tuning.canUseWithCharacterActionWhenKnocked )
+		return null
+
+	if ( !Bleedout_IsBleedingOut( player ) )
+		return null
+
+	int team = player.GetTeam()
+	if ( !(team in file.teamToReceiversMap) )
+		return null
+
+	entity selectedReceiver = null
+	foreach ( entity receiver in file.teamToReceiversMap[team] )
+	{
+		if ( !InRangeOfReceiver( player, receiver ) )
+			continue
+
+		if ( !Receiver_CanUseStandardChecks( player, receiver ) )
+			continue
+
+		if ( player.p.isInExtendedUse )
+			continue
+
+		entity activeWeapon = player.GetActiveWeapon( eActiveInventorySlot.mainHand )
+		if ( IsValid( activeWeapon ) && activeWeapon.GetWeaponClassName() == TRANSPORT_PORTAL_DATAPAD_WEAPON_NAME )
+			continue
+
+		selectedReceiver = receiver
+		break
+	}
+
+	return selectedReceiver
+}
+
+
 void function TransportPortal_OnCharacterButtonPressed( entity player )
 {
-	Remote_ServerCallFunction( TRANSPORT_PORTAL_CLIENT_TO_SERVER_RECALL_ULT )
+	if ( tuning.allowRemotePackup )
+	{
+		Remote_ServerCallFunction( TRANSPORT_PORTAL_CLIENT_TO_SERVER_RECALL_ULT )
+	}
+	else if ( tuning.canUseWithCharacterActionWhenKnocked )
+	{
+		if ( IsValid( GetReceiverForTryChannel( player ) ) )
+		{
+			Remote_ServerCallFunction( TRANSPORT_PORTAL_CLIENT_TO_SERVER_TRY_CHANNEL )
+		}
+	}
 }
 
 
@@ -1312,6 +1390,20 @@ void function ManageReceiverLifetime_Thread( entity receiver )
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 #if INTELLIJ_OUTLINE_SECTION_MARKER
 void function _____________ReceiverUse___________________________(){}
 #endif
@@ -1339,8 +1431,6 @@ bool function Receiver_CanUseCallback( entity player, entity receiver, int useFl
 
 
 
-	if ( !IsValid ( player ) || !IsValid( receiver ) )
-		return false
 
 	if ( !Receiver_CanUseStandardChecks( player, receiver ) )
 		return false
@@ -1576,10 +1666,12 @@ string function Receiver_TextOverride( entity ent )
 
 
 
+
+
+
 #if INTELLIJ_OUTLINE_SECTION_MARKER
 void function _____________Receiver_UI___________________________(){}
 #endif
-
 
 bool function InRangeOfReceiver( entity player, entity receiver )
 {
@@ -1588,7 +1680,6 @@ bool function InRangeOfReceiver( entity player, entity receiver )
 
 	return true
 }
-
 
 
 void function TransportPortalCreatedHint_Thread( entity receiver, entity player, float hintDuration )
@@ -1616,6 +1707,77 @@ void function TransportPortalCreatedHint_Thread( entity receiver, entity player,
 	{
 		if ( player.GetUseEntity() == receiver )
 			return
+
+		WaitFrame()
+	}
+}
+
+void function TransportPortalCreatedHintKnocked_Thread( entity receiver, entity player )
+{
+	Assert ( IsNewThread(), "Must be started as new thread" )
+
+	Assert ( IsValid( receiver ) && IsValid( player ), "calling TransportPortalCreatedHint_Thread with invalid ents!" )
+
+	receiver.Signal( TRANSPORT_PORTAL_HINT_THREAD )
+	player.EndSignal( "OnDeath", "OnDestroy" )
+	receiver.EndSignal( "OnDestroy", "OnBeginDissolve", TRANSPORT_PORTAL_HINT_THREAD )
+
+	const float hintDuration = 100
+
+	PassByReferenceString currentHint
+	currentHint.value = ""
+
+	string knockedHint = Localize( "#TRANSPORT_PORTAL_ALLY_RECALL_HINT_KNOCKED" )
+	string outOfRangeHint = Localize( "#TRANSPORT_PORTAL_ALLY_RECALL_USE_PROMPT_NOT_LOOKING_OUT_OF_RANGE" )
+
+
+	OnThreadEnd(
+		function() : ( currentHint )
+		{
+			if ( currentHint.value != "" )
+			{
+				HidePlayerHint( currentHint.value )
+			}
+		}
+	)
+
+	while ( Bleedout_IsBleedingOut( player ) )
+	{
+		if ( player.GetUseEntity() == receiver )
+		{
+			if ( currentHint.value != "" )
+			{
+				HidePlayerHint( currentHint.value )
+				currentHint.value = ""
+			}
+		}
+		else if ( !InRangeOfReceiver( player, receiver ) )
+		{
+			if ( currentHint.value != outOfRangeHint )
+			{
+				HidePlayerHint( currentHint.value )
+				currentHint.value = outOfRangeHint
+				AddPlayerHint( hintDuration, 0, TRANSPORT_PORTAL_RECEIVER_IMAGE, currentHint.value )
+			}
+		}
+		else if ( IsValid( GetReceiverForTryChannel( player ) ) )
+		{
+			if ( currentHint.value != knockedHint )
+			{
+				HidePlayerHint( currentHint.value )
+				currentHint.value = knockedHint
+				AddPlayerHint( hintDuration, 0, TRANSPORT_PORTAL_RECEIVER_IMAGE, currentHint.value )
+			}
+		}
+		else
+		{
+			if ( currentHint.value != "" )
+			{
+				HidePlayerHint( currentHint.value )
+				currentHint.value = ""
+			}
+		}
+
 
 		WaitFrame()
 	}
@@ -1658,7 +1820,14 @@ void function DelayUltHintThreadOnKnock( entity victim, entity receiver )
 
 	wait 1.5
 
-	thread TransportPortalCreatedHint_Thread( receiver, victim, 5 )
+	if ( tuning.canUseWithCharacterActionWhenKnocked )
+	{
+		thread TransportPortalCreatedHintKnocked_Thread( receiver, victim )
+	}
+	else
+	{
+		thread TransportPortalCreatedHint_Thread( receiver, victim, 10 )
+	}
 }
 
 
@@ -1732,6 +1901,8 @@ void function ManageLookAtRui_Thread( entity receiver, entity player )
 	RuiTrackFloat3( iconRui, "playerAngles", player, RUI_TRACK_CAMANGLES_FOLLOW )
 	RuiKeepSortKeyUpdated( iconRui, true, "pos" )
 
+	RuiSetBool( iconRui, "hideDestroyText", !tuning.allowRemotePackup  )
+
 	OnThreadEnd(
 		function() : ( iconRui, regroupInfoRui )
 		{
@@ -1764,10 +1935,11 @@ void function ManageLookAtRui_Thread( entity receiver, entity player )
 	while ( true )
 	{
 		bool inRange = InRangeOfReceiver( player, rootEnt)
+		bool hasPlayerUsedRecal = rootEnt.GetUseStateByIndex( player.GetPlayerIndex() )
+
 		RuiSetBool( iconRui, "isInRange", inRange )
 		RuiSetBool( regroupInfoRui, "isInRange", inRange )
 
-		bool hasPlayerUsedRecal = rootEnt.GetUseStateByIndex( player.GetPlayerIndex() )
 		RuiSetBool( regroupInfoRui, "playerHasUsedRecall", hasPlayerUsedRecal )
 
 		if ( file.ultPendingRuiDurationUpdate == receiver )
@@ -1799,18 +1971,22 @@ void function ManageLookAtRui_Thread( entity receiver, entity player )
 			if ( player.p.lastExtededUseEnt == receiver )
 				showText = true
 		}
-		else if ( player.GetUseEntity() == receiver )
+		else
 		{
-			showText = true
-		}
-		else if ( !inRange && player.GetUseEntity() == null )
-		{
-			showText = true
+			entity useEnt = player.GetUseEntity()
+			if ( useEnt == receiver )
+			{
+				showText = true
+			}
+			else if ( !inRange && useEnt == null )
+			{
+				showText = true
+			}
 		}
 
 		RuiSetBool( regroupInfoRui, "isVisible", showText )
 
-		RuiSetBool( iconRui, "isVisible",  inRange )
+		RuiSetBool( iconRui, "isVisible",  inRange && !hasPlayerUsedRecal )
 
 		RuiSetBool( regroupInfoRui, "isChanneling", isChanneling )
 		RuiSetBool( iconRui, "isChanneling", isChanneling )
@@ -1922,6 +2098,10 @@ entity function TransportPortal_GetReceiverPlayerIsLookingAt( entity player )
 #if INTELLIJ_OUTLINE_SECTION_MARKER
 void function _____________ChasePortal___________________________(){}
 #endif
+
+
+
+
 
 
 

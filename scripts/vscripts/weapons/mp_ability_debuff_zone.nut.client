@@ -31,7 +31,7 @@ const float BEST_TARGET_MAX_RANGE = 3000.0
 const int BEST_TARGET_MAX_FOV = 5
 const float BEST_TARGET_SHORT_DISTANCE = 120.0
 const float BEST_TARGET_SHORT_DISTANCE_SQR = BEST_TARGET_SHORT_DISTANCE * BEST_TARGET_SHORT_DISTANCE
-const float LOCKON_DELAY = 0.3
+const float LOCKON_DELAY = 0.1
 
 const int DEBUFF_ZONE_RADIUS = 150
 const float AOE_TIMEOUT = 5.0
@@ -1695,6 +1695,11 @@ void function TrackOverheatIconLifeTimeAndVisibility( entity player, entity targ
 		RuiSetBool( file.overheatIconRui[target], "isDetectedBySeer", StatusEffect_HasSeverity( target, eStatusEffect.seer_detected ) )
 		RuiSetBool( file.overheatIconRui[target], "isVisible", isVisible )
 		RuiSetFloat( file.overheatIconRui[target], "progress", target.GetPlayerOverheatValue() / MAX_DEBUFF_OVERHEAT )
+		if (target.IsPlayer() && target.GetPlayerSettingsMods().contains( "targetinfo_ffa_squad" ) )
+			RuiSetFloat( file.overheatIconRui[target], "yOffset", -40 )
+
+		RuiSetBool( file.overheatIconRui[target], "isShowingEnemyHPBar", DisplayEnemyHealthBar() )
+
 
 		WaitFrame()
 	}

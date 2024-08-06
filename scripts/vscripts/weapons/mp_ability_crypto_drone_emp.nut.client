@@ -22,6 +22,10 @@ const string EMP_CHARGING_3P = "Char11_UltimateA_A_3p"
 const string EMP_CHARGING_CRYPTO_3P = "Char11_UltimateA_A_3p"
 const string EMP_CHARGING_1P = "Char11_UltimateA_A"
 
+
+const float ULT_SCAN_TIME = 4.0
+
+
 struct
 {
 
@@ -112,6 +116,35 @@ var function OnWeaponPrimaryAttack_ability_crypto_drone_emp( entity weapon, Weap
 	int ammoReq = weapon.GetAmmoPerShot()
 	return ammoReq
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

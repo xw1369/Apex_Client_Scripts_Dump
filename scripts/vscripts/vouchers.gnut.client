@@ -311,6 +311,28 @@ int function Voucher_GetEffectBattlepassStars( ItemFlavor flav )
 
 
 
+
+int function Voucher_GetEffectNPPLevels( ItemFlavor flav )
+{
+	Assert( ItemFlavor_GetType( flav ) == eItemType.voucher )
+
+	return GetGlobalSettingsInt( ItemFlavor_GetAsset( flav ), "effectNPPLevels" )
+}
+
+
+
+
+
+int function Voucher_GetEffectNPPCards( ItemFlavor flav )
+{
+	Assert( ItemFlavor_GetType( flav ) == eItemType.voucher )
+
+	return GetGlobalSettingsInt( ItemFlavor_GetAsset( flav ), "effectNPPCards" )
+}
+
+
+
+
 int function Voucher_GetEffectAccountXP( ItemFlavor flav )
 {
 	Assert( ItemFlavor_GetType( flav ) == eItemType.voucher )
@@ -414,6 +436,39 @@ int function GetVoucherRedeemedCount( entity player, ItemFlavor voucherFlav )
 	Assert( false )
 	return 0
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

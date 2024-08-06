@@ -1786,7 +1786,6 @@ void function OnWreckingBallDeployed( entity projectile, DeployableCollisionPara
 
 
 
-
 void function ServerCallback_RT_SpeedupHudForPlayer( int statusEffect )
 {
 	entity player  = GetLocalViewPlayer()

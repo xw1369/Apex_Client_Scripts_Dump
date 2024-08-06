@@ -64,6 +64,7 @@ const float  TIME_PLAYER_REGEN_START_INVALID = -1.0
 
 
 
+
 const string SIGNAL_PLAYER_REGEN_START_TIME_UPDATED = "HealthRegen_RegenTimeUpdated"
 const string SIGNAL_PLAYER_REGEN_RUI_DESTROYED = "HealthRegen_RuiDestroyed"
 
@@ -128,20 +129,6 @@ void function HealthRegen_RegisterNetworking()
 	} )
 
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

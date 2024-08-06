@@ -696,6 +696,9 @@ void function Ranked_OnSpectateTargetChanged( entity spectatingPlayer, entity pr
 
 
 
+
+
+
 void function PopulateRuiWithRankedProvisionalBadgeDetails( var rui, int numMatchesCompleted, int rankScore, int ladderPosition, bool isNested = false, int maxPips = 10, bool useDynamicPips = false, bool isPromotional = false )
 {
 	
@@ -927,7 +930,7 @@ void function SharedRanked_FillInRuiEmblemText( var rui, SharedRankedDivisionDat
 
 	RuiSetImage( rui, "rankedIconOverlay", $"" )
 
-		if ( RankedRumble_IsLatestGameRankedRumble( GetLocalClientPlayer() ) )
+		if ( RankedRumble_IsRunningRankedRumble() )
 		{
 			RuiSetString( rui, "emblemText" + ruiArgumentPostFix, "" )
 			RuiSetImage( rui, "rankedIconOverlay", $"rui/menu/ranked/rank_rumble_icon" )
@@ -976,7 +979,9 @@ bool function Ranked_PartyMeetsRankedDifferenceRequirements()
 		}
 	}
 
-	Assert( (partyMaxTier - partyMinTier) >= 0 )
+	if(partyMinTier >  partyMaxTier ) 
+		return true
+
 	return (partyMaxTier - partyMinTier) < Ranked_RankedPartyMaxTierDifferential()
 }
 

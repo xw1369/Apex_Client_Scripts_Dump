@@ -64,6 +64,14 @@ float function HuntMode_GetDuration( entity player )
 	float result = HUNT_MODE_DURATION
 
 
+
+
+
+
+
+
+
+
 	if( PlayerHasPassive( player, ePassives.PAS_ULT_UPGRADE_ONE ) ) 
 	{
 		return HuntMode_GetExtendedDuration()
@@ -72,6 +80,13 @@ float function HuntMode_GetDuration( entity player )
 
 	return result
 }
+
+
+
+
+
+
+
 
 
 
@@ -273,6 +288,11 @@ void function HuntMode_Start( entity player )
 	float huntDuration = HuntMode_GetDuration( player )
 	ids.append( StatusEffect_AddTimed( player, eStatusEffect.hunt_mode, 1.0, huntDuration, huntDuration ) )
 	ids.append( StatusEffect_AddTimed( player, eStatusEffect.hunt_mode_visuals, 1.0, huntDuration, 5.0 ) )
+
+
+
+
+
 
 
 
@@ -657,7 +677,6 @@ void function HuntMode_UpdatePlayerScreenColorCorrection( entity player )
 	ColorCorrection_SetExclusive( file.colorCorrection, true )
 	ColorCorrection_SetWeight( file.colorCorrection, 1.0 )
 
-	const FOV_SCALE = 1.2
 	const LERP_IN_TIME = 0.0125    
 	float startTime = Time()
 
@@ -668,6 +687,16 @@ void function HuntMode_UpdatePlayerScreenColorCorrection( entity player )
 		weight = GraphCapped( Time() - startTime, 0, LERP_IN_TIME, 0, weight )
 
 		ColorCorrection_SetWeight( file.colorCorrection, weight )
+
+
+
+
+
+
+
+
+
+
 
 		WaitFrame()
 	}

@@ -6,6 +6,7 @@ global function UpdateScreenFade
 
 global function ScreenCoverTransition
 global function ServerToClient_ScreenCoverTransition
+global function ServerToClient_ScreenCoverTransitionSuddenDeath
 global function SetCustomScreenFadeAsset
 global function ScreenCoverEndTransition
 
@@ -13,6 +14,7 @@ global function ScreenCoverEndTransition
 global const float SCREEN_COVER_TRANSITION_IN_DURATION = 0.7
 global const float SCREEN_COVER_TRANSITION_OUT_DURATION = 0.9
 
+global const int SCREEN_COVER_TRANSITION_STAGE_HIDDEN = 0
 
 struct
 {
@@ -55,7 +57,7 @@ void function SetCustomScreenFadeAsset( asset fade )
 
 void function ScreenCoverEndTransition( float screenTransitionOutDuration = 1.6 )
 {
-	printt( "ScreenCoverTransitionEnd() called" )
+	printt( "[Fade]ScreenCoverTransitionEnd() called", Time() )
 
 	RuiSetFloat( file.screenFade, "screenTransitionOutDuration", screenTransitionOutDuration )
 	RuiSetBool( file.screenFade, "continueHoldCover", false )
@@ -72,7 +74,7 @@ void function ScreenCoverEndTransition( float screenTransitionOutDuration = 1.6 
 
 void function ScreenCoverTransition( float endTime, bool continueHoldOver = false )
 {
-	printt( "Calling ScreenCoverTransition with endTime", endTime, " at time", Time() )
+	printt( "[Fade]Calling ScreenCoverTransition with endTime", endTime, " at time", Time() )
 	
 	
 
@@ -88,6 +90,7 @@ void function ScreenCoverTransition( float endTime, bool continueHoldOver = fals
 		bool hasActiveFade = expect int( fadeParams.a ) != 0
 
 		
+		RuiSetInt( file.screenFade, "coverStage", SCREEN_COVER_TRANSITION_STAGE_HIDDEN )
 		RuiSetBool( file.screenFade, "holdCoverImmediately", hasActiveFade )
 		RuiSetBool( file.screenFade, "continueHoldCover", file.screenCoverHolding )
 
@@ -121,9 +124,15 @@ void function ScreenCoverTransition( float endTime, bool continueHoldOver = fals
 
 void function ServerToClient_ScreenCoverTransition( float endTime, bool holdCover )
 {
+	printt( "[Fade]ServerToClient_ScreenCoverTransition", Time() )
 	thread ScreenCoverTransition( endTime, holdCover )
 }
 
+void function ServerToClient_ScreenCoverTransitionSuddenDeath( float startTime )
+{
+	if ( RuiIsAlive( file.screenFade ) && RuiHasGameTimeArg( file.screenFade, "suddenDeathStartTime" ) )
+		RuiSetGameTime( file.screenFade, "suddenDeathStartTime", startTime )
+}
 
 void function UpdateScreenFade()
 {

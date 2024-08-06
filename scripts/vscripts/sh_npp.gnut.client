@@ -1,0 +1,632 @@
+
+
+
+global function ShNPP_LevelInit
+
+global function NPP_IsNPP
+global function NPP_IsNPPLegend
+global function NPP_GetIsActiveNPP
+global function NPP_GetPlayerActiveNPP
+global function NPP_ShouldDisableGRXForNPPLegend
+
+global function NPP_GetBattlePassMaxLevelIndex
+
+global function NPP_GetPlayerBattlePassLevel
+global function NPP_GetCurrentLevelProgress
+global function NPP_GetBattlePassRecurringCardChallenge
+global function NPP_GetAllChallenges
+
+global function NPP_GetNPP
+
+global function NPP_GetNPPCompleteAcknowledged
+
+global function NPP_IsFeatureEnabled
+global function NPP_IsFeatureAssignmentEnabled
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+struct NPPData
+{
+	ItemFlavor& pass
+	array<int>  totalXPToCompleteLevel
+	int         maxPassLevel
+
+	table< int, table< int, array<ItemFlavor> > > challenges
+	ItemFlavor ornull recurringCardChallenge
+}
+
+struct FileStruct
+{
+	ItemFlavor ornull currentNPP
+	int expirationTimestampNPP
+
+	table<ItemFlavor, NPPData> nppDataMap
+}
+FileStruct file
+
+const int CARDS_TO_COMPLETE_NPP_LEVEL = 10
+const string NNP_CARD_PVAR = "stats.npp_cards_earned"
+const string NPP_LEVEL_PVAR = "stats.npp_level"
+
+const string	NPP_GRANDFATHER_REWARDSEQ_NAME	= "npp_grandfather_rewardseq"
+const int		NPP_GRANDFATHER_REWARDSEQ_START	= 0
+const int		NPP_GRANDFATHER_REWARDSEQ_DONE	= 1
+const int		NPP_GRANDFATHER_S22_LAUNCH_TIME	= 1722963600	
+
+const NPP_KILLSWITCH_VAR = "npp_enabled"
+const NPP_ASSIGNMENT_KILLSWITCH_VAR = "npp_assignment_enabled"
+
+const asset ALL_LEGENDS_BOT_MODE = $"settings/itemflav/account_flag/account_flag_bot_mode_all_legends_playable.rpak"
+
+
+void function ShNPP_LevelInit()
+{
+	AddCallback_RegisterRootItemFlavors( OnRegisterRootItemFlavors )
+
+	AddCallback_OnItemFlavorRegistered( eItemType.battlepass, void function( ItemFlavor pass ) {
+		if ( !NPP_IsNPP( pass ) )
+		{
+			return
+		}
+
+#if CHALLENGE_DEBUG
+			printt( FUNC_NAME() )
+#endif
+
+		NPPData nppData
+		nppData.pass = pass
+
+		var nppDataTable = BattlePass_GetScheduleDatatable( pass )
+		int numRows       = GetDataTableRowCount( nppDataTable )
+		int maxLevels     = GetDataTableInt( nppDataTable, numRows - 1, GetDataTableColumnByName( nppDataTable, "levelIndex" ) ) + 1
+		int cumulativeXP  = 0
+
+		nppData.totalXPToCompleteLevel.resize( maxLevels )
+
+		int lastLevelIndex = -1
+		for ( int levelIndex = 0; levelIndex < maxLevels; levelIndex++ )
+		{
+			cumulativeXP += CARDS_TO_COMPLETE_NPP_LEVEL
+			nppData.totalXPToCompleteLevel[levelIndex] = cumulativeXP
+			nppData.maxPassLevel = levelIndex
+		}
+
+		array<asset> dupeCheck = []
+
+		nppData.challenges[ eChallengeTimeSpanKind.SEASON_WEEKLY_RECURRING ] <- {}
+		nppData.challenges[ eChallengeTimeSpanKind.SEASON_WEEKLY_RECURRING ][-1] <- []
+
+		foreach ( var block in IterateSettingsAssetArray( ItemFlavor_GetAsset( pass ), "weeklyRecurringChallenges" ) )
+		{
+			asset chAsset = GetSettingsBlockAsset( block, "flavor" )
+
+			Assert( !dupeCheck.contains( chAsset ) )
+			dupeCheck.append( chAsset )
+
+			ItemFlavor ornull challenge = RegisterItemFlavorFromSettingsAsset( chAsset )
+			if ( challenge != null )
+			{
+				expect ItemFlavor( challenge )
+				nppData.challenges[ eChallengeTimeSpanKind.SEASON_WEEKLY_RECURRING ][-1].append( challenge )
+
+				if ( Challenge_GetStatRefs( challenge, 0 ).len() > 0 )
+				{
+					foreach ( sref in Challenge_GetStatRefs( challenge, 0 ) )
+					{
+						if ( sref == "stats.npp_cards_earned" )
+						{
+							nppData.recurringCardChallenge = challenge
+						}
+					}
+				}
+			}
+		}
+
+		dupeCheck.clear()
+
+		file.nppDataMap[pass] <- nppData
+	} )
+
+
+
+
+
+
+	Remote_RegisterServerFunction("ClientCallback_NPP_SetNPPCompleteAcknowledged")
+
+}
+
+
+
+void function OnRegisterRootItemFlavors()
+{
+	foreach ( asset battlePassAsset in GetBaseItemFlavorsFromArray( "nonSeasonalPasses" ) )
+	{
+		if ( battlePassAsset == $"" )
+		{
+			continue
+		}
+
+		ItemFlavor ornull battlePass = RegisterItemFlavorFromSettingsAsset( battlePassAsset )
+		if ( battlePass == null )
+		{
+			continue
+		}
+
+		expect ItemFlavor( battlePass )
+		if ( !NPP_IsNPP( battlePass ) )
+		{
+			continue
+		}
+
+		if ( file.currentNPP == null )
+		{
+			file.currentNPP = battlePass
+		}
+	}
+}
+
+
+
+bool function NPP_IsNPP( ItemFlavor battlepass )
+{
+	if ( battlepass.typeIndex != eItemType.battlepass )
+	{
+		Assert( false, "Called NPP_IsNPP on non-Battlepass Item Flavor" )
+		return false
+	}
+
+	if ( GetGlobalSettingsString( ItemFlavor_GetAsset( battlepass ), "bpv2Type" ) == "NPP" )
+	{
+		return true
+	}
+
+	return false
+}
+
+
+
+ItemFlavor ornull function NPP_GetNPP()
+{
+	return file.currentNPP
+}
+
+
+
+int function NPP_GetXPToCompleteNPPLevel()
+{
+	return CARDS_TO_COMPLETE_NPP_LEVEL
+}
+
+
+
+ItemFlavor ornull function NPP_GetPlayerActiveNPP( entity player )
+{
+	if ( NPP_IsNPPActive( player ) )
+	{
+		return file.currentNPP
+	}
+
+	return null
+}
+
+
+
+bool function NPP_IsNPPActive( entity player )
+{
+	if ( !NPP_IsFeatureEnabled() )
+	{
+		return false
+	}
+
+	
+	if ( player.GetPersistentVarAsInt( "installUnixTime" ) == 0 )
+	{
+		return true
+	}
+
+	if ( NPP_GetIsActiveNPP( player  ) )
+	{
+		return true
+	}
+
+	return false
+}
+
+
+
+bool function NPP_GetIsActiveNPP( entity player )
+{
+	if ( !NPP_IsFeatureEnabled() )
+	{
+		return false
+	}
+
+	return bool( player.GetPersistentVar( "activeNPP" ) )
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+bool function NPP_GetNPPCompleteAcknowledged( entity player )
+{
+	return bool( player.GetPersistentVar( "nppCompleteAcknowledged" ) )
+}
+
+
+
+
+
+
+
+
+
+#if DEV
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#endif
+
+
+int function NPP_GetCurrentLevelProgress( entity player )
+{
+	return player.GetPersistentVarAsInt( NNP_CARD_PVAR ) % CARDS_TO_COMPLETE_NPP_LEVEL
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+int function NPP_GetPlayerBattlePassLevel( entity player, ItemFlavor pass )
+{
+	return player.GetPersistentVarAsInt( NPP_LEVEL_PVAR )
+}
+
+
+
+int function NPP_GetBattlePassMaxLevelIndex( ItemFlavor pass )
+{
+	NPPData passData = file.nppDataMap[pass]
+	return passData.maxPassLevel
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ItemFlavor ornull function NPP_GetBattlePassRecurringCardChallenge( ItemFlavor pass )
+{
+	return file.nppDataMap[ pass ].recurringCardChallenge
+}
+
+
+array<ItemFlavor> function NPP_GetAllChallenges()
+{
+	array<ItemFlavor> challenges
+
+		array<ItemFlavor> tileFlavs = ChallengeTileFlav_GetActiveTilesOfCategory( eChallengeTileCategory.BEGINNER )
+
+		
+		foreach ( tileFlav in tileFlavs )
+		{
+			array<ItemFlavor> tileChallenges = ChallengeTileFlav_GetAllLinkedCollectionChallenges( tileFlav )
+			challenges.extend( tileChallenges )
+		}
+
+	return challenges
+}
+
+
+bool function NPP_IsFeatureEnabled()
+{
+	bool isEnabled = GetCurrentPlaylistVarBool( NPP_KILLSWITCH_VAR, true )
+	return isEnabled
+}
+
+
+
+bool function NPP_IsFeatureAssignmentEnabled()
+{
+#if DEV
+		if ( GetConVarBool( "ftue_npp_assignment_enabled" ) == false )
+		{
+			return false
+		}
+#endif
+
+	bool isEnabled = GetCurrentPlaylistVarBool( NPP_ASSIGNMENT_KILLSWITCH_VAR, true )
+	return isEnabled
+}
+
+
+
+bool function NPP_IsNPPLegend( ItemFlavor legendFlav )
+{
+	ItemFlavor legendA = GetItemFlavorByAsset( BLOODHOUND_ITEMFLAV )
+	ItemFlavor legendB = GetItemFlavorByAsset( PATHFINDER_ITEMFLAV )
+	ItemFlavor legendC = GetItemFlavorByAsset( GIBRALTAR_ITEMFLAV )
+
+	if ( legendFlav.guid == legendA.guid || legendFlav.guid == legendB.guid || legendFlav.guid == legendC.guid )
+	{
+		return true
+	}
+
+	return false
+}
+
+bool function NPP_ShouldDisableGRXForNPPLegend( entity player, ItemFlavor character )
+{
+	if ( NPP_IsNPPLegend( character ) && Loadout_IsCharacterStillPurchasableByPlayer( player, character ) )
+		return true
+
+	return false
+}
+
+
+                           

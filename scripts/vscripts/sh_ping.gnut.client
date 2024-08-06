@@ -85,9 +85,7 @@ global function AddCallback_OnPingSpawnRequest
 global function CaptureObjectivePing_GetObjectiveNameFromObjectiveID_Localized
 global function CaptureObjectivePing_AddCallback_SetIsCaptureObjectivePingCommsActionFunction
 global function CaptureObjectivePing_GetIsCaptureObjectivePingCommsAction
-global function ServerCallback_CaptureObjectivePing_UpdateLastPingedObjective
-global function ServerCallback_CaptureObjectivePing_UpdateObjectivePingCounts
-global function ServerCallback_CaptureObjectivePing_UpdateObjectivePingText
+global function ServerCallback_CaptureObjectivePing_UpdateObjectivePing
 global function CaptureObjectivePing_SetObjectivePing
 global function CaptureObjectivePing_AddCallback_SetGetObjectivesArrayFunction
 global function CaptureObjectivePing_GetLastPingedObjective
@@ -290,8 +288,8 @@ global enum ePingType
 
 
 
-		LOOT_CREEP_INFECTED,
-		LOOT_CREEP_SPIDER,
+
+
 
 
 
@@ -336,10 +334,6 @@ global enum ePingType
 
 
 		PHASE_RUNNER,
-
-
-
-		BOXING_RING,
 
 
 		LOOT_ROLLER,
@@ -572,10 +566,12 @@ global enum ePingType
 
 	MULTILOCATION,
 
+	DISTRICT_LAUNCHERS,
 
-		REDEYED_REV,
-		EVAC_AREA,
-		LEGEND_START_AREA,
+
+
+
+
 
 
 	RAMPART_TT_VENDING,
@@ -611,6 +607,12 @@ global enum ePingType
 
 
 
+
+
+
+		
+		RESET_BIN_GOLD,
+		RESET_BIN_MYTHIC,
 
 
 	_count
@@ -669,6 +671,16 @@ global enum ePingReply
 
 	_count
 }
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1001,9 +1013,7 @@ void function ShPing_Init()
 			int pingCountMax = isUsingAlliances ? AllianceProximity_GetMaxNumPlayersPerAlliance() + 1 : GetExpectedSquadSize() + 1
 			int firstTeamOrAllianceIndex = isUsingAlliances ? ALLIANCE_A : TEAM_MULTITEAM_FIRST
 			int teamOrAllianceIndexMax = isUsingAlliances ? ALLIANCE_A + maxNumAlliances : TEAM_MULTITEAM_FIRST + MAX_TEAMS
-			Remote_RegisterClientFunction( "ServerCallback_CaptureObjectivePing_UpdateLastPingedObjective", "entity", "entity", "entity", "bool" )
-			Remote_RegisterClientFunction( "ServerCallback_CaptureObjectivePing_UpdateObjectivePingCounts", "entity", "int", firstTeamOrAllianceIndex, teamOrAllianceIndexMax, "int", 0, pingCountMax )
-			Remote_RegisterClientFunction( "ServerCallback_CaptureObjectivePing_UpdateObjectivePingText", "entity", "int", 0, ePingType._count, "int", 0, pingCountMax, "bool" )
+			Remote_RegisterClientFunction( "ServerCallback_CaptureObjectivePing_UpdateObjectivePing", "entity", "int", 0, pingCountMax, "bool", "bool" )
 			Remote_RegisterServerFunction( "ClientCallback_CaptureObjectivePing_PingObjective", "typed_entity", "player_waypoint" )
 			if ( isUsingAlliances )
 				file.objectiveToCaptureObjectivePingCountTableArray.resize( maxNumAlliances )
@@ -1172,12 +1182,35 @@ bool function IsPingDibsEnabledForPlayer( entity player )
 		return false
 
 
-		if ( IsPlayerShadowZombie( player ) )
-			return false
+
+
 
 
 	return true
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -2722,7 +2755,6 @@ array<int> function GetReplyOptionsForWaypoint( entity player, entity wp )
 			}
 			break
 	}
-
 	return results
 }
 
@@ -3166,6 +3198,13 @@ entity function GetGeyserForHitEnt( entity hitEnt )
 }
 
 
+
+entity function GetDistrictLauncherForHitEnt( PingHitEntData hitEnt )
+{
+	if ( hitEnt.entModel == HORIZONTAL_LAUNCHER_MODEL || hitEnt.entModel == "mdl/props/district_launcher/district_vert_launcher.rmdl" )
+		return hitEnt.hitEnt
+	return null
+}
 
 
 
@@ -3615,7 +3654,6 @@ PingCommandParams function GetPingParamsForHitEnt( entity hitEnt, entity player,
 
 	hitEntData.entTargetName = processedHitEnt.GetTargetName()
 
-
 	PingCommandParams result
 	if ( !IsValid( processedHitEnt ) || processedHitEnt.IsWorld() )
 	{
@@ -3889,6 +3927,17 @@ PingCommandParams function GetPingParamsForHitEnt( entity hitEnt, entity player,
 				result.pingType = ePingType.LOOT_BIN_EXTENDED
 			else
 				result.pingType = ePingType.LOOT_BIN
+
+
+			if( LootBinReset_IsLootBin_Mythic( lootBin ) )
+			{
+				result.pingType = ePingType.RESET_BIN_MYTHIC
+			}
+			if( LootBinReset_IsLootBin_GoldBin( lootBin ) )
+			{
+				result.pingType = ePingType.RESET_BIN_GOLD
+			}
+
 			return result
 		}
 	}
@@ -4070,6 +4119,17 @@ PingCommandParams function GetPingParamsForHitEnt( entity hitEnt, entity player,
 		{
 			result.hitEnt = reviveShieldEnt
 			result.pingType = IsEnemyTeam( playerTeam, reviveShieldEnt.GetTeam() ) ? ePingType.ENEMY_REVIVING : ePingType.LOCATION
+			return result
+		}
+	}
+
+	
+	{
+		entity launcherEnt = GetDistrictLauncherForHitEnt( hitEntData )
+		if ( IsValid( launcherEnt ) )
+		{
+			result.hitEnt = processedHitEnt
+			result.pingType = ePingType.DISTRICT_LAUNCHERS
 			return result
 		}
 	}
@@ -4532,31 +4592,31 @@ PingCommandParams function GetPingParamsForHitEnt( entity hitEnt, entity player,
 
 
 
-	bool halloweenMode = false
-
-		halloweenMode = GameModeVariant_IsActive( eGameModeVariants.SURVIVAL_SHADOW_ARMY )
 
 
 
 
-	if ( halloweenMode )
-	{
-		entity lootCreepInfected = GetHitEntForTargetName( hitEntData, "loot_creep_infected" )
-		if ( IsValid( lootCreepInfected ) )
-		{
-			result.hitEnt = lootCreepInfected
-			result.pingType = ePingType.LOOT_CREEP_INFECTED
-			return result
-		}
 
-		entity lootCreepSpider = GetHitEntForTargetName( hitEntData, "loot_creep_spider" )
-		if ( IsValid( lootCreepSpider ) )
-		{
-			result.hitEnt   = lootCreepSpider
-			result.pingType = ePingType.LOOT_CREEP_SPIDER
-			return result
-		}
-	}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 	{
@@ -5120,6 +5180,7 @@ PingCommandParams function GetPingParamsForHitEnt( entity hitEnt, entity player,
 
 
 
+
 	
 	
 	{
@@ -5443,6 +5504,17 @@ int function GetLootBinPingCommsAction( entity pingingPlayer, int pingType, enti
 
 
 
+			if( LootBinReset_IsLootBin_GoldBin( lootBin ) )
+			{
+				return eCommsAction.PING_RESET_BIN_GOLD
+			}
+			if( LootBinReset_IsLootBin_Mythic( lootBin ) )
+			{
+				return eCommsAction.PING_RESET_BIN_MYTHIC
+			}
+
+
+
 		if ( LootBin_HasSecretCompartment( lootBin ) )
 			return eCommsAction.PING_LOOTBIN_EXTENDED
 
@@ -5491,8 +5563,8 @@ int function GetCommsActionForPing( entity pingingPlayer, int pingType, entity p
 
 		case ePingType.RESPAWN_STATION:
 
-				if ( GameModeVariant_IsActive( eGameModeVariants.SURVIVAL_SHADOW_ARMY ) && ShadowArmy_RespawnBeacon_CanBeaconBeUsedByPlayer( pingingPlayer, pingedEnt ) )
-					return eCommsAction.SHADOWARMY_PING_RESPAWN_STATION
+
+
 
 			return eCommsAction.PING_RESPAWN_STATION
 
@@ -5505,11 +5577,11 @@ int function GetCommsActionForPing( entity pingingPlayer, int pingType, entity p
 
 
 
-		case ePingType.LOOT_CREEP_INFECTED:
-			return eCommsAction.PING_LOOT_CREEP_INFECTED
 
-		case ePingType.LOOT_CREEP_SPIDER:
-			return eCommsAction.PING_LOOT_CREEP_SPIDER
+
+
+
+
 
 
 		case ePingType.RESPAWN_DROPSHIP:
@@ -5617,16 +5689,16 @@ int function GetCommsActionForPing( entity pingingPlayer, int pingType, entity p
 
 		case ePingType.ENEMY_REVIVING:
 
-				if ( IsValid( pingedEnt ) && IsPlayerShadowZombie( pingedEnt ) )
-				{
 
-						
-						if ( !GameModeVariant_IsActive( eGameModeVariants.SURVIVAL_SHADOW_ARMY ) )
 
-						{
-							return eCommsAction.PING_ENEMY_SPOTTED_SHADOW
-						}
-				}
+
+
+
+
+
+
+
+
 
 
 			return GetEnemyPingCommsAction( pingType, pingedEnt )
@@ -6177,17 +6249,19 @@ int function GetCommsActionForPing( entity pingingPlayer, int pingType, entity p
 
 
 
-		case ePingType.REDEYED_REV:
-			return eCommsAction.PING_REDEYED_REV
-
-		case ePingType.EVAC_AREA:
-			return eCommsAction.PING_EVAC_AREA
-
-		case ePingType.LEGEND_START_AREA:
-			return eCommsAction.PING_LEGEND_START_AREA
 
 
 
+
+
+
+
+
+
+
+
+		case ePingType.THE_HUNT_ITEM:
+			return eCommsAction.PING_ITEM_THE_HUNT
 		case ePingType.THE_HUNT_AREA_PREY:
 			return eCommsAction.PING_AREA_THE_HUNT_PREY
 		case ePingType.THE_HUNT_AREA_HUNTER:
@@ -6222,6 +6296,13 @@ int function GetCommsActionForPing( entity pingingPlayer, int pingType, entity p
 
 
 
+		case ePingType.RESET_BIN_GOLD:
+			return eCommsAction.PING_RESET_BIN_GOLD
+		case ePingType.RESET_BIN_MYTHIC:
+			return eCommsAction.PING_RESET_BIN_MYTHIC
+
+
+
 		case ePingType.ENEMY_POI:
 			return eCommsAction.PING_ENEMY_POI
 
@@ -6236,6 +6317,8 @@ int function GetCommsActionForPing( entity pingingPlayer, int pingType, entity p
 
 
 
+		case ePingType.DISTRICT_LAUNCHERS:
+			return eCommsAction.PING_DISTRICT_LAUNCHERS
 	}
 
 	string enumStr = IsValidEnumValue( "ePingType", pingType ) ? GetEnumString( "ePingType", pingType ) : "Unknown ePingType!"
@@ -6804,8 +6887,11 @@ void function OnPingCreatedByAnyPlayer_VocalizeNewPing( entity pingingPlayer, in
 	if( commsAction == eCommsAction.REPLY_CAREPACKAGE_INSIGHT || commsAction == eCommsAction.REPLY_CAREPACKAGE_INSIGHT_LOOTED )
 	{
 		string lootRef = wayPoint.GetWaypointString( 0 )
-		LootData data = SURVIVAL_Loot_GetLootDataByRef( lootRef )
-		itemIndex = data.index
+		if( lootRef != "" )
+		{
+			LootData data = SURVIVAL_Loot_GetLootDataByRef( lootRef )
+			itemIndex = data.index
+		}
 	}
 
 
@@ -8195,23 +8281,6 @@ bool function CaptureObjectivePing_GetIsCaptureObjectivePingObjectiveWaypoint( e
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 void function CaptureObjectivePing_AddCallback_OnObjectivePingCoundChanged( void functionref( entity, int, int ) callBackFunc )
 {
 	Assert( !file.onObjectivePingCountChangedCallbackFunctions.contains( callBackFunc ), "Already added " + string( callBackFunc ) + " with " + FUNC_NAME() )
@@ -8282,16 +8351,50 @@ entity function CaptureObjectivePing_GetLastPingedObjective()
 
 
 
-void function ServerCallback_CaptureObjectivePing_UpdateObjectivePingText( entity wp, int pingType, int pingCount, bool doesPlayerHavePingOnObjective )
+void function ServerCallback_CaptureObjectivePing_UpdateObjectivePing( entity wp, int pingCount, bool doesPlayerHavePingOnObjective, bool isPlayerAction )
 {
-	if ( IsValid( wp ) && IsValid( wp.wp.ruiHud ) && pingCount >= 0 )
+	if ( !IsValid( wp ) )
+		return
+
+	if ( !IsValid( wp.GetParent() ) || !IsValid( wp.GetParent().GetOwner() ) )
+		return
+
+	entity objectiveWaypoint = wp.GetParent().GetOwner()
+	if ( !CaptureObjectivePing_GetIsCaptureObjectivePingObjectiveWaypoint( objectiveWaypoint ) )
+		return
+
+	bool isUsingAlliances = AllianceProximity_IsUsingAlliances()
+	int pingTeamOrAlliance = isUsingAlliances ? AllianceProximity_GetAllianceFromTeam( wp.GetTeam() ) : wp.GetTeam()
+	Assert( file.objectiveToCaptureObjectivePingCountTableArray.len() > pingTeamOrAlliance, "CAPTURE OBJECTIVE PING: " + FUNC_NAME() + " Tried to grab a table of objective pings to ping count for teamOrAlliance: " + pingTeamOrAlliance + " but the array didn't contain the teamOrAlliance index" )
+	if ( file.objectiveToCaptureObjectivePingCountTableArray.len() <= pingTeamOrAlliance )
+		return
+
+	
+	if ( (0 == pingCount) )
 	{
+		if ( null != wp.wp.ruiMinimap )
+		{
+			Waypoints_CleanupMinimapRuis( wp )
+		}
+	}
+	else
+	{
+		if ( null == wp.wp.ruiMinimap )
+		{
+			Waypoints_CreateMinimapRuis( wp )
+		}
+	}
+
+	
+	if ( IsValid( wp.wp.ruiHud ) )
+	{
+		int pingType = Waypoint_GetPingTypeForWaypoint( wp )
 		if ( pingType == ePingType.PING_CAPTURE_OBJECTIVE_DEFEND || pingType == ePingType.PING_CAPTURE_OBJECTIVE_ATTACK )
 		{
 			
 			string promptText = ""
 
-			if ( pingCount <= 0 ) 
+			if ( pingCount == 0 ) 
 			{
 				promptText = Localize( "#PROMPT_PING_CONTROL_OBJECTIVE" )
 			}
@@ -8318,33 +8421,52 @@ void function ServerCallback_CaptureObjectivePing_UpdateObjectivePingText( entit
 			RuiSetString( wp.wp.ruiHud, "pingPrompt", promptText )
 		}
 	}
-}
-
-
-
-
-void function ServerCallback_CaptureObjectivePing_UpdateObjectivePingCounts( entity objectiveWaypoint, int teamOrAlliance, int count )
-{
-	
-	Assert( file.objectiveToCaptureObjectivePingCountTableArray.len() > teamOrAlliance, "CAPTURE OBJECTIVE PING: " + FUNC_NAME() + " Tried to grab a table of objective pings to ping count for teamOrAlliance: " + teamOrAlliance + " but the array didn't contain the teamOrAlliance index" )
-	if ( file.objectiveToCaptureObjectivePingCountTableArray.len() <= teamOrAlliance )
-		return
 
 	
-	int pingCountMax = AllianceProximity_IsUsingAlliances() ? AllianceProximity_GetMaxNumPlayersPerAlliance() + 1 : GetExpectedSquadSize() + 1
-	if ( count < 0 || count > pingCountMax )
-		return
-
-	if ( CaptureObjectivePing_GetIsCaptureObjectivePingObjectiveWaypoint( objectiveWaypoint ) )
 	{
-		file.objectiveToCaptureObjectivePingCountTableArray[ teamOrAlliance ][ objectiveWaypoint ] <- count
-
-		foreach ( callbackFunc in file.onObjectivePingCountChangedCallbackFunctions )
+		
+		int pingCountMax = isUsingAlliances ? AllianceProximity_GetMaxNumPlayersPerAlliance() + 1 : GetExpectedSquadSize() + 1
+		if ( (pingCount >= 0) && (pingCount < pingCountMax) )
 		{
-			callbackFunc( objectiveWaypoint, teamOrAlliance, count )
+			file.objectiveToCaptureObjectivePingCountTableArray[ pingTeamOrAlliance ][ objectiveWaypoint ] <- pingCount
+
+			foreach ( callbackFunc in file.onObjectivePingCountChangedCallbackFunctions )
+			{
+				callbackFunc( objectiveWaypoint, pingTeamOrAlliance, pingCount )
+			}
+		}
+	}
+
+	
+	{
+		if ( isPlayerAction )
+		{
+			file.lastLocalCaptureObjectivePing = ( doesPlayerHavePingOnObjective ) ? wp : null
 		}
 	}
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -8518,31 +8640,6 @@ int function CaptureObjectivePing_GetPingCountForObjectiveForTeamOrAlliance( ent
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 void function CaptureObjectivePing_AddCallback_SetIsCaptureObjectivePingCommsActionFunction( bool functionref( int, entity ) func )
 {
 	file.getIsCommsActionForCaptureObjectivePingFunction = func
@@ -8597,8 +8694,26 @@ array<string> function CaptureObjectivePing_GetObjectiveNameStringsArray()
 
 string function CaptureObjectivePing_GetObjectiveNameFromObjectiveID_Localized( int objectiveID )
 {
-	return Localize( CaptureObjectivePing_GetObjectiveNameStringsArray()[objectiveID] )
+	array< string > localizedNames = CaptureObjectivePing_GetObjectiveNameStringsArray()
+	if ( objectiveID >= localizedNames.len() )
+	{
+#if DEV
+			Warning( "CAPTURE OBJECTIVE PING: Requested localized Objective Name with objectiveID: " + objectiveID + " which exceeds the name array length; going to return the first name" )
+#endif
+		objectiveID = 0
+	}
+
+	return Localize( localizedNames[objectiveID] )
 }
+
+
+
+
+
+
+
+
+
 
 
 

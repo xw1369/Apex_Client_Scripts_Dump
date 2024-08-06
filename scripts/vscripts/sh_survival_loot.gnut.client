@@ -49,6 +49,9 @@ global function WeaponLootRefIsLockedSet
 
 
 
+
+
+
 global function SURVIVAL_GetActiveWeapon
 global function SURVIVAL_GetLastActiveWeapon
 global function SURVIVAL_GetActiveWeaponSlot
@@ -263,7 +266,7 @@ global function GetPropSurvivalExtraProperty
 global function GetPropSurvivalMainPropertyFromEnt
 global function GetPropSurvivalExtraPropertyFromEnt
 
-
+global function InventoryHasSingleAkimboWeapon
 
 
 
@@ -326,7 +329,8 @@ global const string WEAPON_LOCKEDSET_SUFFIX_PAINTBALL = "_paintball"
 global const string WEAPON_LOCKEDSET_MOD_PAINTBALL = "paintball"
 
 
-
+global const string WEAPON_LOCKEDSET_MOD_AKIMBO = "locked_akimbo"
+global const string WEAPON_SUFFIX_AKIMBO = "_akimbo"
 
 
 
@@ -404,8 +408,6 @@ const float LOOKING_AT_LINE_CHECK_IGNORE_DIST = 100.0
 global const float SURVIVAL_PICKUP_ALL_MAX_RANGE = 150.0
 global const float SURVIVAL_GROUNDLIST_NEARBY_RADIUS = 1500.0
 
-global const bool LOOT_GROUND_VERTICAL_LINES = true
-
 global const AUTOPICKUP_DISTANCE = 64.0
 
 
@@ -448,7 +450,6 @@ Assert( PROP_SURVIVAL_SURVIVAL_PROPERTY_MAIN_PROPERTY_BITS + PROP_SURVIVAL_SURVI
 const int PROP_SURVIVAL_SURVIVAL_PROPERTY_EXTRA_MAX_VALUE = int( pow( 2, PROP_SURVIVAL_SURVIVAL_PROPERTY_EXTRA_PROPERTY_BITS ) )
 
 
-#if LOOT_GROUND_VERTICAL_LINES
 global const float VERTICAL_LINE_WIDTH = 48
 global const float VERTICAL_LINE_HEIGHT = 56
 global const float VERTICAL_LINE_COUNT = 8
@@ -457,7 +458,6 @@ global const float VERTICAL_LINE_DIST_MAX = SURVIVAL_PICKUP_ALL_MAX_RANGE
 global function SurvivalLoot_PlayerLookingAtLine
 global function SurvivalLoot_CanUseFunction
 
-#endif
 
 
 
@@ -475,7 +475,7 @@ global enum eLootSortCategories
 	WEAPONS,
 	AMMO,
 
-
+	HEALING,
 
 	SPECIAL,
 	PVE,
@@ -512,6 +512,9 @@ global enum eHealthPickupType
 
 	ULTIMATE
 
+
+
+
 	_count
 
 	INVALID = -1
@@ -523,6 +526,9 @@ global enum eHealthPickupCategory
 	SHIELD
 	COMBO
 	ULTIMATE
+
+
+
 }
 
 global enum eWeaponLockedSet
@@ -679,6 +685,23 @@ struct CachedLootActionData
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 struct
 {
 	table<string, AttachmentData > attachmentMatrix
@@ -713,6 +736,8 @@ struct
 
 	float evoMultiplier_Armorsmith
 	float evoMultiplier_Shadows
+
+	bool allowAutoLooting_Ordinance
 
 
 
@@ -861,6 +886,23 @@ void function SURVIVAL_Loot_InitShared()
 		}
 		file.healthPickups[ eHealthPickupType.ULTIMATE ] <- ultimateBattery
 	}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 	{
 		HealthPickup healthPickup
@@ -1260,7 +1302,10 @@ void function SURVIVAL_Loot_InitShared()
 
 
 
-		file.evoMultiplier_Shadows = GetCurrentPlaylistVarFloat( "shadow_evo_multiplier", 0.5 )
+
+
+
+	file.allowAutoLooting_Ordinance = GetCurrentPlaylistVarBool( "auto_pickup_ordnance", false )
 
 
 
@@ -1280,6 +1325,8 @@ void function SURVIVAL_Loot_InitShared()
 
 
 }
+
+
 
 
 
@@ -1786,6 +1833,250 @@ bool function ShouldDropOpticForKittedWeapon()
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 string function GetWeaponClassNameWithLockedSet( entity weapon )
 {
 	string result = weapon.GetWeaponClassName()
@@ -1816,10 +2107,10 @@ string function GetWeaponClassNameWithLockedSet( entity weapon )
 	}
 
 
-
-
-
-
+	if ( weapon.HasMod( WEAPON_LOCKEDSET_MOD_AKIMBO ) && !weapon.IsAkimboAlthand() )
+	{
+		result += "_akimbo"
+	}
 
 
 	switch( weapon.GetWeaponLockedSet() )
@@ -1901,25 +2192,6 @@ bool function CodeCallback_WeaponModCommandCheckMods( entity player, entity weap
 
 	return false
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -2115,6 +2387,10 @@ string function SURVIVAL_Loot_GetGeneralTypeString( LootData data )
 			return "#SURVIVAL_AMMO"
 
 		case eLootType.HEALTH:
+
+
+
+
 			return "#SURVIVAL_HEALTH"
 
 		case eLootType.ARMOR:
@@ -2250,6 +2526,11 @@ int function SURVIVAL_Loot_GetHealthPickupCategoryFromData( HealthPickup pickup 
 {
 	if ( pickup.ultimateAmount > 0 )
 		return eHealthPickupCategory.ULTIMATE
+
+
+
+
+
 
 	if ( pickup.healAmount > 0 && pickup.shieldAmount > 0 )
 		return eHealthPickupCategory.COMBO
@@ -2487,6 +2768,43 @@ int function SURVIVAL_GetInventoryLimit( entity player )
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 	return limit
 }
 
@@ -2704,54 +3022,262 @@ int function SURVIVAL_GetCountToFillStack( entity player, string ref )
 }
 
 
-int function SURVIVAL_AddToInventory( array<ConsumableInventoryItem> inventory, int inventoryLimit, LootData itemLootFlav, int itemCount, int itemSlotCount, bool doSorting )
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+int function SURVIVAL_AddToInventory( entity player, array<ConsumableInventoryItem> inventory, int inventoryLimit, LootData itemLootFlav, int itemCount, int itemSlotCount, bool doSorting )
 {
-	int numToAdd = itemCount
-	int numAdded = 0
-	foreach ( invItem in inventory )
+
+
+
+
+
+
+
+
+
+
+
+
 	{
-		if ( invItem.type != itemLootFlav.index )
-			continue
-
-		if ( invItem.count >= itemSlotCount )
-			continue
-
-		int diff = itemSlotCount - invItem.count
-		int add  = minint( numToAdd, diff )
-		invItem.count += add
-		numToAdd -= add
-		numAdded += add
-	}
-
-	while ( numToAdd > 0 && inventory.len() < inventoryLimit )
-	{
-		ConsumableInventoryItem item
-		item.slot = inventory.len()
-		item.type = itemLootFlav.index
-
-		int add = minint( numToAdd, itemSlotCount )
-		item.count = add
-		numToAdd -= add
-		numAdded += add
-
-		int insertPoint = inventory.len()
-		if ( doSorting )
+		int numToAdd = itemCount
+		int numAdded = 0
+		foreach ( invItem in inventory )
 		{
-			for ( int i = 0; i < inventory.len(); i++ )
-			{
-				int compare = SortByPriorityThenTier( item, inventory[i] )
-				if ( compare <= 0 )
-				{
-					insertPoint = i
-					break
-				}
-			}
+			if ( invItem.type != itemLootFlav.index )
+				continue
+
+			if ( invItem.count >= itemSlotCount )
+				continue
+
+			int diff = itemSlotCount - invItem.count
+			int add  = minint( numToAdd, diff )
+			invItem.count += add
+			numToAdd -= add
+			numAdded += add
 		}
 
-		inventory.insert( insertPoint, item )
-	}
+		while ( numToAdd > 0 && inventory.len() < inventoryLimit )
+		{
+			ConsumableInventoryItem item
+			item.slot = inventory.len()
+			item.type = itemLootFlav.index
 
-	return numAdded
+			int add = minint( numToAdd, itemSlotCount )
+			item.count = add
+			numToAdd -= add
+			numAdded += add
+
+			int insertPoint = inventory.len()
+			if ( doSorting )
+			{
+				for ( int i = 0; i < inventory.len(); i++ )
+				{
+					int compare = SortByPriorityThenTier( item, inventory[i] )
+					if ( compare <= 0 )
+					{
+						insertPoint = i
+						break
+					}
+				}
+			}
+
+			inventory.insert( insertPoint, item )
+		}
+		return numAdded
+	}
+	unreachable
 }
 
 
@@ -2775,7 +3301,7 @@ int function SURVIVAL_AddToPlayerInventory( entity player, string ref, int count
 	
 	bool doSorting = SERVER
 
-	int numAdded = SURVIVAL_AddToInventory( playerInventory, inventoryLimit, data, count, itemSlotCount, doSorting )
+	int numAdded = SURVIVAL_AddToInventory( player, playerInventory, inventoryLimit, data, count, itemSlotCount, doSorting )
 
 
 
@@ -2978,12 +3504,8 @@ bool function SURVIVAL_IsKnownLootItem( entity item )
 	return false
 }
 
-bool function CanUseStackablePropSurvival( entity player, entity prop , bool isAutoUse = false )
+bool function CanUseStackablePropSurvival( entity player, entity prop, LootData data, int lootType, bool isAutoUse = false )
 {
-	int index     = prop.GetSurvivalInt()
-	LootData data = SURVIVAL_Loot_GetLootDataByIndex( index )
-	int lootType  = data.lootType
-
 
 
 
@@ -3143,7 +3665,6 @@ bool function CanUseStackablePropSurvival( entity player, entity prop , bool isA
 			}
 
 	}
-
 	return true
 }
 
@@ -3160,6 +3681,15 @@ void function OnPropSurvivalCreate( entity prop )
 	file.allLoot.append( prop )
 
 	LootData data = SURVIVAL_Loot_GetLootDataByIndex( index )
+
+
+
+
+
+
+
+
+
 
 
 
@@ -3479,11 +4009,11 @@ void function SURVIVAL_Loot_UpdateHighlightForLoot( entity prop )
 		}
 
 
-			string passiveHighlight = GetLootHighlightStringForItem( data, prop )
-			if( passiveHighlight != "" )
-			{
-				highlight = passiveHighlight
-			}
+
+
+
+
+
 
 
 
@@ -4775,6 +5305,14 @@ LootActionStruct function SURVIVAL_BuildStringForAction( entity player, int cont
 						actionString = Localize( "#LOOT_ACTION_BLOCKED_ULTIMATE_ACTIVE" )
 				}
 
+
+
+
+
+
+
+
+
 				as.displayString = Localize( "#LOOT_ACTION", buttonString, actionString )
 			}
 
@@ -4823,16 +5361,8 @@ LootActionStruct function SURVIVAL_BuildStringForAction( entity player, int cont
 		case eLootAction.EQUIP:
 			if ( actionLoot.lootType == eLootType.MAINWEAPON )
 			{
-				string replaceWeapon = GetWeaponToReplace( player )
-				if ( replaceWeapon == "" || context == eLootContext.EQUIPMENT )
-				{
-					as.displayString = Localize( "#LOOT_ACTION", buttonString, actionString )
-					break
-				}
-
-				LootData replaceWeaponData = SURVIVAL_Loot_GetLootDataByRef( replaceWeapon )
-				string hintString          = GetLootPromptStyle() == eLootPromptStyle.COMPACT ? "#ACTION_REPLACE" : "#ACTION_EQUIP"
-				as.displayString = Localize( "#LOOT_ACTION_ON_ITEM", buttonString, Localize( hintString ), Localize( replaceWeaponData.pickupString ) )
+				as.displayString = Localize( "#LOOT_ACTION", buttonString, actionString )
+				break
 			}
 
 			else if ( actionLoot.lootType == eLootType.ARMOR && UpgradeCore_IsEquipmentArmorCore( lootRef.lootData.ref ) )
@@ -5836,10 +6366,8 @@ bool function SurvivalLoot_CanUseFunction( entity player, entity ent, int useFla
 		data = SURVIVAL_Loot_GetLootDataByIndex( lootIdx )
 	}
 
-#if LOOT_GROUND_VERTICAL_LINES
-		if ( !autoUse && !SurvivalLoot_IsAutoPickupOrdnance( data ) && !SurvivalLoot_PlayerLookingAtLine( player, ent ) )
-			return false
-#endif
+	if ( !autoUse && !SurvivalLoot_IsAutoPickupOrdnance( data ) && !SurvivalLoot_PlayerLookingAtLine( player, ent ) )
+		return false
 
 	if ( !autoUse )
 	{
@@ -5855,6 +6383,9 @@ bool function SurvivalLoot_CanUseFunction( entity player, entity ent, int useFla
 		}
 	}
 
+	if ( foundLootData )
+	{
+		int lootType = data.lootType
 
 
 
@@ -5880,18 +6411,23 @@ bool function SurvivalLoot_CanUseFunction( entity player, entity ent, int useFla
 
 
 
-	if ( foundLootData && data.lootType == eLootType.ORDNANCE )
-		return CanUseStackablePropSurvival( player, ent )
 
-	if ( foundLootData && data.extraCanUseFunction != null )
-		return data.extraCanUseFunction( player, ent, useFlags )
+
+
+
+		if ( lootType == eLootType.ORDNANCE )
+			return CanUseStackablePropSurvival( player, ent, data, lootType )
+
+		if ( data.extraCanUseFunction != null )
+			return data.extraCanUseFunction( player, ent, useFlags )
+	}
 
 	return true
 }
 
 bool function SurvivalLoot_IsAutoPickupOrdnance( LootData data )
 {
-	return data.lootType == eLootType.ORDNANCE && GetCurrentPlaylistVarBool( "auto_pickup_ordnance", false )
+	return data.lootType == eLootType.ORDNANCE && file.allowAutoLooting_Ordinance
 }
 
 bool function SurvivalBasicUsable_CanUseFunction( entity player, entity ent, int useFlags )
@@ -5921,7 +6457,6 @@ bool function ThirdPersonUseDistanceCheck( entity player, entity targetEnt )
 	return true
 }
 
-#if LOOT_GROUND_VERTICAL_LINES
 bool function SurvivalLoot_PlayerLookingAtLine( entity player, entity ent )
 {
 	
@@ -6006,7 +6541,6 @@ bool function SurvivalLoot_PlayerLookingAtLine( entity player, entity ent )
 	
 	return true
 }
-#endif
 
 
 int function SortInventoryByLootTier( ConsumableInventoryItem item1, ConsumableInventoryItem item2 )
@@ -6153,7 +6687,7 @@ void function ReplaceOpticInMods( array<string> mods, string opticRef )
 			continue
 
 		LootData attachData = SURVIVAL_Loot_GetLootDataByRef( mods[j] )
-		if( attachData.attachmentStyle.find( "sight" ) >= 0 )
+		if( attachData.attachmentType == eWeaponAttachmentType.SCOPE )
 		{
 			if( opticRef == "" )
 				mods.remove( j )
@@ -6249,6 +6783,13 @@ int function SURVIVAL_GetCharacterShieldHealthMaxForArmor( entity player, LootDa
 	{
 		int armorTier = UpgradeCore_GetPlayerArmorTier( player )
 		shieldMaxHealth = EvolvingArmor_GetCharacterShieldHealthMaxForArmorTier( player, armorTier )
+
+
+		if( StatusEffect_HasSeverity( player, eStatusEffect.structure_damage_mitigation ) )
+		{
+			shieldMaxHealth = minint( shieldMaxHealth + 25, 125 )
+		}
+
 	}
 	else
 
@@ -6702,6 +7243,9 @@ int function EvolvingArmor_GetEvolutionProgress( entity player )
 
 
 
+
+
+
 void function ServerCallback_PlayFPEvoShieldUpgradeFX( entity player )
 {
 	if ( !IsValid( player ) )
@@ -6744,6 +7288,11 @@ void function ServerCallback_Play3PEvoShieldUpgradeFX( entity player )
 	int shield3pFXHandle = StartParticleEffectOnEntity( player, file.evoShieldUpgradeFX3P, FX_PATTACH_POINT_FOLLOW, attachID )
 	EffectSetControlPointVector( shield3pFXHandle, 1, shieldColor )
 }
+
+
+
+
+
 
 
 
@@ -6887,16 +7436,21 @@ int function GetPriorityForLootType( LootData lootData )
 
 		case eLootType.ORDNANCE:
 
-
+			return eLootSortCategories.CONSUMABLES
 
 		case eLootType.HEALTH:
 
+		{
+			if ( lootData.ref == "health_pickup_ultimate" )
+				return eLootSortCategories.CONSUMABLES
 
 
 
 
 
 
+			return eLootSortCategories.HEALING
+		}
 
 
 
@@ -6983,7 +7537,7 @@ string function GetCategoryTitleFromPriority( int cat )
 	catToTitle[ eLootSortCategories.WEAPONS ] <- "#LOOT_CAT_MAINWEAPON"
 	catToTitle[ eLootSortCategories.PVE ] <- "#LOOT_CAT_PVE"
 
-
+	catToTitle[ eLootSortCategories.HEALING ] <- "#LOOT_CAT_HEALING"
 
 	catToTitle[ eLootSortCategories.DEFAULT ] <- ""
 
@@ -7487,12 +8041,26 @@ bool function Survival_PickupItem( entity pickup, entity player, int pickupFlags
 
 LootData function SURVIVAL_GetLootDataFromWeapon( entity weapon )
 {
+	LootData lootData
 	string ref = IsValid( weapon ) ? GetWeaponClassNameWithLockedSet( weapon ) : ""
-	if ( SURVIVAL_Loot_IsRefValid( ref ) )
-		return SURVIVAL_Loot_GetLootDataByRef( ref )
 
-	LootData blank
-	return blank
+	if ( SURVIVAL_Loot_IsRefValid( ref ) )
+	{
+		lootData = SURVIVAL_Loot_GetLootDataByRef( ref )
+
+
+			bool useAkimboIcon = GetWeaponInfoFileKeyField_GlobalBool( weapon.GetWeaponClassName(), "is_akimbo_weapon" )
+			if ( useAkimboIcon )
+			{
+				if ( weapon.IsAkimboAvailable() && !weapon.IsAkimboDisabled() )
+					lootData.hudIcon = GetWeaponInfoFileKeyFieldAsset_Global( weapon.GetWeaponClassName(), "hud_icon_akimbo_active" )
+				else
+					lootData.hudIcon = weapon.GetWeaponSettingAsset( eWeaponVar.hud_icon_akimbo )
+			}
+
+	}
+
+	return lootData
 }
 
 
@@ -7599,8 +8167,8 @@ int function SURVIVAL_GetInventorySlotCountForPlayer( entity player, LootData da
 		}
 
 
-			if( PlayerHasPassive( player, ePassives.PAS_EXTRA_ORDINANCE_SLOT ) )
-				result++
+
+
 
 
 	}
@@ -7609,14 +8177,14 @@ int function SURVIVAL_GetInventorySlotCountForPlayer( entity player, LootData da
 
 			if ( Perks_DoesPlayerHavePerk( player, ePerkIndex.EXTRA_FIREPOWER ) )
 			{
-				result = result + result / 3
+				result += GetCurrentPlaylistVarInt( "perk_extra_firepower_additional_ammo_" + data.ref, data.countPerDrop )
 			}
 
 
 
 			if( PlayerHasPassive( player, ePassives.PAS_LARGE_AMMO_STACKS ) )
 			{
-				result = result + result / 3
+				result += GetCurrentPlaylistVarInt( "upgrade_large_ammo_stacks_additional_ammo_" + data.ref, data.countPerDrop )
 			}
 
 
@@ -7643,11 +8211,16 @@ int function SURVIVAL_GetInventorySlotCountForPlayer( entity player, LootData da
 				result++
 		}
 
-		if ( PlayerHasPassive( player, ePassives.PAS_EXTRA_ALL_MED_INV ) )
-		{
-			if ( data.ref == "health_pickup_health_small" || data.ref == "health_pickup_health_large" || data.ref == "health_pickup_combo_small" || data.ref == "health_pickup_combo_large" )
-				result++
-		}
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -7766,34 +8339,32 @@ int function GetPropSurvivalExtraPropertyFromEnt( entity ent )
 
 
 
+int function InventoryHasSingleAkimboWeapon( entity player, string weaponName )
+{
+	if ( GetCurrentPlaylistVarBool( "akimbo_disabled", false ) )
+	{
+		return -1
+	}
 
+	for( int i = 0; i < WEAPON_INVENTORY_SLOT_PRIMARY_COUNT_MAIN; ++i )
+	{
+		entity primaryWeapon = player.GetNormalWeapon( i )
+		if(  IsValid( primaryWeapon )  )
+		{
+			bool isAkimboWeapon = primaryWeapon.GetWeaponSettingBool( eWeaponVar.is_akimbo_weapon )
+			bool isSameWeapon = primaryWeapon.GetWeaponClassName() == weaponName
+			bool isAltSlotAvailable = player.GetNormalWeapon( i + WEAPON_INVENTORY_SLOT_AKIMBO_START ) == null
 
+			LootData primaryWeaponData = SURVIVAL_GetLootDataFromWeapon( primaryWeapon )
+			bool isPrimaryWeaponAttachmentLocked = SURVIVAL_Weapon_IsAttachmentLocked( primaryWeaponData.ref )
 
+			if( isAkimboWeapon && isSameWeapon && isAltSlotAvailable && !isPrimaryWeaponAttachmentLocked)
+				return i
+		}
+	}
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+	return -1
+}
 
 
 

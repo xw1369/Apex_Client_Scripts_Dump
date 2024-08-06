@@ -39,6 +39,9 @@ global const float DOT_85DEGREE =	0.0871557427477
 
 global const string WHITESPACE_CHARACTERS = "\r\n\t " 
 
+const string MTX_EVENT_1 = "MTX_Event_1"
+const string MTX_EVENT_2 = "MTX_Event_2"
+
 #if DEV
 global const bool DEV_FORCE_LOAD_ALL_ENTITIES = false
 #endif
@@ -142,6 +145,11 @@ global struct PassByReferenceEntity
 	entity value
 }
 
+global struct PassByReferenceString
+{
+	string value
+}
+
 global enum eStreamMode
 {
 	DISABLED,
@@ -223,13 +231,24 @@ void function ShUtilityAll_Init()
 		PrecacheParticleSystem( $"P_ghurka_amb_plasma_3P" )
 		PrecacheParticleSystem( $"P_ghurka_plasma_mdl" )
 		PrecacheParticleSystem( $"P_ghurka_plasma_mdl_3P" )
+		PrecacheParticleSystem( $"P_ghurka_exe_kick_impact" )
+		PrecacheParticleSystem( $"P_wpn_ghurka_swipe_spin_3P" )
+		PrecacheParticleSystem( $"p_wpn_ghurka_blade_Tip" )
+		
 		PrecacheParticleSystem( $"P_wpn_ghurka_rt01_swipe_FP" )
 		PrecacheParticleSystem( $"P_wpn_ghurka_rt01_swipe_3P" )
 		PrecacheParticleSystem( $"P_ghurka_rt01_amb_plasma_FP" )
 		PrecacheParticleSystem( $"P_ghurka_rt01_amb_plasma_3P" )
 		PrecacheParticleSystem( $"P_ghurka_rt01_plasma_mdl" )
 		PrecacheParticleSystem( $"P_ghurka_rt01_plasma_mdl_3P" )
-		
+		PrecacheParticleSystem( $"P_wpn_ghurka_rt01_inspect_sharpening" )
+		PrecacheParticleSystem( $"P_ghurka_rt01_airsprint" )
+		PrecacheParticleSystem( $"P_wpn_ghurka_rt01_swipe_Drill_FP" )
+		PrecacheParticleSystem( $"P_wpn_ghurka_rt01_swipe_spin_3P" )
+		PrecacheParticleSystem( $"P_ghurka_rt01_exe_kick_impact" )
+		PrecacheParticleSystem( $"p_wpn_ghurka_rt01_blade_Tip" )
+		PrecacheParticleSystem( $"P_ghurka_rt01_impact" )
+		PrecacheImpactEffectTable( "melee_gurkha_rt01")
 		
 		PrecacheParticleSystem( $"P_ash_HL_NC_Impact" )
 		
@@ -243,7 +262,12 @@ void function ShUtilityAll_Init()
 
 		PrecacheParticleSystem( $"P_PODIUM_SPOTLIGHT" )
 
-
+		
+		PrecacheParticleSystem( $"P_bhaxe_rt01_swipe" )
+		PrecacheParticleSystem( $"P_bhaxe_rt01_swipe_3P" )
+		PrecacheParticleSystem( $"P_bhaxe_rt01_gas_glow_3P" )
+		PrecacheParticleSystem( $"P_bhaxe_rt01_gas_glow" )
+		PrecacheImpactEffectTable( "melee_bhaxe_rt01")
 
 
 }
@@ -654,17 +678,10 @@ bool function Freelance_IsHubLevel()
 }
 
 
-bool function IsOrientationMatch()
+bool function IsBotPlaygroundMatch()
 {
-	return GetCurrentPlaylistName() == PLAYLIST_NEW_PLAYER_ORIENTATION
+	return GetCurrentPlaylistName() == BOTPLAYGROUND
 }
-
-
-
-
-
-
-
 
 
 
@@ -2388,7 +2405,7 @@ bool function IsLobbyEvent1Active()
 			return ( devLobby == 1 )
 #endif
 
-	return IsMTXEvent1Active()
+	return IsMTXEventActive( MTX_EVENT_1 )
 }
 
 bool function IsLobbyEvent2Active()
@@ -2400,19 +2417,21 @@ bool function IsLobbyEvent2Active()
 			return ( devLobby == 2 )
 #endif
 
-	return IsMTXEvent2Active()
+	return IsMTXEventActive( MTX_EVENT_2 )
 }
 
-bool function IsMTXEvent1Active()
+bool function IsMTXEventActive( string eventPlaylistVar )
 {
-	ItemFlavor event = GetItemFlavorByAsset( $"settings/itemflav/calevent/s21ce01/collection.rpak" )
-	return CalEvent_IsActive( event, GetUnixTimestamp() )
-}
 
-bool function IsMTXEvent2Active()
-{
-	ItemFlavor event = GetItemFlavorByAsset( $"settings/itemflav/calevent/s21me02/milestone.rpak" )
-	return CalEvent_IsActive( event, GetUnixTimestamp() )
+		asset itemAsset = GetCurrentPlaylistVarAsset( eventPlaylistVar, $"" )
+		if ( itemAsset == $"" )
+			return false
+
+		ItemFlavor event = GetItemFlavorByAsset( itemAsset )
+		return CalEvent_IsActive( event, GetUnixTimestamp() )
+
+
+	return false
 }
 
 bool function IsT1Active()
@@ -2450,6 +2469,21 @@ bool function IsMatchmakingFromMatchAllowed( entity player )
 
 	return isAllowed
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -2520,6 +2554,36 @@ bool function SpectreShacksAreEnabled()
 
 
 
+
+
+
+bool function NewPlayerBotQueueAreEnabled()
+{
+	return GetCurrentPlaylistVarBool( "is_bot_royale_match", false )
+}
+
+bool function IsBotModeMatch()
+{
+	return GetCurrentPlaylistVarBool( "is_bot_royale_match", false )
+}
+
+
+
+bool function AreMultipleHumansInTeam( int teamIndex )
+{
+	int numHumans         = 0
+	array<entity> players = GetPlayerArrayOfTeam( teamIndex )
+	foreach ( player in players )
+	{
+		if ( !player.IsBot() )
+		{
+			numHumans++
+			if ( numHumans >= 2 )
+				return true
+		}
+	}
+	return false
+}
 
 
 float function LerpFloat( float startValue, float endValue, float time )
@@ -3248,7 +3312,7 @@ bool function IsEverythingUnlocked()
 			return true
 #endif
 
-	return EverythingUnlockedConVarEnabled()
+	return EverythingUnlockedConVarEnabled() 
 }
 
 
@@ -3835,7 +3899,7 @@ bool function IsUserOnSamePlatform( string hardware )
 
 
 		entity player = GetLocalClientPlayer()
-		return IsValid( player ) ? hardware == player.GetUnspoofedHardware() : false
+		return IsValid( player ) ? hardware == player.GetHardwareName() : false
 
 }
 
@@ -3863,7 +3927,7 @@ bool function IsUserOnSamePlatformID( int hardwareID )
 		{
 			return false
 		}
-		int localPlayerHardwareID = GetHardwareFromName( player.GetUnspoofedHardware() )
+		int localPlayerHardwareID = GetHardwareFromName( player.GetHardwareName() )
 		if( ( hardwareID == HARDWARE_PS4 || hardwareID == HARDWARE_PS5 ) && (localPlayerHardwareID == HARDWARE_PS4 || localPlayerHardwareID == HARDWARE_PS5) )
 		{
 			return true
@@ -3874,7 +3938,7 @@ bool function IsUserOnSamePlatformID( int hardwareID )
 		}
 		else
 		{
-			return IsValid( player ) ? hardwareID == GetHardwareFromName( player.GetUnspoofedHardware() ) : false
+			return IsValid( player ) ? hardwareID == GetHardwareFromName( player.GetHardwareName() ) : false
 		}
 		return false
 
@@ -4394,10 +4458,10 @@ bool function DEV_ForceLoadAllEntityTypes()
 #endif
 
 
-bool function IsRevTakeover()
-{
-	return GetCurrentPlaylistVarBool("rev_takeover", false)
-}
+
+
+
+
 
 
 
@@ -4456,6 +4520,14 @@ float function GetNearestAspectRatio( int width, int height )
 
 	return aspectRatio
 }
+
+
+
+
+
+
+
+
 
 
 

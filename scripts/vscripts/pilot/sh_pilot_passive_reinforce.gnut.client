@@ -86,7 +86,6 @@ void function PassiveReinforce_Init()
 
 
 
-
 		AddCreateCallback( "prop_door", OnDoorSpawned )
 		AddTargetNameCreateCallback( PASSIVE_REINFORCE_REBUILT_DOOR_SCRIPT_NAME, OnRebuiltDoorSpawned )
 		AddCallback_PlayerClassChanged( PassiveReinforce_OnPlayerClassChanged )
@@ -108,6 +107,7 @@ void function PassiveReinforce_Init()
 	PrecacheParticleSystem( PASSIVE_REINFORCE_PREVIEW_FX )
 	PrecacheParticleSystem( PASSIVE_REINFORCE_TRANSITION_FX )
 	PrecacheModel( PASSIVE_REINFORCE_REBUILT_DOOR_MODEL )
+	PrecacheScriptString( PASSIVE_REINFORCE_REBUILT_DOOR_SCRIPT_NAME )
 	AddCallback_OnPassiveChanged( ePassives.PAS_LOCKDOWN, PassiveReinforce_Toggle )
 
 	
@@ -435,6 +435,7 @@ void function OnRebuiltDoorSpawned( entity ent )
 {
 	
 	AddCallback_OnUseEntity_ClientServer( ent, OnRebuiltDoorUsed )
+	SetCallback_CanUseEntityCallback( ent, DoorProxy_CanUseCallback )
 }
 
 
@@ -477,6 +478,18 @@ void function OnRebuiltDoorSpawned( entity ent )
 
 
 
+
+
+bool function DoorProxy_CanUseCallback( entity player, entity doorProxy, int useFlags )
+{
+	if ( !IsAlive( player ) || Bleedout_IsBleedingOut( player ) )
+		return false
+
+	if ( !PlayerHasPassive( player, ePassives.PAS_LOCKDOWN ) )
+		return false
+
+	return true
+}
 
 void function OnCodeDoorUsed( entity door, entity player, int useInputFlags )
 {
@@ -622,16 +635,6 @@ void function OnRebuiltDoorUsed( entity door, entity player, int useInputFlags )
 	}
 
 }
-
-
-
-
-
-
-
-
-
-
 
 
 

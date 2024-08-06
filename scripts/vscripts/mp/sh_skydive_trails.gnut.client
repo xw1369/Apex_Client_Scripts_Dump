@@ -54,8 +54,8 @@ global const asset SKYDIVE_TRAIL_S06_DIAMOND = $"settings/itemflav/skydive_trail
 global const asset SKYDIVE_TRAIL_S07_DIAMOND = $"settings/itemflav/skydive_trail/s07_diamond.rpak"
 
 
-global const asset SKYDIVE_TRAIL_SHADOWARMY_REV = $"settings/itemflav/skydive_trail/shadow_default.rpak"
-global const asset SKYDIVE_TRAIL_SHADOWARMY_FULLREV = $"settings/itemflav/skydive_trail/shadow_special.rpak"
+
+
 
 
 

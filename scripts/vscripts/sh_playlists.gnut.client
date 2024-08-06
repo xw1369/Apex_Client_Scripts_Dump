@@ -9,6 +9,8 @@ global function GetPlaylistMaps
 
 global function ForceRefreshVisiblePlaylists
 global function GetVisiblePlaylistNames
+global function GetPlaylistsInRotation
+global function GetMaxTeamSizeForAllPlaylistsInRotation
 global function GetPlaylistModNames
 global function GetPlaylistIndexForName
 global function Playlist_GetLTMSlotPlaylist
@@ -49,7 +51,6 @@ global function GetBinkFromBinkMap
 
 
 
-
 #if DEV
 global function PrintPlaylists
 #endif
@@ -61,7 +62,7 @@ global const table<string, asset> GAMEMODE_IMAGE_MAP = {
 	apex_elite = $"rui/menu/gamemode/apex_elite",
 	training = $"rui/menu/gamemode/playlist_bg_med_training",
 
-
+	bot_playground = $"rui/menu/gamemode/playlist_bg_bot_playground",
 
 	firing_range = $"rui/menu/gamemode/playlist_bg_med_firing_range",
 	generic_01 = $"rui/menu/gamemode/generic_01",
@@ -72,6 +73,8 @@ global const table<string, asset> GAMEMODE_IMAGE_MAP = {
 	ranked_4 = $"rui/menu/gamemode/playlist_bg_storm_point_ranked",
 	ranked_5 = $"rui/menu/gamemode/playlist_bg_divided_moon_ranked",
 	ranked_6 = $"rui/menu/gamemode/playlist_bg_storm_point_ranked_mu2",
+	ranked_7 = $"rui/menu/gamemode/playlist_bg_district_ranked",
+
 	solo_iron_crown = $"rui/menu/gamemode/solo_iron_crown",
 	solo = $"rui/menu/gamemode/solo_iron_crown",
 	duos = $"rui/menu/gamemode/duos_v2",
@@ -115,6 +118,8 @@ global const table<string, asset> GAMEMODE_IMAGE_MAP = {
 	panel_divided_moon = $"rui/menu/gamemode/playlist_bg_divided_moon",
 	panel_divided_moon_mu1 = $"rui/menu/gamemode/playlist_bg_divided_moon_mu1",
 
+	panel_district = $"rui/menu/gamemode/playlist_bg_district",
+
 	shotguns_and_snipers = $"rui/menu/gamemode/playlist_bg_shotguns_and_snipers",
 	panel_worlds_edge_mu2_airdrop = $"rui/menu/gamemode/playlist_bg_worldsedge_airdrop",
 	panel_olympus_airdrop = $"rui/menu/gamemode/playlist_bg_olympus_airdrop",
@@ -128,7 +133,7 @@ global const table<string, asset> GAMEMODE_IMAGE_MAP = {
 
 
 
-		shadow_royale = $"rui/menu/gamemode/playlist_bg_shadow_royale",
+
 
 
 		winter_express = $"rui/menu/gamemode/playlist_bg_winterexpress",
@@ -211,10 +216,8 @@ global const table<string, asset> GAMEMODE_IMAGE_MAP = {
 		mixtape_moon_core = $"rui/menu/gamemode/playlist_bg_divided_moon_the_core",
 
 
-
-		mixtape_wattson = $"rui/menu/gamemode/playlist_bg_mixtape_wattson",
-		mixtape_amps = $"rui/menu/gamemode/playlist_bg_mixtape_amps",
-
+	mixtape_wattson = $"rui/menu/gamemode/playlist_bg_mixtape_wattson",
+	mixtape_amps = $"rui/menu/gamemode/playlist_bg_mixtape_amps",
 
 
 		heatwave_storm_point = $"rui/menu/gamemode/playlist_bg_heatwave_storm_point",
@@ -229,14 +232,14 @@ global const table<string, asset> GAMEMODE_IMAGE_MAP = {
 		strikeout_desertlands_hu = $"rui/menu/gamemode/playlist_bg_strikeout_worlds_edge",
 
 
-		shadow_army = $"rui/menu/gamemode/playlist_bg_shadowarmy"
-		shadow_army_cine = $"rui/menu/gamemode/playlist_bg_shadowarmy_cine",
-		training_event_locked = $"rui/menu/gamemode/playlist_bg_training_event_locked",
-		firing_range_event_locked = $"rui/menu/gamemode/playlist_bg_firing_range_event_locked",
-		duos_event_locked = $"rui/menu/gamemode/playlist_bg_duos_event_locked",
-		trios_event_locked = $"rui/menu/gamemode/playlist_bg_trios_event_locked",
-		play_apex_panel_locked = $"rui/menu/gamemode/playlist_bg_play_apex_panel_locked",
-		mixtape_locked = $"rui/menu/gamemode/playlist_bg_mixtape_event_locked",
+
+
+
+
+
+
+
+
 
 
 
@@ -268,6 +271,14 @@ global const table<string, asset> GAMEMODE_IMAGE_MAP = {
 
 
 
+
+
+		survival_revival = $"rui/menu/gamemode/playlist_bg_trios_revival",
+
+
+
+		battle_rush = $"rui/menu/gamemode/trios_ssrevival",
+
 }
 
 global const table<string, asset> GAMEMODE_THUMBNAIL_IMAGE_MAP = {
@@ -275,7 +286,7 @@ global const table<string, asset> GAMEMODE_THUMBNAIL_IMAGE_MAP = {
 	apex_elite = $"rui/menu/gamemode/apex_elite",
 	training = $"rui/menu/gamemode/playlist_bg_sq_training",
 
-
+	bot_playground = $"rui/menu/gamemode/playlist_bg_sq_bot_playground",
 
 	firing_range = $"rui/menu/gamemode/playlist_bg_sq_firing_range",
 	generic_01 = $"rui/menu/gamemode/generic_01",
@@ -286,6 +297,8 @@ global const table<string, asset> GAMEMODE_THUMBNAIL_IMAGE_MAP = {
 	ranked_4 = $"rui/menu/gamemode/playlist_bg_sq_storm_point_ranked",
 	ranked_5 = $"rui/menu/gamemode/playlist_bg_sq_divided_moon_ranked",
 	ranked_6 = $"rui/menu/gamemode/playlist_bg_sq_storm_point_ranked_mu2",
+	ranked_7 = $"rui/menu/gamemode/playlist_bg_sq_district",
+
 	solo_iron_crown = $"rui/menu/gamemode/solo_iron_crown",
 	solo = $"rui/menu/gamemode/solo_iron_crown",
 	duos = $"rui/menu/gamemode/playlist_bg_sq_duos",
@@ -330,6 +343,8 @@ global const table<string, asset> GAMEMODE_THUMBNAIL_IMAGE_MAP = {
 	panel_divided_moon = $"rui/menu/gamemode/playlist_bg_sq_divided_moon",
 	panel_divided_moon_mu1 = $"rui/menu/gamemode/playlist_bg_sq_divided_moon_mu1",
 
+	panel_district = $"rui/menu/gamemode/playlist_bg_sq_district",
+
 	shotguns_and_snipers = $"rui/menu/gamemode/playlist_bg_sq_shotguns_and_snipers",
 	panel_worlds_edge_mu2_airdrop = $"rui/menu/gamemode/playlist_bg_worldsedge_airdrop",
 	panel_olympus_airdrop = $"rui/menu/gamemode/playlist_bg_olympus_airdrop",
@@ -343,7 +358,7 @@ global const table<string, asset> GAMEMODE_THUMBNAIL_IMAGE_MAP = {
 
 
 
-		shadow_royale = $"rui/menu/gamemode/playlist_bg_sq_shadow_royale",
+
 
 
 		winter_express = $"rui/menu/gamemode/playlist_bg_sq_winterexpress",
@@ -427,10 +442,8 @@ global const table<string, asset> GAMEMODE_THUMBNAIL_IMAGE_MAP = {
 		mixtape_moon_core = $"rui/menu/gamemode/playlist_bg_sq_divided_moon_the_core",
 
 
-
-		mixtape_wattson = $"rui/menu/gamemode/playlist_bg_sq_mixtape_wattson",
-		mixtape_amps = $"rui/menu/gamemode/playlist_bg_sq_mixtape_amps",
-
+	mixtape_wattson = $"rui/menu/gamemode/playlist_bg_sq_mixtape_wattson",
+	mixtape_amps = $"rui/menu/gamemode/playlist_bg_sq_mixtape_amps",
 
 
 		heatwave_storm_point = $"rui/menu/gamemode/playlist_bg_sq_heatwave_storm_point",
@@ -448,9 +461,9 @@ global const table<string, asset> GAMEMODE_THUMBNAIL_IMAGE_MAP = {
 
 
 
-		shadow_army = $"rui/menu/gamemode/playlist_bg_sq_shadowarmy",
-		shadow_army_cine = $"rui/menu/gamemode/playlist_bg_sq_shadowarmy_cine",
-		event_locked = $"rui/menu/gamemode/playlist_bg_sq_event_locked",
+
+
+
 
 
 
@@ -482,6 +495,14 @@ global const table<string, asset> GAMEMODE_THUMBNAIL_IMAGE_MAP = {
 
 
 
+
+
+		survival_revival = $"rui/menu/gamemode/playlist_bg_sq_trios_revival",
+
+
+
+		battle_rush = $"rui/menu/gamemode/playlist_bg_sq_trios_ssrevival",
+
 }
 
 global const table<string, asset> GAMEMODE_MINI_ICON_MAP = {
@@ -512,7 +533,7 @@ const table<string, asset> GAMEMODE_BINK_MAP = {
 
 
 
-		shadow_royale = $"media/gamemodes/shadow_squad.bik",
+
 
 
 		winter_express = $"media/gamemodes/winter_express.bik",
@@ -1171,6 +1192,36 @@ array<string> function GetVisiblePlaylistNames( bool isPrivateMatchQuery = false
 	return finalList
 }
 
+array< string > function GetPlaylistsInRotation()
+{
+	array< string > visiblePlaylists = GetVisiblePlaylistNames()
+
+	array< string > list
+	for ( int i = 0; i < visiblePlaylists.len(); i++ )
+	{
+		string playlistName = visiblePlaylists[i]
+
+		if ( IsPlaylistInActiveRotation( playlistName ) )
+			list.append( playlistName )
+	}
+
+	return list
+}
+
+int function GetMaxTeamSizeForAllPlaylistsInRotation()
+{
+	array< string > activePlaylists = GetPlaylistsInRotation()
+
+	int maxTeamSize = 0
+
+	foreach ( string playlistName in activePlaylists )
+	{
+		maxTeamSize = maxint( maxTeamSize, GetMaxTeamSizeForPlaylist( playlistName ) )
+	}
+
+	return maxTeamSize
+}
+
 
 
 
@@ -1204,7 +1255,7 @@ const table<string, asset> GAMEMODE_EMBLEM_MAP = {
 
 
 
-		shadow_royale = $"rui/menu/gamemode_emblem/shadow_royale",
+
 
 
 	duos = $"rui/menu/gamemode_emblem/duos",
@@ -1241,6 +1292,10 @@ const table<string, asset> GAMEMODE_EMBLEM_MAP = {
 	firing_range = $"rui/menu/gamemode_emblem/emblem_firing_range",
 
 
+	bot_royale = $"rui/gamemodes/bot_mode/skydive_emblem_bot_mode", 
+
+
+
 
 
 
@@ -1253,11 +1308,11 @@ const table<string, asset> GAMEMODE_EMBLEM_MAP = {
 
 
 
-		emblem_revenant_army = $"rui/menu/gamemode_emblem/emblem_revenant_army",
 
 
 
-		emblem_uprising = $"rui/menu/gamemode_emblem/emblem_uprising",
+
+
 
 
 
@@ -1277,6 +1332,10 @@ const table<string, asset> GAMEMODE_EMBLEM_MAP = {
 
 
 
+		emblem_bot_playground = $"rui/menu/gamemode_emblem/emblem_bot_playground", 
+
+
+
 		emblem_bigtdm = $"rui/menu/gamemode_emblem/emblem_tdm_big",
 
 
@@ -1286,6 +1345,10 @@ const table<string, asset> GAMEMODE_EMBLEM_MAP = {
 
 
 
+
+
+
+		emblem_revival = $"rui/menu/gamemode_emblem/revival_emblem",
 
 }
 
@@ -1298,6 +1361,9 @@ const table<string, asset> GAMEMODE_BANNER_LOGO_MAP = {
 
 
 		logo_bigtdm = $"rui/rui_screens/apex_logo_tdm_big",
+
+
+		logo_survival_revival = $"rui/hud/gametype_icons/ltm/ltm_icon_revival",
 
 }
 
@@ -1381,17 +1447,6 @@ string function GetPlaylistRotationGroup()
 #endif
 	return rotationGroup
 }
-
-
-
-
-
-
-
-
-
-
-
 
 
 

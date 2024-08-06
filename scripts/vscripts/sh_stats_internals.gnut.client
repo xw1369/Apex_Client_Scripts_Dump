@@ -70,10 +70,10 @@ global enum eStatType
 }
 global enum eStatBehavior
 {
-	CALCULATED, 
-	ACCUMULATED, 
-	VARIABLE, 
-	BITFIELD, 
+	CALCULATED,		
+	ACCUMULATED,	
+	VARIABLE,		
+	BITFIELD,		
 }
 
 
@@ -329,7 +329,17 @@ int function GetStat_Int( entity player, StatEntry entry, int when = eStatGetWhe
 			Assert( when != eStatGetWhen.CURRENT || IsLobby(), format( "Cannot get current stats in client or UI VM during a match (they could be out of date): %s", entry.persistenceFullKey_Current ) )
 
 
-	if ( HasStatCachingOptimizations() )
+	bool useStatCaching = HasStatCachingOptimizations()
+	
+	if ( GetCurrentPlaylistVarBool( "s22_free_bp_challenges_fix", true ) )
+	{
+		
+		
+		
+		bool isLobbyOnlyStat = IsLobby() 
+		useStatCaching = useStatCaching && !isLobbyOnlyStat
+	}
+	if ( useStatCaching )
 	{
 		int unixTime = GetUnixTimestamp()
 		
@@ -602,6 +612,28 @@ string function GetStatTemplateDebugName( StatTemplate template )
 
 	return format( "stats%s.%s", sesPart, template.fieldName )
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

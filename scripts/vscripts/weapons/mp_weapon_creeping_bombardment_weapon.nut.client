@@ -124,6 +124,36 @@ void function OnProjectileCollision_WeaponCreepingBombardmentWeapon( entity proj
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 void function OnCreepingBombardmentBombSpawned_Client( entity bomb )
 {
 	SetAllowForKillreplayProjectileCam( bomb )

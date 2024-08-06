@@ -13,6 +13,17 @@ const asset GHURKA_AMB_PLASMA_3P = $"P_ghurka_plasma_mdl_3P"
 
 
 
+
+const table<string, table< int, int > > HEIRLOOM_SKIN_REMAP =
+{
+	["heirloom_rt01"] =
+	{
+		[eDamageSourceId.mp_weapon_bangalore_heirloom] = eDamageSourceId.mp_weapon_bangalore_heirloom_rt01_primary,
+		[eDamageSourceId.melee_bangalore_heirloom] = eDamageSourceId.melee_bangalore_heirloom_rt01,
+	},
+}
+
+
 void function MpWeaponBangaloreHeirloomPrimary_Init()
 {
 
@@ -25,7 +36,22 @@ void function MpWeaponBangaloreHeirloomPrimary_Init()
 
 
 
+
+
+
+
+
+
 }
+
+
+
+
+
+
+
+
+
 
 void function OnWeaponActivate_weapon_bangalore_heirloom_primary( entity weapon )
 {

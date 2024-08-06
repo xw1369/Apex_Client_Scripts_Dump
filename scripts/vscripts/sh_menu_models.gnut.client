@@ -3,6 +3,7 @@
 global function Menu_GetCameraTarget
 global function UICallback_MenuModels_UIScriptHasReset
 global function OnReady_PLAY
+global function LSS_SetLobbyStage
 
 #if DEV
 
@@ -63,6 +64,8 @@ const asset WEAPON_MASTERY_BACKGROUND_FX = $"P_wpnmstry_BG_bundle_T4"
 
 
 
+
+const asset READY_UP_EFFECT = $"P_env_lobby_s22_readyup_terrain_pulse" 
 
 global const vector MENU_MODELS_DEFAULT_HIGHLIGHT_COLOR = <102, 120, 242>
 
@@ -125,6 +128,7 @@ struct PartyMemberDisplayThreadData
 	bool               isReady
 	bool               isLeader
 	bool               isFocused
+	int                slot
 
 	bool isDirty
 }
@@ -142,9 +146,6 @@ enum eCameraTargetNames
 	collection_event_camera_target,
 	store_inspect_camera_target,
 	club_landing_camera_target,
-
-	play_camera_quads_target,
-
 	weapon_mastery_inspect_camera_target
 }
 
@@ -174,11 +175,7 @@ struct PresentationDef
 	void functionref() startFunc
 	void functionref() endFunc
 
-
-	int cameraTargetName = eCameraTargetNames.play_camera_quads_target
-
-
-
+	int cameraTargetName = eCameraTargetNames.play_camera_target
 }
 
 struct LightDef
@@ -212,6 +209,23 @@ struct AppliedStickerData
 	ItemFlavor& stickerItem
 	int			stickerInstance
 }
+
+enum eLobbyStage
+{
+	MAIN,
+	QUADS,
+	STAGE_B
+}
+
+enum eLobbyEntityIndex
+{
+	CAMERA,
+	PLAYER,
+	TEAMMATE1,
+	TEAMMATE2,
+	TEAMMATE3
+}
+
 
 
 struct
@@ -291,6 +305,7 @@ struct
 		array<entity>                               teammateRefEnts
 		table<entity, bool>                         teammateRefEntsUsedMap
 		table<entity, string>                       teammateRefEntIdleAnimMap
+		table<int, entity>							teammateModel
 		table<string, PartyMemberDisplayThreadData> partyMemberUidCharacterDataMap
 		bool                                        isTrackPartyMembersAndDisplayModelsThreadRunning = false
 
@@ -331,6 +346,36 @@ struct
 			vector DEV_characterOffset = <0, 0, 0>
 			bool DEV_modelInfoEnabled = false
 #endif
+
+		table< int, array< string > > stageReferenceEntities = {
+			[ eLobbyStage.MAIN ] = [
+				"play_camera_target",
+				"play_character_ref",
+				"play_teammate1_ref",
+				"play_teammate2_ref",
+			],
+			[ eLobbyStage.QUADS ] = [
+				"play_camera_quads_target",
+				"play_character_quads_ref",
+				"play_teammate1_quads_ref",
+				"play_teammate2_quads_ref",
+				"play_teammate3_quads_ref",
+			],
+			
+			
+			
+			
+			
+			
+			
+			
+		}
+
+		table< int, int > stagePresentationTypes = {
+			[ eLobbyStage.MAIN ] = ePresentationType.PLAY,
+			[ eLobbyStage.QUADS ] = ePresentationType.PLAY_QUADS,
+			[ eLobbyStage.STAGE_B ] = ePresentationType.PLAY_STAGE_B,
+		}
 
 
 	array<void functionref()> mouseWheelDownCallbacks
@@ -413,9 +458,11 @@ global function DEV_ToggleModelInfo
 
 global function UIToClient_PROTO_UpdateClientWithLocalClientUID
 global function IsEventLobbyActive
+global function LSS_UpdateLobbyStage
 
 
 const STICK_ROTATE_SPEED = 2.0 
+
 
 
 
@@ -447,6 +494,9 @@ global function RemoveCallback_OnMouseWheelDown
 global function RemoveCallback_OnMouseWheelUp
 global function IsCallbackRegistered_OnMouseWheelDown
 global function IsCallbackRegistered_OnMouseWheelUp
+global function IsPlayPresentationType
+
+
 
 
 
@@ -495,6 +545,8 @@ void function ClMenuModels_Init()
 
 	PrecacheParticleSystem( WEAPON_MASTERY_BACKGROUND_FX )
 
+	PrecacheParticleSystem( READY_UP_EFFECT )
+
 
 	RegisterSignal( "EndRevConvo" )
 	RegisterSignal( "ChangedTeam" )
@@ -537,18 +589,15 @@ bool function MenuMapEntitiesExist()
 	array<string> entNames =
 	[
 		"default_camera_target",
-
 		"play_camera_quads_target",
 		"play_character_quads_ref",
 		"play_teammate1_quads_ref",
 		"play_teammate2_quads_ref",
 		"play_teammate3_quads_ref",
-
-
-
-
-
-
+		"play_camera_target",
+		"play_character_ref",
+		"play_teammate1_ref",
+		"play_teammate2_ref",
 
 		"close_character_camera_target",
 
@@ -579,18 +628,15 @@ bool function MenuMapEntitiesExist()
 void function ApplyEventPositioning()
 {
 	array<entity> ents
-
 	ents.append( GetEntByScriptName( "play_camera_quads_target" ) )
 	ents.append( GetEntByScriptName( "play_character_quads_ref" ) )
 	ents.append( GetEntByScriptName( "play_teammate1_quads_ref" ) )
 	ents.append( GetEntByScriptName( "play_teammate2_quads_ref" ) )
 	ents.append( GetEntByScriptName( "play_teammate3_quads_ref" ) )
-
-
-
-
-
-
+	ents.append( GetEntByScriptName( "play_camera_target" ) )
+	ents.append( GetEntByScriptName( "play_character_ref" ) )
+	ents.append( GetEntByScriptName( "play_teammate1_ref" ) )
+	ents.append( GetEntByScriptName( "play_teammate2_ref" ) )
 	ents.append( GetEntByScriptName( "battlepass_camera_target" ) )
 	ents.append( GetEntByScriptName( "battlepass_3_camera_target" ) )
 	ents.append( GetEntByScriptName( "collection_event_camera_target" ) )
@@ -1105,14 +1151,12 @@ void function InitPresentationData()
 		pd.endFunc = EndPresentation_WEAPON_TRIAL_CELEBRATIONS
 	}
 
-
 	{
 		PresentationDef pd = file.presentationData[ePresentationType.PLAY_QUADS]
 		pd.modelData = file.playCharacter
 		pd.startFunc = StartPresentation_PLAY
 		pd.endFunc = EndPresentation_PLAY
 	}
-
 
 	Menu_InitPresentationDataFromCameraSettings()
 }
@@ -1216,8 +1260,14 @@ void function StartPresentation_PLAY()
 
 void function OnReady_PLAY( bool ready )
 {
-	if ( file.currentPresentationType != ePresentationType.PLAY )
+	if ( IsPlayPresentationType( file.currentPresentationType ) == false )
 		return
+
+	if ( ready )
+	{
+		int particleIndex = GetParticleSystemIndex( READY_UP_EFFECT )
+		StartParticleEffectInWorld( particleIndex, <0, 406, 0>, <0, 90, 0> )
+	}
 
 	if ( !ModelData_GetModel( file.playCharacter ).Anim_HasSequence( "ACT_MP_MENU_LOBBY_CENTER_READYUP" )  )
 		return
@@ -2815,10 +2865,14 @@ void function TrackPartyMembersAndDisplayModelsThread()
 			{
 				entity refEnt = null
 				string idleActivity
+				int slot = 0
 				foreach ( entity candidateRefEnt in file.teammateRefEnts )
 				{
 					if ( file.teammateRefEntsUsedMap[candidateRefEnt] )
+					{
+						slot++
 						continue 
+					}
 
 					file.teammateRefEntsUsedMap[candidateRefEnt] = true 
 					refEnt = candidateRefEnt
@@ -2830,8 +2884,10 @@ void function TrackPartyMembersAndDisplayModelsThread()
 
 				partyMemberDisplayThreadData.posRef = refEnt
 				partyMemberDisplayThreadData.idleActivity = idleActivity
+				partyMemberDisplayThreadData.slot = slot
 
 				thread DisplayPartyMemberModelThread( partyMemberDisplayThreadData )
+				RunUIScript( "ClientToUI_CheckPlaylist" )
 				Assert( partyMemberDisplayThreadData.displayThreadActive )
 			}
 		}
@@ -2861,7 +2917,6 @@ void function TellUIToUpdateInviteButtons()
 	string leftSpotEAID     = ""
 	string leftSpotHardware = ""
 	string leftSpotUnspoofedUID = ""
-	string leftSpotUnspoofedHardware = ""
 	string leftSpotName     = ""
 	bool leftSpotInMatch    = false
 
@@ -2869,7 +2924,6 @@ void function TellUIToUpdateInviteButtons()
 	string rightSpotEAID     = ""
 	string rightSpotHardware = ""
 	string rightSpotUnspoofedUID = ""
-	string rightSpotUnspoofedHardware = ""
 	string rightSpotName     = ""
 	bool rightSpotInMatch    = false
 
@@ -2878,7 +2932,6 @@ void function TellUIToUpdateInviteButtons()
 	string fourthSpotEAID     = ""
 	string fourthSpotHardware = ""
 	string fourthSpotUnspoofedUID = ""
-	string fourthSpotUnspoofedHardware = ""
 	string fourthSpotName     = ""
 	bool fourthSpotInMatch    = false
 
@@ -2892,7 +2945,6 @@ void function TellUIToUpdateInviteButtons()
 			leftSpotEAID = partyMemberDisplayThreadData.partyMemberInfo.eaid
 			leftSpotHardware = partyMemberDisplayThreadData.partyMemberInfo.hardware
 			leftSpotUnspoofedUID = partyMemberDisplayThreadData.partyMemberInfo.unspoofedUID
-			leftSpotUnspoofedHardware = partyMemberDisplayThreadData.partyMemberInfo.unspoofedHardware
 			leftSpotName = partyMemberDisplayThreadData.partyMemberInfo.name
 			leftSpotInMatch = PartyMemberInMatch( partyMemberDisplayThreadData.partyMemberInfo )
 		}
@@ -2902,7 +2954,6 @@ void function TellUIToUpdateInviteButtons()
 			rightSpotEAID = partyMemberDisplayThreadData.partyMemberInfo.eaid
 			rightSpotHardware = partyMemberDisplayThreadData.partyMemberInfo.hardware
 			rightSpotUnspoofedUID = partyMemberDisplayThreadData.partyMemberInfo.unspoofedUID
-			rightSpotUnspoofedHardware = partyMemberDisplayThreadData.partyMemberInfo.unspoofedHardware
 			rightSpotName = partyMemberDisplayThreadData.partyMemberInfo.name
 			rightSpotInMatch = PartyMemberInMatch( partyMemberDisplayThreadData.partyMemberInfo )
 		}
@@ -2913,16 +2964,15 @@ void function TellUIToUpdateInviteButtons()
 			fourthSpotEAID = partyMemberDisplayThreadData.partyMemberInfo.eaid
 			fourthSpotHardware = partyMemberDisplayThreadData.partyMemberInfo.hardware
 			fourthSpotUnspoofedUID = partyMemberDisplayThreadData.partyMemberInfo.unspoofedUID
-			fourthSpotUnspoofedHardware = partyMemberDisplayThreadData.partyMemberInfo.unspoofedHardware
 			fourthSpotName = partyMemberDisplayThreadData.partyMemberInfo.name
 			fourthSpotInMatch = PartyMemberInMatch( partyMemberDisplayThreadData.partyMemberInfo )
 		}
 
 	}
 
-	RunUIScript( "ClientToUI_PartyMemberJoinedOrLeft", leftSpotUID, leftSpotEAID, leftSpotHardware, leftSpotUnspoofedUID, leftSpotUnspoofedHardware, leftSpotName, leftSpotInMatch,
-		                                               rightSpotUID, rightSpotEAID, rightSpotHardware, rightSpotUnspoofedUID, rightSpotUnspoofedHardware, rightSpotName, rightSpotInMatch,
-													   fourthSpotUID, fourthSpotEAID, fourthSpotHardware, fourthSpotUnspoofedUID, fourthSpotUnspoofedHardware, fourthSpotName, fourthSpotInMatch )
+	RunUIScript( "ClientToUI_PartyMemberJoinedOrLeft", leftSpotUID, leftSpotEAID, leftSpotHardware, leftSpotUnspoofedUID, leftSpotName, leftSpotInMatch,
+		                                               rightSpotUID, rightSpotEAID, rightSpotHardware, rightSpotUnspoofedUID, rightSpotName, rightSpotInMatch,
+													   fourthSpotUID, fourthSpotEAID, fourthSpotHardware, fourthSpotUnspoofedUID, fourthSpotName, fourthSpotInMatch )
 
 
 
@@ -2953,6 +3003,11 @@ void function DisplayPartyMemberModelThread( PartyMemberDisplayThreadData data )
 	data.body = CreateClientSidePropDynamic( data.posRef.GetOrigin(), data.posRef.GetAngles(), $"mdl/dev/empty_model.rmdl" )
 	data.body.MakeSafeForUIScriptHack()
 
+	if ( data.slot in file.teammateModel )
+		file.teammateModel[data.slot] = data.body
+	else
+		file.teammateModel[data.slot] <- data.body
+
 	if ( data.skin != null )
 	{
 		CharacterSkin_Apply( data.body, expect ItemFlavor( data.skin ) )
@@ -2963,6 +3018,7 @@ void function DisplayPartyMemberModelThread( PartyMemberDisplayThreadData data )
 
 	OnThreadEnd( function() : ( data ) {
 		data.displayThreadActive = false
+		delete file.teammateModel[data.slot]
 
 		file.teammateRefEntsUsedMap[data.posRef] = false 
 		data.posRef = null
@@ -4065,7 +4121,11 @@ void function UpdateStoreItemDisplay_Sticker( ItemFlavor item )
 
 void function UpdateStoreItemDisplay_ArtifactBink( ItemFlavor item )
 {
-	Assert( ItemFlavor_GetType( item ) == eItemType.artifact_component_deathbox || ItemFlavor_GetType( item ) == eItemType.artifact_component_activation_emote )
+
+
+
+		Assert( ItemFlavor_GetType( item ) == eItemType.artifact_component_deathbox || ItemFlavor_GetType( item ) == eItemType.artifact_component_activation_emote )
+
 
 	entity refEnt = file.storeInspectRefEnt
 	vector origin = refEnt.GetOrigin() + <0, 0, 31>
@@ -4093,6 +4153,12 @@ void function UpdateStoreItemDisplay_ArtifactBink( ItemFlavor item )
 		case eItemType.artifact_component_activation_emote:
 			video = Artifacts_ActivationEmote_GetVideo( item )
 			break
+
+
+
+
+
+
 
 		default:
 			Assert( false )
@@ -4142,8 +4208,13 @@ void function UIToClient_PreviewStoreItem( SettingsAssetGUID itemFlavorGUID, boo
 
 		case eItemType.weapon_skin:
 			asset video = WeaponSkin_GetVideo( item )
-			if ( video != $"" )
-				UpdateStoreItemDisplay_WeaponVideo( item ) 
+			if ( video != $"" ) 
+			{
+				autoRotate = false
+				DisableModelTurn()
+				EnableTurnLockout()
+				UpdateStoreItemDisplay_WeaponVideo( item )
+			}
 			else
 				UpdateStoreItemDisplay_WeaponSkin( item )
 			break
@@ -4224,6 +4295,15 @@ void function UIToClient_PreviewStoreItem( SettingsAssetGUID itemFlavorGUID, boo
 		case eItemType.melee_skin:
 			UpdateStoreItemDisplay_MeleeSkin( item )
 			break
+
+
+
+
+
+
+
+
+
 
 		case eItemType.loadscreen:
 			autoRotate = false
@@ -5003,7 +5083,7 @@ void function ModelData_SetAnim( MenuModelData modelData, string anim )
 #if DEV
 void function DEV_PlayLobbyIdle( string anim = "" )
 {
-	if ( file.currentPresentationType == ePresentationType.PLAY )
+	if ( IsPlayPresentationType( file.currentPresentationType ) )
 	{
 		if ( anim != "" )
 		{
@@ -5058,9 +5138,8 @@ void function RefreshPresentationType()
 
 void function SetPresentationType( entity player, int presentationType, bool interpolate )
 {
-	Assert( IsLobby() || IsPrivateMatchLobby() )
-
-	thread SetPresentationTypeThread( player, presentationType, interpolate )
+	if( IsLobby() || IsPrivateMatchLobby() )
+		thread SetPresentationTypeThread( player, presentationType, interpolate )
 }
 
 void function SetPresentationTypeThread( entity player, int desiredPresentationType, bool interpolate )
@@ -5117,10 +5196,18 @@ void function SetPresentationTypeThread( entity player, int desiredPresentationT
 
 	if ( changingPresentation && lastActiveModelData != null )
 	{
-		MenuModelData modelData = expect MenuModelData( lastActiveModelData )
-		ModelData_ResetRotation( modelData )
+		expect MenuModelData( lastActiveModelData )
 
-		entity model = ModelData_GetModel( modelData )
+		ModelData_ResetRotation( lastActiveModelData )
+
+		if ( file.activeModelData != null )
+		{
+			MenuModelData activeModelData = expect MenuModelData( file.activeModelData )
+			if ( lastActiveModelData.model == activeModelData.model )
+				return 
+		}
+
+		entity model = ModelData_GetModel( lastActiveModelData )
 		if ( IsValid( model ) )
 		{
 			
@@ -5155,8 +5242,12 @@ void function SetMenuCamera( entity player, int presentationType, bool interpola
 	int cameraTargetName = file.presentationData[ presentationType ].cameraTargetName
 	entity cameraTarget  = file.cameraTargets[ cameraTargetName ]
 
+	if ( IsPlayPresentationType( presentationType ) )
+	{
+		RunUIScript( "ClientToUI_CheckPlaylist" )
+	}
 	
-	if ( presentationType != ePresentationType.WEAPON_SKIN && presentationType != ePresentationType.WEAPON_CHARMS )
+	else if ( presentationType != ePresentationType.WEAPON_SKIN && presentationType != ePresentationType.WEAPON_CHARMS )
 	{
 		cameraTarget.SetOrigin( file.cameraStartOriginsAngles[ cameraTargetName ]["origin"] + file.presentationData[ presentationType ].positionOffset )
 		cameraTarget.SetAngles( file.cameraStartOriginsAngles[ cameraTargetName ]["angles"] + file.presentationData[ presentationType ].angleOffset )
@@ -5495,6 +5586,8 @@ void function DEV_SetPresentationDataFromString( string presentationName, string
 
 	if ( presentationIdx == file.currentPresentationType )
 		RefreshPresentationType()
+
+	RunUIScript( "ClientToUI_CheckPlaylist" )
 }
 
 void function DEV_TweakPlayCamera( vector origin, vector angles, float fov )
@@ -5776,7 +5869,6 @@ void function FlashMenuModel( entity model, int flashType, vector flashColor, bo
 		}
 	}
 }
-
 
 void function MenuModelHighlightInMatch( entity model )
 {
@@ -6136,6 +6228,11 @@ bool function IsCallbackRegistered_OnMouseWheelDown( void functionref() cb )
 	return file.mouseWheelDownCallbacks.contains( cb )
 }
 
+bool function IsPlayPresentationType( int presentationType )
+{
+	return presentationType == ePresentationType.PLAY || presentationType == ePresentationType.PLAY_QUADS || presentationType == ePresentationType.PLAY_STAGE_B
+}
+
 
 
 entity function Menu_GetCameraTarget()
@@ -6148,5 +6245,112 @@ entity function Menu_GetCameraTarget()
 void function UICallback_MenuModels_UIScriptHasReset()
 {
 	file.uiscriptHasReset = true
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+void function LSS_UpdateLobbyStage( string playlistName )
+{
+	int maxTeamSize = GetMaxTeamSizeForAllPlaylistsInRotation()
+
+	if ( maxTeamSize >= 4 )
+	{
+		LSS_SetLobbyStage( eLobbyStage.QUADS )
+	}
+	
+	
+	
+	
+	
+	
+	else
+	{
+		LSS_SetLobbyStage( eLobbyStage.MAIN )
+	}
+
+	RunUIScript( "UpdateButtonsPositions", maxTeamSize )
+}
+
+void function LSS_SetLobbyStage( int newStage )
+{
+	Assert( newStage in file.stageReferenceEntities, "Tried switching to a stage which isn't setup" )
+
+	array< string > referenceNames = file.stageReferenceEntities[newStage]
+	PresentationDef presentationDefinition = file.presentationData[file.stagePresentationTypes[newStage]]
+
+	
+	if ( !HasEntWithScriptName( "play_camera_target" ) || !HasEntWithScriptName( referenceNames[eLobbyEntityIndex.PLAYER] ) )
+		return
+
+	entity camera = GetEntByScriptName( "play_camera_target" )
+
+	if ( !IsValid( camera ) )
+		return
+
+	entity playerReference = GetEntByScriptName( referenceNames[eLobbyEntityIndex.PLAYER] )
+
+	if ( !IsValid( playerReference ) )
+		return
+
+	
+	if ( Distance( presentationDefinition.positionOffset, camera.GetOrigin() ) > 100 )
+	{
+		camera.SetOrigin( presentationDefinition.positionOffset )
+		camera.SetAngles( presentationDefinition.angleOffset )
+	}
+	else
+	{
+		thread CamBlendFromPosToPos( camera, camera.GetOrigin(), presentationDefinition.positionOffset, 0.5, 0.1, 0.1 )
+		thread CamBlendFromAngToAng( camera, camera.GetAngles(), presentationDefinition.angleOffset, 0.5, 0.1, 0.1 )
+	}
+
+	ModelData_SetBaseOrigin( file.playCharacter, playerReference.GetOrigin() )
+	ModelData_SetBaseAngles( file.playCharacter, playerReference.GetAngles() )
+
+	entity playerModel = ModelData_GetModel( file.playCharacter )
+	if ( IsValid( playerModel ) )
+	{
+		playerModel.SetOrigin( playerReference.GetOrigin() )
+		playerModel.SetAngles( playerReference.GetAngles() )
+	}
+
+	for ( int i = 0; i < 3; i ++ )
+	{
+		if ( i in file.teammateModel && IsValid( file.teammateModel[i] ) )
+		{
+			int index = eLobbyEntityIndex.TEAMMATE1 + i
+
+			if ( index >= referenceNames.len() )
+				continue
+
+			if ( !HasEntWithScriptName( referenceNames[index] ) )
+				continue
+
+			entity teammateReference = GetEntByScriptName( referenceNames[index] )
+
+			if ( !IsValid( teammateReference ) )
+				continue
+
+			file.teammateModel[i].SetOrigin( teammateReference.GetOrigin() )
+			file.teammateModel[i].SetAngles( teammateReference.GetAngles() )
+		}
+	}
 }
 

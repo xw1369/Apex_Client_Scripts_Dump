@@ -150,10 +150,15 @@ struct
 
 } file
 
-const string CONVAR_HOVER_VEHICLE_SPEED = "hover_vehicle_speed"
-const string CONVAR_HOVER_VEHICLE_BOOST_MIN = "hover_vehicle_boost_speed_min"
-const string CONVAR_HOVER_VEHICLE_BOOST_MAX = "hover_vehicle_boost_speed_max"
-const string CONVAR_HOVER_VEHICLE_BOOST_COOLDOWN = "hover_vehicle_boost_cooldown"
+global const float HOVER_VEHICLE_DEFAULT_MAX_SPEED = 1000.0
+global const float HOVER_VEHICLE_DEFAULT_BOOST_MIN = 1200.0
+global const float HOVER_VEHICLE_DEFAULT_BOOST_MAX = 2000.0
+global const float HOVER_VEHICLE_DEFAULT_BOOST_COOLDOWN = 25.0
+global const float HOVER_VEHICLE_DEFAULT_ACCEL = 750.0
+global const float HOVER_VEHICLE_DEFAULT_DECEL = 550.0
+global const float HOVER_VEHICLE_DEFAULT_DECEL_POWERBREAKING = 1000.0
+global const float HOVER_VEHICLE_DEFAULT_AIR_ACCEL = 250.0
+
 
 bool function HoverVehiclesAreEnabled()
 {
@@ -232,14 +237,6 @@ void function HoverVehicle_Init()
 	PrecacheParticleSystem( FX_VEHICLE_SPAWN_POINT )
 
 	HoverVehicle_InitFX()
-
-
-
-
-
-
-
-
 
 
 
@@ -448,12 +445,6 @@ bool function EntIsHoverVehicle( entity ent )
 		return true
 	return false
 }
-
-
-
-
-
-
 
 
 
@@ -1556,6 +1547,15 @@ array<entity> function HoverVehicle_GetExtendedPlayerArray( entity vehicle )
 
 
 
+
+
+
+
+
+
+
+
+
 void function SCB_EjectedFromHoverVehicleForSeldDestruct()
 {
 	entity player = GetLocalViewPlayer()
@@ -1805,11 +1805,11 @@ void function ManageHudForDriver( entity vehicle, entity player )
 		float dt
 
 		
-		float topSpeedSetting = GetConVarFloat( CONVAR_HOVER_VEHICLE_SPEED )
+		float topSpeedSetting = vehicle.HoverVehicle_GetMaxSpeed()
 		float maxDisplaySpeed = (topSpeedSetting - 50.0)
 		float minDisplaySpeedBoosted = topSpeedSetting
-		float maxDisplaySpeedBoosted = topSpeedSetting + (GetConVarFloat( CONVAR_HOVER_VEHICLE_BOOST_MIN ) * 0.7)
-		float boostCooldownTime = GetConVarFloat( CONVAR_HOVER_VEHICLE_BOOST_COOLDOWN )
+		float maxDisplaySpeedBoosted = topSpeedSetting + (vehicle.HoverVehicle_GetMinBoost() * 0.7)
+		float boostCooldownTime = vehicle.HoverVehicle_GetBoostCooldown()
 		while ( IsValid( vehicle ) )
 		{
 			frameTime = Time()

@@ -1,4 +1,5 @@
 global function StatsRegister_MetaChallenges
+global function GetAllMetaChallenges
 
 void function StatsRegister_MetaChallenges()
 {
@@ -45,10 +46,10 @@ int functionref( entity, array< StatEntry >, int ) function GetChallengeCalcFunc
 
 		switch ( ItemFlavor_GetType( parentFlav ) )
 		{
-			case eItemType.calevent_challenge_collection:
+			case eItemType.challenge_collection:
 				int ccolProgress = ChallengeCollection_GetProgress( player, ChallengeCollection_GetByGUID( ItemFlavor_GetGUID( parentFlav ) ) )
 				return ccolProgress
-			case eItemType.calevent_challenge_set:
+			case eItemType.challenge_set:
 				int csetProgress = ChallengeSet_GetProgress( player, ChallengeSet_GetByGUID( ItemFlavor_GetGUID( parentFlav ) ) )
 				return csetProgress
 			case eItemType.calevent_reward_campaign:

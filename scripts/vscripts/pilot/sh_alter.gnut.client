@@ -8,6 +8,10 @@ global function AlterExtraScript_Init
 
 
 
+
+global const string ALTER_VOICE = "alter"
+
+
 const bool ALTER_EXTRA_SCRIPT_DEBUG = false
 
 struct
@@ -28,6 +32,10 @@ void function AlterExtraScript_Init()
 		return
 
 	SetupTuning()
+
+
+
+
 
 
 

@@ -2386,7 +2386,18 @@ void function Crafting_OnSpectateTargetChanged( entity spectatingPlayer, entity 
 
 		if ( Crafting_IsPlayerAtWorkbench( newSpectatorTarget ) )
 		{
-			Crafting_Workbench_OpenCraftingMenu( newSpectatorTarget.GetLinkParent() )
+			entity linkedCrafter
+			foreach ( ent in newSpectatorTarget.GetLinkParentArray() )
+			{
+				if ( ent.GetScriptName() == WORKBENCH_SCRIPTNAME )
+				{
+					linkedCrafter = ent
+					break
+				}
+			}
+
+			if ( IsValid( linkedCrafter )  )
+				Crafting_Workbench_OpenCraftingMenuAsSpectator( linkedCrafter )
 		}
 	}
 }
@@ -2397,7 +2408,18 @@ void function Crafting_OnFirstPersonSpectateStarted( entity spectatingPlayer, en
 	{
 		if ( Crafting_IsPlayerAtWorkbench( spectateTarget ) )
 		{
-			Crafting_Workbench_OpenCraftingMenuAsSpectator( spectateTarget.GetLinkParent() )
+			entity linkedCrafter
+			foreach ( ent in spectateTarget.GetLinkParentArray() )
+			{
+				if ( ent.GetScriptName() == WORKBENCH_SCRIPTNAME )
+				{
+					linkedCrafter = ent
+					break
+				}
+			}
+
+			if ( IsValid( linkedCrafter )  )
+				Crafting_Workbench_OpenCraftingMenuAsSpectator( linkedCrafter )
 		}
 	}
 }
@@ -3774,6 +3796,16 @@ ExtendedUseSettings function WorkbenchExtendedUseSettings( entity ent, entity pl
 
 	return settings
 }
+
+
+
+
+
+
+
+
+
+
 
 
 
